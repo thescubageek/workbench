@@ -178,6 +178,9 @@ Captures context for session transfer. Includes beads state.
 ### `/wb:resume_handoff [handoff-file]`
 Restores context from handoff. Syncs beads and continues work.
 
+### `/wb:resolve_questions [directory]`
+Walks through Open Questions (markdown + beads `Q:`/`Decide:`/`Validate:`/`UI Q:` issues) one at a time, persisting each answer to its source. Always offers a "Skip for now" option unless a question is marked critical.
+
 ## Core Principles
 
 1. **Document, Don't Judge** - Research describes what IS, not what should change

@@ -1,6 +1,6 @@
 {
   "name": "wb",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Workbench for structured software development with TDD, project planning, and beads integration.",
   "author": {
     "name": "Gabriel Varela"
