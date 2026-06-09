@@ -1,834 +1,347 @@
-# Claude Code Skills - Complete Guide
+# Claude Code Skills, Commands & Subagents - Complete Guide
 
-This guide documents everything you need to know about creating and using Claude Code Skills based on official documentation research.
+This guide documents how Claude Code extension mechanisms work as of mid-2026, based on the official documentation. It replaces the 2025 version of this guide, which described skills and slash commands as separate systems — they have since been unified.
 
 ## Table of Contents
 
-- [What are Skills?](#what-are-skills)
-- [Skills vs Slash Commands](#skills-vs-slash-commands)
-- [File Structure](#file-structure)
-- [Creating a Skill](#creating-a-skill)
+- [The 2026 Unification: Skills Are Commands](#the-2026-unification-skills-are-commands)
+- [File Structure and Locations](#file-structure-and-locations)
 - [SKILL.md Format](#skillmd-format)
+- [Invocation Control](#invocation-control)
+- [Dynamic Content: Arguments and Shell Preprocessing](#dynamic-content-arguments-and-shell-preprocessing)
+- [Running Skills in Subagents (context: fork)](#running-skills-in-subagents-context-fork)
+- [Subagents](#subagents)
+- [Hooks](#hooks)
+- [Plugin Manifest Notes](#plugin-manifest-notes)
 - [Best Practices](#best-practices)
-- [Examples](#examples)
-- [When to Use Skills](#when-to-use-skills)
-- [Limitations and Considerations](#limitations-and-considerations)
+- [What This Means for This Repository](#what-this-means-for-this-repository)
+- [Changes from the 2025 Guide](#changes-from-the-2025-guide)
 
 ---
 
-## What are Skills?
+## The 2026 Unification: Skills Are Commands
 
-**Claude Code Skills** are modular capabilities that package expertise into discoverable, organized folders containing instructions, scripts, and resources. They represent reusable functionality that extends Claude Code's capabilities.
+Custom slash commands and skills are now the same mechanism. A file at `.claude/commands/deploy.md` and a skill at `.claude/skills/deploy/SKILL.md` both create `/deploy` and behave identically. Skills are the canonical form; `commands/` directories still work as a legacy path.
 
-**Key Characteristics:**
+Every skill is potentially BOTH:
 
-- **Model-invoked**: Claude autonomously decides when to use them
-- **Context-aware**: Activated based on user request context and skill descriptions
-- **Discovery-based**: No explicit invocation syntax required
-- **Modular**: Each skill is self-contained in its own directory
+- **User-invocable**: type `/skill-name args` to run it
+- **Model-invocable**: Claude can invoke it automatically when the description matches the context
 
----
+Two frontmatter flags control which side is enabled (see [Invocation Control](#invocation-control)).
 
-## Skills vs Slash Commands
+The old distinction ("commands are explicit, skills are automatic") is now a *configuration choice on a single mechanism*, not two different systems.
 
-Understanding when to use skills versus slash commands is critical:
-
-| Aspect | Slash Commands | Skills |
-|--------|---------------|--------|
-| **Invocation** | User types `/command` | Claude invokes automatically |
-| **Discovery** | User must know command name | Claude discovers from description |
-| **Control** | Explicit user control | Claude decides when relevant |
-| **Location** | `~/.claude/commands/` or `.claude/commands/` | `~/.claude/skills/` or `.claude/skills/` |
-| **File Format** | Single `.md` file | Directory with `SKILL.md` + supporting files |
-| **Organization** | Subdirectories create prefixes (`/wb:name`) | Flat structure, one directory per skill |
-| **Use Case** | Explicit workflow steps | Background capabilities |
-
-**Example Comparison:**
-
-- **Slash Command**: `/wb:create_project` - User explicitly starts project creation
-- **Skill**: User says "I need to start a new feature" → Claude automatically invokes project-creation skill
+**Built-in commands vs bundled skills**: Fixed-logic commands (`/help`, `/compact`, `/model`, `/permissions`) are coded into the CLI and cannot be overridden. Many former "commands" (`/code-review`, `/loop`, `/run`, `/verify`, `/simplify`, `/batch`) are now bundled *skills* — prompt-based and disableable via the `disableBundledSkills` setting.
 
 ---
 
-## File Structure
+## File Structure and Locations
 
-### Installation Locations
+| Location | Scope | Resulting name |
+|----------|-------|----------------|
+| Managed settings | Organization-wide (highest priority) | `/name` |
+| `~/.claude/skills/<name>/SKILL.md` | Personal, all projects | `/name` |
+| `.claude/skills/<name>/SKILL.md` | Project (shared via git) | `/name` |
+| `<plugin>/skills/<name>/SKILL.md` | Plugin | `/plugin-name:skill-name` |
+| `.claude/commands/<name>.md` | Project (legacy form) | `/name` |
+| `<plugin>/commands/<name>.md` | Plugin (legacy form) | `/plugin-name:name` |
 
-Skills can be installed in three locations:
+Notes:
+
+- Subdirectories under `skills/` are scanned recursively.
+- Plugin skills get the plugin namespace automatically (this is how `/wb:create_project` gets its prefix — via the plugin name, whether the file lives in `commands/` or `skills/`).
+- A skill is a directory with a required `SKILL.md` plus optional supporting files (reference docs, templates, scripts). Keep `SKILL.md` under ~500 lines and link out to supporting files, which load on demand.
+- `/reload-skills` re-scans skill directories without restarting the session.
 
 ```
-~/.claude/skills/          # Personal skills (individual use)
-.claude/skills/            # Project skills (team-shared via git)
-plugins/*/skills/          # Plugin skills (distributed with plugins)
-```
-
-### Directory Structure
-
-Each skill lives in its own directory:
-
-```
-.claude/skills/
-├── skill-one/
-│   └── SKILL.md           # Required: Core skill definition
-├── skill-two/
-│   ├── SKILL.md           # Required: Core skill definition
-│   ├── script.sh          # Optional: Supporting script
-│   └── templates/         # Optional: Supporting files
-│       └── template.md
-└── skill-three/
-    ├── SKILL.md
-    ├── analyzer.sh
-    └── docs/
-        └── usage-guide.md
-```
-
-**Important Notes:**
-
-- **No subdirectory prefixes**: Unlike slash commands, skills use a flat structure
-- **One directory per skill**: Each skill gets its own folder
-- **SKILL.md is required**: This is the entry point for the skill
-- **Supporting files optional**: Include scripts, templates, or documentation as needed
-
----
-
-## Creating a Skill
-
-### Step 1: Choose Scope
-
-Decide where to create your skill:
-
-```bash
-# Personal skill (only you)
-mkdir -p ~/.claude/skills/my-skill
-
-# Project skill (entire team via git)
-mkdir -p .claude/skills/my-skill
-```
-
-### Step 2: Create SKILL.md
-
-Create the core skill definition file:
-
-```bash
-# Personal skill
-touch ~/.claude/skills/my-skill/SKILL.md
-
-# Project skill
-touch .claude/skills/my-skill/SKILL.md
-```
-
-### Step 3: Define Skill Content
-
-Edit `SKILL.md` with frontmatter and instructions (see format below).
-
-### Step 4: Add Supporting Files (Optional)
-
-Add any scripts, templates, or documentation:
-
-```bash
-# Example supporting files
 .claude/skills/my-skill/
-├── SKILL.md
-├── helper-script.sh
-├── templates/
-│   └── output-template.md
-└── docs/
-    └── detailed-guide.md
-```
-
-### Step 5: Test Activation
-
-Ask Claude questions that should trigger your skill:
-
-```
-User: "Can you help me with [skill purpose]?"
-Claude: [Should invoke skill automatically]
+├── SKILL.md              # Required — overview & navigation
+├── reference.md          # Loaded on demand when linked from SKILL.md
+├── examples.md           # Loaded on demand
+└── scripts/
+    └── helper.py         # Executed, not loaded into context
 ```
 
 ---
 
 ## SKILL.md Format
 
-Skills use YAML frontmatter followed by optional markdown content:
+YAML frontmatter followed by markdown content. Current field reference:
+
+```yaml
+---
+name: my-skill                          # Optional. Display name (defaults to directory name)
+description: What it does and when     # Recommended. Drives automatic invocation.
+when_to_use: Extra trigger context     # Optional. Appended to description.
+argument-hint: "[issue-number]"        # Optional. Shown in / autocomplete.
+arguments: [issue, branch]             # Optional. Named positional args, used as $issue, $branch.
+disable-model-invocation: true         # Optional. User-only — Claude cannot auto-invoke.
+user-invocable: false                  # Optional. Claude-only — hidden from / menu.
+allowed-tools: Read, Grep, Bash        # Optional. Tool allowlist while skill is active.
+disallowed-tools: Write, Edit          # Optional. Tool denylist while skill is active.
+model: sonnet                          # Optional. haiku|sonnet|opus|fable|<full-id>|inherit
+effort: high                           # Optional. low|medium|high|xhigh|max
+context: fork                          # Optional. Run in an isolated subagent.
+agent: Explore                         # Optional. Subagent type when context: fork.
+hooks: {...}                           # Optional. Lifecycle hooks scoped to this skill.
+paths: "src/**/*.ts"                   # Optional. Load skill only when matching files are involved.
+shell: bash                            # Optional. Shell for !`command` blocks: bash|powershell
+---
+```
+
+Field details:
+
+- **`name`**: lowercase letters, numbers, hyphens; max 64 chars. Specific beats generic (`tdd-workflow`, not `test`).
+- **`description`**: max 1024 chars. This is what Claude matches against to decide whether to invoke the skill, so it must contain trigger terms. Pattern: *[What it does] + [When to use] + [Trigger terms]*. Not loaded into context at all when `disable-model-invocation: true`.
+- **`allowed-tools` / `disallowed-tools`**: space/comma-separated or YAML list. Claude Code only.
+- **`model` / `effort`**: override the session model or reasoning effort while the skill runs.
+
+### Skill content lifecycle
+
+When invoked, skill content enters the conversation as a single message and stays for the rest of the session. Auto-compaction preserves recently invoked skills within a ~25K token budget (first ~5K tokens of each); older skill content can drop when many skills are invoked after it.
+
+### Skill visibility overrides
+
+Users can control skill visibility per-skill from `.claude/settings.json` without editing the skill files:
+
+```json
+{
+  "skillOverrides": {
+    "noisy-skill": "name-only",
+    "deploy": "off"
+  }
+}
+```
+
+Values: `"on"` (default), `"name-only"` (no description in context), `"user-invocable-only"` (hidden from Claude), `"off"` (hidden entirely).
+
+---
+
+## Invocation Control
+
+The two flags produce three useful configurations:
+
+| Configuration | Frontmatter | User types `/name` | Claude auto-invokes | Description in context |
+|---------------|-------------|--------------------|---------------------|------------------------|
+| Default | (neither flag) | ✅ | ✅ | ✅ |
+| User-only | `disable-model-invocation: true` | ✅ | ❌ | ❌ |
+| Claude-only | `user-invocable: false` | ❌ (hidden) | ✅ | ✅ |
+
+Guidance:
+
+- **User-only** is right for explicit workflow steps with side effects or ordering requirements — the user controls timing, and the skill costs zero context until invoked. This fits the `/wb:create_*` sequential workflow.
+- **Claude-only** is right for background discipline/knowledge capabilities (TDD enforcement, verification gates) where the user shouldn't need to remember to invoke anything.
+- **Default** fits utilities that are useful both ways.
+
+---
+
+## Dynamic Content: Arguments and Shell Preprocessing
+
+### String substitutions
+
+| Variable | Meaning |
+|----------|---------|
+| `$ARGUMENTS` | All arguments as typed after `/name` |
+| `$0`, `$1`, `$2` … | Positional arguments |
+| `$ARGUMENTS[N]` | Indexed argument |
+| `$name` | Named argument declared in `arguments:` |
+| `${CLAUDE_SKILL_DIR}` | Absolute path to the skill's directory |
+| `${CLAUDE_SESSION_ID}` | Current session ID |
+| `${CLAUDE_EFFORT}` | Current effort level |
+
+### Shell preprocessing
+
+Commands embedded in skill content run **before** Claude sees the content; their output replaces the placeholder:
 
 ```markdown
+Current diff:
+!`git diff HEAD`
+```
+
+Multi-line blocks use a ```` ```! ```` fence. This is preprocessing, not something Claude executes — useful for injecting live state (git status, bd ready output) into a workflow prompt. Can be disabled via the `disableSkillShellExecution` setting.
+
 ---
-name: skill-name-here
-description: Clear description of what the skill does and when to use it. Include trigger terms users might mention.
-allowed-tools:           # Optional, Claude Code only
-  - Read
-  - Write
-  - Bash
+
+## Running Skills in Subagents (context: fork)
+
+A skill can run in an isolated subagent instead of inline:
+
+```yaml
+---
+name: research-sweep
+description: Deep codebase research
+context: fork
+agent: Explore
+---
+Research $ARGUMENTS thoroughly...
+```
+
+- The skill body becomes the subagent's task prompt; results are summarized back to the main conversation.
+- `agent:` selects the subagent type (default `general-purpose`). Built-in `Explore` and `Plan` agents are read-only and skip CLAUDE.md/git-status loading, making them fast and cheap.
+- Use this for exploration-heavy work that would otherwise flood the main context.
+
 ---
 
-# Skill Title
+## Subagents
 
-Optional markdown content with:
-- Instructions for Claude to follow
-- Examples and usage patterns
-- Supporting documentation
-- References to supporting files
-```
+Subagents (`agents/*.md` in project, `~/.claude/agents/`, or plugins) are specialized assistants with isolated context windows, custom system prompts, and their own tool/permission configuration. Discovery is recursive; plugin agents are namespaced (`wb:codebase-locator`).
 
-### Frontmatter Fields
-
-#### `name` (required)
-
-- **Type**: string
-- **Max Length**: 64 characters
-- **Format**: lowercase letters, numbers, hyphens only
-- **Examples**:
-  - ✅ `code-analyzer`
-  - ✅ `test-generator`
-  - ✅ `tdd-workflow`
-  - ❌ `CodeAnalyzer` (no PascalCase)
-  - ❌ `code_analyzer` (use hyphens, not underscores)
-  - ❌ `analyze` (too generic)
-
-#### `description` (required)
-
-- **Type**: string
-- **Max Length**: 1024 characters
-- **Purpose**: Explains what the skill does and when Claude should use it
-- **Best Practices**:
-  - Include trigger terms users might mention
-  - Describe the context where skill is useful
-  - Be specific about capabilities
-  - Think "What would a user say to need this?"
-
-**Good Description Examples:**
+### Current frontmatter reference
 
 ```yaml
-description: Analyzes code structure and complexity. Use when users ask about code quality, patterns, or need analysis reports.
+---
+name: code-reviewer                     # Required. lowercase-hyphens.
+description: When to delegate to me    # Required. Drives automatic delegation.
+tools: Read, Glob, Grep, Bash           # Optional. Allowlist; inherits all if omitted.
+disallowedTools: Write, Edit            # Optional. Denylist (applied before allowlist).
+model: sonnet                           # Optional. haiku|sonnet|opus|fable|<full-id>|inherit (default: inherit)
+permissionMode: default                 # Optional. default|acceptEdits|auto|dontAsk|bypassPermissions|plan
+maxTurns: 10                            # Optional. Hard stop after N agentic turns.
+skills: [tdd-discipline]                # Optional. Preload full skill content at startup.
+memory: project                         # Optional. Persistent memory: user|project|local
+background: true                        # Optional. Always run as a background task.
+effort: high                            # Optional. low|medium|high|xhigh|max
+isolation: worktree                     # Optional. Run in an isolated git worktree.
+hooks: {...}                            # Optional. Hooks active only while this agent runs.
+mcpServers: [...]                       # Optional. MCP servers scoped to this agent.
+color: blue                             # Optional. Display color.
+---
+
+System prompt for the subagent goes here.
 ```
 
-```yaml
-description: Guides Test-Driven Development following Red-Green-Refactor cycle. Use when implementing features with TDD or when user mentions writing tests first.
-```
+Capabilities worth knowing:
 
-**Bad Description Examples:**
+- **`skills` preload**: injects full skill content into the subagent at startup — give a worker agent domain knowledge (e.g., TDD rules) without relying on discovery. Cannot preload `disable-model-invocation` skills.
+- **`memory`**: gives the agent a persistent directory across sessions (`user` → `~/.claude/agent-memory/<name>/`, `project` → `.claude/agent-memory/<name>/`, `local` → not version-controlled). The first ~200 lines of its `MEMORY.md` auto-load into its prompt.
+- **`isolation: worktree`**: the agent works in its own git worktree — safe parallel file mutation.
+- **`maxTurns`** and **`permissionMode`**: bound runaway agents and control prompting. A parent session's `bypassPermissions`/`acceptEdits` takes precedence.
+- **Invocation**: natural language ("use the code-reviewer…"), guaranteed via `@agent-name` mention, or session-wide via `claude --agent name`.
+- **Model selection priority**: `CLAUDE_CODE_SUBAGENT_MODEL` env var → per-invocation model parameter → agent frontmatter `model` → inherit from main conversation.
+- Subagents cannot spawn other subagents, enter plan mode, or ask the user questions.
 
-```yaml
-description: Helps with code.  # Too vague
-```
+### Built-in subagents
 
-```yaml
-description: Use this skill.  # Doesn't explain when or why
-```
+| Name | Model | Tools | Notes |
+|------|-------|-------|-------|
+| `Explore` | Haiku | Read-only | Fast/cheap search; skips CLAUDE.md |
+| `Plan` | Inherits | Read-only | Research for plan mode; skips CLAUDE.md |
+| `general-purpose` | Inherits | All | Default for complex multi-step tasks |
 
-#### `allowed-tools` (optional)
+---
 
-- **Type**: array of strings
-- **Purpose**: Restricts which tools the skill can invoke (security feature)
-- **Availability**: Claude Code only (not other Claude interfaces)
-- **Usage**: Whitelist specific tools
+## Hooks
 
-**Example:**
+Hook events have expanded well beyond the original set. The full inventory (~31 events) includes, by category:
 
-```yaml
-allowed-tools:
-  - Read
-  - Write
-  - Edit
-  - Bash
-  - Grep
-  - Glob
-```
+- **Session**: `SessionStart`, `SessionEnd`, `Setup`
+- **Per-turn**: `UserPromptSubmit`, `Stop`, `StopFailure`
+- **Tools**: `PreToolUse`, `PostToolUse`, `PostToolUseFailure`, `PermissionRequest`, `PermissionDenied`
+- **Agents/tasks**: `SubagentStart`, `SubagentStop`, `TaskCreated`, `TaskCompleted`
+- **Context**: `PreCompact`, `PostCompact`
+- **Files/config**: `FileChanged`, `ConfigChange`, `CwdChanged`, `WorktreeCreate`, `WorktreeRemove`
+- **Display**: `Notification`, `MessageDisplay`
 
-**Security Consideration**: Use this to prevent accidental or malicious use of dangerous operations in team-shared project skills.
+Hook output supports `continue`, `systemMessage`, `suppressOutput`, and event-specific `hookSpecificOutput` (e.g., `permissionDecision: allow|deny|ask` for PreToolUse, `additionalContext` for several events, `initialUserMessage` for SessionStart). Exit code 2 is a blocking error whose stderr is shown to Claude.
 
-### Content Section
+Hooks can now also live in **skill frontmatter** (active while the skill runs) and **agent frontmatter** (active while the agent runs), not just settings and plugin manifests. Hook types beyond `command` exist: `http`, `mcp_tool`, `prompt`, and `agent`.
 
-After the frontmatter, include markdown instructions:
+Events especially relevant to this repo: `SessionEnd`/`Stop` (deterministic `bd sync` reminders instead of skill-based ones), `PreCompact`/`PostCompact` (sync/restore beads state at context boundaries), `SubagentStop` (verify worker output automatically).
 
-```markdown
-# Skill Title
+---
 
-Brief description of what this skill does.
+## Plugin Manifest Notes
 
-## What It Does
+Additions to `plugin.json` since this plugin was authored:
 
-- Capability 1
-- Capability 2
-- Capability 3
+- `displayName` — human-readable name shown in UIs
+- `defaultEnabled: false` — ship disabled, users opt in
+- `dependencies` — other plugins, with optional semver constraints
+- `userConfig` — prompt the user for values at enable time, substituted as `${user_config.KEY}`
+- `${CLAUDE_PLUGIN_DATA}` — persistent per-plugin state directory that **survives version updates** (unlike the version-keyed cache)
+- Hooks may be inline in `plugin.json` (as this plugin does) or in `hooks/hooks.json`
 
-## When to Use
+Versioning behavior is unchanged and matches CLAUDE.md: the cache is keyed by version; updates require a version bump in both `plugin.json` and `marketplace.json` plus `claude plugin update` from the shell. If `version` is omitted, the git commit SHA becomes the version (every commit is an update). Old cached versions are cleaned up after ~7 days.
 
-Activate this skill when users:
-- Mention [trigger phrase 1]
-- Ask about [topic]
-- Need to [action]
-
-## Instructions
-
-Step-by-step instructions for Claude to follow when this skill is activated.
-
-## Examples
-
-Example requests that should trigger this skill:
-- "Can you [action]?"
-- "I need help with [topic]"
-```
+Debugging tip: `claude --safe-mode` starts without any plugins, skills, hooks, or MCP servers.
 
 ---
 
 ## Best Practices
 
-### Naming Conventions
+### Description writing (unchanged — still the critical factor)
 
-1. **Use lowercase with hyphens**: `code-analyzer`, not `CodeAnalyzer` or `code_analyzer`
-2. **Be specific**: `tdd-workflow` is better than `test`
-3. **Use descriptive names**: Name should hint at purpose
-4. **Keep it short**: Max 64 characters, but shorter is better
-5. **Avoid generic names**: `analyze-code` not `tool` or `helper`
-
-### Description Writing
-
-1. **Include trigger terms**: Words users might say when they need the skill
-2. **Be specific about context**: When should Claude invoke this?
-3. **Describe capabilities clearly**: What can this skill do?
-4. **Think like a user**: What would someone ask to need this?
-5. **Test with variations**: Try different phrasings to ensure activation
-
-**Example - Good Description:**
-
-```yaml
-description: Implements Test-Driven Development (TDD) workflow following Kent Beck's Red-Green-Refactor cycle. Use when user wants to implement features test-first, mentions TDD, or asks to write tests before code.
-```
-
-This includes:
-
-- Clear purpose (TDD workflow)
-- Methodology reference (Red-Green-Refactor)
-- Trigger terms (test-first, TDD, tests before code)
-- Context (implementing features)
-
-### Skill Organization
-
-1. **One skill, one responsibility**: Keep skills focused
-2. **Use supporting files**: Don't cram everything into SKILL.md
-3. **Document dependencies**: Note any required scripts or tools
-4. **Version your skills**: Track changes in git for project skills
-5. **Test thoroughly**: Verify activation with various phrasings
-
-### Tool Restrictions
-
-1. **Use `allowed-tools` for shared skills**: Prevent accidental damage
-2. **Whitelist only necessary tools**: Principle of least privilege
-3. **Document tool usage**: Explain why each tool is needed
-4. **Test with restrictions**: Ensure skill works with limited tools
-
----
-
-## Examples
-
-### Example 1: TDD Workflow Skill
-
-**Directory Structure:**
-
-```
-.claude/skills/tdd-workflow/
-└── SKILL.md
-```
-
-**SKILL.md:**
-
-```markdown
----
-name: tdd-workflow
-description: Implements Test-Driven Development (TDD) workflow following Kent Beck's Red-Green-Refactor cycle. Use when user wants to implement features test-first, mentions TDD, or asks to write tests before code.
-allowed-tools:
-  - Read
-  - Write
-  - Edit
-  - Bash
----
-
-# TDD Workflow Skill
-
-This skill guides Test-Driven Development following the Red-Green-Refactor cycle.
-
-## What It Does
-
-- Guides writing failing tests first (Red)
-- Implements minimum code to pass tests (Green)
-- Refactors code while tests pass (Refactor)
-- Enforces TDD discipline and best practices
-
-## When to Use
-
-Activate when users:
-- Request TDD implementation
-- Ask to write tests first
-- Mention Red-Green-Refactor
-- Want to implement a feature test-first
-- Say "let's do TDD"
-
-## TDD Cycle Instructions
-
-### Phase 1: Red (Failing Test)
-
-1. Write a single failing test for next small increment
-2. Test should be specific and focused
-3. Run test to confirm it fails
-4. Do not proceed until test fails correctly
-
-### Phase 2: Green (Make it Pass)
-
-1. Write minimum code to make test pass
-2. No more, no less
-3. Avoid over-engineering
-4. Run test to confirm it passes
-
-### Phase 3: Refactor (Clean Up)
-
-1. Clean up code while tests pass
-2. Remove duplication
-3. Improve naming and structure
-4. Run tests after each refactoring
-5. Only refactor when tests are green
-
-### Repeat
-
-Continue cycle for each new increment of functionality.
-
-## Examples
-
-User requests that should activate this skill:
-
-- "Let's implement this feature using TDD"
-- "Can you write the test first?"
-- "I want to do Red-Green-Refactor"
-- "Help me implement this test-first"
-```
-
-### Example 2: Code Analyzer Skill
-
-**Directory Structure:**
-
-```
-.claude/skills/code-analyzer/
-├── SKILL.md
-├── analyzer.sh
-├── templates/
-│   └── report-template.md
-└── docs/
-    └── metrics-guide.md
-```
-
-**SKILL.md:**
-
-```markdown
----
-name: code-analyzer
-description: Analyzes code structure, complexity, and quality metrics. Use when users ask about code quality, want to examine patterns, need complexity analysis, or request code review insights.
-allowed-tools:
-  - Read
-  - Write
-  - Bash
-  - Grep
-  - Glob
----
-
-# Code Analyzer Skill
-
-Provides comprehensive code analysis capabilities including structure, complexity, and quality metrics.
-
-## What It Does
-
-- Analyzes code structure and architecture
-- Calculates complexity metrics
-- Identifies common patterns and anti-patterns
-- Generates detailed analysis reports
-- Provides actionable insights
-
-## When to Use
-
-Activate when users:
-- Ask about code quality
-- Request complexity analysis
-- Want to understand code structure
-- Need code review insights
-- Mention technical debt
-- Ask "how complex is this code?"
-
-## Analysis Process
-
-1. **Scan codebase** using Glob to find relevant files
-2. **Run analyzer.sh** script for metrics calculation
-3. **Analyze patterns** using Grep for specific issues
-4. **Generate report** using templates/report-template.md
-5. **Provide insights** based on docs/metrics-guide.md
-
-## Supporting Files
-
-- `analyzer.sh`: Script that calculates complexity metrics
-- `templates/report-template.md`: Template for analysis reports
-- `docs/metrics-guide.md`: Reference for interpreting metrics
-
-## Usage
-
-When this skill activates, Claude will:
-1. Identify files to analyze
-2. Run analysis scripts
-3. Collect metrics and findings
-4. Generate formatted report
-5. Provide recommendations
-```
-
-### Example 3: Documentation Generator
-
-**Directory Structure:**
-
-```
-.claude/skills/doc-generator/
-├── SKILL.md
-├── generate-docs.sh
-└── templates/
-    ├── api-docs-template.md
-    ├── component-docs-template.md
-    └── readme-template.md
-```
-
-**SKILL.md:**
-
-```markdown
----
-name: doc-generator
-description: Generates comprehensive documentation from code including API docs, component docs, and README files. Use when users request documentation, ask to document code, or need to create docs for features.
-allowed-tools:
-  - Read
-  - Write
-  - Bash
----
-
-# Documentation Generator Skill
-
-Automatically generates comprehensive documentation from code analysis.
-
-## What It Does
-
-- Generates API documentation from code
-- Creates component documentation
-- Builds README files
-- Extracts inline documentation
-- Formats documentation consistently
-
-## When to Use
-
-Activate when users:
-- Request documentation generation
-- Say "document this code"
-- Ask for API docs
-- Need README files
-- Mention "generate docs"
-
-## Generation Process
-
-1. Analyze code structure and comments
-2. Select appropriate template
-3. Extract documentation from code
-4. Generate formatted documentation
-5. Save to appropriate location
-
-## Templates
-
-- `api-docs-template.md`: For API documentation
-- `component-docs-template.md`: For component docs
-- `readme-template.md`: For README files
-
-## Usage
-
-Specify which type of documentation to generate, or let Claude determine from context.
-```
-
----
-
-## When to Use Skills
-
-### Use Skills When
-
-✅ **Background Capabilities**
-
-- Functionality that should be automatically available
-- Context-aware assistance that Claude should provide
-- Capabilities users might not know to ask for explicitly
-
-✅ **Reusable Expertise**
-
-- Domain-specific knowledge (TDD, security, architecture)
-- Best practices and patterns
-- Team-specific workflows
-
-✅ **Cross-Cutting Concerns**
-
-- Code quality analysis
-- Documentation generation
-- Testing strategies
-
-### Use Slash Commands When
-
-✅ **Explicit Workflows**
-
-- Multi-step processes users want to control
-- Sequential operations (create project → research → design)
-- Commands users invoke at specific times
-
-✅ **User-Driven Actions**
-
-- Creating new projects
-- Running specific analyses
-- Generating specific artifacts
-
-### Example Decisions
-
-| Capability | Implementation | Rationale |
-|------------|---------------|-----------|
-| Create new project structure | **Slash Command** `/wb:create_project` | User explicitly starts projects |
-| Suggest TDD approach | **Skill** `tdd-workflow` | Claude offers when writing code |
-| Research codebase | **Slash Command** `/wb:create_research` | User controls when to research |
-| Analyze code quality | **Skill** `code-analyzer` | Claude suggests during reviews |
-| Generate documentation | **Skill** `doc-generator` | Claude offers when docs needed |
-
----
-
-## Limitations and Considerations
-
-### Current Limitations
-
-1. **No Subdirectory Prefixes**
-   - Unlike slash commands (`/wb:name`), skills use flat structure
-   - Cannot organize into namespaces like `planning/` or `dev/`
-   - Use naming conventions instead: `analyze-code`, `analyze-performance`
-
-2. **Cannot Explicitly Invoke**
-   - No `/skill-name` syntax available
-   - Users cannot force skill activation
-   - Purely context-based discovery
-
-3. **Tool Restrictions Limited to Claude Code**
-   - `allowed-tools` field only works in Claude Code
-   - Other Claude interfaces ignore this field
-   - Security feature not universally available
-
-4. **Discovery Dependent**
-   - Quality of description determines activation
-   - Poorly written descriptions mean skills won't activate
-   - Must test thoroughly with various phrasings
-
-### Key Considerations
-
-#### 1. Scope and Distribution
-
-**Personal Skills** (`~/.claude/skills/`):
-
-- Only available to you
-- Not shared with team
-- Private expertise and workflows
-
-**Project Skills** (`.claude/skills/`):
-
-- Committed to git repository
-- Shared with entire team
-- Team-wide reusable capabilities
-- Versioned with project
-
-**Plugin Skills**:
-
-- Distributed with plugins
-- Managed by plugin system
-- Updated with plugin updates
-
-#### 2. Security with allowed-tools
-
-For team-shared project skills, use `allowed-tools` to:
-
-- Whitelist only necessary tools
-- Prevent accidental dangerous operations
-- Apply principle of least privilege
-- Document why each tool is needed
-
-**Example - Restricted Skill:**
-
-```yaml
----
-name: read-only-analyzer
-description: Analyzes code without making changes
-allowed-tools:
-  - Read
-  - Grep
-  - Glob
----
-```
-
-This skill cannot write files or execute bash commands.
-
-#### 3. Description Quality
-
-The description is **critical** for skill activation:
-
-**Good Description Pattern:**
+The description determines automatic invocation quality:
 
 ```
 [What it does] + [When to use] + [Trigger terms]
 ```
 
-**Example:**
-
 ```yaml
 description: Implements Test-Driven Development (TDD) workflow following Red-Green-Refactor cycle. Use when user wants to implement features test-first, mentions TDD, or asks to write tests before code.
 ```
 
-**Bad Descriptions:**
+Avoid vague descriptions ("Helps with testing"), and remember: with `disable-model-invocation: true` the description is never loaded, so optimize it for the human browsing the `/` menu instead.
 
-```yaml
-description: Helps with testing.  # Too vague
-description: Use this for code.   # No context
-description: Analyzer tool.        # No trigger terms
+### Choosing a mechanism
+
+```
+Fixed CLI behavior?                  → built-in command (not customizable)
+User must control timing/ordering?   → skill with disable-model-invocation: true
+Background discipline/knowledge?     → skill with user-invocable: false
+Exploration that floods context?     → skill with context: fork (agent: Explore)
+Custom system prompt / tool sandbox /
+persistent memory / parallel work?   → subagent
+Deterministic automation on events?  → hook
 ```
 
-#### 4. Supporting Files
-
-Skills can include supporting files:
-
-- Scripts for automation
-- Templates for output
-- Documentation for reference
-- Configuration files
-
-**Best Practice**: Reference supporting files in SKILL.md:
-
-```markdown
-## Analysis Process
-
-1. Run `analyzer.sh` to collect metrics
-2. Use `templates/report-template.md` for formatting
-3. Reference `docs/metrics-guide.md` for interpretation
-```
-
-#### 5. Testing Skills
-
-Test skill activation thoroughly:
-
-```bash
-# Test various phrasings
-"Can you analyze this code?"
-"What's the code quality like?"
-"Help me understand code complexity"
-"I need a code review"
-
-# Verify skill activates correctly
-# Check that correct tools are used
-# Confirm output matches expectations
-```
+- Prefer skills for utilities and reference material; subagents for large isolated tasks.
+- Preload skills into subagents (`skills:` field) rather than duplicating instructions in agent prompts.
+- Use `allowed-tools` (skills) / `tools` (agents) for least privilege in anything shared.
+- Use hooks — not skill descriptions — when something must *always* happen (skills activate probabilistically; hooks are deterministic).
 
 ---
 
-## Comparison with This Repository's Commands
+## What This Means for This Repository
 
-### Current Setup (Slash Commands)
+The wb plugin's `commands/` files continue to work unchanged — plugin commands and plugin skills both resolve to `/wb:*`. Current assessment:
 
-This repository uses **slash commands**, not skills:
-
-```
-claude-code/commands/wb/
-├── create_project.md      → /wb:create_project
-├── create_research.md     → /wb:create_research
-├── create_design.md       → /wb:create_design
-└── ...
-```
-
-These are **explicitly invoked** by users:
-
-- User types `/wb:create_project my-feature`
-- Command executes immediately
-- User controls when and how
-
-### If Converted to Skills
-
-If these were skills instead:
-
-```
-.claude/skills/
-├── project-creator/
-│   └── SKILL.md
-├── codebase-researcher/
-│   └── SKILL.md
-└── design-creator/
-    └── SKILL.md
-```
-
-They would be **automatically invoked**:
-
-- User says "I need to start a new feature"
-- Claude determines project-creator skill is relevant
-- Skill activates without user typing command
-
-### Recommendation
-
-**Keep current slash command approach** because:
-
-- ✅ Users want explicit control over workflow steps
-- ✅ Sequential process (project → research → design → tasks)
-- ✅ Clear entry points for each phase
-- ✅ Users know exactly when each step happens
-
-**Consider skills for:**
-
-- TDD guidance during implementation
-- Code quality suggestions during reviews
-- Documentation generation when coding
-- Pattern detection during refactoring
+1. **Keep the explicit `/wb:*` workflow**, but the old rationale ("commands are user-invoked, skills are not") is obsolete. The modern equivalent of that intent is `disable-model-invocation: true`, which also keeps all 14 command descriptions out of baseline context.
+2. **The wb skills (tdd-discipline, verification-before-completion, status-sync, etc.) are the "Claude-only" pattern** — they could declare `user-invocable: false` explicitly.
+3. **Candidate upgrades** (not yet applied):
+   - `context: fork` for research-heavy commands (`create_research`, `create_product_research`)
+   - `skills: [tdd-discipline]` preload + `maxTurns` on worker agents used by `implement_coordinated`
+   - `memory: project` on research agents to accumulate codebase knowledge
+   - `SessionEnd`/`PreCompact` hooks for deterministic `bd sync` instead of relying on the status-sync skill activating
+   - `displayName` in plugin.json
 
 ---
 
-## Summary
+## Changes from the 2025 Guide
 
-**Claude Code Skills** are powerful tools for packaging reusable expertise that Claude automatically discovers and applies based on context. They differ fundamentally from slash commands in that they're model-invoked rather than user-invoked, making them ideal for background capabilities and context-aware assistance.
+For readers who knew the previous version of this document, these statements from it are **no longer true**:
 
-### Key Takeaways
-
-1. **Skills vs Commands**: Skills are automatic, commands are explicit
-2. **Location**: `~/.claude/skills/` (personal) or `.claude/skills/` (project)
-3. **Structure**: Directory with `SKILL.md` + optional supporting files
-4. **Activation**: Claude decides based on description matching
-5. **Security**: Use `allowed-tools` to restrict capabilities
-6. **Best Practice**: Write specific descriptions with trigger terms
-
-### Quick Reference
-
-**Create a Skill:**
-
-```bash
-mkdir -p .claude/skills/my-skill
-cat > .claude/skills/my-skill/SKILL.md << 'EOF'
----
-name: my-skill
-description: What it does and when to use it with trigger terms
-allowed-tools:
-  - Read
-  - Write
----
-
-# My Skill
-
-Instructions for Claude to follow when skill activates.
-EOF
-```
-
-**Test Activation:**
-
-Ask questions that should trigger the skill and verify Claude invokes it correctly.
+| 2025 guide said | Now |
+|-----------------|-----|
+| Skills cannot be explicitly invoked (no `/skill-name` syntax) | Skills ARE invocable via `/skill-name` unless `user-invocable: false` |
+| Skills and slash commands are separate systems | Unified — same mechanism, `skills/` is canonical, `commands/` is legacy |
+| Skills use a flat structure, no namespaces | Recursive scanning; plugin skills get `/plugin:name` namespacing |
+| Frontmatter is `name`, `description`, `allowed-tools` only | Many more fields: invocation flags, `model`, `effort`, `context: fork`, `arguments`, `paths`, `hooks`, `shell` |
+| Commands are the only way to get explicit user invocation | Any skill is user-invocable by default; `disable-model-invocation` makes it user-*only* |
+| Subagents: `name`, `description`, `tools`, `model` | Added `memory`, `skills` preload, `maxTurns`, `permissionMode`, `isolation`, `background`, `hooks`, `mcpServers`, `disallowedTools`, `effort` |
 
 ---
 
 ## Further Resources
 
-- **Official Documentation**: Claude Code documentation on skills
-- **This Repository's Commands**: See `claude-code/commands/wb/` for slash command examples
-- **Install Script**: `scripts/install-commands` for understanding command installation
+- Skills: <https://code.claude.com/docs/en/skills>
+- Slash commands: <https://code.claude.com/docs/en/commands>
+- Subagents: <https://code.claude.com/docs/en/sub-agents>
+- Hooks: <https://code.claude.com/docs/en/hooks>
+- Plugins: <https://code.claude.com/docs/en/plugins> and <https://code.claude.com/docs/en/plugins-reference>
 
 ---
 
-*Last Updated: 2025-11-21*
-*Based on: Claude Code official documentation research*
+*Last Updated: 2026-06-09*
+*Based on: Claude Code official documentation (code.claude.com/docs) and changelog research*
