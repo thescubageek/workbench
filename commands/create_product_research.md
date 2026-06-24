@@ -7,16 +7,18 @@ argument-hint: [project-directory] [research-question]
 
 Conducts comprehensive codebase research and documents findings from a **product manager's perspective** by spawning specialized agents to work in parallel. Produces a three-layer document: product overview, engineering approach, and technical appendix.
 
-## CRITICAL: YOUR ONLY JOB IS TO DOCUMENT THE CODEBASE AS IT EXISTS
+## Documentarian Rule
 
-- **DO NOT** suggest improvements or changes unless explicitly asked
-- **DO NOT** identify issues or problems unless explicitly asked
-- **DO NOT** propose enhancements or optimizations
-- **DO NOT** critique the implementation or architecture
-- **DO NOT** perform root cause analysis unless explicitly asked
-- **ONLY** describe what the software does, how users interact with it, and what behaviors result
-- You are a documentarian, NOT an evaluator or consultant
-- **Document what IS, not what SHOULD BE**
+```
+DOCUMENT WHAT EXISTS — NEVER SUGGEST, CRITIQUE, OR IMPROVE
+```
+
+Describe the code as it is: no recommendations, issue-spotting, enhancements,
+critiques, or root-cause analysis unless explicitly asked. You are a
+documentarian, not an evaluator.
+
+**Output discipline**: act on barriers silently; don't restate the plan between
+steps; emit only the artifact and a one-line completion summary.
 
 ## Audience: Product Managers
 
@@ -85,15 +87,13 @@ This command can be used in two ways:
    - What integrations or external services are involved?
    - What configuration controls behavior? What can be changed without code?
 
-2. **REMEMBER: Document what IS, not what SHOULD BE**
-
-3. **ultrathink about:**
+2. **ultrathink about:**
    - The user-visible surface of this feature — screens, APIs, messages, states
    - How this feature connects to adjacent features the user also touches
    - What a PM needs to know to make decisions about this area
    - Which parts of the codebase actually implement user-facing behavior
 
-4. **Identify research areas** to investigate:
+3. **Identify research areas** to investigate:
    - User-facing features and capabilities
    - User flows (happy path and error paths)
    - Data involved (what's collected, stored, displayed)
@@ -101,13 +101,13 @@ This command can be used in two ways:
    - Integration points with other systems
    - Error states and recovery paths
 
-5. **Consider which specific components** to investigate
+4. **Consider which specific components** to investigate
 
 ### Step 4: Spawn Parallel Research Agents
 
 Create multiple agents to research different aspects concurrently:
 
-**CRITICAL: Sub-agents are READ-ONLY. They gather information and return findings as reports. They do NOT write files. YOU (the main agent) will write product-research.md after synthesizing their findings.**
+**Sub-agents are READ-ONLY** — they return findings only; YOU write `product-research.md` after synthesizing.
 
 ```
 ## Parallel Research Strategy
@@ -134,7 +134,7 @@ Task({
   - Related documentation
 
   Focus on [specific directories if known].
-  DO NOT write any files. Return your findings as a report.`,
+  Return findings only; write nothing.`,
   subagent_type: "codebase-locator",
   model: "haiku"
 })
@@ -145,25 +145,19 @@ Task({
 ```javascript
 Task({
   description: "Analyze [feature] product behaviors",
-  prompt: `Understand what [feature] does from a product perspective.
+  prompt: `Document the codebase as it exists, for a product manager — explain as
+  PRODUCT BEHAVIORS, not code; document what IS, not what SHOULD BE; no
+  improvements or issue-spotting. Include file:line references for EVERY
+  behavioral claim; trace actual code, do not guess. Return findings only; write nothing.
 
-  Analyze:
+  Understand what [feature] does from a product perspective. Analyze:
   - What user-visible behaviors does this feature provide?
   - What are the user flows (step by step, in plain language)?
   - What data does the user provide, and what do they see?
   - What happens when things go wrong (error states)?
   - What configuration controls this feature's behavior?
 
-  Start with [specific files if known].
-
-  CRITICAL INSTRUCTIONS:
-  - Explain as PRODUCT BEHAVIORS, not code implementation
-  - Write for a product manager, not an engineer
-  - Document what EXISTS — Document what IS, not what SHOULD BE
-  - DO NOT suggest improvements or identify issues
-  - Include file:line references for EVERY behavioral claim
-  - Trace actual code — do NOT guess or infer
-  - DO NOT write any files. Return your findings as a report.`,
+  Start with [specific files if known].`,
   subagent_type: "product-behavior-analyzer",
   model: "sonnet"
 })
@@ -188,7 +182,7 @@ Task({
 
   REMEMBER: Document what IS, not what SHOULD BE. No recommendations.
 
-  DO NOT write any files. Return your findings as a report.`,
+  Return findings only; write nothing.`,
   subagent_type: "pattern-finder",
   model: "haiku"
 })
@@ -209,7 +203,6 @@ Spawn all agents concurrently for efficiency. Each returns a report; none write 
 
 - **Each agent describes what the software does, NOT how the code works**
 - **Agents MUST describe what exists without ANY judgment**
-- **Document what IS, not what SHOULD BE — NO EXCEPTIONS**
 - **Agents MUST include file:line references for every claim**
 - **Use specific agent types for their strengths**
 - **Run multiple agents in parallel for speed**
@@ -225,12 +218,11 @@ Spawn all agents concurrently for efficiency. Each returns a report; none write 
 **IMPORTANT**: Wait for ALL sub-agent tasks to complete before proceeding
 
 1. **Compile all sub-agent results**
-2. **REMEMBER: Document what IS, not what SHOULD BE**
-3. **Prioritize live codebase findings** as primary source of truth
-4. **Connect findings across different components**
-5. **Answer the user's specific questions** with concrete evidence FROM THE CURRENT CODE
-6. **DO NOT add recommendations or improvements unless explicitly requested**
-7. **Organize into three layers**:
+2. **Prioritize live codebase findings** as primary source of truth
+3. **Connect findings across different components**
+4. **Answer the user's specific questions** with concrete evidence FROM THE CURRENT CODE
+5. **DO NOT add recommendations or improvements unless explicitly requested**
+6. **Organize into three layers**:
 
 **Layer 1 — Product Overview** (the PM reads this):
 
@@ -396,8 +388,6 @@ Before writing:
 - **NO** "[To be added]" or similar placeholders
 - **NO** generic examples — use REAL data from THIS codebase
 - **NO** assumptions — only documented FACTS
-- **Document what IS, not what SHOULD BE**
-- **Remember one final time: Document what IS, not what SHOULD BE**
 
 ### Step 7: Validate the Written Document
 
@@ -447,32 +437,10 @@ If the user has follow-up questions:
 
 ### Step 9: Confirm Completion
 
-Present summary to user:
+Emit a one-line summary, not a recap:
 
 ```
-✅ Product research documented at: [path]/product-research.md
-
-Research topic: [description]
-Audience: Product Management
-
-Key findings:
-- [Major finding 1 — product behavior or capability]
-- [Major finding 2 — user flow or feature]
-- [Major finding 3 — integration or data flow]
-
-Validation: [PASS/PASS WITH WARNINGS]
-- Paths checked: [N/M passed]
-- Behaviors verified: [N/M confirmed]
-- [K items flagged for human review, if any]
-
-Files analyzed: [count]
-
-The document includes:
-- Product overview with user flows
-- Engineering approach and patterns
-- Technical appendix for engineering discussions
-
-Next: Review the research and run `/wb:create_design` when ready.
+✅ product-research.md updated — [topic]; validation [PASS/WARN]. Next: /wb:create_design
 ```
 
 ## Important Notes
@@ -488,7 +456,6 @@ Next: Review the research and run `/wb:create_design` when ready.
 ### Documentation Philosophy
 
 - **CRITICAL**: You and all sub-agents are documentarians, not evaluators
-- **REMEMBER**: Document what IS, not what SHOULD BE
 - **AUDIENCE**: Product managers — write for them, not for engineers
 - **NO RECOMMENDATIONS**: Only describe the current state of the software
 - Focus on behaviors, flows, and capabilities over implementation details
@@ -515,13 +482,6 @@ Next: Review the research and run `/wb:create_design` when ready.
 - FAIL results must be fixed (re-check the code, update document, re-validate)
 - UNCERTAIN results are noted in the Validation Notes section for human review
 - The `validation_status` frontmatter field tracks overall validation state
-
-### Synchronization Points
-
-1. ⛔ **BARRIER 1**: After reading mentioned files — Do not proceed until ALL files are read
-2. ⛔ **BARRIER 2**: After spawning research agents — Wait for ALL agents to complete
-3. ⛔ **BARRIER 3**: Before writing output — Verify no placeholder values
-4. ⛔ **BARRIER 4**: After spawning validation agent — Wait for validation to complete
 
 ## Configuration
 

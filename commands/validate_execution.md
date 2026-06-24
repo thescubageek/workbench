@@ -19,6 +19,8 @@ This command provides an objective assessment of implementation completeness by:
 
 Run this AFTER implementation to ensure quality before merging or deployment.
 
+**Output discipline**: act on barriers silently; don't restate the plan between steps; emit only the artifact and a one-line completion summary.
+
 ## Initial Response
 
 When invoked, check for arguments:
@@ -91,7 +93,7 @@ Task({
   - Were any planned changes missed?
 
   Use git diff to compare changes if needed.
-  DO NOT write any files. Return your findings as a report.`,
+  Return findings only; write nothing.`,
   subagent_type: "codebase-analyzer",
   model: "haiku"
 })
@@ -110,7 +112,7 @@ Task({
   - Do all tests pass?
 
   Run test commands and analyze coverage.
-  DO NOT write any files. Return your findings as a report.`,
+  Return findings only; write nothing.`,
   subagent_type: "general-purpose",
   model: "sonnet"
 })
@@ -125,7 +127,7 @@ Task({
   - No performance degradation
   - No breaking changes to APIs
 
-  DO NOT write any files. Return your findings as a report.`,
+  Return findings only; write nothing.`,
   subagent_type: "general-purpose",
   model: "haiku"
 })
@@ -143,7 +145,7 @@ Task({
   - Is error handling consistent?
   - Are there any anti-patterns?
 
-  DO NOT write any files. Return your findings as a report.`,
+  Return findings only; write nothing.`,
   subagent_type: "pattern-finder",
   model: "sonnet"
 })
@@ -415,12 +417,6 @@ Recommended workflow:
 4. `/implement_tasks` - Build it with TDD
 5. **`/validate_execution`** - Verify it was built correctly ← YOU ARE HERE
 6. `/create_handoff` - Document for next session (if needed)
-
-## Synchronization Points
-
-1. **⛔ BARRIER 1**: Read all documentation first
-2. **⛔ BARRIER 2**: Wait for all validation agents
-3. **⛔ BARRIER 3**: Complete all automated checks before report
 
 ## Configuration
 

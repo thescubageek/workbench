@@ -7,6 +7,8 @@ argument-hint: [project-directory]
 
 Validates that a project's documentation structure follows the wb workflow correctly. Identifies gaps, disconnects, and inconsistencies in the documentation and beads tracking.
 
+**Output discipline**: act on barriers silently; don't restate the plan between steps; emit only the artifact and a one-line completion summary.
+
 ## Initial Response
 
 When invoked, check for arguments:
@@ -504,12 +506,6 @@ for (const section of sections) {
 - ❌ Report vague problems without specific locations
 - ❌ Validate against old workflow patterns (TaskCreate, checkboxes, etc.)
 - ❌ Use limit/offset when reading files
-
-## Synchronization Points
-
-1. **⛔ BARRIER 1**: After reading all files - ensure full context
-2. **⛔ BARRIER 2**: After beads validation - verify all IDs exist
-3. **⛔ BARRIER 3**: Before reporting - organize findings by severity
 
 ## Configuration
 

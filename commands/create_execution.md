@@ -7,6 +7,8 @@ argument-hint: [project-directory]
 
 Transforms design decisions into a detailed, phased execution plan with embedded tasks. Focuses on HOW to implement what was designed.
 
+**Output discipline**: act on barriers silently; don't restate the plan between steps; emit only the artifact and a one-line completion summary.
+
 ## Initial Response
 
 When invoked, check for arguments:
@@ -73,7 +75,7 @@ Remember: Now you're planning HOW to build what was designed.
 
 After reading all documents, spawn specialized agents in parallel:
 
-**CRITICAL: Sub-agents are READ-ONLY. They gather information and return findings. They do NOT write files. YOU (the main agent) will write tasks.md after synthesizing their findings.**
+**Sub-agents are READ-ONLY** — they return findings only; YOU write `tasks.md` after synthesizing.
 
 ```javascript
 // Spawn analysis agents in parallel - all are read-only
@@ -95,7 +97,7 @@ Task({
   - Critical path dependencies
   - External dependencies needed
 
-  DO NOT write any files. Return your findings as a report.`,
+  Return findings only; write nothing.`,
   subagent_type: "codebase-analyzer",
   model: "sonnet"
 })
@@ -118,7 +120,7 @@ Task({
   - Edge cases from risk analysis
   - Test fixtures needed
 
-  DO NOT write any files. Return your findings as a report.`,
+  Return findings only; write nothing.`,
   subagent_type: "codebase-analyzer",
   model: "sonnet"
 })
@@ -137,7 +139,7 @@ Task({
   - Testing approaches for similar changes
   - Configuration patterns to follow
 
-  DO NOT write any files. Return your findings as a report.`,
+  Return findings only; write nothing.`,
   subagent_type: "pattern-finder",
   model: "haiku"
 })
@@ -769,14 +771,6 @@ Tasks should be:
 - **Sized**: 1-4 hours of work typically
 - **Testable**: Clear completion criteria
 - **Independent**: Minimal blocking between tasks
-
-## Synchronization Points
-
-1. **⛔ BARRIER 1**: After reading documents - ensure full context
-2. **⛔ BARRIER 2**: After spawning agents - wait for ALL agents
-3. **⛔ BARRIER 3**: Before writing tasks.md - verify no placeholders
-4. **Step 5**: Create beads issues for phase tracking
-5. **⛔ CHECKPOINT**: Between phases - require human verification
 
 ## Configuration
 

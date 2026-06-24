@@ -3,8 +3,8 @@ project: prompt-efficiency
 ticket: N/A
 created: 2026-05-28
 status: complete
-last_updated: 2026-05-31
-last_updated_note: "Resolved all 5 open questions via /wb:resolve_questions"
+last_updated: 2026-06-07
+last_updated_note: "Added §16 handoff-command structure and §17 native-capability inventory"
 researcher: scraig
 git_commit: cb693fb
 git_branch: prompt-efficiency-research
@@ -340,6 +340,63 @@ A nearly identical Beads Tracking frontmatter spec (`beads_epic`, `beads_phases`
 
 - `docs/plans/2025-01-08-auth/` or `docs/plans/2025-01-08-my-project/` — appears in `create_research.md:25,37`, `create_product_research.md:35,47`, `create_design.md:24,33`, `create_execution.md:14,23`, `validate_execution.md:26,35`, `validate_project.md:14,22`, `create_project.md:77-78`, `create_handoff.md:24,32`, `create_mockup.md:22`, `implement_tasks.md:14,28`, `implement_coordinated.md:34,48`, `update_status.md:23,34`, `resume_handoff.md:23`.
 - Second dated example `docs/plans/2025-10-07-my-project/` appears in `create_research.md:428`, `create_product_research.md:531`, `update_status.md:499`, `validate_project.md:520`.
+
+### 16. Handoff Command Structure (`create_handoff.md` / `resume_handoff.md`)
+
+**Location**: `commands/create_handoff.md`, `commands/resume_handoff.md`
+
+**What exists** (facts only):
+
+- `create_handoff.md` embeds a single ~6,500-char output template at
+  `:155-411`. The template is seeded with concrete sample values rather than
+  abstract placeholders, e.g. `Modified src/component.ts:45-67` (`:205`),
+  `npm test (45/45 pass)` (`:216`), `Updated config/settings.json:12` (`:208`),
+  `+[additions] -[deletions]` (`:398`).
+- The command has one barrier — BARRIER 1 "Read ALL project docs AND review
+  conversation history" (`:42`). There is no pre-write placeholder/grounding
+  barrier equivalent to `create_research.md:341` (BARRIER 3).
+- Step 1 instructs "Review conversation history to capture recent changes,
+  problems, decisions" (`:59-64`) as a primary source.
+- The template contains ~15 major sections, several with multi-field numbered
+  sub-structures: Current State, Work Completed, Critical Learnings, Problems
+  Solved, Decisions Made, Active + Resolved Blockers, Deviations, Edge Cases,
+  Technical Debt, Uncommitted Changes, Next Steps, Mockup State, Artifacts,
+  Session Metadata, Handoff Verification.
+- Session Metadata (`:391-398`) requests session duration, lines changed
+  (+/-), tests written, and model used. "Overall Progress: [X]% complete"
+  appears at `:176`. No "omit if unknown" path is given for these fields.
+- The "Handoff Verification" checklist (`:400-407`) is addressed to the agent
+  resuming the work, not to the author before writing.
+- A "Don't Include" guidance list exists at `:461-465`.
+
+### 17. Native Claude Code Capabilities Overlapping the wb Flow
+
+**Location**: external (Claude Code platform features); inventory gathered via
+web research, cited below.
+
+**What exists** (per cited Anthropic/Claude Code docs):
+
+- **Session resume / branch / transcripts** — `--resume` / `--continue` /
+  `/resume` restore prior session message history incl. tool results, per
+  project dir. <https://code.claude.com/docs/en/sessions>
+- **Auto-compaction + `/compact`** — server-side summarization preserving
+  decisions, unresolved bugs, and recently-accessed files.
+  <https://code.claude.com/docs/en/context-window>
+- **Checkpointing / `/rewind`** — auto-saves code+conversation before changes;
+  "Summarize from here" option; Bash-tool edits are NOT checkpointed.
+  <https://code.claude.com/docs/en/agent-sdk/file-checkpointing>
+- **CLAUDE.md auto-load** — loaded every session, survives compaction
+  (re-read from disk). <https://code.claude.com/docs/en/memory>
+- **Auto memory** (`MEMORY.md` + topic files) — Claude writes its own notes to
+  `~/.claude/projects/<project>/memory/`; machine-local, shared across
+  worktrees, not git-shared. <https://code.claude.com/docs/en/memory>
+- **Baseline (Anthropic-shipped) skills present in-session**: `init`
+  (generate/maintain CLAUDE.md), `review`, `security-review`. The repo-local
+  `review-*`, `tdd-discipline`, `status-sync`, `verification-before-completion`
+  are project/user skills, not baseline.
+- **Boundary fact**: transcripts, compaction, checkpoints, and auto memory are
+  all machine-local; only git-tracked CLAUDE.md and a committed doc transfer
+  across hosts/agents.
 
 ## Architecture Documentation
 

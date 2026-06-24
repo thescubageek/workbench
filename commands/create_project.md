@@ -7,6 +7,8 @@ argument-hint: [project-name] [base-dir] [ticket-ref]
 
 Creates a comprehensive documentation structure for a new project or feature, setting up folders and files for research, planning, and task tracking with proper metadata.
 
+**Output discipline**: act on barriers silently; don't restate the plan between steps; emit only the artifact and a one-line completion summary.
+
 ## Initial Response
 
 When invoked, check for arguments:
@@ -437,13 +439,6 @@ Files progress through defined states:
 - `research.md`: draft → in-progress → complete
 - `design.md`: draft → ready → implementing → complete
 - `tasks.md`: not-started → in-progress → complete
-
-### Synchronization Points
-
-Commands use explicit barriers:
-
-1. **⛔ BARRIER 1**: After creating all files
-2. **Final Confirmation**: Present complete structure
 
 ## Error Handling
 

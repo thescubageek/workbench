@@ -7,6 +7,8 @@ argument-hint: [project-directory] [phase-number|continue]
 
 You are tasked with implementing tasks from a structured task list in `tasks.md`, following Test-Driven Development (TDD) practices and the phased implementation approach defined in the project documentation.
 
+**Output discipline**: act on barriers silently; don't restate the plan between steps; emit only the artifact and a one-line completion summary.
+
 ## Initial Response
 
 When invoked, check for arguments:
@@ -665,13 +667,6 @@ If automated verification fails after implementation:
 - ❌ **NEVER** use TaskCreate/TaskUpdate/TodoWrite for tracking (use beads)
 - ❌ **NEVER** update markdown checkboxes for status (documentation only)
 - ❌ **NEVER** treat markdown as source of truth (beads is source of truth)
-
-## Synchronization Points
-
-1. **⛔ BARRIER 1**: After reading all documentation - full context required
-2. **⛔ BARRIER 2**: After phase completion - all tasks must be done
-3. **⛔ CHECKPOINT**: Between phases - requires human verification
-4. **⛔ BARRIER 3**: Before status update - ensure consistency
 
 ## Configuration
 

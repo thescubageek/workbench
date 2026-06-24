@@ -17,6 +17,8 @@ Creates architectural and technical design decisions based on validated research
 - **ONLY** architectural decisions and technical approach
 - The HOW comes later in the execution plan - NOT HERE
 
+**Output discipline**: act on barriers silently; don't restate the plan between steps; emit only the artifact and a one-line completion summary.
+
 ## Initial Response
 
 When invoked, check for arguments:
@@ -95,7 +97,7 @@ Remember: You are deciding WHAT and WHY, not HOW.
 
 After reading research, spawn specialized agents in parallel to gather additional context:
 
-**CRITICAL: Sub-agents are READ-ONLY. They gather information and return findings. They do NOT write files. YOU (the main agent) will write design.md after synthesizing their findings.**
+**Sub-agents are READ-ONLY** — they return findings only; YOU write `design.md` after synthesizing.
 
 ```javascript
 // Spawn agents concurrently for verification - all are read-only
@@ -114,7 +116,7 @@ Task({
   - Anti-patterns to avoid
 
   Document what exists, do not evaluate quality.
-  DO NOT write any files. Return your findings as a report.`,
+  Return findings only; write nothing.`,
   subagent_type: "pattern-finder",
   model: "haiku"
 })
@@ -133,7 +135,7 @@ Task({
   - Dependencies we'll have
   - Potential conflicts
 
-  DO NOT write any files. Return your findings as a report.`,
+  Return findings only; write nothing.`,
   subagent_type: "codebase-analyzer",
   model: "sonnet"
 })
@@ -148,7 +150,7 @@ Task({
   - Solutions that worked
   - Patterns that failed
 
-  DO NOT write any files. Return your findings as a report.`,
+  Return findings only; write nothing.`,
   subagent_type: "pattern-finder",
   model: "haiku"
 })
@@ -464,14 +466,6 @@ Use agent findings to strengthen design:
 2. **Integration validation**: Use agent findings to validate integration approach
 3. **Risk assessment**: Incorporate historical findings from agents
 4. **Consistency**: Ensure design follows patterns identified by agents
-
-## Synchronization Points
-
-1. **⛔ BARRIER 1**: After reading research - ensure full understanding
-2. **⛔ BARRIER 2**: After agent spawning - wait for ALL agents
-3. **⛔ DECISION POINT**: After presenting options - get approach approval
-4. **⛔ BARRIER 3**: Before writing - verify no placeholders
-5. **⛔ APPROVAL GATE**: After writing design - get explicit approval
 
 ## Configuration
 
