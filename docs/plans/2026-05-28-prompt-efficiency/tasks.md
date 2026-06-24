@@ -2,11 +2,11 @@
 project: prompt-efficiency
 ticket: N/A
 created: 2026-05-28
-status: in-progress
+status: complete
 last_updated: 2026-06-24
-current_phase: 4
+current_phase: 6
 total_tasks: 37
-completed_tasks: 22
+completed_tasks: 37
 depends_on: [research.md, design.md]
 beads_epic: prompts-2n3
 beads_phases:
@@ -430,6 +430,9 @@ _Update during implementation:_
 - Cacheability depends on byte-identical boilerplate: never reword the canonical terse strings per-file.
 - [2026-06-24] Phase 1 pilot (create_research.md): −1,367 bytes / ~341 tok / 10%; output template byte-identical; barriers 3→3. Accepted by-construction.
 - [2026-06-24] Behavioral validation (live runs): `create_research` (Test 1) and `create_product_research` (Test 2, via `--plugin-dir`) both PASS — documentarian tone preserved, output template/3-layer structure intact, agents spawned + BARRIER 2 honored, product validation (BARRIER 4) ran, chaining clean. Test 2's validator independently counted 41 ⛔ markers intact and surfaced the new "return findings only; write nothing" closer + output-discipline line. Test 2 emitted a one-line completion summary; Test 1 still produced a verbose chat recap → reinforces firming the Phase 5 global CLAUDE.md narration rule. Unrelated: SessionStart hook path error under --plugin-dir (`./.claude/hooks/...` missing) — environment/config, not a compaction change.
+- [2026-06-24] Phase 4: beads-stealth extraction. New `docs/beads-stealth-mode.md`; 6 commands' explanatory blocks → conditional pointer (read only in stealth); operational commit/sync kept inline; validate_project's stealth-*validation* left inline (operational, not boilerplate). −58 net lines; git path byte-preserved.
+- [2026-06-24] Phase 5: added a firm Output Discipline rule to repo CLAUDE.md + README opt-in instructions (scope-expansion). Effort verified: claim holds directionally but frontmatter has no `effort:` field → effort kept as session-level operational knob, not a prompt change.
+- [2026-06-24] Phase 6: handoff reliability rework. create_handoff +grounding BARRIER 2, stripped fake example values, omit-if-empty/unknown rules, anchored Session Metadata to tooling, thinned Quick Start to native --resume. resume_handoff: native-resume-first, dropped commit-match + stale-detection ceremony, kept beads+pipeline. −95 net lines.
 - [2026-06-24] Phase 3: 6 agents, −23 net lines. Documentarian Rule banner on codebase-analyzer + product-behavior-analyzer; all 6 "What NOT to Do" sections compacted (cross-referencing the banner where redundant); product-behavior slogan reduced to 1. T3.4 skills = no-op: the targeted boilerplate classes don't exist in skills (banners are the precedent we copied; skill-specific DO-NOT content left intact).
 - [2026-06-24] Phase 2: 8 command files, −106 net lines. Sync-recap removal covered all 8 commands that had one (inventory-confirmed). T2.5 stable-first reorder applied to product_research Agent 2 only (illustrative-template reorder is marginal for cache vs. dispatch-time; documented). T2.7 output-discipline directive added to the core pipeline (create_*/validate_*/implement_tasks); update_status, implement_coordinated, create_mockup intentionally rely on the Phase 5 global CLAUDE.md rule instead of a per-file line.
 

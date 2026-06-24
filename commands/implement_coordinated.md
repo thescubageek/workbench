@@ -152,16 +152,9 @@ Then run `/wb:create_execution` to set up beads issues for all tasks.
 
 Stop and wait for user to initialize beads before proceeding.
 
-#### Detect Beads Mode
+#### Beads Mode
 
-```bash
-# Check mode (set by SessionStart hook)
-if [ "$BEADS_MODE" = "stealth" ]; then
-  echo "📍 Stealth mode: Beads state is local-only"
-else
-  echo "📍 Git mode: Beads state tracked in git"
-fi
-```
+**Beads mode**: `$BEADS_MODE` (set by the SessionStart hook). Git mode (default) — `.beads/` committed for cross-session persistence; proceed normally. Stealth mode — local-only; read `docs/beads-stealth-mode.md`.
 
 #### Verify Beads Tracking Configuration
 

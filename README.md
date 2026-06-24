@@ -138,6 +138,19 @@ Commands create/track beads issues for phases, tasks, and UI questions. SessionS
 - **Dual Verification**: Automated (tests, CI) + Manual (UX, edge cases)
 - **Zero Scope Creep**: Tasks only from plans - no ad-hoc additions
 
+## Output Discipline (optional opt-in)
+
+The `/wb:*` commands already keep narration terse (act on barriers silently, emit a one-line completion summary instead of recapping the written document). To enforce the same discipline **globally** across all your Claude Code work — not just wb — add this to your own `~/.claude/CLAUDE.md` (user-wide) or a project `CLAUDE.md`:
+
+```markdown
+## Output Discipline
+- Act on barriers/checkpoints silently; don't restate the plan between steps.
+- After writing a file, don't reproduce its contents in chat — emit a one-line summary.
+- Surface only blockers, decisions awaiting input, and errors.
+```
+
+The plugin cannot (and does not) write to your personal config — this rule is opt-in by design.
+
 ## Development
 
 ### Linting

@@ -9,6 +9,8 @@ Resumes work from a handoff document, restoring context and continuing implement
 
 ## Purpose
 
+**Same machine? Use native `claude --resume` instead** — it restores the full prior session (messages + tool results) more reliably than any document. This command is for **cross-machine / cross-agent / teammate** resumption, where the live session isn't available.
+
 This command:
 - Restores full context from handoff document
 - Reads all referenced project files
@@ -60,23 +62,11 @@ const handoffPath = $1 || /* prompt for it */;
    git pull    # Get latest commits (and beads state if in git mode)
    ```
 
-4. **Validate handoff currency**:
+4. **Sync and check beads state**:
    ```bash
-   # Check if we're on the right commit
-   git rev-parse HEAD
-
-   # Compare with handoff's git_commit
-   # Warn if different - work may have progressed
-   ```
-
-5. **Sync and check beads state**:
-   ```bash
-   # Check mode (set by SessionStart hook)
-   if [ "$BEADS_MODE" = "stealth" ]; then
-     echo "📍 Stealth mode: Beads state is local-only"
-     echo "   Handoff may not include beads state (document-based only)"
-   else
-     echo "📍 Git mode: Syncing beads state from git"
+   # Beads mode (see docs/beads-stealth-mode.md). Git mode (default): sync from git.
+   # Stealth: handoff is document-based only (no git beads state).
+   if [ "$BEADS_MODE" != "stealth" ]; then
      bd sync    # Pull beads database from .beads/ in git
    fi
 
@@ -296,37 +286,6 @@ Watching for:
 - [Gotcha 2 from handoff]
 ```
 
-## Handling Stale Handoffs
-
-If the handoff seems outdated:
-
-1. **Check git history**:
-   ```bash
-   # See if work progressed since handoff
-   git log --oneline -10
-   ```
-
-2. **Compare with tasks.md**:
-   - More tasks checked than handoff indicates?
-   - Different phase than handoff shows?
-
-3. **If stale, analyze the delta**:
-   - Determine what changed since handoff
-   - Decide if handoff learnings still apply
-   - Consider creating fresh handoff from current state
-
-Alert user if handoff is stale:
-```
-⚠️ Warning: Handoff may be stale
-
-Handoff created: [date]
-Current date: [date]
-Git commits since handoff: [count]
-
-The handoff learnings may still be valuable, but verify current state.
-Consider running /validate_execution to assess current progress.
-```
-
 ## Important Guidelines
 
 ### Resume Best Practices
@@ -405,20 +364,6 @@ Required sections not found:
 
 This may not be a valid handoff document.
 Check the file path or create a new handoff.
-```
-
-### Git State Mismatch
-
-```
-⚠️ Warning: Git state doesn't match handoff
-
-Handoff commit: [commit]
-Current commit: [different commit]
-
-Options:
-1. Continue anyway (may have merge conflicts)
-2. Checkout handoff commit: git checkout [commit]
-3. Create new handoff from current state
 ```
 
 ## Configuration

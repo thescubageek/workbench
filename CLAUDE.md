@@ -6,6 +6,16 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is a Claude Code plugin (`wb`) providing structured software development workflows: project planning, research, design, execution, and validation with TDD enforcement and beads integration.
 
+## Output Discipline
+
+When running `/wb:*` commands, keep narration minimal — the artifact is the deliverable, not the chat:
+
+- Act on barriers and checkpoints **silently** — do not announce "BARRIER 2 satisfied", "all agents returned", or restate the plan between steps.
+- After writing a document, **do not reproduce its contents back into the chat**. Emit a single one-line completion summary (e.g. `✅ research.md — <topic>; N findings. Next: /wb:create_design`).
+- Surface only what the user must act on: blockers, decisions awaiting their input, and errors. Everything else lives in the artifact.
+
+This is the global reinforcement of each command's inline output-discipline directive. (End users: see README "Output discipline" to opt this rule into your own `CLAUDE.md`.)
+
 ## Repository Structure (Plugin Layout)
 
 - `.claude-plugin/` - Plugin manifest

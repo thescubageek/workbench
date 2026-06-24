@@ -153,21 +153,7 @@ Stop and wait for user to initialize beads before proceeding.
 
 #### Detect Beads Mode
 
-```bash
-# Check mode (set by SessionStart hook)
-if [ "$BEADS_MODE" = "stealth" ]; then
-  echo "📍 Stealth mode: Beads state is local-only"
-  echo "   Tasks tracked in beads but .beads/ not committed to git"
-else
-  echo "📍 Git mode: Beads state tracked in git"
-  echo "   Tasks persist across sessions via git commits"
-fi
-```
-
-**Mode awareness**:
-- Both modes work identically within a session
-- **Stealth**: After `bd sync`, beads state stays local (no git commit)
-- **Git**: After `bd sync`, commit .beads/ to persist across machines
+**Beads mode**: `$BEADS_MODE` (set by the SessionStart hook). Git mode (default) — `.beads/` is committed; after `bd sync`, commit it to persist. Stealth mode — local-only; read `docs/beads-stealth-mode.md`. Both modes track tasks identically within a session.
 
 #### Verify Beads Tracking Configuration
 

@@ -115,21 +115,11 @@ Determine the current implementation state:
 # Sync beads state
 bd sync    # Exports to .beads/issues.jsonl
 
-# Check mode (set by SessionStart hook)
-if [ "$BEADS_MODE" = "stealth" ]; then
-  echo "📍 Stealth mode detected: .beads/ is gitignored"
-  echo "   Beads state is local-only (not committed to repo)"
-  echo "   For work handoffs, document next steps manually in handoff doc"
-else
-  echo "📍 Git mode detected: .beads/ is tracked"
-  echo "   Committing beads state to git for cross-session persistence"
-
-  # Verify beads state was updated
-  git status    # Should show .beads/issues.jsonl as modified
-
-  # Commit beads state (part of handoff protocol)
-  git add .beads/
-  git commit -m "Sync beads state before handoff"
+# Beads mode (see docs/beads-stealth-mode.md). Stealth → document next steps
+# manually in the handoff doc (beads won't travel via git). Git mode (default):
+if [ "$BEADS_MODE" != "stealth" ]; then
+  git status                                  # .beads/issues.jsonl should be modified
+  git add .beads/ && git commit -m "Sync beads state before handoff"
 fi
 
 # Check for uncommitted code changes
@@ -147,6 +137,8 @@ Document any uncommitted work and its purpose.
 **Beads persistence**:
 - **Git mode** (personal projects): Beads state committed to git, persists across sessions
 - **Stealth mode** (work repos): Beads state local-only, document next steps manually for handoff
+
+**⛔⛔⛔ BARRIER 2: STOP! Ground every claim before writing. Every file:line, metric, test result, and progress figure MUST come from actual tool output (`git diff` / `git log` / `git diff --stat`, `bd`, a real test run) — never from memory or the template's example values. If a value isn't verified, omit it or mark it `unverified`. Omit empty sections entirely; never fill them with placeholders. Mark genuinely unknown fields `unknown`. ⛔⛔⛔**
 
 ### Step 4: Create Handoff Document
 
@@ -172,21 +164,11 @@ beads_active_phase: [phase-id if in_progress]
 **Created**: [YYYY-MM-DD HH:MM TZ]
 **Reason**: [handoff reason]
 **Current Phase**: Phase [N] of [Total]
-**Overall Progress**: [X]% complete
+**Overall Progress**: [from `bd stats` — e.g. closed/total; omit if not derivable]
 
 ## Quick Start
 
-To resume this work:
-```bash
-# Resume with this handoff
-/resume_handoff [this file path]
-
-# Or manually:
-1. Read this handoff document
-2. Read tasks.md to see current phase
-3. Check git status for uncommitted changes
-4. Continue from "Next Steps" section below
-```
+Same machine? Prefer native `claude --resume` — it restores the full prior session (including tool results) more reliably than any doc. This handoff exists for **cross-machine / cross-agent / teammate** transfer: resume with `/resume_handoff [this file path]`.
 
 ## Current State Summary
 
@@ -201,21 +183,13 @@ To resume this work:
 ## Work Completed This Session
 
 ### Code Changes
-[List with file:line references]
-- Modified `src/component.ts:45-67` - Added validation logic for [feature]
-- Created `tests/component.test.ts` - Unit tests for new validation
-- Updated `config/settings.json:12` - Added feature flag
+[Each entry derived from `git diff` / `git status` — `<file:line>` — what changed. Omit if none.]
 
 ### Tasks Completed
-[From tasks.md with checkmarks]
-- [x] Implement user authentication check
-- [x] Add error handling for network failures
-- [x] Write unit tests for auth module
+[From `bd list --status=closed` this session — IDs + titles. Omit if none.]
 
 ### Verification Run
-- ✅ Tests passing: `npm test` (45/45 pass)
-- ⚠️ Linting: 2 warnings at `src/utils.ts:34,89`
-- ✅ Build successful: `npm run build`
+[Only commands actually run this session, with their real output. Omit anything you did not run — do not assume pass/fail.]
 
 ### Beads Tracking State
 ```bash
@@ -236,13 +210,7 @@ To resume this work:
 
 ### Discoveries Not in Documentation
 
-1. **Pattern Discovery**: The codebase uses [pattern] at `file:line` which isn't documented. Must follow this for consistency.
-
-2. **Hidden Dependency**: `ComponentX` depends on `ServiceY` being initialized first. Not obvious from code structure.
-
-3. **Performance Gotcha**: Method at `file:line` is called frequently - optimization critical here.
-
-4. **Workaround Required**: Standard approach doesn't work because [reason]. Using [workaround] instead.
+[Non-obvious findings worth carrying forward — patterns, hidden dependencies, gotchas, required workarounds — each with a real `file:line`. Omit if none. Durable codebase facts belong in CLAUDE.md, not a one-shot handoff.]
 
 ### Problems Solved
 
@@ -378,10 +346,7 @@ _Include this section if mockups/ directory exists:_
 - This Handoff: `[path]/handoff-YYYY-MM-DD-HH-MM.md`
 
 ### Key Code Locations
-- Main implementation: `src/feature/main.ts`
-- Tests: `tests/feature/`
-- Configuration: `config/feature.json`
-- Related utilities: `src/utils/helper.ts`
+[Real paths central to the in-flight work. Stable, project-wide paths belong in CLAUDE.md, not each handoff.]
 
 ### External References
 - [Any documentation consulted]
@@ -390,12 +355,7 @@ _Include this section if mockups/ directory exists:_
 
 ## Session Metadata
 
-- **Session Duration**: [X hours Y minutes]
-- **Model Used**: [claude-3-sonnet/opus/haiku]
-- **Tasks Attempted**: [N]
-- **Tasks Completed**: [M]
-- **Tests Written**: [Count]
-- **Lines Changed**: +[additions] -[deletions]
+[Only what's measurable from tooling — omit the rest. Lines changed from `git diff --stat`; tasks closed from `bd list --status=closed`. Do NOT estimate session duration or any count you can't derive from a command.]
 
 ## Handoff Verification
 

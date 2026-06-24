@@ -446,26 +446,9 @@ bd doctor    # Check beads is working
 
 If beads is not initialized, prompt user: "Run `bd init` to initialize beads tracking for this project."
 
-#### 5a1. Detect and Explain Beads Mode
+#### 5a1. Beads Mode
 
-```bash
-# Check mode (set by SessionStart hook)
-if [ "$BEADS_MODE" = "stealth" ]; then
-  echo "📍 Stealth mode detected: .beads/ is gitignored"
-  echo "   Beads state is local-only (not shared via git)"
-  echo "   Perfect for work repos - teammates won't see beads tracking"
-else
-  echo "📍 Git mode detected: .beads/ will be tracked in git"
-  echo "   Beads state persists across sessions and machines via git"
-  echo "   Good for personal projects with git-based collaboration"
-fi
-```
-
-**Mode implications**:
-- **Stealth mode**: Beads issues created locally, tracked in frontmatter, but .beads/ directory not committed
-- **Git mode**: Beads issues AND .beads/ directory both committed to git for full persistence
-
-Both modes work identically for task tracking within a session. The difference is cross-session/cross-machine persistence.
+**Beads mode**: `$BEADS_MODE` (set by the SessionStart hook). Git mode (default) — `.beads/` is committed for cross-session persistence; proceed normally. Stealth mode — `.beads/` is local-only; read `docs/beads-stealth-mode.md` and follow it. Both modes track tasks identically within a session.
 
 #### 5b. Create Epic for the Project
 
