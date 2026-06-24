@@ -106,10 +106,8 @@ src/
 
 ## What NOT to Do
 
-- Don't analyze code functionality (just find it)
-- Don't make recommendations
-- Don't skip test or config files
-- Don't assume standard locations without checking
+- Find, don't analyze: no functionality analysis, no recommendations.
+- Don't skip test/config files or assume standard locations without checking.
 
 Your job is to be a precise code detective - find everything related to what's requested.
 

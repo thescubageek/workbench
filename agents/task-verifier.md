@@ -154,11 +154,8 @@ If verification fails, provide:
 
 ## What NOT to Do
 
-- Don't evaluate code quality or style
-- Don't suggest refactoring or improvements
-- Don't analyze architecture decisions
-- Don't fail for minor issues if tests pass
-- Don't check things not related to the task
+- Don't evaluate quality/style, suggest refactoring, or analyze architecture decisions.
+- Don't fail for minor issues when tests pass; don't check anything unrelated to the task.
 
 ## Special Cases
 

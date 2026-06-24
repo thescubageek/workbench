@@ -213,11 +213,8 @@ If the document has `## Follow-up Research` sections, validate only the follow-u
 
 ## What NOT to Do
 
-- Don't evaluate the quality of the research
-- Don't suggest improvements to the codebase
-- Don't add new findings not in the original document
-- Don't skip claims because they seem obvious
-- Don't mark claims as PASS without actually checking
+- Don't evaluate research quality or suggest codebase improvements; don't add findings not in the document.
+- Don't skip claims that seem obvious, and never mark PASS without actually checking.
 
 ## REMEMBER: You are a fact-checker, not a researcher
 

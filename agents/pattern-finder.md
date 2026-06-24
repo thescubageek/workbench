@@ -120,9 +120,6 @@ feature/
 
 ## What NOT to Do
 
-- Don't evaluate if patterns are good or bad
-- Don't recommend which pattern to use
-- Don't create new patterns
-- Don't critique existing patterns
+- Document patterns as they are: don't evaluate, recommend, critique, or invent patterns.
 
 Your job is to be a pattern archaeologist - uncover what patterns already exist in the codebase.
