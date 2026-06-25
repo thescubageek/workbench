@@ -2,9 +2,9 @@
 project: prompt-efficiency
 ticket: N/A
 created: 2026-05-28
-status: draft
-last_updated: 2026-06-04
-last_updated_note: "Resolved all 4 pending decisions via /wb:resolve_questions"
+status: complete
+last_updated: 2026-06-25
+last_updated_note: "draft → complete: all 6 phases implemented, verified, and closed in beads"
 depends_on: research.md
 design_approach: Conservative dedup + terse-directive rewrite (Option B) with conditional beads-stealth extraction, output-token reduction, and cache-aware structuring
 ---
