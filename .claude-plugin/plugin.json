@@ -3,9 +3,9 @@
   "version": "1.2.0",
   "description": "Workbench for structured software development with TDD, project planning, and beads integration.",
   "author": {
-    "name": "Gabriel Varela"
+    "name": "Steve Craig"
   },
-  "repository": "https://github.com/gvarela/workbench",
+  "repository": "https://github.com/thescubageek/workbench",
   "keywords": ["planning", "tdd", "workflow", "documentation"],
   "hooks": {
     "SessionStart": [

@@ -14,15 +14,15 @@ A personal workbench of tools and workflows for Claude Code. Streamlines softwar
 
 ```bash
 # Add the marketplace and install the plugin
-claude plugin marketplace add gvarela/workbench
-claude plugin install wb@gvarela-workbench
+claude plugin marketplace add thescubageek/workbench
+claude plugin install wb@thescubageek-workbench
 ```
 
 For local development:
 
 ```bash
 # Clone and test locally (changes take effect immediately)
-git clone git@github.com:gvarela/workbench.git
+git clone git@github.com:thescubageek/workbench.git
 claude --plugin-dir /path/to/workbench
 ```
 
@@ -35,7 +35,7 @@ To release new commands/skills/agents:
 3. Users run from their shell (not a slash command):
 
    ```bash
-   claude plugin update wb@gvarela-workbench
+   claude plugin update wb@thescubageek-workbench
    ```
 
 4. Restart Claude (or `/reload-plugins`) to apply

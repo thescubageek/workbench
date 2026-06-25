@@ -1,7 +1,7 @@
 {
-  "name": "gvarela-workbench",
+  "name": "thescubageek-workbench",
   "description": "Personal workbench plugin for structured software development",
-  "owner": { "name": "Gabriel Varela" },
+  "owner": { "name": "Steve Craig" },
   "plugins": [
     {
       "name": "wb",

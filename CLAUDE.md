@@ -76,7 +76,7 @@ When adding new commands, skills, or agents:
 1. Bump `version` in `.claude-plugin/plugin.json` (e.g., 1.0.0 → 1.1.0 for features, 1.0.0 → 1.0.1 for fixes)
 2. Bump matching `version` in `.claude-plugin/marketplace.json` (must match plugin.json)
 3. Commit and push
-4. Users run `claude plugin update wb@gvarela-workbench` from the **shell** (not a slash command — it's a CLI command, run with `!` prefix or in a separate terminal)
+4. Users run `claude plugin update wb@thescubageek-workbench` from the **shell** (not a slash command — it's a CLI command, run with `!` prefix or in a separate terminal)
 5. After update, restart Claude (or `/reload-plugins`) to apply
 
 **What does NOT work alone**:
