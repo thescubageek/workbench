@@ -76,6 +76,8 @@ Slash commands for project documentation and task management:
 - **`/wb:validate_project`** - Validate project documentation structure
 - **`/wb:create_handoff`** - Create session handoff for work continuity
 - **`/wb:resume_handoff`** - Resume from handoff document
+- **`/wb:resolve_questions`** - Walk through open questions one at a time and record answers
+- **`/wb:forge`** - Run a ticket through the full pipeline (research → validate); end-to-end sequencer
 - **`/wb:update_status`** - Intelligently sync status across all documentation files
 - **`/wb:help`** - Quick reference for all commands
 

@@ -181,6 +181,9 @@ Restores context from handoff. Syncs beads and continues work.
 ### `/wb:resolve_questions [directory]`
 Walks through Open Questions (markdown + beads `Q:`/`Decide:`/`Validate:`/`UI Q:` issues) one at a time, persisting each answer to its source. Always offers a "Skip for now" option unless a question is marked critical.
 
+### `/wb:forge [ticket-or-directory] [stop-at-phase]`
+End-to-end sequencer: runs a ticket through research → design → execution (default stop) → implement → validate, enforcing barriers and confirming before each transition. Re-entrant — picks up from the current pipeline state.
+
 ## Core Principles
 
 1. **Document, Don't Judge** - Research describes what IS, not what should change
