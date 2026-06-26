@@ -69,15 +69,24 @@ claude --plugin-dir /path/to/this/repo
 
 ### Releasing New Commands/Skills/Agents
 
-**CRITICAL**: When the plugin is installed via marketplace (not `--plugin-dir`), the plugin system caches files at `~/.claude/plugins/cache/<marketplace>/<plugin>/<version>/`. The cache is keyed by version — adding new files will NOT show up until the version bumps AND the user runs an update.
+**CRITICAL**: When the plugin is installed via marketplace (not `--plugin-dir`), the plugin system caches files at `~/.claude/plugins/cache/<marketplace>/<plugin>/<version>/`. The cache is keyed by version — changes (new OR modified files) will NOT reach installed users until the version bumps AND the user runs an update.
 
-When adding new commands, skills, or agents:
+**Default: bump the version in the SAME commit/PR as the change.** Any time you add OR modify a command, skill, or agent, include the version bump in that same change — never as a follow-up PR. A behavior change shipped without a bump silently fails to reach anyone already on the current version.
 
-1. Bump `version` in `.claude-plugin/plugin.json` (e.g., 1.0.0 → 1.1.0 for features, 1.0.0 → 1.0.1 for fixes)
-2. Bump matching `version` in `.claude-plugin/marketplace.json` (must match plugin.json)
-3. Commit and push
-4. Users run `claude plugin update wb@thescubageek-workbench` from the **shell** (not a slash command — it's a CLI command, run with `!` prefix or in a separate terminal)
-5. After update, restart Claude (or `/reload-plugins`) to apply
+In the same change:
+
+1. Bump `version` in `.claude-plugin/plugin.json`
+   - **Minor** (1.4.0 → 1.5.0) when adding a new command/skill/agent or a user-visible feature
+   - **Patch** (1.4.0 → 1.4.1) when modifying/fixing an existing command/skill/agent
+2. Bump matching `version` in `.claude-plugin/marketplace.json` (must match plugin.json exactly)
+3. Commit and push (bump + content together)
+
+Then, to roll out to users:
+
+1. Users run `claude plugin update wb@thescubageek-workbench` from the **shell** (not a slash command — it's a CLI command, run with `!` prefix or in a separate terminal)
+2. After update, restart Claude (or `/reload-plugins`) to apply
+
+**Exception**: changes that don't ship in the plugin runtime (e.g. `docs/`, `README.md`, `CLAUDE.md`, `scripts/`) don't need a bump on their own.
 
 **What does NOT work alone**:
 
