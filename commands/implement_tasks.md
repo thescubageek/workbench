@@ -45,7 +45,7 @@ When invoked, check for arguments:
 5. **Verification Gates**: Respect ⛔ CHECKPOINT markers between phases
 6. **Documentation First**: Read research.md and design.md for context before starting
 
-### CRITICAL: NO SCOPE ADDITIONS - NONE!
+### CRITICAL: NO SCOPE ADDITIONS - NONE
 
 - **NEVER** add features not in tasks.md
 - **NEVER** refactor code beyond what's specified
@@ -147,6 +147,7 @@ bd init
 ```
 
 Then run `/wb:create_execution` to set up beads issues for all tasks.
+
 ```
 
 Stop and wait for user to initialize beads before proceeding.
@@ -183,6 +184,7 @@ bd ready    # Show all tasks with no blockers (ready to start)
 ```
 
 This shows:
+
 - Tasks with no dependencies (can start immediately)
 - Tasks whose dependencies are all closed (newly unblocked)
 - Both granular tasks and phase milestones
@@ -206,6 +208,7 @@ bd ready
 ```
 
 **Workflow**:
+
 1. `bd ready` - Find available work
 2. `bd show [id]` - Review task details
 3. `bd update [id] --status in_progress` - Claim it
@@ -214,14 +217,15 @@ bd ready
 6. `bd ready` - Find next task
 
 **Phase Milestone Tracking**:
+
 - Phase milestones are automatically unblocked when all their task dependencies close
 - Close the phase milestone only after ALL phase tasks are done AND manual verification passes
 - Use `bd show [phase-milestone-id]` to see which tasks still block the milestone
 
-| Tool | Use Case |
-|------|----------|
-| Beads | ALL task tracking (granular tasks AND phase milestones) |
-| Markdown | Documentation only (what the plan is, not status) |
+| Tool     | Use Case                                                |
+| -------- | ------------------------------------------------------- |
+| Beads    | ALL task tracking (granular tasks AND phase milestones) |
+| Markdown | Documentation only (what the plan is, not status)       |
 
 ### Step 3: Implement Phase Tasks
 
@@ -235,13 +239,13 @@ bd ready
 
 1. Create/update test file
 2. Write test that captures the requirement
-3. Run test to confirm failure:
+3. Run test to confirm failure (fail-fast — this is the single-test inner loop):
 
    ```bash
-   # Example commands (adapt to project):
-   npm test path/to/test.spec.ts
-   go test ./path/to/package -run TestName
-   pytest tests/test_feature.py::test_name
+   # Example commands (adapt to project). Fail-fast keeps feedback fast and output small.
+   npm test path/to/test.spec.ts -- --bail
+   go test ./path/to/package -run TestName -failfast
+   pytest -x tests/test_feature.py::test_name
    ```
 
 4. Confirm test fails for the right reason
@@ -254,8 +258,13 @@ bd ready
 
 1. Write minimal code to pass the test
 2. Focus on making it work, not perfect
-3. Run test to confirm it passes
-4. Run related tests to ensure no regression
+3. Run test to confirm it passes (fail-fast, single test)
+4. Run related tests to ensure no regression — wrap green runs to keep context lean:
+
+   ```bash
+   # Success -> a checkmark; only failures dump full output. Exit code preserved.
+   scripts/quiet <project test command>
+   ```
 
 **C. Refactor (REFACTOR)**
 
@@ -292,6 +301,7 @@ After completing each task:
    ```
 
 **Do NOT**:
+
 - ❌ Update checkboxes in tasks.md (documentation only)
 - ❌ Use TaskCreate/TaskUpdate (not persisted)
 - ❌ Update frontmatter counts manually (beads is source of truth)
@@ -318,14 +328,18 @@ Follow project testing patterns identified in research.md.
 
 #### Automated Verification
 
-Run all automated checks from the phase's "Automated Verification" section:
+Run all automated checks from the phase's "Automated Verification" section.
+This is the **full-suite** run — do NOT fail-fast here; you want the complete
+failure picture. Instead wrap each check in `scripts/quiet` so a green run
+collapses to a checkmark and only failures print in full (exit codes preserved):
 
 ```bash
-# Adapt these to actual commands from tasks.md
-make test           # or npm test, go test ./..., pytest
-make lint           # or npm run lint, golangci-lint run
-make typecheck      # or npm run typecheck, go build ./...
-make build          # or npm run build, go build
+# Adapt these to actual commands from tasks.md. scripts/quiet is optional but
+# keeps an all-green phase from flooding context.
+scripts/quiet make test        # or npm test, go test ./..., pytest
+scripts/quiet make lint        # or npm run lint, golangci-lint run
+scripts/quiet make typecheck   # or npm run typecheck, go build ./...
+scripts/quiet make build       # or npm run build, go build
 ```
 
 Fix any issues before proceeding.
@@ -347,8 +361,8 @@ After implementation, update the "Modified Files" section in tasks.md:
 
 **Quick test commands:**
 ```bash
-# Run tests for this phase only
-npm test path/to/test1.spec.ts path/to/test2.test.ts
+# Run tests for this phase only (scope which tests run AND quiet the green output)
+scripts/quiet npm test path/to/test1.spec.ts path/to/test2.test.ts
 ```
 
 ```
@@ -377,11 +391,12 @@ bd list --status=in_progress
 #### 2. Run Automated Verification
 
 ```bash
-# Adapt these to actual commands from tasks.md
-make test           # or npm test, go test ./..., pytest
-make lint           # or npm run lint, golangci-lint run
-make typecheck      # or npm run typecheck, go build ./...
-make build          # or npm run build, go build
+# Adapt these to actual commands from tasks.md. Full-suite run: no fail-fast;
+# wrap in scripts/quiet so green is a checkmark and failures print in full.
+scripts/quiet make test        # or npm test, go test ./..., pytest
+scripts/quiet make lint        # or npm run lint, golangci-lint run
+scripts/quiet make typecheck   # or npm run typecheck, go build ./...
+scripts/quiet make build       # or npm run build, go build
 ```
 
 **Requirement**: All automated checks must pass.
@@ -445,6 +460,7 @@ Ready to proceed to Phase [N+1].
 After phase completion and verification:
 
 1. **Verify beads state**:
+
    ```bash
    bd stats    # Check overall progress
    bd list --status=closed    # See what's complete
@@ -452,6 +468,7 @@ After phase completion and verification:
    ```
 
 2. **Optionally update tasks.md frontmatter** (for human reference):
+
    ```yaml
    current_phase: [N+1 if moving forward]
    last_updated: YYYY-MM-DD
@@ -461,12 +478,14 @@ After phase completion and verification:
    Note: Frontmatter is for documentation. Beads is the source of truth.
 
 3. **Add implementation notes** if there were discoveries:
+
    ```markdown
    ## Implementation Notes
    - [YYYY-MM-DD] Phase [N] complete: [key learnings, deviations from plan]
    ```
 
 4. **Sync beads state**:
+
    ```bash
    bd sync    # Export beads to .beads/issues.jsonl
 
@@ -576,14 +595,16 @@ Maintain the "Modified Files" section in tasks.md to help with:
 
 ### Quick Test Commands
 
-Generate phase-specific test commands to avoid running entire suite:
+Generate phase-specific test commands to avoid running entire suite. Two
+independent levers, both reduce context cost: scope *which* tests run, and
+quiet the output of green runs.
 
 ```bash
 # Instead of running all tests
 npm test
 
-# Run just this phase's tests
-npm test src/feature/*.test.ts tests/integration/feature.test.ts
+# Run just this phase's tests (scope) and quiet the green output (backpressure)
+scripts/quiet npm test src/feature/*.test.ts tests/integration/feature.test.ts
 ```
 
 ### Daily Progress Pattern

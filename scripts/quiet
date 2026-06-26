@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+
+# quiet - runner-agnostic output backpressure for the TDD/verification loop.
+#
+# Generalizes the markdown lint-hook pattern (run -> keep a marker line ->
+# suppress the rest) to any command. A green run collapses to a single
+# checkmark plus the command's own summary line; a red run dumps the full
+# captured log so no failure detail is ever lost. The wrapped command's exit
+# code is always passed through unchanged so exit-code checks keep working.
+#
+# Usage:
+#   scripts/quiet <command> [args...]
+#
+# Examples:
+#   scripts/quiet pytest -q
+#   scripts/quiet make test
+#   scripts/quiet go test ./...
+
+set -uo pipefail
+
+if [[ $# -eq 0 ]]; then
+    echo "usage: quiet <command> [args...]" >&2
+    exit 2
+fi
+
+LOG="$(mktemp "${TMPDIR:-/tmp}/wb-quiet.XXXXXX")"
+
+"$@" >"$LOG" 2>&1
+code=$?
+
+if [[ $code -eq 0 ]]; then
+    # Success: collapse to a checkmark + the runner's own summary line.
+    # Keep the log so the advertised path is real if detail is ever needed.
+    lines=$(grep -c . "$LOG")
+    summary=$(grep . "$LOG" | tail -1)
+    echo "✓ $* (${lines} lines suppressed → ${LOG})"
+    [[ -n "$summary" ]] && echo "  $summary"
+else
+    # Failure: dump everything verbatim, then discard the temp file.
+    cat "$LOG"
+    rm -f "$LOG"
+fi
+
+exit $code

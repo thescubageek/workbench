@@ -32,7 +32,7 @@ Skip any step = not verified.
 ## What Requires Verification
 
 | Claim | Requires | NOT Sufficient |
-|-------|----------|----------------|
+| ------- | ---------- | ---------------- |
 | "Tests pass" | Test output: 0 failures | Previous run, "should pass" |
 | "Build succeeds" | Build command: exit 0 | Linter passing |
 | "Bug fixed" | Regression test passes | "Code changed" |
@@ -42,7 +42,7 @@ Skip any step = not verified.
 ## Common Rationalizations
 
 | Excuse | Reality |
-|--------|---------|
+| -------- | --------- |
 | "Should work now" | RUN the verification |
 | "I'm confident" | Confidence ≠ evidence |
 | "Just this once" | No exceptions |
@@ -65,6 +65,23 @@ Skip any step = not verified.
 ```
 [Run: npm test]
 [Output: 34/34 passing]
+
+All tests pass.
+```
+
+**Quieting verification without losing evidence.** A green run only needs to
+prove "it passed" — the full log just burns context. `scripts/quiet <command>`
+is exit-code-faithful: on success it prints a checkmark plus the runner's
+summary line (your evidence — e.g. `34 passed in 1.2s`); on failure it dumps the
+full output and preserves the non-zero exit code. So you still RUN fresh, still
+READ exit code and a real output line, and still VERIFY — you just don't drown in
+200 lines of green. Failures are never suppressed, which is exactly when you need
+the detail.
+
+```
+[Run: scripts/quiet npm test]
+[✓ npm test (181 lines suppressed → /tmp/wb-quiet.ab12cd)]
+[  34 passed in 1.2s]
 
 All tests pass.
 ```

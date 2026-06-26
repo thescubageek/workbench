@@ -418,6 +418,7 @@ After each worker completes:
    - Attempt automatic fix (up to 2 retries):
 
    **Retry 1:**
+
    ```
    Verification failed. Spawn a fix worker using the general-purpose agent with opus model.
 
@@ -741,6 +742,28 @@ Token usage: Main stays constant, workers are isolated
 ```
 
 **Result**: No context accumulation in main session, no need for compaction
+
+#### Why this matters: the ~75k "smart zone"
+
+Models do their best work inside a bounded working context — empirically a
+"smart zone" of roughly **75k tokens**. Past that, recall and reasoning degrade
+well before the hard context limit is reached. The coordinator/fresh-worker
+split exists to keep the main session inside that zone: the coordinator holds
+only research + design + coordination logic (constant), and each worker starts
+fresh and is discarded, so neither accumulates toward the degradation cliff.
+
+This is the same backpressure principle that governs runtime tool output
+(see `scripts/quiet` and the `tdd-discipline` GREEN step): every token that
+conveys nothing — a 200-line all-green test run, a finished task's transcript —
+is a token stolen from the smart zone. Architecture (fresh workers) handles the
+*accumulated* context; output backpressure handles the *per-iteration* context.
+Both serve the same budget.
+
+> Source: humanlayer, "context-efficient backpressure" —
+> <https://www.humanlayer.dev/blog/context-efficient-backpressure>.
+> The article's own thesis (human time costs ~10x tokens; over-conservative
+> models waste more via re-runs) is why this reduces cost without trading away
+> reliability — failures still surface in full.
 
 ### Error Isolation
 

@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+
+# Contract tests for scripts/quiet.
+# Asserts the backpressure output contract: success collapses to a checkmark
+# plus the runner's summary line; failure dumps the full log; exit codes pass
+# through unchanged.
+
+set -uo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+QUIET="$SCRIPT_DIR/quiet"
+
+PASS=0
+FAIL=0
+
+check() {
+    local desc="$1" cond="$2"
+    if [[ "$cond" == "1" ]]; then
+        echo "  ✓ $desc"
+        PASS=$((PASS + 1))
+    else
+        echo "  ✗ $desc"
+        FAIL=$((FAIL + 1))
+    fi
+}
+
+echo "test-quiet: $QUIET"
+
+# --- Case 1: success preserves exit 0 and collapses output ---
+out=$("$QUIET" true 2>&1); code=$?
+check "success exits 0" "$([[ $code -eq 0 ]] && echo 1 || echo 0)"
+check "success prints a checkmark line" "$(echo "$out" | grep -q '✓' && echo 1 || echo 0)"
+check "success output is <= 2 lines" "$([[ $(printf '%s\n' "$out" | grep -c .) -le 2 ]] && echo 1 || echo 0)"
+
+# --- Case 2: success echoes the runner's last non-empty summary line ---
+# A 3-line-output command must collapse to exactly 2 lines (checkmark + summary),
+# which structurally proves the body was suppressed regardless of the command string.
+out=$("$QUIET" sh -c 'echo body1; echo body2; echo "34 passed in 1.2s"' 2>&1); code=$?
+check "success collapses 3-line output to 2 lines" "$([[ $(printf '%s\n' "$out" | grep -c .) -eq 2 ]] && echo 1 || echo 0)"
+check "success echoes the summary line" "$(echo "$out" | grep -q '34 passed in 1.2s' && echo 1 || echo 0)"
+
+# --- Case 3: failure preserves non-zero exit and dumps full log ---
+out=$("$QUIET" sh -c 'echo line1; echo line2; exit 3' 2>&1); code=$?
+check "failure passes through exit code 3" "$([[ $code -eq 3 ]] && echo 1 || echo 0)"
+check "failure dumps line1" "$(echo "$out" | grep -q 'line1' && echo 1 || echo 0)"
+check "failure dumps line2" "$(echo "$out" | grep -q 'line2' && echo 1 || echo 0)"
+
+# --- Case 4: plain failure exits 1 ---
+"$QUIET" false >/dev/null 2>&1; code=$?
+check "false exits 1" "$([[ $code -eq 1 ]] && echo 1 || echo 0)"
+
+echo ""
+echo "test-quiet: $PASS passed, $FAIL failed"
+[[ $FAIL -eq 0 ]]
