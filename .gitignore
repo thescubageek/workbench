@@ -1,1 +1,7 @@
 tmp/
+
+# Beads issue tracker — local-only (stealth mode); not committed to this repo.
+.beads/
+
+# wb planning artifacts — dev-only, not part of the shipped plugin.
+docs/plans/
