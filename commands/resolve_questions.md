@@ -1,13 +1,13 @@
 ---
-description: Walk through open questions raised by wb workflow documents one at a time, capturing answers and persisting them back to the source (markdown and/or beads).
+description: Walk through open questions raised by wb workflow documents one at a time, recording each decision (with rationale) in the design decisions log and closing the source question in markdown and/or beads.
 argument-hint: [project-directory]
 ---
 
 # Resolve Open Questions
 
-Iterates through the unresolved questions surfaced by `/wb:create_research`, `/wb:create_design`, `/wb:create_execution`, or `/wb:create_mockup` and walks the user through them **one question at a time**. Each answer is persisted to its source (the project markdown file and/or the beads issue) before moving on, so progress is never lost if the user stops partway.
+Iterates through the unresolved questions surfaced by `/wb:create_research`, `/wb:create_design`, `/wb:create_execution`, or `/wb:create_mockup` and walks the user through them **one question at a time**. Each answer is treated as a **decision**: it is recorded — *with its rationale* — in the canonical decisions log (`design.md`'s `## Technical Decisions`), the source question is closed, and any tracking table (`## Pending Decisions`, `### Assumptions`) is reconciled before moving on. Progress is never lost if the user stops partway.
 
-This command is the bridge between "research/design surfaced N open questions" and "design / execution can now proceed with concrete decisions."
+This command is the bridge between "research/design surfaced N open questions" and "design / execution can now proceed with concrete decisions." Closing the loop means a resolved question does not just get an "answered" marker — it becomes a first-class decision that the next phase (`/wb:create_execution`, `/wb:implement_tasks`) reads from where decisions live, not buried in an Open Questions list.
 
 ## What this command does NOT do
 
@@ -171,33 +171,66 @@ For the **plain-text path**, parse the user's reply:
 
 In both paths: if the answer is a skip, do NOT persist anything — move on to the next question. If the user is trying to skip a **critical** question, confirm explicitly before honoring it (see Edge Cases).
 
-**4d. Persist immediately — do not batch.**
+**4d. Persist the decision immediately — do not batch.**
 
-Write the resolution before asking the next question. Concrete updates:
+Each answer is a **decision**. Before asking the next question, do all four of the following so the loop is actually closed — a skip persists nothing (see 4c). Use today's date from the environment.
 
-**For markdown-sourced questions**, edit the source file by replacing the bullet with:
+**Capture the rationale (the WHY) first.** wb decisions are "WHAT and WHY," so never store a bare answer. Derive a one-line rationale from the chosen option's framing and the "Why it matters" context. If the user gave reasoning in their reply, use it verbatim. Do NOT burn an extra turn asking for rationale — infer it from context.
 
-```
-- <original question text>
-  - **Resolved YYYY-MM-DD**: <answer text>
-```
+**① Land the decision in the decisions log — this is the loop-closing step.**
 
-(Use today's date from the environment.) Keep the original phrasing intact so the audit trail survives. If multiple files reference the same question, update both.
+- **If `design.md` exists**, append the decision under `## Technical Decisions` (place it in the fitting subsection — Architecture / Data Model / Integration Points — or add a `### Resolved Decisions` subsection if none fits), using the wb decision format:
 
-**For beads-sourced questions**, run:
+  ```markdown
+  - <decision, phrased as a commitment>
+    - Rationale: <why — one line>
+    - Trade-off: <what we're giving up, or "none">
+    - Source: <research.md question | beads:ID> · Decided YYYY-MM-DD
+  ```
 
-```bash
-bd comments <id> add "Resolved: <answer>"
-bd close <id> --reason "Resolved via /wb:resolve_questions"
-```
+- **If `design.md` does NOT exist yet** (questions resolved at the research stage, pre-design), there is nowhere canonical to land the decision yet. Record it inline at the source question (see ② interim path) — `/wb:create_design` will promote it into `## Technical Decisions`.
 
-Use `bd close ... --reason` rather than `--status closed` (matches the convention in `/wb:help`).
+**② Mark the source question resolved — pointer, don't duplicate the decision.**
 
-**For the project's index doc** (if the doc's frontmatter has a `last_updated:` field), bump `last_updated:` to today and optionally append a one-line `last_updated_note:` describing the batch (e.g. `Resolved 3 open questions via /wb:resolve_questions`).
+- **In `research.md`** (facts-only — do NOT embed a decision or rationale here; that violates "Document, Don't Judge"). If `design.md` exists, leave a pointer:
+
+  ```markdown
+  - <original question text>
+    - **Resolved YYYY-MM-DD** → decision recorded in `design.md` (## Technical Decisions)
+  ```
+
+  If `design.md` does not exist yet, record the bare answer inline as an interim and let `/wb:create_design` formalize it:
+  `- **Resolved YYYY-MM-DD**: <answer>`
+
+- **In `design.md` / `execution.md` / `mockup-*.md`** (decisions belong here): mark the question resolved in place with the full record:
+
+  ```markdown
+  - <original question text>
+    - **Decided YYYY-MM-DD**: <answer> — <rationale>
+  ```
+
+Keep the original question phrasing intact so the audit trail survives. If multiple files reference the same question, update each.
+
+**③ Reconcile any tracking table the question came from.**
+
+- **`## Pending Decisions` row** (or a `Decide:` bead): the decision is no longer pending. Set the row's `Blocks` cell to `— resolved YYYY-MM-DD` (and ensure the decision itself is recorded per ①).
+- **`### Assumptions` row** (or a `Validate:` bead): flip the `Validated?` cell from `Pending` to `Validated YYYY-MM-DD`, or to `Invalid — <note>` if the answer refutes the assumption.
+
+**④ Update beads and the index doc.**
+
+- **For beads-sourced questions**, capture the decision + rationale, then close:
+
+  ```bash
+  bd comments <id> add "Decided: <answer> — <rationale>"
+  bd close <id> --reason "Resolved via /wb:resolve_questions"
+  ```
+
+  Use `bd close ... --reason` rather than `--status closed` (matches the convention in `/wb:help`).
+- **For the project's index doc** (if frontmatter has a `last_updated:` field), bump `last_updated:` to today and optionally append a one-line note (e.g. `Resolved 3 open questions via /wb:resolve_questions`).
 
 **4e. Brief acknowledgment, then continue.**
 
-In one short sentence, confirm what was recorded (e.g., "Recorded: 'Server-side resume via new `in_progress_responses` column.' Moving on."). Then immediately send the next question (Step 4b) and end the turn again.
+In one short sentence, confirm the decision and where it landed (e.g., "Decided: server-side resume via new `in_progress_responses` column — recorded in design.md (Technical Decisions), bead prompts-abc closed. Moving on."). Then immediately send the next question (Step 4b) and end the turn again.
 
 Do NOT echo the full doc back. Do NOT summarize after every question. Keep cadence tight.
 
@@ -208,7 +241,7 @@ After the last question (or when the user halts):
 1. Update each touched markdown file once more if needed: if all questions in a file's "Open Questions" section have a `**Resolved`-marked sub-bullet, optionally add a small banner under the section heading: `_All questions resolved as of YYYY-MM-DD._`
 2. Send a single end-of-turn message summarizing:
    - How many resolved, how many skipped, how many remain (including any critical ones still open — call those out explicitly).
-   - Where the resolutions live (which files / which beads IDs).
+   - Where the decisions landed (`design.md` `## Technical Decisions`) and which source questions / beads IDs were closed.
    - Suggested next wb step based on the current document phase:
      - If `research.md` had open questions → recommend `/wb:create_design`.
      - If `design.md` had open questions → recommend `/wb:create_execution`.
@@ -219,29 +252,55 @@ Keep this summary to ≤ 6 lines. The user just had a focused conversation; don'
 
 ## Persistence Format Reference
 
-**Markdown — before:**
+Resolving one question raised in `research.md` touches **two** places: the decision lands in `design.md`, and the source question in `research.md` gets a pointer (research stays facts-only).
+
+**① Decision lands in `design.md` `## Technical Decisions`:**
+
+```markdown
+## Technical Decisions
+
+### Data Model
+- Partial responses persist server-side via a new `in_progress_responses` column
+  - Rationale: aligns with the charting-note autosave precedent; PHI posture already approved for that path
+  - Trade-off: one more write path to keep consistent with final-submit
+  - Source: research.md question · Decided 2026-05-18
+```
+
+**② Source question in `research.md` becomes a pointer (no decision/rationale embedded — facts-only):**
 
 ```markdown
 ## Open Questions
 
 - Should partial answers leave the device (PHI posture)?
+  - **Resolved 2026-05-18** → decision recorded in `design.md` (## Technical Decisions)
 - Is multi-device resume in scope, or same-device only?
 ```
 
-**Markdown — after (one resolved, one not yet):**
+**Resolving a question that lives in `design.md`/`execution.md`** (decisions belong there, so record in place):
 
 ```markdown
-## Open Questions
-
-- Should partial answers leave the device (PHI posture)?
-  - **Resolved 2026-05-18**: Yes — server-side persistence is acceptable for partial responses; align with charting-note autosave precedent.
-- Is multi-device resume in scope, or same-device only?
+- Should branching semantics change for resumed sessions?
+  - **Decided 2026-05-18**: No — resume reuses the existing branch; keeps the state machine single-path. (Rationale: avoids a second code path no one asked for.)
 ```
 
-**Beads — comment + close:**
+**Reconciling tracking tables:**
+
+```markdown
+## Pending Decisions
+| Decision Needed | Beads ID | Blocks |
+|-----------------|----------|--------|
+| Persistence layer for partial responses | `prompts-abc` | — resolved 2026-05-18 |
+
+### Assumptions
+| Assumption | Beads ID | Validated? |
+|------------|----------|------------|
+| Autosave precedent covers PHI posture | `prompts-def` | Validated 2026-05-18 |
+```
+
+**Beads — comment (with rationale) + close:**
 
 ```bash
-bd comments prompts-abc add "Resolved: Server-side persistence acceptable; mirrors charting/note.rb pattern."
+bd comments prompts-abc add "Decided: server-side persistence via in_progress_responses column — mirrors charting/note.rb autosave; PHI posture pre-approved."
 bd close prompts-abc --reason "Resolved via /wb:resolve_questions"
 ```
 
@@ -256,6 +315,7 @@ bd close prompts-abc --reason "Resolved via /wb:resolve_questions"
 7. **Don't answer for the user.** Claude proposes options based on doc context; the human decides.
 8. **Source of truth is the document, not the conversation.** If the conversation supplies more context, fine — but the canonical resolution lives in the file or the bead.
 9. **Prefer structured ask, fall back to plain text.** If `AskUserQuestion` (or an `*__AskUserQuestion` MCP variant) is available, use it; otherwise format the question as text, end the turn, and wait for the user's reply. Never speculate the user's answer.
+10. **Close the loop — a resolved question is a decision.** Every non-skipped answer is recorded *with rationale* in the canonical decisions log (`design.md` `## Technical Decisions`), not left as a bare "answered" marker. The source question gets a resolved marker (a pointer when the source is `research.md`, which stays facts-only), and any `## Pending Decisions` / `### Assumptions` table it came from is reconciled.
 
 ## Edge Cases
 
@@ -290,17 +350,25 @@ Claude: Q 1 of 5: Should partial answers leave the device (PHI posture)?
 
 User: A
 
-Claude: Recorded: "Server-side persistence via new in_progress_responses
-        column." Moving on.
+Claude: Decided: server-side persistence via new in_progress_responses
+        column. design.md doesn't exist yet, so recorded inline in
+        research.md (interim) — /wb:create_design will promote it into
+        Technical Decisions. Moving on.
 
         Q 2 of 5: ...
 
 ... etc ...
 
-Claude: Done — 3 resolved, 1 skipped, 1 critical still open.
-        - research.md updated (3 questions marked Resolved 2026-05-18).
+Claude: Done — 3 decided, 1 skipped, 1 critical still open.
+        - research.md: 3 questions marked Resolved 2026-05-18 with the
+          chosen answers (pre-design interim; create_design will fold them
+          into Technical Decisions with rationale + trade-offs).
         - Skipped: "Should branching semantics change?" — kept open.
         - Critical & still open: "Which auth provider for SSO?" — resolve
           before `/wb:create_design`.
         Next: resolve the critical item, then `/wb:create_design docs/plans/2026-05-18-nux-resume-progress/`.
+
+(When design.md already exists, the decision instead lands in
+design.md `## Technical Decisions` with Rationale/Trade-off, and the
+source question gets a pointer — see Persistence Format Reference.)
 ```
