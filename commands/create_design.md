@@ -181,6 +181,30 @@ Based on research and agent findings, clearly articulate:
 
 ### Step 4: Solution Exploration
 
+**⛔ TRACER BULLET GATE: Before presenting options, ask if one probe would collapse the set**
+
+**think deeply about the single load-bearing uncertainty**
+
+The candidate approaches usually share one assumption you cannot yet evaluate — and the answer changes which paths are even viable. Don't list options on paper and defer that unknown to a "validate later" beads issue. Resolve it now if you cheaply can.
+
+Fire a tracer bullet when **ALL** hold:
+
+1. The viability of multiple approaches hinges on the same unverified assumption.
+2. One bounded action would resolve it — read the one file end-to-end, run a minimal end-to-end slice, make the one API call, run the one query, write one throwaway spike.
+3. Resolving it eliminates options or reorders significant downstream work.
+
+If so, run that single bounded probe **before** generating options, then **report the cull**:
+
+```
+Tracer bullet: [what was probed] → [evidence found].
+This kills Option [X] / confirms [assumption].
+Surviving options: [...]
+```
+
+Keep it bounded: one assumption (the highest-leverage one), throwaway or thin, stop the moment it resolves. If there is no single decisive unknown, skip the probe and proceed — don't manufacture one.
+
+See the `tracer-bullet` skill for the full discipline.
+
 **Interactive Design Discussion**
 
 1. **Generate design options**:
@@ -317,6 +341,7 @@ bd create "Validate: [assumption]" --type=task --priority=2 \
 ## Rejected Alternatives
 
 ### Option: [Alternative Approach Name]
+
 - **Approach**: [What it would have done]
 - **Rejected because**: [Specific reasons]
 - **Trade-offs**: [What we would have gained/lost]
@@ -343,6 +368,7 @@ Note: Decisions blocking execution should be resolved before `/create_execution`
 - Research: [research.md](research.md)
 - Related designs: [if any]
 - External docs: [if any]
+
 ```
 
 **⛔ BARRIER 3**: Verify no placeholder values before writing
@@ -352,32 +378,38 @@ Note: Decisions blocking execution should be resolved before `/create_execution`
 1. **Present the design**:
 
    ```
+
    ✅ Design document created at: [path]/design.md
 
    Design approach: [selected approach name]
 
    Key decisions made:
-   - [Major decision 1]
-   - [Major decision 2]
-   - [Major decision 3]
+
+- [Major decision 1]
+- [Major decision 2]
+- [Major decision 3]
 
    Pending decisions: [count]
 
    Agent findings incorporated:
-   - [Finding 1 from verification agents]
-   - [Finding 2 from integration analysis]
+
+- [Finding 1 from verification agents]
+- [Finding 2 from integration analysis]
 
    The design document includes:
-   - Problem statement and success metrics
-   - Technical architecture decisions
-   - Clear scope boundaries
-   - Risk analysis and mitigation
+
+- Problem statement and success metrics
+- Technical architecture decisions
+- Clear scope boundaries
+- Risk analysis and mitigation
 
    Please review and provide feedback:
-   - Are the success criteria appropriate?
-   - Do the technical decisions align with your vision?
-   - Are there risks we haven't considered?
-   - Should any out-of-scope items be included?
+
+- Are the success criteria appropriate?
+- Do the technical decisions align with your vision?
+- Are there risks we haven't considered?
+- Should any out-of-scope items be included?
+
    ```
 
 2. **Iterate based on feedback**:
@@ -389,8 +421,10 @@ Note: Decisions blocking execution should be resolved before `/create_execution`
 3. **Get explicit approval**:
 
    ```
+
    Once you're satisfied with the design, please confirm approval.
    After approval, run `/create_execution` to build the implementation plan.
+
    ```
 
 ## Important Guidelines

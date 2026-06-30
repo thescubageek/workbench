@@ -168,6 +168,16 @@ Based on the gap between current and target state, and agent findings:
    - Enable incremental validation
    - Follow patterns from similar implementations
 
+**⛔ TRACER BULLET CHECK: Does the whole plan rest on one unverified assumption?**
+
+**think deeply about the single load-bearing unknown**
+
+A multi-phase plan built on "assuming X works..." is a gamble — if X is false, every phase after it is wasted. Before finalizing phases, ask: is there one assumption whose failure would invalidate large parts of the plan, and would one bounded probe resolve it?
+
+If so, make it **Phase 0: Tracer Bullet** — a single bounded spike (a thin end-to-end slice, one query, one throwaway prototype) that resolves the unknown before the real build. Phase 1+ then plan against a known answer, not a guess. Keep it bounded: one assumption, stop the moment it resolves, then plan the rest. If there is no single decisive unknown, skip Phase 0 — don't manufacture one.
+
+This is distinct from minor discoveries you make as you code (see "Handling Implementation Discoveries"): a tracer bullet is for the *decisive* unknown that reorders the plan. See the `tracer-bullet` skill for the full discipline.
+
 ### Step 4: Generate Execution Plan
 
 Update or create tasks.md with the following structure:
@@ -523,6 +533,7 @@ bd create "Connect [Component] to [ExistingSystem]" \
 ```
 
 **Task Creation Guidelines**:
+
 - Title should match the task description from tasks.md
 - Description includes phase, task type (setup/implementation/testing/integration), and key details
 - All tasks start with priority 2 (medium)
@@ -551,6 +562,7 @@ bd dep add [TASK4_ID] [TASK3_ID]
 ```
 
 **Dependency Principles**:
+
 - Setup tasks have no dependencies (start immediately)
 - Implementation depends on setup
 - Testing depends on implementation
@@ -559,6 +571,7 @@ bd dep add [TASK4_ID] [TASK3_ID]
 - Next phase milestone depends on previous phase milestone
 
 **Tip**: Use parallel task creation for efficiency:
+
 - Spawn multiple `bd create` commands using parallel agents
 - Capture all IDs, then set up dependencies in a second pass
 
@@ -590,6 +603,7 @@ beads_tasks:
 ```
 
 **Frontmatter Guidelines**:
+
 - Use descriptive keys that match the task structure
 - Format: `phaseN_category_number` (e.g., `phase1_setup_1`, `phase2_impl_3`)
 - Keep the same order as tasks appear in the plan
@@ -727,10 +741,11 @@ Some things can only be determined during coding:
    - Update with findings as discovered
    - Adjust tasks if needed
 
-2. **Don't Block on Unknowns**:
-   - Make reasonable assumptions
+2. **Don't Block on Minor Unknowns**:
+   - Make reasonable assumptions for low-stakes details
    - Plan to test and adjust
    - Document the uncertainty
+   - **But**: if an unknown is *load-bearing* (its failure invalidates whole phases), don't assume — resolve it with a Phase 0 tracer bullet first (see Step 3)
 
 3. **Update During Implementation**:
    - Add discovered constraints
