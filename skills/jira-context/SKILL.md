@@ -41,18 +41,31 @@ If none is found, report "no ticket reference found" and stop.
 
 ### 2. Fetch the ticket via the Atlassian MCP
 
-Fetch the issue by its key using the connected Atlassian MCP (e.g., `getJiraIssue`
-or the Atlassian `fetch` tool). Capture at minimum: summary, status, and the full
-description body.
+Make exactly **one** call — do not enumerate MCP tools, probe response formats, or
+choose between candidate tools first. Use the `getJiraIssue` tool (reference it by
+that exact name; do not fall back to `fetch` or `search`) with these arguments:
+
+- `issueIdOrKey`: the key from Step 1
+- `cloudId`: pass the Jira **site hostname** directly (e.g. `your-org.atlassian.net`).
+  The Atlassian MCP accepts a hostname as the cloudId, so this skips a separate
+  `getAccessibleAtlassianResources` round-trip. Derive the hostname from any Jira
+  link in the request; if none is available, call `getAccessibleAtlassianResources`
+  **once** and use the returned `id`.
+- `fields`: `["summary", "status", "description"]` — only what this skill needs.
+- `responseContentFormat`: `"markdown"` — returns the description as plain markdown,
+  so locating the `Agents` heading in Step 3 is a simple text scan rather than an
+  Atlassian Document Format (ADF) JSON traversal.
+
+Capture at minimum: summary, status, and the full description body.
 
 If the fetch fails (not found, no access, MCP error), report the specific error and
 stop — do not guess at the ticket's contents.
 
 ### 3. Locate the `Agents` section
 
-Scan the description for a heading titled **Agents** (any level, case-insensitive).
-This section is a deliberate briefing written for AI agents — the "hive" leaving
-notes for the next agent.
+Scan the markdown description for a heading matching `^#{1,6}\s*agents\b`
+(case-insensitive) — any level. This section is a deliberate briefing written for AI
+agents — the "hive" leaving notes for the next agent.
 
 ### 4. Follow the `Agents` instructions to load context
 
