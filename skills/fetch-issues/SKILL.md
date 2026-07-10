@@ -1,6 +1,7 @@
 ---
 name: fetch-issues
 description: Fetch all open GitHub issues for a repo, research each against the codebase, prioritize them, and write a clippable handoff per issue so any one can be solved in a fresh session. Use when the user says "fetch issues", "triage the open issues", "turn our GitHub issues into handoffs", or gives a repo and asks to prioritize its backlog.
+disable-model-invocation: true
 ---
 
 # Fetch Issues

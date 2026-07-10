@@ -1,6 +1,6 @@
 {
   "name": "wb",
-  "version": "1.8.0",
+  "version": "1.8.1",
   "description": "Workbench for structured software development with TDD, project planning, and beads integration.",
   "author": {
     "name": "Steve Craig"
