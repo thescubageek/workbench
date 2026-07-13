@@ -55,7 +55,7 @@ Note: `/reload-plugins` alone does NOT pull updates — the cache is keyed by ve
 /wb:validate_execution docs/plans/...
 ```
 
-**Skills** (auto-activated): `project-structure`, `mockup-iteration`, `tdd-discipline`, `verification-before-completion`, `status-sync`, `review-prep`, `jira-context`
+**Skills** (auto-activated): `project-structure`, `mockup-iteration`, `tdd-discipline`, `verification-before-completion`, `status-sync`, `review-prep`, `jira-context`, `clip`, `eli5-clip`
 
 **[Full Commands Reference](docs/commands-reference.md)**
 
@@ -101,6 +101,8 @@ Background capabilities that Claude automatically invokes:
 - **`status-sync`** - Monitors for status drift and reminds to sync
 - **`review-prep`** - Interactive code review walkthrough using tmux and nvim
 - **`jira-context`** - Loads context from a Jira ticket's "Agents" section (hivemind bootstrap); runs standalone or inside `create_research`/`forge`
+- **`clip`** - Runs an instruction, then copies the result to the clipboard (cross-platform) instead of printing it
+- **`eli5-clip`** - Summarizes recent work as a warm, plain-language message for a non-technical reader and copies it to the clipboard, tailored to a named recipient
 
 ### Hooks
 
