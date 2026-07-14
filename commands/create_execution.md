@@ -448,13 +448,23 @@ Create beads issues to track ALL work (phases AND granular tasks) across session
 
 **Critical**: Beads is the source of truth for status. Every task checkbox in tasks.md gets a corresponding beads issue.
 
-#### 5a. Verify Beads is Initialized
+#### 5a. Verify Beads is Available (fast-fail)
+
+Use the **fast, filesystem-only** check — do NOT probe with `bd doctor` (it spawns a
+slow Dolt process and can hang). See [docs/beads-fast-fail.md](../docs/beads-fast-fail.md).
 
 ```bash
-bd doctor    # Check beads is working
+# Prefer the SessionStart-computed flag; fall back to a filesystem probe.
+if [ "$BEADS_AVAILABLE" = "yes" ] || { command -v bd >/dev/null 2>&1 && [ -d .beads ]; }; then
+  : # beads usable — proceed
+else
+  echo "⚠️ Beads unavailable — run 'bd init' to enable task tracking."
+fi
 ```
 
-If beads is not initialized, prompt user: "Run `bd init` to initialize beads tracking for this project."
+If beads is unavailable, tell the user **once** and offer `bd init`. Then either
+proceed without beads tracking (plan lives in tasks.md only) or stop per the user —
+**never loop or re-probe.** Do not run `bd doctor` to decide availability.
 
 #### 5a1. Beads Mode
 

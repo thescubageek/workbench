@@ -127,13 +127,23 @@ After reading all documentation, prepare to spawn workers sequentially.
 
 **CRITICAL**: Use beads for ALL task tracking (phases AND granular tasks).
 
-#### Verify Beads is Initialized
+#### Verify Beads is Available (fast-fail)
+
+Check availability with a **fast, filesystem-only** probe — do NOT use `bd doctor`
+(it spawns a slow Dolt process and can hang). See
+[docs/beads-fast-fail.md](../docs/beads-fast-fail.md).
 
 ```bash
-bd doctor    # Check beads health
+# Prefer the SessionStart-computed flag; fall back to a filesystem probe.
+if [ "$BEADS_AVAILABLE" = "yes" ] || { command -v bd >/dev/null 2>&1 && [ -d .beads ]; }; then
+  : # beads usable — proceed
+else
+  echo "⚠️ Beads unavailable — see below."
+fi
 ```
 
-**If beads is not initialized or has errors**:
+**If beads is unavailable** (bd not installed, or `.beads/` not initialized), say
+this **once** and move on — do not loop or re-probe:
 
 ```
 ⚠️ Beads Not Initialized

@@ -98,7 +98,7 @@ When invoked:
 
 ## Cross-cutting rules
 
-1. **Beads is required** — if `bd init` hasn't run in the project, run it before `create_execution`.
+1. **Beads is required, but fast-fail** — check availability with the fast filesystem probe (`$BEADS_AVAILABLE` / `command -v bd && [ -d .beads ]`), never `bd doctor`. If unavailable, offer `bd init` once and proceed or stop per the user — never loop or hang. See [docs/beads-fast-fail.md](../docs/beads-fast-fail.md).
 2. **Do not skip barriers.** If a phase has open `Q:`, `Decide:`, `Validate:`, or `UI Q:` items, forge stops.
 3. **Status sync at each transition** — run `/wb:update_status` (or equivalent) so frontmatter / README stays accurate.
 4. **Surface, don't hide.** Forge reports what it's about to do, what it just did, and what's blocked. The user should never have to ask "where are we?"
