@@ -244,7 +244,7 @@ See the `tracer-bullet` skill for the full discipline.
 
 Update or create design.md with the following structure:
 
-```markdown
+````markdown
 ---
 project: [from existing frontmatter]
 ticket: [from existing frontmatter]
@@ -371,63 +371,60 @@ Note: Decisions blocking execution should be resolved before `/create_execution`
 - Related designs: [if any]
 - External docs: [if any]
 
-```
+````
 
 **⛔ BARRIER 3**: Verify no placeholder values before writing
 
 ### Step 6: Review and Iterate
 
-1. **Present the design**:
+**1. Present the design:**
 
-   ```
+```
+✅ Design document created at: [path]/design.md
 
-   ✅ Design document created at: [path]/design.md
+Design approach: [selected approach name]
 
-   Design approach: [selected approach name]
-
-   Key decisions made:
+Key decisions made:
 
 - [Major decision 1]
 - [Major decision 2]
 - [Major decision 3]
 
-   Pending decisions: [count]
+Pending decisions: [count]
 
-   Agent findings incorporated:
+Agent findings incorporated:
 
 - [Finding 1 from verification agents]
 - [Finding 2 from integration analysis]
 
-   The design document includes:
+The design document includes:
 
 - Problem statement and success metrics
 - Technical architecture decisions
 - Clear scope boundaries
 - Risk analysis and mitigation
 
-   Please review and provide feedback:
+Please review and provide feedback:
 
 - Are the success criteria appropriate?
 - Do the technical decisions align with your vision?
 - Are there risks we haven't considered?
 - Should any out-of-scope items be included?
+```
 
-   ```
+**2. Iterate based on feedback:**
 
-2. **Iterate based on feedback**:
-   - Adjust success criteria
-   - Refine technical decisions
-   - Add/remove scope items
-   - Update risk analysis
+- Adjust success criteria
+- Refine technical decisions
+- Add/remove scope items
+- Update risk analysis
 
-3. **Get explicit approval**:
+**3. Get explicit approval:**
 
-   ```
-
-   Once you're satisfied with the design, please confirm approval.
-   After approval, run `/create_execution` to build the implementation plan.
-
-   ```
+```
+Once you're satisfied with the design, please confirm approval.
+After approval, run `/create_execution` to build the implementation plan.
+```
 
 ## Important Guidelines
 
