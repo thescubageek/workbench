@@ -12,6 +12,7 @@ Resumes work from a handoff document, restoring context and continuing implement
 **Same machine? Use native `claude --resume` instead** — it restores the full prior session (messages + tool results) more reliably than any document. This command is for **cross-machine / cross-agent / teammate** resumption, where the live session isn't available.
 
 This command:
+
 - Restores full context from handoff document
 - Reads all referenced project files
 - Understands problems solved and blockers
@@ -27,6 +28,7 @@ When invoked, check for arguments:
    - Begin resumption process immediately
 
 2. **If no arguments**:
+
    ```
    I'll resume work from a handoff document. Please provide:
    1. Path to the handoff document (e.g., docs/plans/project/handoff-YYYY-MM-DD-HH-MM.md)
@@ -58,11 +60,13 @@ const handoffPath = $1 || /* prompt for it */;
    - Uncommitted changes status
 
 3. **Pull latest from remote**:
+
    ```bash
    git pull    # Get latest commits (and beads state if in git mode)
    ```
 
 4. **Sync and check beads state**:
+
    ```bash
    # Beads mode (see docs/beads-stealth-mode.md). Git mode (default): sync from git.
    # Stealth: handoff is document-based only (no git beads state).
@@ -192,6 +196,23 @@ If handoff documents active blockers:
    - Consider if different expertise needed
    - Create new handoff if switching approach
 
+### ⛔ Model/Effort Gate — advise before continuing
+
+**Before resuming work, pause once and advise on the model + effort for the remaining work.** A resume is the cheapest possible moment to switch: you've *just* reloaded the full context, so the switch tax is already paid — landing on the right tier now avoids a mid-phase reload later.
+
+1. From the handoff and beads state, identify the phase being resumed (`implement` / `validate` / etc.) and how gnarly the remaining tasks are.
+2. Consult the `model-help` skill in **gate mode** with that phase + the project docs + the model the handoff recorded (Output Format's "Previous Session … with [model]").
+3. Surface its one-line verdict, e.g.:
+
+   ```
+   Model gate — implement (resume): recommend Sonnet 5 / medium. Handoff ran on Opus 4.8.
+   → Switch down (plan is locked; remaining tasks are mechanical — Opus is overkill for the rest).
+   ```
+
+   Or, if the remaining work is the hard part, recommend staying/going up — the floor is inviolable, never advise below what the remaining tasks need.
+
+**Advisory and non-blocking.** State the recommendation and the concrete action (`/model <name>`, set effort); the user decides. Never switch on their behalf. If the current tier is already right, say so in one line and continue.
+
 ### Step 6: Continue Implementation
 
 **Resume from exact point indicated in handoff:**
@@ -212,6 +233,7 @@ Continuing implementation...
 ```
 
 Follow the "Next Steps" section from handoff:
+
 1. Complete the immediate next task specified
 2. Apply recommended approach documented
 3. Watch for gotchas mentioned
@@ -232,6 +254,7 @@ As you work:
 After resuming, verify continuity:
 
 1. **Code State Verification**:
+
    ```bash
    # Run tests to ensure starting state is good
    npm test  # or appropriate test command
@@ -309,6 +332,7 @@ If handoff says one thing but code shows another:
 ### Quality Indicators
 
 A successful resume shows:
+
 - Immediate understanding of context
 - No repeated discovery work
 - Consistent approach with previous session
@@ -320,17 +344,20 @@ A successful resume shows:
 Common workflows:
 
 **Simple Resume**:
+
 1. **`/resume_handoff`** - Load context
 2. `/implement_tasks` - Continue implementation
 3. `/validate_execution` - Verify when phase complete
 
 **Complex Resume with Validation**:
+
 1. **`/resume_handoff`** - Load context
 2. `/validate_execution` - Check actual state
 3. Resolve any discrepancies
 4. `/implement_tasks` - Continue work
 
 **Chain of Handoffs**:
+
 1. **`/resume_handoff`** - Session 2 resumes from Session 1
 2. Work on implementation
 3. `/create_handoff` - Session 2 creates new handoff
@@ -371,6 +398,7 @@ Check the file path or create a new handoff.
 This command restores complete context from handoff documents. It's essential for maintaining continuity across sessions and preventing loss of discovered knowledge.
 
 Best used:
+
 - When resuming incomplete work
 - After session timeout or limit
 - When switching between models

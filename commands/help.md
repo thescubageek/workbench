@@ -206,6 +206,10 @@ End-to-end sequencer: runs a ticket through research → design → execution (d
 
 Morning "catch me up + plan my day" orchestrator. Restores active-project context, pulls what changed since yesterday across Jira, beads, git/GitHub PRs, Sentry, Notion, Gmail, and Calendar, reconciles the same work item across sources, then produces a prioritized, session-sustainable day plan — with a complexity→(model, effort) tier per task for cost-optimized results and touch-grass pacing to stay inside the 5-hour window. Hands work off to `forge`, the review skills, and `fetch-issues`.
 
+### `/wb:model-help [handoff-or-spec]`
+
+Advises which Claude model + reasoning-effort to run a task at (advice only, never implements). Reads a handoff/spec/ticket and returns a tier with rationale — or runs in **gate mode**: the per-phase "model journey" a `forge` should take and whether switching the main model at a given gate is worth the context-reload cost. `forge`, `resume_handoff`, and the phase commands consult it at gates to keep spend down without lowering the quality floor.
+
 ## Core Principles
 
 1. **Document, Don't Judge** - Research describes what IS, not what should change
@@ -213,6 +217,7 @@ Morning "catch me up + plan my day" orchestrator. Restores active-project contex
 3. **Zero Scope Creep** - Only implement what's in tasks.md
 4. **TDD Discipline** - Red → Green → Refactor for each task
 5. **Beads Required** - Phase tracking persists across sessions
+6. **Right-sized model/effort** - Each gate advises a model + effort tier (via `model-help`); switch the main model only when it pays for the context reload, and never below the phase's quality floor
 
 ## Quick Troubleshooting
 

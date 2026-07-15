@@ -7,6 +7,8 @@ argument-hint: [project-directory]
 
 Validates that an execution plan was correctly implemented, verifying all success criteria and identifying any deviations, gaps, or issues.
 
+**Model & effort (gate check)**: on entry, consult the `model-help` skill (gate mode) for the model + effort this phase warrants; surface its one-line verdict and — only if a switch clears the switch-cost bar — the `/model` action. Baseline is Sonnet/medium, rising to Opus/high when the change has wide blast radius, is compliance/security-sensitive, or is hard to verify (mistakes hide until prod) — adversarial checking of sensitive code earns the higher tier. Best-effort and non-blocking: stay silent and proceed when the current tier is already right. See CLAUDE.md → "Model & effort at gates."
+
 ## Purpose
 
 This command provides an objective assessment of implementation completeness by:
