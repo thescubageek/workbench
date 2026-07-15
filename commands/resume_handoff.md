@@ -192,6 +192,23 @@ If handoff documents active blockers:
    - Consider if different expertise needed
    - Create new handoff if switching approach
 
+### ⛔ Model/Effort Gate — advise before continuing
+
+**Before resuming work, pause once and advise on the model + effort for the remaining work.** A resume is the cheapest possible moment to switch: you've *just* reloaded the full context, so the switch tax is already paid — landing on the right tier now avoids a mid-phase reload later.
+
+1. From the handoff and beads state, identify the phase being resumed (`implement` / `validate` / etc.) and how gnarly the remaining tasks are.
+2. Consult the `model-help` skill in **gate mode** with that phase + the project docs + the model the handoff recorded (Output Format's "Previous Session … with [model]").
+3. Surface its one-line verdict, e.g.:
+
+   ```
+   Model gate — implement (resume): recommend Sonnet 5 / medium. Handoff ran on Opus 4.8.
+   → Switch down (plan is locked; remaining tasks are mechanical — Opus is overkill for the rest).
+   ```
+
+   Or, if the remaining work is the hard part, recommend staying/going up — the floor is inviolable, never advise below what the remaining tasks need.
+
+**Advisory and non-blocking.** State the recommendation and the concrete action (`/model <name>`, set effort); the user decides. Never switch on their behalf. If the current tier is already right, say so in one line and continue.
+
 ### Step 6: Continue Implementation
 
 **Resume from exact point indicated in handoff:**

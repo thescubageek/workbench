@@ -7,6 +7,8 @@ argument-hint: [project-directory]
 
 Creates architectural and technical design decisions based on validated research. Focuses on WHAT to build and WHY, not HOW to implement.
 
+**Model & effort (gate check)**: on entry, consult the `model-help` skill (gate mode) for the model + effort this phase warrants; surface its one-line verdict and — only if a switch clears the switch-cost bar — the `/model` action. Design is the reasoning-dense phase and usually the pipeline's ceiling: baseline **Opus/high**, rising to `max` for novel / one-way-door / compliance-critical / high-blast-radius decisions. This is the gate most likely to justify switching *up*. Best-effort and non-blocking: stay silent and proceed when the current tier is already right. See CLAUDE.md → "Model & effort at gates."
+
 ## CRITICAL: This Document is About WHAT and WHY - NEVER HOW
 
 - **DO NOT** include implementation sequences or step-by-step procedures

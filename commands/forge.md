@@ -58,7 +58,16 @@ When invoked:
 
 3. **Report current state to the user** in 1–2 sentences. Example: "Project at `docs/plans/2026-05-12-project-roar/` has research + design complete. Next step is `/wb:create_execution`. Stop-after default is `execution` — confirm to proceed."
 
-4. **Confirm with the user before each phase transition.** Forge does not auto-advance silently; the user must see what's about to run.
+4. **Emit a one-time model plan.** Consult the `model-help` skill in **gate mode** (pass the ticket/design difficulty and the remaining phases) and print a compact per-phase tier table for the phases still ahead — the "model journey" for this forge. This is advisory: it shows where a main-model switch is worth the reload and, by clustering same-tier phases, keeps the whole run to ~1–2 switches. Example:
+
+   ```
+   Model plan (this forge): research Sonnet/med → design Opus/high ⬆ → execution Sonnet/med ⬇ → implement Sonnet/med → validate Sonnet/med
+   Switches: up to Opus for design, back to Sonnet after. Everything else stays put.
+   ```
+
+   Skip the table for a trivial single-phase pickup; a one-liner is enough.
+
+5. **Confirm with the user before each phase transition.** Forge does not auto-advance silently; the user must see what's about to run — and, at that moment, the model advisory for the phase about to run (see the per-phase behavior below).
 
 ## Per-phase behavior
 
@@ -104,6 +113,7 @@ When invoked:
 4. **Surface, don't hide.** Forge reports what it's about to do, what it just did, and what's blocked. The user should never have to ask "where are we?"
 5. **Re-entrant.** Forge can be invoked mid-pipeline. It picks up from the detected state.
 6. **One ticket at a time.** Forge sequences a single ticket end-to-end; it does not parallelize across tickets.
+7. **Model/effort advisory at every gate.** At each transition confirmation, delegate to the `model-help` skill (gate mode) for the phase about to run and surface its one-line verdict. Advise a main-model switch **only** when it clears the switch-cost bar (≥1 tier delta *and* a substantial phase); otherwise say "stay." Never advise below the phase's quality floor, and never switch on the user's behalf — they run `/model`. This is advisory and non-blocking; it must not delay or gate the actual work.
 
 ## Output style
 
@@ -116,6 +126,9 @@ After each phase:
 ⛔ Barriers before <next phase>:
    - <blocker 1>
    - <blocker 2>
+
+Model gate — <next phase>: recommend <Model>/<effort>. Current: <model or unknown>.
+   → <Switch (worth the reload: …) | Stay (sufficient / delta too small)>.
 
 Next: /wb:<next-phase>  (forge will invoke unless you say stop)
 ```

@@ -20,6 +20,8 @@ documentarian, not an evaluator.
 **Output discipline**: act on barriers silently; don't restate the plan between
 steps; emit only the artifact and a one-line completion summary.
 
+**Model & effort (gate check)**: on entry, consult the `model-help` skill (gate mode) for the model + effort this phase warrants; surface its one-line verdict and — only if a switch clears the switch-cost bar — the `/model` action. Research is usually Sonnet/medium (the heavy lifting is in the parallel read-only agents). Best-effort and non-blocking: stay silent and proceed when the current tier is already right. See CLAUDE.md → "Model & effort at gates."
+
 ## Initial Response
 
 When invoked, check for arguments:

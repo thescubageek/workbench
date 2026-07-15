@@ -172,6 +172,17 @@ Commands support model hints when spawning agents:
 - `sonnet`: Code analysis, integration planning, test design
 - `opus`: Complex reasoning, critical decisions
 
+## Model & effort at gates
+
+The `model-help` skill is the plugin's single authority on **which Claude model + reasoning-effort** to run at. Its **gate mode** carries per-phase baselines and the switch-cost rule; `forge`, `resume_handoff`, and the `create_*` / `implement_tasks` / `validate_execution` commands delegate to it rather than re-deriving the rubric. Keep model IDs and effort levels consistent with `skills/model-help/SKILL.md` (and the `daily-digest` rubric) as they change.
+
+The policy these commands enforce:
+
+1. **Two levers, different costs.** Sub-agent model/effort is **free** (fresh context per agent) — push cheap, parallelizable work there. Switching the **main-session** model reloads the whole conversation (tokens + latency) — advise it only when it pays for that tax.
+2. **Advise, never auto-switch.** Commands surface a one-line advisory and the concrete `/model` action; the user decides. Model advisories are best-effort and **non-blocking** — they must never delay or gate the actual work.
+3. **The quality floor is inviolable.** Never advise below the tier a phase needs at its hardest sub-problem. Savings come from not over-powering cheap phases and from sub-agent tiering — never from under-powering a hard one.
+4. **Minimize switches.** Cluster same-tier phases; a whole forge should cost ~1–2 main-model switches, not one per phase.
+
 ## Working with Commands
 
 When creating or modifying commands:
