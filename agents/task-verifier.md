@@ -35,6 +35,7 @@ You will receive:
 - **Task Description**: What was supposed to be implemented
 - **Worker Report**: What the worker claims to have done
 - **Files Changed**: List of modified files
+- **Base Ref**: The git ref (commit SHA/branch) captured BEFORE this task started, for scope diffing. If not provided, use the Files Changed list as the scope source instead of guessing a ref.
 - **Test Command**: How to run tests for this task
 
 ### Step 2: Run Tests
@@ -60,8 +61,14 @@ npm test
 Check that changes match task requirements:
 
 ```bash
-# See what files were actually changed
-git diff --name-only HEAD~1
+# See what files were actually changed since this task started.
+# Diff against the caller-provided Base Ref — do NOT assume HEAD~1 (a worker may
+# make 0, 1, or many commits per task, so HEAD~1 gives the wrong file set).
+if [ -n "$BASE_REF" ]; then
+  git diff --name-only "$BASE_REF"        # committed + working-tree changes since task start
+else
+  : # No Base Ref — verify against the provided "Files Changed" list instead
+fi
 
 # Check if changes are in expected files
 # Compare against task requirements

@@ -255,11 +255,17 @@ bd ready
 
 1. **Get next task**: Run `bd ready` to find available work
 2. **Check task details**: Run `bd show [task-id]` for requirements
-3. **Determine model**:
+3. **Capture the base ref** (for scope verification): record the current HEAD/working-tree state BEFORE the worker starts, so the verifier can diff exactly this task's changes rather than assuming `HEAD~1`:
+
+   ```bash
+   TASK_BASE_REF=$(git rev-parse HEAD)   # pass to the verifier as Base Ref in Step 6
+   ```
+
+4. **Determine model**:
    - Haiku: Simple tasks (config, docs, renames)
    - Sonnet: Standard implementation (tests, new functions, integrations)
    - Opus: Everything else (bugs, refactoring, architecture) - DEFAULT
-4. **Spawn worker agent**:
+5. **Spawn worker agent**:
 
    ```
    Use the general-purpose agent to implement this task.
@@ -280,8 +286,8 @@ bd ready
    Worker should return: files changed, tests modified, test command, summary.
    ```
 
-5. **Collect worker output** when complete
-6. **Proceed to verification** (Step 6)
+6. **Collect worker output** when complete
+7. **Proceed to verification** (Step 6)
 
 **Loop**: Spawn → Wait → Verify → Next task
 
@@ -400,6 +406,7 @@ After each worker completes:
    Provide the agent with:
    - Task ID: ${taskId}
    - Task Description: ${taskDetails.description}
+   - Base Ref: ${TASK_BASE_REF}  (captured before the worker started, for scope diffing)
    - Test Command: ${workerOutput.testCommand}
    - Files Changed: ${workerOutput.filesChanged}
    - Tests Modified: ${workerOutput.testsModified}

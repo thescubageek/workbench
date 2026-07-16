@@ -373,7 +373,7 @@ Note: Decisions blocking execution should be resolved before `/create_execution`
 
 ````
 
-**⛔ BARRIER 3**: Verify no placeholder values before writing
+**⛔⛔⛔ BARRIER 3: STOP! Verify no placeholder values before writing — every decision, rationale, and reference must be concrete, not a `[TODO]`/`[TBD]`/template stub. ⛔⛔⛔**
 
 ### Step 6: Review and Iterate
 

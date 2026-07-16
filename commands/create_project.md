@@ -340,6 +340,8 @@ tags: [tasks, tracking, [project-name]]
 
 ## Planning Phase
 
+> **Note**: These planning checkboxes are a bootstrap convenience only — beads is not yet initialized at project creation. Once `/create_execution` runs `bd init` and creates issues, **beads becomes the source of truth** for all status; these checkboxes are documentation only and are not updated to track live status.
+
 ### 📋 Documentation Setup
 - [x] Create project structure (completed [YYYY-MM-DD HH:MM])
 - [ ] Complete research using `/create_research [directory]`

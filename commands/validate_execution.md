@@ -146,7 +146,7 @@ Task({
 
   Return findings only; write nothing.`,
   subagent_type: "general-purpose",
-  model: "haiku"
+  model: "sonnet"
 })
 
 Task({
@@ -218,6 +218,8 @@ For each phase in tasks.md:
    - Should they be documented or reverted?
 
 ### Step 5: Generate Validation Report
+
+**⛔⛔⛔ BARRIER 3: STOP! No placeholders in the report — every file:line, metric, test result, and status must come from real tool output (agent findings, `bd` status, verification runs). Omit or mark `unverified` rather than inventing a value. ⛔⛔⛔**
 
 Create a comprehensive validation report:
 

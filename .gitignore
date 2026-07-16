@@ -5,3 +5,6 @@ tmp/
 
 # wb planning artifacts — dev-only, not part of the shipped plugin.
 docs/plans/
+
+# Claude Code local, per-developer config (permission allowlist etc.) — not shipped.
+.claude/settings.local.json

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Detect beads AVAILABILITY and MODE once at session start.
 # Exposes two env vars for wb commands/skills (see docs/beads-fast-fail.md):
 #   BEADS_AVAILABLE = yes | no      -> bd binary installed AND a .beads/ dir exists
