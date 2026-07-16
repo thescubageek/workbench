@@ -50,7 +50,7 @@ For each file (research.md, design.md, tasks.md):
 - ⚠️ Optional fields: `ticket`, `repository`, `researcher`, `planner`, `assignee`
 
 ### 3. Beads Integration
-- ✅ Beads is initialized (`bd doctor` succeeds)
+- ✅ Beads is available (fast-fail probe: `.beads/` exists and `bd` is installed — do NOT use `bd doctor`)
 - ✅ tasks.md has `beads_epic` in frontmatter
 - ✅ tasks.md has `beads_phases` in frontmatter
 - ✅ tasks.md has `beads_tasks` in frontmatter
@@ -131,8 +131,14 @@ const files = {
 Check beads integration and state:
 
 ```bash
-# Verify beads is initialized
-bd doctor
+# Verify beads is available with a fast, filesystem-only probe — do NOT use
+# `bd doctor` (it spawns a slow Dolt process and can hang). See
+# docs/beads-fast-fail.md.
+if [ "$BEADS_AVAILABLE" = "yes" ] || { command -v bd >/dev/null 2>&1 && [ -d .beads ]; }; then
+  : # beads usable — proceed
+else
+  echo "⚠️ Beads unavailable (bd not installed or .beads/ missing) — run 'bd init'."
+fi
 
 # Check and validate beads mode (set by SessionStart hook)
 if [ "$BEADS_MODE" = "stealth" ]; then
@@ -381,10 +387,13 @@ if (design.status === 'complete' && tasks.status !== 'complete') {
 ### Beads Validation
 
 ```javascript
-// Check beads is initialized
-const beadsCheck = exec('bd doctor');
-if (beadsCheck.failed) {
-  ERROR('Beads is not initialized. Run: bd init');
+// Check beads is available with a fast filesystem probe — never `bd doctor`
+// (it spawns a slow Dolt process and can hang). See docs/beads-fast-fail.md.
+const beadsAvailable =
+  process.env.BEADS_AVAILABLE === 'yes' ||
+  (exec('command -v bd').ok && exec('test -d .beads').ok);
+if (!beadsAvailable) {
+  ERROR('Beads is not available (bd not installed or .beads/ missing). Run: bd init');
 }
 
 // Extract beads IDs from frontmatter

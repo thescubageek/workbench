@@ -6,9 +6,17 @@
 # Resolve script directory (works whether invoked from plugin or directly)
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
-# Parse the JSON to get the file path
-# Claude Code passes tool arguments in CLAUDE_TOOL_ARGS environment variable
-FILE_PATH=$(echo "$CLAUDE_TOOL_ARGS" | grep -o '"file_path"[[:space:]]*:[[:space:]]*"[^"]*"' | sed 's/.*"file_path"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/')
+# Parse the JSON to get the file path.
+# Claude Code delivers the PostToolUse payload as JSON on stdin (shape:
+# {"tool_input":{"file_path":"..."}}), not via an env var. Prefer jq; fall back
+# to grep/sed if jq is absent. (CLAUDE_TOOL_ARGS is honored as a legacy fallback.)
+PAYLOAD="$(cat)"
+[ -z "$PAYLOAD" ] && PAYLOAD="${CLAUDE_TOOL_ARGS:-}"
+if command -v jq >/dev/null 2>&1; then
+    FILE_PATH=$(printf '%s' "$PAYLOAD" | jq -r '.tool_input.file_path // .file_path // empty')
+else
+    FILE_PATH=$(printf '%s' "$PAYLOAD" | grep -o '"file_path"[[:space:]]*:[[:space:]]*"[^"]*"' | sed 's/.*"file_path"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/')
+fi
 
 # Check if it's a markdown file
 if [[ "$FILE_PATH" == *.md ]]; then

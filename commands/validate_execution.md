@@ -58,16 +58,31 @@ const tasksFile = `${projectDir}/tasks.md`;
 
 1. **Read tasks.md completely** to understand:
    - What phases were planned
-   - Which tasks are marked complete ([x])
    - Success criteria for each phase
    - Modified files listed
+   - NOTE: tasks.md checkboxes are **documentation only** — they are NOT the status source (`implement_tasks`/`resume_handoff` do not update them). Read completion from beads instead (next item).
 
-2. **Read design.md** to understand:
+2. **Read task completion status from beads** (the source of truth):
+   - Verify beads is available with a fast, filesystem-only probe — do NOT use `bd doctor` (it can hang; see docs/beads-fast-fail.md):
+
+     ```bash
+     if [ "$BEADS_AVAILABLE" = "yes" ] || { command -v bd >/dev/null 2>&1 && [ -d .beads ]; }; then
+       bd list --status closed   # tasks/phases actually completed
+       bd list --status open     # remaining work
+       bd stats                  # completion counts for the executive summary
+     else
+       echo "⚠️ Beads unavailable — fall back to tasks.md checkboxes, but flag that status is unverified."
+     fi
+     ```
+
+   - Use the beads issue IDs in tasks.md frontmatter (`beads_epic`, `beads_phases`, `beads_tasks`) to map each phase/task to its issue and read its real status.
+
+3. **Read design.md** to understand:
    - Original design decisions
    - Success metrics defined
    - Scope boundaries
 
-3. **Read research.md** to understand:
+4. **Read research.md** to understand:
    - Original state of the codebase
    - Patterns that should be followed
 
@@ -182,10 +197,10 @@ Document the results:
 
 For each phase in tasks.md:
 
-1. **Check task completion**:
-   - Verify each [x] checked task was actually done
-   - Look for evidence in code changes
-   - Identify any incomplete work
+1. **Check task completion** (against beads, not checkboxes):
+   - For each task/phase issue reported `closed` in beads, verify it was actually done — look for evidence in code changes
+   - Flag any beads issue closed without corresponding code (false completion), and any open issue whose work appears done (unclosed completion)
+   - Ignore tasks.md `[x]` marks as a status signal — they are documentation only and routinely stale
 
 2. **Verify success criteria**:
    - Were all automated criteria met?
@@ -359,7 +374,7 @@ Deletions: -[Z] lines
 ### Step 6: Update Documentation
 
 If validation passes with minor issues:
-1. Update tasks.md to reflect actual completion status
+1. Reconcile status in **beads** (`bd close`/`bd update`) to reflect actual completion — beads is the source of truth; only ever update tasks.md checkboxes *from* beads, never the reverse
 2. Document any approved deviations
 3. Note lessons learned for future projects
 
@@ -401,8 +416,8 @@ If validation fails:
 ### Common Validation Checks
 
 Always verify:
-- [ ] All phases marked complete actually are
-- [ ] All checked tasks have corresponding code
+- [ ] All phases/tasks closed in beads actually are complete (with corresponding code)
+- [ ] No completed work is left open in beads, and no closed issue lacks code
 - [ ] All tests pass consistently
 - [ ] No regressions introduced
 - [ ] Build succeeds cleanly

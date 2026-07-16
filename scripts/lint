@@ -180,8 +180,11 @@ echo ""
 # Track if any issues were found
 ISSUES_FOUND=false
 
-# Run markdownlint on each file
-echo "$FILES" | while read -r file; do
+# Run markdownlint on each file.
+# NOTE: use a here-string, not `echo "$FILES" | while`. A pipe runs the loop in
+# a subshell, so ISSUES_FOUND would never propagate to the parent and the script
+# would always exit 0 even on lint failures.
+while read -r file; do
     if [ -f "$file" ]; then
         if markdownlint $AUTO_FIX $CONFIG_ARG "$file" 2>&1; then
             if [ -n "$AUTO_FIX" ]; then
@@ -197,7 +200,7 @@ echo "$FILES" | while read -r file; do
             fi
         fi
     fi
-done
+done <<< "$FILES"
 
 # Clean up temporary config
 if [ "$TEMP_CONFIG" = true ]; then

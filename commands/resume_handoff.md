@@ -245,7 +245,7 @@ As you work:
 
 1. **Stay consistent** with patterns discovered in handoff
 2. **Reference solutions** to problems already solved
-3. **Update tasks.md** checkboxes as you complete work
+3. **Track status in beads** (`bd update [id] --status in_progress`, `bd close [id]`) as you complete work — NEVER markdown checkboxes (tasks.md is documentation only)
 4. **Document new discoveries** for potential future handoff
 5. **Run verification** commands from handoff
 
