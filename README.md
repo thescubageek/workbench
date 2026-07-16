@@ -99,6 +99,14 @@ Background capabilities that Claude automatically invokes:
 - **`status-sync`** - Monitors for status drift and reminds to sync
 - **`review-prep`** - Interactive code review walkthrough using tmux and nvim
 
+### Meta-Review (maintainer / release gate)
+
+Adversarial two-lens review of the wb plugin itself before merging a PR or shipping a version bump — invoke with "review wb" / "meta-review":
+
+- **`meta-review`** (skill) - Spawns both reviewers in parallel against a branch/PR/worktree and produces a combined triaged report (fresh or delta)
+- **`engineering-reviewer`** (agent) - Mechanical correctness: scripts, hooks, plugin/marketplace manifests (incl. version parity), frontmatter, security, markdown-as-code
+- **`workflow-reviewer`** (agent) - Workflow integrity: documentarian discipline, barriers/checkpoints, research→design→tasks separation, beads-not-TodoWrite, scope control
+
 ### Hooks
 
 - **SessionStart** - Auto-detects beads mode (stealth/git)
