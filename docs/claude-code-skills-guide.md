@@ -39,7 +39,7 @@ The old distinction ("commands are explicit, skills are automatic") is now a *co
 ## File Structure and Locations
 
 | Location | Scope | Resulting name |
-|----------|-------|----------------|
+| ---------- | ------- | ---------------- |
 | Managed settings | Organization-wide (highest priority) | `/name` |
 | `~/.claude/skills/<name>/SKILL.md` | Personal, all projects | `/name` |
 | `.claude/skills/<name>/SKILL.md` | Project (shared via git) | `/name` |
@@ -123,7 +123,7 @@ Values: `"on"` (default), `"name-only"` (no description in context), `"user-invo
 The two flags produce three useful configurations:
 
 | Configuration | Frontmatter | User types `/name` | Claude auto-invokes | Description in context |
-|---------------|-------------|--------------------|---------------------|------------------------|
+| --------------- | ------------- | -------------------- | --------------------- | ------------------------ |
 | Default | (neither flag) | ✅ | ✅ | ✅ |
 | User-only | `disable-model-invocation: true` | ✅ | ❌ | ❌ |
 | Claude-only | `user-invocable: false` | ❌ (hidden) | ✅ | ✅ |
@@ -141,7 +141,7 @@ Guidance:
 ### String substitutions
 
 | Variable | Meaning |
-|----------|---------|
+| ---------- | --------- |
 | `$ARGUMENTS` | All arguments as typed after `/name` |
 | `$0`, `$1`, `$2` … | Positional arguments |
 | `$ARGUMENTS[N]` | Indexed argument |
@@ -224,7 +224,7 @@ Capabilities worth knowing:
 ### Built-in subagents
 
 | Name | Model | Tools | Notes |
-|------|-------|-------|-------|
+| ------ | ------- | ------- | ------- |
 | `Explore` | Haiku | Read-only | Fast/cheap search; skips CLAUDE.md |
 | `Plan` | Inherits | Read-only | Research for plan mode; skips CLAUDE.md |
 | `general-purpose` | Inherits | All | Default for complex multi-step tasks |
@@ -323,7 +323,7 @@ The wb plugin's `commands/` files continue to work unchanged — plugin commands
 For readers who knew the previous version of this document, these statements from it are **no longer true**:
 
 | 2025 guide said | Now |
-|-----------------|-----|
+| ----------------- | ----- |
 | Skills cannot be explicitly invoked (no `/skill-name` syntax) | Skills ARE invocable via `/skill-name` unless `user-invocable: false` |
 | Skills and slash commands are separate systems | Unified — same mechanism, `skills/` is canonical, `commands/` is legacy |
 | Skills use a flat structure, no namespaces | Recursive scanning; plugin skills get `/plugin:name` namespacing |

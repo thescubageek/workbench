@@ -1,6 +1,6 @@
 ---
 description: Update status across all project documentation files based on progress
-argument-hint: [project-directory]
+argument-hint: "[project-directory]"
 ---
 
 # Update Project Status
@@ -316,6 +316,7 @@ fi
 ```
 
 **Why this matters**:
+
 - **Stealth mode**: Keeps local beads database in sync with .beads/ files
 - **Git mode**: Persists beads state to git for cross-machine sync
 - Both modes: Ensures beads database is up-to-date
@@ -392,6 +393,7 @@ For research and design status (not tracked in beads), use content analysis:
 ### Tasks Detection
 
 **Use beads only**:
+
 - Count closed issues: `bd list --status=closed | grep -v milestone | wc -l`
 - Count total task issues from frontmatter `beads_tasks`
 - Identify active phase: check which phase milestone has open blocking tasks

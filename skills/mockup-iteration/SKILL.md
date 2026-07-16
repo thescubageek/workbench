@@ -22,6 +22,7 @@ Helps iterate on UI mockups efficiently, capturing decisions without fidelity lo
 ## Activation
 
 This skill activates when:
+
 - User provides feedback on a mockup ("keep the header", "remove the sidebar")
 - User asks to iterate or create next version
 - User discusses mockup changes
@@ -39,6 +40,7 @@ Before processing feedback, locate the mockup:
 4. **Verify v00[N] directory exists** - if not, scan for highest existing
 
 **If mockup-log.md missing:**
+
 ```
 I can't find an active mockup session.
 
@@ -48,6 +50,7 @@ Options:
 ```
 
 **If giving feedback about non-mockup topic:**
+
 ```
 I'm treating this as mockup feedback for [feature] (currently v00[N]).
 If this isn't about the mockup, let me know.
@@ -70,6 +73,7 @@ When user provides mockup feedback:
    - Each part gets its own log entry
 
    **Questions and assumptions** → Create beads issues:
+
    ```bash
    # For questions that need answers:
    bd create "UI Q: [question]" --type=task --priority=2 \
@@ -81,6 +85,7 @@ When user provides mockup feedback:
    ```
 
 2. **Update mockup-log.md** immediately:
+
    ```markdown
    ### Confirmed (KEEP)
    - [Requirement] - confirmed [date] - "[user quote]"
@@ -90,6 +95,7 @@ When user provides mockup feedback:
    ```
 
 3. **Summarize understanding** before creating new version:
+
    ```
    Got it. For the next version:
 
@@ -246,6 +252,7 @@ bd list --status=open | grep -E "UI Q:|UI Assumption:"
 ```
 
 If open issues exist:
+
 ```
 ⚠️ Cannot finalize - unresolved items:
 
@@ -299,7 +306,7 @@ _Explicitly excluded during mockup iteration_
 During iteration, user can say:
 
 | Command | Action |
-|---------|--------|
+| --------- | -------- |
 | "keep [X]" | Add to Confirmed, preserve in next version |
 | "remove [X]" | Add to Rejected, cut from next version |
 | "change [X] to [Y]" | Note modification for next version |
@@ -320,19 +327,24 @@ When user wants to see the current mockup visually:
 
 1. **Find current version** from mockup-log.md frontmatter
 2. **Navigate to mockup.html**:
+
    ```javascript
    mcp__plugin_playwright_playwright__browser_navigate({
      url: "file:///[absolute-path]/mockups/v00[N]/mockup.html"
    })
    ```
+
 3. **Take screenshot**:
+
    ```javascript
    mcp__plugin_playwright_playwright__browser_take_screenshot({
      filename: "mockup-preview-current.png",
      fullPage: true
    })
    ```
+
 4. **Show to user**:
+
    ```
    Current mockup (v00[N]) preview:
 
@@ -437,11 +449,13 @@ If session ends mid-iteration or user requests handoff:
 
 1. **Capture pending feedback** not yet versioned
 2. **Update mockup-log.md** with "Pending Feedback" section:
+
    ```markdown
    ## Pending Feedback (Not Yet Versioned)
    - "[feedback 1]" - KEEP
    - "[feedback 2]" - CHANGE
    ```
+
 3. **Note in handoff document** (if using /wb:create_handoff):
    - Mockup location: [path]
    - Current version: v00[N]

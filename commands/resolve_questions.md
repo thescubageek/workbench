@@ -1,6 +1,6 @@
 ---
 description: Walk through open questions raised by wb workflow documents one at a time, recording each decision (with rationale) in the design decisions log and closing the source question in markdown and/or beads.
-argument-hint: [project-directory]
+argument-hint: "[project-directory]"
 ---
 
 # Resolve Open Questions

@@ -25,7 +25,6 @@ This is the global reinforcement of each command's inline output-discipline dire
 - `hooks/` - Event handlers (SessionStart, PostToolUse)
 - `scripts/` - Utility scripts (lint, lint-hook)
 - `docs/` - Documentation and guides
-- `general/` - General-purpose prompts and templates
 - `.claude/` - Local development configuration
 
 ## Development Tools

@@ -1,6 +1,6 @@
 ---
 description: Initialize comprehensive project documentation with research, design, and task files
-argument-hint: [project-name] [base-dir] [ticket-ref]
+argument-hint: "[project-name] [base-dir] [ticket-ref]"
 ---
 
 # Initialize Project Documentation

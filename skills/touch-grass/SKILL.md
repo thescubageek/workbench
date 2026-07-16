@@ -29,6 +29,7 @@ Five non-negotiables (each is a bug someone already hit — do not improvise aro
 ## When to activate
 
 Activate when **all** hold:
+
 - The task serves one clear decision or deliverable, and
 - It's too large to finish in one context window / one sitting, and
 - Quality matters enough that grinding through in one pass would degrade it, and

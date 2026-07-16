@@ -19,6 +19,7 @@ so resume must be lossless from THIS FILE ALONE. Keep sections in this order.
      Never rewrite history above — amendments are how later segments inherit changes. -->
 
 ### AMENDMENT 1 — <date/time>
+
 <what the user changed, in their words + your restatement>
 
 ## Segment plan
@@ -38,6 +39,7 @@ so resume must be lossless from THIS FILE ALONE. Keep sections in this order.
 ## Findings
 
 ### S1 — <sub-question> — confidence: <high|medium|low>
+
 <dense, self-contained findings. Cite sources by id from the ledger below.>
 
 <!-- add one FINDINGS block per completed segment -->

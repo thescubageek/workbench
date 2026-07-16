@@ -1,6 +1,6 @@
 ---
 description: Coordinate task implementation using sequential worker agents with fresh context
-argument-hint: [project-directory] [phase-number|continue]
+argument-hint: "[project-directory] [phase-number|continue]"
 ---
 
 # Implement Tasks (Coordinated)

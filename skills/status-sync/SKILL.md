@@ -25,10 +25,12 @@ bd list --status=in_progress    # What's claimed
 ## Drift Indicators
 
 **Work done but not synced**:
+
 - Issues closed in session but `bd sync` not run
 - End of session approaching
 
 **Phase complete but not closed**:
+
 - All tasks in a phase done, but beads issue still open
 - Reminder: `bd close [phase-id] --reason "..."`
 

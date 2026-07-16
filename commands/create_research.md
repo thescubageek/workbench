@@ -1,6 +1,6 @@
 ---
 description: Research codebase using parallel agents to document how things work
-argument-hint: [project-directory] [research-question]
+argument-hint: "[project-directory] [research-question]"
 ---
 
 # Generate Research Document

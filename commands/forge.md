@@ -1,6 +1,6 @@
 ---
 description: Forge a ticket through the full wb pipeline — research → design → execution → implementation. End-to-end sequencer for the wb workflow.
-argument-hint: [ticket-or-directory] [stop-at-phase?]
+argument-hint: "[ticket-or-directory] [stop-at-phase?]"
 ---
 
 # Forge — wb pipeline orchestrator

@@ -44,7 +44,7 @@ Hook script used by Claude Code to automatically lint markdown files after they 
 
 ```bash
 # This script is automatically triggered by Claude Code hooks
-# It's configured in .claude/settings.local.json
+# It's configured in the plugin manifest: .claude-plugin/plugin.json (hooks block)
 ```
 
 **Features:**
@@ -99,11 +99,11 @@ The project uses `.markdownlintrc` for markdownlint configuration. Current setti
 
 ## Claude Code Hooks
 
-The project has automatic markdown linting configured via Claude Code hooks in `.claude/settings.local.json`:
+The project has automatic markdown linting configured via Claude Code hooks in the plugin manifest `.claude-plugin/plugin.json` (`hooks` block):
 
 - **PostToolUse hooks** for Write and Edit tools
-- Automatically runs `./scripts/lint-hook` after any markdown file is created or modified
+- Automatically runs `${CLAUDE_PLUGIN_ROOT}/scripts/lint-hook` after any markdown file is created or modified
 - Attempts to auto-fix common markdown issues
 - Shows brief status messages in the Claude Code interface
 
-To disable automatic linting, remove or comment out the `hooks` section in `.claude/settings.local.json`.
+To disable automatic linting, remove or comment out the `hooks` section in `.claude-plugin/plugin.json`.

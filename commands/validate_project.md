@@ -1,6 +1,6 @@
 ---
 description: Validate project documentation follows wb workflow correctly
-argument-hint: [project-directory]
+argument-hint: "[project-directory]"
 ---
 
 # Validate Project
@@ -36,6 +36,7 @@ When invoked, check for arguments:
 The command validates the following aspects:
 
 ### 1. File Structure
+
 - ✅ research.md exists
 - ✅ design.md exists
 - ✅ tasks.md exists
@@ -43,13 +44,16 @@ The command validates the following aspects:
 - ⚠️ Optional: mockup-log.md in mockups/ (if mockup workflow used)
 
 ### 2. Frontmatter Completeness
+
 For each file (research.md, design.md, tasks.md):
+
 - ✅ Has valid YAML frontmatter
 - ✅ Required fields present: `project`, `created`, `status`, `last_updated`
 - ✅ Git metadata present: `git_commit`, `git_branch`
 - ⚠️ Optional fields: `ticket`, `repository`, `researcher`, `planner`, `assignee`
 
 ### 3. Beads Integration
+
 - ✅ Beads is available (fast-fail probe: `.beads/` exists and `bd` is installed — do NOT use `bd doctor`)
 - ✅ tasks.md has `beads_epic` in frontmatter
 - ✅ tasks.md has `beads_phases` in frontmatter
@@ -58,6 +62,7 @@ For each file (research.md, design.md, tasks.md):
 - ✅ No orphaned beads issues (beads exist that aren't in frontmatter)
 
 ### 4. Status Consistency
+
 - ✅ research.md status is valid: `draft`, `in-progress`, or `complete`
 - ✅ design.md status is valid: `draft`, `ready`, `implementing`, or `complete`
 - ✅ tasks.md status is valid: `not-started`, `in-progress`, or `complete`
@@ -68,6 +73,7 @@ For each file (research.md, design.md, tasks.md):
 - ✅ All files have same `last_updated` date (or close)
 
 ### 5. Content Completeness
+
 - ✅ No placeholder text like `[To be added]`, `[TBD]`, `[TODO]`
 - ✅ research.md has findings sections populated
 - ✅ design.md has design decisions documented
@@ -75,6 +81,7 @@ For each file (research.md, design.md, tasks.md):
 - ✅ Success criteria are specific, not generic
 
 ### 6. Beads State Alignment
+
 - ✅ Beads epic exists and is open (or closed if project complete)
 - ✅ Phase milestone issues exist for each phase
 - ✅ Task issues exist for all tasks listed in `beads_tasks`
@@ -84,11 +91,13 @@ For each file (research.md, design.md, tasks.md):
 - ✅ Beads dependencies are set up correctly (phases depend on previous phases)
 
 ### 7. Dependencies
+
 - ✅ design.md references research.md in `depends_on`
 - ✅ tasks.md references both research.md and design.md in `depends_on`
 - ✅ Dependency chain is complete: research → design → tasks
 
 ### 8. Cross-File Consistency
+
 - ✅ Project names match across all files
 - ✅ Ticket IDs match (if present)
 - ✅ Git metadata is consistent
@@ -112,6 +121,7 @@ const files = {
 ```
 
 1. **Check directory exists**:
+
    ```bash
    ls ${projectDir}
    ```
@@ -177,6 +187,7 @@ bd show [task-id]
 ```
 
 Extract beads IDs from tasks.md frontmatter:
+
 - `beads_epic`
 - `beads_phases.*`
 - `beads_tasks.*`
@@ -186,11 +197,13 @@ For each ID, verify it exists in beads.
 ### Step 3: Run Validation Checks
 
 Run all checks from the checklist above. Track:
+
 - ✅ **Pass**: Check succeeded
 - ⚠️ **Warning**: Non-critical issue, should fix
 - ❌ **Error**: Critical issue, must fix
 
 Organize findings by category:
+
 1. Critical Errors (must fix)
 2. Warnings (should fix)
 3. Passed Checks (all good)
@@ -521,11 +534,13 @@ for (const section of sections) {
 This command validates project documentation structure and beads integration. It does not modify files unless the user explicitly requests fixes.
 
 **Usage**:
+
 ```
 /wb:validate_project docs/plans/2025-01-08-my-project
 ```
 
 **Validation Modes**:
+
 - Default: Full validation with detailed report
 - Quick: Check only critical errors (future enhancement)
 - Fix: Validate and auto-fix issues (future enhancement)

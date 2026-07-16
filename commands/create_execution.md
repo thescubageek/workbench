@@ -1,6 +1,6 @@
 ---
 description: Transform design into detailed phased execution plan with embedded tasks
-argument-hint: [project-directory]
+argument-hint: "[project-directory]"
 ---
 
 # Create Execution Plan

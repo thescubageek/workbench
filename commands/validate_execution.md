@@ -1,6 +1,6 @@
 ---
 description: Validate that execution plan was correctly implemented and verify all success criteria
-argument-hint: [project-directory]
+argument-hint: "[project-directory]"
 ---
 
 # Validate Execution

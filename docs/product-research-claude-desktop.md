@@ -1,3 +1,4 @@
+<!-- markdownlint-disable MD025 -- this file embeds a second, copyable document below the --- divider -->
 # Product Research Skill — Claude Desktop Setup
 
 ## Setup Instructions

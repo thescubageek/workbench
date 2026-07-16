@@ -1,6 +1,6 @@
 ---
 description: Create architectural design decisions based on validated research
-argument-hint: [project-directory]
+argument-hint: "[project-directory]"
 ---
 
 # Create Design Document

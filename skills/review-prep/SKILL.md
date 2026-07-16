@@ -35,7 +35,7 @@ ${CLAUDE_PLUGIN_ROOT}/skills/review-prep/nvim-helper.sh setup
 # Returns: NVIM_PANE=%123
 ```
 
-2. Get the diff:
+1. Get the diff:
 
 ```bash
 # Default: last commit
@@ -45,7 +45,7 @@ git show HEAD --stat
 git diff main..HEAD --stat
 ```
 
-3. Parse changes into logical groups:
+1. Parse changes into logical groups:
    - Group related hunks that solve same problem
    - Keep test files paired with their implementation
 
@@ -71,14 +71,14 @@ If more than 2-3 problems: flag as code smell, suggest splitting.
 ${CLAUDE_PLUGIN_ROOT}/skills/review-prep/nvim-helper.sh open src/auth.ts 42
 ```
 
-2. Focus nvim for user inspection:
+1. Focus nvim for user inspection:
 
 ```bash
 ${CLAUDE_PLUGIN_ROOT}/skills/review-prep/nvim-helper.sh focus
 ```
 
-3. Give ONE line context: "Change X/N - [Problem]. [brief description]"
-4. Wait for questions
+1. Give ONE line context: "Change X/N - [Problem]. [brief description]"
+2. Wait for questions
 
 ## TDD Check
 
@@ -98,7 +98,7 @@ Don't block - just note. User decides if intentional.
 ## Navigation
 
 | Command | Action |
-|---------|--------|
+| --------- | -------- |
 | `next` | Next logical change |
 | `back` | Previous change |
 | `skip to [file]` | Jump to specific file |
@@ -150,7 +150,7 @@ ${CLAUDE_PLUGIN_ROOT}/skills/review-prep/nvim-helper.sh focus
 ## Code Smell Flags
 
 | Smell | Response |
-|-------|----------|
+| ------- | ---------- |
 | >2-3 problems per diff | "Consider splitting this PR" |
 | Change doesn't map to stated problem | "This seems unrelated - intentional?" |
 | Pattern repeated 3+ times | "Extract helper? (your call)" |

@@ -64,6 +64,7 @@ bd init             # Git: .beads/ tracked in git (personal projects)
 - **`mockup-iteration` skill**: Creates UI questions, validates all resolved before finalization
 
 **Beads workflow**:
+
 ```bash
 bd ready                                    # Find available work (no blockers)
 bd show [id]                                # Review task details

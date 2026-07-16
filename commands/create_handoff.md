@@ -1,6 +1,6 @@
 ---
 description: Create a handoff document to transfer work context to another session or agent
-argument-hint: [project-directory] [handoff-reason]
+argument-hint: "[project-directory] [handoff-reason]"
 ---
 
 # Create Handoff
@@ -10,6 +10,7 @@ Creates a comprehensive handoff document to transfer your work context to anothe
 ## Purpose
 
 Handoff documents preserve:
+
 - Work in progress and current status
 - Critical learnings and discoveries
 - Context not captured in formal docs
@@ -27,6 +28,7 @@ When invoked, check for arguments:
    - Begin handoff creation
 
 2. **If no arguments**:
+
    ```
    I'll create a handoff document for your current work. Please provide:
    1. Path to the project documentation directory (e.g., docs/plans/2025-01-08-my-project/)
@@ -63,6 +65,7 @@ const tasksFile = `${projectDir}/tasks.md`;
    - Any deviations from plan
 
 3. **Check beads state** to capture:
+
    ```bash
    bd stats                        # Overall project progress
    bd list --status=in_progress    # Active work
@@ -77,6 +80,7 @@ const tasksFile = `${projectDir}/tasks.md`;
    - What's ready to work on next
 
 4. **Check for mockup state** (if mockups/ exists):
+
    ```bash
    ls mockups/                     # Check for mockup directory
    # If exists, read mockups/mockup-log.md for current version and pending feedback
@@ -135,6 +139,7 @@ git rev-parse HEAD
 Document any uncommitted work and its purpose.
 
 **Beads persistence**:
+
 - **Git mode** (personal projects): Beads state committed to git, persists across sessions
 - **Stealth mode** (work repos): Beads state local-only, document next steps manually for handoff
 
@@ -373,15 +378,18 @@ Before using this handoff, verify:
 ### Step 5: Save and Confirm
 
 Save the handoff document as:
+
 ```
 [project-dir]/handoff-YYYY-MM-DD-HH-MM.md
 ```
 
 Where:
+
 - YYYY-MM-DD is current date
 - HH-MM is current time (24-hour)
 
 Present to user:
+
 ```
 ✅ Handoff document created successfully!
 
@@ -404,6 +412,7 @@ The handoff includes all context needed for seamless continuation.
 ### What to Include
 
 **ALWAYS Include**:
+
 - Current phase and task status
 - Recent code changes (file:line)
 - Problems solved and how
@@ -412,6 +421,7 @@ The handoff includes all context needed for seamless continuation.
 - Next immediate steps
 
 **Include When Relevant**:
+
 - Uncommitted changes and why
 - Deviations from plan
 - Performance considerations found
@@ -419,6 +429,7 @@ The handoff includes all context needed for seamless continuation.
 - Architectural insights
 
 **Don't Include**:
+
 - Large code blocks (use file:line references)
 - Obvious information from project docs
 - Generic advice
@@ -427,6 +438,7 @@ The handoff includes all context needed for seamless continuation.
 ### Handoff Quality
 
 A good handoff should allow someone to:
+
 1. Understand exactly where you left off
 2. Know what problems you solved
 3. Avoid repeating failed attempts
@@ -436,6 +448,7 @@ A good handoff should allow someone to:
 ### When to Create Handoffs
 
 Create a handoff when:
+
 - Session is ending with work incomplete
 - Switching to different model for complex work
 - Blocked and need different expertise
@@ -447,6 +460,7 @@ Create a handoff when:
 Typical workflows:
 
 **Mid-Implementation Handoff**:
+
 1. `/implement_tasks` - Working on implementation
 2. [Hit blocker or session limit]
 3. **`/create_handoff`** - Document current state
@@ -454,6 +468,7 @@ Typical workflows:
 5. `/resume_handoff` - Continue where left off
 
 **Phase Completion Handoff**:
+
 1. Complete Phase N
 2. `/validate_execution` - Verify work
 3. **`/create_handoff`** - Document for next phase

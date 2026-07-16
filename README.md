@@ -67,6 +67,7 @@ Slash commands for project documentation and task management:
 
 - **`/wb:create_project`** - Initialize structured documentation with rich metadata
 - **`/wb:create_research`** - Document codebase using parallel research agents
+- **`/wb:create_product_research`** - Document codebase from a product perspective (features, user flows, behaviors)
 - **`/wb:create_mockup`** - Research UI patterns and create HTML mockups with visual validation
 - **`/wb:create_design`** - Create architectural design decisions (WHAT and WHY)
 - **`/wb:create_execution`** - Transform design into phased execution plan (HOW)
@@ -88,6 +89,8 @@ Specialized agents for codebase analysis:
 - **`codebase-locator`** - Find specific components and files
 - **`codebase-analyzer`** - Analyze implementation details with file:line references
 - **`pattern-finder`** - Find similar patterns and implementations
+- **`product-behavior-analyzer`** - Analyze the codebase as user-visible behaviors and product capabilities
+- **`research-validator`** - Validate research docs against the codebase (paths, snippets, behavioral claims)
 - **`task-verifier`** - Verify task completion against requirements
 
 ### Skills (auto-activated)
@@ -101,6 +104,12 @@ Background capabilities that Claude automatically invokes:
 - **`status-sync`** - Monitors for status drift and reminds to sync
 - **`review-prep`** - Interactive code review walkthrough using tmux and nvim
 - **`jira-context`** - Loads context from a Jira ticket's "Agents" section (hivemind bootstrap); runs standalone or inside `create_research`/`forge`
+- **`research-validation`** - Validates research docs against the actual codebase (paths, snippets, behavioral claims)
+- **`model-help`** - Recommends the Claude model + reasoning-effort for a task/handoff; also the gate-mode authority for the workflow commands
+- **`tracer-bullet`** - Fires one cheap probe at the riskiest assumption before fanning out into speculative work
+- **`touch-grass`** - Paces long-horizon research/audits across checkpointed segments with self-scheduled resumes
+- **`fetch-issues`** - Triages open GitHub issues into per-issue, session-ready handoffs
+- **`daily-digest`** - Morning "catch me up + plan my day" orchestrator across Jira, beads, git, and more
 - **`clip`** - Runs an instruction, then copies the result to the clipboard (cross-platform) instead of printing it
 - **`eli5-clip`** - Summarizes recent work as a warm, plain-language message for a non-technical reader and copies it to the clipboard, tailored to a named recipient
 
@@ -121,8 +130,7 @@ workbench/
 ├── skills/             # Auto-activated capabilities
 ├── hooks/              # Event handlers
 ├── scripts/            # Utility scripts (lint)
-├── docs/               # Guides and documentation
-└── general/            # General-purpose prompts
+└── docs/               # Guides and documentation
 ```
 
 ## Beads Integration

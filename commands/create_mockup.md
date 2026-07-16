@@ -1,6 +1,6 @@
 ---
 description: Research UI patterns and create initial mockup with clarifying questions
-argument-hint: [project-directory] [feature-description]
+argument-hint: "[project-directory] [feature-description]"
 ---
 
 # Create Mockup
@@ -10,6 +10,7 @@ Researches existing UI patterns, styles, and layouts, then creates an initial mo
 ## Purpose
 
 This command:
+
 - Documents current UI patterns and styles (research phase)
 - Asks clarifying questions about the desired feature
 - Creates a versioned mockup with rationale
@@ -25,6 +26,7 @@ When invoked, check for arguments:
    - Begin research immediately
 
 2. **If no arguments**:
+
    ```
    I'll help you create a UI mockup. Please provide:
    1. Path to the project documentation directory
@@ -374,6 +376,7 @@ created: [YYYY-MM-DD]
 Create `mockups/v001/mockup.html`:
 
 **Critical requirements:**
+
 1. **Import app's actual stylesheets** based on research
 2. **Use discovered component HTML patterns** (copy structure from file:line references)
 3. **Apply actual CSS classes/tokens** from research (no placeholder classes)
@@ -462,6 +465,7 @@ Create `mockups/v001/mockup.html`:
 - **If NO icon system found**: Use text only, create beads issue if icons needed
 
 **Quality checks before proceeding:**
+
 - [ ] All CSS classes are from research (no placeholder classes)
 - [ ] Icon system matches research (or confirmed text-only)
 - [ ] Layout structure matches ASCII diagram
@@ -499,7 +503,7 @@ Does this match your app's visual style?
 If anything looks off, let me know and I'll adjust.
 ```
 
-4. **If similar feature found in research**:
+1. **If similar feature found in research**:
    - Offer to navigate to similar page for comparison
    - Take screenshot of existing feature
    - Show side-by-side comparison
@@ -600,7 +604,7 @@ Ready to iterate? Just tell me what to keep, change, or remove.
 ## Output Files
 
 | File | Purpose |
-|------|---------|
+| ------ | --------- |
 | `mockups/mockup-log.md` | Track all versions and running requirements |
 | `mockups/v001/mockup.md` | ASCII structure and specifications |
 | `mockups/v001/mockup.html` | Working HTML mockup with app's actual styles |
@@ -610,21 +614,25 @@ Ready to iterate? Just tell me what to keep, change, or remove.
 ## Important Guidelines
 
 ### Research First
+
 - ALWAYS research existing UI before proposing
 - Reference specific file:line locations
 - Follow established patterns unless explicitly breaking them
 
 ### Clarifying Questions
+
 - Ask before assuming
 - Understand the WHY not just the WHAT
 - Identify constraints early
 
 ### Versioning
+
 - Never overwrite - always create new version
 - Document what changed and why
 - Keep decision trail for design.md
 
 ### Fidelity
+
 - ASCII mockups for layout structure discussion
 - HTML mockups with app's actual styles for visual validation
 - Component specs for implementation detail (copied from research)
@@ -635,6 +643,7 @@ Ready to iterate? Just tell me what to keep, change, or remove.
 ## Relationship to Other Commands
 
 **Typical workflow:**
+
 1. `/wb:create_research` - Understand the codebase
 2. **`/wb:create_mockup`** - Research UI + create initial mockup
 3. [Iterate with mockup-iteration skill]

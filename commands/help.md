@@ -1,6 +1,6 @@
 ---
 description: Quick reference for wb workflow commands and beads integration
-argument-hint: [topic]
+argument-hint: "[topic]"
 ---
 
 # Workbench Help

@@ -1,6 +1,6 @@
 ---
 description: Implement tasks following TDD practices with phase boundaries
-argument-hint: [project-directory] [phase-number|continue]
+argument-hint: "[project-directory] [phase-number|continue]"
 ---
 
 # Implement Tasks

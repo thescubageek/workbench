@@ -1,6 +1,6 @@
 ---
 description: Research codebase from a product perspective - features, user flows, behaviors, and patterns
-argument-hint: [project-directory] [research-question]
+argument-hint: "[project-directory] [research-question]"
 ---
 
 # Generate Product Research Document

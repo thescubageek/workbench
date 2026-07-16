@@ -1,6 +1,6 @@
 ---
 description: Resume work from a handoff document created in a previous session
-argument-hint: [handoff-file-path]
+argument-hint: "[handoff-file-path]"
 ---
 
 # Resume Handoff
