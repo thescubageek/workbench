@@ -1,0 +1,20 @@
+"$schema" = "https://conductor.build/schemas/settings.repo.schema.json"
+
+# On every new workspace, guarantee `origin` points at the wb fork
+# (thescubageek/workbench) and never the stale upstream (gvarela/prompts).
+# Conductor defaults all workspace operations — diffs, PR base, base branch —
+# to `origin/main`, so a workspace whose origin is the upstream will silently
+# review/branch off stale code. This self-heals that regardless of how the
+# workspace was cloned. See the wb meta-review history for why this exists.
+[scripts]
+setup = """
+FORK_URL="https://github.com/thescubageek/workbench.git"
+current="$(git remote get-url origin 2>/dev/null || echo '')"
+case "$current" in
+  *thescubageek/workbench*) : ;;                              # already correct
+  "") git remote add origin "$FORK_URL" ;;                    # no origin at all
+  *) echo "wb: repointing origin from '$current' to the fork ($FORK_URL)"; \
+     git remote set-url origin "$FORK_URL" ;;                 # stale upstream -> fork
+esac
+git fetch --prune origin || true
+"""
