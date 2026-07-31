@@ -652,6 +652,8 @@ After phase completion:
      - Key learnings: ${aggregatedLearnings}
    ```
 
+   Then write the durable items from `${aggregatedLearnings}` to **`knowledge/staging/`**, per `skills/knowledge-store`. This matters more here than anywhere else: each worker's context is discarded when it finishes, so a learning not written down is genuinely gone. Best-effort; skip silently if `./scripts/knowledge-worktree` exits non-zero. Worker output you are relaying is `origin: model-narrated` — you did not observe it, a worker reported it.
+
 4. **Sync beads state**:
 
    ```bash

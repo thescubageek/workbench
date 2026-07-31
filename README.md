@@ -119,6 +119,11 @@ Background capabilities that Claude automatically invokes:
 - **PostToolUse** - Lints markdown files after Write/Edit operations
 - **PreToolUse** - Knowledge-store guard. **Inert in your repository unless you opt in**, and inert
   even then unless a run is explicitly armed — see below.
+- **Stop / SubagentStop** - Knowledge capture. Also **inert unless you opt in**: with no
+  `.wb-knowledge.json` it writes nothing and says nothing. Where a store *is* declared, it records each
+  turn as an unreviewed `staging/` entry so learnings stop dying with the session. Everything it writes
+  is marked `origin: model-narrated` and needs human promotion before anything reads it.
+  Check with `./hooks/knowledge-capture.sh --selfcheck`.
 
 #### The knowledge guard, and why it will not touch your repo
 

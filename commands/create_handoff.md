@@ -217,6 +217,8 @@ Same machine? Prefer native `claude --resume` — it restores the full prior ses
 
 [Non-obvious findings worth carrying forward — patterns, hidden dependencies, gotchas, required workarounds — each with a real `file:line`. Omit if none. Durable codebase facts belong in CLAUDE.md, not a one-shot handoff.]
 
+**Also write the durable ones to `knowledge/staging/`**, per `skills/knowledge-store`. A handoff is read once by the next session and then goes stale; the store is read by every later ticket. Anything in this section that would still be true after this work ships belongs in both. Best-effort — if `./scripts/knowledge-worktree` exits non-zero, skip silently. Mark `origin: model-narrated` unless a tool produced the observation.
+
 ### Problems Solved
 
 **Problem 1**: [Description]

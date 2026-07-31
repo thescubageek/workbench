@@ -378,7 +378,9 @@ Deletions: -[Z] lines
 If validation passes with minor issues:
 1. Reconcile status in **beads** (`bd close`/`bd update`) to reflect actual completion — beads is the source of truth; only ever update tasks.md checkboxes *from* beads, never the reverse
 2. Document any approved deviations
-3. Note lessons learned for future projects
+3. Note lessons learned for future projects — and write the durable ones to **`knowledge/staging/`**, per `skills/knowledge-store`. Best-effort: if `./scripts/knowledge-worktree` exits non-zero this repo has no store, so skip it silently and carry on.
+
+   **This is the highest-signal capture point in the whole pipeline, and the only one that can honestly emit `origin: tool-verified`.** Validation is the one phase with ground truth: it has already compared plan to reality and classified each deviation as justified or unjustified. A claim resting on that comparison, on a test result, or on a validator verdict is tool-verified. A claim resting on your reading of the code is `model-narrated` — reading is not a test.
 
 If validation fails:
 1. Clearly mark which tasks need completion

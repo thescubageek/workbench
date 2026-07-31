@@ -211,6 +211,22 @@ WB_PROBE_MODEL=sonnet ./scripts/probe-knowledge-guard
 Not covered: the interactive `ask` row, which cannot be observed headlessly and needs a human at a
 terminal.
 
+### `test-knowledge-capture`
+
+Contract tests for `hooks/knowledge-capture.sh`, the automatic `Stop` / `SubagentStop` capture. Feeds
+payloads on stdin in throwaway git repos and asserts the entry shape from `knowledge/SCHEMA.md`, the
+five-component ID scheme, and the properties that carry the design:
+
+- **it writes to `staging/` and never to `entries/`** — staged content is ungated, and if retrieval
+  could reach it, unreviewed content would steer future tickets
+- **every capture is `origin: model-narrated`**, and the hook contains no path that can emit
+  `tool-verified` at all — a turn boundary sees the model's summary, never a tool's observation
+- **8 simultaneous captures produce 8 distinct files** — the sequence is allocated by atomic create
+  with retry, because counting existing files is a read-then-write race
+- **silent in an unconfigured repo, loud in a configured one whose store is unreachable**
+
+Store *resolution* is not re-tested here; `test-knowledge-worktree` already covers it.
+
 ## The knowledge guard
 
 `hooks/knowledge-guard.sh` is registered on `PreToolUse` for `Write|Edit|MultiEdit|NotebookEdit` in

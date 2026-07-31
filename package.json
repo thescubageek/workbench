@@ -3,7 +3,7 @@
   "private": true,
   "description": "Dev-time dependencies for the wb Claude Code plugin. Never published: the plugin ships through the Claude Code marketplace and its version lives in .claude-plugin/plugin.json, so there is deliberately no version field here to keep in sync.",
   "scripts": {
-    "test": "./scripts/test-quiet && ./scripts/test-knowledge-worktree && ./scripts/test-knowledge-config && ./scripts/test-knowledge-guard"
+    "test": "./scripts/test-quiet && ./scripts/test-knowledge-worktree && ./scripts/test-knowledge-config && ./scripts/test-knowledge-guard && ./scripts/test-knowledge-capture"
   },
   "devDependencies": {
     "ajv": "8.20.0"

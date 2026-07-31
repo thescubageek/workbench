@@ -494,6 +494,8 @@ After phase completion and verification:
    - [YYYY-MM-DD] Phase [N] complete: [key learnings, deviations from plan]
    ```
 
+   Then write the durable discoveries to **`knowledge/staging/`**, per `skills/knowledge-store` — tasks.md is per-ticket and nothing outside this directory ever reads it. Best-effort; skip silently if `./scripts/knowledge-worktree` exits non-zero. A learning grounded in a failing-then-passing test is `origin: tool-verified`; one grounded in your reading of the code is `model-narrated`.
+
 4. **Sync beads state**:
 
    ```bash

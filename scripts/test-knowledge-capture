@@ -1,0 +1,306 @@
+#!/usr/bin/env bash
+
+# Contract tests for hooks/knowledge-capture.sh — automatic capture at turn and
+# subagent boundaries.
+#
+# Every case builds a throwaway git repo under a temp dir, with the store branch
+# checked out in place so the store root is the repo itself. Store *resolution*
+# (creating a worktree, resolving one held by a sibling workspace, every loud
+# failure path) is already covered by scripts/test-knowledge-worktree's 26
+# checks and is deliberately not re-tested here.
+#
+# THE TWO PROPERTIES THAT MATTER MOST
+#
+#   Capture never reaches entries/. Staged content is ungated and unreviewed; if
+#   it could land in the promoted tree it would steer future tickets, which is
+#   exactly the vector the promotion gate exists to close.
+#
+#   Failure is loud, but only where the repo opted in. A no-op capture is worse
+#   than no capture — it looks like the loop is working while nothing is being
+#   recorded. But a repo with no .wb-knowledge.json has not opted in, and a
+#   marketplace install must not shout at every user on every turn. Silent there,
+#   loud here: the same asymmetry the guard uses for arming.
+
+set -uo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+CAPTURE="$REPO_ROOT/hooks/knowledge-capture.sh"
+
+PASS=0
+FAIL=0
+
+check() {
+    local desc="$1" cond="$2"
+    if [[ "$cond" == "1" ]]; then
+        echo "  ✓ $desc"
+        PASS=$((PASS + 1))
+    else
+        echo "  ✗ $desc"
+        FAIL=$((FAIL + 1))
+    fi
+}
+
+if ! command -v jq >/dev/null 2>&1; then
+    echo "test-knowledge-capture: jq is required to build test payloads" >&2
+    exit 1
+fi
+
+TMPROOT="$(mktemp -d "${TMPDIR:-/tmp}/test-knowledge-capture.XXXXXX")"
+cleanup() {
+    local repo
+    for repo in "$TMPROOT"/*/; do
+        [[ -d "$repo/.git" ]] || continue
+        git -C "$repo" worktree prune >/dev/null 2>&1
+    done
+    rm -rf "$TMPROOT"
+}
+trap cleanup EXIT
+
+# $1 = repo name, $2 = yes|no config, $3 = store branch to declare (default kb)
+make_repo() {
+    local name="$1" with_config="${2:-yes}" branch="${3:-kb}"
+    local repo="$TMPROOT/$name"
+    mkdir -p "$repo"
+    git -C "$repo" init -q -b main
+    git -C "$repo" config user.email test@example.com
+    git -C "$repo" config user.name test
+    if [[ "$with_config" == "yes" ]]; then
+        cat > "$repo/.wb-knowledge.json" <<JSON
+{ "version": 1, "store": { "branch": "$branch", "root": "knowledge" },
+  "protected_paths": ["commands/", ".wb-knowledge.json", ".wb-knowledge.schema.json",
+                      "knowledge/entries/", "knowledge/SCHEMA.md"],
+  "write_policy": { "ordinary_entries": { "tool_verified": "propose-only", "model_narrated": "propose-only" } } }
+JSON
+    fi
+    echo seed > "$repo/README.md"
+    git -C "$repo" add -A >/dev/null 2>&1
+    git -C "$repo" commit -q -m init
+    # The store branch, left checked out so the store root is this repo.
+    git -C "$repo" checkout -q -b kb 2>/dev/null
+    mkdir -p "$repo/knowledge/entries" "$repo/knowledge/staging"
+    touch "$repo/knowledge/entries/.gitkeep" "$repo/knowledge/staging/.gitkeep"
+    git -C "$repo" add -A >/dev/null 2>&1
+    git -C "$repo" commit -q -m "store layout"
+    printf '%s' "$repo"
+}
+
+# A Stop payload. $4 = agent_id turns it into a SubagentStop payload.
+mkpayload() {
+    local cwd="$1" msg="$2" session="${3:-0ea256b7-a542-48a2-a326-6f8606dc335a}" agent="${4:-}"
+    if [[ -n "$agent" ]]; then
+        jq -nc --arg c "$cwd" --arg m "$msg" --arg s "$session" --arg a "$agent" \
+            '{session_id:$s,cwd:$c,permission_mode:"default",hook_event_name:"SubagentStop",
+              stop_hook_active:false,last_assistant_message:$m,agent_id:$a,agent_type:"general-purpose",
+              transcript_path:"/dev/null",agent_transcript_path:"/dev/null"}'
+    else
+        jq -nc --arg c "$cwd" --arg m "$msg" --arg s "$session" \
+            '{session_id:$s,cwd:$c,permission_mode:"default",hook_event_name:"Stop",
+              stop_hook_active:false,last_assistant_message:$m,transcript_path:"/dev/null"}'
+    fi
+}
+
+staged_count() { find "$1/knowledge/staging" -name '*.md' -type f 2>/dev/null | wc -l | tr -d ' '; }
+entries_count() { find "$1/knowledge/entries" -name '*.md' -type f 2>/dev/null | wc -l | tr -d ' '; }
+newest_staged() { find "$1/knowledge/staging" -name '*.md' -type f 2>/dev/null | sort | tail -1; }
+
+echo "test-knowledge-capture: $CAPTURE"
+
+if [[ ! -x "$CAPTURE" ]]; then
+    echo "  ✗ $CAPTURE is missing or not executable" >&2
+    echo ""
+    echo "test-knowledge-capture: 0 passed, 1 failed"
+    exit 1
+fi
+
+# =============================================================================
+# Inert where the repo has not opted in
+# =============================================================================
+echo ""
+echo "Unconfigured repo — silently inert"
+
+BARE=$(make_repo unconfigured no)
+out=$(cd "$BARE" && printf '%s' "$(mkpayload "$BARE" "learned a thing")" | "$CAPTURE" 2>"$TMPROOT/err1"); code=$?
+check "exits 0" "$([[ $code -eq 0 ]] && echo 1 || echo 0)"
+check "writes nothing to stdout" "$([[ -z "$out" ]] && echo 1 || echo 0)"
+check "writes nothing to stderr — a marketplace install must not shout every turn" \
+    "$([[ ! -s "$TMPROOT/err1" ]] && echo 1 || echo 0)"
+check "creates no staging entry" "$([[ "$(staged_count "$BARE")" == "0" ]] && echo 1 || echo 0)"
+
+# =============================================================================
+# The happy path
+# =============================================================================
+echo ""
+echo "Configured repo — a staged entry appears"
+
+REPO=$(make_repo configured)
+MSG="Discovered that hook payloads arrive as JSON on stdin, not env vars."
+out=$(cd "$REPO" && printf '%s' "$(mkpayload "$REPO" "$MSG")" | "$CAPTURE" 2>"$TMPROOT/err2"); code=$?
+check "exits 0" "$([[ $code -eq 0 ]] && echo 1 || echo 0)"
+check "exactly one staging entry was written" "$([[ "$(staged_count "$REPO")" == "1" ]] && echo 1 || echo 0)"
+check "NOTHING was written to entries/" "$([[ "$(entries_count "$REPO")" == "0" ]] && echo 1 || echo 0)"
+check "success is quiet on stdout" "$([[ -z "$out" ]] && echo 1 || echo 0)"
+
+ENTRY=$(newest_staged "$REPO")
+fm() { sed -n '2,/^---$/p' "$ENTRY" | grep -E "^$1:" | head -1 | sed "s/^$1:[[:space:]]*//"; }
+
+check "the entry has YAML frontmatter" \
+    "$([[ "$(head -1 "$ENTRY")" == "---" ]] && echo 1 || echo 0)"
+for f in id kind origin confidence status scope provenance; do
+    check "frontmatter declares $f" \
+        "$(grep -qE "^$f:" "$ENTRY" && echo 1 || echo 0)"
+done
+check "status is staged" "$([[ "$(fm status)" == "staged" ]] && echo 1 || echo 0)"
+check "kind is episodic — a turn boundary records what happened, not how something works" \
+    "$([[ "$(fm kind)" == "episodic" ]] && echo 1 || echo 0)"
+check "no prediction field — that is promoted-only" \
+    "$(grep -qE '^prediction:' "$ENTRY" && echo 0 || echo 1)"
+check "provenance carries a 40-char verified_at SHA" \
+    "$(grep -qE '^  verified_at: [0-9a-f]{40}$' "$ENTRY" && echo 1 || echo 0)"
+check "verified_at is this repo's actual HEAD" \
+    "$(grep -qE "^  verified_at: $(git -C "$REPO" rev-parse HEAD)$" "$ENTRY" && echo 1 || echo 0)"
+check "the body carries the assistant's message" \
+    "$(grep -qF "hook payloads arrive as JSON on stdin" "$ENTRY" && echo 1 || echo 0)"
+
+# =============================================================================
+# THE ORIGIN RULE (P3-T6). A hook at a turn boundary sees the model's SUMMARY,
+# never a tool's observation. Automatic capture is therefore structurally
+# model-narrated — not defaulted to it. The write policy pins model_narrated to
+# propose-only, so this is what keeps auto-capture out of any auto-promote path.
+# =============================================================================
+echo ""
+echo "Origin discipline"
+
+check "origin is model-narrated" "$([[ "$(fm origin)" == "model-narrated" ]] && echo 1 || echo 0)"
+check "the hook cannot emit tool-verified at all" \
+    "$(grep -vE '^[[:space:]]*#' "$CAPTURE" | grep -q 'tool-verified' && echo 0 || echo 1)"
+check "confidence is low — an unreviewed automatic capture claims no more" \
+    "$([[ "$(fm confidence)" == "low" ]] && echo 1 || echo 0)"
+
+# =============================================================================
+# THE ID SCHEME — knowledge/SCHEMA.md
+#   <UTC-date>-<workspace>-<session8>-<agent8|main>-<seq>
+# =============================================================================
+echo ""
+echo "ID scheme"
+
+ID=$(fm id)
+check "id has the five dash-separated components" \
+    "$([[ "$(awk -F- '{print NF}' <<<"$ID")" -ge 5 ]] && echo 1 || echo 0)"
+check "id starts with today's UTC date" \
+    "$([[ "$ID" == "$(date -u +%Y%m%d)-"* ]] && echo 1 || echo 0)"
+check "id carries the workspace (repo directory) name" \
+    "$([[ "$ID" == *"-configured-"* ]] && echo 1 || echo 0)"
+check "id carries the first 8 chars of session_id" \
+    "$([[ "$ID" == *"-0ea256b7-"* ]] && echo 1 || echo 0)"
+check "a Stop capture uses 'main' for the agent component" \
+    "$([[ "$ID" == *"-main-"* ]] && echo 1 || echo 0)"
+check "id ends with a 3-digit sequence" \
+    "$(grep -qE -- '-[0-9]{3}$' <<<"$ID" && echo 1 || echo 0)"
+check "the filename is the id" \
+    "$([[ "$(basename "$ENTRY")" == "$ID.md" ]] && echo 1 || echo 0)"
+
+# SubagentStop carries agent_id, which must displace 'main' — two subagents
+# finishing in one session are the collision this component exists to prevent.
+SUB=$(make_repo subagent)
+(cd "$SUB" && printf '%s' "$(mkpayload "$SUB" "subagent finding" "0ea256b7-aaaa-bbbb-cccc-ddddeeeeffff" "a5ef342f328ea60b7")" | "$CAPTURE" >/dev/null 2>&1)
+SUBID=$(sed -n '2,/^---$/p' "$(newest_staged "$SUB")" | grep -E '^id:' | sed 's/^id:[[:space:]]*//')
+check "a SubagentStop capture uses the agent id, not 'main'" \
+    "$([[ "$SUBID" == *"-a5ef342f-"* && "$SUBID" != *"-main-"* ]] && echo 1 || echo 0)"
+
+# =============================================================================
+# SEQUENCE ALLOCATION — SCHEMA.md requires atomic create with retry, because
+# counting existing files is a read-then-write race that will eventually lose.
+# =============================================================================
+echo ""
+echo "Sequence allocation and concurrency"
+
+(cd "$REPO" && printf '%s' "$(mkpayload "$REPO" "a second turn")" | "$CAPTURE" >/dev/null 2>&1)
+check "a second capture in the same session writes a second file" \
+    "$([[ "$(staged_count "$REPO")" == "2" ]] && echo 1 || echo 0)"
+check "the two entries have distinct ids" \
+    "$([[ "$(find "$REPO/knowledge/staging" -name '*.md' | wc -l | tr -d ' ')" == "$(find "$REPO/knowledge/staging" -name '*.md' -exec basename {} \; | sort -u | wc -l | tr -d ' ')" ]] && echo 1 || echo 0)"
+
+CONC=$(make_repo concurrent)
+for i in 1 2 3 4 5 6 7 8; do
+    (cd "$CONC" && printf '%s' "$(mkpayload "$CONC" "concurrent capture $i")" | "$CAPTURE" >/dev/null 2>&1) &
+done
+wait
+check "8 simultaneous captures produced 8 files" \
+    "$([[ "$(staged_count "$CONC")" == "8" ]] && echo 1 || echo 0)"
+check "all 8 filenames are distinct (atomic create, not a count-then-write race)" \
+    "$([[ "$(find "$CONC/knowledge/staging" -name '*.md' -exec basename {} \; | sort -u | wc -l | tr -d ' ')" == "8" ]] && echo 1 || echo 0)"
+check "concurrent captures still wrote nothing to entries/" \
+    "$([[ "$(entries_count "$CONC")" == "0" ]] && echo 1 || echo 0)"
+
+# =============================================================================
+# NOTHING TO RECORD is not a failure; a BROKEN STORE is.
+# =============================================================================
+echo ""
+echo "Empty turns and unreachable stores"
+
+EMPTY=$(make_repo emptymsg)
+out=$(cd "$EMPTY" && printf '%s' "$(mkpayload "$EMPTY" "")" | "$CAPTURE" 2>"$TMPROOT/err3"); code=$?
+check "an empty assistant message writes nothing" "$([[ "$(staged_count "$EMPTY")" == "0" ]] && echo 1 || echo 0)"
+check "and is not treated as an error" "$([[ $code -eq 0 && ! -s "$TMPROOT/err3" ]] && echo 1 || echo 0)"
+
+BROKEN=$(make_repo brokenstore yes kb-does-not-exist)
+out=$(cd "$BROKEN" && printf '%s' "$(mkpayload "$BROKEN" "learned a thing")" | "$CAPTURE" 2>"$TMPROOT/err4"); code=$?
+check "an unreachable store in a CONFIGURED repo fails LOUDLY on stderr" \
+    "$([[ -s "$TMPROOT/err4" ]] && echo 1 || echo 0)"
+check "the loud failure names the store branch" \
+    "$(grep -q 'kb-does-not-exist' "$TMPROOT/err4" && echo 1 || echo 0)"
+check "it still exits 0 — a non-zero Stop hook blocks the stop and risks a stop/continue loop" \
+    "$([[ $code -eq 0 ]] && echo 1 || echo 0)"
+check "it surfaces a systemMessage so the failure reaches the user, not just the log" \
+    "$(printf '%s' "$out" | jq -e '.systemMessage' >/dev/null 2>&1 && echo 1 || echo 0)"
+
+# =============================================================================
+# jq-FREE FALLBACK — the plugin cannot assume jq (scripts/lint-hook precedent)
+# =============================================================================
+echo ""
+echo "jq-free fallback"
+
+NOJQ=$(make_repo nojq)
+(cd "$NOJQ" && printf '%s' "$(mkpayload "$NOJQ" "fallback capture works")" | WB_KNOWLEDGE_NO_JQ=1 "$CAPTURE" >/dev/null 2>&1)
+check "the fallback writes a staging entry" "$([[ "$(staged_count "$NOJQ")" == "1" ]] && echo 1 || echo 0)"
+NJ=$(newest_staged "$NOJQ")
+check "the fallback entry carries the message" \
+    "$(grep -qF "fallback capture works" "$NJ" && echo 1 || echo 0)"
+check "the fallback entry is still model-narrated" \
+    "$(grep -qE '^origin: model-narrated$' "$NJ" && echo 1 || echo 0)"
+check "the fallback still recovers the session component" \
+    "$(grep -qE '^id: [0-9]{8}-nojq-0ea256b7-main-[0-9]{3}$' "$NJ" && echo 1 || echo 0)"
+
+# =============================================================================
+# SELF-CHECK — enforcement of visibility. "It printed nothing" is exactly what a
+# correctly inert capture looks like, so silence cannot report health.
+# =============================================================================
+echo ""
+echo "--selfcheck"
+
+out=$(cd "$REPO" && "$CAPTURE" --selfcheck 2>&1); code=$?
+check "--selfcheck exits 0 where capture is working" "$([[ $code -eq 0 ]] && echo 1 || echo 0)"
+check "--selfcheck names the staging directory it would write to" \
+    "$(echo "$out" | grep -q 'staging' && echo 1 || echo 0)"
+check "--selfcheck counts the 2 entries actually captured" \
+    "$(echo "$out" | grep -qE '2 staged so far' && echo 1 || echo 0)"
+
+# staging/ carries a README explaining the tree is ungated. Counting it as an
+# entry would report an empty store as a working one — found against the real
+# store, where the README was the only file and the count read 1.
+cp "$REPO_ROOT/README.md" "$REPO/knowledge/staging/README.md" 2>/dev/null
+out=$(cd "$REPO" && "$CAPTURE" --selfcheck 2>&1)
+check "--selfcheck does not count staging/README.md as a captured entry" \
+    "$(echo "$out" | grep -qE '2 staged so far' && echo 1 || echo 0)"
+rm -f "$REPO/knowledge/staging/README.md"
+out=$(cd "$BROKEN" && "$CAPTURE" --selfcheck 2>&1); code=$?
+check "--selfcheck exits non-zero when the store is unreachable" "$([[ $code -ne 0 ]] && echo 1 || echo 0)"
+out=$(cd "$BARE" && "$CAPTURE" --selfcheck 2>&1); code=$?
+check "--selfcheck reports an unconfigured repo as inert rather than broken" \
+    "$(echo "$out" | grep -qi 'inert\|does not declare\|no .wb-knowledge' && echo 1 || echo 0)"
+check "--help exits 0" "$("$CAPTURE" --help >/dev/null 2>&1 && echo 1 || echo 0)"
+
+echo ""
+echo "test-knowledge-capture: $PASS passed, $FAIL failed"
+[[ $FAIL -eq 0 ]]
