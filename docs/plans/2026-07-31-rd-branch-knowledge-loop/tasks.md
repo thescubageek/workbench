@@ -189,29 +189,41 @@ The one probe an agent session cannot run. The scaffolding is live at `/tmp/wb-h
 denies-or-asks only for a path ending in `sentinel.txt`, and `PROBE_DECISION` in the settings file
 selects which.
 
+**The test must be an A/B within one session, not a single write.** A first attempt (2026-07-31) asked
+only for the `sentinel.txt` write after a manual Shift+Tab; a prompt appeared, but the dialog offered
+"Yes, allow all edits during this session (shift+tab)" — an option only shown when accept-edits is *not*
+already active. In default mode a `Write` prompts anyway, so that run could not distinguish the hook's
+effect from ordinary behaviour. **Inconclusive, not a pass.** The procedure below fixes both holes: the
+mode is set on the command line instead of by keystroke, and a control file the hook ignores runs in the
+same turn as the sentinel.
+
 ```bash
-rm -f /tmp/wb-hook-probe/work/sentinel.txt /tmp/wb-hook-probe/pretool.log
+rm -f /tmp/wb-hook-probe/work/sentinel.txt /tmp/wb-hook-probe/work/control.txt \
+      /tmp/wb-hook-probe/pretool.log
 cd /tmp/wb-hook-probe/work
-claude --settings /tmp/wb-hook-probe/settings-ask.json --model haiku
+claude --settings /tmp/wb-hook-probe/settings-ask.json --permission-mode acceptEdits --model haiku
 ```
 
-In the session: press **Shift+Tab** until the footer shows **accept edits**, then send:
+Send exactly one message:
 
 ```text
-Use the Write tool to create sentinel.txt in the current directory containing exactly: hello
+Use the Write tool to create control.txt containing hello, then use the Write tool to
+create sentinel.txt containing hello.
 ```
 
-Reading the result:
+The hook only matches paths ending in `sentinel.txt`; `control.txt` passes through untouched. So the two
+writes differ in exactly one variable, and the comparison reads itself:
 
-| Observed | Meaning | Action |
-| --- | --- | --- |
-| A permission prompt appears citing `probe: protected path`, despite accept-edits | **PASS** — the three-state design holds as written | Tick the Phase 1 gate; proceed |
-| The write lands silently, no prompt, `sentinel.txt` exists | **FAIL, and the bad one** — accept-edits bypasses `ask`, so an armed interactive run could self-approve | Stop; re-open the three-state decision. `ask` cannot be the interactive state |
-| Refused outright with no prompt | Partial — fails closed, so no security hole, but `ask` buys nothing over `deny` | Collapse the armed hook to two states (inert / `deny`) and simplify Phase 2 |
+| `control.txt` | `sentinel.txt` | Meaning | Action |
+| --- | --- | --- | --- |
+| silent | **prompts** | **PASS** — accept-edits is provably active, and only the hook's `ask` interrupts it | Tick the Phase 1 gate; proceed |
+| silent | silent, file written | **FAIL, and the bad one** — accept-edits bypasses `ask`; an armed interactive run could self-approve | Stop; re-open the three-state decision. `ask` cannot be the interactive state |
+| silent | refused, no prompt | Partial — fails closed, no security hole, but `ask` buys nothing over `deny` | Collapse the armed hook to two states (inert / `deny`); simplify Phase 2 |
+| **prompts** | either | Void — accept-edits was not active, same confound as attempt 1 | Re-run; check the footer reads `accept edits` |
 
-Afterwards: `cat /tmp/wb-hook-probe/pretool.log` should show one `decision=ask` line per attempt — if it
-is empty the hook never fired and the run proved nothing. Record the verdict in design.md's Assumptions
-table and in the Phase 0 findings subsection.
+Afterwards `cat /tmp/wb-hook-probe/pretool.log` should show exactly one `decision=ask` line, for the
+sentinel path only. Empty means the hook never fired and the run proved nothing; a `control.txt` line
+means the matcher is wrong. Record the verdict in design.md's Assumptions table and Phase 0 findings.
 
 ### ⛔ CHECKPOINT: Phase 0 Complete
 
