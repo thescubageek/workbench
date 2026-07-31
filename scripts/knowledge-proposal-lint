@@ -1,0 +1,248 @@
+#!/usr/bin/env bash
+
+# Validate a curation proposal against the rules the pass is supposed to follow.
+#
+# VALIDATE THE ARTIFACT, NOT THE JUDGMENT
+#
+#   A curation pass makes calls no script can check: whether a claim is durable,
+#   whether a merge is wise. But most of the ways a pass goes wrong are visible
+#   in what it produced — a merge the diversity rule should have refused, a
+#   promotion of an entry the validator FAILed, a prediction that cannot be
+#   falsified, a TBD that survived. Those are checkable, and checking
+#   them turns "the pass followed its own rules" from trust into a test.
+#
+#   This is the same trick as scripts/test-knowledge-config: assert the
+#   structure mechanically, leave the substance to humans.
+#
+# PROPOSAL FORMAT — a DIRECTORY, one file per operation
+#
+#   knowledge/proposals/<date>-<session8>/NNN-<op>-<slug>.md
+#
+#   One file per operation rather than one document with sections. Entry-per-file
+#   is the design's founding decision — concurrent proposals merge cleanly at
+#   entry granularity and collide at document granularity — and a monolithic
+#   proposal document would reintroduce exactly that at the proposal layer.
+#
+#   Each file carries proposal metadata (stripped on apply) followed by the entry
+#   fields that would land:
+#
+#     operation:         add | update | merge | deprecate
+#     target:            NEW, or the id of an existing entry
+#     validator_status:  PASS | PASS WITH WARNINGS | FAIL | UNCERTAIN
+#     prediction:        required for add/update/merge; forbidden for deprecate
+#     durable_because:   one sentence
+#     ticket_classes:    merge only; the class each source wins on. If they DIFFER
+#                        the merge is refused — that is the diversity rule firing
+#     merge_sources:     merge only
+#     deprecate_reason:  deprecate only
+#     ...then id/kind/origin/confidence/status/scope/provenance per SCHEMA.md
+#
+# Exit codes: 0 all operations valid · 1 violations found · 2 usage / no proposal
+
+set -uo pipefail
+
+NAME="knowledge-proposal-lint"
+VIOLATIONS=0
+OPS=0
+
+usage() {
+    cat <<'USAGE'
+Usage: knowledge-proposal-lint <proposal-directory>
+
+Checks every operation file in a curation proposal:
+  - the operation is one of add / update / merge / deprecate
+  - a merge names the ticket class EACH source wins on, and they are the SAME
+    (if they differ, the diversity rule refuses the merge and both are kept)
+  - the validator returned PASS or PASS WITH WARNINGS — never FAIL or UNCERTAIN
+  - a promotion carries a prediction, and the prediction is not vacuous
+  - the proposed entry is schema-valid and its cites resolve
+  - no placeholders survived
+  - nothing targets a protected path
+
+Exit 0 all valid · 1 violations · 2 usage.
+USAGE
+}
+
+case "${1:-}" in
+    -h | --help) usage; exit 0 ;;
+    "") usage >&2; exit 2 ;;
+esac
+
+DIR="$1"
+[[ -d "$DIR" ]] || { echo "$NAME: no such proposal directory: $DIR" >&2; exit 2; }
+
+TOPLEVEL="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+CONFIG="$TOPLEVEL/.wb-knowledge.json"
+
+PROTECTED=()
+if [[ -f "$CONFIG" ]]; then
+    if command -v jq >/dev/null 2>&1; then
+        while IFS= read -r p; do [[ -n "$p" ]] && PROTECTED+=("$p"); done \
+            < <(jq -r '.protected_paths[]? | select(type=="string")' "$CONFIG" 2>/dev/null)
+    fi
+fi
+
+reject() { echo "  REJECT  $1: $2"; VIOLATIONS=$((VIOLATIONS + 1)); }
+
+# Scalar frontmatter field. Returns empty when absent.
+fld() { grep -m1 "^$2:" "$1" 2>/dev/null | sed "s/^$2:[[:space:]]*//" | sed 's/[[:space:]]*$//'; }
+
+# Items of a YAML list key, e.g. ticket_classes.
+listof() {
+    sed -n "/^$2:/,/^[a-z_]*:/p" "$1" 2>/dev/null \
+        | grep -E '^[[:space:]]+-[[:space:]]' \
+        | sed 's/^[[:space:]]*-[[:space:]]*//' | sed 's/[[:space:]]*$//'
+}
+
+in_list() { local n="$1"; shift; local x; for x in "$@"; do [[ "$x" == "$n" ]] && return 0; done; return 1; }
+
+echo "$NAME: $DIR"
+
+shopt -s nullglob
+FILES=("$DIR"/*.md)
+shopt -u nullglob
+
+# Filter out a SUMMARY, which is prose for the human rather than an operation.
+OPFILES=()
+for f in "${FILES[@]}"; do
+    case "$(basename "$f")" in SUMMARY.md | README.md) continue ;; esac
+    OPFILES+=("$f")
+done
+
+if [[ ${#OPFILES[@]} -eq 0 ]]; then
+    echo "$NAME: no operation files in $DIR — an empty proposal is a mistake, not an approval" >&2
+    exit 1
+fi
+
+for f in "${OPFILES[@]}"; do
+    base="$(basename "$f")"
+    OPS=$((OPS + 1))
+
+    op="$(fld "$f" operation)"
+    if [[ -z "$op" ]]; then
+        reject "$base" "no 'operation:' — every file in a proposal must declare what it does"
+        continue
+    fi
+    if ! in_list "$op" add update merge deprecate; then
+        reject "$base" "unrecognised operation '$op' — curation has exactly four: add, update, merge, deprecate"
+        continue
+    fi
+
+    # --- Placeholders. BARRIER 3: TBD in a proposal becomes TBD in the store.
+    if grep -qE '(^|[^[:alnum:]])(TBD|TODO|FIXME|XXX)([^[:alnum:]]|$)' "$f"; then
+        reject "$base" "contains a placeholder (TBD/TODO/FIXME/XXX) — a proposal must be complete before it is reviewable"
+    fi
+
+    # --- Nothing may propose a change to a protected path.
+    for key in apply_path writes_to path_target; do
+        val="$(fld "$f" "$key")"
+        [[ -n "$val" ]] || continue
+        for prot in "${PROTECTED[@]}"; do
+            stripped="${prot%/}"
+            if [[ "$val" == "$stripped" || "$val" == "$stripped"/* ]]; then
+                reject "$base" "targets '$val', inside the protected path '$prot' — core self-extension is permanently human-only and has no promotion route"
+            fi
+        done
+    done
+
+    # --- The validator's verdict gates promotion.
+    vs="$(fld "$f" validator_status)"
+    if [[ -z "$vs" ]]; then
+        reject "$base" "no 'validator_status:' — unverified is not the same as passed"
+    elif ! in_list "$vs" "PASS" "PASS WITH WARNINGS"; then
+        if in_list "$vs" "FAIL" "UNCERTAIN"; then
+            reject "$base" "validator returned $vs — that entry is not eligible for promotion"
+        else
+            reject "$base" "validator_status '$vs' is not one of PASS / PASS WITH WARNINGS / FAIL / UNCERTAIN"
+        fi
+    fi
+
+    # --- Per-operation rules.
+    if [[ "$op" == "deprecate" ]]; then
+        [[ -n "$(fld "$f" deprecate_reason)" ]] \
+            || reject "$base" "a deprecate needs a 'deprecate_reason:' — removing a claim is a claim"
+        [[ -z "$(fld "$f" prediction)" ]] \
+            || reject "$base" "a deprecate must not carry a prediction — nothing is being promoted"
+    else
+        pred="$(fld "$f" prediction)"
+        if [[ -z "$pred" ]]; then
+            reject "$base" "a promotion needs a 'prediction:' — without one, promotion looks like a contract while committing to nothing"
+        elif [[ ${#pred} -lt 25 ]] \
+            || printf '%s' "$pred" | grep -qiE '^(this |it |should )?(will be |is |are )?(useful|helpful|good|better|nice|valuable)\b' \
+            || printf '%s' "$pred" | grep -qiE '\b(will be useful|is helpful|should improve|improve things|be better)\b'; then
+            reject "$base" "prediction is vacuous ('$pred') — it must state an effect that could later be found FALSE, not an assertion of value"
+        fi
+    fi
+
+    if [[ "$op" == "merge" ]]; then
+        classes=()
+        while IFS= read -r c; do [[ -n "$c" ]] && classes+=("$c"); done < <(listof "$f" ticket_classes)
+        if [[ ${#classes[@]} -lt 2 ]]; then
+            reject "$base" "a merge must name the ticket class EACH entry wins on — found ${#classes[@]}. The diversity rule is a test, and an unanswered test is not a passed one"
+        else
+            uniq_count="$(printf '%s\n' "${classes[@]}" | sort -u | wc -l | tr -d ' ')"
+            if [[ "$uniq_count" -ge 2 ]]; then
+                # The diversity rule REFUSES this merge. Each entry wins on a
+                # different class of ticket, so collapsing them yields one
+                # canonical best practice that is second-best everywhere — and
+                # the loss is invisible, because nothing fails, retrieval just
+                # quietly degrades for whichever class lost its entry.
+                reject "$base" "the diversity rule REFUSES this merge: the sources win on different ticket classes ($(printf '%s; ' "${classes[@]}" | sed 's/; $//')). Keep both entries"
+            fi
+        fi
+    fi
+
+    # --- Target shape.
+    tgt="$(fld "$f" target)"
+    if [[ -z "$tgt" ]]; then
+        reject "$base" "no 'target:' — say NEW, or the id of the entry being changed"
+    elif [[ "$op" == "add" && "$tgt" != "NEW" ]]; then
+        reject "$base" "an add must target NEW, not '$tgt'"
+    elif [[ "$op" != "add" && "$tgt" == "NEW" ]]; then
+        reject "$base" "a $op must target an existing entry id, not NEW"
+    fi
+
+    # --- The entry that would land. A deprecate carries no entry body.
+    [[ "$op" == "deprecate" ]] && continue
+
+    [[ -n "$(fld "$f" id)" ]] || reject "$base" "the proposed entry has no 'id:'"
+
+    kind="$(fld "$f" kind)"
+    in_list "$kind" semantic procedural episodic \
+        || reject "$base" "kind '$kind' is not semantic / procedural / episodic"
+
+    origin="$(fld "$f" origin)"
+    in_list "$origin" tool-verified model-narrated \
+        || reject "$base" "origin '$origin' is not tool-verified / model-narrated"
+
+    conf="$(fld "$f" confidence)"
+    in_list "$conf" high medium low \
+        || reject "$base" "confidence '$conf' is not high / medium / low"
+
+    status="$(fld "$f" status)"
+    [[ "$status" == "promoted" ]] \
+        || reject "$base" "a promotion proposal must declare 'status: promoted', not '$status'"
+
+    sha="$(grep -m1 -E '^[[:space:]]+verified_at:' "$f" | sed 's/.*verified_at:[[:space:]]*//' | tr -d '[:space:]')"
+    if [[ ! "$sha" =~ ^[0-9a-f]{40}$ ]]; then
+        reject "$base" "provenance.verified_at '$sha' is not a 40-character SHA"
+    elif ! git -C "$TOPLEVEL" cat-file -e "$sha^{commit}" 2>/dev/null; then
+        reject "$base" "provenance.verified_at $sha is not a commit in this repository"
+    fi
+
+    while IFS= read -r p; do
+        [[ -n "$p" ]] || continue
+        [[ -e "$TOPLEVEL/$p" ]] || reject "$base" "cites '$p', which does not exist — a claim cannot rest on a path that is not there"
+    done < <(grep -E '^[[:space:]]+-[[:space:]]+path:' "$f" | sed 's/.*path:[[:space:]]*//' | sed 's/[[:space:]]*$//')
+done
+
+echo ""
+if [[ $VIOLATIONS -eq 0 ]]; then
+    echo "$NAME: $OPS operation(s) checked, all valid"
+    echo "  Structure only. Whether these claims are durable, and whether the merges are wise,"
+    echo "  is the reviewer's call — this checks that the pass followed its own rules, not that"
+    echo "  it exercised good judgment."
+    exit 0
+fi
+echo "$NAME: $OPS operation(s) checked, $VIOLATIONS violation(s)"
+exit 1

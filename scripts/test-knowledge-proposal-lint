@@ -1,0 +1,246 @@
+#!/usr/bin/env bash
+
+# Contract tests for scripts/knowledge-proposal-lint.
+#
+# WHAT THIS IS FOR
+#
+#   A curation pass makes judgments a script cannot check: whether a claim is
+#   durable, whether a merge is wise. But the ARTIFACT it produces can be
+#   checked, and most of the ways a pass goes wrong are visible in the artifact:
+#   a merge the diversity rule should have refused, a promotion of an entry the
+#   validator FAILed, a prediction that cannot be falsified, a placeholder that
+#   survived into the store.
+#
+#   So: validate the artifact, not the judgment. This turns "the pass followed
+#   its own rules" from something you trust into something you run.
+#
+# THE PROPOSAL FORMAT
+#
+#   knowledge/proposals/<date>-<session8>/NNN-<op>-<slug>.md — one file per
+#   operation, not one document with sections. Entry-per-file is the design's
+#   founding decision (concurrent proposals merge cleanly at entry granularity
+#   and collide at document granularity); a monolithic proposal document would
+#   reintroduce exactly that at the proposal layer.
+#
+#   Each file is the entry that would land, plus proposal metadata that is
+#   stripped on apply.
+
+set -uo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+LINT="$SCRIPT_DIR/knowledge-proposal-lint"
+
+PASS=0
+FAIL=0
+check() {
+    local desc="$1" cond="$2"
+    if [[ "$cond" == "1" ]]; then echo "  ✓ $desc"; PASS=$((PASS + 1))
+    else echo "  ✗ $desc"; FAIL=$((FAIL + 1)); fi
+}
+
+TMPROOT="$(mktemp -d "${TMPDIR:-/tmp}/test-proposal-lint.XXXXXX")"
+trap 'rm -rf "$TMPROOT"' EXIT
+
+echo "test-knowledge-proposal-lint: $LINT"
+if [[ ! -x "$LINT" ]]; then
+    echo "  ✗ $LINT is missing or not executable" >&2
+    echo ""; echo "test-knowledge-proposal-lint: 0 passed, 1 failed"; exit 1
+fi
+
+REPO="$TMPROOT/repo"
+mkdir -p "$REPO/commands" "$REPO/knowledge/entries"
+git -C "$REPO" init -q -b main
+git -C "$REPO" config user.email t@e.com
+git -C "$REPO" config user.name t
+cat > "$REPO/.wb-knowledge.json" <<'JSON'
+{ "version": 1, "store": { "branch": "kb", "root": "knowledge" },
+  "protected_paths": ["commands/", ".wb-knowledge.json", ".wb-knowledge.schema.json", "knowledge/entries/"],
+  "write_policy": { "ordinary_entries": { "tool_verified": "propose-only", "model_narrated": "propose-only" } } }
+JSON
+echo "cited" > "$REPO/cited.txt"
+echo "x" > "$REPO/commands/help.md"
+git -C "$REPO" add -A >/dev/null 2>&1
+git -C "$REPO" commit -q -m init
+SHA="$(git -C "$REPO" rev-parse HEAD)"
+
+# Build a proposal directory containing exactly one operation file, from a
+# well-formed baseline plus sed mutations. Same discipline as
+# test-knowledge-config: mutate a known-good artifact so each rejection is
+# attributable to the one thing that changed.
+mkprop() {
+    local name="$1"; shift
+    local dir="$TMPROOT/props/$name"
+    rm -rf "$dir"; mkdir -p "$dir"
+    cat > "$dir/001-add-thing.md" <<EOF
+---
+operation: add
+target: NEW
+validator_status: PASS
+prediction: A ticket touching the hook layer will not re-derive the stdin payload shape.
+durable_because: It is a property of Claude Code, not of this ticket.
+id: 20260731-repo-aaaaaaaa-main-001
+kind: semantic
+origin: tool-verified
+confidence: high
+status: promoted
+scope:
+  - repo:repo
+provenance:
+  verified_at: $SHA
+  cites:
+    - path: cited.txt
+---
+
+Hook payloads arrive as JSON on stdin, not via an environment variable.
+EOF
+    local expr
+    for expr in "$@"; do
+        [[ -n "$expr" ]] && perl -pi -e "$expr" "$dir/001-add-thing.md"
+    done
+    printf '%s' "$dir"
+}
+
+run() { (cd "$REPO" && "$LINT" "$1" 2>&1); }
+rc_of() { (cd "$REPO" && "$LINT" "$1" >/dev/null 2>&1); echo $?; }
+
+# =============================================================================
+echo ""
+echo "The positive control — without it every rejection below passes vacuously"
+
+GOOD="$(mkprop good)"
+check "a well-formed proposal is ACCEPTED" "$([[ "$(rc_of "$GOOD")" == "0" ]] && echo 1 || echo 0)"
+# Captured, not piped: `grep -q` exits on first match and closes the pipe, the
+# linter takes SIGPIPE writing its trailing lines, and pipefail propagates 141 —
+# so a grep that FOUND its match reports failure.
+goodout="$(run "$GOOD")"
+check "  ...and says how many operations it checked" \
+    "$(echo "$goodout" | grep -qE '1 operation' && echo 1 || echo 0)"
+
+# =============================================================================
+echo ""
+echo "The diversity rule — the check that most needs to be mechanical"
+
+M="$(mkprop merge-ok 's/operation: add/operation: merge/' \
+    's/target: NEW/target: 20260731-repo-bbbbbbbb-main-001/' \
+    's/^durable_because:/merge_sources: [20260731-repo-bbbbbbbb-main-001, 20260731-repo-cccccccc-main-001]\nticket_classes:\n  - enforcement-boundary tickets\n  - capture-path tickets\ndurable_because:/')"
+# The rule REFUSES a merge whose sources win on different ticket classes: keep
+# both. A merge is justified only when they genuinely duplicate.
+check "a merge whose sources win on DIFFERENT ticket classes is REFUSED" \
+    "$([[ "$(rc_of "$M")" == "1" ]] && echo 1 || echo 0)"
+
+M2="$(mkprop merge-same 's/operation: add/operation: merge/' \
+    's/target: NEW/target: 20260731-repo-bbbbbbbb-main-001/' \
+    's/^durable_because:/merge_sources: [20260731-repo-bbbbbbbb-main-001, 20260731-repo-cccccccc-main-001]\nticket_classes:\n  - enforcement-boundary tickets\n  - enforcement-boundary tickets\ndurable_because:/')"
+check "a merge whose sources win on the SAME class is accepted — they duplicate" \
+    "$([[ "$(rc_of "$M2")" == "0" ]] && echo 1 || echo 0)"
+mout="$(run "$M")"
+check "  ...and the refusal names the diversity rule" \
+    "$(echo "$mout" | grep -qi 'diversity' && echo 1 || echo 0)"
+check "  ...and names the offending file" \
+    "$(echo "$mout" | grep -q '001-add-thing.md' && echo 1 || echo 0)"
+
+M3="$(mkprop merge-none 's/operation: add/operation: merge/' 's/target: NEW/target: 20260731-repo-bbbbbbbb-main-001/')"
+check "a merge with NO ticket classes is REJECTED — silence is not a passing check" \
+    "$([[ "$(rc_of "$M3")" == "1" ]] && echo 1 || echo 0)"
+
+M4="$(mkprop merge-one 's/operation: add/operation: merge/' \
+    's/target: NEW/target: 20260731-repo-bbbbbbbb-main-001/' \
+    's/^durable_because:/ticket_classes:\n  - enforcement-boundary tickets\ndurable_because:/')"
+check "a merge naming only ONE ticket class is REJECTED" \
+    "$([[ "$(rc_of "$M4")" == "1" ]] && echo 1 || echo 0)"
+
+# =============================================================================
+echo ""
+echo "Validator status — a FAILed claim must not reach the store"
+
+for st in FAIL UNCERTAIN; do
+    P="$(mkprop "vs-$st" "s/validator_status: PASS/validator_status: $st/")"
+    check "promoting an entry the validator returned $st is REJECTED" \
+        "$([[ "$(rc_of "$P")" == "1" ]] && echo 1 || echo 0)"
+done
+P="$(mkprop vs-warn 's/validator_status: PASS/validator_status: PASS WITH WARNINGS/')"
+check "PASS WITH WARNINGS is accepted — eligible, with the warning recorded" \
+    "$([[ "$(rc_of "$P")" == "0" ]] && echo 1 || echo 0)"
+P="$(mkprop vs-missing 's/^validator_status:.*\n//')"
+check "a missing validator_status is REJECTED — unverified is not the same as passed" \
+    "$([[ "$(rc_of "$P")" == "1" ]] && echo 1 || echo 0)"
+
+# =============================================================================
+echo ""
+echo "Predictions must exist and must be falsifiable-shaped"
+
+P="$(mkprop pred-missing 's/^prediction:.*\n//')"
+check "a promotion with no prediction is REJECTED" \
+    "$([[ "$(rc_of "$P")" == "1" ]] && echo 1 || echo 0)"
+for vac in "This will be useful." "It is helpful." "Should improve things."; do
+    P="$(mkprop "pred-vac" "s/^prediction:.*/prediction: $vac/")"
+    check "a vacuous prediction (\"$vac\") is REJECTED" \
+        "$([[ "$(rc_of "$P")" == "1" ]] && echo 1 || echo 0)"
+done
+D="$(mkprop deprecate 's/operation: add/operation: deprecate/' \
+    's/target: NEW/target: 20260731-repo-bbbbbbbb-main-001/' \
+    's/^prediction:.*/deprecate_reason: Contradicted by CLAUDE.md since the beads decision./')"
+check "a deprecate needs no prediction — nothing is being promoted" \
+    "$([[ "$(rc_of "$D")" == "0" ]] && echo 1 || echo 0)"
+D2="$(mkprop deprecate-noreason 's/operation: add/operation: deprecate/' \
+    's/target: NEW/target: 20260731-repo-bbbbbbbb-main-001/' 's/^prediction:.*\n//')"
+check "a deprecate with no reason is REJECTED" \
+    "$([[ "$(rc_of "$D2")" == "1" ]] && echo 1 || echo 0)"
+
+# =============================================================================
+echo ""
+echo "Entry validity — a proposal is the entry that would land"
+
+for mut in 's/^kind:.*/kind: opinion/' 's/^origin:.*/origin: vibes/' 's/^confidence:.*/confidence: total/' 's/^status: promoted/status: staged/'; do
+    P="$(mkprop badfield "$mut")"
+    check "an invalid field value is REJECTED ($mut| sed 's/.*\///; s/\/$//'))" \
+        "$([[ "$(rc_of "$P")" == "1" ]] && echo 1 || echo 0)"
+done
+P="$(mkprop badsha 's/verified_at: [0-9a-f]*/verified_at: notasha/')"
+check "a malformed verified_at is REJECTED" "$([[ "$(rc_of "$P")" == "1" ]] && echo 1 || echo 0)"
+P="$(mkprop deadcite 's|path: cited.txt|path: does/not/exist.txt|')"
+check "a cited path that does not resolve is REJECTED" "$([[ "$(rc_of "$P")" == "1" ]] && echo 1 || echo 0)"
+P="$(mkprop noid 's/^id:.*\n//')"
+check "a missing id is REJECTED" "$([[ "$(rc_of "$P")" == "1" ]] && echo 1 || echo 0)"
+
+# =============================================================================
+echo ""
+echo "BARRIER 3 — no placeholders. TBD in a proposal becomes TBD in the store."
+
+for ph in TBD TODO FIXME; do
+    P="$(mkprop "ph-$ph" "s/^durable_because:.*/durable_because: $ph/")"
+    check "a $ph placeholder is REJECTED" "$([[ "$(rc_of "$P")" == "1" ]] && echo 1 || echo 0)"
+done
+
+# =============================================================================
+echo ""
+echo "Nothing may propose a change to a protected path"
+
+P="$(mkprop protected 's|^durable_because:|apply_path: commands/help.md\ndurable_because:|')"
+check "a proposal targeting a protected path is REJECTED" \
+    "$([[ "$(rc_of "$P")" == "1" ]] && echo 1 || echo 0)"
+pout="$(run "$P")"
+check "  ...and says the path is core self-extension" \
+    "$(echo "$pout" | grep -qi 'protected\|self-extension' && echo 1 || echo 0)"
+
+# =============================================================================
+echo ""
+echo "Operation validity and reporting"
+
+P="$(mkprop badop 's/operation: add/operation: promote-everything/')"
+check "an unrecognised operation is REJECTED" "$([[ "$(rc_of "$P")" == "1" ]] && echo 1 || echo 0)"
+P="$(mkprop noop 's/^operation:.*\n//')"
+check "a file with no operation is REJECTED" "$([[ "$(rc_of "$P")" == "1" ]] && echo 1 || echo 0)"
+EMPTY="$TMPROOT/props/empty"; mkdir -p "$EMPTY"
+check "an empty proposal directory is REJECTED, not silently passed" \
+    "$([[ "$(rc_of "$EMPTY")" != "0" ]] && echo 1 || echo 0)"
+check "a missing directory exits non-zero with a message" \
+    "$([[ "$(rc_of "$TMPROOT/props/nope")" != "0" ]] && echo 1 || echo 0)"
+
+check "the linter makes no model calls" \
+    "$(grep -vE '^[[:space:]]*#' "$LINT" | grep -qE '(^|[^-[:alnum:]])claude([^-[:alnum:]]|$)' && echo 0 || echo 1)"
+check "--help exits 0" "$("$LINT" --help >/dev/null 2>&1 && echo 1 || echo 0)"
+
+echo ""
+echo "test-knowledge-proposal-lint: $PASS passed, $FAIL failed"
+[[ $FAIL -eq 0 ]]

@@ -316,6 +316,38 @@ Two of its checks — "makes no model calls", "needs no jq" — are **negative**
 on an empty file. They exist to catch a future regression, not to prove the script works; the other
 twenty-odd behavioural checks do that.
 
+### `knowledge-proposal-lint`
+
+Validates a curation proposal against the rules `/wb:curate_knowledge` is supposed to follow.
+
+```bash
+./scripts/knowledge-proposal-lint knowledge/proposals/<dir>
+```
+
+A curation pass makes judgments no script can check — whether a claim is durable, whether a merge is
+wise. But most of the ways a pass goes *wrong* are visible in what it produced, so: **validate the
+artifact, not the judgment.** That turns "the pass followed its own rules" from trust into a test.
+
+Checks: the operation is one of the four; **the diversity rule** (see below); no `FAIL`/`UNCERTAIN`
+entry is promoted; every promotion carries a non-vacuous prediction; deprecates carry a reason and no
+prediction; the entry is schema-valid with a real SHA and resolving cites; no placeholder survived;
+nothing targets a protected path.
+
+**The diversity rule runs the way the design states it, which is the opposite of the intuitive reading.**
+A merge names the ticket class each source wins on. If those classes **differ**, the merge is *refused* —
+each entry wins somewhere, so collapsing them yields one canonical best practice that is second-best
+everywhere. A merge is justified only when the sources win on the *same* class, i.e. they genuinely
+duplicate. Naming no classes is also a rejection: an unanswered check is not a passed one.
+
+**Exit codes:** `0` all valid · `1` violations, each named with its file · `2` usage or no such directory.
+
+### `test-knowledge-proposal-lint`
+
+Contract tests, 36 checks, mutation-style: one well-formed proposal plus a single targeted change per
+case, so every rejection is attributable to the one thing that differs. Includes the positive control —
+the unmutated proposal must be **accepted** — without which every rejection would pass against a linter
+that refuses everything.
+
 ## The knowledge guard
 
 `hooks/knowledge-guard.sh` is registered on `PreToolUse` for `Write|Edit|MultiEdit|NotebookEdit` in

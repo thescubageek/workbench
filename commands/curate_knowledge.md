@@ -127,37 +127,70 @@ invites promoting the entries that happened to come back first.
 ## Step 4: Write the proposal — this is the deliverable
 
 ```
-knowledge/proposals/<UTC-date>-<session8>.md
+knowledge/proposals/<UTC-date>-<session8>/NNN-<operation>-<slug>.md
 ```
+
+**A directory, one file per operation — not one document with sections.** Entry-per-file is the design's
+founding decision: concurrent proposals merge cleanly at entry granularity and collide at document
+granularity. A monolithic proposal document would reintroduce exactly that at the proposal layer, and it
+would be far harder to check mechanically.
 
 `knowledge/proposals/` is deliberately **not** in `protected_paths`, so you can write it freely. That is
 the point of the two-stage shape: the proposal is cheap to produce and cheap to reject, and **nothing
 reaches `entries/` while it is being written.**
 
-One section per proposed operation, each carrying:
+Each operation file is the entry that would land, preceded by proposal metadata that is stripped on
+apply:
 
-- the operation, and the target entry id (or `NEW`)
-- **the full proposed entry content**, not a description of it — a reviewer must be able to judge the
-  text that would land, not a summary of it
-- the validator's overall status
-- for `merge`: the two ticket classes, per the diversity rule
-- **the prediction** (see below)
-- one sentence on why this is durable rather than ticket-scoped
+```yaml
+---
+operation: add | update | merge | deprecate
+target: NEW                      # or the id of the entry being changed
+validator_status: PASS           # or PASS WITH WARNINGS. FAIL/UNCERTAIN are not promotable
+prediction: <an effect that could later be found FALSE>
+durable_because: <one sentence>
+# merge only:
+merge_sources: [<id>, <id>]
+ticket_classes:                  # TWO OR MORE, and they must DIFFER — the diversity rule
+  - <the class this entry wins on>
+  - <the class the other wins on>
+# deprecate only:
+deprecate_reason: <why>
+# ...then the entry's own id / kind / origin / confidence / status / scope / provenance
+---
 
-Then a summary: N staged read, N proposed, N dropped, and the sweep's counts.
+<the claim body>
+```
+
+Add a `SUMMARY.md` alongside: N staged read, N proposed, N dropped, plus the sweep's counts. That is what
+the human reads first.
+
+### Check the proposal before presenting it
+
+```bash
+./scripts/knowledge-proposal-lint knowledge/proposals/<dir>
+```
+
+It enforces the rules this command is supposed to follow: a merge names two **distinct** ticket classes,
+no `FAIL`/`UNCERTAIN` entry is promoted, every promotion carries a non-vacuous prediction, every entry is
+schema-valid with resolving cites, no placeholder survived, nothing targets a protected path.
+
+**Fix every violation before the checkpoint.** It checks structure, not judgment — passing means you
+followed your own rules, not that the promotions are wise. That part is the reviewer's.
 
 ### Every promoted entry carries a prediction
 
 `prediction:` states the entry's **expected effect on future work**, in terms that could later be found
 false — "a ticket touching the hook layer will not re-derive the stdin payload shape," not "this is
-useful."
+useful." The linter rejects the vacuous forms.
 
-v1 cannot check predictions strongly; the eval corpus that would is deferred. Record them anyway, so
-they are checkable **retroactively** once the corpus exists. An unfalsifiable prediction is worse than
-none: it makes promotion look like a contract while committing to nothing.
+v1 cannot check predictions strongly; the eval corpus that would is deferred. Record them anyway, so they
+are checkable **retroactively** once the corpus exists. An unfalsifiable prediction is worse than none:
+it makes promotion look like a contract while committing to nothing.
 
 ⛔ **BARRIER 3**: No placeholders. Every proposed entry is complete, schema-valid, and has a real
-`verified_at` SHA and real cites. "TBD" in a proposal becomes "TBD" in the store.
+`verified_at` SHA and real cites. "TBD" in a proposal becomes "TBD" in the store — and the linter will
+refuse it.
 
 ## ⛔ CHECKPOINT: Human review
 
