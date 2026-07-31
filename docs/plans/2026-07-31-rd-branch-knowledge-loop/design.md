@@ -269,10 +269,11 @@ The four moving parts, and why each exists:
     created the trust anchor of the whole scheme, and every later change to it a human-only act.
   - Source: design.md Pending Decisions · Decided 2026-07-31
 
-- **This repo's protected set is the thirteen paths committed in `.wb-knowledge.json`, not the six the
+- **This repo's protected set is the fifteen paths committed in `.wb-knowledge.json`, not the six the
   execution plan enumerated.** Added beyond `commands/`, `agents/`, `skills/`, `hooks/`, `CLAUDE.md` and
   the config: `scripts/`, `.claude-plugin/`, `.claude/`, `AGENTS.md`, `.wb-knowledge.schema.json`,
-  `knowledge/entries/`, `knowledge/SCHEMA.md`.
+  `knowledge/entries/`, `knowledge/SCHEMA.md`, and — added by P1-T9 — `package.json` and
+  `package-lock.json`.
   - Rationale: each is steering machinery under the design's own default-deny rule. `scripts/` holds hook
     implementations, `.claude-plugin/` is where hooks are *registered* (protecting `hooks/` while leaving
     the registration writable would be a gap, not a boundary), `AGENTS.md` and `.claude/` steer sessions,
@@ -284,7 +285,15 @@ The four moving parts, and why each exists:
     boundary. Note this costs nothing during ordinary development, where the hook is inert.
   - `knowledge/staging/` is deliberately **excluded** — capture writes there, and staging is ungated by
     design. Its absence from the set is load-bearing, and `scripts/test-knowledge-config` asserts it.
-  - Source: tasks.md Phase 2 Prerequisites · Decided 2026-07-31
+  - **`package.json` / `package-lock.json` (added 2026-07-31 by P1-T9, pending human confirmation).**
+    P1-T9 made `ajv` the enforcement mechanism behind the schema, which made the files pinning `ajv`'s
+    version load-bearing. An armed run able to edit them could pin a validator that accepts anything, and
+    every enforcement test would still report green — the same bypass as editing the schema, one level
+    further up. Asserted in `scripts/test-knowledge-config` rather than required by the schema, because
+    it is repo-specific: a host project may have no `package.json`, whereas the config and its schema are
+    universal. Noting the general shape: **each time enforcement gains a new mechanical dependency, that
+    dependency joins the protected set** — the boundary has to follow the machinery.
+  - Source: tasks.md Phase 2 Prerequisites · Decided 2026-07-31, amended 2026-07-31 (P1-T9)
 
 - **The hook is inert during normal development and armed only while a self-extension / curation run is
   active. While armed it is three-state: `ask` when a human is present, hard `deny` when the run is
@@ -454,7 +463,19 @@ The four moving parts, and why each exists:
     become real tests — a config with `write_policy.core_self_extension`, one with
     `model_narrated: "auto-promote"`, and one whose `protected_paths` omits itself must each be *rejected*
     by the validator, not merely unmatched by an assertion.
-  - Source: tasks.md "What Phase 1 surfaced" · Decided 2026-07-31
+  - **Implemented 2026-07-31 (P1-T9).** `ajv` pinned at 8.20.0 as a devDependency;
+    `scripts/validate-json-schema` compiles the schema and validates data files (exit `0` valid / `1`
+    invalid / `2` bad input / `3` ajv not installed); `scripts/test-knowledge-config` feeds it thirteen
+    jq-mutated copies of the live config plus one **positive control** — relaxing `tool_verified` to
+    `auto-promote` must still be accepted, or a validator that refused everything would turn every
+    rejection green. 47/47.
+  - **Constraint the implementation adds, load-bearing for Phase 2:** the dependency is **dev-time only**.
+    A marketplace install is a bare clone with no `node_modules`, so `hooks/knowledge-guard.sh` must read
+    `.wb-knowledge.json` with the `scripts/lint-hook` jq-then-grep idiom and must never invoke the
+    validator. The validator establishes the config is well-formed at review time; the hook must still
+    degrade gracefully when handed one that is not — which is the malformed-config → `deny` row of the
+    behaviour table.
+  - Source: tasks.md "What Phase 1 surfaced" · Decided 2026-07-31 · Implemented 2026-07-31
 
 - **This project's own implementation is tracked documentation-only. No `bd init`; `tasks.md`'s local
   IDs (`P0-T1` …) are the only task identifiers.**

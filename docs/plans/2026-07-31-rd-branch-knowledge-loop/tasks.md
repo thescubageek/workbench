@@ -5,8 +5,8 @@ created: 2026-07-31
 status: in-progress
 last_updated: 2026-07-31
 current_phase: 1
-total_tasks: 41
-completed_tasks: 12
+total_tasks: 42
+completed_tasks: 13
 depends_on: [research.md, design.md]
 beads_epic: none — decided 2026-07-31 to run this project documentation-only; no bd init
 beads_phases: none — see beads_epic
@@ -314,7 +314,8 @@ self-extension by definition, and the moment it is created is the trust anchor o
 - **P1-T8** — Write `scripts/test-knowledge-worktree` contract test in the `scripts/test-quiet` idiom,
   covering: attaches cleanly, is idempotent on re-run, exits non-zero with a readable message when the
   branch is missing.
-- **P1-T9** *(added 2026-07-31, decided during review)* — Add `ajv` as a hard dependency and validate
+- **P1-T9** *(added 2026-07-31, decided during review; **done 2026-07-31**)* — Add `ajv` as a hard
+  dependency and validate
   `.wb-knowledge.json` against `.wb-knowledge.schema.json` in the test suite. Requires a `package.json`
   (the repo has none) and an install note in `scripts/README.md`. Turn the three negative fixtures
   described at the foot of `scripts/test-knowledge-config` into real rejection tests — a config carrying
@@ -332,7 +333,10 @@ self-extension by definition, and the moment it is created is the trust anchor o
 - [x] `git worktree list` shows the store worktree after running `scripts/knowledge-worktree` — the
       store branch is checked out in *this* workspace, so the script resolves to it rather than creating
       a second one; the create path is covered by the contract test instead
-- [x] `./scripts/test-knowledge-config` passes — 31/31 (added; see below)
+- [x] `./scripts/test-knowledge-config` passes — 47/47 (added; see below). Was 31/31 structural; P1-T9
+      added the ajv enforcement layer plus two protected-path assertions
+- [x] `./scripts/validate-json-schema .wb-knowledge.schema.json .wb-knowledge.json` exits 0 (P1-T9)
+- [x] `npm test` runs all three suites green
 
 **Manual Verification**
 
@@ -354,6 +358,11 @@ self-extension by definition, and the moment it is created is the trust anchor o
 - `scripts/test-knowledge-config` — new (**added**; the only way to actually assert P1-T6's
   "unexpressible" requirement, since the toolchain has no JSON Schema validator)
 - `scripts/README.md` — document the new scripts
+- `package.json`, `package-lock.json` — new (**added**, P1-T9); `ajv` pinned at 8.20.0 as the repo's
+  first node dependency
+- `scripts/validate-json-schema` — new (**added**, P1-T9); ajv-backed validator, dev-time only
+- `.gitignore` — `node_modules/`
+- `CLAUDE.md` — Development Tools gains a Setup section for `npm install`
 
 ### What Phase 1 surfaced
 
@@ -365,14 +374,37 @@ self-extension by definition, and the moment it is created is the trust anchor o
   to be what the design wanted anyway: all workspaces share one store directory, so a capture made in one
   is immediately visible to a curation pass run from another. Phase 3 inherits the consequence — concurrent
   captures land in the same directory, which is exactly what the collision-free ID scheme is for.
-- **P1-T6's guarantee is structural, and its enforcement is partial — being closed by P1-T9
-  (decided 2026-07-31: add `ajv` as a hard dependency and validate in the test suite).** The schema makes
-  "auto-promote core self-extension" unexpressible — no such property, `additionalProperties: false` at
-  every level, `model_narrated` pinned to a `const` rather than an enum. But **no JSON Schema validator
-  runs anywhere in this repo's toolchain** (no ajv, no python `jsonschema`), so nothing mechanically
-  rejects a config that violates it. `scripts/test-knowledge-config` asserts the properties structurally
-  and is mutation-tested — reintroducing the bypass key, un-protecting the config, or protecting
-  `staging/` each make it fail — but that is a proxy for validation, not validation. Stated, not hidden.
+- **P1-T6's guarantee was structural; P1-T9 closed it. Done 2026-07-31.** The schema makes "auto-promote
+  core self-extension" unexpressible — no such property, `additionalProperties: false` at every level,
+  `model_narrated` pinned to a `const` rather than an enum — but until P1-T9 **no JSON Schema validator
+  ran anywhere in this repo's toolchain**, so nothing mechanically rejected a config that violated it.
+  `ajv` is now a hard dev dependency (`package.json`, pinned 8.20.0), `scripts/validate-json-schema`
+  executes the schema, and `scripts/test-knowledge-config` feeds it thirteen jq-mutated copies of the
+  live config. The three fixtures P1-T9 named are real rejection tests now, alongside ten more
+  (unknown keys at each level, absolute protected path, empty `protected_paths`, `version: 2`, …).
+  47/47.
+  - **The positive control is what makes the rejections mean anything.** A fourteenth mutation relaxes
+    `tool_verified` to `auto-promote` — the one axis the policy may relax — and must still be *accepted*.
+    Without it, a validator that refused everything would turn every rejection test green. Same lesson as
+    the Phase 0 A/B; applied deliberately this time rather than learned again.
+  - Each rejection was additionally traced to the schema construct responsible: deleting the
+    `protected_paths.allOf` makes the omits-itself config validate, and loosening `model_narrated` from
+    `const` to `type: string` makes the auto-promote config validate. The tests fail for the right reason.
+  - **Constraint that lands on Phase 2**: `ajv` and `node_modules/` are **dev-time only**. A marketplace
+    install is a bare clone with no `node_modules`, so `hooks/knowledge-guard.sh` must keep reading
+    `.wb-knowledge.json` with the `scripts/lint-hook` jq-then-grep idiom and **must never** shell out to
+    `validate-json-schema`. The validator proves the config is well-formed in CI and at review time; the
+    hook must still degrade gracefully when handed one that is not.
+
+- **Introducing `package.json` opened a hole in the trust anchor, so the protected set grew from thirteen
+  paths to fifteen** — `package.json` and `package-lock.json` added 2026-07-31. Reason: they pin the ajv
+  version `scripts/validate-json-schema` runs. An armed run able to edit them could pin a validator that
+  accepts anything, and every enforcement test above would still report green — the same bypass as
+  editing the schema, one level further up, and the design's own default-deny rule for ambiguous cases
+  points the same way. Asserted in `scripts/test-knowledge-config` rather than required by
+  `.wb-knowledge.schema.json`, because it is repo-specific: a host project may legitimately have no
+  `package.json`, whereas the config and its schema are universal. **Flagged for human confirmation** —
+  the protected set is the trust anchor and changing it is specified as a human-only act.
 - **The ID scheme needs an atomic allocator, not just distinguishing components.** Documented in
   `knowledge/SCHEMA.md`: the date/workspace/session/agent components make collisions unlikely, but two
   subagents can finish in the same millisecond, so the sequence must be allocated by atomic create
@@ -773,8 +805,12 @@ To determine during implementation:
 ### Common Commands
 
 ```bash
+npm install                          # Once per clone — installs ajv (hard dep, dev-time only)
+npm test                             # quiet + knowledge-worktree + knowledge-config
 ./scripts/lint --all                 # Markdown lint
 ./scripts/test-quiet                 # Existing contract test (regression check)
+./scripts/test-knowledge-worktree    # Phase 1
+./scripts/test-knowledge-config      # Phase 1 (+ P1-T9 ajv enforcement layer)
 ./scripts/test-knowledge-guard       # Phase 2
 ./scripts/test-knowledge-capture     # Phase 3
 ./scripts/test-knowledge-sweep       # Phase 4
