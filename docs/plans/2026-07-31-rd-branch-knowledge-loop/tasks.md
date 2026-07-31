@@ -6,7 +6,7 @@ status: in-progress
 last_updated: 2026-07-31
 current_phase: 4
 total_tasks: 42
-completed_tasks: 34
+completed_tasks: 35
 depends_on: [research.md, design.md]
 beads_epic: none — decided 2026-07-31 to run this project documentation-only; no bd init
 beads_phases: none — see beads_epic
@@ -853,6 +853,8 @@ never reaching staging.
 - **P5-T3** — Implement scoped, count-bounded retrieval reading `knowledge/entries/` only — never
   `knowledge/staging/`. Retrieval noise and negative transfer are the measured failure modes and both
   worsen with store size, so a wholesale load is explicitly wrong.
+  - **Done 2026-07-31, as a SCRIPT rather than as prose in a command.** See "Retrieval moved out of
+    markdown" below. `scripts/knowledge-read` + `scripts/test-knowledge-read` (29 checks).
 - **P5-T4** — Declare the store as a fifth category in `skills/project-structure/SKILL.md`, whose Quick
   Check currently routes only to research.md / design.md / tasks.md / thoughts/.
 
@@ -861,20 +863,58 @@ never reaching staging.
 **Automated Verification**
 
 - [ ] `./scripts/lint --all` clean
-- [ ] `grep -r "knowledge/staging" commands/ skills/` returns no retrieval-path reference
+- [x] `./scripts/test-knowledge-read` passes — **29/29** (added by the move below)
+- [x] ~~`grep -r "knowledge/staging" commands/ skills/` returns no retrieval-path reference~~ —
+      **this criterion was wrong and is replaced.** Six files legitimately reference staging today: the
+      four Phase 3 capture points *write* there, `curate_knowledge` *drains* it, and the skill documents
+      both. As written it fails spuriously, and a criterion that gets waived is worse than none. The
+      precise form is the read-path files only:
+      `grep -n "knowledge/staging" commands/create_research.md commands/resume_handoff.md` → must be
+      empty. The invariant it was reaching for is now enforced mechanically instead — see below.
 
-**Manual Verification**
+**Manual Verification** — four of these became automated when retrieval moved into a script
 
-- [ ] A fresh-context run of `/wb:create_research` surfaces a relevant promoted entry
-- [ ] The same run with the worktree removed still completes — degraded, not halted
-- [ ] An irrelevant entry (wrong scope tag) is not surfaced
-- [ ] No staging content ever appears in a research document
+- [x] ~~An irrelevant entry (wrong scope tag) is not surfaced~~ → `test-knowledge-read` asserts it
+- [x] ~~No staging content ever appears~~ → asserted three ways: a decoy staged entry matching every
+      filter, a source check that no path into the tree is built, and a refused `--staging` flag
+- [x] ~~The same run with the worktree removed still completes — degraded, not halted~~ → asserted as
+      exit non-zero with empty stdout, plus the caller contract stated
+- [ ] A fresh-context run of `/wb:create_research` surfaces a relevant promoted entry — **still owed**,
+      and irreducibly so: it needs promoted entries and a real run. What is now testable is that the
+      *retrieval* is correct; what is not is that the *command remembers to call it*, which is a grep
+      once P5-T1 lands
 
 ### Modified Files
 
+- `scripts/knowledge-read`, `scripts/test-knowledge-read` — new (**added**; P5-T3 as a script)
 - `commands/create_research.md`, `commands/resume_handoff.md` — read path
 - `skills/project-structure/SKILL.md` — fifth category
 - `skills/knowledge-store/SKILL.md` — retrieval rules
+
+### Retrieval moved out of markdown — and why that was the point
+
+P5-T3 as written would have put the retrieval rules in `commands/create_research.md` as prose. That
+would have made every property of retrieval unverifiable, because **this repo has no way to test
+markdown** — the Testing Strategy above says so plainly, and `./scripts/lint` checks formatting only.
+
+Retrieval's failure modes are silent ones: the wrong entries surface, or too many, or ungated ones. A
+silent failure with no test is a failure that hides until someone notices research quality quietly got
+worse — and negative transfer is *measured* to worsen with store size, so it would look fine at five
+entries and rot at two hundred.
+
+So retrieval moved into `scripts/knowledge-read` with a contract test, the same way enforcement, capture
+and invalidation already had. This is the general lesson rather than a one-off: **the way to stop
+deferring proof in this project is to put less in markdown.** Every property that lives in a script is
+testable today; every property that lives in a command is owed until someone runs it by hand.
+
+What is left in markdown shrinks to "does the command call the script", which is a grep. Three of Phase
+5's four manual criteria became automated assertions as a direct result, and the fourth is honest about
+being irreducible.
+
+Bounding is enforced rather than advised: default limit 5, hard ceiling 25, and the default scope is
+`repo:<this repo>` rather than "everything". `--staging` is an **error with an explanation**, not an
+absent option — the same shape as `knowledge-sync --rebase`, because an undocumented option someone
+reaches for anyway is not protection.
 
 ---
 
