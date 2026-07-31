@@ -766,12 +766,15 @@ promoted entries, plus the git-only staleness sweep.
 **Manual Verification**
 
 - [x] A deliberately stale entry (cite a path, then change it) is caught by the sweep — the contract
-      test's `suspect-changed`, `suspect-deleted` and `suspect-mixed` fixtures do exactly this
+      test's `suspect-changed`, `suspect-deleted` and `suspect-mixed` fixtures do this, and it was then
+      **re-confirmed against real history**: a probe entry pinned to `b04c571` and citing
+      `scripts/README.md` (edited in `fd8d39a`) came back `suspect` while the ten real entries came back
+      `clean`. Fixtures can be built to pass; this used commits that already existed
 - [ ] `/wb:curate_knowledge` produces a diff for review, and nothing is written to `entries/` until it
-      is approved — **owed.** Needs an armed interactive session and real staged content, neither of
-      which exists yet
+      is approved — **owed, but now unblocked.** Ten real entries were seeded into `staging/`
+      2026-07-31; all that remains is an armed interactive session
 - [ ] The reviewer subagent receives only the candidate, not the authoring context — **owed**, same
-      reason. The command specifies it; nothing has executed it
+      state. The command specifies it; nothing has executed it
 - [ ] Merging two entries that win on different ticket classes is refused by the diversity rule —
       **owed.** This one cannot be automated: it is a judgment the pass makes, and the only test is
       watching a real pass refuse a real merge
@@ -890,6 +893,35 @@ never reaching staging.
 - `commands/create_research.md`, `commands/resume_handoff.md` — read path
 - `skills/project-structure/SKILL.md` — fifth category
 - `skills/knowledge-store/SKILL.md` — retrieval rules
+
+### Staging seeded with real content — 2026-07-31
+
+Ten entries written to `staging/` (never `entries/` — writing promoted entries directly would bypass the
+gate this project exists to build). Not fixture filler: each is a durable, checked claim about this
+codebase, produced by the command-level capture path (P3-T4/T5) working as designed. Hook capture can
+only emit `model-narrated` with no cites, so anything richer has to be written deliberately.
+
+Nine are `tool-verified`. **One (010) is deliberately `model-narrated` and says so in its own body** —
+the Stop-hook exit-code claim was implemented but the loop was never provoked, so it rests on
+documentation and reasoning rather than an observation a tool produced. Labelling that honestly when
+nobody would have checked is the test of whether the `origin` rule is real or decorative.
+
+Verified after seeding: all ten sweep `clean` against the SHA they name, every cited path resolves, and
+`scripts/knowledge-read` returns **zero** of them — the staging invariant now holds against real content
+rather than only a decoy fixture.
+
+**Two honest limits.**
+
+- The seed is hand-written, not accumulated by the hook from real work. Phase 3's checkpoint ("confirm
+  staging is accumulating from real work") is therefore still partly owed; it needs a session with the
+  hooks actually registered.
+- **The pass will test promotion but only weakly test rejection.** I wrote only what I believe is
+  durable, so there is little here a good gate should refuse. Deliberately planting entries I expected to
+  be rejected would have been rigging a test I then evaluate. The rejection half needs real hook
+  captures — low-signal turn summaries — which arrive with real usage.
+- Also surfaced: `SCHEMA.md`'s ID scheme takes the session component from a hook payload and does not
+  cover the hand-written case. These use `handseed`, which reads as what it is rather than borrowing a
+  fake session id. Worth closing at curation.
 
 ### Retrieval moved out of markdown — and why that was the point
 
