@@ -571,7 +571,7 @@ Beads is unavailable in this workspace, so these carry no IDs. With beads, each 
 | `PreToolUse` deny works as documented in the installed Claude Code version | *(no beads)* | **Validated 2026-07-31** — executed against Claude Code 2.1.195; see Phase 0 findings below |
 | `PreToolUse` `ask` is not bypassed by auto-accept | *(no beads)* | **Validated 2026-07-31 — fully, interactive included.** Human-run A/B under `accept edits on`: the control file wrote silently, the sentinel prompted. See Phase 0 findings |
 | `Stop` / `SubagentStop` can write files reliably enough for automatic capture | *(no beads)* | **Validated 2026-07-31** — both fired and wrote; payloads carry `transcript_path` |
-| `agents/research-validator.md` accepts a knowledge entry as-is without schema changes | *(no beads)* | Pending — structural similarity argued, not tested |
+| `agents/research-validator.md` accepts a knowledge entry as-is without schema changes | *(no beads)* | **Validated 2026-07-31 by execution.** True/false entry pair citing the same files: true → PASS 4/4, false → FAIL 0/4 with correct corrections. No schema shim. Caveat: read its OVERALL status, never its per-path table — it marked a cited file PASS on path existence while failing every claim about it |
 | A generated index keeps the store readable at the scale it actually reaches | *(no beads)* | Pending |
 | `docs/beads-integration-learnings.md` contains enough surviving content to be a meaningful test case | *(no beads)* | Pending — 10 learnings, 3 known-contradicted |
 

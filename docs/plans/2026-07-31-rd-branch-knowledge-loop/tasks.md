@@ -4,9 +4,9 @@ ticket: N/A
 created: 2026-07-31
 status: in-progress
 last_updated: 2026-07-31
-current_phase: 3
+current_phase: 4
 total_tasks: 42
-completed_tasks: 26
+completed_tasks: 34
 depends_on: [research.md, design.md]
 beads_epic: none — decided 2026-07-31 to run this project documentation-only; no bd init
 beads_phases: none — see beads_epic
@@ -721,7 +721,12 @@ promoted entries, plus the git-only staleness sweep.
 
 ### Prerequisites
 
-- [ ] Phase 3 complete, staging has real captured content
+- [x] Phase 3 complete
+- [~] staging has real captured content — **NOT met; the maintainer chose to proceed anyway
+      2026-07-31.** Consequence, stated rather than glossed: the build and its contract tests are
+      fixture-driven, and the checkpoint's end-to-end verification of a real curation pass over real
+      captured content is still owed. Nothing about the build depends on it; the *proof that the pass
+      discriminates well* does
 
 ### Tasks
 
@@ -750,23 +755,76 @@ promoted entries, plus the git-only staleness sweep.
 
 **Automated Verification**
 
-- [ ] `./scripts/test-knowledge-sweep` passes, including the undecidable case
-- [ ] `./scripts/lint --all` clean
-- [ ] A sweep over the whole store completes with no model calls (verifiable — the script makes none)
+- [x] `./scripts/test-knowledge-sweep` passes, including the undecidable case — **28/28**, covering all
+      three routes to undecidable (no cites, no SHA, unknown SHA)
+- [x] `./scripts/lint --all` clean
+- [x] A sweep over the whole store completes with no model calls — asserted, though see the honesty note
+      below about what that assertion is worth
+- [x] Re-run under bash 3.2 with clean stderr
+- [x] `npm test` green across all six suites — **234 checks**
 
 **Manual Verification**
 
+- [x] A deliberately stale entry (cite a path, then change it) is caught by the sweep — the contract
+      test's `suspect-changed`, `suspect-deleted` and `suspect-mixed` fixtures do exactly this
 - [ ] `/wb:curate_knowledge` produces a diff for review, and nothing is written to `entries/` until it
-      is approved
-- [ ] The reviewer subagent receives only the candidate, not the authoring context
-- [ ] A deliberately stale entry (cite a path, then change it) is caught by the sweep
-- [ ] Merging two entries that win on different ticket classes is refused by the diversity rule
+      is approved — **owed.** Needs an armed interactive session and real staged content, neither of
+      which exists yet
+- [ ] The reviewer subagent receives only the candidate, not the authoring context — **owed**, same
+      reason. The command specifies it; nothing has executed it
+- [ ] Merging two entries that win on different ticket classes is refused by the diversity rule —
+      **owed.** This one cannot be automated: it is a judgment the pass makes, and the only test is
+      watching a real pass refuse a real merge
 
 ### Modified Files
 
 - `scripts/knowledge-sweep`, `scripts/test-knowledge-sweep` — new
+- `scripts/knowledge-sync` — new (**added**; P4-T8 needed a home for the on-sync trigger)
 - `commands/curate_knowledge.md` — new
-- `skills/knowledge-store/SKILL.md` — new; store conventions and the curation operations
+- `skills/knowledge-store/SKILL.md` — **extended** (created in Phase 3) with the four curation
+  operations, the diversity rule, predictions, and the invalidation commands
+- `README.md`, `scripts/README.md`, `package.json` — document and wire the new suite
+
+### What Phase 4 surfaced
+
+- **P4-T3's own wording was wrong, and the collision is load-bearing.** The task says the command "arms
+  the guard." It cannot. Phase 2 established by execution that arming lives in the environment of the
+  process that *started the session*, precisely so a tool-layer process cannot forge it — and a slash
+  command runs inside a session that has already started. So `/wb:curate_knowledge` **verifies** the arm
+  and refuses to proceed without it, telling the user to restart with
+  `WB_SELF_EXTENSION=interactive claude`. Had this been implemented as written, the command would have
+  "armed" itself in a way that either did nothing or, worse, appeared to work — a curation pass that
+  believes it is gated and is not.
+
+- **The two-stage proposal shape falls out of the protected set.** `knowledge/entries/` is protected, so
+  an armed run's every write there prompts. Twenty prompts in a row is click-through fatigue, which is
+  rubber-stamping with extra steps. So the pass writes one **proposal document** to
+  `knowledge/proposals/` — deliberately *not* protected, exactly like `staging/` — the human reads it as
+  a batch, and only then are named operations applied one prompt at a time. The unprotected proposals
+  tree is load-bearing in the same way staging's absence from the set is.
+
+- **The validator assumption holds, with a caveat that changes how it must be used.** Probed by
+  execution with a true/false pair citing the same files: the true entry returned PASS 4/4, the false
+  one FAIL 0/4 with correct specific corrections. No schema shim needed. **But** on the false entry it
+  marked a cited file `PASS` in its *path* table while failing every behavioral claim about it — correct
+  per its own rubric, since path existence is not claim accuracy. Curation must therefore read the
+  **overall status**, never the per-path table. An entry can cite files that all still exist and be
+  entirely wrong.
+
+- **The sweep's `undecidable` verdict is the common case, not the corner case.** Every automatic capture
+  from Phase 3 cites nothing, so it lands there. Reporting those `clean` would have been the easy bug —
+  nothing cited changed, after all — and it would have laundered "I cannot tell" into "I checked" across
+  the majority of the store.
+
+- **`--rebase` is refused rather than merely absent.** `scripts/knowledge-sync` errors on the flag with
+  an explanation, because rebasing the store branch rewrites the commits provenance SHAs point at and
+  does so *silently, with no error at the moment of damage*. An undocumented option someone reaches for
+  anyway is not protection; a refusal that explains itself is.
+
+- **Honesty note on two of the 28 checks.** "Makes no model calls" and "needs no jq" are *negative*
+  assertions — verified by execution that they also pass on an empty file. They catch a future
+  regression; they do not prove the script works. The other twenty-odd behavioural checks do. Recording
+  this because a suite that counts vacuous assertions among its passes overstates its own coverage.
 
 ### ⛔ CHECKPOINT: Phase 4 Complete
 
