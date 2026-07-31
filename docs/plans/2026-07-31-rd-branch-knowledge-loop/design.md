@@ -487,7 +487,7 @@ Beads is unavailable in this workspace, so these carry no IDs. With beads, each 
 | Assumption | Beads ID | Validated? |
 | --- | --- | --- |
 | `PreToolUse` deny works as documented in the installed Claude Code version | *(no beads)* | **Validated 2026-07-31** — executed against Claude Code 2.1.195; see Phase 0 findings below |
-| `PreToolUse` `ask` is not bypassed by auto-accept | *(no beads)* | **Validated 2026-07-31 (non-interactive modes)** — partial; the interactive prompt-rendering check is a human-run gate blocking the start of Phase 1 (decided 2026-07-31), see Phase 0 findings |
+| `PreToolUse` `ask` is not bypassed by auto-accept | *(no beads)* | **Validated 2026-07-31 — fully, interactive included.** Human-run A/B under `accept edits on`: the control file wrote silently, the sentinel prompted. See Phase 0 findings |
 | `Stop` / `SubagentStop` can write files reliably enough for automatic capture | *(no beads)* | **Validated 2026-07-31** — both fired and wrote; payloads carry `transcript_path` |
 | `agents/research-validator.md` accepts a knowledge entry as-is without schema changes | *(no beads)* | Pending — structural similarity argued, not tested |
 | A generated index keeps the store readable at the scale it actually reaches | *(no beads)* | Pending |
@@ -519,11 +519,13 @@ Load-bearing consequences:
   refusal reason (`permissionDecisionReason`) was surfaced to the model verbatim. In every
   non-interactive mode, `ask` degrades to refusal — i.e. it **fails closed**, which is the posture the
   full-auto row of the three-state table wants anyway.
-- **Partial, stated honestly:** what is verified is that auto-accept does not *silently approve* an
-  `ask`. What is **not** verified is that an interactive session with auto-accept enabled renders a
-  visible approval prompt — that requires a human at a terminal and cannot be established headlessly.
-  The three-state design does not collapse either way: the failure mode if the prompt does not render
-  is refusal, not silent approval.
+- **The interactive middle row is confirmed too** (human-run, 2026-07-31). Run as an A/B inside one
+  session started with `--permission-mode acceptEdits`, footer reading `accept edits on`: a control file
+  the hook ignores was written with **no prompt**, and `sentinel.txt` — differing only in the filename the
+  hook matches — **prompted for approval**. Auto-accept is therefore provably live and the hook's `ask`
+  is what interrupts it. The three-state table is now observed in every row rather than argued.
+  - An earlier attempt was discarded as inconclusive: it wrote only the sentinel, in default mode, where
+    a `Write` prompts regardless. The control file is what makes the result mean anything.
 - **`Stop` and `SubagentStop` both fire and write reliably.** Payloads carry `session_id`, `cwd`,
   `permission_mode`, `last_assistant_message`, `transcript_path`, and — for `SubagentStop` —
   `agent_id`, `agent_type`, and `agent_transcript_path`. Capture (Phase 3) has a richer substrate than
@@ -537,6 +539,17 @@ Load-bearing consequences:
   as a one-way signal: they can raise suspicion of unattended operation, never confirm attendance.
   Practical rule for Phase 2: absent a positive interactive assertion from the arming act, treat the run
   as full-auto and `deny`.
+- **The path the hook receives is a resolved absolute path, and it is not necessarily the path anyone
+  named.** In the interactive run, Claude Code 2.1.195 redirected both writes into a per-session
+  scratchpad — `/private/tmp/claude-501/<project-slug>/<uuid>/scratchpad/sentinel.txt` — rather than the
+  working directory the prompt asked for, and `/tmp` arrived as its `/private/tmp` realpath. The hook saw
+  the real destination and matched correctly, so the probe stands; but two Phase 2 consequences follow.
+  **(a)** `hooks/knowledge-guard.sh` must compare *resolved* paths (symlinks and `/tmp` → `/private/tmp`
+  included) against the protected set, never the literal string in `tool_input`. **(b)** A naive
+  repo-relative prefix match is both bypassable and wrong: an agent write can land somewhere entirely
+  outside the repo, which means "not under a protected prefix" cannot be read as "safe" — it must fall
+  through to the indeterminate case, which the behaviour table already sends to `deny` inside a
+  configured repo.
 
 ## Rejected Alternatives
 

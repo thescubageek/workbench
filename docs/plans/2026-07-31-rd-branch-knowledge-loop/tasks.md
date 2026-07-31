@@ -221,9 +221,22 @@ writes differ in exactly one variable, and the comparison reads itself:
 | silent | refused, no prompt | Partial — fails closed, no security hole, but `ask` buys nothing over `deny` | Collapse the armed hook to two states (inert / `deny`); simplify Phase 2 |
 | **prompts** | either | Void — accept-edits was not active, same confound as attempt 1 | Re-run; check the footer reads `accept edits` |
 
-Afterwards `cat /tmp/wb-hook-probe/pretool.log` should show exactly one `decision=ask` line, for the
-sentinel path only. Empty means the hook never fired and the run proved nothing; a `control.txt` line
-means the matcher is wrong. Record the verdict in design.md's Assumptions table and Phase 0 findings.
+Afterwards `cat /tmp/wb-hook-probe/pretool.log` should show a line for **both** files — the probe logs
+every invocation before it checks the filename, and `decision=` echoes `PROBE_DECISION`, not what was
+returned. Two lines is correct and proves the hook ran on both writes; an *empty* log means it never
+fired and the run proved nothing.
+
+**VERDICT 2026-07-31 — PASS.** Footer read `accept edits on`; `control.txt` was written with no prompt
+and `sentinel.txt` prompted for approval. Recorded in design.md's Assumptions table and Phase 0 findings.
+Two incidental findings from the same run, both carried into Phase 2:
+
+- Claude Code redirected the writes into a per-session scratchpad
+  (`/private/tmp/claude-501/<slug>/<uuid>/scratchpad/`) rather than the cwd, and `/tmp` arrived as
+  `/private/tmp`. The guard must match on **resolved** paths, and must not treat "outside every protected
+  prefix" as "safe" — that is the indeterminate case, which fails closed to `deny`.
+- The first attempt at this check was inconclusive because it lacked a control. Any future hook-behaviour
+  probe needs an A/B in the same session; a single observation cannot separate the hook from the
+  harness's own default.
 
 ### ⛔ CHECKPOINT: Phase 0 Complete
 
@@ -255,10 +268,9 @@ the trust anchor everything else reads.
       dedicated branch is created
   - **Decided 2026-07-31** → reuse `thescubageek/self-learning-loops-research`; decision recorded in
     `design.md` (## Technical Decisions → Architecture)
-- [ ] **Human-run gate (decided 2026-07-31): the interactive auto-accept `ask` check has passed.** Phase 0
-      verified `ask` only in non-interactive modes; the middle row of the three-state table is still
-      unobserved. See "Interactive `ask` check" below for the procedure. Phase 1 does not start until this
-      is confirmed.
+- [x] **Human-run gate (decided 2026-07-31): the interactive auto-accept `ask` check has passed.**
+      **PASSED 2026-07-31** — A/B under `accept edits on`: control file silent, sentinel prompted. All
+      three rows of the behaviour table are now observed. Procedure and verdict below.
 
 ### Changes Required
 
