@@ -314,6 +314,13 @@ self-extension by definition, and the moment it is created is the trust anchor o
 - **P1-T8** — Write `scripts/test-knowledge-worktree` contract test in the `scripts/test-quiet` idiom,
   covering: attaches cleanly, is idempotent on re-run, exits non-zero with a readable message when the
   branch is missing.
+- **P1-T9** *(added 2026-07-31, decided during review)* — Add `ajv` as a hard dependency and validate
+  `.wb-knowledge.json` against `.wb-knowledge.schema.json` in the test suite. Requires a `package.json`
+  (the repo has none) and an install note in `scripts/README.md`. Turn the three negative fixtures
+  described at the foot of `scripts/test-knowledge-config` into real rejection tests — a config carrying
+  `write_policy.core_self_extension`, one with `model_narrated: "auto-promote"`, and one whose
+  `protected_paths` omits itself must each be **rejected by the validator**, which is what upgrades
+  P1-T6's guarantee from "the schema says so" to "nothing else validates."
 
 ### Success Criteria
 
@@ -358,7 +365,8 @@ self-extension by definition, and the moment it is created is the trust anchor o
   to be what the design wanted anyway: all workspaces share one store directory, so a capture made in one
   is immediately visible to a curation pass run from another. Phase 3 inherits the consequence — concurrent
   captures land in the same directory, which is exactly what the collision-free ID scheme is for.
-- **P1-T6's guarantee is structural, and its enforcement is partial.** The schema makes
+- **P1-T6's guarantee is structural, and its enforcement is partial — being closed by P1-T9
+  (decided 2026-07-31: add `ajv` as a hard dependency and validate in the test suite).** The schema makes
   "auto-promote core self-extension" unexpressible — no such property, `additionalProperties: false` at
   every level, `model_narrated` pinned to a `const` rather than an enum. But **no JSON Schema validator
   runs anywhere in this repo's toolchain** (no ajv, no python `jsonschema`), so nothing mechanically
@@ -370,13 +378,22 @@ self-extension by definition, and the moment it is created is the trust anchor o
   subagents can finish in the same millisecond, so the sequence must be allocated by atomic create
   (`set -C` / `O_EXCL`) with retry. Counting existing files is a read-then-write race. Phase 3 must
   implement it that way; P3-T1's concurrency test is the check.
-- **⚠️ Unresolved, and it bites at Phase 6: how does code built on this branch ever ship?** The store
-  branch is permanently unmerged outbound, but `hooks/`, `scripts/`, `commands/` and the version bump in
-  P6-T4 only reach an installed user via `main`. The design decoupled *knowledge* from the version-keyed
-  release path; it did not say how the *code* gets there. Two candidate answers — cherry-pick or PR the
-  code-only changes to `main` and keep `knowledge/` behind, or accept that v1 is R+D-only and P6-T4's
-  release is exercised but never pushed. **Does not block Phases 2–5**, all of which build on this
-  branch regardless. Resolve before starting Phase 6.
+- **How code built on this branch ships — resolved 2026-07-31 by splitting the branches.** The store
+  branch is permanently unmerged outbound, but `hooks/`, `scripts/`, `commands/` and P6-T4's version bump
+  only reach an installed user via `main`. **Decision: Phases 2–5 code is built on a normal feature branch
+  off `main`; only `knowledge/` stays on the store branch.** Code then flows feature-branch → `main` →
+  forward-merge into the store branch, so the store still holds both and entry `file:line` refs still
+  resolve. Recorded in `design.md` (## Technical Decisions → Architecture). Phase 1's already-committed
+  code must be moved to the feature branch as part of the split.
+
+  **The split, concretely** — moves to the feature branch (cut from `origin/main`):
+  `.wb-knowledge.json`, `.wb-knowledge.schema.json`, `scripts/knowledge-worktree`,
+  `scripts/test-knowledge-worktree`, `scripts/test-knowledge-config`, and the `scripts/README.md` edits.
+  Stays on the store branch: `knowledge/**` and `docs/plans/**` — the latter because it is gitignored
+  dev-only content that must never reach `main`. No force-push and no rebase: the store branch gets an
+  ordinary commit removing the code, and its history stays intact so provenance SHAs keep pointing at
+  real commits. Workspace arrangement: `kyiv` keeps the store branch, a second Conductor workspace
+  carries the feature branch, and Phases 2–5 are implemented there.
 
 ### ⛔ CHECKPOINT: Phase 1 Complete
 
@@ -394,7 +411,9 @@ interactive run, hard `deny` in an armed full-auto run.
 
 ### Prerequisites
 
-- [ ] Phase 1 complete, `.wb-knowledge.json` reviewed and committed
+- [x] Phase 1 complete, `.wb-knowledge.json` reviewed and committed
+  - **Reviewed 2026-07-31**: the thirteen-path set stands as committed, including the seven added beyond
+    P1-T5's enumeration. Decision and rationale in `design.md` (## Technical Decisions → Architecture).
 - [ ] Phase 0 verdicts confirm `deny` and `ask` both behave as documented
   - **Decided 2026-07-31**: `deny` is confirmed in all five permission modes including
     `bypassPermissions`. `ask` is confirmed non-bypassable only in non-interactive modes; the interactive

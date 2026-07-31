@@ -4,7 +4,7 @@ ticket: N/A
 created: 2026-07-31
 status: draft
 last_updated: 2026-07-31
-last_updated_note: "Phase 0 tracer-bullet verdicts recorded; 3 further decisions resolved via /wb:resolve_questions (store branch, interactive ask gate, no beads)"
+last_updated_note: "Phase 0+1 complete; 4 further decisions resolved via /wb:resolve_questions (protected set, code/knowledge branch split, ajv validation, workspace arrangement)"
 depends_on: research.md
 design_approach: Git-native entry-addressable knowledge store with hook-enforced protected-path boundary
 ---
@@ -122,6 +122,33 @@ The four moving parts, and why each exists:
     is permanent store history, and it inherits merge-forward-never-rebase **permanently** — no rebase
     and no force-push on this branch, ever, or every stored provenance SHA silently goes stale.
   - Source: tasks.md Phase 1 Prerequisites / P1-T1 · Decided 2026-07-31
+
+- **Code and knowledge are split across two branches from Phase 2 onward: the loop's *code* is built on a
+  normal feature branch off `main` and reaches users through the ordinary release path; only `knowledge/`
+  lives on the store branch.**
+  - Rationale: the store branch is permanently unmerged outbound, but `hooks/knowledge-guard.sh`, the
+    scripts, `commands/curate_knowledge.md`, and the version bump only reach an installed user via
+    `main`. The original framing decoupled *knowledge* from the version-keyed release path and silently
+    left the *code* stranded on a branch that by definition never ships. Splitting resolves it without
+    weakening the store branch's no-outbound-merge rule: code flows feature-branch → `main` → forward-merge
+    into the store branch, so the store still ends up holding both code and knowledge and entry
+    `file:line` refs still resolve locally. Knowledge never travels the other way.
+  - Trade-off: two branches to keep straight, and Phase 1's already-committed code has to be moved rather
+    than written in place. Accepted — the alternative is discovering at Phase 6 that nothing built can be
+    delivered.
+  - Consequence: `.wb-knowledge.json` and `.wb-knowledge.schema.json` belong on the **code** side. They
+    are per-repo configuration the shipped hook reads from whatever branch is checked out, not store
+    content.
+  - **`docs/plans/` stays on the store branch.** It is gitignored as dev-only and must never reach `main`
+    (`.gitignore:7`), so it cannot ride the feature branch through the release path. It also already has
+    its full history here, and duplicating it across branches would recreate exactly the
+    two-sources-of-truth drift this project exists to fix. The feature-branch workspace reads it from the
+    store-branch worktree.
+  - **Working arrangement**: `kyiv` stays on the store branch; a second Conductor workspace carries the
+    feature branch, and Phases 2–5 are implemented there. Git allows one checkout per branch, so the two
+    workspaces hold the two branches and `scripts/knowledge-worktree` resolves across them — which is the
+    multi-workspace case it was built for, now exercised for real rather than only in tests.
+  - Source: tasks.md "What Phase 1 surfaced" · Decided 2026-07-31
 
 - **The store is scoped to the repository it lives in. One mechanism, per-repo instances.**
   - Rationale: wb's codebase *is* its harness, so harness self-improvement is a special case of codebase
@@ -241,6 +268,23 @@ The four moving parts, and why each exists:
     self-extension by definition, so the loop cannot edit it. That makes the moment the config is first
     created the trust anchor of the whole scheme, and every later change to it a human-only act.
   - Source: design.md Pending Decisions · Decided 2026-07-31
+
+- **This repo's protected set is the thirteen paths committed in `.wb-knowledge.json`, not the six the
+  execution plan enumerated.** Added beyond `commands/`, `agents/`, `skills/`, `hooks/`, `CLAUDE.md` and
+  the config: `scripts/`, `.claude-plugin/`, `.claude/`, `AGENTS.md`, `.wb-knowledge.schema.json`,
+  `knowledge/entries/`, `knowledge/SCHEMA.md`.
+  - Rationale: each is steering machinery under the design's own default-deny rule. `scripts/` holds hook
+    implementations, `.claude-plugin/` is where hooks are *registered* (protecting `hooks/` while leaving
+    the registration writable would be a gap, not a boundary), `AGENTS.md` and `.claude/` steer sessions,
+    `knowledge/entries/` is what retrieval reads, and `SCHEMA.md` defines what a valid entry even is.
+    Protecting the config while leaving its schema writable would let the loop relax the rules the config
+    is validated against — the same bypass one level up.
+  - Trade-off: an armed self-extension run cannot write its own tests or scripts, so any new tooling a
+    curation pass wants must come through a human. Accepted; that is the same trade as the rest of the
+    boundary. Note this costs nothing during ordinary development, where the hook is inert.
+  - `knowledge/staging/` is deliberately **excluded** — capture writes there, and staging is ungated by
+    design. Its absence from the set is load-bearing, and `scripts/test-knowledge-config` asserts it.
+  - Source: tasks.md Phase 2 Prerequisites · Decided 2026-07-31
 
 - **The hook is inert during normal development and armed only while a self-extension / curation run is
   active. While armed it is three-state: `ask` when a human is present, hard `deny` when the run is
@@ -396,6 +440,21 @@ The four moving parts, and why each exists:
     lives in its own file and commit history. The inversion is deliberate and scoped to proposals only —
     everything else in wb keeps beads as the source of truth.
   - Source: design.md Pending Decisions · Decided 2026-07-31
+
+- **`ajv` becomes a hard dependency, and `.wb-knowledge.json` is validated against its schema in the test
+  suite.**
+  - Rationale: the config is the trust anchor, and P1-T6's "auto-promote core self-extension is
+    unexpressible" is currently guaranteed only by 31 structural `jq` assertions — which verify the schema
+    *says* the right thing, not that anything rejects a config violating it. A hand-edited config would be
+    caught only for the properties those assertions happen to cover. For the one file in the repo whose
+    integrity every other control depends on, "probably fine" is the wrong standard.
+  - Trade-off: the repo's first hard runtime dependency beyond `markdownlint-cli`, which means a
+    `package.json` and an install step where there was none. Accepted deliberately for this file.
+  - Consequence: the negative fixtures already described at the bottom of `scripts/test-knowledge-config`
+    become real tests — a config with `write_policy.core_self_extension`, one with
+    `model_narrated: "auto-promote"`, and one whose `protected_paths` omits itself must each be *rejected*
+    by the validator, not merely unmatched by an assertion.
+  - Source: tasks.md "What Phase 1 surfaced" · Decided 2026-07-31
 
 - **This project's own implementation is tracked documentation-only. No `bd init`; `tasks.md`'s local
   IDs (`P0-T1` …) are the only task identifiers.**
