@@ -4,9 +4,9 @@ ticket: N/A
 created: 2026-07-31
 status: in-progress
 last_updated: 2026-07-31
-current_phase: 2
+current_phase: 3
 total_tasks: 42
-completed_tasks: 20
+completed_tasks: 26
 depends_on: [research.md, design.md]
 beads_epic: none — decided 2026-07-31 to run this project documentation-only; no bd init
 beads_phases: none — see beads_epic
@@ -403,8 +403,9 @@ self-extension by definition, and the moment it is created is the trust anchor o
   editing the schema, one level further up, and the design's own default-deny rule for ambiguous cases
   points the same way. Asserted in `scripts/test-knowledge-config` rather than required by
   `.wb-knowledge.schema.json`, because it is repo-specific: a host project may legitimately have no
-  `package.json`, whereas the config and its schema are universal. **Flagged for human confirmation** —
-  the protected set is the trust anchor and changing it is specified as a human-only act.
+  `package.json`, whereas the config and its schema are universal. **Confirmed by the maintainer
+  2026-07-31** — the protected set is the trust anchor and changing it is specified as a human-only act,
+  so the join was raised for a decision rather than taken. The set now stands at fifteen paths.
 - **The ID scheme needs an atomic allocator, not just distinguishing components.** Documented in
   `knowledge/SCHEMA.md`: the date/workspace/session/agent components make collisions unlikely, but two
   subagents can finish in the same millisecond, so the sequence must be allocated by atomic create
@@ -606,8 +607,8 @@ to record.
 
 ### Prerequisites
 
-- [ ] Phase 2 complete — the boundary exists before the loop that writes
-- [ ] Phase 0 confirmed `Stop`/`SubagentStop` can write reliably
+- [x] Phase 2 complete — the boundary exists before the loop that writes
+- [x] Phase 0 confirmed `Stop`/`SubagentStop` can write reliably
 
 ### Tasks
 
@@ -631,16 +632,26 @@ to record.
 
 **Automated Verification**
 
-- [ ] `./scripts/test-knowledge-capture` passes including the concurrency case
-- [ ] `jq . .claude-plugin/plugin.json` parses
-- [ ] `./scripts/lint --all` clean
+- [x] `./scripts/test-knowledge-capture` passes including the concurrency case — **55/55**, and the
+      concurrency case runs 8 simultaneous captures and asserts 8 distinct files
+- [x] `jq . .claude-plugin/plugin.json` parses
+- [x] `./scripts/lint --all` clean
+- [x] Re-run under **bash 3.2** with clean stderr, as with the guard
 
 **Manual Verification**
 
-- [ ] Running any `/wb:*` command to completion leaves at least one staging entry, with no explicit
-      instruction to record
-- [ ] Removing the worktree causes a visible, legible failure rather than a silent no-op
-- [ ] No capture ever lands in `knowledge/entries/`
+- [x] Running any `/wb:*` command to completion leaves at least one staging entry, with no explicit
+      instruction to record — **verified live 2026-07-31 as an A/B.** A child `claude -p` session in a
+      configured scratch repo was asked only "What is 2+2?"; a staged entry appeared. The same settings
+      in an *unconfigured* repo wrote nothing. The prompt never mentioned recording, which is the whole
+      claim: capture does not depend on the agent choosing to record
+- [~] Removing the worktree causes a visible, legible failure rather than a silent no-op — **partial.**
+      The contract test asserts the hook writes a legible message to stderr AND emits a `systemMessage`
+      naming the missing branch. Run live, the failure path executed, but `systemMessage` was not
+      observed in `claude -p` output, so whether Claude Code *surfaces* it to a user is unverified.
+      This is exactly why `--selfcheck` exists as the deterministic channel; stated rather than assumed
+- [x] No capture ever lands in `knowledge/entries/` — asserted in the contract test on every path,
+      including under 8-way concurrency, and confirmed in the live run
 
 ### Modified Files
 
@@ -648,6 +659,51 @@ to record.
 - `.claude-plugin/plugin.json` — `Stop` / `SubagentStop` registration
 - `commands/validate_execution.md`, `commands/create_handoff.md`, `commands/implement_tasks.md`,
   `commands/implement_coordinated.md` — capture destination named
+- `skills/knowledge-store/SKILL.md` — new (**brought forward from Phase 4**; see below)
+- `scripts/README.md`, `README.md`, `package.json` — document and wire the new suite
+
+### What Phase 3 surfaced
+
+- **`origin` is enforceable by construction here, not by discipline.** A hook at a turn boundary sees the
+  model's *summary*, never a tool's observation, so automatic capture can only ever emit
+  `model-narrated` — which the write policy pins to `propose-only`. `hooks/knowledge-capture.sh` contains
+  no code path that can emit `tool-verified`, and a test asserts the string does not appear outside
+  comments. P3-T6 asked for "origin field discipline"; this is stronger than discipline. `tool-verified`
+  is reachable only from the command-level capture points where a verdict actually exists, which is why
+  `validate_execution` is the highest-signal of the four.
+
+- **Inert-vs-loud is the same asymmetry Phase 2 used for arming, and it resolves a real tension in the
+  design.** design.md requires capture failure to be *visible* ("a no-op capture is worse than no
+  capture"), while the risk table requires the plugin never to intrude on repos that have not opted in.
+  Both hold once the split is by opt-in: no `.wb-knowledge.json` → completely silent, because there is
+  nothing to capture into and a marketplace install must not shout at every user every turn; config
+  present but store unreachable → loud, because that repo opted in and its loop is now recording nothing
+  while looking like it works.
+
+- **A `Stop` hook must never exit non-zero to signal a problem.** Exit 2 on `Stop` blocks the stop and
+  feeds stderr back to the model, which risks a stop-continue-stop loop. Capture always exits 0 and
+  surfaces failure on stderr plus a `systemMessage`, with `--selfcheck` as the deterministic channel.
+  This constrains Phase 4 too: nothing on the `Stop` path may use exit codes to communicate.
+
+- **Two real bugs, both found by running against the real store rather than only against fixtures.**
+  (a) `STORE_ERR="$( { STORE="$(...)"; } 2>&1 )"` runs the inner assignment in a subshell, so `STORE`
+  never reached the parent and *every* capture reported the store unreachable — the fixtures passed
+  because they exercised the same broken path symmetrically. (b) `--selfcheck` counted
+  `staging/README.md` as a captured entry, so an empty store reported as a working one; now counted by
+  ID shape, with a regression test. Worth generalising: a health check that counts `*.md` in a directory
+  that also holds documentation will lie in the reassuring direction.
+
+- **`skills/knowledge-store/SKILL.md` was brought forward from Phase 4.** P3-T4/T5 would otherwise have
+  copied the same ten-line `origin` rule into four command files, and duplicated policy drifting apart is
+  the exact failure this project exists to fix — `docs/beads-integration-learnings.md` contradicting
+  `CLAUDE.md` is the same shape. design.md already names `skills/model-help` as the precedent for one
+  authoritative artifact every command delegates to. The skill currently carries capture conventions
+  only; Phase 4 extends it with the curation operations as originally planned.
+
+- **The multi-workspace store resolution works for real, not just in tests.** Running
+  `hooks/knowledge-capture.sh --selfcheck` from the `maputo` code-branch workspace resolves the store to
+  `kyiv`'s checkout of the store branch. That is the arrangement design.md predicted when it split the
+  branches, now exercised end to end rather than argued.
 
 ### ⛔ CHECKPOINT: Phase 3 Complete
 

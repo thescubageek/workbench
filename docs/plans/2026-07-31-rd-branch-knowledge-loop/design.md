@@ -285,7 +285,7 @@ The four moving parts, and why each exists:
     boundary. Note this costs nothing during ordinary development, where the hook is inert.
   - `knowledge/staging/` is deliberately **excluded** — capture writes there, and staging is ungated by
     design. Its absence from the set is load-bearing, and `scripts/test-knowledge-config` asserts it.
-  - **`package.json` / `package-lock.json` (added 2026-07-31 by P1-T9, pending human confirmation).**
+  - **`package.json` / `package-lock.json` (added 2026-07-31 by P1-T9; **confirmed by the maintainer 2026-07-31**).**
     P1-T9 made `ajv` the enforcement mechanism behind the schema, which made the files pinning `ajv`'s
     version load-bearing. An armed run able to edit them could pin a validator that accepts anything, and
     every enforcement test would still report green — the same bypass as editing the schema, one level
