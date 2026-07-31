@@ -29,6 +29,19 @@ The store lives on `thescubageek/self-learning-loops-research`, a long-lived bra
 merged into `main`**. Knowledge improves continuously; plugin delivery is discrete and version-keyed
 (`CLAUDE.md` → "Releasing New Commands/Skills/Agents"). Keeping the store off `main` decouples the two.
 
+### The code is not on this branch
+
+This branch holds `knowledge/` and `docs/plans/` only. The loop's implementation —
+`scripts/knowledge-worktree`, the enforcement hook, `.wb-knowledge.json`, the curation command — is
+built on `thescubageek/knowledge-store-v1`, cut from `main`, because the store branch never merges
+outbound and anything that must reach an installed user has to travel the ordinary release path.
+
+Code arrives here the other way round: feature branch → `main` → forward-merge into this branch. So
+after that merge the store holds both code and knowledge, and entry `file:line` references resolve
+locally. Until then, run the scripts from a workspace on the code branch.
+
+### Access
+
 Access it with `scripts/knowledge-worktree`, which prints the store root path and resolves to an
 existing checkout wherever one is — including a sibling Conductor workspace, since git allows a branch
 to be checked out in only one worktree at a time.

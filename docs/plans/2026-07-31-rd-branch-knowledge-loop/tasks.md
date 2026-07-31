@@ -386,6 +386,14 @@ self-extension by definition, and the moment it is created is the trust anchor o
   resolve. Recorded in `design.md` (## Technical Decisions → Architecture). Phase 1's already-committed
   code must be moved to the feature branch as part of the split.
 
+  **Split executed 2026-07-31.** Feature branch `thescubageek/knowledge-store-v1` cut from `origin/main`
+  at `1535d8a`, carrying the Phase 1 code as commit `79c8e59`; the store branch keeps `knowledge/` and
+  `docs/plans/`. All tests green on both sides. Two notes: **`main` has moved to v1.12.4**, so P6-T4's
+  bump is `1.12.4 → 1.13.0`, not `1.12.3 → 1.13.0`; and the split surfaced two genuine test bugs, fixed
+  on the feature branch — the store branch may exist only as a remote-tracking ref in a fresh clone, and
+  protected paths under the store root are legitimately absent from a code branch (protecting a path that
+  does not exist still prevents its creation, so existence was never the right requirement).
+
   **The split, concretely** — moves to the feature branch (cut from `origin/main`):
   `.wb-knowledge.json`, `.wb-knowledge.schema.json`, `scripts/knowledge-worktree`,
   `scripts/test-knowledge-worktree`, `scripts/test-knowledge-config`, and the `scripts/README.md` edits.

@@ -88,48 +88,6 @@ lost. The wrapped command's exit code is always passed through unchanged.
 
 Contract tests for `quiet` (success collapse, failure dump, exit-code pass-through). Run after changing `quiet`.
 
-### `knowledge-worktree`
-
-Resolves the knowledge store for this repo and prints its root path on stdout. The store lives on a
-long-lived branch declared in `.wb-knowledge.json`; git allows a branch to be checked out in only one
-worktree at a time, so this **resolves to an existing checkout wherever it already is** — including a
-sibling Conductor workspace — rather than competing for one. Only when nothing holds the branch does it
-create a worktree.
-
-```bash
-STORE="$(./scripts/knowledge-worktree)" || exit 1
-ls "$STORE/entries"
-```
-
-**Contract:**
-
-- On success, stdout is the store root path and nothing else
-- Every failure is non-zero, legible, and on stderr — **never a silent no-op**, because a capture that
-  quietly writes nowhere looks like a working loop while recording nothing
-- Repeated runs return the identical path and create nothing extra
-
-**Exit codes:** `2` not in a git repo · `3` no `.wb-knowledge.json` · `4` store branch missing ·
-`5` checkout has no store root · `6` worktree creation failed
-
-**Environment:** `WB_KNOWLEDGE_WORKTREE` overrides where a worktree is created;
-`WB_KNOWLEDGE_NO_JQ=1` forces the jq-free parsing fallback.
-
-### `test-knowledge-worktree`
-
-Contract tests for `knowledge-worktree`. Builds throwaway git repos under a temp dir — never touches the
-real repository or its worktrees. Covers the resolve/create/reuse cases, idempotency, the
-branch-held-by-another-worktree case, the jq-free fallback, and every loud-failure path.
-
-### `test-knowledge-config`
-
-Contract tests for `.wb-knowledge.json` and `.wb-knowledge.schema.json`. Asserts the trust anchor holds:
-the config declares itself protected, the harness paths are covered, `knowledge/staging/` is *not*
-covered (capture must be able to write there), every declared path actually exists, and — the negative
-assertions that matter most — core self-extension has no policy surface anywhere in either file.
-
-Run it after any edit to either file. If the negative assertions start failing, a bypass has been
-reintroduced.
-
 ## Configuration
 
 The project uses `.markdownlintrc` for markdownlint configuration. Current settings:
