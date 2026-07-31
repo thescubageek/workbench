@@ -429,13 +429,13 @@ The four moving parts, and why each exists:
 
 | Risk | Impact | Likelihood | Mitigation |
 | --- | --- | --- | --- |
-| A shipped deny hook fires in **users'** repos, blocking their edits to their own `commands/` or `skills/` | High | High | The protected-path set only makes sense in a wb-development repo. Enforcement must be opt-in per host repo and inert by default when installed from the marketplace. Listed as a pending decision below. |
+| A shipped deny hook fires in **users'** repos, blocking their edits to their own `commands/` or `skills/` | High | High | Resolved 2026-07-31: the hook is inert unless the host repo declares `.wb-knowledge.json`, and inert again unless a run is armed. Fail-open across repos by design. Verified by hand in a scratch repo at the Phase 2 checkpoint. |
 | Hook events beyond the two currently registered are unavailable in a user's Claude Code version | Med | Med | Degrade gracefully to the prompt-layer instruction, and surface that enforcement is unavailable rather than silently proceeding as if it were on |
 | Staging accumulates noise faster than the batched pass drains it | Med | High | Curation's merge/deprecate operations; the pass is manually triggerable when backlog builds |
 | Retrieval noise / negative transfer as the store grows | Med | Med | Per-repo scoping, scope tags, bounded retrieval count; never a wholesale load |
 | Promoted entries are unfalsifiable while the corpus is deferred | Med | High | Predictions are recorded from day one so they are checkable retroactively once the corpus exists; the limitation is stated, not hidden |
 | Procedural/episodic entries decay undetected | Med | Med | Explicitly out of the invalidation path; handled by curation review, with the gap named |
-| The store's provenance SHAs drift as the unmerged branch diverges from `main` | High | Med | Requires a stated branch-tracking policy — pending decision below |
+| The store's provenance SHAs drift as the unmerged branch diverges from `main` | High | Med | Resolved 2026-07-31: `main` merges forward into the store branch continuously — merge, never rebase, since rebasing rewrites the commits provenance points at. Invalidation sweep runs on sync. |
 
 ### Assumptions
 
@@ -444,11 +444,57 @@ Beads is unavailable in this workspace, so these carry no IDs. With beads, each 
 
 | Assumption | Beads ID | Validated? |
 | --- | --- | --- |
-| `PreToolUse` deny works as documented in the installed Claude Code version | *(no beads)* | Pending — verified from documentation only, not executed |
-| `Stop` / `SubagentStop` can write files reliably enough for automatic capture | *(no beads)* | Pending |
+| `PreToolUse` deny works as documented in the installed Claude Code version | *(no beads)* | **Validated 2026-07-31** — executed against Claude Code 2.1.195; see Phase 0 findings below |
+| `PreToolUse` `ask` is not bypassed by auto-accept | *(no beads)* | **Validated 2026-07-31 (non-interactive modes)** — partial; interactive prompt rendering still unverified, see Phase 0 findings |
+| `Stop` / `SubagentStop` can write files reliably enough for automatic capture | *(no beads)* | **Validated 2026-07-31** — both fired and wrote; payloads carry `transcript_path` |
 | `agents/research-validator.md` accepts a knowledge entry as-is without schema changes | *(no beads)* | Pending — structural similarity argued, not tested |
 | A generated index keeps the store readable at the scale it actually reaches | *(no beads)* | Pending |
 | `docs/beads-integration-learnings.md` contains enough surviving content to be a meaningful test case | *(no beads)* | Pending — 10 learnings, 3 known-contradicted |
+
+### Phase 0 Tracer Bullet — Executed Findings (2026-07-31)
+
+Method: the probes were run as **real headless `claude -p` sessions** in a scratch directory
+(`/tmp/wb-hook-probe`) with throwaway `--settings` files, not by editing this repo's
+`.claude/settings.json`. Hook configuration is snapshotted at session start, so an in-session edit
+would not have been exercised; a fresh child session is the only way to actually execute the probe.
+Consequence: `.claude/settings.json` was never modified, and the probe cannot ship.
+Environment: Claude Code **2.1.195**, macOS (Darwin 25.5.0), probe model `haiku`.
+
+**Control** — with no hook registered and `--permission-mode acceptEdits`, the `Write` lands. Every
+"blocked" result below is therefore attributable to the hook, not to the harness refusing anyway.
+
+| Probe | `default` | `acceptEdits` | `auto` | `dontAsk` | `bypassPermissions` |
+| --- | --- | --- | --- | --- | --- |
+| `permissionDecision: "deny"` | blocked | blocked | blocked | blocked | **blocked** |
+| `permissionDecision: "ask"` | blocked | **blocked** | blocked | blocked | **blocked** |
+
+Load-bearing consequences:
+
+- **`deny` is not bypassable by permission mode.** It holds even under `bypassPermissions` (the
+  `--dangerously-skip-permissions` posture), which is the mode a full-auto run is most likely to use.
+  The enforcement architecture stands; the convention-only alternative stays rejected.
+- **`ask` is not auto-approved by auto-accept.** Under `acceptEdits` the write was refused, and the
+  refusal reason (`permissionDecisionReason`) was surfaced to the model verbatim. In every
+  non-interactive mode, `ask` degrades to refusal — i.e. it **fails closed**, which is the posture the
+  full-auto row of the three-state table wants anyway.
+- **Partial, stated honestly:** what is verified is that auto-accept does not *silently approve* an
+  `ask`. What is **not** verified is that an interactive session with auto-accept enabled renders a
+  visible approval prompt — that requires a human at a terminal and cannot be established headlessly.
+  The three-state design does not collapse either way: the failure mode if the prompt does not render
+  is refusal, not silent approval.
+- **`Stop` and `SubagentStop` both fire and write reliably.** Payloads carry `session_id`, `cwd`,
+  `permission_mode`, `last_assistant_message`, `transcript_path`, and — for `SubagentStop` —
+  `agent_id`, `agent_type`, and `agent_transcript_path`. Capture (Phase 3) has a richer substrate than
+  the design assumed: the full transcript is addressable from the hook, not just the last message.
+- **Full-auto is *not* reliably detectable from the hook payload** — this answers one of `tasks.md`'s
+  Implementation Discoveries, and it answers it negatively. `permission_mode` *is* present in the
+  `PreToolUse` payload, but a headless `claude -p` run at default settings reports
+  `"permission_mode":"default"`, identical to an interactive session. Attendance is therefore not
+  inferable; it must be **asserted by the arming trigger**, exactly as the arming decision above already
+  requires. The elevated modes (`acceptEdits` / `auto` / `dontAsk` / `bypassPermissions`) are usable only
+  as a one-way signal: they can raise suspicion of unattended operation, never confirm attendance.
+  Practical rule for Phase 2: absent a positive interactive assertion from the arming act, treat the run
+  as full-auto and `deny`.
 
 ## Rejected Alternatives
 
