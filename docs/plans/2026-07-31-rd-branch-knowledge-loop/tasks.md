@@ -783,6 +783,8 @@ promoted entries, plus the git-only staleness sweep.
 
 - `scripts/knowledge-sweep`, `scripts/test-knowledge-sweep` — new
 - `scripts/knowledge-sync` — new (**added**; P4-T8 needed a home for the on-sync trigger)
+- `scripts/knowledge-proposal-lint`, `scripts/test-knowledge-proposal-lint` — new (**added**; see
+  "The curation proposal is now linted" below)
 - `commands/curate_knowledge.md` — new
 - `skills/knowledge-store/SKILL.md` — **extended** (created in Phase 3) with the four curation
   operations, the diversity rule, predictions, and the invalidation commands
@@ -903,6 +905,41 @@ never reaching staging.
 - `commands/create_research.md`, `commands/resume_handoff.md` — read path
 - `skills/project-structure/SKILL.md` — fifth category
 - `skills/knowledge-store/SKILL.md` — retrieval rules
+
+### The curation proposal is now linted — 2026-07-31 (added, beyond P4-T1…T8)
+
+`scripts/knowledge-proposal-lint` + 36 contract tests. A curation pass makes judgments no script can
+check — whether a claim is durable, whether a merge is wise — but most of the ways a pass goes *wrong*
+are visible in what it produced. So: **validate the artifact, not the judgment.** That converts "the pass
+followed its own rules" from trust into a test, and it is the same trick `test-knowledge-config` already
+uses on the config.
+
+It also forced the proposal format to become precise. A proposal is now a **directory, one file per
+operation** rather than one document with sections — entry-per-file is the design's founding decision,
+and a monolithic proposal document would reintroduce document-granularity conflicts at the proposal
+layer while being far harder to check. `commands/curate_knowledge.md` Step 4 was rewritten accordingly
+and now runs the linter before the checkpoint.
+
+**The diversity rule was implemented backwards first, and 36/36 tests passed anyway.** The first version
+accepted a merge naming two *distinct* ticket classes and rejected identical ones. That is inverted: the
+rule *refuses* a merge whose sources win on different classes, because each wins somewhere and collapsing
+them yields one canonical best practice that is second-best everywhere. A merge is justified only when
+the sources win on the **same** class — i.e. they genuinely duplicate.
+
+The tests were green throughout, because they encoded the same misunderstanding as the code. It was
+caught by re-reading `commands/curate_knowledge.md` against the linter, not by any test.
+**Recorded as a limit of TDD rather than a slip:** tests written from the same wrong model of a rule
+confirm the wrong model, and the more thorough the suite, the more confident the wrong answer looks. The
+defence is checking the implementation against the *specification prose*, which no test does.
+
+Two shell bugs in the test harness itself, both of which made *passing* greps report failure — same
+family as the vacuous-assertion problem already recorded here, in that an assertion can fail for reasons
+unrelated to what it asserts:
+
+- `perl -0pi` slurp mode means `^` only matches at string start, so most fixtures were never mutated and
+  their assertions passed vacuously.
+- `set -o pipefail` with `cmd | grep -q`: `grep -q` exits on first match and closes the pipe, the
+  producer takes SIGPIPE, and pipefail propagates 141. Capture into a variable before grepping.
 
 ### Staging seeded with real content — 2026-07-31
 
