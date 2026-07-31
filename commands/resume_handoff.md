@@ -179,6 +179,20 @@ Before starting work, internalize the critical learnings:
    - Watch for edge cases discovered
    - Avoid pitfalls documented
 
+**Also consult the knowledge store — a second, longer-lived source.** The handoff above is read once, by
+this session, then goes stale. The store is read by every later ticket. They're different lifetimes, not
+redundant sources:
+
+```bash
+KNOWLEDGE="$(./scripts/knowledge-read --scope subsystem:<area> --limit 5)" || KNOWLEDGE=""
+```
+
+Scope `<area>` to the phase or subsystem being resumed. Treat any returned entries the same way as the
+handoff's learnings above — internalize them before continuing.
+
+**⛔ Best-effort, never blocking**: any non-zero exit means no knowledge available — continue without it.
+Empty output on exit 0 means the store is fine but has nothing relevant here.
+
 ### Step 5: Address Active Blockers
 
 If handoff documents active blockers:

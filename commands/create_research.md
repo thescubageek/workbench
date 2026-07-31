@@ -46,18 +46,26 @@ When invoked, check for arguments:
 
 ### Step 0: Ticket Context Bootstrap (if a Jira ticket is available)
 
-Before decomposing the research, load any context the ticket already carries — other teams or agents may have captured it there. Reusing it ("hiveminding" off the ticket) avoids re-deriving what's already known.
+Before decomposing the research, load any context that already exists elsewhere — other teams or agents may have captured it, whether on the ticket or in this repo's knowledge store. Reusing it ("hiveminding" off the ticket, and off the store) avoids re-deriving what's already known.
 
 **Delegate to the `jira-context` skill.** If a Jira key (`[A-Z]+-\d+`) is available — from the arguments, the existing `research.md` frontmatter `ticket:` field, or the research question — invoke the `jira-context` skill with that key. It fetches the ticket via the Atlassian MCP, and if the description has an **Agents** section, follows those instructions to read in the files/docs/subsystems it points to and reports what was loaded.
 
-Use the skill's report as high-priority scoping input for the rest of this command:
+**Consult the knowledge store, in parallel with the ticket lookup.** Scope the query to what the research question is about:
 
-- Read fully (per the Step 1 protocol) any files it surfaced.
-- Aim Step 4's parallel agents at the subsystems and entry points it named.
+```bash
+KNOWLEDGE="$(./scripts/knowledge-read --scope subsystem:<area> --limit 5)" || KNOWLEDGE=""
+```
 
-The `Agents` section shapes **where** you look; it does not change **what** you produce. The Documentarian Rule still holds — document what exists, no recommendations.
+Pick `<area>` from the subsystem or component the research question names.
 
-**⛔ Best-effort, never blocking**: no ticket, no Atlassian MCP, or no `Agents` section must NOT stop research. Fall through to Step 1.
+Use both sources as high-priority *scoping* input for the rest of this command — never a substitute for reading the code:
+
+- Read fully (per the Step 1 protocol) any files either one surfaced or cited.
+- Aim Step 4's parallel agents at the subsystems and entry points either one named.
+
+The `Agents` section and the knowledge store shape **where** you look; neither changes **what** you produce. The Documentarian Rule still holds — document what exists, no recommendations.
+
+**⛔ Best-effort, never blocking**: no ticket, no Atlassian MCP, no `Agents` section, and no knowledge store must NOT stop research. Any non-zero exit from `knowledge-read` means no knowledge available — continue without it. Fall through to Step 1.
 
 ### Step 1: Read Any Directly Mentioned Files First (CRITICAL)
 
