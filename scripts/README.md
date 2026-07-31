@@ -170,6 +170,69 @@ without it every rejection would also pass against a validator that simply refus
 Run it after any edit to either file. If the negative assertions start failing, a bypass has been
 reintroduced. Requires `npm install` first.
 
+### `test-knowledge-guard`
+
+Contract tests for `hooks/knowledge-guard.sh`, the three-state `PreToolUse` guard. Feeds payloads to
+the script on stdin in throwaway git repos and asserts every row of the behaviour table, plus path
+resolution (symlinks, `..`, `/tmp` → `/private/tmp`), the jq-free fallback, output hygiene, and the two
+cases the boundary actually rests on:
+
+- **arming cannot be set from anything the agent can write** — an in-repo marker file, a fabricated
+  payload field, and `tool_input.content` claiming `interactive` all change nothing
+- **interactive is asserted, never inferred** — `permission_mode` may *veto* an interactive claim but
+  can never establish one, because a headless run reports `"default"` exactly like an interactive one
+
+This tests the script. It cannot test whether Claude Code ever calls it — see the probe below.
+
+### `probe-knowledge-guard`
+
+**Opt-in; spawns real `claude -p` sessions and costs model calls.** Not part of `npm test`.
+
+Tests what the contract test structurally cannot: registration and enforcement. Hook configuration is
+read once at session start, so an in-session settings edit registers nothing — only a child session
+with `--settings` exercises the real path. Three runs, each an A/B against a control file the guard
+ignores:
+
+| Run | Repo | Armed | Expected |
+| --- | --- | --- | --- |
+| A | configured | `full-auto` | control written, sentinel **refused** |
+| B | configured | no | control written, sentinel **written** |
+| C | unconfigured | `full-auto` | control written, sentinel **written** |
+
+B is what makes A mean anything — a guard that denied everything would look identical without it. C is
+the regression that matters most to users: a marketplace install must never deny writes in a repo that
+has not opted in.
+
+```bash
+./scripts/probe-knowledge-guard              # uses haiku
+WB_PROBE_MODEL=sonnet ./scripts/probe-knowledge-guard
+```
+
+Not covered: the interactive `ask` row, which cannot be observed headlessly and needs a human at a
+terminal.
+
+## The knowledge guard
+
+`hooks/knowledge-guard.sh` is registered on `PreToolUse` for `Write|Edit|MultiEdit|NotebookEdit` in
+`.claude-plugin/plugin.json`. It is inert unless the repo declares `.wb-knowledge.json` **and** the
+session was armed:
+
+```bash
+WB_SELF_EXTENSION=interactive claude          # armed, human present  -> protected writes ask
+WB_SELF_EXTENSION=full-auto  claude -p ...    # armed, unattended     -> protected writes deny
+claude                                        # not armed             -> inert
+./hooks/knowledge-guard.sh --selfcheck        # is enforcement actually available here?
+```
+
+Arming is an environment variable because that is the one channel the agent cannot reach: tool-layer
+processes are children of the session and cannot mutate the environment the hook inherits. Verified by
+execution — an `export WB_SELF_EXTENSION=full-auto` run by the agent's own Bash tool did not change
+what the hook subsequently saw.
+
+**Known hole, stated rather than papered over:** a shell redirect through the Bash tool
+(`printf x > commands/help.md`) produces no `PreToolUse` Write event and is not seen. The designed
+answer is the CI / CODEOWNERS layer, which must exist before the first unattended run.
+
 ## Configuration
 
 The project uses `.markdownlintrc` for markdownlint configuration. Current settings:

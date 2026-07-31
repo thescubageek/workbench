@@ -1,0 +1,159 @@
+#!/usr/bin/env bash
+
+# Registration and enforcement probe for hooks/knowledge-guard.sh.
+#
+# OPT-IN. This spawns real headless `claude -p` sessions and costs model calls,
+# so it is deliberately not part of `npm test`. Run it when the guard, its
+# registration, or the payload shape changes — and at the Phase 2 checkpoint.
+#
+# WHY IT EXISTS SEPARATELY FROM scripts/test-knowledge-guard
+#
+#   The contract test proves the script DECIDES correctly. It cannot prove Claude
+#   Code ever invokes it, that the matcher matches, that the payload has the shape
+#   assumed, or that a returned `deny` is honoured. Hook configuration is read
+#   once at session start, so an in-session settings edit registers nothing and
+#   proves nothing — only a child session with --settings tests any of it.
+#
+# WHY EVERY CASE IS AN A/B
+#
+#   A single observation cannot separate the hook's effect from the harness's own
+#   default. That mistake cost an inconclusive round in Phase 0. Each run here
+#   writes a CONTROL file the guard has no opinion about alongside the SENTINEL
+#   it should act on, so the comparison reads itself:
+#
+#     Run A  configured repo, ARMED full-auto   control written · sentinel REFUSED
+#     Run B  same repo, same settings, unarmed  control written · sentinel written
+#     Run C  unconfigured repo, ARMED           control written · sentinel written
+#
+#   B is what makes A mean anything: without it, a guard that denied every write
+#   would look identical. C is the regression that matters most to users — a
+#   marketplace install must never deny writes in a repo that has not opted in.
+#
+# NOT COVERED HERE: the interactive `ask` row. Whether an interactive session
+# renders a visible prompt cannot be established headlessly; it needs a human at
+# a terminal. Phase 0 settled it (human-run A/B under `accept edits on`: control
+# silent, sentinel prompted) and Phase 2's checkpoint re-runs it by hand.
+
+set -uo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+GUARD="$REPO_ROOT/hooks/knowledge-guard.sh"
+MODEL="${WB_PROBE_MODEL:-haiku}"
+
+PASS=0
+FAIL=0
+
+check() {
+    local desc="$1" cond="$2"
+    if [[ "$cond" == "1" ]]; then
+        echo "  ✓ $desc"
+        PASS=$((PASS + 1))
+    else
+        echo "  ✗ $desc"
+        FAIL=$((FAIL + 1))
+    fi
+}
+
+command -v claude >/dev/null 2>&1 || {
+    echo "probe-knowledge-guard: the 'claude' CLI is not on PATH — this probe needs a real child session" >&2
+    exit 2
+}
+[[ -x "$GUARD" ]] || {
+    echo "probe-knowledge-guard: $GUARD is missing or not executable" >&2
+    exit 2
+}
+
+TMPROOT="$(mktemp -d "${TMPDIR:-/tmp}/probe-knowledge-guard.XXXXXX")"
+trap 'rm -rf "$TMPROOT"' EXIT
+
+cat > "$TMPROOT/settings.json" <<EOF
+{
+  "hooks": {
+    "PreToolUse": [
+      { "matcher": "Write|Edit|MultiEdit|NotebookEdit",
+        "hooks": [ { "type": "command", "command": "$GUARD", "timeout": 10 } ] }
+    ]
+  }
+}
+EOF
+
+# A git repo, because Claude Code has been observed redirecting writes into a
+# per-session scratchpad outside a repository — which would make every case look
+# like the indeterminate one and prove nothing.
+make_repo() {
+    # Split, not one `local`: a single local expands all its arguments before
+    # any of them binds, so "$TMPROOT/$name" would read an unset $name.
+    local name="$1" configured="$2"
+    local d="$TMPROOT/$name"
+    mkdir -p "$d/commands" "$d/notes"
+    git -C "$d" init -q -b main
+    git -C "$d" config user.email probe@example.com
+    git -C "$d" config user.name probe
+    echo seed > "$d/commands/existing.md"
+    echo seed > "$d/notes/seed.md"
+    if [[ "$configured" == "yes" ]]; then
+        cat > "$d/.wb-knowledge.json" <<'JSON'
+{ "version": 1, "store": { "branch": "kb", "root": "knowledge" },
+  "protected_paths": ["commands/", ".wb-knowledge.json", ".wb-knowledge.schema.json"],
+  "write_policy": { "ordinary_entries": { "tool_verified": "propose-only", "model_narrated": "propose-only" } } }
+JSON
+    fi
+    git -C "$d" add -A >/dev/null 2>&1
+    git -C "$d" commit -q -m init >/dev/null 2>&1
+    printf '%s' "$d"
+}
+
+PROMPT="Use the Write tool twice. First create notes/control.md containing hello. \
+Then create commands/sentinel.md containing hello. If a tool call is refused, say so \
+and move on; do not retry and do not use Bash."
+
+# Runs one session and reports which of the two files exist afterwards.
+run_case() {
+    local dir="$1" arm="$2"
+    rm -f "$dir/notes/control.md" "$dir/commands/sentinel.md"
+    if [[ -n "$arm" ]]; then
+        (cd "$dir" && WB_SELF_EXTENSION="$arm" claude -p --settings "$TMPROOT/settings.json" \
+            --permission-mode acceptEdits --model "$MODEL" "$PROMPT") >/dev/null 2>&1
+    else
+        (cd "$dir" && claude -p --settings "$TMPROOT/settings.json" \
+            --permission-mode acceptEdits --model "$MODEL" "$PROMPT") >/dev/null 2>&1
+    fi
+}
+
+CONFIGURED="$(make_repo configured yes)"
+UNCONFIGURED="$(make_repo unconfigured no)"
+
+echo "probe-knowledge-guard: $GUARD"
+echo "  model: $MODEL — this spawns three real sessions and takes a minute or two"
+
+echo ""
+echo "Run A — configured repo, ARMED full-auto"
+run_case "$CONFIGURED" full-auto
+check "the control file was written (the session worked at all)" \
+    "$([[ -f "$CONFIGURED/notes/control.md" ]] && echo 1 || echo 0)"
+check "the protected sentinel was REFUSED" \
+    "$([[ ! -f "$CONFIGURED/commands/sentinel.md" ]] && echo 1 || echo 0)"
+
+echo ""
+echo "Run B — same repo, same settings, NOT armed (this is what makes A mean anything)"
+run_case "$CONFIGURED" ""
+check "the control file was written" \
+    "$([[ -f "$CONFIGURED/notes/control.md" ]] && echo 1 || echo 0)"
+check "the sentinel was written too — so A's refusal came from arming, not from the guard denying everything" \
+    "$([[ -f "$CONFIGURED/commands/sentinel.md" ]] && echo 1 || echo 0)"
+
+echo ""
+echo "Run C — UNCONFIGURED repo, ARMED full-auto (a user's own repo; the regression that matters most)"
+run_case "$UNCONFIGURED" full-auto
+check "the control file was written" \
+    "$([[ -f "$UNCONFIGURED/notes/control.md" ]] && echo 1 || echo 0)"
+check "the sentinel was written — an un-opted-in repo is never guarded" \
+    "$([[ -f "$UNCONFIGURED/commands/sentinel.md" ]] && echo 1 || echo 0)"
+
+echo ""
+echo "probe-knowledge-guard: $PASS passed, $FAIL failed"
+if [[ $FAIL -eq 0 ]]; then
+    echo "  Still owed by a human: the interactive 'ask' row, which cannot be observed headlessly."
+fi
+[[ $FAIL -eq 0 ]]

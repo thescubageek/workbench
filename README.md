@@ -117,6 +117,32 @@ Background capabilities that Claude automatically invokes:
 
 - **SessionStart** - Auto-detects beads mode (stealth/git)
 - **PostToolUse** - Lints markdown files after Write/Edit operations
+- **PreToolUse** - Knowledge-store guard. **Inert in your repository unless you opt in**, and inert
+  even then unless a run is explicitly armed — see below.
+
+#### The knowledge guard, and why it will not touch your repo
+
+`hooks/knowledge-guard.sh` protects a declared set of paths from being rewritten by an agent during a
+self-extension run. It does nothing at all unless **both** of these are true:
+
+1. Your repository root contains a `.wb-knowledge.json` declaring `protected_paths`. No config, no
+   enforcement — a repo that has not opted in is never guarded, so the plugin cannot block you editing
+   your own `commands/` or `skills/`.
+2. The session was started with `WB_SELF_EXTENSION` set. Ordinary development leaves it unset, and the
+   guard stays silent.
+
+When both hold, a write to a protected path prompts for approval (`WB_SELF_EXTENSION=interactive`) or
+is refused outright (any other value, which is treated as unattended). Check what it would do here:
+
+```bash
+# From a clone of this repo. Reports whether enforcement is available in the
+# repo you run it from, how many paths the boundary covers, and the armed state.
+./hooks/knowledge-guard.sh --selfcheck
+```
+
+Enforcement being unavailable is reported explicitly rather than inferred from silence — silence is
+exactly what a correctly inert guard looks like, so it cannot distinguish "protected" from "not
+protecting anything."
 
 ## Plugin Structure
 

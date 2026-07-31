@@ -1,0 +1,435 @@
+#!/usr/bin/env bash
+
+# Contract tests for hooks/knowledge-guard.sh — the three-state PreToolUse guard.
+#
+# Every case builds a throwaway git repo under a temp dir and feeds the guard a
+# PreToolUse payload on stdin. Nothing here touches the real repository, and
+# nothing here starts a Claude session.
+#
+# WHAT THIS FILE DOES NOT TEST: registration. A contract test proves the script
+# decides correctly; it cannot prove Claude Code ever calls it, or that a `deny`
+# is honoured once returned. Hook config is read once at session start, so that
+# half needs a child `claude -p` session with --settings — the recipe is in
+# tasks.md § Phase 2 and in scripts/README.md. Both layers are required; neither
+# substitutes for the other.
+#
+# The behaviour table under test (design.md → Technical Decisions):
+#
+#   | Context                                | Decision |
+#   | no .wb-knowledge.json in host repo     | inert    |  fail-OPEN across repos
+#   | config present, no run armed           | inert    |
+#   | armed, interactive                     | ask      |
+#   | armed, full-auto / unattended          | deny     |
+#   | config present, path indeterminate     | deny     |  fail-CLOSED within a repo
+#
+# The asymmetry is the whole design and is asserted throughout:
+#   ARMING defaults OFF   — a false positive breaks other people's repositories,
+#                           the highest-impact risk in design.md's risk table.
+#   INTERACTIVE defaults OFF — a false positive lets an unattended run downgrade
+#                           deny to ask and self-approve, which collapses
+#                           every other control.
+
+set -uo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+GUARD="$REPO_ROOT/hooks/knowledge-guard.sh"
+
+PASS=0
+FAIL=0
+
+check() {
+    local desc="$1" cond="$2"
+    if [[ "$cond" == "1" ]]; then
+        echo "  ✓ $desc"
+        PASS=$((PASS + 1))
+    else
+        echo "  ✗ $desc"
+        FAIL=$((FAIL + 1))
+    fi
+}
+
+if ! command -v jq >/dev/null 2>&1; then
+    echo "test-knowledge-guard: jq is required to build test payloads" >&2
+    exit 1
+fi
+
+TMPROOT="$(mktemp -d "${TMPDIR:-/tmp}/test-knowledge-guard.XXXXXX")"
+trap 'rm -rf "$TMPROOT"' EXIT
+
+# --- Fixtures ----------------------------------------------------------------
+
+# A repo that declares a store and a protected set, mirroring the real config's
+# shape. `commands-extra/` is the near-miss: it shares a string prefix with the
+# protected `commands/` but is a different directory, and must NOT be caught.
+make_repo() {
+    local name="$1" with_config="${2:-yes}" config_body="${3:-}"
+    local repo="$TMPROOT/$name"
+    mkdir -p "$repo"/{commands,commands-extra,skills/s,knowledge/entries,knowledge/staging}
+    git -C "$repo" init -q -b main
+    git -C "$repo" config user.email test@example.com
+    git -C "$repo" config user.name test
+    echo x > "$repo/commands/help.md"
+    echo x > "$repo/commands-extra/x.md"
+    echo x > "$repo/skills/s/SKILL.md"
+    echo x > "$repo/CLAUDE.md"
+    echo x > "$repo/README.md"
+    ln -s commands "$repo/link-to-commands"
+    if [[ "$with_config" == "yes" ]]; then
+        if [[ -n "$config_body" ]]; then
+            printf '%s' "$config_body" > "$repo/.wb-knowledge.json"
+        else
+            cat > "$repo/.wb-knowledge.json" <<'JSON'
+{
+  "version": 1,
+  "store": { "branch": "kb", "root": "knowledge" },
+  "protected_paths": [
+    "commands/",
+    "skills/",
+    "CLAUDE.md",
+    ".wb-knowledge.json",
+    ".wb-knowledge.schema.json",
+    "knowledge/entries/"
+  ],
+  "write_policy": {
+    "ordinary_entries": { "tool_verified": "propose-only", "model_narrated": "propose-only" }
+  }
+}
+JSON
+        fi
+    fi
+    git -C "$repo" add -A >/dev/null 2>&1
+    git -C "$repo" commit -q -m init >/dev/null 2>&1
+    printf '%s' "$repo"
+}
+
+# A PreToolUse payload. `pm` of OMIT drops permission_mode entirely, which is how
+# an older Claude Code that does not send the field would look.
+mkpayload() {
+    local cwd="$1" fp="$2" tool="${3:-Write}" pm="${4:-default}" key="${5:-file_path}"
+    local base
+    base=$(jq -nc --arg cwd "$cwd" --arg t "$tool" --arg fp "$fp" --arg k "$key" \
+        '{session_id:"s1",transcript_path:"/dev/null",cwd:$cwd,
+          hook_event_name:"PreToolUse",tool_name:$t,
+          tool_input:({content:"x"} + {($k):$fp})}')
+    if [[ "$pm" != "OMIT" ]]; then
+        base=$(printf '%s' "$base" | jq -c --arg pm "$pm" '.permission_mode = $pm')
+    fi
+    printf '%s' "$base"
+}
+
+# Run the guard and reduce its output to one word: inert / ask / deny / malformed.
+# Empty stdout is the ONLY way to signal inert — see the "allow" note below.
+decide() {
+    local repo="$1" payload="$2" out
+    out=$(cd "$repo" && printf '%s' "$payload" | "$GUARD" 2>/dev/null)
+    if [[ -z "${out//[[:space:]]/}" ]]; then
+        printf 'inert'
+        return
+    fi
+    printf '%s' "$out" | jq -r '.hookSpecificOutput.permissionDecision // "malformed"' 2>/dev/null \
+        || printf 'malformed'
+}
+
+reason() {
+    local repo="$1" payload="$2"
+    (cd "$repo" && printf '%s' "$payload" | "$GUARD" 2>/dev/null) \
+        | jq -r '.hookSpecificOutput.permissionDecisionReason // ""' 2>/dev/null
+}
+
+echo "test-knowledge-guard: $GUARD"
+
+if [[ ! -x "$GUARD" ]]; then
+    echo "  ✗ $GUARD is missing or not executable" >&2
+    echo ""
+    echo "test-knowledge-guard: 0 passed, 1 failed"
+    exit 1
+fi
+
+REPO=$(make_repo configured)
+BARE=$(make_repo unconfigured no)
+
+# =============================================================================
+# ROW 1 — no .wb-knowledge.json in the host repo: inert, always.
+# This is the highest-impact risk in the design: a shipped hook that fires in a
+# user's own repo and blocks edits to their own commands/ or skills/.
+# =============================================================================
+echo ""
+echo "Row 1 — unconfigured host repo (fail-open across repos)"
+
+p=$(mkpayload "$BARE" "$BARE/commands/help.md")
+check "unconfigured repo + full-auto is inert" \
+    "$([[ "$(WB_SELF_EXTENSION=full-auto decide "$BARE" "$p")" == "inert" ]] && echo 1 || echo 0)"
+check "unconfigured repo + interactive is inert" \
+    "$([[ "$(WB_SELF_EXTENSION=interactive decide "$BARE" "$p")" == "inert" ]] && echo 1 || echo 0)"
+check "unconfigured repo + unarmed is inert" \
+    "$([[ "$(decide "$BARE" "$p")" == "inert" ]] && echo 1 || echo 0)"
+p_out=$(mkpayload "$BARE" "/tmp/anywhere/x.md")
+check "unconfigured repo never denies even an indeterminate path" \
+    "$([[ "$(WB_SELF_EXTENSION=full-auto decide "$BARE" "$p_out")" == "inert" ]] && echo 1 || echo 0)"
+
+# =============================================================================
+# ROW 2 — configured, but no run armed: inert.
+# "Normal maintainer development is never blocked" is a stated success metric,
+# and the hook being inert while it is built is what lets it be built at all.
+# =============================================================================
+echo ""
+echo "Row 2 — configured repo, no run armed (normal development)"
+
+p=$(mkpayload "$REPO" "$REPO/commands/help.md")
+check "unarmed write to a protected path is inert" \
+    "$([[ "$(decide "$REPO" "$p")" == "inert" ]] && echo 1 || echo 0)"
+check "unarmed with WB_SELF_EXTENSION empty is inert" \
+    "$([[ "$(WB_SELF_EXTENSION= decide "$REPO" "$p")" == "inert" ]] && echo 1 || echo 0)"
+check "unarmed write outside the repo is inert" \
+    "$([[ "$(decide "$REPO" "$(mkpayload "$REPO" /tmp/elsewhere/x.md)")" == "inert" ]] && echo 1 || echo 0)"
+
+badcfg=$(make_repo badconfig yes '{ this is not json')
+check "unarmed with a malformed config is inert (dev must not break)" \
+    "$([[ "$(decide "$badcfg" "$(mkpayload "$badcfg" "$badcfg/commands/help.md")")" == "inert" ]] && echo 1 || echo 0)"
+
+# =============================================================================
+# ROW 3 — armed + a positive interactive assertion: ask.
+# Phase 0 verified by execution that `ask` is not bypassed by auto-accept, in
+# every permission mode, interactive included.
+# =============================================================================
+echo ""
+echo "Row 3 — armed interactive (human present)"
+
+check "armed interactive + permission_mode default asks" \
+    "$([[ "$(WB_SELF_EXTENSION=interactive decide "$REPO" "$p")" == "ask" ]] && echo 1 || echo 0)"
+p_ae=$(mkpayload "$REPO" "$REPO/commands/help.md" Write acceptEdits)
+check "armed interactive + acceptEdits asks (the mode Phase 0 observed)" \
+    "$([[ "$(WB_SELF_EXTENSION=interactive decide "$REPO" "$p_ae")" == "ask" ]] && echo 1 || echo 0)"
+r=$(WB_SELF_EXTENSION=interactive reason "$REPO" "$p")
+check "the ask reason names the protected path" \
+    "$(echo "$r" | grep -q 'commands' && echo 1 || echo 0)"
+
+# =============================================================================
+# ROW 4 — armed with no interactive assertion: deny.
+# design.md: an unanswered prompt stalls, which reads as a hang. An explicit deny
+# is deterministic, legible in the log, and cannot be resolved by an
+# auto-approver appearing later in the run.
+# =============================================================================
+echo ""
+echo "Row 4 — armed full-auto / unattended"
+
+check "armed full-auto denies" \
+    "$([[ "$(WB_SELF_EXTENSION=full-auto decide "$REPO" "$p")" == "deny" ]] && echo 1 || echo 0)"
+check "armed with an unrecognised value denies (default-deny, not default-ask)" \
+    "$([[ "$(WB_SELF_EXTENSION=probably-fine decide "$REPO" "$p")" == "deny" ]] && echo 1 || echo 0)"
+check "armed with a near-miss spelling denies" \
+    "$([[ "$(WB_SELF_EXTENSION=Interactive- decide "$REPO" "$p")" == "deny" ]] && echo 1 || echo 0)"
+r=$(WB_SELF_EXTENSION=full-auto reason "$REPO" "$p")
+check "the deny reason is legible and non-empty" \
+    "$([[ ${#r} -gt 20 ]] && echo 1 || echo 0)"
+
+# =============================================================================
+# ROW 5 — indeterminate path: deny.
+# Phase 0 finding: the path a hook receives is a RESOLVED ABSOLUTE path and not
+# necessarily the one anyone typed. Claude Code 2.1.195 was observed redirecting
+# writes into /private/tmp/claude-501/<slug>/<uuid>/scratchpad/. So "outside
+# every protected prefix" is not "safe" — it is the indeterminate case.
+# =============================================================================
+echo ""
+echo "Row 5 — indeterminate paths (fail-closed within a configured repo)"
+
+for mode in full-auto interactive; do
+    check "armed $mode denies a write outside the repo" \
+        "$([[ "$(WB_SELF_EXTENSION=$mode decide "$REPO" "$(mkpayload "$REPO" /tmp/elsewhere/x.md)")" == "deny" ]] && echo 1 || echo 0)"
+    check "armed $mode denies a per-session scratchpad redirect" \
+        "$([[ "$(WB_SELF_EXTENSION=$mode decide "$REPO" "$(mkpayload "$REPO" /private/tmp/claude-501/slug/uuid/scratchpad/commands/help.md)")" == "deny" ]] && echo 1 || echo 0)"
+done
+check "armed denies when the payload carries no path at all" \
+    "$([[ "$(WB_SELF_EXTENSION=full-auto decide "$REPO" '{"tool_name":"Write","tool_input":{"content":"x"}}')" == "deny" ]] && echo 1 || echo 0)"
+check "armed denies when the payload is not JSON" \
+    "$([[ "$(WB_SELF_EXTENSION=full-auto decide "$REPO" 'not json at all')" == "deny" ]] && echo 1 || echo 0)"
+check "armed denies when the config is malformed" \
+    "$([[ "$(WB_SELF_EXTENSION=full-auto decide "$badcfg" "$(mkpayload "$badcfg" "$badcfg/commands/help.md")")" == "deny" ]] && echo 1 || echo 0)"
+
+emptycfg=$(make_repo emptypaths yes '{"version":1,"store":{"branch":"kb","root":"knowledge"},"protected_paths":[],"write_policy":{"ordinary_entries":{"tool_verified":"propose-only","model_narrated":"propose-only"}}}')
+check "armed denies when protected_paths is empty (cannot establish a boundary)" \
+    "$([[ "$(WB_SELF_EXTENSION=full-auto decide "$emptycfg" "$(mkpayload "$emptycfg" "$emptycfg/README.md")")" == "deny" ]] && echo 1 || echo 0)"
+
+# =============================================================================
+# PASS-THROUGH — armed, but the path is determinately not protected.
+# If this fails the guard is useless: an armed curation pass could not write the
+# staging entries it exists to write.
+# =============================================================================
+echo ""
+echo "Pass-through — armed, path determinately unprotected"
+
+check "armed full-auto passes an unprotected file in the repo" \
+    "$([[ "$(WB_SELF_EXTENSION=full-auto decide "$REPO" "$(mkpayload "$REPO" "$REPO/README.md")")" == "inert" ]] && echo 1 || echo 0)"
+check "armed full-auto passes knowledge/staging/ — deliberately unprotected" \
+    "$([[ "$(WB_SELF_EXTENSION=full-auto decide "$REPO" "$(mkpayload "$REPO" "$REPO/knowledge/staging/e1.md")")" == "inert" ]] && echo 1 || echo 0)"
+check "armed full-auto still protects knowledge/entries/" \
+    "$([[ "$(WB_SELF_EXTENSION=full-auto decide "$REPO" "$(mkpayload "$REPO" "$REPO/knowledge/entries/e1.md")")" == "deny" ]] && echo 1 || echo 0)"
+check "commands-extra/ is not caught by the commands/ prefix" \
+    "$([[ "$(WB_SELF_EXTENSION=full-auto decide "$REPO" "$(mkpayload "$REPO" "$REPO/commands-extra/x.md")")" == "inert" ]] && echo 1 || echo 0)"
+check "a new file inside a protected directory is denied" \
+    "$([[ "$(WB_SELF_EXTENSION=full-auto decide "$REPO" "$(mkpayload "$REPO" "$REPO/commands/brand-new.md")")" == "deny" ]] && echo 1 || echo 0)"
+check "a protected file entry is matched exactly" \
+    "$([[ "$(WB_SELF_EXTENSION=full-auto decide "$REPO" "$(mkpayload "$REPO" "$REPO/CLAUDE.md")")" == "deny" ]] && echo 1 || echo 0)"
+check "the config protects itself" \
+    "$([[ "$(WB_SELF_EXTENSION=full-auto decide "$REPO" "$(mkpayload "$REPO" "$REPO/.wb-knowledge.json")")" == "deny" ]] && echo 1 || echo 0)"
+
+# =============================================================================
+# P2-T4 — the arming signal is not reachable from the agent's tool layer.
+# Verified by execution 2026-07-31 (probe at /tmp/wb-arm-probe): a launch-time
+# env var reaches the PreToolUse hook; an `export` run by the agent's OWN Bash
+# tool does not change what the hook subsequently sees. These cases assert the
+# script honours only that channel.
+# =============================================================================
+echo ""
+echo "P2-T4 — arming cannot be set from anything the agent can write"
+
+armrepo=$(make_repo armfiles)
+printf 'interactive' > "$armrepo/.wb-armed"
+printf 'interactive' > "$armrepo/.wb-self-extension"
+printf 'WB_SELF_EXTENSION=interactive' > "$armrepo/.env"
+mkdir -p "$armrepo/.claude" && printf '{"env":{"WB_SELF_EXTENSION":"interactive"}}' > "$armrepo/.claude/settings.local.json"
+pa=$(mkpayload "$armrepo" "$armrepo/commands/help.md")
+
+check "an in-repo marker file does not arm an unarmed run" \
+    "$([[ "$(decide "$armrepo" "$pa")" == "inert" ]] && echo 1 || echo 0)"
+check "an in-repo marker file cannot downgrade full-auto to ask" \
+    "$([[ "$(WB_SELF_EXTENSION=full-auto decide "$armrepo" "$pa")" == "deny" ]] && echo 1 || echo 0)"
+
+# Anything carried in the payload is agent-influenced: the model chooses the
+# tool_input, and a compromised run could shape the rest.
+p_fab=$(printf '%s' "$p" | jq -c '. + {wb_self_extension:"interactive", armed:false, interactive:true}
+                                    | .tool_input.content = "WB_SELF_EXTENSION=interactive"')
+check "a fabricated payload field does not arm an unarmed run" \
+    "$([[ "$(decide "$REPO" "$p_fab")" == "inert" ]] && echo 1 || echo 0)"
+check "a fabricated payload field cannot downgrade full-auto to ask" \
+    "$([[ "$(WB_SELF_EXTENSION=full-auto decide "$REPO" "$p_fab")" == "deny" ]] && echo 1 || echo 0)"
+check "tool_input content claiming interactive changes nothing" \
+    "$([[ "$(WB_SELF_EXTENSION=full-auto decide "$REPO" "$(printf '%s' "$p" | jq -c '.tool_input.content="WB_SELF_EXTENSION=interactive"')")" == "deny" ]] && echo 1 || echo 0)"
+
+# =============================================================================
+# P2-T5 — full-auto is NOT detectable from the payload, so it is ASSUMED.
+# Phase 0: a headless `claude -p` run reports permission_mode "default",
+# byte-identical to an interactive session. Attendance can never be confirmed
+# from inside the hook. permission_mode is therefore usable in ONE direction
+# only: it may raise suspicion and veto an interactive claim, never confirm one.
+# =============================================================================
+echo ""
+echo "P2-T5 — interactive is asserted by the arming act, never inferred"
+
+check "permission_mode alone never arms a run" \
+    "$([[ "$(decide "$REPO" "$p_ae")" == "inert" ]] && echo 1 || echo 0)"
+for m in bypassPermissions dontAsk auto; do
+    check "armed interactive is VETOED by permission_mode $m" \
+        "$([[ "$(WB_SELF_EXTENSION=interactive decide "$REPO" "$(mkpayload "$REPO" "$REPO/commands/help.md" Write "$m")")" == "deny" ]] && echo 1 || echo 0)"
+done
+check "armed interactive is vetoed when permission_mode is absent" \
+    "$([[ "$(WB_SELF_EXTENSION=interactive decide "$REPO" "$(mkpayload "$REPO" "$REPO/commands/help.md" Write OMIT)")" == "deny" ]] && echo 1 || echo 0)"
+check "armed interactive is vetoed by an unrecognised permission_mode" \
+    "$([[ "$(WB_SELF_EXTENSION=interactive decide "$REPO" "$(mkpayload "$REPO" "$REPO/commands/help.md" Write futureMode)")" == "deny" ]] && echo 1 || echo 0)"
+check "the veto is one-way: an elevated mode never upgrades full-auto to ask" \
+    "$([[ "$(WB_SELF_EXTENSION=full-auto decide "$REPO" "$p_ae")" == "deny" ]] && echo 1 || echo 0)"
+r=$(WB_SELF_EXTENSION=interactive reason "$REPO" "$(mkpayload "$REPO" "$REPO/commands/help.md" Write bypassPermissions)")
+check "the veto explains itself rather than denying opaquely" \
+    "$(echo "$r" | grep -qi 'bypassPermissions\|unattended\|full-auto' && echo 1 || echo 0)"
+
+# =============================================================================
+# PATH RESOLUTION — compare resolved paths, never the literal string.
+# =============================================================================
+echo ""
+echo "Path resolution"
+
+check "a symlink into a protected directory is denied" \
+    "$([[ "$(WB_SELF_EXTENSION=full-auto decide "$REPO" "$(mkpayload "$REPO" "$REPO/link-to-commands/help.md")")" == "deny" ]] && echo 1 || echo 0)"
+check "a .. traversal into a protected directory is denied" \
+    "$([[ "$(WB_SELF_EXTENSION=full-auto decide "$REPO" "$(mkpayload "$REPO" "$REPO/knowledge/../commands/help.md")")" == "deny" ]] && echo 1 || echo 0)"
+check "a relative path is resolved against the payload cwd" \
+    "$([[ "$(WB_SELF_EXTENSION=full-auto decide "$REPO" "$(mkpayload "$REPO" "commands/help.md")")" == "deny" ]] && echo 1 || echo 0)"
+check "a trailing-slash-free directory target is denied" \
+    "$([[ "$(WB_SELF_EXTENSION=full-auto decide "$REPO" "$(mkpayload "$REPO" "$REPO/commands")")" == "deny" ]] && echo 1 || echo 0)"
+check "the guard works when run from a subdirectory" \
+    "$([[ "$(cd "$REPO/commands" && WB_SELF_EXTENSION=full-auto printf '%s' "$(mkpayload "$REPO" "$REPO/commands/help.md")" | WB_SELF_EXTENSION=full-auto "$GUARD" 2>/dev/null | jq -r '.hookSpecificOutput.permissionDecision')" == "deny" ]] && echo 1 || echo 0)"
+check "the guard falls back to its own cwd when the payload omits one" \
+    "$([[ "$(WB_SELF_EXTENSION=full-auto decide "$REPO" "$(printf '%s' "$p" | jq -c 'del(.cwd)')")" == "deny" ]] && echo 1 || echo 0)"
+
+# =============================================================================
+# TOOLS AND EVENTS
+# =============================================================================
+echo ""
+echo "Tools and events"
+
+for t in Edit MultiEdit; do
+    check "$t is guarded like Write" \
+        "$([[ "$(WB_SELF_EXTENSION=full-auto decide "$REPO" "$(mkpayload "$REPO" "$REPO/commands/help.md" "$t")")" == "deny" ]] && echo 1 || echo 0)"
+done
+check "NotebookEdit's notebook_path is read" \
+    "$([[ "$(WB_SELF_EXTENSION=full-auto decide "$REPO" "$(mkpayload "$REPO" "$REPO/commands/n.ipynb" NotebookEdit default notebook_path)")" == "deny" ]] && echo 1 || echo 0)"
+check "a read-only tool is never denied" \
+    "$([[ "$(WB_SELF_EXTENSION=full-auto decide "$REPO" "$(mkpayload "$REPO" "$REPO/commands/help.md" Read)")" == "inert" ]] && echo 1 || echo 0)"
+
+# =============================================================================
+# jq-FREE FALLBACK — the plugin cannot assume jq (scripts/lint-hook precedent).
+# A fallback that silently disagrees with the jq path is worse than no fallback.
+# =============================================================================
+echo ""
+echo "jq-free fallback"
+
+check "fallback denies a protected path" \
+    "$([[ "$(WB_KNOWLEDGE_NO_JQ=1 WB_SELF_EXTENSION=full-auto decide "$REPO" "$p")" == "deny" ]] && echo 1 || echo 0)"
+check "fallback passes an unprotected path" \
+    "$([[ "$(WB_KNOWLEDGE_NO_JQ=1 WB_SELF_EXTENSION=full-auto decide "$REPO" "$(mkpayload "$REPO" "$REPO/README.md")")" == "inert" ]] && echo 1 || echo 0)"
+check "fallback asks when armed interactive" \
+    "$([[ "$(WB_KNOWLEDGE_NO_JQ=1 WB_SELF_EXTENSION=interactive decide "$REPO" "$p")" == "ask" ]] && echo 1 || echo 0)"
+check "fallback stays inert in an unconfigured repo" \
+    "$([[ "$(WB_KNOWLEDGE_NO_JQ=1 WB_SELF_EXTENSION=full-auto decide "$BARE" "$(mkpayload "$BARE" "$BARE/commands/help.md")")" == "inert" ]] && echo 1 || echo 0)"
+check "fallback still excludes knowledge/staging/" \
+    "$([[ "$(WB_KNOWLEDGE_NO_JQ=1 WB_SELF_EXTENSION=full-auto decide "$REPO" "$(mkpayload "$REPO" "$REPO/knowledge/staging/e1.md")")" == "inert" ]] && echo 1 || echo 0)"
+
+# =============================================================================
+# OUTPUT HYGIENE
+# =============================================================================
+echo ""
+echo "Output hygiene"
+
+check "a decision is a single line of valid JSON" \
+    "$(out=$(cd "$REPO" && printf '%s' "$p" | WB_SELF_EXTENSION=full-auto "$GUARD" 2>/dev/null); \
+       [[ $(printf '%s' "$out" | wc -l) -le 1 ]] && printf '%s' "$out" | jq -e . >/dev/null 2>&1 && echo 1 || echo 0)"
+check "the decision names hookEventName PreToolUse" \
+    "$([[ "$(cd "$REPO" && printf '%s' "$p" | WB_SELF_EXTENSION=full-auto "$GUARD" 2>/dev/null | jq -r '.hookSpecificOutput.hookEventName')" == "PreToolUse" ]] && echo 1 || echo 0)"
+check "inert writes nothing to stdout" \
+    "$([[ -z "$(cd "$REPO" && printf '%s' "$(mkpayload "$REPO" "$REPO/README.md")" | WB_SELF_EXTENSION=full-auto "$GUARD" 2>/dev/null)" ]] && echo 1 || echo 0)"
+# Emitting permissionDecision "allow" would suppress the USER's own permission
+# prompts for that call. Inert must mean silent, never an affirmative allow.
+# Comments are stripped first, or the prose explaining this very rule trips it.
+check "the guard never emits permissionDecision allow" \
+    "$(grep -vE '^[[:space:]]*#' "$GUARD" | grep -qi 'allow' && echo 0 || echo 1)"
+check "the guard exits 0 on every decision (JSON carries the verdict)" \
+    "$(cd "$REPO" && printf '%s' "$p" | WB_SELF_EXTENSION=full-auto "$GUARD" >/dev/null 2>&1; [[ $? -eq 0 ]] && echo 1 || echo 0)"
+
+# =============================================================================
+# P2-T7 — graceful degradation. Enforcement being unavailable must be visible,
+# not inferred from silence: silence is exactly what a working inert hook looks
+# like, so "it printed nothing" cannot distinguish protected from unprotected.
+# =============================================================================
+echo ""
+echo "P2-T7 — self-check reports whether enforcement is actually available"
+
+out=$(cd "$REPO" && "$GUARD" --selfcheck 2>&1); code=$?
+check "--selfcheck exits 0 in a configured repo" "$([[ $code -eq 0 ]] && echo 1 || echo 0)"
+check "--selfcheck reports the protected path count" \
+    "$(echo "$out" | grep -qE '[0-9]+ protected path' && echo 1 || echo 0)"
+
+out=$(cd "$BARE" && "$GUARD" --selfcheck 2>&1); code=$?
+check "--selfcheck exits non-zero in an unconfigured repo" "$([[ $code -ne 0 ]] && echo 1 || echo 0)"
+check "--selfcheck says enforcement is unavailable there" \
+    "$(echo "$out" | grep -qi 'unavailable\|inert\|not enforced\|no .wb-knowledge' && echo 1 || echo 0)"
+
+out=$(cd "$badcfg" && "$GUARD" --selfcheck 2>&1); code=$?
+check "--selfcheck exits non-zero on a malformed config" "$([[ $code -ne 0 ]] && echo 1 || echo 0)"
+
+check "--help exits 0" \
+    "$("$GUARD" --help >/dev/null 2>&1 && echo 1 || echo 0)"
+
+echo ""
+echo "test-knowledge-guard: $PASS passed, $FAIL failed"
+[[ $FAIL -eq 0 ]]
