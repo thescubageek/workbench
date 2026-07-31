@@ -4,9 +4,9 @@ ticket: N/A
 created: 2026-07-31
 status: in-progress
 last_updated: 2026-07-31
-current_phase: 0
+current_phase: 1
 total_tasks: 41
-completed_tasks: 4
+completed_tasks: 12
 depends_on: [research.md, design.md]
 beads_epic: none — decided 2026-07-31 to run this project documentation-only; no bd init
 beads_phases: none — see beads_epic
@@ -319,24 +319,64 @@ self-extension by definition, and the moment it is created is the trust anchor o
 
 **Automated Verification**
 
-- [ ] `./scripts/test-knowledge-worktree` passes
-- [ ] `./scripts/lint --all` clean
-- [ ] `jq . .wb-knowledge.json` parses
-- [ ] `git worktree list` shows the store worktree after running `scripts/knowledge-worktree`
+- [x] `./scripts/test-knowledge-worktree` passes — 26/26
+- [x] `./scripts/lint --all` clean
+- [x] `jq . .wb-knowledge.json` parses
+- [x] `git worktree list` shows the store worktree after running `scripts/knowledge-worktree` — the
+      store branch is checked out in *this* workspace, so the script resolves to it rather than creating
+      a second one; the create path is covered by the contract test instead
+- [x] `./scripts/test-knowledge-config` passes — 31/31 (added; see below)
 
 **Manual Verification**
 
-- [ ] The entry schema example is a real entry about this codebase, with paths that resolve
-- [ ] `.wb-knowledge.json` lists itself in the protected set
-- [ ] The staging/entries README pair makes the trust distinction unmistakable to a reader who has not
+- [x] The entry schema example is a real entry about this codebase, with paths that resolve —
+      `.claude-plugin/plugin.json:10-45` and `scripts/lint-hook:9-19`, both checked
+- [x] `.wb-knowledge.json` lists itself in the protected set — and the schema *requires* it to, so a
+      config that omitted itself is invalid rather than merely wrong
+- [x] The staging/entries README pair makes the trust distinction unmistakable to a reader who has not
       read design.md
 
 ### Modified Files
 
+- `knowledge/README.md` — new; store branch policy, merge-forward-never-rebase (**added**, P1-T1 needed
+  a home for the branch policy)
 - `knowledge/entries/README.md`, `knowledge/staging/README.md`, `knowledge/SCHEMA.md` — new, store branch
 - `.wb-knowledge.json` — new
+- `.wb-knowledge.schema.json` — new (**added**; P1-T6 asked for a schema, which needs its own file)
 - `scripts/knowledge-worktree`, `scripts/test-knowledge-worktree` — new
+- `scripts/test-knowledge-config` — new (**added**; the only way to actually assert P1-T6's
+  "unexpressible" requirement, since the toolchain has no JSON Schema validator)
 - `scripts/README.md` — document the new scripts
+
+### What Phase 1 surfaced
+
+- **Parallel Conductor workspaces are git worktrees of one shared repository**, not independent clones
+  (`git rev-parse --git-common-dir` → `/Users/thescubageek/projects/workbench/.git`, three worktrees
+  registered). Git permits a branch to be checked out in exactly one worktree, so a second workspace
+  *cannot* create its own store worktree while this one holds the branch. `knowledge-worktree` therefore
+  **resolves to whichever checkout already holds the branch** instead of competing for it. This turns out
+  to be what the design wanted anyway: all workspaces share one store directory, so a capture made in one
+  is immediately visible to a curation pass run from another. Phase 3 inherits the consequence — concurrent
+  captures land in the same directory, which is exactly what the collision-free ID scheme is for.
+- **P1-T6's guarantee is structural, and its enforcement is partial.** The schema makes
+  "auto-promote core self-extension" unexpressible — no such property, `additionalProperties: false` at
+  every level, `model_narrated` pinned to a `const` rather than an enum. But **no JSON Schema validator
+  runs anywhere in this repo's toolchain** (no ajv, no python `jsonschema`), so nothing mechanically
+  rejects a config that violates it. `scripts/test-knowledge-config` asserts the properties structurally
+  and is mutation-tested — reintroducing the bypass key, un-protecting the config, or protecting
+  `staging/` each make it fail — but that is a proxy for validation, not validation. Stated, not hidden.
+- **The ID scheme needs an atomic allocator, not just distinguishing components.** Documented in
+  `knowledge/SCHEMA.md`: the date/workspace/session/agent components make collisions unlikely, but two
+  subagents can finish in the same millisecond, so the sequence must be allocated by atomic create
+  (`set -C` / `O_EXCL`) with retry. Counting existing files is a read-then-write race. Phase 3 must
+  implement it that way; P3-T1's concurrency test is the check.
+- **⚠️ Unresolved, and it bites at Phase 6: how does code built on this branch ever ship?** The store
+  branch is permanently unmerged outbound, but `hooks/`, `scripts/`, `commands/` and the version bump in
+  P6-T4 only reach an installed user via `main`. The design decoupled *knowledge* from the version-keyed
+  release path; it did not say how the *code* gets there. Two candidate answers — cherry-pick or PR the
+  code-only changes to `main` and keep `knowledge/` behind, or accept that v1 is R+D-only and P6-T4's
+  release is exercised but never pushed. **Does not block Phases 2–5**, all of which build on this
+  branch regardless. Resolve before starting Phase 6.
 
 ### ⛔ CHECKPOINT: Phase 1 Complete
 

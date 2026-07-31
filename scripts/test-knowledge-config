@@ -1,0 +1,132 @@
+#!/usr/bin/env bash
+
+# Contract tests for .wb-knowledge.json and .wb-knowledge.schema.json.
+#
+# The config is the trust anchor: every other control in the knowledge loop reads
+# it, and after the enforcement hook lands the loop can no longer modify it. These
+# tests assert the properties that make that true — including the negative ones,
+# which are the point. "Auto-promote core self-extension" being unexpressible is a
+# design requirement, so its absence is asserted here rather than left to whoever
+# next edits the schema and wonders why the key is missing.
+#
+# No JSON Schema validator is assumed (the repo's toolchain is bash + jq + a
+# markdown linter). The schema is therefore checked structurally rather than
+# executed. That is a proxy: it verifies the schema SAYS the right thing, not that
+# a validator enforces it. If a validator is ever added, add the negative fixture
+# cases described at the bottom of this file.
+
+set -uo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+CONFIG="$REPO_ROOT/.wb-knowledge.json"
+SCHEMA="$REPO_ROOT/.wb-knowledge.schema.json"
+
+PASS=0
+FAIL=0
+
+check() {
+    local desc="$1" cond="$2"
+    if [[ "$cond" == "1" ]]; then
+        echo "  ✓ $desc"
+        PASS=$((PASS + 1))
+    else
+        echo "  ✗ $desc"
+        FAIL=$((FAIL + 1))
+    fi
+}
+
+if ! command -v jq >/dev/null 2>&1; then
+    echo "test-knowledge-config: jq is required for these tests" >&2
+    exit 1
+fi
+
+echo "test-knowledge-config: $CONFIG"
+
+# --- Both files exist and parse ---
+check "config exists" "$([[ -f "$CONFIG" ]] && echo 1 || echo 0)"
+check "schema exists" "$([[ -f "$SCHEMA" ]] && echo 1 || echo 0)"
+check "config is valid JSON" "$(jq -e . "$CONFIG" >/dev/null 2>&1 && echo 1 || echo 0)"
+check "schema is valid JSON" "$(jq -e . "$SCHEMA" >/dev/null 2>&1 && echo 1 || echo 0)"
+
+# --- The store declaration is usable ---
+branch=$(jq -r '.store.branch // empty' "$CONFIG")
+root=$(jq -r '.store.root // empty' "$CONFIG")
+check "declares a store branch" "$([[ -n "$branch" ]] && echo 1 || echo 0)"
+check "declares a store root" "$([[ -n "$root" ]] && echo 1 || echo 0)"
+check "the declared store branch exists" \
+    "$(git -C "$REPO_ROOT" show-ref --verify --quiet "refs/heads/$branch" && echo 1 || echo 0)"
+
+# --- The trust anchor: the config protects itself ---
+check "protected_paths includes the config itself" \
+    "$(jq -e '.protected_paths | index(".wb-knowledge.json")' "$CONFIG" >/dev/null 2>&1 && echo 1 || echo 0)"
+check "protected_paths includes the schema" \
+    "$(jq -e '.protected_paths | index(".wb-knowledge.schema.json")' "$CONFIG" >/dev/null 2>&1 && echo 1 || echo 0)"
+
+# --- The harness components are protected ---
+for p in "commands/" "agents/" "skills/" "hooks/" "CLAUDE.md"; do
+    check "protected_paths includes $p" \
+        "$(jq -e --arg p "$p" '.protected_paths | index($p)' "$CONFIG" >/dev/null 2>&1 && echo 1 || echo 0)"
+done
+
+# --- Staging is NOT protected: capture has to be able to write there ---
+check "protected_paths excludes knowledge/staging/" \
+    "$(jq -e '.protected_paths | index("knowledge/staging/")' "$CONFIG" >/dev/null 2>&1 && echo 0 || echo 1)"
+check "protected_paths includes knowledge/entries/" \
+    "$(jq -e '.protected_paths | index("knowledge/entries/")' "$CONFIG" >/dev/null 2>&1 && echo 1 || echo 0)"
+
+# --- Declared paths are relative, and actually exist (catches drift and typos) ---
+abs_count=$(jq -r '[.protected_paths[] | select(startswith("/"))] | length' "$CONFIG")
+check "no protected path is absolute" "$([[ "$abs_count" -eq 0 ]] && echo 1 || echo 0)"
+
+missing=""
+while IFS= read -r p; do
+    [[ -e "$REPO_ROOT/${p%/}" ]] || missing="$missing $p"
+done < <(jq -r '.protected_paths[]' "$CONFIG")
+check "every protected path exists in the repo (${missing:-none missing})" \
+    "$([[ -z "$missing" ]] && echo 1 || echo 0)"
+
+# --- The write policy ships strict ---
+check "tool_verified defaults to propose-only" \
+    "$([[ "$(jq -r '.write_policy.ordinary_entries.tool_verified' "$CONFIG")" == "propose-only" ]] && echo 1 || echo 0)"
+check "model_narrated is propose-only" \
+    "$([[ "$(jq -r '.write_policy.ordinary_entries.model_narrated' "$CONFIG")" == "propose-only" ]] && echo 1 || echo 0)"
+
+# --- THE NEGATIVE ASSERTIONS: core self-extension has no policy surface ---
+# If any of these start failing, the bypass has been reintroduced. They are not
+# redundant with the schema — they assert the schema still says what it must.
+check "config declares no core-self-extension policy" \
+    "$(jq -e '.write_policy | has("core_self_extension")' "$CONFIG" >/dev/null 2>&1 && echo 0 || echo 1)"
+check "config's write_policy has exactly one key" \
+    "$([[ "$(jq -r '.write_policy | keys | length' "$CONFIG")" -eq 1 ]] && echo 1 || echo 0)"
+check "schema declares no core-self-extension property" \
+    "$(jq -e '.properties.write_policy.properties | has("core_self_extension")' "$SCHEMA" >/dev/null 2>&1 && echo 0 || echo 1)"
+check "schema forbids unknown keys at the root" \
+    "$([[ "$(jq -r '.additionalProperties' "$SCHEMA")" == "false" ]] && echo 1 || echo 0)"
+check "schema forbids unknown keys in write_policy" \
+    "$([[ "$(jq -r '.properties.write_policy.additionalProperties' "$SCHEMA")" == "false" ]] && echo 1 || echo 0)"
+check "schema forbids unknown keys in ordinary_entries" \
+    "$([[ "$(jq -r '.properties.write_policy.properties.ordinary_entries.additionalProperties' "$SCHEMA")" == "false" ]] && echo 1 || echo 0)"
+check "schema pins model_narrated to a const, not an enum" \
+    "$([[ "$(jq -r '.properties.write_policy.properties.ordinary_entries.properties.model_narrated.const' "$SCHEMA")" == "propose-only" ]] && echo 1 || echo 0)"
+check "schema offers model_narrated no auto-promote value" \
+    "$(jq -e '.properties.write_policy.properties.ordinary_entries.properties.model_narrated | has("enum")' "$SCHEMA" >/dev/null 2>&1 && echo 0 || echo 1)"
+check "schema allows auto-promote only for tool_verified" \
+    "$(jq -e '.properties.write_policy.properties.ordinary_entries.properties.tool_verified.enum | index("auto-promote")' "$SCHEMA" >/dev/null 2>&1 && echo 1 || echo 0)"
+
+# --- The schema mechanically requires the config to declare itself ---
+check "schema requires protected_paths to contain the config" \
+    "$(jq -e '[.properties.protected_paths.allOf[].contains.const] | index(".wb-knowledge.json")' "$SCHEMA" >/dev/null 2>&1 && echo 1 || echo 0)"
+check "schema requires protected_paths to contain the schema" \
+    "$(jq -e '[.properties.protected_paths.allOf[].contains.const] | index(".wb-knowledge.schema.json")' "$SCHEMA" >/dev/null 2>&1 && echo 1 || echo 0)"
+
+echo ""
+echo "test-knowledge-config: $PASS passed, $FAIL failed"
+
+# If a JSON Schema validator is ever added to the toolchain, add negative fixtures:
+#   - a config with write_policy.core_self_extension → must be REJECTED
+#   - a config with model_narrated: "auto-promote"   → must be REJECTED
+#   - a config whose protected_paths omits itself    → must be REJECTED
+# Until then the structural assertions above stand in for them.
+
+[[ $FAIL -eq 0 ]]

@@ -1,0 +1,91 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/thescubageek/workbench/.wb-knowledge.schema.json",
+  "title": "wb knowledge store configuration",
+  "description": "Declares a repository's knowledge store and its protected-path set. A repo with no .wb-knowledge.json gets no enforcement at all: the guard hook is inert, so a marketplace install never denies writes in someone else's repository. Enforcement is fail-open ACROSS repos and fail-closed WITHIN a configured one.",
+  "$comment": "THIS FILE AND THE CONFIG IT VALIDATES ARE CORE SELF-EXTENSION. Every control in the knowledge loop reads the config; if the loop could edit the policy deciding what needs human review, every other control would be bypassable in one move, and the bypass would read as a routine config change. Both files therefore appear in their own protected_paths, and the schema below requires that. Changing either is a human-only act, permanently, with no configurable override.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "store", "protected_paths", "write_policy"],
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Path or URL to this schema."
+    },
+    "version": {
+      "const": 1,
+      "description": "Config format version. Bump only alongside a human-reviewed migration."
+    },
+    "store": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["branch", "root"],
+      "description": "Where this repo's knowledge store lives.",
+      "properties": {
+        "branch": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The long-lived store branch. Never merged into main; main merges forward into it. MERGE, NEVER REBASE — rebasing rewrites the commits that entry provenance SHAs point at, silently invalidating every stored reference.",
+          "$comment": "scripts/knowledge-worktree reads this to resolve the store checkout."
+        },
+        "root": {
+          "type": "string",
+          "minLength": 1,
+          "default": "knowledge",
+          "description": "Directory on the store branch holding entries/, staging/, SCHEMA.md and the generated INDEX.md."
+        }
+      }
+    },
+    "protected_paths": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "description": "Paths, relative to the repo root, that an armed agent run may not write to. Directories end with '/'. This is the repo's declared core self-extension set: the machinery that evaluates or steers the system. Ambiguous cases are default-denied INTO this set rather than left out of it.",
+      "$comment": "In a wb-development repo this covers the harness itself (commands/, agents/, skills/, hooks/, scripts/, .claude-plugin/) plus the steering documents (CLAUDE.md, AGENTS.md) and the promoted-entry tree. In a host project it would instead cover that project's own CLAUDE.md and .claude/ config. knowledge/staging/ is deliberately ABSENT: capture must be able to write there, and staging is ungated by design.",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "^[^/].*",
+        "description": "Repo-root-relative path. Must not start with '/' — absolute paths would not survive being read in a different checkout."
+      },
+      "allOf": [
+        {
+          "contains": { "const": ".wb-knowledge.json" },
+          "$comment": "The config MUST declare itself. This is the trust anchor: the moment it is created is the moment the scheme becomes self-protecting, and a config that omitted itself would let the loop rewrite its own policy. Machine-enforced here rather than left to review."
+        },
+        {
+          "contains": { "const": ".wb-knowledge.schema.json" },
+          "$comment": "The schema MUST be protected too. Protecting the config while leaving the schema writable would let the loop relax the rules the config is validated against — the same bypass, one level up."
+        }
+      ]
+    },
+    "write_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ordinary_entries"],
+      "description": "How knowledge entries may be promoted. Defaults to the strictest setting; when relaxed, it relaxes along ORIGIN — evidence — rather than along a self-assessed category a model could mislabel.",
+      "$comment": "DELIBERATE ABSENCE, DO NOT ADD: there is no 'core_self_extension' key here, and adding one would be a defect rather than a feature. All core self-extension is permanently human-gated with no configurable override; a configurable control over the control IS the bypass. The setting is not merely defaulted to off — it is unexpressible, which is why additionalProperties is false on this object and on the root.",
+      "properties": {
+        "ordinary_entries": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["tool_verified", "model_narrated"],
+          "description": "Policy for ordinary knowledge entries — claims about the codebase. Never applies to core self-extension, which has no policy surface at all.",
+          "properties": {
+            "tool_verified": {
+              "enum": ["propose-only", "auto-promote"],
+              "default": "propose-only",
+              "description": "Entries derived from tool output: test results, diffs, validator verdicts, executed probes. This is the ONLY axis along which the policy may be relaxed, because it maps to evidence a tool produced rather than to a judgement the model made about itself.",
+              "$comment": "v1 ships 'propose-only'. 'auto-promote' is designed but not exercised."
+            },
+            "model_narrated": {
+              "const": "propose-only",
+              "description": "Entries derived from model narration — anything a model concluded, summarised, or inferred, including reading a file and reporting what it said. Always human-reviewed.",
+              "$comment": "A const, not an enum with a default. Model-narrated content is exactly what the zombie-agent threat model describes: injected text that survives into memory and is legitimized as a learned pattern by the refinement process. There is no value of this field that permits automatic promotion, so none is offered."
+            }
+          }
+        }
+      }
+    }
+  }
+}

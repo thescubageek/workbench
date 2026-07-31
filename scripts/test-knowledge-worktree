@@ -1,0 +1,163 @@
+#!/usr/bin/env bash
+
+# Contract tests for scripts/knowledge-worktree.
+# Asserts the store-access contract: it resolves the knowledge store root for the
+# repo it is run in, is idempotent, and fails loudly (non-zero, legible message)
+# rather than silently returning nothing when the store cannot be reached.
+#
+# Every case builds a throwaway git repo under a temp dir. Nothing here touches
+# the real repository or its worktrees.
+
+set -uo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+WT="$SCRIPT_DIR/knowledge-worktree"
+
+PASS=0
+FAIL=0
+
+check() {
+    local desc="$1" cond="$2"
+    if [[ "$cond" == "1" ]]; then
+        echo "  ✓ $desc"
+        PASS=$((PASS + 1))
+    else
+        echo "  ✗ $desc"
+        FAIL=$((FAIL + 1))
+    fi
+}
+
+TMPROOT="$(mktemp -d "${TMPDIR:-/tmp}/test-knowledge-worktree.XXXXXX")"
+
+cleanup() {
+    # Prune worktrees before deleting, or git leaves stale admin files behind.
+    local repo
+    for repo in "$TMPROOT"/*/; do
+        [[ -d "$repo/.git" ]] || continue
+        git -C "$repo" worktree prune >/dev/null 2>&1
+    done
+    rm -rf "$TMPROOT"
+}
+trap cleanup EXIT
+
+# Build a scratch repo with a store branch. $1 = repo name, $2 = branch to leave
+# checked out on the main worktree. The store branch is always named "kb".
+make_repo() {
+    local name="$1" leave_on="${2:-main}"
+    local repo="$TMPROOT/$name"
+    mkdir -p "$repo"
+    git -C "$repo" init -q -b main
+    git -C "$repo" config user.email test@example.com
+    git -C "$repo" config user.name test
+    cat > "$repo/.wb-knowledge.json" <<'JSON'
+{
+  "version": 1,
+  "store": { "branch": "kb", "root": "knowledge" }
+}
+JSON
+    git -C "$repo" add -A
+    git -C "$repo" commit -q -m init
+    # The store branch carries the knowledge tree.
+    git -C "$repo" checkout -q -b kb
+    mkdir -p "$repo/knowledge/entries" "$repo/knowledge/staging"
+    touch "$repo/knowledge/entries/.gitkeep" "$repo/knowledge/staging/.gitkeep"
+    git -C "$repo" add -A
+    git -C "$repo" commit -q -m "store layout"
+    git -C "$repo" checkout -q "$leave_on"
+    printf '%s' "$repo"
+}
+
+echo "test-knowledge-worktree: $WT"
+
+# --- Case 1: fails loudly outside a git repo ---
+outside="$TMPROOT/not-a-repo"
+mkdir -p "$outside"
+out=$(cd "$outside" && "$WT" 2>&1); code=$?
+check "outside a git repo exits non-zero" "$([[ $code -ne 0 ]] && echo 1 || echo 0)"
+check "outside a git repo says so" "$(echo "$out" | grep -qi 'git repositor' && echo 1 || echo 0)"
+
+# --- Case 2: fails loudly when the repo declares no store ---
+noconf="$TMPROOT/no-config"
+mkdir -p "$noconf"
+git -C "$noconf" init -q -b main
+git -C "$noconf" config user.email test@example.com
+git -C "$noconf" config user.name test
+git -C "$noconf" commit -q --allow-empty -m init
+out=$(cd "$noconf" && "$WT" 2>&1); code=$?
+check "missing .wb-knowledge.json exits non-zero" "$([[ $code -ne 0 ]] && echo 1 || echo 0)"
+check "missing .wb-knowledge.json names the file" "$(echo "$out" | grep -q '\.wb-knowledge\.json' && echo 1 || echo 0)"
+
+# --- Case 3: fails loudly when the declared branch does not exist ---
+nobranch="$TMPROOT/no-branch"
+mkdir -p "$nobranch"
+git -C "$nobranch" init -q -b main
+git -C "$nobranch" config user.email test@example.com
+git -C "$nobranch" config user.name test
+cat > "$nobranch/.wb-knowledge.json" <<'JSON'
+{ "version": 1, "store": { "branch": "kb-missing", "root": "knowledge" } }
+JSON
+git -C "$nobranch" add -A
+git -C "$nobranch" commit -q -m init
+out=$(cd "$nobranch" && "$WT" 2>&1); code=$?
+check "missing store branch exits non-zero" "$([[ $code -ne 0 ]] && echo 1 || echo 0)"
+check "missing store branch names the branch" "$(echo "$out" | grep -q 'kb-missing' && echo 1 || echo 0)"
+
+# --- Case 4: already on the store branch — the store is the current worktree ---
+selfrepo=$(make_repo self kb)
+out=$(cd "$selfrepo" && "$WT" 2>&1); code=$?
+check "on the store branch exits 0" "$([[ $code -eq 0 ]] && echo 1 || echo 0)"
+check "on the store branch prints a path that exists" "$([[ -d "$out" ]] && echo 1 || echo 0)"
+check "on the store branch resolves to the current worktree" "$([[ "$out" == "$(cd "$selfrepo" && pwd -P)/knowledge" ]] && echo 1 || echo 0)"
+
+# --- Case 5: idempotent — a second run yields the identical answer ---
+out2=$(cd "$selfrepo" && "$WT" 2>&1); code2=$?
+check "second run on the store branch exits 0" "$([[ $code2 -eq 0 ]] && echo 1 || echo 0)"
+check "second run prints the identical path" "$([[ "$out" == "$out2" ]] && echo 1 || echo 0)"
+
+# --- Case 6: works from a subdirectory, not just the repo root ---
+mkdir -p "$selfrepo/sub/dir"
+out=$(cd "$selfrepo/sub/dir" && "$WT" 2>&1); code=$?
+check "runs from a subdirectory" "$([[ $code -eq 0 && -d "$out" ]] && echo 1 || echo 0)"
+
+# --- Case 7: store branch exists but is not checked out — a worktree is created ---
+offrepo=$(make_repo off main)
+export WB_KNOWLEDGE_WORKTREE="$TMPROOT/off-store"
+out=$(cd "$offrepo" && "$WT" 2>&1); code=$?
+check "off the store branch exits 0" "$([[ $code -eq 0 ]] && echo 1 || echo 0)"
+check "off the store branch creates the worktree" "$([[ -d "$TMPROOT/off-store" ]] && echo 1 || echo 0)"
+check "created worktree is registered with git" "$(git -C "$offrepo" worktree list | grep -q 'off-store' && echo 1 || echo 0)"
+check "created worktree exposes the knowledge root" "$([[ -d "$out" && "$out" == *"/knowledge" ]] && echo 1 || echo 0)"
+check "created worktree holds the store content" "$([[ -d "$out/entries" && -d "$out/staging" ]] && echo 1 || echo 0)"
+
+# --- Case 8: re-running does not create a second worktree ---
+out2=$(cd "$offrepo" && "$WT" 2>&1); code2=$?
+count=$(git -C "$offrepo" worktree list | grep -c 'off-store')
+check "re-run off the store branch exits 0" "$([[ $code2 -eq 0 ]] && echo 1 || echo 0)"
+check "re-run prints the identical path" "$([[ "$out" == "$out2" ]] && echo 1 || echo 0)"
+check "re-run does not add a second worktree" "$([[ $count -eq 1 ]] && echo 1 || echo 0)"
+unset WB_KNOWLEDGE_WORKTREE
+
+# --- Case 9: branch checked out in ANOTHER worktree — resolve to it, don't fight ---
+# This is the parallel-workspace case: git permits one checkout per branch, so a
+# second workspace must reuse the first's rather than failing.
+sharedrepo=$(make_repo shared main)
+git -C "$sharedrepo" worktree add -q "$TMPROOT/shared-kb" kb
+out=$(cd "$sharedrepo" && "$WT" 2>&1); code=$?
+check "branch held by another worktree exits 0" "$([[ $code -eq 0 ]] && echo 1 || echo 0)"
+check "branch held by another worktree resolves to it" "$([[ "$out" == "$(cd "$TMPROOT/shared-kb" && pwd -P)/knowledge" ]] && echo 1 || echo 0)"
+check "no competing worktree was created" "$([[ $(git -C "$sharedrepo" worktree list | wc -l) -eq 2 ]] && echo 1 || echo 0)"
+
+# --- Case 10: the jq-absent fallback agrees with the jq path ---
+# scripts/lint-hook establishes the idiom; the fallback must not silently differ.
+with_jq=$(cd "$selfrepo" && "$WT" 2>&1)
+without_jq=$(cd "$selfrepo" && WB_KNOWLEDGE_NO_JQ=1 "$WT" 2>&1); code=$?
+check "jq-absent fallback exits 0" "$([[ $code -eq 0 ]] && echo 1 || echo 0)"
+check "jq-absent fallback agrees with jq" "$([[ "$with_jq" == "$without_jq" ]] && echo 1 || echo 0)"
+
+# --- Case 11: failure output goes to stderr, so stdout stays a clean path ---
+out=$(cd "$outside" && "$WT" 2>/dev/null); code=$?
+check "failure writes nothing to stdout" "$([[ -z "$out" ]] && echo 1 || echo 0)"
+
+echo ""
+echo "test-knowledge-worktree: $PASS passed, $FAIL failed"
+[[ $FAIL -eq 0 ]]
