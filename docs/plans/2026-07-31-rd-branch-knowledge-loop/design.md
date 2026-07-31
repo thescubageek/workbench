@@ -4,7 +4,7 @@ ticket: N/A
 created: 2026-07-31
 status: draft
 last_updated: 2026-07-31
-last_updated_note: "Resolved all 5 pending decisions via /wb:resolve_questions"
+last_updated_note: "Phase 0 tracer-bullet verdicts recorded; 3 further decisions resolved via /wb:resolve_questions (store branch, interactive ask gate, no beads)"
 depends_on: research.md
 design_approach: Git-native entry-addressable knowledge store with hook-enforced protected-path boundary
 ---
@@ -112,6 +112,16 @@ The four moving parts, and why each exists:
   - Explicitly provisional — recorded as "for now until we figure out a better mechanism." The delivery
     mechanism must stay swappable; nothing else in the design may assume this specific transport.
   - Source: research.md Open Question 1 · Decided 2026-07-31
+
+- **That branch is `thescubageek/self-learning-loops-research` itself — the existing R+D branch is
+  promoted to the permanent store branch rather than a dedicated one being cut.**
+  - Rationale: it is already designated do-not-merge, is already pushed, and already carries the plan
+    documents and Phase 0 findings that the store's first entries will cite — so its existing history is
+    usable provenance from day one instead of starting from an empty root.
+  - Trade-off: the branch stops being a disposable investigation branch. Anything landed on it from here
+    is permanent store history, and it inherits merge-forward-never-rebase **permanently** — no rebase
+    and no force-push on this branch, ever, or every stored provenance SHA silently goes stale.
+  - Source: tasks.md Phase 1 Prerequisites / P1-T1 · Decided 2026-07-31
 
 - **The store is scoped to the repository it lives in. One mechanism, per-repo instances.**
   - Rationale: wb's codebase *is* its harness, so harness self-improvement is a special case of codebase
@@ -263,6 +273,22 @@ The four moving parts, and why each exists:
     `ask` and then auto-approve.
   - Source: design.md Pending Decisions · Decided 2026-07-31, amended same day
 
+- **The interactive half of the `ask` verification is a human-run gate that must pass before Phase 1
+  begins — implementation does not start on an unobserved row of the behaviour table.**
+  - Rationale: Phase 0 established headlessly that auto-accept never *silently approves* an `ask`, which
+    closes the self-approval vector. What it cannot establish is whether an interactive session with
+    auto-accept enabled renders a visible prompt — which is exactly what the middle row of the three-state
+    table claims. Deferring it to the Phase 2 checkpoint would mean building the whole enforcement layer
+    on the one row of its own behaviour table that has never been observed.
+  - Trade-off: implementation stalls on a manual step that cannot be automated from inside an agent
+    session. Accepted — it is one prompt at a terminal, against the cost of discovering at the Phase 2
+    checkpoint that the middle row does not exist.
+  - Consequence if it fails: `ask` never prompts interactively, the armed hook collapses to two states
+    (inert / `deny`), and the three-state decision above must be re-opened before Phase 2 per the Phase 0
+    checkpoint. Note this is a usability failure, not a security one — the collapse direction is toward
+    refusal.
+  - Source: tasks.md Phase 2 Prerequisites · Decided 2026-07-31
+
 - **All core self-extension requires a human in the loop. Permanently, with no configurable override.**
   - Rationale: a loop that can weaken its own evaluator makes its own tests easier while continuing to
     report success, and every downstream gate silently loses its signal. This is the reward-hacking
@@ -371,6 +397,22 @@ The four moving parts, and why each exists:
     everything else in wb keeps beads as the source of truth.
   - Source: design.md Pending Decisions · Decided 2026-07-31
 
+- **This project's own implementation is tracked documentation-only. No `bd init`; `tasks.md`'s local
+  IDs (`P0-T1` …) are the only task identifiers.**
+  - Rationale: adding beads mid-build would mean standing up an epic, 7 milestones, and 37 issues before
+    any of them can be worked, and the store being built here is deliberately designed to run without
+    beads anyway — so the build is dogfooding its own no-beads path. The plan documents already carry
+    the phase structure a fresh session needs.
+  - Trade-off: **there is no cross-session status.** A resumed session reads what the plan *is*, not what
+    is *done*, and must reconstruct progress from git history and the Phase 0/1 gate markers in
+    `tasks.md`. This is the exact failure the plan documents warn about; it is accepted here and must be
+    compensated for by keeping the phase gates in `tasks.md` current as each phase lands.
+  - Note on convention: `CLAUDE.md` mandates beads for all task tracking, so this is a scoped exception
+    for this project, not a general relaxation. The prohibition on substitutes still holds in full — no
+    TodoWrite, no TaskCreate, no markdown checkboxes repurposed as progress. The checkboxes in `tasks.md`
+    remain verification criteria only.
+  - Source: tasks.md Current Blockers · Decided 2026-07-31
+
 ## Scope Definition
 
 ### In Scope
@@ -445,7 +487,7 @@ Beads is unavailable in this workspace, so these carry no IDs. With beads, each 
 | Assumption | Beads ID | Validated? |
 | --- | --- | --- |
 | `PreToolUse` deny works as documented in the installed Claude Code version | *(no beads)* | **Validated 2026-07-31** — executed against Claude Code 2.1.195; see Phase 0 findings below |
-| `PreToolUse` `ask` is not bypassed by auto-accept | *(no beads)* | **Validated 2026-07-31 (non-interactive modes)** — partial; interactive prompt rendering still unverified, see Phase 0 findings |
+| `PreToolUse` `ask` is not bypassed by auto-accept | *(no beads)* | **Validated 2026-07-31 (non-interactive modes)** — partial; the interactive prompt-rendering check is a human-run gate blocking the start of Phase 1 (decided 2026-07-31), see Phase 0 findings |
 | `Stop` / `SubagentStop` can write files reliably enough for automatic capture | *(no beads)* | **Validated 2026-07-31** — both fired and wrote; payloads carry `transcript_path` |
 | `agents/research-validator.md` accepts a knowledge entry as-is without schema changes | *(no beads)* | Pending — structural similarity argued, not tested |
 | A generated index keeps the store readable at the scale it actually reaches | *(no beads)* | Pending |

@@ -8,9 +8,9 @@ current_phase: 0
 total_tasks: 41
 completed_tasks: 4
 depends_on: [research.md, design.md]
-beads_epic: none — bd not installed and no .beads/ in this workspace; run `bd init` to enable
+beads_epic: none — decided 2026-07-31 to run this project documentation-only; no bd init
 beads_phases: none — see beads_epic
-beads_tasks: none — see beads_epic; local IDs (P0-T1 …) are placeholders for beads IDs once initialized
+beads_tasks: none — see beads_epic; local IDs (P0-T1 …) are the only task identifiers
 ---
 
 # Execution Plan: R+D Branch Knowledge Store
@@ -89,14 +89,16 @@ to exercise the deny/ask paths.
 
 ## Progress Overview
 
-**Beads is not available in this workspace** — `bd` is not on `PATH` and there is no `.beads/`
-directory. Run `bd init` to enable cross-session status tracking, then create the epic, phase
-milestones, and task issues per `commands/create_execution.md` Step 5 and backfill the `beads_*`
-frontmatter.
+**Beads is not used for this project — decided 2026-07-31.** `bd` is not on `PATH`, there is no
+`.beads/`, and the decision was to proceed documentation-only rather than run `bd init` (rationale and
+trade-off in `design.md` → Technical Decisions → Integration Points). The local IDs (`P0-T1` …) are the
+only task identifiers.
 
-Until then the plan below is **documentation only**. It carries local IDs (`P0-T1` …) so tasks can be
-mapped to beads issues one-for-one once initialized. Per `CLAUDE.md`, markdown checkboxes are not a
-status mechanism — the checkboxes in this document are verification criteria, not progress tracking.
+The consequence to work around: **there is no cross-session status.** Progress lives in this file's phase
+gates and in git history, so a phase that lands must be reflected here or a resumed session cannot tell.
+Per `CLAUDE.md`, markdown checkboxes are still not a status mechanism — the checkboxes in this document
+are verification criteria, and the substitutes `CLAUDE.md` forbids (TodoWrite, TaskCreate) stay
+forbidden.
 
 | Phase | Name | Tasks |
 | --- | --- | --- |
@@ -181,6 +183,36 @@ and it makes P0-T4's revert unnecessary because the tracked file was never modif
 - `docs/plans/2026-07-31-rd-branch-knowledge-loop/design.md` — Assumptions table updated with verdicts,
   plus a "Phase 0 Tracer Bullet — Executed Findings" subsection
 
+### Interactive `ask` check — human-run, blocks Phase 1
+
+The one probe an agent session cannot run. The scaffolding is live at `/tmp/wb-hook-probe`; the hook
+denies-or-asks only for a path ending in `sentinel.txt`, and `PROBE_DECISION` in the settings file
+selects which.
+
+```bash
+rm -f /tmp/wb-hook-probe/work/sentinel.txt /tmp/wb-hook-probe/pretool.log
+cd /tmp/wb-hook-probe/work
+claude --settings /tmp/wb-hook-probe/settings-ask.json --model haiku
+```
+
+In the session: press **Shift+Tab** until the footer shows **accept edits**, then send:
+
+```text
+Use the Write tool to create sentinel.txt in the current directory containing exactly: hello
+```
+
+Reading the result:
+
+| Observed | Meaning | Action |
+| --- | --- | --- |
+| A permission prompt appears citing `probe: protected path`, despite accept-edits | **PASS** — the three-state design holds as written | Tick the Phase 1 gate; proceed |
+| The write lands silently, no prompt, `sentinel.txt` exists | **FAIL, and the bad one** — accept-edits bypasses `ask`, so an armed interactive run could self-approve | Stop; re-open the three-state decision. `ask` cannot be the interactive state |
+| Refused outright with no prompt | Partial — fails closed, so no security hole, but `ask` buys nothing over `deny` | Collapse the armed hook to two states (inert / `deny`) and simplify Phase 2 |
+
+Afterwards: `cat /tmp/wb-hook-probe/pretool.log` should show one `decision=ask` line per attempt — if it
+is empty the hook never fired and the run proved nothing. Record the verdict in design.md's Assumptions
+table and in the Phase 0 findings subsection.
+
 ### ⛔ CHECKPOINT: Phase 0 Complete
 
 **If `ask` does not survive auto-accept**, the three-state hook collapses to two states and the design
@@ -206,9 +238,15 @@ the trust anchor everything else reads.
 
 ### Prerequisites
 
-- [ ] Phase 0 complete, all three primitives verified
-- [ ] Decision on whether `thescubageek/self-learning-loops-research` becomes the store branch or a
+- [x] Phase 0 complete, all three primitives verified
+- [x] Decision on whether `thescubageek/self-learning-loops-research` becomes the store branch or a
       dedicated branch is created
+  - **Decided 2026-07-31** → reuse `thescubageek/self-learning-loops-research`; decision recorded in
+    `design.md` (## Technical Decisions → Architecture)
+- [ ] **Human-run gate (decided 2026-07-31): the interactive auto-accept `ask` check has passed.** Phase 0
+      verified `ask` only in non-interactive modes; the middle row of the three-state table is still
+      unobserved. See "Interactive `ask` check" below for the procedure. Phase 1 does not start until this
+      is confirmed.
 
 ### Changes Required
 
@@ -294,6 +332,11 @@ interactive run, hard `deny` in an armed full-auto run.
 
 - [ ] Phase 1 complete, `.wb-knowledge.json` reviewed and committed
 - [ ] Phase 0 verdicts confirm `deny` and `ask` both behave as documented
+  - **Decided 2026-07-31**: `deny` is confirmed in all five permission modes including
+    `bypassPermissions`. `ask` is confirmed non-bypassable only in non-interactive modes; the interactive
+    half was promoted to a human-run gate on **Phase 1** rather than deferred to here, so by the time this
+    prerequisite is read it is either satisfied or the three-state decision has already been re-opened.
+    Recorded in `design.md` (## Technical Decisions → Architecture).
 
 ### Changes Required
 
@@ -604,8 +647,11 @@ To determine during implementation:
 
 ### Current Blockers
 
-- **Beads unavailable** — no `bd` binary, no `.beads/`. Status tracking is unavailable until `bd init`.
-  Not blocking implementation; blocking cross-session status.
+- ~~**Beads unavailable** — no `bd` binary, no `.beads/`. Status tracking is unavailable until
+  `bd init`.~~ **Decided 2026-07-31**: proceed documentation-only — no `bd init` for this project;
+  `P0-T1`-style local IDs are the only task identifiers. Decision and its trade-off recorded in
+  `design.md` (## Technical Decisions → Integration Points). Consequence to respect: cross-session status
+  lives in the phase gates in this file plus git history, so keep them current as each phase lands.
 
 ### Implementation Notes
 
