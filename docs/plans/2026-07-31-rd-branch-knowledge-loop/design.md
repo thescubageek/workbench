@@ -4,7 +4,7 @@ ticket: N/A
 created: 2026-07-31
 status: draft
 last_updated: 2026-07-31
-last_updated_note: "Phase 0+1 complete; 4 further decisions resolved via /wb:resolve_questions (protected set, code/knowledge branch split, ajv validation, workspace arrangement)"
+last_updated_note: "Phases 0-2 complete; enforcement boundary built and verified by execution (arming channel, registration A/B/C, bash-redirect hole). 4 decisions resolved earlier via /wb:resolve_questions"
 depends_on: research.md
 design_approach: Git-native entry-addressable knowledge store with hook-enforced protected-path boundary
 ---
@@ -551,7 +551,9 @@ The four moving parts, and why each exists:
 
 | Risk | Impact | Likelihood | Mitigation |
 | --- | --- | --- | --- |
-| A shipped deny hook fires in **users'** repos, blocking their edits to their own `commands/` or `skills/` | High | High | Resolved 2026-07-31: the hook is inert unless the host repo declares `.wb-knowledge.json`, and inert again unless a run is armed. Fail-open across repos by design. Verified by hand in a scratch repo at the Phase 2 checkpoint. |
+| A shipped deny hook fires in **users'** repos, blocking their edits to their own `commands/` or `skills/` | High | High | **Closed 2026-07-31 by execution.** The hook is inert unless the host repo declares `.wb-knowledge.json`, and inert again unless a run is armed. `scripts/probe-knowledge-guard` Run C writes freely in an unconfigured repo *while armed full-auto*; Run B writes freely in a configured repo while unarmed. Re-runnable, not a one-off inspection. |
+| A **Bash redirect** writes a protected path without producing a `PreToolUse` Write event | High | Med | Confirmed real 2026-07-31 (`printf x > d.txt` created the file, no hook event). Not closable at the hook layer without an unreliable string match that would train the operator to disarm. Closed by the deferred CI / CODEOWNERS layer, which this finding promotes to a prerequisite for trusting an armed run's bounds. Named in the hook, `scripts/README.md`, and tasks.md. |
+| A hook **timeout** is treated as no opinion, so enforcement silently lapses | Med | Low | Named 2026-07-31. Registered at 10s against ~4 `jq` calls and no network. Fail-open inside an otherwise fail-closed boundary; on the CI layer's list. |
 | Hook events beyond the two currently registered are unavailable in a user's Claude Code version | Med | Med | Degrade gracefully to the prompt-layer instruction, and surface that enforcement is unavailable rather than silently proceeding as if it were on |
 | Staging accumulates noise faster than the batched pass drains it | Med | High | Curation's merge/deprecate operations; the pass is manually triggerable when backlog builds |
 | Retrieval noise / negative transfer as the store grows | Med | Med | Per-repo scoping, scope tags, bounded retrieval count; never a wholesale load |
@@ -630,6 +632,52 @@ Load-bearing consequences:
   outside the repo, which means "not under a protected prefix" cannot be read as "safe" — it must fall
   through to the indeterminate case, which the behaviour table already sends to `deny` inside a
   configured repo.
+
+### Phase 2 Enforcement Boundary — Executed Findings (2026-07-31)
+
+Environment: Claude Code **2.1.195**, macOS (Darwin 25.5.0). Method: an A/B inside one session for every
+claim, per the Phase 0 lesson. Probes at `/tmp/wb-arm-probe` (arming channel) and, repeatably,
+`scripts/probe-knowledge-guard` (registration and enforcement).
+
+- **A launch-time environment variable reaches a `PreToolUse` hook, and the agent cannot change it.**
+  This is what makes the arming decision above implementable rather than aspirational. Run A launched
+  with `WB_SELF_EXTENSION=interactive` on the command line — not via `settings.env` — and the hook saw
+  `interactive`; the control run with no variable set saw it unset, so the value is genuinely the launch
+  environment's. In the same session the agent's own Bash tool ran `export WB_SELF_EXTENSION=full-auto`
+  **successfully** (it echoed `now full-auto`) and the hook still saw `interactive` on the next `Write`.
+  Tool-layer processes are children of the session; they cannot mutate the parent environment the hook
+  inherits.
+  - **The honest limit**, since the threat model depends on the stronger claim: unreachable for the
+    *running* session, influenceable for a *later* one. `.claude/settings.json`'s `env` block is applied
+    at session start, so an agent able to write it could arm a future session. Bounded by two things —
+    `.claude/` is in the protected set, and the influence only runs toward *more* friction (arming a run
+    that was not armed), never less. The dangerous direction is a false "interactive" claim, and Phase 0
+    established `ask` degrades to refusal in every non-interactive mode, so a headless run that
+    successfully claimed interactive would still be refused.
+
+- **Registration and enforcement verified as a three-run A/B/C** (`scripts/probe-knowledge-guard`, 6/6):
+  configured repo + armed full-auto refused the protected sentinel while writing the control; the same
+  repo with the same settings but *unarmed* wrote both — which is what makes the first result mean
+  anything; an *unconfigured* repo + armed wrote both, closing the risk table's highest-impact row by
+  execution rather than by inspection.
+
+- **A Bash redirect is not seen by the guard.** `printf 'hello' > d.txt` through the Bash tool created
+  the file with **no `PreToolUse` Write event at all**. This is a genuine hole in v1's boundary, distinct
+  from the already-named "out-of-band writes" gap because it *is* the agent's tool layer. Matching paths
+  inside arbitrary shell strings is unreliable, and a control firing on `grep -r commands/` would train
+  the operator to disarm — worse than a named hole. Consequence: the deferred CI / CODEOWNERS layer moves
+  from "before the first unattended run" to "before any armed run is trusted to be *bounded*".
+
+- **A hook timeout fails open.** A hook producing no output is treated as no opinion, so a timeout reads
+  as inert. The guard is registered at 10s and makes ~4 `jq` calls with no network access, so this is
+  remote — but it is a fail-open inside an otherwise fail-closed boundary, and belongs on the CI layer's
+  list.
+
+- **The indeterminate case cannot be three-state.** The first implementation routed unresolvable paths
+  through the same decision as protected ones, which produced `ask` under an interactive arm. Prompting
+  there asks a human to approve a write the system itself cannot characterise — a rubber stamp wearing a
+  gate's clothing — and contradicts the non-functional requirement above. Indeterminate now denies with
+  no interactive override.
 
 ## Rejected Alternatives
 

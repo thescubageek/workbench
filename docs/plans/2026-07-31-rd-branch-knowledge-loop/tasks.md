@@ -4,9 +4,9 @@ ticket: N/A
 created: 2026-07-31
 status: in-progress
 last_updated: 2026-07-31
-current_phase: 1
+current_phase: 2
 total_tasks: 42
-completed_tasks: 13
+completed_tasks: 20
 depends_on: [research.md, design.md]
 beads_epic: none — decided 2026-07-31 to run this project documentation-only; no bd init
 beads_phases: none — see beads_epic
@@ -454,7 +454,7 @@ interactive run, hard `deny` in an armed full-auto run.
 - [x] Phase 1 complete, `.wb-knowledge.json` reviewed and committed
   - **Reviewed 2026-07-31**: the thirteen-path set stands as committed, including the seven added beyond
     P1-T5's enumeration. Decision and rationale in `design.md` (## Technical Decisions → Architecture).
-- [ ] Phase 0 verdicts confirm `deny` and `ask` both behave as documented
+- [x] Phase 0 verdicts confirm `deny` and `ask` both behave as documented
   - **Decided 2026-07-31**: `deny` is confirmed in all five permission modes including
     `bypassPermissions`. `ask` is confirmed non-bypassable only in non-interactive modes; the interactive
     half was promoted to a human-run gate on **Phase 1** rather than deferred to here, so by the time this
@@ -500,24 +500,94 @@ Behaviour table from design.md:
 
 **Automated Verification**
 
-- [ ] `./scripts/test-knowledge-guard` passes, covering all five behaviour rows
-- [ ] `./scripts/test-quiet` still passes (no regression in the existing script contract)
-- [ ] `jq . .claude-plugin/plugin.json` parses after hook registration
-- [ ] `./scripts/lint --all` clean
+- [x] `./scripts/test-knowledge-guard` passes, covering all five behaviour rows — **69/69**
+- [x] `./scripts/test-quiet` still passes (no regression in the existing script contract) — 9/9
+- [x] `jq . .claude-plugin/plugin.json` parses after hook registration
+- [x] `./scripts/lint --all` clean
+- [x] `./scripts/probe-knowledge-guard` passes — **6/6**, three real `claude -p` sessions (added; the
+      registration layer a contract test structurally cannot reach)
+- [x] Whole suite re-run under **bash 3.2** (`/bin/bash`, macOS's default) with clean stderr — the hook
+      ships to every install and cannot assume bash 5
 
 **Manual Verification**
 
-- [ ] With no run armed, editing `commands/help.md` by hand and via the agent both succeed
+- [x] With no run armed, editing `commands/help.md` by hand and via the agent both succeed — probe
+      Run B wrote the sentinel with the guard registered and unarmed; by-hand edits never reach a
+      `PreToolUse` hook at all
 - [ ] With a run armed interactively, an agent edit to `commands/help.md` prompts for approval, and the
-      prompt appears **with auto-accept enabled**
-- [ ] With a run armed full-auto, the same edit is refused with a legible reason
-- [ ] In a scratch repo with no `.wb-knowledge.json`, the hook never fires
+      prompt appears **with auto-accept enabled** — **human-run, still owed.** Cannot be observed
+      headlessly. Phase 0 settled the underlying primitive by human A/B (control silent, sentinel
+      prompted under `accept edits on`); this re-runs it against the real guard. Fails closed either
+      way, so it gates the *claim*, not the code
+- [x] With a run armed full-auto, the same edit is refused with a legible reason — probe Run A; the
+      model reported "refused because that path is protected as core system extension machinery"
+- [x] In a scratch repo with no `.wb-knowledge.json`, the hook never fires — probe Run C
 
 ### Modified Files
 
 - `hooks/knowledge-guard.sh` — new
 - `scripts/test-knowledge-guard` — new
-- `.claude-plugin/plugin.json` — `PreToolUse` registration
+- `scripts/probe-knowledge-guard` — new (**added**; the second test layer, opt-in because it spawns
+  real sessions)
+- `.claude-plugin/plugin.json` — `PreToolUse` registration, matcher `Write|Edit|MultiEdit|NotebookEdit`
+- `scripts/README.md`, `README.md` — the guard, its arming contract, and the named Bash hole
+- `package.json` — `npm test` gains `test-knowledge-guard`
+
+### What Phase 2 surfaced
+
+- **Arming is an environment variable, and that answers an Implementation Discovery.** The question was
+  whether the arming signal can be made *genuinely* unreachable from the agent's tool layer or is only
+  *inconvenient* to reach. Answer, by execution (probe at `/tmp/wb-arm-probe`, Claude Code 2.1.195, A/B
+  in one session): **a launch-time env var reaches the `PreToolUse` hook, and the agent cannot change
+  it.** An `export WB_SELF_EXTENSION=full-auto` run by the agent's own Bash tool executed successfully
+  (`now full-auto`) and the hook still saw `interactive` on the next Write — tool-layer processes are
+  children and cannot mutate the parent environment the hook inherits. A control run with no variable
+  set saw it unset, so the value is genuinely the launch environment's.
+  - **The honest limit, since the design's threat model depends on the stronger claim:** unreachable for
+    the *running* session, influenceable for a *later* one. `.claude/settings.json` has an `env` block
+    applied at session start, so an agent able to write it could arm a future session. Two things bound
+    the damage: `.claude/` is in the protected set, and the influence only runs in the safe direction —
+    arming a run that was not armed adds friction, it never removes any. The dangerous claim is
+    "interactive", and Phase 0 established `ask` degrades to outright refusal in every non-interactive
+    mode, so a headless run that successfully claimed interactive would still be refused.
+
+- **The indeterminate case is NOT three-state, and the first implementation got this wrong.** Routing an
+  unresolvable path through the same decision as a protected one produced `ask` when armed
+  interactively. `design.md`'s non-functional requirement is explicit — "if the hook cannot determine
+  whether a path is protected, it denies" — and the reason is substantive: prompting there asks a human
+  to approve a write the system itself cannot characterise, which is a rubber stamp wearing a gate's
+  clothing. Split into `refuse()` (three-state, protected paths only) and `deny_hard()` (indeterminate,
+  no interactive override). The tests caught it.
+
+- **Path matching needs two normalisations composed, not one chosen.** Lexical normalisation catches a
+  `..` traversal through a directory that does not exist yet, which no amount of symlink resolution can
+  see; symlink resolution catches a link into a protected tree and macOS's `/tmp` → `/private/tmp`.
+  Resolving a lexically-normalised path and resolving the raw path can legitimately differ when a
+  symlink is followed by `..`, so both results are kept as candidates: protected if *any* candidate
+  lands in the set, indeterminate if *any* lands outside the root. Both rules are monotone toward deny,
+  so adding a candidate can only make the answer stricter.
+  - Found the hard way: the first version required *every* candidate to be inside the root, which broke
+    on macOS temp dirs (`/var` → `/private/var`) and denied ordinary unprotected writes. Containment is
+    a fact about the resolved path; the lexical form exists for matching, not for containment.
+
+- **A Bash redirect bypasses the guard entirely, confirmed by execution.** `printf 'hello' > d.txt` ran
+  through the Bash tool created the file with **no `PreToolUse` Write event** — no log line at all.
+  Matching paths inside arbitrary shell strings is unreliable, and a control that fired on
+  `grep -r commands/` would train the operator to disarm, which is worse than a named hole. This is the
+  same class the deferred CI / CODEOWNERS layer already exists to close, and it moves that layer from
+  "before the first unattended run" to "before any armed run is trusted to be bounded". Named in
+  `hooks/knowledge-guard.sh`, `scripts/README.md`, and here.
+
+- **A hook timeout fails open.** `.claude-plugin/plugin.json` gives the guard a 10s timeout; a hook that
+  produces no output is treated as no opinion, so a timeout reads as inert. The guard makes ~4 `jq`
+  calls and no network access, so this is remote — but it is a fail-open in a boundary that is otherwise
+  fail-closed, and it should be on the CI layer's list.
+
+- **The probe's own first run was a false green, which is the argument for controls in miniature.** A
+  `local name="$1" d="$TMPROOT/$name"` bug (a single `local` expands all its arguments before any of
+  them binds) meant the repos were never built — and "the protected sentinel was REFUSED" passed
+  *vacuously*, because a file that was never created is indistinguishable from one that was refused.
+  The control assertion is what failed and exposed it.
 
 ### ⛔ CHECKPOINT: Phase 2 Complete
 
@@ -754,9 +824,12 @@ Run `/wb:validate_execution` before considering this done.
 
 To determine during implementation:
 
-- Whether the arming signal can be made genuinely unreachable from the agent's tool layer, or whether it
-  is only *inconvenient* to reach. If only inconvenient, say so plainly — the design's threat model
-  depends on the stronger claim.
+- ~~Whether the arming signal can be made genuinely unreachable from the agent's tool layer, or whether
+  it is only *inconvenient* to reach.~~ **Answered 2026-07-31 (Phase 2): unreachable for the running
+  session, influenceable for a later one.** An env var set at launch reaches the hook and the agent's own
+  Bash `export` provably cannot change it, but `.claude/settings.json`'s `env` block could arm a *future*
+  session. Bounded by `.claude/` being protected and by the influence only running toward more friction,
+  never less. Full detail in "What Phase 2 surfaced".
 - Whether `agents/research-validator.md` really accepts a knowledge entry unchanged, or needs a schema
   shim. Recorded as an Assumption; the answer belongs back in design.md either way.
 - How large `knowledge/INDEX.md` gets before generation cost or read cost matters.
