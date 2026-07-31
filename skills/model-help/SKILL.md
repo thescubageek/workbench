@@ -19,7 +19,9 @@ Read a handoff / task spec / ticket and return a **model + effort** recommendati
 **Model = capability ceiling.** How much raw reasoning the hardest part of the task needs.
 **Effort = how much thinking to spend** at that ceiling. A cheap model at high effort ≠ a strong model at low effort — match model to the ceiling, effort to the depth.
 
-Current roster (most → least capable): **`claude-opus-4-8` (Opus 4.8)** · **`claude-sonnet-5` (Sonnet 5)** · **`claude-haiku-4-5` (Haiku 4.5)**. `claude-fable-5` (Fable 5) also exists (fast Claude‑5 tier); default to the three above unless the user prefers Fable. Effort levels: `low` · `medium` · `high` · `xhigh` · `max`.
+Current roster (most → least capable): **`claude-opus-5` (Opus 5)** · **`claude-opus-4-8` (Opus 4.8)** · **`claude-sonnet-5` (Sonnet 5)** · **`claude-haiku-4-5-20251001` (Haiku 4.5)**. `claude-fable-5` (Fable 5) also exists (fast Claude‑5 tier); default to the four above unless the user prefers Fable. Effort levels: `low` · `medium` · `high` · `xhigh` · `max`.
+
+**Two Opus tiers.** Opus 5 is the ceiling — reserve it for the genuinely hardest work: novel design, one-way doors, compliance / PHI / security-critical, wide blast radius, adversarial review of sensitive code. **Opus 4.8 is the default Opus** — reach for it when a task needs Opus-class reasoning but not the absolute top. Downshift 5 → 4.8 whenever 5 would be overkill; the reasoning ceiling is close and 4.8 is the cheaper Opus.
 
 ## Assess the task on these dimensions
 
@@ -38,7 +40,7 @@ Score the task HIGH/MED/LOW on each — the **highest** dimension drives the tie
 | Trivial, isolated, easily verified — copy tweaks, config bumps, a rename, doc edits, a single obvious factory/spec | Haiku 4.5 (or Sonnet 5) | low |
 | Bounded eng change, mechanical but touches a hot path or needs edge/nil-safety reasoning + real specs | Sonnet 5 | medium |
 | Multi-file feature, non-trivial logic, moderate correctness sensitivity, some design latitude | Sonnet 5 (Opus 4.8 if reasoning-dense) | high |
-| Compliance / PHI / security / billing critical · wide blast radius · novel design · hard-to-reverse migration · adversarial review of sensitive code | Opus 4.8 | high → max |
+| Compliance / PHI / security / billing critical · wide blast radius · novel design · hard-to-reverse migration · adversarial review of sensitive code | Opus 5 | high → max |
 
 Effort guidance: **medium is the default for real eng work.** Drop to **low** only when genuinely mechanical. Reserve **high** for hard reasoning / review; **xhigh/max** for the thorniest multi-constraint problems or adversarial verification — they cost real time/tokens with diminishing returns, so don't reach for them by default.
 
@@ -58,10 +60,10 @@ The wb pipeline (`forge`, `resume_handoff`, and the `create_*` / `implement_task
 | wb phase | Main-session baseline | Why | Cheap work → sub-agents |
 | --- | --- | --- | --- |
 | `create_research` | Sonnet 5 / medium | Main session decomposes + synthesizes; the heavy lifting is in parallel READ-ONLY agents | locator → haiku, analyzer → sonnet, pattern-finder → haiku |
-| `create_design` | **Opus 4.8 / high** (→ max for novel / one-way-door / compliance-critical / high-blast-radius) | Reasoning-dense: trade-offs, architecture, locked decisions. Usually the pipeline's ceiling | little to delegate — the judgment is main-session |
+| `create_design` | **Opus 4.8 / high** (→ Opus 5 / high–max for novel / one-way-door / compliance-critical / high-blast-radius) | Reasoning-dense: trade-offs, architecture, locked decisions. Usually the pipeline's ceiling | little to delegate — the judgment is main-session |
 | `create_execution` | Sonnet 5 / medium | Decompose an already-decided design into phased tasks — structuring, not deciding | execution agents → sonnet / haiku |
 | `implement_tasks` | Sonnet 5 / medium (bump gnarly tasks to Opus 4.8 / high) | TDD execution of a locked plan; most tasks mechanical-to-moderate | `implement_coordinated` already picks per-task worker models |
-| `validate_execution` | Sonnet 5 / medium → Opus 4.8 / high | Adversarial check vs plan; raise for wide blast radius / compliance / hard-to-verify | validation agents → sonnet / haiku |
+| `validate_execution` | Sonnet 5 / medium → Opus 4.8 / high (→ Opus 5 for compliance-critical / hard-to-verify) | Adversarial check vs plan; raise for wide blast radius / compliance / hard-to-verify | validation agents → sonnet / haiku |
 
 Bump a phase above its baseline whenever the ticket's own dimensions (blast radius, correctness sensitivity, novelty, cross-file reasoning, verification cost) say so — a research pass over an ambiguous cross-subsystem area is Opus/high, not Sonnet/medium.
 
@@ -110,8 +112,8 @@ Keep it tight. No preamble, no restating the whole handoff.
 
 ## Calibration anchors
 
-- **Reef `review-reef` on a clinical notes-fan-out PR** → Opus 4.8 / high (compliance-critical, cross-file, adversarial). Bump to max for a focused pass on the sign-and-lock core.
+- **Reef `review-reef` on a clinical notes-fan-out PR** → Opus 5 / high (compliance-critical, cross-file, adversarial). Bump to max for a focused pass on the sign-and-lock core.
 - **Add a nullable column + a one-line resolver change on a ~140-call-site hot path + form field** (e.g. TB-2936 Zoom `zoom_url`) → Sonnet 5 / medium; the migration alone would be Sonnet/low.
 - **Copy change / locale tweak / config bump** → Haiku 4.5 / low.
-- **Gate mode, a moderate forge** (bounded feature, decisions still open) → research Sonnet/medium → **switch up** to Opus/high for the design gate → **switch back down** to Sonnet/medium for execution + implement → validate Sonnet/medium. Two main-model switches total; research/execution/implement never leave Sonnet.
-- **Gate mode, `resume_handoff` into an implement phase** → Sonnet/medium (plan is locked, tasks are mechanical-to-moderate). The resume already reloaded context, so if the remaining work is gnarly it's a cheap moment to land on Opus/high instead — the reload tax is already paid.
+- **Gate mode, a moderate forge** (bounded feature, decisions still open) → research Sonnet/medium → **switch up** to Opus 4.8/high for the design gate → **switch back down** to Sonnet/medium for execution + implement → validate Sonnet/medium. Two main-model switches total; research/execution/implement never leave Sonnet.
+- **Gate mode, `resume_handoff` into an implement phase** → Sonnet/medium (plan is locked, tasks are mechanical-to-moderate). The resume already reloaded context, so if the remaining work is gnarly it's a cheap moment to land on Opus 4.8/high (or Opus 5 if it's genuinely the hardest part) instead — the reload tax is already paid.
