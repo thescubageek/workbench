@@ -6,7 +6,7 @@ status: in-progress
 last_updated: 2026-07-31
 current_phase: 4
 total_tasks: 42
-completed_tasks: 35
+completed_tasks: 38
 depends_on: [research.md, design.md]
 beads_epic: none — decided 2026-07-31 to run this project documentation-only; no bd init
 beads_phases: none — see beads_epic
@@ -851,8 +851,15 @@ never reaching staging.
 - **P5-T1** — Extend `commands/create_research.md:47-60` (Step 0) to consult the store alongside
   `jira-context`, inheriting the existing best-effort/never-blocking contract at `:60` and the
   scope-not-substance caveat at `:58`.
+  - **Done 2026-07-31**, in the `maputo` workspace (branch `thescubageek/knowledge-store-v1`). Step 0
+    now calls `./scripts/knowledge-read --scope subsystem:<area>` in parallel with `jira-context`;
+    results are scoping input only, same best-effort/non-blocking contract, no retrieval logic
+    re-specified in prose.
 - **P5-T2** — Add the store as a second input source to `commands/resume_handoff.md:158` (Step 4, Apply
   Learnings), which is already the proven consumer of captured learnings.
+  - **Done 2026-07-31**, in the `maputo` workspace. Step 4 now also calls `knowledge-read`, with the
+    lifetime distinction stated explicitly: the handoff is read once and goes stale, the store is read
+    by every later ticket.
 - **P5-T3** — Implement scoped, count-bounded retrieval reading `knowledge/entries/` only — never
   `knowledge/staging/`. Retrieval noise and negative transfer are the measured failure modes and both
   worsen with store size, so a wholesale load is explicitly wrong.
@@ -860,6 +867,9 @@ never reaching staging.
     markdown" below. `scripts/knowledge-read` + `scripts/test-knowledge-read` (29 checks).
 - **P5-T4** — Declare the store as a fifth category in `skills/project-structure/SKILL.md`, whose Quick
   Check currently routes only to research.md / design.md / tasks.md / thoughts/.
+  - **Done 2026-07-31**, in the `maputo` workspace. Added as a fifth category (cross-ticket vs. the
+    other four's per-ticket scope), routed in the Quick Check, and the frontmatter `description:` now
+    enumerates it.
 
 ### Success Criteria
 
