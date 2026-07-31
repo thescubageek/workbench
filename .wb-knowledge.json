@@ -17,6 +17,8 @@
     "AGENTS.md",
     ".wb-knowledge.json",
     ".wb-knowledge.schema.json",
+    "package.json",
+    "package-lock.json",
     "knowledge/entries/",
     "knowledge/SCHEMA.md"
   ],

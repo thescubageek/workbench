@@ -8,3 +8,8 @@ docs/plans/
 
 # Claude Code local, per-developer config (permission allowlist etc.) — not shipped.
 .claude/settings.local.json
+
+# Dev-time node dependencies (ajv, for validating .wb-knowledge.json). Installed by
+# `npm install`; never shipped — the marketplace install has no node_modules, so no
+# runtime component may depend on it.
+node_modules/

@@ -29,6 +29,17 @@ This is the global reinforcement of each command's inline output-discipline dire
 
 ## Development Tools
 
+### Setup
+
+```bash
+npm install
+```
+
+Required once per clone. Installs `ajv`, the repo's only node dependency — a hard one, used by
+`scripts/validate-json-schema` to enforce `.wb-knowledge.schema.json` against `.wb-knowledge.json`.
+`node_modules/` is gitignored and never ships, so **no runtime component (hooks, capture) may depend
+on it**. `markdownlint-cli` is still expected globally and is not managed here.
+
 ### Markdown Linting
 
 ```bash

@@ -9,11 +9,14 @@
 # design requirement, so its absence is asserted here rather than left to whoever
 # next edits the schema and wonders why the key is missing.
 #
-# No JSON Schema validator is assumed (the repo's toolchain is bash + jq + a
-# markdown linter). The schema is therefore checked structurally rather than
-# executed. That is a proxy: it verifies the schema SAYS the right thing, not that
-# a validator enforces it. If a validator is ever added, add the negative fixture
-# cases described at the bottom of this file.
+# Two layers, and both are needed. The structural `jq` assertions check that the
+# schema SAYS the right thing. The ajv block at the foot of this file EXECUTES it,
+# feeding mutated configs to a real validator and requiring each to be rejected —
+# which is what upgrades "auto-promote core self-extension is unexpressible" from
+# a claim about the schema text to a property something enforces.
+#
+# ajv is a hard dependency (see package.json); run `npm install` before this test.
+# jq is still required for the structural half.
 
 set -uo pipefail
 
@@ -21,6 +24,7 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 CONFIG="$REPO_ROOT/.wb-knowledge.json"
 SCHEMA="$REPO_ROOT/.wb-knowledge.schema.json"
+VALIDATE="$SCRIPT_DIR/validate-json-schema"
 
 PASS=0
 FAIL=0
@@ -64,6 +68,17 @@ check "protected_paths includes the config itself" \
     "$(jq -e '.protected_paths | index(".wb-knowledge.json")' "$CONFIG" >/dev/null 2>&1 && echo 1 || echo 0)"
 check "protected_paths includes the schema" \
     "$(jq -e '.protected_paths | index(".wb-knowledge.schema.json")' "$CONFIG" >/dev/null 2>&1 && echo 1 || echo 0)"
+
+# --- ...and so is what pins the validator that enforces the schema ---
+# Same argument as protecting the schema, one level further up: package.json and
+# its lockfile pin the ajv version scripts/validate-json-schema runs. An armed run
+# able to edit them could swap in a validator that accepts anything, and the whole
+# enforcement above would still report green. Repo-specific, so asserted here
+# rather than required by the schema — a host project may have no package.json.
+for p in "package.json" "package-lock.json"; do
+    check "protected_paths includes $p (pins the validator)" \
+        "$(jq -e --arg p "$p" '.protected_paths | index($p)' "$CONFIG" >/dev/null 2>&1 && echo 1 || echo 0)"
+done
 
 # --- The harness components are protected ---
 for p in "commands/" "agents/" "skills/" "hooks/" "CLAUDE.md"; do
@@ -128,13 +143,81 @@ check "schema requires protected_paths to contain the config" \
 check "schema requires protected_paths to contain the schema" \
     "$(jq -e '[.properties.protected_paths.allOf[].contains.const] | index(".wb-knowledge.schema.json")' "$SCHEMA" >/dev/null 2>&1 && echo 1 || echo 0)"
 
+# --- ENFORCEMENT: run the schema through a real validator ---
+# Everything above asserts what the schema text contains. Nothing above proves a
+# config violating it is actually refused. These do.
+
+if [[ ! -x "$VALIDATE" ]]; then
+    echo "test-knowledge-config: $VALIDATE is missing or not executable" >&2
+    exit 1
+fi
+
+"$VALIDATE" "$SCHEMA" "$CONFIG" >/dev/null 2>&1
+live_rc=$?
+if [[ $live_rc -eq 3 ]]; then
+    echo "" >&2
+    echo "test-knowledge-config: ajv is a HARD dependency of these tests and is not installed." >&2
+    echo "  Run 'npm install' in the repo root, then re-run. See scripts/README.md." >&2
+    exit 1
+fi
+
+tmpdir="$(mktemp -d)"
+trap 'rm -rf "$tmpdir"' EXIT
+fixture_n=0
+
+# A jq mutation of the live config, fed to the validator. `want` is the exit code
+# the validator must return: 0 accepted, 1 rejected.
+mutate() {
+    local want="$1" desc="$2" filter="$3"
+    fixture_n=$((fixture_n + 1))
+    local fixture="$tmpdir/fixture-$fixture_n.json"
+    if ! jq "$filter" "$CONFIG" > "$fixture" 2>/dev/null; then
+        check "$desc (fixture built)" "0"
+        return
+    fi
+    "$VALIDATE" "$SCHEMA" "$fixture" >/dev/null 2>&1
+    local rc=$?
+    check "$desc" "$([[ "$rc" -eq "$want" ]] && echo 1 || echo 0)"
+}
+
+check "the committed config validates against its schema" \
+    "$([[ $live_rc -eq 0 ]] && echo 1 || echo 0)"
+
+# Positive control. Without it every rejection below would also pass against a
+# validator that simply refuses everything — the same missing-control mistake that
+# cost a round in Phase 0. tool_verified is the one axis the policy may relax.
+mutate 0 "ACCEPTED: tool_verified relaxed to auto-promote (the one relaxable axis)" \
+    '.write_policy.ordinary_entries.tool_verified = "auto-promote"'
+
+# The three fixtures P1-T9 exists for.
+mutate 1 "REJECTED: a write_policy.core_self_extension key" \
+    '.write_policy.core_self_extension = {"tool_verified": "auto-promote"}'
+mutate 1 "REJECTED: model_narrated set to auto-promote" \
+    '.write_policy.ordinary_entries.model_narrated = "auto-promote"'
+mutate 1 "REJECTED: protected_paths omitting the config itself" \
+    '.protected_paths |= map(select(. != ".wb-knowledge.json"))'
+
+# The same bypass one level up, plus the structural guards the schema also owes.
+mutate 1 "REJECTED: protected_paths omitting the schema" \
+    '.protected_paths |= map(select(. != ".wb-knowledge.schema.json"))'
+mutate 1 "REJECTED: an absolute protected path" \
+    '.protected_paths += ["/etc/passwd"]'
+mutate 1 "REJECTED: an empty protected_paths" \
+    '.protected_paths = []'
+mutate 1 "REJECTED: write_policy removed entirely" \
+    'del(.write_policy)'
+mutate 1 "REJECTED: an unknown key at the root" \
+    '.auto_promote_everything = true'
+mutate 1 "REJECTED: an unknown key inside store" \
+    '.store.allow_rebase = true'
+mutate 1 "REJECTED: an unknown key inside ordinary_entries" \
+    '.write_policy.ordinary_entries.core_self_extension = "auto-promote"'
+mutate 1 "REJECTED: an unrecognised config version" \
+    '.version = 2'
+mutate 1 "REJECTED: an empty store branch" \
+    '.store.branch = ""'
+
 echo ""
 echo "test-knowledge-config: $PASS passed, $FAIL failed"
-
-# If a JSON Schema validator is ever added to the toolchain, add negative fixtures:
-#   - a config with write_policy.core_self_extension → must be REJECTED
-#   - a config with model_narrated: "auto-promote"   → must be REJECTED
-#   - a config whose protected_paths omits itself    → must be REJECTED
-# Until then the structural assertions above stand in for them.
 
 [[ $FAIL -eq 0 ]]

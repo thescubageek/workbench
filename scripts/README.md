@@ -2,6 +2,22 @@
 
 Utility scripts for the project.
 
+## Install
+
+```bash
+npm install
+```
+
+Required once per clone, before running `test-knowledge-config`. It installs `ajv`, the repo's only
+node dependency — a **hard** one, because `.wb-knowledge.json` is the trust anchor of the knowledge
+loop and a config that violates its schema must be *rejected*, not merely un-asserted.
+
+`node_modules/` is gitignored and is **never** shipped. A marketplace install has no `node_modules`,
+so nothing on the runtime path — the guard hook, capture — may depend on `ajv` or on
+`validate-json-schema`. Dev-time only.
+
+`markdownlint-cli` is still expected globally (see `lint` below); it is not managed by `package.json`.
+
 ## Available Scripts
 
 ### `lint`
@@ -120,15 +136,39 @@ Contract tests for `knowledge-worktree`. Builds throwaway git repos under a temp
 real repository or its worktrees. Covers the resolve/create/reuse cases, idempotency, the
 branch-held-by-another-worktree case, the jq-free fallback, and every loud-failure path.
 
+### `validate-json-schema`
+
+Validates JSON documents against a JSON Schema using `ajv`. Written for one job — proving that
+`.wb-knowledge.json` is *enforced* by `.wb-knowledge.schema.json` rather than merely described by it —
+but takes any schema and any number of data files.
+
+```bash
+./scripts/validate-json-schema .wb-knowledge.schema.json .wb-knowledge.json
+```
+
+**Exit codes:** `0` all valid · `1` at least one document invalid (errors on stderr) · `2` usage error,
+unreadable file, or a schema that will not compile · `3` `ajv` not installed — run `npm install`.
+
+Dev-time only; see the install note above.
+
 ### `test-knowledge-config`
 
-Contract tests for `.wb-knowledge.json` and `.wb-knowledge.schema.json`. Asserts the trust anchor holds:
-the config declares itself protected, the harness paths are covered, `knowledge/staging/` is *not*
-covered (capture must be able to write there), every declared path actually exists, and — the negative
-assertions that matter most — core self-extension has no policy surface anywhere in either file.
+Contract tests for `.wb-knowledge.json` and `.wb-knowledge.schema.json`, in two layers.
+
+**Structural (`jq`)** — the trust anchor holds: the config declares itself protected, the harness paths
+and the files pinning the validator are covered, `knowledge/staging/` is *not* covered (capture must be
+able to write there), every declared path actually exists, and — the negative assertions that matter
+most — core self-extension has no policy surface anywhere in either file.
+
+**Enforcement (`ajv`, via `validate-json-schema`)** — the schema is executed, not just read. Mutated
+copies of the live config are fed to a real validator and each must be rejected: one carrying
+`write_policy.core_self_extension`, one with `model_narrated: "auto-promote"`, one whose
+`protected_paths` omits itself, and nine more. A **positive control** runs alongside them — relaxing
+`tool_verified` to `auto-promote`, the one axis the policy may relax, must still be *accepted* — because
+without it every rejection would also pass against a validator that simply refuses everything.
 
 Run it after any edit to either file. If the negative assertions start failing, a bypass has been
-reintroduced.
+reintroduced. Requires `npm install` first.
 
 ## Configuration
 

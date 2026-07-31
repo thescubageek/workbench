@@ -1,0 +1,96 @@
+#!/usr/bin/env node
+
+// Validate JSON documents against a JSON Schema, using ajv.
+//
+// Exists because .wb-knowledge.json is the trust anchor of the knowledge loop:
+// every other control reads it, and the schema's central guarantee — that
+// "auto-promote core self-extension" is UNEXPRESSIBLE — is worth nothing unless
+// something actually rejects a config that expresses it. Structural assertions
+// about the schema text are a proxy; this is the enforcement.
+//
+//   validate-json-schema <schema.json> <data.json> [<data.json> ...]
+//
+// Exit codes:
+//   0  every data document is valid
+//   1  at least one data document is INVALID (errors on stderr)
+//   2  usage error, unreadable file, or a schema that will not compile
+//   3  ajv is not installed — run `npm install` in the repo root
+//
+// Deliberately dev-time only. The plugin ships through the marketplace with no
+// node_modules, so nothing on the runtime path (the guard hook, capture) may
+// depend on this script or on ajv being present.
+
+"use strict";
+
+const fs = require("fs");
+const path = require("path");
+
+const USAGE = "usage: validate-json-schema <schema.json> <data.json> [<data.json> ...]";
+
+function die(code, message) {
+  process.stderr.write(message + "\n");
+  process.exit(code);
+}
+
+const args = process.argv.slice(2);
+if (args.length < 2) {
+  die(2, USAGE);
+}
+
+let Ajv;
+try {
+  Ajv = require("ajv");
+} catch (err) {
+  die(
+    3,
+    "validate-json-schema: ajv is not installed.\n" +
+      "  Run 'npm install' in the repo root. ajv is a hard dependency of the test suite\n" +
+      "  (package.json), because the knowledge-store config must be validated, not assumed."
+  );
+}
+
+function readJson(file, kind) {
+  let text;
+  try {
+    text = fs.readFileSync(file, "utf8");
+  } catch (err) {
+    die(2, `validate-json-schema: cannot read ${kind} ${file}: ${err.message}`);
+  }
+  try {
+    return JSON.parse(text);
+  } catch (err) {
+    die(2, `validate-json-schema: ${kind} ${file} is not valid JSON: ${err.message}`);
+  }
+}
+
+const [schemaFile, ...dataFiles] = args;
+const schema = readJson(schemaFile, "schema");
+
+// strict:false because the schema is authored for draft-07 readability — it
+// carries $comment blocks and `default` annotations that ajv's strict mode
+// objects to on style grounds, none of which affect what it accepts or rejects.
+const ajv = new Ajv({ allErrors: true, strict: false });
+
+let validate;
+try {
+  validate = ajv.compile(schema);
+} catch (err) {
+  die(2, `validate-json-schema: schema ${schemaFile} will not compile: ${err.message}`);
+}
+
+let invalid = 0;
+for (const dataFile of dataFiles) {
+  const data = readJson(dataFile, "data");
+  if (validate(data)) {
+    process.stdout.write(`ok   ${path.basename(dataFile)}\n`);
+  } else {
+    invalid += 1;
+    process.stdout.write(`FAIL ${path.basename(dataFile)}\n`);
+    for (const e of validate.errors || []) {
+      const where = e.instancePath || "(root)";
+      process.stderr.write(`  ${where} ${e.message}` + (e.params ? ` ${JSON.stringify(e.params)}` : "") + "\n");
+    }
+  }
+}
+
+process.exit(invalid === 0 ? 0 : 1);
