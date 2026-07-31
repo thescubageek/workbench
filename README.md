@@ -80,6 +80,7 @@ Slash commands for project documentation and task management:
 - **`/wb:resolve_questions`** - Walk through open questions one at a time and record answers
 - **`/wb:forge`** - Run a ticket through the full pipeline (research → validate); end-to-end sequencer
 - **`/wb:update_status`** - Intelligently sync status across all documentation files
+- **`/wb:curate_knowledge`** - Drain the knowledge store's staging area into promoted entries, as a reviewable proposal. Requires a session started with `WB_SELF_EXTENSION=interactive` — it cannot arm itself
 - **`/wb:help`** - Quick reference for all commands
 
 ### Agents

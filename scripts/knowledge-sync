@@ -1,0 +1,128 @@
+#!/usr/bin/env bash
+
+# Merge `main` forward into the store branch, then sweep.
+#
+# WHY THESE TWO THINGS ARE ONE COMMAND
+#
+#   The store branch tracks main continuously, which means every main commit is
+#   potential invalidation churn. design.md draws the consequence: the sweep
+#   belongs ON SYNC, not only on demand — entries should be re-classified as the
+#   code moves under them, rather than at some later moment of remembering.
+#   Bolting the sweep onto the merge is what makes that automatic; a git
+#   post-merge hook would do the same job but cannot ship in a plugin, and a
+#   sweep you have to remember is a sweep that runs after the damage.
+#
+# MERGE, NEVER REBASE — AND THIS SCRIPT WILL NOT LET YOU
+#
+#   Rebasing the store branch rewrites the commits that entry provenance SHAs
+#   point at. Every stored `verified_at` would silently stop resolving, the
+#   staleness diff would have nothing to compare against, and the audit trail the
+#   whole design rests on would be gone — with no error at the moment of damage.
+#   There is no --rebase flag here, deliberately. Its absence is the feature.
+#
+# Exit codes: 0 synced · 2 not a git repo · 3 no .wb-knowledge.json ·
+#             4 store unreachable · 5 not on the store branch · 6 merge failed
+
+set -uo pipefail
+
+NAME="knowledge-sync"
+DRY_RUN=0
+REMOTE="${WB_KNOWLEDGE_REMOTE:-origin}"
+UPSTREAM="${WB_KNOWLEDGE_UPSTREAM:-main}"
+
+die() { echo "$NAME: $2" >&2; exit "$1"; }
+
+usage() {
+    cat <<'USAGE'
+Usage: knowledge-sync [--dry-run]
+
+Merges the upstream branch forward into the knowledge store branch, then runs
+scripts/knowledge-sweep so entries are re-classified as the code moves under them.
+
+  --dry-run   report what would be merged and sweep, but do not merge
+
+Merge only. There is deliberately no rebase option: rebasing rewrites the commits
+that entry provenance SHAs point at, silently invalidating every stored reference.
+
+Environment:
+  WB_KNOWLEDGE_REMOTE     remote to fetch from (default: origin)
+  WB_KNOWLEDGE_UPSTREAM   branch to merge forward (default: main)
+USAGE
+}
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        -h | --help) usage; exit 0 ;;
+        --dry-run) DRY_RUN=1; shift ;;
+        --rebase)
+            die 64 "there is no --rebase, and that is deliberate. Rebasing the store branch rewrites the commits that entry provenance SHAs point at, so every stored verified_at would stop resolving — silently, with no error at the moment of damage. Merge forward instead."
+            ;;
+        *) usage >&2; exit 64 ;;
+    esac
+done
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+
+TOPLEVEL="$(git rev-parse --show-toplevel 2>/dev/null)"
+[[ -n "$TOPLEVEL" ]] || die 2 "not inside a git repository"
+CONFIG="$TOPLEVEL/.wb-knowledge.json"
+[[ -f "$CONFIG" ]] || die 3 "no .wb-knowledge.json at $TOPLEVEL — this repo declares no knowledge store"
+
+# The declared store branch, read with the same jq-then-fallback idiom as
+# scripts/knowledge-worktree so this works on a bare machine.
+if [[ "${WB_KNOWLEDGE_NO_JQ:-0}" != "1" ]] && command -v jq >/dev/null 2>&1; then
+    BRANCH="$(jq -r '.store.branch // empty' "$CONFIG")"
+else
+    BRANCH="$(grep -o '"branch"[[:space:]]*:[[:space:]]*"[^"]*"' "$CONFIG" | head -1 \
+        | sed 's/.*"branch"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/')"
+fi
+[[ -n "$BRANCH" ]] || die 3 "$CONFIG declares no store.branch"
+
+# The merge has to happen in the worktree that actually holds the store branch.
+# Git allows one checkout per branch, so that may be a sibling workspace.
+STORE="$("$SCRIPT_DIR/knowledge-worktree" 2>/dev/null)"
+[[ -n "$STORE" && -d "$STORE" ]] \
+    || die 4 "cannot resolve the knowledge store — run scripts/knowledge-worktree to see why"
+STORE_REPO="$(cd "$STORE/.." && pwd -P)"
+
+CURRENT="$(git -C "$STORE_REPO" rev-parse --abbrev-ref HEAD 2>/dev/null)"
+[[ "$CURRENT" == "$BRANCH" ]] \
+    || die 5 "the store checkout at $STORE_REPO is on '$CURRENT', not the store branch '$BRANCH' — refusing to merge into the wrong branch"
+
+if [[ -n "$(git -C "$STORE_REPO" status --porcelain 2>/dev/null)" ]]; then
+    echo "$NAME: the store checkout has uncommitted changes." >&2
+    echo "  Merging on top of them risks entangling captured entries with a merge commit." >&2
+    echo "  Commit or stash in $STORE_REPO first." >&2
+    exit 6
+fi
+
+git -C "$STORE_REPO" fetch -q "$REMOTE" "$UPSTREAM" 2>/dev/null \
+    || echo "$NAME: could not fetch $REMOTE/$UPSTREAM; using whatever is already local" >&2
+
+if git -C "$STORE_REPO" rev-parse --verify -q "$REMOTE/$UPSTREAM" >/dev/null 2>&1; then
+    TARGET="$REMOTE/$UPSTREAM"
+elif git -C "$STORE_REPO" rev-parse --verify -q "$UPSTREAM" >/dev/null 2>&1; then
+    TARGET="$UPSTREAM"
+else
+    die 6 "neither $REMOTE/$UPSTREAM nor $UPSTREAM exists"
+fi
+
+AHEAD="$(git -C "$STORE_REPO" rev-list --count "HEAD..$TARGET" 2>/dev/null || echo 0)"
+echo "$NAME: $TARGET is $AHEAD commit(s) ahead of $BRANCH"
+
+if [[ $DRY_RUN -eq 1 ]]; then
+    echo "$NAME: --dry-run, not merging"
+elif [[ "$AHEAD" -eq 0 ]]; then
+    echo "$NAME: already up to date, nothing to merge"
+else
+    git -C "$STORE_REPO" merge --no-edit "$TARGET" \
+        || die 6 "merge of $TARGET into $BRANCH failed — resolve by hand, and do not rebase"
+    echo "$NAME: merged $TARGET into $BRANCH"
+fi
+
+# The point of coupling them: entries are re-classified as the code moves under
+# them, not at some later moment of remembering.
+echo ""
+"$SCRIPT_DIR/knowledge-sweep" || true
+
+exit 0

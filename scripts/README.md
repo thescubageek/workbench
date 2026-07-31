@@ -227,6 +227,56 @@ five-component ID scheme, and the properties that carry the design:
 
 Store *resolution* is not re-tested here; `test-knowledge-worktree` already covers it.
 
+### `knowledge-sweep`
+
+The git-only staleness sweep. For each promoted entry it runs
+`git diff --name-only <verified_at>..HEAD -- <cited paths>` and classifies the result. **No model calls
+and no `jq`** — entry frontmatter is YAML, and the whole economy of the design is that this check is free
+over the entire store so only the suspects cost anything.
+
+```bash
+./scripts/knowledge-sweep              # promoted entries
+./scripts/knowledge-sweep --staging    # include ungated captures too
+```
+
+| Verdict | Meaning |
+| --- | --- |
+| `clean` | Nothing cited has changed since `verified_at` |
+| `suspect` | Something cited changed — **not wrong, just unverified since**. Refer to `agents/research-validator.md` |
+| `undecidable` | The question cannot be asked: no cites, no SHA, or a SHA this repo does not have |
+
+**`undecidable` is the one that matters.** An entry citing no files trivially has no changed cited
+files, and calling that `clean` would launder "I cannot tell" into "I checked". It is also the common
+case, not a corner case — every automatic capture cites nothing.
+
+### `knowledge-sync`
+
+Merges the upstream branch forward into the store branch, **then sweeps**. The two are one command
+because every `main` commit is potential invalidation churn, so entries should be re-classified as the
+code moves under them rather than at some later moment of remembering.
+
+```bash
+./scripts/knowledge-sync --dry-run
+./scripts/knowledge-sync
+```
+
+**There is deliberately no `--rebase`, and passing it is an error rather than a no-op.** Rebasing the
+store branch rewrites the commits that entry provenance SHAs point at, so every stored `verified_at`
+would stop resolving — silently, with no error at the moment of damage.
+
+**Exit codes:** `2` not a git repo · `3` no `.wb-knowledge.json` · `4` store unreachable · `5` the store
+checkout is not on the store branch · `6` merge failed or the checkout is dirty
+
+### `test-knowledge-sweep`
+
+Contract tests for both of the above. Covers each verdict including the deleted-file and
+mixed-cites cases, the three distinct routes to `undecidable`, that staging is excluded by default, and
+that `knowledge-sync` refuses `--rebase` and refuses to merge into the wrong branch.
+
+Two of its checks — "makes no model calls", "needs no jq" — are **negative** assertions that would pass
+on an empty file. They exist to catch a future regression, not to prove the script works; the other
+twenty-odd behavioural checks do that.
+
 ## The knowledge guard
 
 `hooks/knowledge-guard.sh` is registered on `PreToolUse` for `Write|Edit|MultiEdit|NotebookEdit` in

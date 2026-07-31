@@ -1,0 +1,177 @@
+#!/usr/bin/env bash
+
+# Git-only staleness sweep over the knowledge store.
+#
+# For each entry, ask one question and answer it deterministically:
+#
+#     git diff --name-only <verified_at>..HEAD -- <cited paths>
+#
+#   clean        nothing cited changed since the entry was verified
+#   suspect      something cited changed — NOT wrong, just unverified since
+#   undecidable  the question cannot be asked at all
+#
+# NO MODEL CALLS. That is the design's central economy: the cheap deterministic
+# check runs over the whole store for free, and only the suspects are worth
+# paying a model to re-verify (agents/research-validator.md, which returns the
+# STALE verdict this sweep's `suspect` feeds into).
+#
+# WHY `undecidable` EXISTS AND WHY IT IS NOT `clean`
+#
+#   An entry that cites no files trivially has no changed cited files. Calling
+#   that clean would launder "I cannot tell" into "I checked" — and it is not a
+#   corner case: every automatic capture from Phase 3 cites nothing, so it is
+#   the common case. Procedural and episodic entries decay on a clock git cannot
+#   observe. Those belong to the curation pass, not to this sweep, and this
+#   sweep's job is to say so out loud rather than to quietly bless them.
+#
+# No `jq` dependency: entry frontmatter is YAML, so this parses it directly.
+
+set -uo pipefail
+
+NAME="knowledge-sweep"
+INCLUDE_STAGING=0
+
+die() { echo "$NAME: $2" >&2; exit "$1"; }
+
+usage() {
+    cat <<'USAGE'
+Usage: knowledge-sweep [--staging]
+
+Classifies every promoted entry in this repo's knowledge store as clean,
+suspect, or undecidable, using git alone and no model calls.
+
+  --staging   also sweep knowledge/staging/ (ungated captures; off by default,
+              because staged content is not a claim yet)
+
+Output: one line per entry, then a summary.
+  <verdict>  <id>  <detail>
+
+Exit codes: 0 swept · 2 not in a git repo · 3 no .wb-knowledge.json · 4 store unreachable
+USAGE
+}
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        -h | --help) usage; exit 0 ;;
+        --staging) INCLUDE_STAGING=1; shift ;;
+        *) usage >&2; exit 64 ;;
+    esac
+done
+
+TOPLEVEL="$(git rev-parse --show-toplevel 2>/dev/null)"
+[[ -n "$TOPLEVEL" ]] || die 2 "not inside a git repository"
+[[ -f "$TOPLEVEL/.wb-knowledge.json" ]] \
+    || die 3 "no .wb-knowledge.json at $TOPLEVEL — this repo declares no knowledge store"
+
+# Resolve the store the same way everything else does, so a sibling workspace
+# holding the store branch is found rather than competed with.
+STORE="$("$(cd "$(dirname "$0")" && pwd)/knowledge-worktree" 2>/dev/null)"
+if [[ -z "$STORE" || ! -d "$STORE" ]]; then
+    # Fall back to an in-repo store, which is the layout when the store branch
+    # is the checked-out branch.
+    if [[ -d "$TOPLEVEL/knowledge/entries" ]]; then
+        STORE="$TOPLEVEL/knowledge"
+    else
+        die 4 "cannot resolve the knowledge store — run scripts/knowledge-worktree to see why"
+    fi
+fi
+
+# --- Frontmatter reading -----------------------------------------------------
+# Entries are small and hand-shaped; a full YAML parser is not warranted and is
+# not available. These read exactly the two fields the sweep needs.
+
+read_verified_at() {
+    sed -n '/^provenance:/,/^[a-z_]*:/p' "$1" \
+        | grep -E '^[[:space:]]+verified_at:' \
+        | head -1 \
+        | sed 's/.*verified_at:[[:space:]]*//' \
+        | tr -d '[:space:]'
+}
+
+read_cites() {
+    # Every `- path: X` under provenance.cites. An inline `cites: []` yields none.
+    sed -n '/^provenance:/,/^[a-z_]*:/p' "$1" \
+        | grep -E '^[[:space:]]+-[[:space:]]+path:' \
+        | sed 's/.*path:[[:space:]]*//' \
+        | sed 's/^["'\'']//; s/["'\'']$//' \
+        | tr -d '\r'
+}
+
+CLEAN=0
+SUSPECT=0
+UNDECIDABLE=0
+
+sweep_file() {
+    local f="$1"
+    local id
+    id="$(basename "$f" .md)"
+
+    local sha
+    sha="$(read_verified_at "$f")"
+
+    if [[ -z "$sha" || "$sha" == "unknown" ]]; then
+        echo "undecidable  $id  no provenance.verified_at — nothing to diff against"
+        UNDECIDABLE=$((UNDECIDABLE + 1))
+        return
+    fi
+
+    if ! git -C "$TOPLEVEL" cat-file -e "$sha^{commit}" 2>/dev/null; then
+        echo "undecidable  $id  verified_at $sha is not a commit in this repository"
+        UNDECIDABLE=$((UNDECIDABLE + 1))
+        return
+    fi
+
+    local cites=()
+    while IFS= read -r p; do
+        [[ -n "$p" ]] && cites+=("$p")
+    done < <(read_cites "$f")
+
+    if [[ ${#cites[@]} -eq 0 ]]; then
+        # The load-bearing case. See the header: this is NOT clean.
+        echo "undecidable  $id  cites no files — git cannot see this entry decay"
+        UNDECIDABLE=$((UNDECIDABLE + 1))
+        return
+    fi
+
+    local changed
+    changed="$(git -C "$TOPLEVEL" diff --name-only "$sha..HEAD" -- "${cites[@]}" 2>/dev/null | tr '\n' ' ')"
+    changed="${changed% }"
+
+    if [[ -z "$changed" ]]; then
+        echo "clean  $id  ${#cites[@]} cited path(s) unchanged since $sha"
+        CLEAN=$((CLEAN + 1))
+    else
+        echo "suspect  $id  changed since $sha: $changed"
+        SUSPECT=$((SUSPECT + 1))
+    fi
+}
+
+TREES=("$STORE/entries")
+[[ $INCLUDE_STAGING -eq 1 ]] && TREES+=("$STORE/staging")
+
+for tree in "${TREES[@]}"; do
+    [[ -d "$tree" ]] || continue
+    while IFS= read -r f; do
+        [[ -n "$f" ]] || continue
+        # README.md and other documentation are not entries.
+        [[ "$(basename "$f")" == "README.md" ]] && continue
+        [[ "$(basename "$f")" == "SCHEMA.md" ]] && continue
+        [[ "$(basename "$f")" == "INDEX.md" ]] && continue
+        sweep_file "$f"
+    done < <(find "$tree" -maxdepth 2 -type f -name '*.md' 2>/dev/null | sort)
+done
+
+TOTAL=$((CLEAN + SUSPECT + UNDECIDABLE))
+echo ""
+echo "$NAME: $TOTAL entries — $CLEAN clean, $SUSPECT suspect, $UNDECIDABLE undecidable"
+if [[ $SUSPECT -gt 0 ]]; then
+    echo "  Suspect is not wrong, only unverified since. Refer suspects to agents/research-validator.md"
+    echo "  for a real verdict; read its OVERALL status, not its per-path table — an entry can cite files"
+    echo "  that all still exist and still be entirely wrong."
+fi
+if [[ $UNDECIDABLE -gt 0 ]]; then
+    echo "  Undecidable entries cite nothing git can watch. They decay on a clock this sweep cannot see,"
+    echo "  and are the curation pass's problem rather than the sweep's."
+fi
+
+exit 0

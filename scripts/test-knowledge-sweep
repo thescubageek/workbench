@@ -1,0 +1,254 @@
+#!/usr/bin/env bash
+
+# Contract tests for scripts/knowledge-sweep — the git-only staleness sweep.
+#
+# The sweep answers one question per entry, deterministically and with NO model
+# call: has anything this entry cites changed since the SHA it was verified
+# against? That is the whole point — the cheap check runs over the entire store
+# for free, and only the suspects cost anything.
+#
+#   clean        nothing cited has changed since verified_at
+#   suspect      something cited has changed — not wrong, just unverified since
+#   undecidable  the question cannot be asked (no cites, no SHA, unknown SHA)
+#
+# THE UNDECIDABLE CASE IS THE ONE THAT MATTERS. An entry citing no files is the
+# easy thing to call clean — nothing changed, after all — and that is exactly
+# wrong. Procedural and episodic entries that cite nothing decay on a clock this
+# sweep cannot observe, and reporting them clean would launder "I cannot tell"
+# into "I checked." Every automatic capture from Phase 3 lands in this category,
+# so it is the common case, not the corner case.
+
+set -uo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+SWEEP="$SCRIPT_DIR/knowledge-sweep"
+
+PASS=0
+FAIL=0
+
+check() {
+    local desc="$1" cond="$2"
+    if [[ "$cond" == "1" ]]; then
+        echo "  ✓ $desc"
+        PASS=$((PASS + 1))
+    else
+        echo "  ✗ $desc"
+        FAIL=$((FAIL + 1))
+    fi
+}
+
+TMPROOT="$(mktemp -d "${TMPDIR:-/tmp}/test-knowledge-sweep.XXXXXX")"
+trap 'rm -rf "$TMPROOT"' EXIT
+
+echo "test-knowledge-sweep: $SWEEP"
+
+if [[ ! -x "$SWEEP" ]]; then
+    echo "  ✗ $SWEEP is missing or not executable" >&2
+    echo ""
+    echo "test-knowledge-sweep: 0 passed, 1 failed"
+    exit 1
+fi
+
+# --- A repo with a store, some cited files, and a history to diff against -----
+
+REPO="$TMPROOT/repo"
+mkdir -p "$REPO/src" "$REPO/docs"
+git -C "$REPO" init -q -b main
+git -C "$REPO" config user.email test@example.com
+git -C "$REPO" config user.name test
+cat > "$REPO/.wb-knowledge.json" <<'JSON'
+{ "version": 1, "store": { "branch": "kb", "root": "knowledge" },
+  "protected_paths": ["commands/", ".wb-knowledge.json", ".wb-knowledge.schema.json"],
+  "write_policy": { "ordinary_entries": { "tool_verified": "propose-only", "model_narrated": "propose-only" } } }
+JSON
+echo "original stable content" > "$REPO/src/stable.txt"
+echo "original churning content" > "$REPO/src/churn.txt"
+echo "doomed" > "$REPO/src/deleted.txt"
+git -C "$REPO" add -A >/dev/null 2>&1
+git -C "$REPO" commit -q -m "baseline"
+BASE_SHA="$(git -C "$REPO" rev-parse HEAD)"
+
+mkdir -p "$REPO/knowledge/entries" "$REPO/knowledge/staging"
+git -C "$REPO" add -A >/dev/null 2>&1
+git -C "$REPO" commit -q -m "store layout" 2>/dev/null
+
+# Now move the codebase on: churn.txt changes, deleted.txt goes away, stable.txt
+# is untouched. Everything below is classified relative to BASE_SHA.
+echo "CHANGED content" > "$REPO/src/churn.txt"
+rm "$REPO/src/deleted.txt"
+echo "brand new" > "$REPO/src/added.txt"
+git -C "$REPO" add -A >/dev/null 2>&1
+git -C "$REPO" commit -q -m "the code moves under the entries"
+
+UNKNOWN_SHA="0123456789abcdef0123456789abcdef01234567"
+
+# $1 = id, $2 = verified_at, $3.. = cited paths (none = a cite-less entry)
+mkentry() {
+    local id="$1" sha="$2"; shift 2
+    local f="$REPO/knowledge/entries/$id.md"
+    {
+        echo "---"
+        echo "id: $id"
+        echo "kind: semantic"
+        echo "origin: tool-verified"
+        echo "confidence: high"
+        echo "status: promoted"
+        echo "scope:"
+        echo "  - repo:repo"
+        echo "provenance:"
+        [[ "$sha" != "NONE" ]] && echo "  verified_at: $sha"
+        if [[ $# -eq 0 ]]; then
+            echo "  cites: []"
+        else
+            echo "  cites:"
+            local p
+            for p in "$@"; do
+                echo "    - path: $p"
+            done
+        fi
+        echo "---"
+        echo ""
+        echo "A claim about $*."
+    } > "$f"
+}
+
+mkentry clean-one       "$BASE_SHA" src/stable.txt
+mkentry suspect-changed "$BASE_SHA" src/churn.txt
+mkentry suspect-deleted "$BASE_SHA" src/deleted.txt
+mkentry suspect-mixed   "$BASE_SHA" src/stable.txt src/churn.txt
+mkentry undec-nocites   "$BASE_SHA"
+mkentry undec-nosha     "NONE"      src/stable.txt
+mkentry undec-badsha    "$UNKNOWN_SHA" src/stable.txt
+
+OUT="$(cd "$REPO" && "$SWEEP" 2>"$TMPROOT/err")"
+CODE=$?
+verdict() { printf '%s' "$OUT" | grep -E "(^|[[:space:]])$1([[:space:]]|$)" | awk '{print $1}' | head -1; }
+
+# --- Classification ----------------------------------------------------------
+echo ""
+echo "Classification"
+
+check "exits 0 on a successful sweep" "$([[ $CODE -eq 0 ]] && echo 1 || echo 0)"
+check "an entry whose cited path is unchanged is CLEAN" \
+    "$([[ "$(verdict clean-one)" == "clean" ]] && echo 1 || echo 0)"
+check "an entry whose cited path changed is SUSPECT" \
+    "$([[ "$(verdict suspect-changed)" == "suspect" ]] && echo 1 || echo 0)"
+check "an entry citing a DELETED file is SUSPECT" \
+    "$([[ "$(verdict suspect-deleted)" == "suspect" ]] && echo 1 || echo 0)"
+check "one changed path among several makes the whole entry SUSPECT" \
+    "$([[ "$(verdict suspect-mixed)" == "suspect" ]] && echo 1 || echo 0)"
+
+echo ""
+echo "The undecidable cases — 'I cannot tell' must never be laundered into 'I checked'"
+
+check "an entry citing NO paths is UNDECIDABLE, not clean" \
+    "$([[ "$(verdict undec-nocites)" == "undecidable" ]] && echo 1 || echo 0)"
+check "an entry with no verified_at is UNDECIDABLE" \
+    "$([[ "$(verdict undec-nosha)" == "undecidable" ]] && echo 1 || echo 0)"
+check "an entry whose verified_at is unknown to this repo is UNDECIDABLE" \
+    "$([[ "$(verdict undec-badsha)" == "undecidable" ]] && echo 1 || echo 0)"
+check "an unknown SHA is not silently treated as clean" \
+    "$([[ "$(verdict undec-badsha)" != "clean" ]] && echo 1 || echo 0)"
+
+# --- Reporting ---------------------------------------------------------------
+echo ""
+echo "Reporting"
+
+check "every entry appears in the report" \
+    "$([[ "$(printf '%s' "$OUT" | grep -cE '^(clean|suspect|undecidable)')" -eq 7 ]] && echo 1 || echo 0)"
+check "the report gives a reason for each non-clean verdict" \
+    "$(printf '%s' "$OUT" | grep -E '^suspect' | grep -q 'src/churn.txt' && echo 1 || echo 0)"
+check "a summary line reports the counts" \
+    "$(printf '%s' "$OUT" | grep -qE '1 clean.*3 suspect.*3 undecidable|clean=1.*suspect=3.*undecidable=3' && echo 1 || echo 0)"
+
+# --- No model calls. The design's whole argument for the cheap check. ---------
+echo ""
+echo "Cost"
+
+check "the script invokes no model — no 'claude' call anywhere outside comments" \
+    "$(grep -vE '^[[:space:]]*#' "$SWEEP" | grep -qE '(^|[^-[:alnum:]])claude([^-[:alnum:]]|$)' && echo 0 || echo 1)"
+check "the script needs no jq — frontmatter is YAML, not JSON" \
+    "$(grep -vE '^[[:space:]]*#' "$SWEEP" | grep -q 'jq ' && echo 0 || echo 1)"
+
+# --- Scope: promoted entries by default --------------------------------------
+echo ""
+echo "Scope"
+
+cp "$REPO/knowledge/entries/clean-one.md" "$REPO/knowledge/staging/20260731-repo-aaaaaaaa-main-001.md"
+OUT2="$(cd "$REPO" && "$SWEEP" 2>/dev/null)"
+check "staging is NOT swept by default — it is ungated and not yet a claim" \
+    "$([[ "$(printf '%s' "$OUT2" | grep -cE '^(clean|suspect|undecidable)')" -eq 7 ]] && echo 1 || echo 0)"
+OUT3="$(cd "$REPO" && "$SWEEP" --staging 2>/dev/null)"
+check "--staging includes it when asked" \
+    "$([[ "$(printf '%s' "$OUT3" | grep -cE '^(clean|suspect|undecidable)')" -eq 8 ]] && echo 1 || echo 0)"
+
+# --- Loud failures -----------------------------------------------------------
+echo ""
+echo "Failure paths"
+
+BARE="$TMPROOT/bare"
+mkdir -p "$BARE"
+git -C "$BARE" init -q -b main
+out=$(cd "$BARE" && "$SWEEP" 2>&1); code=$?
+check "a repo with no .wb-knowledge.json exits non-zero and says so" \
+    "$([[ $code -ne 0 ]] && echo "$out" | grep -q '\.wb-knowledge\.json' && echo 1 || echo 0)"
+
+EMPTYSTORE="$TMPROOT/emptystore"
+mkdir -p "$EMPTYSTORE/knowledge/entries"
+git -C "$EMPTYSTORE" init -q -b main
+git -C "$EMPTYSTORE" config user.email t@e.com
+git -C "$EMPTYSTORE" config user.name t
+cp "$REPO/.wb-knowledge.json" "$EMPTYSTORE/"
+git -C "$EMPTYSTORE" add -A >/dev/null 2>&1
+git -C "$EMPTYSTORE" commit -q -m init
+git -C "$EMPTYSTORE" branch kb >/dev/null 2>&1
+out=$(cd "$EMPTYSTORE" && "$SWEEP" 2>&1); code=$?
+check "an empty store is a successful sweep of nothing, not an error" \
+    "$([[ $code -eq 0 ]] && echo 1 || echo 0)"
+
+check "--help exits 0" "$("$SWEEP" --help >/dev/null 2>&1 && echo 1 || echo 0)"
+
+# =============================================================================
+# P4-T8 — the on-sync trigger. The sweep belongs ON SYNC, not only on demand:
+# every main commit is potential invalidation churn, and a sweep you have to
+# remember is a sweep that runs after the damage.
+# =============================================================================
+echo ""
+echo "knowledge-sync — the on-sync invalidation trigger"
+
+SYNC="$SCRIPT_DIR/knowledge-sync"
+check "scripts/knowledge-sync exists and is executable" \
+    "$([[ -x "$SYNC" ]] && echo 1 || echo 0)"
+
+if [[ -x "$SYNC" ]]; then
+    check "--help exits 0" "$("$SYNC" --help >/dev/null 2>&1 && echo 1 || echo 0)"
+
+    # The load-bearing refusal. Rebasing rewrites the commits provenance SHAs
+    # point at — silently, with no error at the moment of damage — so the option
+    # must not merely be undocumented, it must be actively refused.
+    out=$("$SYNC" --rebase 2>&1); code=$?
+    check "--rebase is REFUSED, not silently accepted" "$([[ $code -ne 0 ]] && echo 1 || echo 0)"
+    check "the refusal explains that rebasing breaks provenance SHAs" \
+        "$(echo "$out" | grep -qi 'provenance\|verified_at\|rewrite' && echo 1 || echo 0)"
+    check "there is no rebase code path at all, only the refusal" \
+        "$([[ "$(grep -cE 'git .*rebase' "$SYNC")" -eq 0 ]] && echo 1 || echo 0)"
+
+    out=$(cd "$BARE" && "$SYNC" 2>&1); code=$?
+    check "a repo with no .wb-knowledge.json exits non-zero" "$([[ $code -ne 0 ]] && echo 1 || echo 0)"
+
+    # Refuses to merge into whatever branch happens to be checked out.
+    git -C "$REPO" checkout -q -b not-the-store-branch 2>/dev/null
+    out=$(cd "$REPO" && "$SYNC" --dry-run 2>&1); code=$?
+    check "refuses when the checkout is not on the declared store branch" \
+        "$([[ $code -ne 0 ]] && echo 1 || echo 0)"
+    git -C "$REPO" checkout -q main 2>/dev/null
+
+    check "it runs the sweep, so syncing always re-classifies" \
+        "$(grep -q 'knowledge-sweep' "$SYNC" && echo 1 || echo 0)"
+    check "it makes no model calls either" \
+        "$(grep -vE '^[[:space:]]*#' "$SYNC" | grep -qE '(^|[^-[:alnum:]])claude([^-[:alnum:]]|$)' && echo 0 || echo 1)"
+fi
+
+echo ""
+echo "test-knowledge-sweep: $PASS passed, $FAIL failed"
+[[ $FAIL -eq 0 ]]
