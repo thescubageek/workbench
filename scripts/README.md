@@ -249,6 +249,45 @@ over the entire store so only the suspects cost anything.
 files, and calling that `clean` would launder "I cannot tell" into "I checked". It is also the common
 case, not a corner case — every automatic capture cites nothing.
 
+### `knowledge-read`
+
+The retrieval path. Returns **promoted** entries matching any given scope tag, ranked and bounded.
+
+```bash
+./scripts/knowledge-read --scope subsystem:hooks --limit 3
+./scripts/knowledge-read --paths          # paths only, for feeding to Read
+./scripts/knowledge-read                  # defaults to repo:<this repo>, limit 5
+```
+
+**It reads `entries/` and nothing else.** Staged content is ungated, auto-captured and unreviewed;
+surfacing it would let content nothing has reviewed steer the next ticket, which is the exact vector the
+promotion gate exists to close. There is no flag to include it — `--staging` is an *error* with an
+explanation, not an option.
+
+Bounded always: default limit 5, hard ceiling 25, and the default scope is `repo:<this repo>` rather than
+"everything". A wholesale load is not a generous default — retrieval noise and negative transfer are the
+measured failure modes and both worsen as the store grows.
+
+Ranking is specificity first: more matching scope tags, then higher confidence, then id. Deprecated
+entries are never returned.
+
+**Exit codes:** `0` read, possibly zero matches · `3` no `.wb-knowledge.json` · `4` store unreachable ·
+`64` usage. **Callers must treat any non-zero as "no knowledge available" and continue** — the read path
+is best-effort and never blocking.
+
+### `test-knowledge-read`
+
+Contract tests for the above. This script exists because the execution plan originally specified
+retrieval as *prose inside a command*, which would have made every property below unverifiable — this
+repo has no way to test markdown, and `./scripts/lint` checks formatting only. Retrieval's failure modes
+are silent, so they need a test rather than a promise.
+
+Covers: the staging invariant asserted three ways (a decoy staged entry that matches every filter, a
+source check that no path into the tree is constructed, and the refused flag); deprecated and
+non-promoted entries excluded; scope filtering and OR-ing; the default limit, an explicit limit, and the
+hard ceiling; both ranking rules; and that an unavailable store exits non-zero with an empty stdout so a
+caller can pipe it safely.
+
 ### `knowledge-sync`
 
 Merges the upstream branch forward into the store branch, **then sweeps**. The two are one command

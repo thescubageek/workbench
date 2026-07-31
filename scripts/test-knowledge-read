@@ -1,0 +1,223 @@
+#!/usr/bin/env bash
+
+# Contract tests for scripts/knowledge-read — the retrieval path.
+#
+# WHY THIS IS A SCRIPT AND NOT PROSE IN A COMMAND
+#
+#   The execution plan specified retrieval as instructions inside
+#   commands/create_research.md. That would have made every property below
+#   unverifiable: tasks.md's own Testing Strategy records that markdown commands
+#   have no automated correctness test, and `./scripts/lint` checks formatting
+#   only. Retrieval's failure mode is silent — the wrong entries surface, or too
+#   many, or staged ones — and a silent failure with no test is one that hides
+#   until someone notices research quality quietly got worse.
+#
+#   So retrieval moves into a script the same way enforcement, capture and
+#   invalidation already did. What is left in markdown shrinks to "does the
+#   command call this", which is a grep.
+#
+# THE INVARIANT THAT MATTERS MOST
+#
+#   Retrieval must NEVER read knowledge/staging/. Staged content is ungated,
+#   auto-captured and unreviewed; if retrieval could surface it, ungated content
+#   would steer future tickets, which is precisely the vector the promotion gate
+#   exists to close. That is asserted here three ways: a decoy staged entry that
+#   would match if the tree were read, a source-level check, and a --staging flag
+#   that is actively refused rather than merely absent.
+
+set -uo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+READ="$SCRIPT_DIR/knowledge-read"
+
+PASS=0
+FAIL=0
+
+check() {
+    local desc="$1" cond="$2"
+    if [[ "$cond" == "1" ]]; then
+        echo "  ✓ $desc"; PASS=$((PASS + 1))
+    else
+        echo "  ✗ $desc"; FAIL=$((FAIL + 1))
+    fi
+}
+
+TMPROOT="$(mktemp -d "${TMPDIR:-/tmp}/test-knowledge-read.XXXXXX")"
+trap 'rm -rf "$TMPROOT"' EXIT
+
+echo "test-knowledge-read: $READ"
+
+if [[ ! -x "$READ" ]]; then
+    echo "  ✗ $READ is missing or not executable" >&2
+    echo ""
+    echo "test-knowledge-read: 0 passed, 1 failed"
+    exit 1
+fi
+
+REPO="$TMPROOT/store"
+mkdir -p "$REPO/knowledge/entries" "$REPO/knowledge/staging"
+git -C "$REPO" init -q -b main
+git -C "$REPO" config user.email test@example.com
+git -C "$REPO" config user.name test
+cat > "$REPO/.wb-knowledge.json" <<'JSON'
+{ "version": 1, "store": { "branch": "kb", "root": "knowledge" },
+  "protected_paths": ["commands/", ".wb-knowledge.json", ".wb-knowledge.schema.json", "knowledge/entries/"],
+  "write_policy": { "ordinary_entries": { "tool_verified": "propose-only", "model_narrated": "propose-only" } } }
+JSON
+git -C "$REPO" add -A >/dev/null 2>&1
+git -C "$REPO" commit -q -m init
+git -C "$REPO" checkout -q -b kb 2>/dev/null
+
+# $1 tree, $2 id, $3 status, $4 confidence, $5 body-marker, $6.. scope tags
+mkentry() {
+    local tree="$1" id="$2" status="$3" conf="$4" marker="$5"; shift 5
+    {
+        echo "---"
+        echo "id: $id"
+        echo "kind: semantic"
+        echo "origin: tool-verified"
+        echo "confidence: $conf"
+        echo "status: $status"
+        echo "scope:"
+        local t
+        for t in "$@"; do echo "  - $t"; done
+        echo "provenance:"
+        echo "  verified_at: $(git -C "$REPO" rev-parse HEAD)"
+        echo "  cites: []"
+        echo "---"
+        echo ""
+        echo "MARKER-$marker this is the claim body for $id."
+    } > "$REPO/knowledge/$tree/$id.md"
+}
+
+mkentry entries hooks-one   promoted high   HOOKSONE   repo:store subsystem:hooks
+mkentry entries hooks-two   promoted low    HOOKSTWO   repo:store subsystem:hooks
+mkentry entries hooks-three promoted medium HOOKSTHREE repo:store subsystem:hooks ticket-class:enforcement
+mkentry entries docs-one    promoted high   DOCSONE    repo:store subsystem:docs
+mkentry entries dead-one    deprecated high DEADONE    repo:store subsystem:hooks
+mkentry entries staged-one  staged     high STAGEDONE  repo:store subsystem:hooks
+echo "# entries" > "$REPO/knowledge/entries/README.md"
+
+# The decoy. It matches every filter below and must NEVER be returned.
+mkentry staging leak-one    staged high LEAKED repo:store subsystem:hooks ticket-class:enforcement
+
+run() { (cd "$REPO" && "$READ" "$@" 2>/dev/null); }
+
+# =============================================================================
+echo ""
+echo "The staging invariant — ungated content must never steer a ticket"
+
+out="$(run --scope subsystem:hooks --limit 10)"
+check "a staged entry in staging/ is NOT returned, even though it matches every filter" \
+    "$(echo "$out" | grep -q 'MARKER-LEAKED' && echo 0 || echo 1)"
+# Checks for a constructed PATH into the tree, not the bare word — the --staging
+# refusal below has to mention it by name to explain itself.
+check "the script never builds a path into the staging tree" \
+    "$(grep -vE '^[[:space:]]*#' "$READ" | grep -q '/staging' && echo 0 || echo 1)"
+out2=$( (cd "$REPO" && "$READ" --staging 2>&1); ); code=$?
+check "--staging is REFUSED, not silently accepted" "$([[ $code -ne 0 ]] && echo 1 || echo 0)"
+check "the refusal explains why ungated content cannot be retrieved" \
+    "$(echo "$out2" | grep -qi 'ungated\|unreviewed\|gate' && echo 1 || echo 0)"
+
+# =============================================================================
+echo ""
+echo "Status filtering"
+
+out="$(run --scope subsystem:hooks --limit 10)"
+check "a promoted entry is returned" "$(echo "$out" | grep -q 'MARKER-HOOKSONE' && echo 1 || echo 0)"
+check "a DEPRECATED entry is not returned — deprecate would be useless otherwise" \
+    "$(echo "$out" | grep -q 'MARKER-DEADONE' && echo 0 || echo 1)"
+check "an entry marked staged is not returned even sitting in entries/" \
+    "$(echo "$out" | grep -q 'MARKER-STAGEDONE' && echo 0 || echo 1)"
+check "README.md in entries/ is not treated as an entry" \
+    "$(echo "$out" | grep -q 'README' && echo 0 || echo 1)"
+
+# =============================================================================
+echo ""
+echo "Scoping — the defence against negative transfer"
+
+out="$(run --scope subsystem:docs --limit 10)"
+check "an entry with a matching tag is returned" "$(echo "$out" | grep -q 'MARKER-DOCSONE' && echo 1 || echo 0)"
+check "an entry with a non-matching tag is NOT returned" \
+    "$(echo "$out" | grep -q 'MARKER-HOOKSONE' && echo 0 || echo 1)"
+out="$(run --scope subsystem:docs --scope subsystem:hooks --limit 10)"
+check "multiple --scope flags are OR-ed" \
+    "$(echo "$out" | grep -q 'MARKER-DOCSONE' && echo "$out" | grep -q 'MARKER-HOOKSONE' && echo 1 || echo 0)"
+out="$(run --scope subsystem:nothing-matches --limit 10)"
+check "no matches is a successful empty result, not an error" \
+    "$([[ -z "${out//[[:space:]]/}" ]] && echo 1 || echo 0)"
+(cd "$REPO" && "$READ" --scope subsystem:nothing-matches >/dev/null 2>&1)
+check "  ...and exits 0" "$([[ $? -eq 0 ]] && echo 1 || echo 0)"
+
+# =============================================================================
+echo ""
+echo "Bounding — a wholesale load is explicitly wrong, so it must be impossible"
+
+for i in $(seq 1 12); do
+    mkentry entries "bulk-$i" promoted medium "BULK$i" repo:store subsystem:bulk
+done
+count_entries() { echo "$1" | grep -c '^id:'; }
+out="$(run --scope subsystem:bulk)"
+check "an unbounded call is still bounded by a default limit" \
+    "$([[ "$(count_entries "$out")" -le 5 ]] && echo 1 || echo 0)"
+out="$(run --scope subsystem:bulk --limit 3)"
+check "--limit 3 returns at most 3" \
+    "$([[ "$(count_entries "$out")" -le 3 ]] && echo 1 || echo 0)"
+out="$(run --limit 100)"
+check "even --limit 100 cannot exceed a hard ceiling" \
+    "$([[ "$(count_entries "$out")" -le 25 ]] && echo 1 || echo 0)"
+
+# =============================================================================
+echo ""
+echo "Ranking — when more match than fit, specificity beats recency"
+
+out="$(run --scope subsystem:hooks --scope ticket-class:enforcement --limit 1)"
+check "the entry matching MORE scope tags wins" \
+    "$(echo "$out" | grep -q 'MARKER-HOOKSTHREE' && echo 1 || echo 0)"
+out="$(run --scope subsystem:hooks --limit 1)"
+check "on equal tag overlap, higher confidence wins" \
+    "$(echo "$out" | grep -q 'MARKER-HOOKSONE' && echo 1 || echo 0)"
+
+# =============================================================================
+echo ""
+echo "Default scope — never a wholesale load, even with no flags"
+
+out="$(run)"
+check "with no --scope it still returns something (defaults to this repo)" \
+    "$([[ -n "${out//[[:space:]]/}" ]] && echo 1 || echo 0)"
+check "the default is a scope, not 'everything' — still bounded" \
+    "$([[ "$(count_entries "$out")" -le 5 ]] && echo 1 || echo 0)"
+
+# =============================================================================
+echo ""
+echo "Output shape"
+
+out="$(run --scope subsystem:docs)"
+check "output carries the claim body, not just an id" \
+    "$(echo "$out" | grep -q 'MARKER-DOCSONE' && echo 1 || echo 0)"
+check "output carries the id" "$(echo "$out" | grep -q '^id: docs-one' && echo 1 || echo 0)"
+check "output carries confidence, so a caller can weight it" \
+    "$(echo "$out" | grep -q 'confidence' && echo 1 || echo 0)"
+out="$(run --scope subsystem:docs --paths)"
+check "--paths prints paths only" \
+    "$(echo "$out" | grep -q 'entries/docs-one.md' && ! echo "$out" | grep -q 'MARKER' && echo 1 || echo 0)"
+
+# =============================================================================
+echo ""
+echo "Best-effort — an unavailable store degrades research, never halts it"
+
+BARE="$TMPROOT/bare"; mkdir -p "$BARE"; git -C "$BARE" init -q -b main
+out=$(cd "$BARE" && "$READ" 2>/dev/null); code=$?
+check "an unconfigured repo exits non-zero" "$([[ $code -ne 0 ]] && echo 1 || echo 0)"
+check "  ...and writes nothing to stdout, so a caller can pipe it safely" \
+    "$([[ -z "$out" ]] && echo 1 || echo 0)"
+err=$(cd "$BARE" && "$READ" 2>&1 >/dev/null)
+check "  ...and says why on stderr" "$([[ -n "$err" ]] && echo 1 || echo 0)"
+
+check "the script makes no model calls" \
+    "$(grep -vE '^[[:space:]]*#' "$READ" | grep -qE '(^|[^-[:alnum:]])claude([^-[:alnum:]]|$)' && echo 0 || echo 1)"
+check "--help exits 0" "$("$READ" --help >/dev/null 2>&1 && echo 1 || echo 0)"
+
+echo ""
+echo "test-knowledge-read: $PASS passed, $FAIL failed"
+[[ $FAIL -eq 0 ]]
