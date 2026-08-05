@@ -211,6 +211,17 @@ When creating new prompts or commands:
 - Run `./scripts/lint` before committing markdown files
 - Keep the repository organized by category
 
+### Branch naming
+
+When a ticket reference is known, the working branch uses `<TICKET>/<snake_case_description>` (e.g. `TB-2421/combobox_aria_pattern`). This is the portable, initials-free convention the `/wb:*` commands apply. Loading a ticket via the **`jira-context` skill** is the trigger: if we've loaded a ticket's context, we're working that ticket, so the branch should be named after it (see `jira-context` Step 6).
+
+- **Ticket known / loaded** → create or rename the branch to the convention.
+- **On a base branch** (`main`/`master`/`develop`) → `git checkout -b <TICKET>/<snake_case_description>`.
+- **On a branch that predates the ticket** (or a Conductor worktree pre-cut it) → **rename in place** with `git branch -m <TICKET>/<snake_case_description>` rather than cutting a second branch and orphaning the work.
+- **No ticket** → leave the branch name as-is; the convention only applies once a ticket exists.
+
+Branch create/rename is a git state change: **confirm with the user before running it**, and it is non-blocking — if declined, proceed on the current branch. Never touch remotes or force-push here — this only affects the local branch name.
+
 ## Beads Issue Tracking
 
 This repository uses [beads](https://github.com/steveyegge/beads) for task tracking across sessions.

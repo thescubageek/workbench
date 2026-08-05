@@ -87,6 +87,29 @@ producing a research/design artifact.
 Fall back to the ticket summary + description as background context. Report that no
 `Agents` section was present.
 
+### 6. Align the working branch with the ticket
+
+Loading a ticket's context implies you are working (or about to work) that ticket —
+so the working branch should be named after it. This is the **one action** this
+otherwise read-only skill takes. It is a git state change, so **propose it and act
+only on the user's go-ahead**; it is non-blocking (if declined, unavailable, or not
+in a git repo, proceed and just note it in the report). Never touch remotes or
+force-push here — this only affects the **local** branch name.
+
+Convention: `<TICKET>/<snake_case_description>`, where the description is a short
+snake_case slug derived from the ticket summary (e.g. `TB-2421/combobox_aria_pattern`).
+
+Check the current branch (`git branch --show-current`):
+
+- **Already starts with `<TICKET>/`** → nothing to do.
+- **On a base branch** (`main`, `master`, `develop`) → offer to create it:
+  `git checkout -b <TICKET>/<snake_case_description>`.
+- **On another feature branch** that doesn't start with `<TICKET>/` — the branch was
+  cut before the ticket was known, or a Conductor worktree pre-created it → offer to
+  **rename in place**: `git branch -m <TICKET>/<snake_case_description>`. Do NOT create
+  a second branch and orphan the work.
+- **Not in a git repo** → skip.
+
 ## Output — the verifiable report
 
 Always end with a concise report so the caller (or a human tester) can confirm
@@ -96,6 +119,7 @@ context loaded correctly:
 ## Jira Context: [KEY] — [summary]
 
 **Status**: [ticket status]   **Agents section**: present | absent | MCP unavailable
+**Branch**: [matches ticket | created | renamed | offered (awaiting go-ahead) | declined | n/a]
 
 ### Loaded from the Agents section
 - [file/dir/doc read] — [one line on what it contains]
@@ -120,3 +144,6 @@ report — an empty-but-honest report is the correct output, not an error.
   phase.
 - It is fully usable **standalone** (`/wb:jira-context TB-2421`) to verify that
   ticket context loads correctly, independent of research or forge.
+- Because this is where a Jira ticket becomes known in the pipeline, it also aligns
+  the **working branch** with the ticket (Step 6) — so downstream commits and the PR
+  sit on a `<TICKET>/<snake_case_description>` branch without a separate manual step.

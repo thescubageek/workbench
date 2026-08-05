@@ -7,7 +7,7 @@
       "name": "wb",
       "source": "./",
       "description": "Workbench for structured software development with TDD, project planning, and beads integration.",
-      "version": "1.12.4"
+      "version": "1.12.5"
     }
   ]
 }
