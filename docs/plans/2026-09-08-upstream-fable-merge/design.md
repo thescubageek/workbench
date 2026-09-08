@@ -739,6 +739,27 @@ Decisions made after the design was approved, recorded here by `/wb:resolve_ques
   - Trade-off: none. A briefer note would have been wrong for the second and third machine.
   - Source: design.md A1 · Decided 2026-09-08
 
+- **The renames' dangling callers are repointed in one sweep at the end of Phase 2, as new
+  task `P2-T30`** (closes the gap `P2-T6` raised). Every already-reshaped skill that names
+  `create_execution`, `implement_tasks` or `implement_coordinated` is repointed once, after all
+  three canonical names exist.
+  - Rationale: the timing is the whole decision. Fixing `create_execution`'s seven callers when
+    that rename landed would mean editing `create_project` and `create_design` a second time,
+    then a third when `implement_tasks` → `implement_inline` lands — those same files reference
+    both. One sweep after all three renames exist touches each file exactly once, which is what
+    the edit-once rule is actually protecting.
+  - Why Phase 2 and not Phase 4: the breakage is created here, and Phase 2's own exit greps can
+    verify the fix. Deferring it would carry eleven references to deprecated commands through
+    two human checkpoints, where a reader would reasonably read them as current.
+  - Scope: eleven references at the time of the decision — `create_project` (×8),
+    `create_design` (×2), `create_tasks` (×1). `model-help`'s three are excluded; `P2-T17`
+    owns them. The list stops growing because the nine stages still to be reshaped will be
+    written with the new names directly.
+  - Trade-off: for the rest of Phase 2 the tree contains references to deprecated names. They
+    resolve through the stubs, so nothing is broken — but anyone reading a generated template in
+    that window sees the old name. Accepted as the cheaper of two imperfect windows.
+  - Source: tasks.md Current Blockers (raised by `P2-T6`) · Decided 2026-09-08
+
 - **The three renames ship as stub skills only — no pointer files** (amends D9, narrows
   `P2-T8` and `P2-T29`). Each deprecated name keeps a `SKILL.md` that announces the rename once
   and reads the canonical skill. The per-supporting-file pointer stubs are dropped, and the four

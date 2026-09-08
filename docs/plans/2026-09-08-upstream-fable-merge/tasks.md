@@ -629,6 +629,17 @@ file lands.
       `daily-digest:135`, `fetch-issues:135`. (~15 calls)
 - [ ] **P2-T26** — Delete `docs/beads-fast-fail.md` and `docs/beads-stealth-mode.md` (D19).
       Runs **after** `P2-T1`–`P2-T25` so the fifteen inbound links are already gone. (~5 calls)
+- [ ] **P2-T30** — **The rename sweep.** Runs **last** in Phase 2, after `create_tasks`,
+      `implement` and `implement_inline` all exist. Repoint every reference to a renamed
+      command in the already-reshaped skills — at the time of writing, eleven:
+      `create_project/SKILL.md` and `templates.md` (×8 across both),
+      `create_design/SKILL.md` and `templates.md` (×2), `create_tasks/templates.md` (×1).
+      Excludes `model-help`, which `P2-T17` owns. Placed here rather than in Phase 4 because
+      Phase 2 creates the breakage and Phase 2's exit greps verify the fix; placed last so each
+      file is touched once rather than once per rename (design.md → Resolved Decisions).
+      Verify with the Phase 4 criterion run early:
+      `grep -rn "create_execution\|implement_tasks\|implement_coordinated" plugin/skills/ | grep -v '/create_execution/\|/implement_tasks/\|/implement_coordinated/'`
+      → only the alias stubs' own self-references. (~12 calls)
 - [ ] **P2-T27** — Delete `docs/beads-integration-learnings.md` (D19). Separate task from
       `P2-T26` because it is orphaned rather than linked, and because design.md's D8 rationale
       cites it — confirm that citation reads as past-tense before deleting. (~5 calls)
@@ -641,6 +652,9 @@ file lands.
 - [ ] `grep -rln "NEVER treat markdown as source of truth\|tracked ONLY in beads\|NEVER check markdown checkboxes" plugin/` → no hits
 - [ ] All six directories exist — canonicals `create_tasks`, `implement`, `implement_inline`
       and aliases `create_execution`, `implement_coordinated`, `implement_tasks`
+- [ ] `P2-T30`: no reshaped skill names a renamed command except the alias stubs themselves —
+      `grep -rn "create_execution\|implement_tasks\|implement_coordinated" plugin/skills/`
+      returns only hits inside the three alias directories
 - [ ] `test ! -e docs/beads-fast-fail.md -a ! -e docs/beads-stealth-mode.md -a ! -e docs/beads-integration-learnings.md`
 - [ ] `grep -L "allowed-tools" plugin/skills/*/SKILL.md` — no workflow skill missing it
 - [ ] `grep -c 'user-invocable: false' plugin/skills/*/SKILL.md` — set on every background
@@ -983,10 +997,12 @@ Move completed tasks here as phases close, to keep the active list readable.
 
 ### Current Blockers
 
-One gap open, not blocking work.
+None open.
 
 - **2026-09-08 — the `create_execution` → `create_tasks` rename has seven callers no task
-  owns.** Raised by `P2-T6`. Phase 4's criterion is
+  owns.** Raised by `P2-T6`. **Resolved 2026-09-08** → new task `P2-T30` sweeps them, and every
+  other renamed name's callers, once at the end of Phase 2; decision in design.md →
+  Resolved Decisions. Original detail retained below for the audit trail. Phase 4's criterion is
   `grep -rn "create_execution" plugin/ docs/ README.md CLAUDE.md | grep -v docs/plans` →
   *only as the deprecated alias*. Eight references currently fail that: `model-help:64` (owned
   by `P2-T17`, fine) and **seven that no task covers** —
