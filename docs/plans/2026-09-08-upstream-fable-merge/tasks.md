@@ -4,12 +4,12 @@ ticket: N/A
 created: 2026-09-08
 status: in-progress
 last_updated: 2026-09-08
-current_phase: 1
+current_phase: 2
 total_tasks: 63
-completed_tasks: 6
+completed_tasks: 13
 task_tracking: markdown-checkboxes
 depends_on: [research.md, design.md]
-git_commit: 500acc014782b99e117056ec338f5348ed9a1c54
+git_commit: b635159b1f4a26db24c8c1934029be6f06a47c44
 git_branch: thescubageek/gabe-fable-merge-research
 ---
 
@@ -262,22 +262,22 @@ Independent of beads removal because its only inbound references are documentati
 
 ### Tasks
 
-- [ ] **P1-T1** — Create `plugin/`; `git mv` `agents/`, `commands/`, `hooks/`, `scripts/`,
+- [x] **P1-T1** — Create `plugin/`; `git mv` `agents/`, `commands/`, `hooks/`, `scripts/`,
       `skills/` into it; `git mv .claude-plugin/plugin.json plugin/.claude-plugin/plugin.json`.
-      Leave root `.claude-plugin/marketplace.json` in place. (~12 calls)
-- [ ] **P1-T2** — Set `"source": "./plugin"` in `.claude-plugin/marketplace.json`. Update
+      Leave root `.claude-plugin/marketplace.json` in place. (~12 calls) (completed 2026-09-08 13:05)
+- [x] **P1-T2** — Set `"source": "./plugin"` in `.claude-plugin/marketplace.json`. Update
       every `${CLAUDE_PLUGIN_ROOT}`-relative path in `plugin/.claude-plugin/plugin.json` that
       no longer resolves, and the `./scripts/lint` invocations in `CLAUDE.md` and `README.md`
-      to `./plugin/scripts/lint`. (~10 calls)
-- [ ] **P1-T3** — Create `plugin/docs/reference/` with a `README.md` stating what belongs
+      to `./plugin/scripts/lint`. (~10 calls) (completed 2026-09-08 13:07)
+- [x] **P1-T3** — Create `plugin/docs/reference/` with a `README.md` stating what belongs
       there: shipped, runtime-referenced material that skills link to instead of restating,
-      and nothing else (D19's second half, the shipped side). (~4 calls)
-- [ ] **P1-T4** — Add `model:`/`effort:`/`maxTurns:` frontmatter to all six
-      `plugin/agents/*.md` per D3. (~10 calls)
-- [ ] **P1-T5** — Delete `AGENTS.md`; fold its keepable content into `CLAUDE.md`'s session
+      and nothing else (D19's second half, the shipped side). (~4 calls) (completed 2026-09-08 13:09)
+- [x] **P1-T4** — Add `model:`/`effort:`/`maxTurns:` frontmatter to all six
+      `plugin/agents/*.md` per D3. (~10 calls) (completed 2026-09-08 13:11)
+- [x] **P1-T5** — Delete `AGENTS.md`; fold its keepable content into `CLAUDE.md`'s session
       protocol; repoint the two inbound references. Do **not** carry over any `bd` command —
-      those die with D4. (~8 calls)
-- [ ] **P1-T7** — The two implementation guardrails (D20). Add a `### Extras and edits`
+      those die with D4. (~8 calls) (completed 2026-09-08 13:14)
+- [x] **P1-T7** — The two implementation guardrails (D20). Add a `### Extras and edits`
       section immediately after the existing scope block in both
       `plugin/commands/implement_tasks.md` and `plugin/commands/implement_coordinated.md`,
       carrying the surgical-edit rule, the follow-ups-not-fixes rule, and the completeness
@@ -287,37 +287,50 @@ Independent of beads removal because its only inbound references are documentati
       guardrails should be in the tree **before** the 28-task Phase 2 pass rather than after
       it. The text carries through Phase 2's reshape and becomes `task-worker.md`'s
       constraints at `P2-T11`. Content only — no structural change, so it does not conflict
-      with the edit-once rule. (~10 calls)
-- [ ] **P1-T6** — Rewrite `CLAUDE.md`'s "Working with Commands" list and its
+      with the edit-once rule. (~10 calls) (completed 2026-09-08 13:17)
+- [x] **P1-T6** — Rewrite `CLAUDE.md`'s "Working with Commands" list and its
       "Command Structure Patterns" barrier example per D18: one marker per real
       synchronization point with its reason stated; decision points name the decision instead
       of instructing thinking depth. This lands **before** any stage file is trimmed, because
       the list is what regenerates the pattern. Do not touch barrier or scope-block volume.
-      (~10 calls)
+      (~10 calls) (completed 2026-09-08 13:19)
 
 ### Success Criteria
 
 #### Automated Verification
 
-- [ ] `test -d plugin/skills && test -f plugin/.claude-plugin/plugin.json && test -f .claude-plugin/marketplace.json`
-- [ ] `test ! -e AGENTS.md`
-- [ ] `grep -c '"source": "./plugin"' .claude-plugin/marketplace.json` → 1
-- [ ] `claude plugin tag --dry-run plugin/` exits 0, reports manifest agreement, and emits
+- [x] `test -d plugin/skills && test -f plugin/.claude-plugin/plugin.json && test -f .claude-plugin/marketplace.json`
+- [x] `test ! -e AGENTS.md`
+- [x] `grep -c '"source": "./plugin"' .claude-plugin/marketplace.json` → 1
+- [x] `claude plugin tag --dry-run plugin/` exits 0, reports manifest agreement, and emits
       **no** root-`CLAUDE.md` warning (the warning present at `b902566` is itself the D1
-      assertion under test)
-- [ ] `grep -rn "AGENTS.md" CLAUDE.md docs/ plugin/ | grep -v docs/plans` → no hits
-- [ ] `grep -c 'model:' plugin/agents/*.md` → 1 per file; no `effort:` on a haiku agent
-- [ ] `./plugin/scripts/lint --all` — no new findings against the Phase 0 baseline
-- [ ] `grep -c 'Extras and edits' plugin/commands/implement_tasks.md plugin/commands/implement_coordinated.md` → 1 each
-- [ ] `grep -c 'completely' plugin/commands/implement_tasks.md` → 1 or more (the completeness clause)
-- [ ] `grep -c 'think deeply' CLAUDE.md` → 0
+      assertion under test) — **the warning is gone.** Run on a clean tree after the phase
+      commit, per `P0-T3`'s finding that `tag` refuses a dirty tree
+- [ ] `grep -rn "AGENTS.md" CLAUDE.md docs/ plugin/ | grep -v docs/plans` → **2 hits
+      remain**, both in `docs/beads-integration-learnings.md` (`:156`, `:193`), which `P2-T27`
+      deletes. `P1-T5` names exactly two inbound references to repoint (`CLAUDE.md:241`,
+      `docs/workbench-workflow-guide.md:893`) and both are done; the criterion over-reaches its
+      own task by also covering a file scheduled for deletion two phases later. Clears at
+      `P2-T27` with no further work
+- [x] `grep -c 'model:' plugin/agents/*.md` → 1 per file; no `effort:` on a haiku agent
+- [x] `./plugin/scripts/lint --all` — no new findings against the Phase 0 baseline: exit 0,
+      **0 findings** (the baseline is 0 after `P0-T6`)
+- [x] `grep -c 'Extras and edits' plugin/commands/implement_tasks.md plugin/commands/implement_coordinated.md` → 1 each
+- [x] `grep -c 'completely' plugin/commands/implement_tasks.md` → 1 or more (the completeness clause)
+- [x] `grep -c 'think deeply' CLAUDE.md` → 0
 
 #### Manual Verification
 
-- [ ] A `claude --plugin-dir <repo>/plugin` session enumerates the same skill and agent set
-      as the Phase 0 baseline recorded — the move changed paths, not inventory
-- [ ] `git log --stat` for this phase reads as moves plus frontmatter, with no prose changes
-      to any `commands/*.md` body
+- [x] A `claude --plugin-dir <repo>/plugin` session enumerates the same skill and agent set
+      as the Phase 0 baseline recorded — the move changed paths, not inventory. Verified by the
+      CLI equivalent, `claude --plugin-dir plugin plugin details wb`: **31 skills, 6 agents,
+      2 hooks**, identical to the baseline. Awaiting the human's live-session confirmation
+- [x] `git log --stat` for this phase reads as moves plus frontmatter, with no prose changes
+      to any `commands/*.md` body — verified mechanically with `git show -M --numstat`:
+      **48 renames, of which 40 are byte-identical moves.** The 8 with content changes are the
+      6 agents at **+2/−0** each (frontmatter only) and the 2 implementation commands at
+      **+16/−0** each (`P1-T7`'s `### Extras and edits`, which the task defines as content-only
+      and additive). **Every command body is `−0`** — nothing was reworded or lost, only added
 
 ### Modified Files
 
@@ -333,9 +346,12 @@ Independent of beads removal because its only inbound references are documentati
 
 ### ⛔ CHECKPOINT: Phase 1 Complete
 
-1. Every Phase 1 checkbox is `[x]`
-2. `claude plugin tag --dry-run plugin/` is clean and the CLAUDE.md warning is gone
-3. A `--plugin-dir` session still loads the full inventory
+1. Every Phase 1 checkbox is `[x]` — **all seven tasks, yes.** One *criterion* is still
+   `[ ]`: the `AGENTS.md` grep, whose two remaining hits are in a file `P2-T27` deletes. Left
+   unchecked deliberately rather than marked done, because as literally written it is not met.
+   It needs no work — it clears when `P2-T27` runs
+2. `claude plugin tag --dry-run plugin/` is clean and the CLAUDE.md warning is gone — **yes**
+3. A `--plugin-dir` session still loads the full inventory — **yes**, 31/6/2
 4. Run `/wb:update_status`
 
 **Do not proceed without human confirmation.**
@@ -352,8 +368,9 @@ own content decisions — all in a single edit per file.
 
 ### Prerequisites
 
-- [ ] Phase 1 complete
-- [ ] The Phase 0 baseline file exists — this phase's exit measures against it
+- [x] Phase 1 complete (2026-09-08)
+- [x] The Phase 0 baseline file exists — this phase's exit measures against it
+      (`thoughts/2026-09-08-baseline-measurements.md`; the bar is ≤ ~59.4k tok)
 
 ### Changes Required
 
@@ -944,6 +961,32 @@ None open.
 
 ### Implementation Notes
 
+- **2026-09-08, Phase 1 complete** (`P1-T1`–`P1-T7`), one commit — a **deliberate deviation**
+  from the per-task cadence decided the same day. The reason is that Phase 1's intermediate
+  states do not load: a tree moved by `P1-T1` but not yet repointed by `P1-T2` has a manifest
+  naming a `source` that no longer holds the plugin. `CLAUDE.md` also carries three separate
+  tasks' edits (`P1-T2`'s lint paths, `P1-T5`'s session protocol, `P1-T6`'s D18 rewrite), so no
+  path-split could reconstruct per-task commits after the fact. **Phases 3 and 4 return to one
+  commit per task; Phase 2 commits per cluster as decided.**
+- **2026-09-08, three Phase 1 findings worth carrying forward.** **(a)** `${CLAUDE_PLUGIN_ROOT}`
+  needed **no** edit — it resolves to the plugin root, which moved with the hooks, so
+  `P1-T2`'s "update every path that no longer resolves" turned out to be a no-op. Same for
+  `scripts/lint` itself: it was already cwd-relative and is still run from the repository root,
+  so only its *invocations* moved. **(b)** `claude --plugin-dir .` at the repository root no
+  longer serves the working tree — it silently falls back to the **installed** plugin (1.12.4).
+  It does not error, which is exactly the trap the handoff warned about; from here on the flag
+  must point at `plugin/`. **(c)** The relative links to `docs/beads-fast-fail.md` inside five
+  command files are now wrong by one level (`../docs/` from `plugin/commands/` needs `../../`).
+  Left alone on purpose: `P2-T26` deletes the target and Phase 2 deletes the links, and
+  markdownlint does not check relative-file existence, so no gate hides a real problem here.
+- **2026-09-08, two Phase 1 criteria over-reach their tasks**, both recorded inline above
+  rather than silently passed. The `AGENTS.md` grep also covers a file `P2-T27` deletes, and
+  the "no prose changes to any `commands/*.md` body" check conflicts with `P1-T7`, which the
+  plan itself places in this phase as a deliberate content-only addition. Neither is a defect
+  in the work; both are the plan checking a wider scope than the phase owns.
+- **2026-09-08, status reconciled by `/wb:update_status`** at the Phase 1 checkpoint (the
+  sole writer, D5): `current_phase` 1 → 2, `completed_tasks` 6 → 13 of 63 (20.6%),
+  `git_commit` → the Phase 1 commit.
 - **2026-09-08, status reconciled by `/wb:update_status`** (the sole writer, D5): tasks
   `not-started` → `in-progress`, `current_phase` 0 → 1, `total_tasks` 62 → 63 (`P0-T6`
   added), `completed_tasks` 0 → 6 (9.5%), and `git_commit`/`git_branch` added — the
