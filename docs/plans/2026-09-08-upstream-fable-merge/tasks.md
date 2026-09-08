@@ -312,7 +312,12 @@ Independent of beads removal because its only inbound references are documentati
       `docs/workbench-workflow-guide.md:893`) and both are done; the criterion over-reaches its
       own task by also covering a file scheduled for deletion two phases later. Clears at
       `P2-T27` with no further work
-- [x] `grep -c 'model:' plugin/agents/*.md` → 1 per file; no `effort:` on a haiku agent
+- [x] `grep -c 'model:' plugin/agents/*.md` → 1 per file; no `effort:` on a haiku agent —
+      but note this is a **spelling check, not a behaviour check**: neither
+      `claude plugin validate` nor `claude plugin details` inspects agent frontmatter at all
+      (proven by planting `model: totally-not-a-model` plus a nonsense key — both passed
+      silently and the agent still enumerated). What does validate it is the harness itself;
+      see the Implementation Note dated 2026-09-08 on `effort`/`maxTurns`
 - [x] `./plugin/scripts/lint --all` — no new findings against the Phase 0 baseline: exit 0,
       **0 findings** (the baseline is 0 after `P0-T6`)
 - [x] `grep -c 'Extras and edits' plugin/commands/implement_tasks.md plugin/commands/implement_coordinated.md` → 1 each
@@ -968,6 +973,31 @@ None open.
   tasks' edits (`P1-T2`'s lint paths, `P1-T5`'s session protocol, `P1-T6`'s D18 rewrite), so no
   path-split could reconstruct per-task commits after the fact. **Phases 3 and 4 return to one
   commit per task; Phase 2 commits per cluster as decided.**
+- **2026-09-08, `effort:` and `maxTurns:` are recognized agent-frontmatter keys — established
+  the hard way, because the check `P1-T4` was written against does not exist.** The
+  `/agents` wizard has been **removed from the harness**, so the frontmatter cannot be
+  inspected from inside a session. Worse, the two CLI gates are blind to it: planting
+  `model: totally-not-a-model` and `completelyBogusKey: 42` into an agent file made
+  `claude plugin validate` report "Validation passed" and left `claude plugin details`
+  enumerating all six agents. So Phase 1's `grep -c 'model:'` criterion only proves the string
+  is present — it cannot prove the harness honours the pin, which is the thing D3 actually
+  buys.
+  The positive evidence came from the shipped binary's validator string table
+  (`/opt/homebrew/lib/node_modules/@anthropic-ai/claude-code/bin/claude.exe`), which contains
+  **`has invalid effort`** and **`has invalid maxTurns`** beside `has invalid name`,
+  `has invalid permissionMode` and `has invalid isolation`. Both keys are therefore parsed and
+  **value-validated**, and our values (`medium`, `high`, `25`) are in range — an invalid one
+  would surface as a load error rather than being ignored.
+  *Verify:* `strings <claude binary> | grep -oE "has invalid [a-zA-Z-]+" | sort -u`.
+  **Consequence**: the only live check for `P1-T4` is `/plugin` → **Errors** in a
+  `--plugin-dir` session, and an empty Errors tab is a real positive signal rather than mere
+  absence of evidence.
+  **Bonus for Phase 2**: the same table and string set carry `disable-model-invocation` and
+  `user-invocable`, so `P2-T8`/`P2-T29`'s alias stubs and `P2-T22`'s background-skill flags
+  rest on recognized fields, not on upstream's word.
+- **2026-09-08, `/plugin` → Discover does not list a `--plugin-dir` plugin.** It searches
+  marketplaces; an inline plugin is not in one. Use the **Installed** tab. Recorded because
+  "No plugins match \"wb\"" reads like a load failure and is not one.
 - **2026-09-08, three Phase 1 findings worth carrying forward.** **(a)** `${CLAUDE_PLUGIN_ROOT}`
   needed **no** edit — it resolves to the plugin root, which moved with the hooks, so
   `P1-T2`'s "update every path that no longer resolves" turned out to be a no-op. Same for
