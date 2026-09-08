@@ -454,7 +454,7 @@ file lands.
 
 **Execution-planning cluster**
 
-- [ ] **P2-T6** — `create_execution` → `create_tasks`, the rewrite (D9). Directory becomes
+- [x] **P2-T6** — `create_execution` → `create_tasks`, the rewrite (D9). Directory becomes
       `plugin/skills/create_tasks/`. Template = `## Overview` → `## 🔗 Quick Reference`.
       **Delete** `## Beads Issue Tracking` wholesale and all of Step 5's `bd create`/`bd dep
       add` choreography. Reference = `## Important Guidelines`, `## Task Granularity`,
@@ -464,15 +464,15 @@ file lands.
       natural seam — replacing the "1-4 hours" rule); D5 (the phase checkpoint delegates
       counter updates to `update_status` instead of editing `current_phase` inline);
       D18 bullets at `:69,:154,:175`. Projected past 50 calls, so split — see `P2-T7`.
-      (~40 calls)
-- [ ] **P2-T7** — `create_tasks` supporting files: write `templates.md` (the new tasks.md
+      (~40 calls) (completed 2026-09-08 17:04)
+- [x] **P2-T7** — `create_tasks` supporting files: write `templates.md` (the new tasks.md
       skeleton in the markdown-checkbox convention), `sub-agent-prompts.md` (the three Step 2
       analysis agents), and `examples.md`. Split from `P2-T6` at the SKILL/supporting seam per
-      D15. (~25 calls)
-- [ ] **P2-T8** — `create_execution` alias stub (D9): `plugin/skills/create_execution/` with a
+      D15. (~25 calls) (completed 2026-09-08 17:12)
+- [x] **P2-T8** — `create_execution` alias stub (D9): `plugin/skills/create_execution/` with a
       stub `SKILL.md` (`disable-model-invocation: true`) that announces the rename once and
       then reads the canonical skill, plus one pointer file per supporting file so a stale
-      cached body still resolves its reads. (~10 calls)
+      cached body still resolves its reads. (~10 calls) (completed 2026-09-08 17:16)
 
 **Implementation cluster**
 
@@ -982,7 +982,19 @@ Move completed tasks here as phases close, to keep the active list readable.
 
 ### Current Blockers
 
-None open.
+One gap open, not blocking work.
+
+- **2026-09-08 — the `create_execution` → `create_tasks` rename has seven callers no task
+  owns.** Raised by `P2-T6`. Phase 4's criterion is
+  `grep -rn "create_execution" plugin/ docs/ README.md CLAUDE.md | grep -v docs/plans` →
+  *only as the deprecated alias*. Eight references currently fail that: `model-help:64` (owned
+  by `P2-T17`, fine) and **seven that no task covers** —
+  `create_project/SKILL.md:146`, `create_project/templates.md:35,49,298,304`,
+  `create_design/templates.md:141`, `create_design/SKILL.md:242`. Not urgent: the alias
+  resolves, so nothing is broken — they simply name a deprecated command. But `P4-T1`
+  (`forge`), `P4-T2` (`help`) and `P4-T4` (commands-reference) are the only rename-sweep tasks,
+  and none of them reaches a `create_*` skill body. Needs either a decision to fix them inside
+  the rename that created them, or a new Phase 4 task.
 
 - **2026-09-08 — `lint --all` cannot be clean while `.context/upstream/` exists.** Raised by
   `P0-T4`. `--all` builds its file list with a raw `find .` and a hardcoded exclusion list
@@ -994,6 +1006,25 @@ None open.
 
 ### Implementation Notes
 
+- **2026-09-08, execution-planning cluster complete** (`P2-T6`, `P2-T7`, `P2-T8`). The phase's
+  biggest single result: `create_execution` 787 lines → `create_tasks/SKILL.md` **175**, and
+  **9.4k → 3.1k on-invoke (−67%)**. The reason it dwarfs the others is that most of the
+  reduction is **deletion, not deferral** — roughly 200 lines of `bd create` / `bd dep add` /
+  `bd dep` choreography and the whole `## Beads Issue Tracking` block left the tree instead of
+  moving to a supporting file. That is D4 paying for D2, exactly as the design predicted.
+  **Running tally across the five stages reshaped so far: 31.0k → 16.9k = −45.5%.** Against the
+  full fourteen-stage bar (84.9k → ≤59.4k), the nine remaining stages now need only −21% to
+  clear it, and every stage so far has beaten that.
+  Two notes on what the alias costs: `create_execution` as a stub is **~320 on-invoke and ~30
+  always-on**, so the three planned aliases will add roughly **1k on-invoke and ~90 always-on**
+  to the tree. Worth stating because it is a real, permanent-until-3.0.0 surcharge that the
+  headline metric does not capture — the bar covers the fourteen stages, and an alias is not
+  one of them.
+  `examples.md` diverges from upstream deliberately: theirs is entirely `bd create` /
+  `bd dep add` worked examples, which D4 deletes. Ours covers the two judgment calls this skill
+  actually makes and most easily gets wrong — projecting a task's tool-call cost and finding an
+  honest seam to split it at, and deciding when a task needs an explicit `Depends on:` rather
+  than relying on document order.
 - **2026-09-08, design cluster complete** (`P2-T4`, `P2-T5`). Running fourteen-stage tally:
   **21.6k → 14.2k = −34.3%**, comfortably over the bar. Per stage: `create_project`
   **−50%** (4.0k → 2.0k) and `create_design` **−22.4%** (5.8k → 4.5k).
