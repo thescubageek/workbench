@@ -660,17 +660,20 @@ file lands.
 - [ ] `grep -c 'user-invocable: false' plugin/skills/*/SKILL.md` — set on every background
       discipline skill
 - [ ] `grep -rn "determineModel" plugin/` → no hits (D13)
-- [ ] Exactly one statement of the worker tier rule:
-      ~~`grep -rln "Haiku:.*Sonnet:.*Opus:" plugin/` returns one file~~ — **the grep no longer
-      matches its own implementation.** It was written against the old prose shape
-      (`Haiku: … Sonnet: … Opus: …` on one line); `P2-T15` writes the ladder as a table, so the
-      pattern returns **0** files, not 1. The *intent* holds: `plugin/skills/implement/SKILL.md`
-      Step 5 is the only place the worker ladder is stated, and `reference.md` points at it
-      rather than restating. Working form:
-      `grep -rln 'claude-opus-4-8\[1m\]' plugin/skills/` → exactly one file. Remaining `haiku`
-      mentions elsewhere are per-`Task()` pins for research agents, agent frontmatter, and the
-      main-session authorities (`model-help`, `daily-digest`) — different rules, and `P2-T17`
-      owns aligning `model-help`
+- [x] Exactly one statement of the worker tier rule:
+      `grep -rln 'claude-opus-4-8\[1m\]' plugin/skills/` → **exactly one file**
+      (`plugin/skills/implement/SKILL.md`). **Criterion reworded 2026-09-08** — it originally
+      read `grep -rln "Haiku:.*Sonnet:.*Opus:" plugin/`, written against the *old* one-line
+      prose shape that `P2-T15` replaced. The ladder is now a table, so the old pattern returned
+      0 rather than 1: it failed while the property it protects held. PD2 makes
+      `claude-opus-4-8[1m]` load-bearing, so its appearing in exactly one place *is* D13's
+      "stated once". See design.md → Resolved Decisions.
+      **Brittleness, stated so it is not rediscovered**: this pins a criterion to a model ID.
+      If the default worker tier ever changes, re-point the grep at whatever the new default's
+      identifier is — the invariant is "the ladder is named in exactly one file", not this
+      particular string. Remaining `haiku` mentions elsewhere are per-`Task()` pins for research
+      agents, agent frontmatter, and the main-session authorities (`model-help`,
+      `daily-digest`) — different rules; `P2-T17` owns aligning `model-help`
 - [ ] `./plugin/scripts/lint --all` — clean, or no new findings vs the Phase 0 baseline
 - [ ] `grep -rn "think deeply\|ultrathink" plugin/ CLAUDE.md` → no hits
 - [ ] **The headline metric**: `claude plugin details wb` on-invoke total for the fourteen

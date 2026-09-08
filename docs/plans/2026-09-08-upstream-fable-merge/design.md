@@ -739,6 +739,23 @@ Decisions made after the design was approved, recorded here by `/wb:resolve_ques
   - Trade-off: none. A briefer note would have been wrong for the second and third machine.
   - Source: design.md A1 · Decided 2026-09-08
 
+- **The worker tier rule stays a table; Phase 2's criterion is reworded to match it**
+  (resolves the criterion/implementation mismatch `P2-T15` surfaced). The check becomes
+  `grep -rln 'claude-opus-4-8[1m]' plugin/skills/` → exactly one file.
+  - Rationale: the old criterion, `grep -rln "Haiku:.*Sonnet:.*Opus:" plugin/`, was written
+    against the one-line prose shape D13 was *replacing*. PD2's ladder has four rungs, and two
+    carry conditions that prose had nowhere to put — "never annotate `effort` on a haiku spawn"
+    and "Fable only after a verified failure, always at `effort: high`". A table states them
+    once and legibly; rewriting it back to prose to satisfy a grep would be the tail wagging the
+    dog, and would have to name Sonnet, which is not in our ladder at all.
+  - Rejected: keeping both forms. A prose summary beside the table is a *second* statement of
+    the tier rule in the same file — precisely what D13 exists to prevent, and the two would
+    drift.
+  - Trade-off, stated so it is not rediscovered: the new criterion pins a check to a **model
+    ID**, which ages. If the default worker tier changes, re-point the grep — the invariant is
+    "the ladder is named in exactly one file", not this particular string.
+  - Source: tasks.md Phase 2 Automated Verification · surfaced by `P2-T15` · Decided 2026-09-08
+
 - **The renames' dangling callers are repointed in one sweep at the end of Phase 2, as new
   task `P2-T30`** (closes the gap `P2-T6` raised). Every already-reshaped skill that names
   `create_execution`, `implement_tasks` or `implement_coordinated` is repointed once, after all
