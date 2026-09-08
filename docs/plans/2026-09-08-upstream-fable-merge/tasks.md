@@ -329,7 +329,14 @@ Independent of beads removal because its only inbound references are documentati
 - [x] A `claude --plugin-dir <repo>/plugin` session enumerates the same skill and agent set
       as the Phase 0 baseline recorded — the move changed paths, not inventory. Verified by the
       CLI equivalent, `claude --plugin-dir plugin plugin details wb`: **31 skills, 6 agents,
-      2 hooks**, identical to the baseline. Awaiting the human's live-session confirmation
+      2 hooks**, identical to the baseline. **Confirmed live 2026-09-08**: in a
+      `claude --plugin-dir <repo>/plugin` session the `/wb:` menu offered the full command
+      set and `/wb:help` executed, which proves a body loads *and runs* from the relocated
+      path rather than merely being enumerated. The version served is the working tree, not
+      the marketplace cache: the same flag and path reported `wb 1.12.5` from the CLI, and
+      `--plugin-dir` reads from disk by definition — the 1.12.4 fallback seen earlier
+      happened only because the flag pointed at the repository root, which no longer holds a
+      manifest
 - [x] `git log --stat` for this phase reads as moves plus frontmatter, with no prose changes
       to any `commands/*.md` body — verified mechanically with `git show -M --numstat`:
       **48 renames, of which 40 are byte-identical moves.** The 8 with content changes are the
@@ -991,7 +998,10 @@ None open.
   *Verify:* `strings <claude binary> | grep -oE "has invalid [a-zA-Z-]+" | sort -u`.
   **Consequence**: the only live check for `P1-T4` is `/plugin` → **Errors** in a
   `--plugin-dir` session, and an empty Errors tab is a real positive signal rather than mere
-  absence of evidence.
+  absence of evidence. Not run — Phase 1 was closed on the string-table evidence plus a clean
+  session start, since a rejected key surfaces as a load error and the session loaded and ran
+  `/wb:help` without one. Left as a cheap confirmation for the Phase 2 or Phase 4 smoke
+  session rather than a Phase 1 blocker.
   **Bonus for Phase 2**: the same table and string set carry `disable-model-invocation` and
   `user-invocable`, so `P2-T8`/`P2-T29`'s alias stubs and `P2-T22`'s background-skill flags
   rest on recognized fields, not on upstream's word.
