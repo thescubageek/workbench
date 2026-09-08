@@ -117,6 +117,7 @@ elif [ "$LINT_ALL" = true ]; then
         -name "*.md" \
         -not -path "./node_modules/*" \
         -not -path "./.git/*" \
+        -not -path "./.context/*" \
         -not -path "./vendor/*" \
         -not -path "./tmp/*" \
         -not -path "./.next/*" \
