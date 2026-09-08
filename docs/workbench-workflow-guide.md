@@ -890,6 +890,6 @@ bd list   # Find correct ID
 ## Additional Resources
 
 - [Commands Reference](commands-reference.md) - Detailed command documentation
-- [AGENTS.md](../AGENTS.md) - Beads workflow protocol
+- [CLAUDE.md](../CLAUDE.md) - Session protocol and repository conventions
 - [Skills Guide](claude-code-skills-guide.md) - Skills documentation
 - [Beads Stealth Mode](beads-stealth-mode.md) - Beads mode setup and detection

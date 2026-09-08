@@ -5,7 +5,7 @@
   "plugins": [
     {
       "name": "wb",
-      "source": "./",
+      "source": "./plugin",
       "description": "Workbench for structured software development with TDD, project planning, and beads integration.",
       "version": "1.12.5"
     }

@@ -169,9 +169,9 @@ The plugin cannot (and does not) write to your personal config — this rule is 
 ### Linting
 
 ```bash
-./scripts/lint           # Lint changed files
-./scripts/lint --fix     # Auto-fix issues
-./scripts/lint --all     # Lint all markdown files
+./plugin/scripts/lint           # Lint changed files
+./plugin/scripts/lint --fix     # Auto-fix issues
+./plugin/scripts/lint --all     # Lint all markdown files
 ```
 
 ### Testing Changes

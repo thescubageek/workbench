@@ -33,16 +33,16 @@ This is the global reinforcement of each command's inline output-discipline dire
 
 ```bash
 # Lint changed markdown files
-./scripts/lint
+./plugin/scripts/lint
 
 # Auto-fix markdown issues
-./scripts/lint --fix
+./plugin/scripts/lint --fix
 
 # Lint specific files
-./scripts/lint file1.md file2.md
+./plugin/scripts/lint file1.md file2.md
 
 # Lint all markdown files
-./scripts/lint --all
+./plugin/scripts/lint --all
 ```
 
 **Automatic Linting**: PostToolUse hooks automatically lint markdown files after Write/Edit operations.
@@ -145,13 +145,18 @@ If any `bd` command fails:
 
 ### Command Structure Patterns
 
-When modifying commands, maintain these patterns:
+Mark each real synchronization point **once**, and state the reason in the marker. A marker
+whose text only restates the rule ("full context required") tells a session nothing it did not
+already know; the reason is what makes it hold when the session is under pressure to proceed.
 
 ```markdown
-⛔ BARRIER 1: After file reading - full context required
-⛔ BARRIER 2: After agent spawning - wait for ALL
-⛔ BARRIER 3: Before writing - no placeholders allowed
-⛔ CHECKPOINT: Between phases - human verification required
+⛔ BARRIER 1: full context read — analysis on partial context produces placeholders
+⛔ BARRIER 2: every spawned agent has returned — synthesis on a partial set misses what the
+   missing report would have changed
+⛔ BARRIER 3: no placeholder values — a placeholder that ships becomes a task nobody can
+   execute
+⛔ CHECKPOINT: human verification between phases — the next phase builds on what a human has
+   accepted
 ```
 
 ### Frontmatter Standards
@@ -187,12 +192,14 @@ The policy these commands enforce:
 When creating or modifying commands:
 
 1. Follow existing command patterns
-2. Include all three barriers and checkpoints
-3. Use "think deeply" directives at critical decision points
+2. Mark each real synchronization point once — `⛔ BARRIER` for "do not proceed until X",
+   `⛔ CHECKPOINT` for human confirmation — and state the reason in a plain sentence
+3. At decision points, say what the decision is **about**; do not instruct the model how hard
+   to think. Thinking depth is the session's effort setting, not prompt text
 4. Maintain the documentarian philosophy for research
 5. Separate automated from manual verification
-6. Always read files FULLY before processing
-7. Use parallel agents for efficiency but wait for ALL to complete
+6. Read files fully before processing
+7. Spawn independent agents in parallel; synthesize only after all have returned
 
 ## Best Practices
 
@@ -208,7 +215,7 @@ When creating new prompts or commands:
 
 - The main branch is `main`
 - Commit messages should be descriptive
-- Run `./scripts/lint` before committing markdown files
+- Run `./plugin/scripts/lint` before committing markdown files
 - Keep the repository organized by category
 
 ### Branch naming
@@ -238,11 +245,22 @@ bd sync               # Sync with git (run at session end)
 
 ### Session Protocol
 
-See [AGENTS.md](AGENTS.md) for the full session close protocol. Key points:
+`CLAUDE.md` is the single root for session protocol. Before ending a work session:
 
-1. **Before ending**: Close completed issues with `bd close`
-2. **Sync**: Run `bd sync` to persist changes
-3. **Push**: Commit and push to remote
+1. **File follow-ups** — anything discovered but out of scope becomes an issue or a line in
+   the plan's Implementation Notes. An intention that exists only in the transcript is lost
+   when the session ends.
+2. **Run the quality gates** if anything changed — tests, linters, build.
+3. **Reconcile status**: close completed issues with `bd close`, and update anything still in
+   progress.
+4. **Sync**: run `bd sync` to persist changes.
+5. **Commit, and confirm the push with the user.** Work that ends in the working tree is
+   stranded on one machine. Pushing is an outward-facing state change, so it is confirmed
+   rather than assumed — do not claim work is complete on the user's behalf, and do not treat
+   an unpushed branch as a failure state that licenses pushing without asking.
+6. **Clean up** — clear stashes, prune stale remote branches.
+7. **Hand off** — leave enough context for the next session to resume without you
+   (`/wb:create_handoff`).
 
 ### Integration with wb Commands
 

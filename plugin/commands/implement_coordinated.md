@@ -76,6 +76,22 @@ Same zero-tolerance policy as original:
 - **ONLY** implement what is EXPLICITLY written in tasks.md
 - If something seems missing, STOP and ask - DO NOT add it
 
+### Extras and edits
+
+The scope rules above say what not to **add**. They say nothing about what to do with what you
+**find**, which is the common case: a worker editing a function notices a real bug in it. That
+has a rule too.
+
+- **Edit in place rather than rewriting.** When a targeted edit and a whole-file rewrite reach
+  the same end result, make the targeted edit — fewer tokens, same outcome, and a diff a
+  reviewer can read.
+- **Follow-ups, not fixes.** A pre-existing bug, a performance concern, or any behavior the
+  task does not mention is **reported, not fixed** — record it under "issues encountered" and
+  move on. The one exception: fix it if the behavior the task asks for cannot work without it.
+- **This is about extras only.** Implement every behavior the task asks for, **completely**.
+  The rules above bound what you add; none of them licenses delivering less than the task
+  specifies. Under-delivery is the failure this clause exists to prevent.
+
 ## Process Steps
 
 ### Step 1: Read and Understand Context
