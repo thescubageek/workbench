@@ -220,6 +220,10 @@ else
     if [ -z "$AUTO_FIX" ]; then
         echo -e "${YELLOW}⚠️  Markdown linting issues found${NC}"
         echo "Run '$0 --fix' to auto-fix issues"
-        exit 1
+    else
+        echo -e "${YELLOW}⚠️  Some issues could not be auto-fixed${NC}"
     fi
+    # exit 1 sits OUTSIDE the mode check on purpose: a gate that reports success
+    # when findings remain is worse than no gate. --fix that leaves findings fails too.
+    exit 1
 fi
