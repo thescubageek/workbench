@@ -433,13 +433,13 @@ file lands.
 
 **Design cluster**
 
-- [ ] **P2-T4** — `create_design`: template = `## Problem Statement` → `## References`;
+- [x] **P2-T4** — `create_design`: template = `## Problem Statement` → `## References`;
       prompts = the Step 2 `Task({...})` blocks; reference = `## Important Guidelines`,
       `## Configuration`. Content: D6 (Assumptions and Pending Decisions tables lose their
       `Beads ID` column, gain local IDs; the cold-start check reads markdown records, not
       `bd list`); D10 (consume an `explore_design` decision record when present, formalize
-      rather than regenerate); D18 bullets at `:91,:165,:188`. (~30 calls)
-- [ ] **P2-T5** — `create_project`: template file is large — it embeds four artifact
+      rather than regenerate); D18 bullets at `:91,:165,:188`. (~30 calls) (completed 2026-09-08 16:34)
+- [x] **P2-T5** — `create_project`: template file is large — it embeds four artifact
       skeletons (`## Overview`→`## Git Information` README, `## Research Question`→
       `## References` research, `## Problem Statement`→`## References` design,
       `## Progress Overview`→`## 🔗 Quick Reference` tasks). All four → **one** `templates.md`
@@ -450,7 +450,7 @@ file lands.
       reference = `## Important Notes`, `## Error Handling`. Content: D4 (the generated
       tasks.md skeleton gets the checkbox convention and `task_tracking:` frontmatter; delete
       the `:343` note conceding checkboxes are documentation-only); D8a (the generated plan
-      directory now includes `journal.md`). (~35 calls)
+      directory now includes `journal.md`). (~35 calls) (completed 2026-09-08 16:47)
 
 **Execution-planning cluster**
 
@@ -991,6 +991,29 @@ None open.
 
 ### Implementation Notes
 
+- **2026-09-08, design cluster complete** (`P2-T4`, `P2-T5`). Running fourteen-stage tally:
+  **21.6k → 14.2k = −34.3%**, comfortably over the bar. Per stage: `create_project`
+  **−50%** (4.0k → 2.0k) and `create_design` **−22.4%** (5.8k → 4.5k).
+  **The spread is explained, and it is not split quality.** `create_project` is the phase's
+  best result because its content is almost entirely template — 368 of its 553 lines — and the
+  new section-scoped read means Step 4 pulls in one skeleton per file instead of five.
+  `create_design` is the phase's worst because its content decisions are *additive*: D10's
+  Mode A / Mode B branch, the D6 table rules, and the knowledge-file read together add ~55
+  lines of judgment that must live in `SKILL.md` by definition. A stage can be split perfectly
+  and still move little if the task asks it to grow. **Track the aggregate, not the stage** —
+  the bar is on the fourteen-stage total, and three of four stages are carrying it.
+  Left unspent deliberately: `create_design`'s three message-template blocks (Step 4's two
+  option blocks, Step 6's presentation) are ~70 lines that `P2-T14`'s spec would treat as
+  `templates.md` material. `P2-T4`'s spec does not say to move them, and the aggregate does not
+  need it, so they stayed. Recorded as the next lever if the aggregate ever dips.
+- **2026-09-08, `P2-T5`/`P3-T7` seam.** `P2-T5` adds `journal.md` to the generated plan
+  directory (D8a), which means it needs a template *now* — a fifth file with no template would
+  be a defect. So `templates.md` carries a `## journal.md Template` section with the open/closed
+  entry shapes and the reasoning for opening entries at the start of work. **`P3-T7` still owns
+  the protocol wiring** — opening and closing entries from `implement_tasks`,
+  `implement_coordinated` and `create_handoff`, plus the PreCompact refresh of an open entry's
+  mechanical fields. Noted because the plan assigns `create_project` to two tasks in different
+  phases, which is the one place it knowingly breaks its own edit-once rule.
 - **2026-09-08, research cluster complete** (`P2-T1`–`P2-T3`), one commit per the per-cluster
   cadence. **Line count overstates the win; measure tokens.** `create_research` lost 46% of its
   lines but only **22.6%** of its on-invoke tokens (~5.3k → ~4.1k), because what moves out —

@@ -1,89 +1,13 @@
----
-description: Initialize comprehensive project documentation with research, design, and task files
-argument-hint: "[project-name] [base-dir] [ticket-ref]"
----
+# create_project — initial file templates
 
-# Initialize Project Documentation
+Read the **section you need**, when its Step 4 sub-step directs you to — not the whole file.
+Each section below is an independent template, and reading one to write another's file costs
+tokens for nothing. Never paraphrase a template from memory.
 
-Creates a comprehensive documentation structure for a new project or feature, setting up folders and files for research, planning, and task tracking with proper metadata.
+Sections: `README.md Template` · `research.md Template` · `design.md Template` ·
+`tasks.md Template` · `journal.md Template`
 
-**Output discipline**: act on barriers silently; don't restate the plan between steps; emit only the artifact and a one-line completion summary.
-
-## Initial Response
-
-When invoked, check for arguments:
-
-1. **If arguments provided** (e.g., `/create_project auth-refactor docs/plans LINEAR-456`):
-   - Parse: `$1` = project-name, `$2` = base-dir, `$3` = ticket-ref
-   - Skip prompting and proceed directly to Step 2
-
-2. **If partial arguments** (e.g., `/create_project auth-refactor`):
-   - Use provided arguments and prompt only for missing ones
-
-3. **If no arguments**:
-   - Prompt for all required information:
-
-   ```
-   I'll help you set up comprehensive project documentation. Please provide:
-   1. Project name (short, kebab-case preferred, e.g., auth-refactor)
-   2. Base directory (default: docs/plans)
-   3. Ticket/issue reference (optional, e.g., GH-123, JIRA-456, LINEAR-789)
-
-   I'll create a timestamped project directory with research, design, and task tracking files.
-   ```
-
-## Process Steps
-
-### Step 1: Parse Arguments
-
-```javascript
-// Parse provided arguments
-const projectName = $1;  // First argument
-const baseDir = $2 || 'docs/plans';  // Second argument with default
-const ticketRef = $3 || null;  // Third argument (optional)
-
-// If any required args missing, prompt for them
-```
-
-### Step 2: Gather Metadata
-
-**think deeply**
-
-Collect system metadata for proper tracking:
-
-```bash
-# Git metadata (if in a git repository)
-git_commit=$(git rev-parse HEAD 2>/dev/null || echo "not-in-git")
-git_branch=$(git branch --show-current 2>/dev/null || echo "not-in-git")
-git_remote=$(git remote get-url origin 2>/dev/null || echo "no-remote")
-
-# Extract repository name from remote URL
-repo_name=$(echo $git_remote | sed 's/.*[:/]\([^/]*\/[^.]*\).*/\1/')
-
-# System metadata
-current_date=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-current_date_simple=$(date +"%Y-%m-%d")
-username=$(whoami)
-```
-
-### Step 3: Create Directory Structure
-
-Create the project directory with format:
-
-```
-[base-directory]/[YYYY-MM-DD]-[TICKET-][project-name]/
-```
-
-Examples:
-
-- `docs/plans/2025-01-08-auth-refactor/`
-- `docs/plans/2025-01-08-LINEAR-789-api-migration/`
-
-### Step 4: Create Initial Files with Rich Metadata
-
-Create four foundation files:
-
-**1. README.md** - Navigation hub
+## README.md Template
 
 ````markdown
 # [Project Name]
@@ -101,6 +25,7 @@ This directory contains documentation for [project-name].
 - **[research.md](research.md)** - Codebase research and findings
 - **[design.md](design.md)** - Architectural design decisions
 - **[tasks.md](tasks.md)** - Execution plan and task tracking
+- **[journal.md](journal.md)** - Session journal; entries open when work starts
 
 ## Workflow
 
@@ -137,7 +62,7 @@ This directory contains documentation for [project-name].
 - **Repository**: [repo-name]
 ````
 
-**2. research.md** - Research documentation
+## research.md Template
 
 ````markdown
 ---
@@ -202,7 +127,12 @@ Quick reference to key files:
 
 ## Open Questions
 
-[Areas needing further investigation - to be added]
+Questions that block the next phase live here as a table with local IDs. To be populated by
+`/create_research`.
+
+| ID | Question | Blocks | State |
+| -- | -------- | ------ | ----- |
+| — | [none yet] | — | — |
 
 ## Next Steps
 
@@ -215,7 +145,7 @@ Quick reference to key files:
 - Tasks: [tasks.md](tasks.md)
 ````
 
-**3. design.md** - Design decisions
+## design.md Template
 
 ````markdown
 ---
@@ -285,13 +215,21 @@ depends_on: research.md
 
 [To be evaluated]
 
+### Assumptions
+
+| ID | Assumption | Validated? |
+| -- | ---------- | ---------- |
+| — | [none yet] | — |
+
 ## Rejected Alternatives
 
 [To be documented during design]
 
 ## Pending Decisions
 
-[Design decisions needing input - to be identified]
+| ID | Decision Needed | Blocks |
+| -- | --------------- | ------ |
+| — | [none yet] | — |
 
 ## References
 
@@ -300,7 +238,7 @@ depends_on: research.md
 - Related: [to be added]
 ````
 
-**4. tasks.md** - Task tracking
+## tasks.md Template
 
 ````markdown
 ---
@@ -314,6 +252,7 @@ assignee: [username]
 current_phase: 0
 total_tasks: 4
 completed_tasks: 1
+task_tracking: markdown-checkboxes
 git_commit: [commit-hash or "not-in-git"]
 git_branch: [branch-name or "not-in-git"]
 repository: [repo-name or "unknown"]
@@ -327,6 +266,18 @@ tags: [tasks, tracking, [project-name]]
 **Ticket**: [ticket-reference or N/A]
 **Current Phase**: Planning
 
+## Task tracking
+
+**Checkbox state in this file is the source of truth.** There is no external tracker. Flip
+`[ ]` → `[x]` as work completes and append `(completed YYYY-MM-DD HH:MM)`. The frontmatter
+counters are a derived cache with exactly one writer — `/wb:update_status` — and are never
+hand-edited. Git is the durable record.
+
+```bash
+grep -c '^- \[x\]' tasks.md    # completed
+grep -c '^- \[ \]' tasks.md    # remaining
+```
+
 ## Progress Overview
 
 | Phase | Status | Tasks | Progress |
@@ -339,8 +290,6 @@ tags: [tasks, tracking, [project-name]]
 ---
 
 ## Planning Phase
-
-> **Note**: These planning checkboxes are a bootstrap convenience only — beads is not yet initialized at project creation. Once `/create_execution` runs `bd init` and creates issues, **beads becomes the source of truth** for all status; these checkboxes are documentation only and are not updated to track live status.
 
 ### 📋 Documentation Setup
 - [x] Create project structure (completed [YYYY-MM-DD HH:MM])
@@ -384,69 +333,36 @@ tags: [tasks, tracking, [project-name]]
 **Run**: `/create_research [this-directory]`
 ````
 
-**⛔ BARRIER 1**: Ensure all files are created with proper frontmatter before proceeding
+## journal.md Template
 
-### Step 5: Confirm Creation
+````markdown
+# Session Journal: [Project Name]
 
-Present the created structure:
+Append-only, reverse-chronological — newest entry at the top.
 
-```
-✅ Project documentation initialized successfully!
+**Entries open when work starts, not when it ends.** A session does not get to choose how it
+ends: a token limit, a closed laptop, or a crashed harness runs no shutdown step. An entry
+written only at completion would be silent in exactly those cases, and worse than silent — its
+tail would still show the last *finished* phase, so the next session would read a confident,
+stale record and never learn that work stopped mid-task. Opening on entry makes the default
+residue of an abrupt kill correct: an open entry naming what was being attempted and what came
+next.
 
-📁 Created at: [full-path-to-directory]
+An open entry beside uncommitted changes means an interrupted task. An open entry beside a
+clean tree means a session that simply moved on. The working tree is the authority, never this
+file.
 
-📄 Files created:
-├── README.md      - Project overview and navigation
-├── research.md    - Research documentation (status: draft)
-├── design.md      - Design decisions (status: draft)
-└── tasks.md       - Execution plan (1/4 tasks complete)
+## [YYYY-MM-DD HH:MM] — OPEN — [what is being attempted]
 
-📊 Metadata captured:
-- Git commit: [commit-hash]
-- Branch: [branch-name]
-- Repository: [repo-name]
-- Created by: [username]
-- Timestamp: [ISO-8601]
+- **Task/phase**: [ID and one-line description]
+- **Next action**: [the literal next thing to do, specific enough to act on cold]
+- **Started at**: [commit hash]
 
-🔄 Next Steps:
+## [YYYY-MM-DD HH:MM] — CLOSED — [what was attempted]
 
-1. Research the codebase:
-   /create_research [directory]
-
-2. After research, create design:
-   /create_design [directory]
-
-3. Then generate execution plan:
-   /create_execution [directory]
-
-4. Implement with TDD:
-   /implement_tasks [directory]
-
-Ready to begin research phase!
-```
-
-## Important Notes
-
-### Argument Usage
-
-- `$1` - Project name (required if using arguments)
-- `$2` - Base directory (optional, defaults to docs/plans)
-- `$3` - Ticket reference (optional)
-- `$ARGUMENTS` - All arguments as a single string
-
-### Status Progression
-
-Files progress through defined states:
-
-- `research.md`: draft → in-progress → complete
-- `design.md`: draft → ready → implementing → complete
-- `tasks.md`: not-started → in-progress → complete
-
-## Error Handling
-
-Check for and handle:
-
-- Directory already exists → Suggest different name or confirm overwrite
-- Invalid project name → Request kebab-case format
-- Git not available → Use placeholder values
-- No write permissions → Suggest different location
+- **Task/phase**: [ID and one-line description]
+- **Landed**: [what actually changed]
+- **Commits**: [range or hashes]
+- **Learned**: [anything that changes how the remaining work should proceed — omit if nothing]
+- **Blocked by**: [anything blocking — omit if nothing]
+````
