@@ -761,8 +761,11 @@ verification hint.
       `create_handoff`'s "when to create" list, and `help`. (~10 calls)
 - [ ] **P3-T10** — `plugin/skills/explore_design/` (D10): the optional stage — frame, diverge,
       discuss, converge only on explicit approval, record. Writes a `thoughts/` exploration
-      document plus a decision record in the markdown decisions log (D6). Never writes
-      `design.md`. Includes the model self-check in D12's shape: recommends Opus, names Fable
+      document whose **top section is the decision record** — chosen direction, rationale,
+      rejected alternatives (D6). Never writes `design.md`. **This is the exact shape `P2-T4`
+      already consumes**: `create_design`'s Step 1 scans `[project-dir]/thoughts/` for that
+      section, so a divergence here means the consumer silently finds nothing and the feature
+      never fires. Decided 2026-09-08, see design.md → Resolved Decisions. Includes the model self-check in D12's shape: recommends Opus, names Fable
       as the available upshift, warns below Opus, never blocks. (~30 calls)
 - [ ] **P3-T11** — The conditional nudge for `explore_design`: the research stages suggest it
       only when findings show more than one viable approach. Word it against the false-positive

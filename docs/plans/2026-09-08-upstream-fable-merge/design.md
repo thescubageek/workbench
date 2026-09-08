@@ -381,8 +381,13 @@ document rather than annotating it, and why this decision keeps the two lifetime
 
 - **Decision**: an optional facilitated architecture stage sits between research and design:
   frame the decision space, diverge, discuss, converge only on explicit approval, and record
-  the outcome as a `thoughts/` exploration document plus a decision record in the design
-  decisions log. It never writes `design.md`. `create_design` consumes a recorded decision at
+  the outcome as a `thoughts/` exploration document whose **top section is the decision
+  record** — chosen direction, rationale, and rejected alternatives. It never writes
+  `design.md`; `create_design` is what promotes the record into `## Technical Decisions`.
+  *(Clarified 2026-09-08: this sentence originally read "plus a decision record in the design
+  decisions log", which contradicted "never writes `design.md`" because the decisions log is
+  `design.md`. Resolved in Resolved Decisions below; the behaviour is unchanged from what
+  `P2-T4` shipped.)* `create_design` consumes a recorded decision at
   its cold start and formalizes it rather than regenerating options; with no record, its
   behavior is unchanged. The research stages suggest it only when findings show more than one
   viable approach.
@@ -732,6 +737,26 @@ Decisions made after the design was approved, recorded here by `/wb:resolve_ques
     cannot assume the reader is in this repository looking at this plan.
   - Trade-off: none. A briefer note would have been wrong for the second and third machine.
   - Source: design.md A1 · Decided 2026-09-08
+
+- **`explore_design`'s decision record lives at the top of its `thoughts/` exploration
+  document, and nowhere else** (resolves D10's internal contradiction). `create_design` scans
+  `[project-dir]/thoughts/` for an exploration document carrying a decision-record section,
+  reads it fully, and formalizes it into `design.md`'s `## Technical Decisions`.
+  `explore_design` never writes `design.md`.
+  - Rationale: D10 as written said both "a decision record in the design decisions log" and
+    "never writes `design.md`" — and the decisions log *is* `design.md`, so the two clauses
+    could not both hold. This reading keeps the second clause literal, needs no new artifact,
+    and puts the decision where a reader of the exploration is already looking. It also keeps
+    the stage boundary intact: `design.md` has exactly one writer, `create_design`.
+  - Why it needed deciding now rather than at `P3-T10`: `P2-T4` shipped `create_design`'s
+    cold-start check today and had to consume *something*. A producing stage and a consuming
+    stage that disagree about the location do not fail loudly — the consumer finds nothing,
+    silently takes its no-record path, and the whole feature never fires.
+  - Trade-off: the decision is not in the decisions log until `create_design` runs, so a plan
+    that explores and then stalls has its decision recorded only in `thoughts/`. Accepted: the
+    thoughts document is committed like everything else, and D8's continuity artifacts cover
+    the interrupted case.
+  - Source: design.md D10 · surfaced writing `P2-T4` · Decided 2026-09-08
 
 - **A skill's supporting file is read by named section, not whole, when it holds several
   independent blocks** (resolves the `create_project` templates question). `create_project`
