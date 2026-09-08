@@ -738,6 +738,30 @@ Decisions made after the design was approved, recorded here by `/wb:resolve_ques
   - Trade-off: none. A briefer note would have been wrong for the second and third machine.
   - Source: design.md A1 · Decided 2026-09-08
 
+- **A multi-line message block a skill emits verbatim is a template, and lives in
+  `templates.md`** (resolves the message-template question, and sets the convention for the
+  nine stages still to be reshaped). `create_design`'s three blocks — the Mode A
+  recorded-decision confirmation, the Mode B design-options message, and the Step 6
+  presentation — moved to named sections, each read by section at the point of use.
+  - Rationale: `P2-T14`'s own spec already treats exactly this content as `templates.md`
+    material ("the message and fragment set … the success summary, and the three Error
+    Handling message templates"), so leaving `create_design`'s inline would have shipped two
+    stages treating the same kind of block differently. The value is the rule, not the tokens:
+    nine stages remain, and one stated convention beats nine case-by-case judgment calls.
+  - Bound: this applies to multi-line blocks the skill emits **verbatim**. A three-line report
+    shape inline with the discipline that fires it — `create_design`'s tracer-bullet cull
+    report, for instance — stays put; moving it would cost more in indirection than it saves.
+  - Measured: `create_design` 4.5k → **4.1k** (−29.3% against its 5.8k baseline), and the
+    running fourteen-stage tally improves from −34.3% to **−36.1%**.
+  - Trade-off: one more read mid-conversation, which A4 confirmed is prompt-free; and a
+    second re-edit of a committed file, accepted for the same reason as the `P2-T1` amendment
+    — the alternative is discovering the inconsistency at the Phase 2 checkpoint.
+  - Related fragility, worth stating once: a `templates.md` section holding a fenced document
+    skeleton contains `##` headings of its own, so a section-scoped read must respect fence
+    boundaries rather than stopping at the next `##`. Mitigated by listing the real section
+    names in each `templates.md` header.
+  - Source: tasks.md Implementation Notes (design-cluster boundary) · Decided 2026-09-08
+
 - **`explore_design`'s decision record lives at the top of its `thoughts/` exploration
   document, and nowhere else** (resolves D10's internal contradiction). `create_design` scans
   `[project-dir]/thoughts/` for an exploration document carrying a decision-record section,

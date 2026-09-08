@@ -157,18 +157,9 @@ The architectural decision was already made and argued in `/wb:explore_design`. 
 generate options.** Presenting a fresh option set here would re-litigate a decision the user
 already reached, and would discard the reasoning the exploration produced.
 
-Present the recorded decision for confirmation:
-
-```
-Research and exploration already converged on a recorded decision:
-
-**Chosen direction**: [name from the decision record]
-**Rationale**: [rationale from the record]
-**Exploration record**: [thoughts doc path]
-
-I'll formalize this into design.md. Confirm, or tell me if the decision
-should be revisited.
-```
+Read the `## Recorded-decision confirmation message` section of
+[templates.md](templates.md) NOW and present the recorded decision for confirmation in that
+shape.
 
 - **On confirmation**: treat the recorded direction as the approved approach and go to Step 5.
   The exploration document supplies the Rejected Alternatives and their rationale — carry them
@@ -204,28 +195,8 @@ See the `tracer-bullet` skill for the full discipline.
 
 **Interactive Design Discussion**
 
-1. **Generate design options**:
-
-   ```
-   Based on the research and verification agents, I see [2-3] possible approaches:
-
-   **Option A: [Descriptive Name]**
-   - Approach: [Brief description]
-   - Pros: [Benefits]
-   - Cons: [Drawbacks]
-   - Risk: [Main risk]
-   - Precedent: [Similar implementation from agents]
-
-   **Option B: [Descriptive Name]**
-   - Approach: [Brief description]
-   - Pros: [Benefits]
-   - Cons: [Drawbacks]
-   - Risk: [Main risk]
-   - Precedent: [Similar implementation from agents]
-
-   Which approach aligns best with your priorities?
-   Or should we explore a hybrid approach?
-   ```
+1. **Generate design options**: read the `## Design options message` section of
+   [templates.md](templates.md) NOW and present them in that shape.
 
 2. **Discuss trade-offs**:
    - Performance vs simplicity
@@ -254,40 +225,8 @@ for a pending decision, writes the decision with its rationale and trade-off und
 
 ### Step 6: Review and Iterate
 
-**1. Present the design:**
-
-```
-✅ Design document created at: [path]/design.md
-
-Design approach: [selected approach name]
-
-Key decisions made:
-
-- [Major decision 1]
-- [Major decision 2]
-- [Major decision 3]
-
-Pending decisions: [count]
-
-Agent findings incorporated:
-
-- [Finding 1 from verification agents]
-- [Finding 2 from integration analysis]
-
-The design document includes:
-
-- Problem statement and success metrics
-- Technical architecture decisions
-- Clear scope boundaries
-- Risk analysis and mitigation
-
-Please review and provide feedback:
-
-- Are the success criteria appropriate?
-- Do the technical decisions align with your vision?
-- Are there risks we haven't considered?
-- Should any out-of-scope items be included?
-```
+**1. Present the design:** read the `## Design presentation message` section of
+[templates.md](templates.md) NOW and present it in that shape.
 
 **2. Iterate based on feedback:**
 

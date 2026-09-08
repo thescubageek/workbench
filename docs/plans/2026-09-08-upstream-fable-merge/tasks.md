@@ -1005,10 +1005,11 @@ None open.
   lines of judgment that must live in `SKILL.md` by definition. A stage can be split perfectly
   and still move little if the task asks it to grow. **Track the aggregate, not the stage** —
   the bar is on the fourteen-stage total, and three of four stages are carrying it.
-  Left unspent deliberately: `create_design`'s three message-template blocks (Step 4's two
-  option blocks, Step 6's presentation) are ~70 lines that `P2-T14`'s spec would treat as
-  `templates.md` material. `P2-T4`'s spec does not say to move them, and the aggregate does not
-  need it, so they stayed. Recorded as the next lever if the aggregate ever dips.
+  The lever noted here was **spent the same day**, not for the tokens but for the convention:
+  `create_design`'s three message blocks moved to `templates.md` under named sections, and the
+  rule now stands for the nine stages still to come — a multi-line block a skill emits verbatim
+  is a template. `create_design` 4.5k → 4.1k (−29.3%); running tally **−36.1%**. See design.md
+  → Resolved Decisions.
 - **2026-09-08, `P2-T5`/`P3-T7` seam.** `P2-T5` adds `journal.md` to the generated plan
   directory (D8a), which means it needs a template *now* — a fifth file with no template would
   be a defect. So `templates.md` carries a `## journal.md Template` section with the open/closed
