@@ -733,6 +733,25 @@ Decisions made after the design was approved, recorded here by `/wb:resolve_ques
   - Trade-off: none. A briefer note would have been wrong for the second and third machine.
   - Source: design.md A1 · Decided 2026-09-08
 
+- **`## Important Notes` is tail reference material and moves to `reference.md` in every stage
+  that has one — `P2-T1` amended to match** (closes the reference-scope question the research
+  cluster raised). `create_research`'s Important Notes now sits in its `reference.md` with a
+  pointer left in `SKILL.md`, exactly as `P2-T2` does it.
+  - Rationale: the phase recipe's own step 4 already says to move tail reference material and
+    names `## Important Guidelines`; `## Important Notes` is the same kind of section under a
+    different name. A survey of all 29 Phase 2 tasks found every other stage carrying such a
+    section already names it in that task's reference scope — `create_research` was the single
+    omission. So this is applying the stated recipe, not amending it, and "fix this stage" and
+    "make it a phase-wide rule" are the same act because there is nothing else to fix.
+  - Evidence it mattered: `create_research` measured **−22.6%** on-invoke tokens against the
+    −30% bar while `create_product_research` — same recipe, same cluster, Important Notes moved
+    — measured **−38.5%**. After the move: **~5.3k → ~3.7k = −30.2%**, and the cluster goes
+    from −31.4% to **−34.7%**.
+  - Trade-off: it re-opens a file one commit after the plan's edit-once rule closed it. Accepted
+    because the alternative is re-opening it at the Phase 2 checkpoint instead, which is what
+    that rule exists to prevent — and the cost of deciding now is one small follow-up commit.
+  - Source: tasks.md Implementation Notes (research-cluster measurement) · Decided 2026-09-08
+
 - **Plan directories are transient by default and promoted on a trigger** — recorded as a
   full decision at **D21** above, because it is a convention the shipped skills carry rather
   than a one-off resolution. Source: the user's transient-versus-permanent question ·

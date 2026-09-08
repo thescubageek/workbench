@@ -416,9 +416,13 @@ file lands.
 **Research cluster**
 
 - [x] **P2-T1** — `create_research`: template = `## Research Question` → `## Next Steps`;
-      prompts = `## Parallel Research Strategy`; reference = `## Configuration`. Content: D6
+      prompts = `## Parallel Research Strategy`; reference = `## Important Notes` and
+      `## Configuration`. Content: D6
       (Open Questions become a markdown table with `Q1` local IDs, not `bd create`); D8c (read
-      `.claude/wb/knowledge.md` at Step 1); D18 bullets at `:80,:83,:214`. (~30 calls) (completed 2026-09-08 15:22)
+      `.claude/wb/knowledge.md` at Step 1); D18 bullets at `:80,:83,:214`. **Reference scope
+      amended 2026-09-08**: `## Important Notes` joins `## Configuration` — the recipe's step 4
+      already calls for moving tail reference material, and this was the only stage in the phase
+      whose spec omitted it. See design.md → Resolved Decisions. (~30 calls) (completed 2026-09-08 15:22, amended 16:05)
 - [x] **P2-T2** — `create_product_research`: template = `## Feature Overview` →
       `## Next Steps`; prompts = `## Parallel Research Strategy`; reference =
       `## Audience: Product Managers`, `## Workflow Position`, `## Important Notes`,
@@ -947,7 +951,13 @@ To determine during implementation:
   echoed the `PROBE-REF-RESOLVED` marker. A5 landed in the same session. Recorded in design.md
   → Resolved Decisions; the assumption rows are flipped
 - The real reduction ratio per stage — the −37% figure is a line-count projection, and
-  `claude plugin details` measures tokens, so the two will not match exactly
+  `claude plugin details` measures tokens, so the two will not match exactly. **Being answered
+  as the phase runs**; the gap is larger than "not exactly". Running tally, on-invoke tokens:
+  `create_research` −30.2% (5.3k → 3.7k, after the `P2-T1` amendment), `create_product_research`
+  −38.5% (6.5k → 4.0k). Line reduction ran roughly **twice** the token reduction in both, because
+  what moves out — fenced `Task({…})` blocks and templates of short bracketed lines — is much
+  sparser per line than the prose that stays. **Size future splits by what the tokens do, not by
+  `wc -l`.**
 - Whether any of the four `create_project` templates is large enough to warrant its own file
   rather than one `templates.md`
 - Whether the PreCompact journal refresh can be done in the hook without judgment, or needs a
@@ -979,11 +989,13 @@ None open.
   fenced `Task({…})` blocks and a template of short bracketed lines — is far sparser per line
   than the prose that stays. `create_product_research` hit **−38.5%** (~6.5k → ~4.0k). Cluster
   total **11.8k → 8.1k = −31.4%**, so the 30% bar is achievable but not automatic.
-  **The variable is `## Important Notes`.** `P2-T2` moves it to `reference.md` and clears the
-  bar comfortably; `P2-T1` is the only task in the plan whose `reference.md` scope is
-  `## Configuration` *alone*, so its Important Notes stay in `SKILL.md` — and it is the task
-  that missed. If the running aggregate drifts under 30%, revisiting `P2-T1`'s reference scope
-  is the first lever, not a re-split of the files that already passed.
+  **The variable was `## Important Notes`** — and it was resolved the same day rather than
+  carried. `P2-T2` moved it to `reference.md` and cleared the bar; `P2-T1`'s spec said
+  `reference = ## Configuration` alone, and it was the task that missed. A survey of all 29
+  Phase 2 tasks showed `create_research` was the **only** stage whose spec omitted a tail
+  reference section its source file actually has, so `P2-T1` was amended to match the recipe
+  (design.md → Resolved Decisions). **Result: `create_research` ~5.3k → ~3.7k = −30.2%; cluster
+  11.8k → 7.7k = −34.7%.** Both now clear the bar on their own.
   Two smaller notes: a `reference.md` holding only `## Configuration` is 13 lines, which buys
   almost nothing and adds a drift surface — built as specified, flagged as an observation, not
   changed. And moved blocks were moved **verbatim**: `templates.md` still says
