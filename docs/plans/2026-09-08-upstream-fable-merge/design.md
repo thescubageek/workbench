@@ -733,6 +733,28 @@ Decisions made after the design was approved, recorded here by `/wb:resolve_ques
   - Trade-off: none. A briefer note would have been wrong for the second and third machine.
   - Source: design.md A1 · Decided 2026-09-08
 
+- **A skill's supporting file is read by named section, not whole, when it holds several
+  independent blocks** (resolves the `create_project` templates question). `create_project`
+  keeps **one** `templates.md` holding all four artifact skeletons under named headings, and
+  each of Step 4's four creation sub-steps directs a read of *its* section by name.
+  - Rationale: no skeleton is an outlier — README 51 lines, research 75, design 82, tasks 81,
+    289 total — so none earns its own file on size. Upstream ships the identical shape at
+    nearly the identical size (one `templates.md` at 321 lines) and points at named sections
+    per step, so this is a proven layout rather than a guess. Four separate files would add
+    four supporting-file links to keep in sync for no measured gain.
+  - The section-scoped read is the load-bearing half. A single whole-file pointer would pull
+    all ~300 lines of skeletons in to write one document, and again on every re-read after a
+    context loss. Naming the section is what makes progressive disclosure actually progressive
+    inside a supporting file, not just between them.
+  - Generalizes beyond this stage: any supporting file holding several independent blocks gets
+    named sections and section-scoped reads. `create_mockup`'s ~300-line templates (`P2-T20`)
+    and `create_tasks`' supporting set (`P2-T7`) are the other candidates.
+  - Trade-off: a section-scoped read depends on the section heading staying stable, so renaming
+    a heading in a supporting file silently breaks the pointer that names it. Cheap to catch —
+    the headings are in the same repository as the pointers — and the alternative costs tokens
+    on every read.
+  - Source: tasks.md Implementation Discoveries · Decided 2026-09-08
+
 - **`## Important Notes` is tail reference material and moves to `reference.md` in every stage
   that has one — `P2-T1` amended to match** (closes the reference-scope question the research
   cluster raised). `create_research`'s Important Notes now sits in its `reference.md` with a

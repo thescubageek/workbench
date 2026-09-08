@@ -442,7 +442,11 @@ file lands.
 - [ ] **P2-T5** — `create_project`: template file is large — it embeds four artifact
       skeletons (`## Overview`→`## Git Information` README, `## Research Question`→
       `## References` research, `## Problem Statement`→`## References` design,
-      `## Progress Overview`→`## 🔗 Quick Reference` tasks). All four → `templates.md`;
+      `## Progress Overview`→`## 🔗 Quick Reference` tasks). All four → **one** `templates.md`
+      under four named headings (`## README.md Template`, `## research.md Template`,
+      `## design.md Template`, `## tasks.md Template`), and each of Step 4's four creation
+      sub-steps directs a read of **its section by name**, not the whole file — decided
+      2026-09-08, see design.md → Resolved Decisions;
       reference = `## Important Notes`, `## Error Handling`. Content: D4 (the generated
       tasks.md skeleton gets the checkbox convention and `task_tracking:` frontmatter; delete
       the `:343` note conceding checkboxes are documentation-only); D8a (the generated plan
@@ -958,8 +962,12 @@ To determine during implementation:
   what moves out — fenced `Task({…})` blocks and templates of short bracketed lines — is much
   sparser per line than the prose that stays. **Size future splits by what the tokens do, not by
   `wc -l`.**
-- Whether any of the four `create_project` templates is large enough to warrant its own file
-  rather than one `templates.md`
+- ~~Whether any of the four `create_project` templates is large enough to warrant its own file
+  rather than one `templates.md`~~ — **answered 2026-09-08: no.** README 51 lines, research 75,
+  design 82, tasks 81 — 289 total, no outlier, and upstream ships one `templates.md` at 321
+  lines for the same four. One file with four named sections, read **by section** per creation
+  step. Recorded in design.md → Resolved Decisions, which also generalizes the section-scoped
+  read to any supporting file holding several independent blocks
 - Whether the PreCompact journal refresh can be done in the hook without judgment, or needs a
   model-written line (D8a assumes mechanical fields only)
 
