@@ -471,8 +471,9 @@ file lands.
       D15. (~25 calls) (completed 2026-09-08 17:12)
 - [x] **P2-T8** — `create_execution` alias stub (D9): `plugin/skills/create_execution/` with a
       stub `SKILL.md` (`disable-model-invocation: true`) that announces the rename once and
-      then reads the canonical skill, plus one pointer file per supporting file so a stale
-      cached body still resolves its reads. (~10 calls) (completed 2026-09-08 17:16)
+      then reads the canonical skill. ~~plus one pointer file per supporting file so a stale
+      cached body still resolves its reads~~ — **pointer files dropped 2026-09-08** (design.md
+      → Resolved Decisions); the four written for this alias were deleted. (~10 calls) (completed 2026-09-08 17:16)
 
 **Implementation cluster**
 
@@ -563,8 +564,8 @@ file lands.
       `plugin/skills/implement_coordinated/` → `implement` and
       `plugin/skills/implement_tasks/` → `implement_inline`. Each is a stub `SKILL.md`
       (`disable-model-invocation: true`) that announces the rename once and then reads the
-      canonical skill, plus one pointer file per supporting file the canonical skill has, so a
-      session holding a stale cached body still resolves its reads. (~15 calls)
+      canonical skill. **Stubs only — no pointer files** (decided 2026-09-08, design.md →
+      Resolved Decisions). (~10 calls)
 - [ ] **P2-T17** — `model-help` (D12): add the upshift-ladder semantics — a named next-tier-up
       per phase, entered only by explicit election, never by a baseline. Rename the
       `create_execution` row to `create_tasks`, the `implement_tasks` row to

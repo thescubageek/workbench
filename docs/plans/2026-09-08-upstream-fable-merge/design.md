@@ -375,6 +375,7 @@ document rather than annotating it, and why this decision keeps the two lifetime
   reverses. Doing them separately would mean editing the same regions twice. The alias
   follows upstream's proven precedent, whose one recorded gotcha — a session holding a stale
   cached skill body — is what its pointer files exist to absorb.
+  *(Amended 2026-09-08: the stubs ship; the pointer files do not. See Resolved Decisions.)*
 - **Trade-off**: an extra directory in the menu until removal.
 
 ### D10: `explore_design` is added as an optional stage
@@ -737,6 +738,34 @@ Decisions made after the design was approved, recorded here by `/wb:resolve_ques
     cannot assume the reader is in this repository looking at this plan.
   - Trade-off: none. A briefer note would have been wrong for the second and third machine.
   - Source: design.md A1 · Decided 2026-09-08
+
+- **The three renames ship as stub skills only — no pointer files** (amends D9, narrows
+  `P2-T8` and `P2-T29`). Each deprecated name keeps a `SKILL.md` that announces the rename once
+  and reads the canonical skill. The per-supporting-file pointer stubs are dropped, and the four
+  already written for `create_execution` are deleted.
+  - Rationale: A1's resolution removed most of D9's basis. A deprecation window exists to give
+    *other people* time to migrate, and A1 established there are none — one operator, a few
+    machines. What survives is narrower and real: muscle memory, and the fact that plan
+    directories already written on other machines have `/create_execution` and
+    `/implement_tasks` baked into their generated Quick Commands blocks. Those documents cannot
+    be retroactively updated, so a stub turns a dead command into a one-line redirect. That is
+    worth keeping.
+  - Why the pointer files are not: they guard exactly one case — a session already running when
+    the plugin updates, still holding the *old* skill body, whose relative reads then miss.
+    A stale body never routes through the stub, so stubs and pointers cover different failures.
+    That one is transient and self-healing, and its remedy (restart the session) is already the
+    first line of the migration note.
+  - Cost, stated precisely: dropping the pointers saves **no tokens** — only `SKILL.md` loads at
+    invocation. It removes ~10 files, a directory's worth of clutter per alias, and a removal
+    chore at 3.0.0. The stubs themselves cost ~320 on-invoke and ~30 always-on each, so ~1k and
+    ~90 for three; that surcharge is accepted and is not captured by the fourteen-stage metric.
+  - Trade-off: a session that updates mid-flight and then invokes a stale supporting-file path
+    gets a read error instead of a redirect. Accepted — it is one session, the message is
+    legible, and restarting is already prescribed.
+  - Note on PD4: it is sometimes read as an argument *for* aliases; it is not. It argues that if
+    the mechanism is being built anyway, all three renames should ride it at once rather than
+    splitting into two migrations. That reasoning is untouched by this amendment.
+  - Source: user question, 2026-09-08 · amends D9 · Decided 2026-09-08
 
 - **A multi-line message block a skill emits verbatim is a template, and lives in
   `templates.md`** (resolves the message-template question, and sets the convention for the
