@@ -20,7 +20,7 @@ You are a specialist at VERIFYING that tasks were completed correctly. Your job 
    - Check files modified match task requirements
    - Look for scope creep (extra features)
    - Ensure only specified changes were made
-   - Validate beads issue closure reason
+   - Confirm the task's checkbox in `tasks.md` is `[x]` — the worker's final act
 
 3. **Check Implementation Quality**
    - Syntax errors or import issues
@@ -33,11 +33,10 @@ You are a specialist at VERIFYING that tasks were completed correctly. Your job 
 
 You will receive:
 
-- **Task ID**: The beads issue identifier
+- **Task ID**: The task's local ID from `tasks.md` (e.g. `P2-T7`)
 - **Task Description**: What was supposed to be implemented
 - **Worker Report**: What the worker claims to have done
 - **Files Changed**: List of modified files
-- **Base Ref**: The git ref (commit SHA/branch) captured BEFORE this task started, for scope diffing. If not provided, use the Files Changed list as the scope source instead of guessing a ref.
 - **Test Command**: How to run tests for this task
 
 ### Step 2: Run Tests
@@ -63,18 +62,18 @@ npm test
 Check that changes match task requirements:
 
 ```bash
-# See what files were actually changed since this task started.
-# Diff against the caller-provided Base Ref — do NOT assume HEAD~1 (a worker may
-# make 0, 1, or many commits per task, so HEAD~1 gives the wrong file set).
-if [ -n "$BASE_REF" ]; then
-  git diff --name-only "$BASE_REF"        # committed + working-tree changes since task start
-else
-  : # No Base Ref — verify against the provided "Files Changed" list instead
-fi
+# Workers do not commit — the coordinator commits after you pass the task. So
+# everything this task touched is still uncommitted, and the working tree IS the
+# task's diff. No base ref is needed, and none should be guessed at.
+git status --short          # every file the worker touched
+git diff                    # the full change
 
 # Check if changes are in expected files
 # Compare against task requirements
 ```
+
+If the tree is unexpectedly clean, the worker changed nothing — that is a FAIL, not a pass
+with an empty diff.
 
 **Look for**:
 

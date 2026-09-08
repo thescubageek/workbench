@@ -477,15 +477,15 @@ file lands.
 
 **Implementation cluster**
 
-- [ ] **P2-T9** — `implement_tasks` → **`implement_inline`** (PD4): directory becomes
+- [x] **P2-T9** — `implement_tasks` → **`implement_inline`** (PD4): directory becomes
       `plugin/skills/implement_inline/`, frontmatter `name:` changes with it. No output template. Reference = `## Handling Mismatches`,
       `## Resume Logic`, `## TDD Best Practices`, `## Special Considerations`,
       `## Error Handling`, `## Important Guidelines`, `## Configuration` (~180 lines).
       Carry `P1-T7`'s `### Extras and edits` section through the reshape — it stays beside the
       scope block, not in `reference.md`. Content: D4 (reverse `:315-317` and `:684-686` — flipping the checkbox *is* the tracking
       act now); D5 (defer counters to `update_status`); D8a (open a journal entry at task
-      start, close it at completion); D18 bullet at `:117`. (~35 calls)
-- [ ] **P2-T10** — `implement_coordinated` → **`implement`** (PD4), part 1 — **the rename and
+      start, close it at completion); D18 bullet at `:117`. (~35 calls) (completed 2026-09-08 17:12)
+- [x] **P2-T10** — `implement_coordinated` → **`implement`** (PD4), part 1 — **the rename and
       structural split only**: directory becomes `plugin/skills/implement/`, frontmatter
       `name:` changes with it; its description must carry the discrimination against
       `implement_inline` ("worker agents, main context kept clean" vs "inline on the current
@@ -496,8 +496,8 @@ file lands.
       `## Resume Logic`, `## Advantages Over Sequential Implementation`,
       `## Migration from implement_tasks`, `## Important Guidelines`, `## Configuration`.
       **Delete** `## Helper Functions` (the `determineModel()` regex) per D13. Do **not** touch
-      the beads gates in this task. (~30 calls)
-- [ ] **P2-T28** — `implement` (formerly `implement_coordinated`), part 2 — **the tracker
+      the beads gates in this task. (~30 calls) (completed 2026-09-08 17:26)
+- [x] **P2-T28** — `implement` (formerly `implement_coordinated`), part 2 — **the tracker
       gates**: this file's beads
       coupling is not one section, it recurs in Steps 2, 4, 6, 7, 8, and 9 (the availability
       probe and stop-and-wait block, `bd ready` task selection, the post-worker `bd show`
@@ -505,15 +505,15 @@ file lands.
       `git add .beads/` step). Remove all of them and re-derive each from the checkbox surface
       (D4), deferring counters to `update_status` (D5) and opening/closing journal entries
       (D8a). Split from `P2-T10` on tool-call budget per D15 — same file, disjoint regions,
-      sequential; the edit-once principle still holds per region. (~30 calls)
-- [ ] **P2-T11** — `plugin/agents/task-worker.md`: new. The worker contract currently inlined
+      sequential; the edit-once principle still holds per region. (~30 calls) (completed 2026-09-08 17:26)
+- [x] **P2-T11** — `plugin/agents/task-worker.md`: new. The worker contract currently inlined
       in `implement_coordinated`'s prompt template becomes a real agent definition with
       `tools`, `skills: [tdd-discipline]`, and `maxTurns`, and names `/wb:implement` as its
       spawner (PD4). Carries D20's surgical-edit and
       follow-ups-not-fixes constraints (from `P1-T7`) — this agent file is their primary home,
       and the coordinated path inherits them from here rather than restating them. Carries the
       D14 rule that workers do **not** commit, and that closing its own task is its final act — which is what makes
-      truncation detectable. (~15 calls)
+      truncation detectable. (~15 calls) (completed 2026-09-08 17:34)
 
 **Validation and status cluster**
 
@@ -545,21 +545,21 @@ file lands.
 
 **Execution-path decisions** *(same cluster's files, split out per D15)*
 
-- [ ] **P2-T15** — The single worker tier-rule statement (D13), in
+- [x] **P2-T15** — The single worker tier-rule statement (D13), in
       `plugin/skills/implement/SKILL.md` at the point of spawn. **PD2 resolved 2026-09-08**:
       the ladder is haiku for mechanical only · **Opus 4.8 1M (`claude-opus-4-8[1m]`)
       default** · Opus 5 on coordinator judgment for architectural or cross-cutting tasks ·
       Fable never as a first spawn, only as an explicit election after a verified failure,
       always at `effort: high`. Use the `[1m]` variant for the default, not base
       `claude-opus-4-8`. Never annotate `effort` on a haiku spawn. Every other restatement of the tiers becomes a
-      pointer to this one — including `reference.md` and the skill README. (~20 calls)
-- [ ] **P2-T16** — The failure path (D14): replace the two-identical-retry block with the
+      pointer to this one — including `reference.md` and the skill README. (~20 calls) (completed 2026-09-08 17:26)
+- [x] **P2-T16** — The failure path (D14): replace the two-identical-retry block with the
       truncation-vs-failure discrimination. Inspect the working tree to tell them apart;
       finish or re-delegate the remaining slice for truncation; escalate one rung for a
       verified failure; exactly one escalation, then the phase checkpoint's blocking list.
       Move the commit to the coordinator, after the verifier passes. Update
       `plugin/agents/task-verifier.md` to check scope against the working tree rather than a
-      caller-supplied base ref, since workers no longer commit. (~25 calls)
+      caller-supplied base ref, since workers no longer commit. (~25 calls) (completed 2026-09-08 17:31)
 - [ ] **P2-T29** — The two `implement_*` alias stubs (PD4), mirroring `P2-T8`:
       `plugin/skills/implement_coordinated/` → `implement` and
       `plugin/skills/implement_tasks/` → `implement_inline`. Each is a stub `SKILL.md`
@@ -661,7 +661,16 @@ file lands.
       discipline skill
 - [ ] `grep -rn "determineModel" plugin/` → no hits (D13)
 - [ ] Exactly one statement of the worker tier rule:
-      `grep -rln "Haiku:.*Sonnet:.*Opus:" plugin/` returns one file
+      ~~`grep -rln "Haiku:.*Sonnet:.*Opus:" plugin/` returns one file~~ — **the grep no longer
+      matches its own implementation.** It was written against the old prose shape
+      (`Haiku: … Sonnet: … Opus: …` on one line); `P2-T15` writes the ladder as a table, so the
+      pattern returns **0** files, not 1. The *intent* holds: `plugin/skills/implement/SKILL.md`
+      Step 5 is the only place the worker ladder is stated, and `reference.md` points at it
+      rather than restating. Working form:
+      `grep -rln 'claude-opus-4-8\[1m\]' plugin/skills/` → exactly one file. Remaining `haiku`
+      mentions elsewhere are per-`Task()` pins for research agents, agent frontmatter, and the
+      main-session authorities (`model-help`, `daily-digest`) — different rules, and `P2-T17`
+      owns aligning `model-help`
 - [ ] `./plugin/scripts/lint --all` — clean, or no new findings vs the Phase 0 baseline
 - [ ] `grep -rn "think deeply\|ultrathink" plugin/ CLAUDE.md` → no hits
 - [ ] **The headline metric**: `claude plugin details wb` on-invoke total for the fourteen
@@ -1023,6 +1032,33 @@ None open.
 
 ### Implementation Notes
 
+- **2026-09-08, implementation cluster complete** — and it took **six** tasks in one pass, not
+  four. `P2-T9`, `P2-T10`, `P2-T28` and `P2-T11` as scheduled, **plus `P2-T15` and `P2-T16`
+  pulled forward** from the execution-path cluster. Reasoning: all four of `P2-T10`, `P2-T28`,
+  `P2-T15` and `P2-T16` edit `plugin/skills/implement/SKILL.md`, and running them in document
+  order means four passes over the file the plan calls its deepest-coupled. The split's stated
+  reason is **tool-call budget for a delegated worker** (D15) — which does not bind an inline
+  coordinator. Doing them separately would also have meant writing the *old* tier prose
+  (`Opus: Everything else - DEFAULT`) and the *old* two-retry failure path, then deleting both
+  two clusters later; `P2-T10` deletes `determineModel()` but `P2-T15` supplies its
+  replacement, so the intermediate state is a file whose tier rule contradicts PD2.
+  Results: `implement_tasks` → `implement_inline` **8.0k → 5.1k (−36.3%)**;
+  `implement_coordinated` → `implement` **9.8k → 5.8k (−40.8%)**.
+  **Running fourteen-stage tally: 48.8k → 27.8k = −43.0%.** The seven stages left need only
+  −12.5% to clear the bar.
+  One cost worth naming: `implement`'s **always-on** rose from ~40 to ~100 tokens, because PD4
+  requires its description to carry the discrimination against `implement_inline` — `implement`
+  is now the most generic trigger word in the menu, so the description has to do that work. A
+  deliberate trade, and always-on is paid by every session.
+- **2026-09-08, what replaced `bd close` as the worker's detectable final act.** D14 hangs
+  truncation detection on the worker's *last* action being observable, which under beads was
+  `bd close`. Tracker-free, the equivalent is **flipping the task's checkbox in `tasks.md`**,
+  and it composes with D14's other half better than the original did: workers do not commit, so
+  everything a worker touched sits in the working tree. Checkbox `[x]` + changes = finished;
+  checkbox `[ ]` + substantial changes = truncated; checkbox `[ ]` + clean tree = genuine
+  failure. Three states, one `git status`, opposite remedies. `agents/task-worker.md` states
+  the rule and *why* — flipping early or committing destroys the only signal that separates a
+  truncated task from a completed one.
 - **2026-09-08, execution-planning cluster complete** (`P2-T6`, `P2-T7`, `P2-T8`). The phase's
   biggest single result: `create_execution` 787 lines → `create_tasks/SKILL.md` **175**, and
   **9.4k → 3.1k on-invoke (−67%)**. The reason it dwarfs the others is that most of the
