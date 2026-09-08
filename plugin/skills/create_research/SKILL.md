@@ -1,11 +1,19 @@
 ---
+name: create_research
 description: Research codebase using parallel agents to document how things work
 argument-hint: "[project-directory] [research-question]"
+allowed-tools: Read
 ---
 
 # Generate Research Document
 
 Conducts comprehensive codebase research and documents findings by spawning specialized agents to work in parallel, gathering detailed information about existing implementation.
+
+Supporting files in this directory (read each when its step directs you to — never paraphrase from memory):
+
+- [sub-agent-prompts.md](sub-agent-prompts.md) — verbatim prompts for the Component Locator, Implementation Analyzer, Pattern Finder, and additional specialized agents
+- [templates.md](templates.md) — the `research.md` output template, including the Open Questions table
+- [reference.md](reference.md) — configuration
 
 ## Documentarian Rule
 
@@ -50,7 +58,7 @@ Before decomposing the research, load any context the ticket already carries —
 
 **Delegate to the `jira-context` skill.** If a Jira key (`[A-Z]+-\d+`) is available — from the arguments, the existing `research.md` frontmatter `ticket:` field, or the research question — invoke the `jira-context` skill with that key. It fetches the ticket via the Atlassian MCP, and if the description has an **Agents** section, follows those instructions to read in the files/docs/subsystems it points to and reports what was loaded.
 
-Use the skill's report as high-priority scoping input for the rest of this command:
+Use the skill's report as high-priority scoping input for the rest of this skill:
 
 - Read fully (per the Step 1 protocol) any files it surfaced.
 - Aim Step 4's parallel agents at the subsystems and entry points it named.
@@ -66,6 +74,20 @@ The `Agents` section shapes **where** you look; it does not change **what** you 
 - **CRITICAL**: Read these files yourself in the main context before spawning any sub-tasks
 - This ensures you have full context before decomposing the research
 
+**Also read `.claude/wb/knowledge.md` if it exists.** It holds durable facts about this
+repository — a constraint, a convention, a tool quirk — each with a date and a verification
+hint. Reading it here is what stops this session rediscovering what an earlier one already
+established. Two rules on how to use it:
+
+- **The entries are dated claims, not current truth.** If an entry bears on your research,
+  check it against the codebase using its verification hint rather than repeating it. An entry
+  you find false gets corrected or deleted in this session, not worked around.
+- **A knowledge entry is never a substitute for a finding.** `research.md` cites the codebase;
+  the knowledge file only tells you where to look and what has already been settled.
+
+Absent file, no problem — it is created on first use, so a repository with no entries is the
+normal starting state. Fall through.
+
 **⛔⛔⛔ BARRIER 1: STOP! Do NOT proceed to Step 2 until ALL mentioned files are FULLY read ⛔⛔⛔**
 
 ### Step 2: Validate Project Structure
@@ -77,22 +99,23 @@ The `Agents` section shapes **where** you look; it does not change **what** you 
 
 ### Step 3: Analyze and Decompose the Research Question
 
-**think deeply about what EXISTS in the codebase**
+**Document what EXISTS in the codebase**
 
 1. **Break down the user's query into composable research areas**
-2. **Take time to ultrathink about:**
+2. **REMEMBER: Document what IS, not what SHOULD BE**
+3. **Work out:**
    - Underlying patterns and connections that EXIST
    - Architectural implementations CURRENTLY IN PLACE
    - Which directories, files, or patterns are ACTUALLY PRESENT
 
-3. **Identify research areas** to investigate:
+4. **Identify research areas** to investigate:
    - Authentication flow (if relevant)
    - User validation points (if relevant)
    - API endpoints (if relevant)
    - Database schema (if relevant)
    - [Other areas specific to the research question]
 
-4. **Consider which specific components** to investigate
+5. **Consider which specific components** to investigate
 
 ### Step 4: Spawn Parallel Research Agents
 
@@ -100,103 +123,9 @@ The `Agents` section shapes **where** you look; it does not change **what** you 
 
 A `tracer-bullet` move adapted for research: spawning the heavy analyzer/pattern fleet at the wrong subsystem wastes the whole round. If the research areas from Step 3 rest on an unverified guess about *where* the code lives, run **one** quick locator pass first to confirm the target, then aim the parallel agents at the confirmed location. This is scoping, not approach-culling — you're still a documentarian. If the location is already clear from Step 1's files, skip the probe and fan out directly. Don't manufacture a probe.
 
-Create multiple Task agents to research different aspects concurrently using our specialized agents:
+Read [sub-agent-prompts.md](sub-agent-prompts.md) NOW and spawn the agents it defines, concurrently. It carries the fan-out announcement, the three typed agent prompts verbatim, the list of additional specialized agents to consider, and the parallel-execution shape.
 
 **Sub-agents are READ-ONLY** — they return findings only; YOU write `research.md` after synthesizing.
-
-```
-## Parallel Research Strategy
-
-Based on the research question "[research-question]", I'll spawn specialized agents to investigate:
-
-1. **Locating Components** - Finding where features are implemented
-2. **Analyzing Implementation** - Understanding how code works
-3. **Finding Patterns** - Identifying conventions and similar implementations
-```
-
-#### Agent Spawning Examples
-
-**Agent 1: Component Locator**
-
-```javascript
-Task({
-  description: "Find [feature] components",
-  prompt: `Find all files related to [feature].
-
-  Search for:
-  - Source files implementing [feature]
-  - Test files for [feature]
-  - Configuration files
-  - Related documentation
-
-  Focus on [specific directories if known].
-  Return findings only; write nothing.`,
-  subagent_type: "codebase-locator",
-  model: "haiku"
-})
-```
-
-**Agent 2: Implementation Analyzer**
-
-```javascript
-Task({
-  description: "Analyze [feature] implementation",
-  prompt: `Document the codebase as it exists, with file:line references — describe
-  HOW IT CURRENTLY WORKS; no improvements or issue-spotting (document what IS,
-  not what SHOULD BE). Return findings only; write nothing.
-
-  Understand how [feature] works. Analyze:
-  - Entry points and main functions
-  - Data flow through the system
-  - Key algorithms and logic
-  - Error handling approaches
-
-  Start with [specific files if known].`,
-  subagent_type: "codebase-analyzer",
-  model: "sonnet"
-})
-```
-
-**Agent 3: Pattern Finder**
-
-```javascript
-Task({
-  description: "Find [pattern] examples",
-  prompt: `Identify [pattern type] in the codebase.
-
-  Find:
-  - Similar implementations to [feature]
-  - Naming conventions for [component type]
-  - Common patterns for [functionality]
-  - Testing approaches for [feature type]
-
-  Return findings only; write nothing.`,
-  subagent_type: "pattern-finder",
-  model: "haiku"
-})
-```
-
-**Additional specialized agents** based on research focus:
-
-- Database schema investigation
-- API endpoint analysis
-- Frontend component exploration
-- Configuration and environment analysis
-- Testing pattern discovery
-
-#### Parallel Execution
-
-```javascript
-// Spawn multiple agents concurrently:
-const agents = [
-  componentLocator,
-  implementationAnalyzer,
-  patternFinder,
-  // Add more as needed
-];
-
-// All agents work in parallel for efficiency
-```
 
 **CRITICAL Agent Instructions (MUST follow exactly):**
 
@@ -211,7 +140,7 @@ const agents = [
 
 ### Step 5: Synthesize Findings
 
-**think deeply about documenting ONLY what EXISTS**
+**Document ONLY what EXISTS**
 
 **IMPORTANT**: Wait for ALL sub-agent tasks to complete before proceeding
 
@@ -225,132 +154,17 @@ const agents = [
 
 ### Step 6: Document Findings
 
-Update the research.md file with:
+Read [templates.md](templates.md) NOW and write `research.md` in the shape it gives.
 
-````markdown
----
-project: [from existing frontmatter]
-ticket: [from existing frontmatter]
-created: [from existing frontmatter]
-status: complete
-last_updated: [YYYY-MM-DD]
----
+Two things about that template are load-bearing rather than cosmetic:
 
-# Research: [Project Name]
-
-**Created**: [original date]
-**Last Updated**: [YYYY-MM-DD]
-**Ticket**: [ticket-reference or N/A]
-
-## Research Question
-
-[Original user query]
-
-## Summary
-
-[High-level documentation of what was found, answering the user's question by describing what exists - 2-3 paragraphs]
-
-## Detailed Findings
-
-### [Component/Area 1]
-
-**Location**: `path/to/component/`
-
-**What exists**:
-- Description of current implementation ([`file.ext:123`](link))
-- How it connects to other components
-- Current implementation details (without evaluation)
-
-**Key code**:
-```language
-// Actual code snippet from file.ext:123-145
-// Showing how it currently works
-```
-
-**How it works**:
-
-1. [Step-by-step explanation of current flow]
-2. [With specific file:line references]
-3. [Describing actual behavior]
-
-### [Component/Area 2]
-
-[Continue pattern...]
-
-## Architecture Documentation
-
-**Current patterns found**:
-
-- Pattern 1: [Description of pattern and where used]
-  - Example: `src/auth/validator.ts:45-67`
-  - Example: `src/api/middleware.ts:23-30`
-
-**Component connections**:
-
-- [Component A] → [Component B]: [How they interact]
-  - Entry point: `file1.ext:123`
-  - Exit point: `file2.ext:456`
-
-**Conventions observed**:
-
-- Files are organized by [observed pattern]
-- Naming follows [observed convention]
-- Testing uses [observed approach]
-
-## Code References
-
-Quick reference list:
-
-- `path/to/file1.ext:123` - Main entry point for X
-- `path/to/file2.ext:45-67` - Core validation logic
-- `path/to/file3.ext:89` - Database queries for Y
-- `path/to/file4.ext:200-250` - Error handling implementation
-
-## Similar Implementations
-
-Existing patterns in the codebase that might be relevant:
-
-**Example from `path/to/example.ext:100-120`**:
-
-```language
-// Code showing similar pattern already in use
-```
-
-This pattern is also used in:
-
-- `other/file.ext:50` - For feature X
-- `another/file.ext:75` - For feature Y
-
-## Open Questions
-
-Questions that require resolution before proceeding are tracked in beads, NOT in this document.
-
-**To add a question**:
-
-```bash
-bd create "Q: [your question]" --type=task --priority=2 \
-  -d "Research question. Blocks: [what can't proceed without this answer]"
-# → Returns issue ID (e.g., prompts-abc)
-```
-
-**Active questions** (reference only, beads is source of truth):
-
-Use `bd list --status=open` to see all open questions, or reference by ID:
-- `[id]`: [Brief question summary] - blocks design decisions about [area]
-- `[id]`: [Brief question summary] - blocks [what it blocks]
-
-To see full question details: `bd show [id]`
-
-## Next Steps
-
-Based on the research findings:
-
-1. [Suggested next action based on findings]
-2. [Another logical next step]
-3. Review the research document
-4. Run `/create_design` to create design decisions
-
-````
+- **Open Questions are a table in this document, with local IDs** (`Q1`, `Q2`, …) and an
+  explicit state. There is no external tracker: this table *is* the record. A question earns a
+  row only if something is blocked by it; otherwise it is a finding, not a question.
+- **A resolved question keeps its row and gains a pointer.** `/wb:resolve_questions` writes the
+  decision and its rationale into `design.md` and sets the row's state to
+  `Resolved YYYY-MM-DD → design.md (## Technical Decisions)`. The decision does not get copied
+  back here — research documents facts, and a decision is not a fact about the codebase.
 
 **⛔⛔⛔ BARRIER 3: STOP! Verify NO placeholder values - ALL data MUST be from ACTUAL codebase ⛔⛔⛔**
 
@@ -406,12 +220,4 @@ Emit a one-line summary, not a recap:
 
 ## Configuration
 
-The command accepts the directory path as a parameter:
-
-```
-
-/create_research docs/plans/2025-10-07-my-project
-
-```
-
-Or prompts for it if not provided.
+See [reference.md](reference.md).

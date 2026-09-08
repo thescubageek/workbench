@@ -415,17 +415,17 @@ file lands.
 
 **Research cluster**
 
-- [ ] **P2-T1** — `create_research`: template = `## Research Question` → `## Next Steps`;
+- [x] **P2-T1** — `create_research`: template = `## Research Question` → `## Next Steps`;
       prompts = `## Parallel Research Strategy`; reference = `## Configuration`. Content: D6
       (Open Questions become a markdown table with `Q1` local IDs, not `bd create`); D8c (read
-      `.claude/wb/knowledge.md` at Step 1); D18 bullets at `:80,:83,:214`. (~30 calls)
-- [ ] **P2-T2** — `create_product_research`: template = `## Feature Overview` →
+      `.claude/wb/knowledge.md` at Step 1); D18 bullets at `:80,:83,:214`. (~30 calls) (completed 2026-09-08 15:22)
+- [x] **P2-T2** — `create_product_research`: template = `## Feature Overview` →
       `## Next Steps`; prompts = `## Parallel Research Strategy`; reference =
       `## Audience: Product Managers`, `## Workflow Position`, `## Important Notes`,
-      `## Configuration`. Content: same as `P2-T1`; D18 bullets at `:81,:90,:216`. (~30 calls)
-- [ ] **P2-T3** — `docs/product-research-claude-desktop.md`: the portable mirror. Bring it
+      `## Configuration`. Content: same as `P2-T1`; D18 bullets at `:81,:90,:216`. (~30 calls) (completed 2026-09-08 15:34)
+- [x] **P2-T3** — `docs/product-research-claude-desktop.md`: the portable mirror. Bring it
       back into parity with `P2-T2` and add a non-normative header (D19's second half) marking
-      it a maintainer-facing portable copy, not a rules source. Stays under `docs/`. (~15 calls)
+      it a maintainer-facing portable copy, not a rules source. Stays under `docs/`. (~15 calls) (completed 2026-09-08 15:41)
 
 **Design cluster**
 
@@ -973,6 +973,31 @@ None open.
 
 ### Implementation Notes
 
+- **2026-09-08, research cluster complete** (`P2-T1`–`P2-T3`), one commit per the per-cluster
+  cadence. **Line count overstates the win; measure tokens.** `create_research` lost 46% of its
+  lines but only **22.6%** of its on-invoke tokens (~5.3k → ~4.1k), because what moves out —
+  fenced `Task({…})` blocks and a template of short bracketed lines — is far sparser per line
+  than the prose that stays. `create_product_research` hit **−38.5%** (~6.5k → ~4.0k). Cluster
+  total **11.8k → 8.1k = −31.4%**, so the 30% bar is achievable but not automatic.
+  **The variable is `## Important Notes`.** `P2-T2` moves it to `reference.md` and clears the
+  bar comfortably; `P2-T1` is the only task in the plan whose `reference.md` scope is
+  `## Configuration` *alone*, so its Important Notes stay in `SKILL.md` — and it is the task
+  that missed. If the running aggregate drifts under 30%, revisiting `P2-T1`'s reference scope
+  is the first lever, not a re-split of the files that already passed.
+  Two smaller notes: a `reference.md` holding only `## Configuration` is 13 lines, which buys
+  almost nothing and adds a drift surface — built as specified, flagged as an observation, not
+  changed. And moved blocks were moved **verbatim**: `templates.md` still says
+  `/create_design` and `reference.md` still says `/create_research`, both missing the `wb:`
+  prefix. Pre-existing, and Phase 4's consumer sweep owns it — a "move this block" task is not
+  a licence to reword it.
+- **2026-09-08, `P2-T3` deviates from strict parity in one place, deliberately.** The mirror
+  did **not** get D8c's `.claude/wb/knowledge.md` read, even though `P2-T2` did. The mirror is
+  a Claude Desktop project instruction: there is no wb plugin, no repository checkout, and no
+  `.claude/wb/` for it to read, so the instruction could never fire and would only add noise to
+  a portable document. Everything else reached parity — the softened Documentarian Rule, all
+  three thinking-directive conversions, and the D6 Open Questions table adapted for standalone
+  use (its resolution pointer names "wherever this project keeps decisions" rather than
+  `design.md`, since a Desktop project has no `design.md`).
 - **2026-09-08, Phase 1 complete** (`P1-T1`–`P1-T7`), one commit — a **deliberate deviation**
   from the per-task cadence decided the same day. The reason is that Phase 1's intermediate
   states do not load: a tree moved by `P1-T1` but not yet repointed by `P1-T2` has a manifest
