@@ -578,19 +578,19 @@ file lands.
 
 **Handoff cluster**
 
-- [ ] **P2-T18** — `create_handoff`: template = `## Quick Start` →
+- [x] **P2-T18** — `create_handoff`: template = `## Quick Start` →
       `## Handoff Verification`; reference = `## Purpose`, `## Important Guidelines`,
       `## Relationship to Other Commands`, `## Configuration`. Content: D4 (drop `bd sync` and
       the `git add .beads/` block); D8a (append a journal pointer to the handoff it wrote);
       D8b (review the session's knowledge candidates against the qualification rule);
       D21 (added 2026-09-08 — a handoff that crosses a machine is one of the two triggers that
       promote a plan directory into git, so the handoff step names the `git add -f` and the
-      branch push as the transport); D18 bullet at `:89`. (~32 calls)
-- [ ] **P2-T19** — `resume_handoff`: reference = `## Purpose`, `## Validation Steps`,
+      branch push as the transport); D18 bullet at `:89`. (~32 calls) (completed 2026-09-08 17:53)
+- [x] **P2-T19** — `resume_handoff`: reference = `## Purpose`, `## Validation Steps`,
       `## Important Guidelines`, `## Relationship to Other Commands`, `## Error Handling`,
       `## Configuration`; template = `## Output Format`. Content: D4 (drop the beads state
       reload and `:248`'s never-checkboxes rule); D8c (read the journal tail alongside the
-      handoff, and read the knowledge file); D18 bullet at `:87`. (~30 calls)
+      handoff, and read the knowledge file); D18 bullet at `:87`. (~30 calls) (completed 2026-09-08 17:59)
 
 **Remaining stages**
 
@@ -1039,6 +1039,32 @@ None open.
 
 ### Implementation Notes
 
+- **2026-09-08, handoff cluster complete** (`P2-T18`, `P2-T19`). Fourteen-stage total now
+  **84.9k → 50.1k = −41.0%**, with only `create_mockup` and `help` untouched. `create_handoff`
+  5.1k → 2.8k (−45%); `resume_handoff` 4.4k → 3.3k (−25%, the smallest win of the phase — D8c's
+  reconciliation table and the knowledge-file read are *additions*, and they belong in
+  `SKILL.md` by definition).
+  **The substantive change is that resuming is now a reconciliation, not a restoration.** The
+  old Step 3 reloaded tracker state and reclaimed a phase; there is no tracker, so it became
+  something better — a table mapping *handoff claim × working-tree reality* to a reading, with
+  the rule that **the repository is the authority and the handoff is a report**. The five rows
+  are the cases that actually occur: agreement; a completion whose checkbox never flipped;
+  in-progress beside uncommitted work (interrupted mid-task); in-progress beside a clean tree
+  (never started, or reverted); and an open journal entry, whose "next action" is the most
+  reliable thing a cold session has. Any disagreement is named in the confirmation, with which
+  side was taken — silently picking one is how a resumed session builds on state nobody checked.
+  `create_handoff` gained the D8b knowledge review as a real step with the qualification rule
+  stated inline (a task outcome, a plan deviation, or a single-task fact does **not** qualify),
+  and the D21 cross-machine trigger: a handoff crossing machines must `git add -f` its plan
+  directory, or the receiving machine gets a document pointing at files it cannot see. That
+  failure now has its own error message in `resume_handoff`.
+- **2026-09-08, `P3-T9` is one-third done, ahead of its phase.** The handoff-over-compact
+  guidance landed in `implement`'s Step 9 during the implementation cluster, because Step 9 is
+  where that recommendation naturally belongs and writing the step without it would have meant
+  reopening the file. Its other two homes — `create_handoff`'s "when to create" list and
+  `help` — were **deliberately left**, since both are touched by later tasks anyway
+  (`P4-T2` rewrites `help`) and pulling a Phase 3 task across a human checkpoint is different
+  from resequencing within a phase. Recorded so `P3-T9` is not re-done in full.
 - **2026-09-08, execution-path cluster complete** (`P2-T29`, `P2-T17`). All six skill
   directories now exist — three canonicals and three stub-only aliases — and 34 skills
   enumerate.
