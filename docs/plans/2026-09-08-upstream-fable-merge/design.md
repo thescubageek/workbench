@@ -772,9 +772,14 @@ Decisions made after the design was approved, recorded here by `/wb:resolve_ques
   - Rejected: keeping both forms. A prose summary beside the table is a *second* statement of
     the tier rule in the same file — precisely what D13 exists to prevent, and the two would
     drift.
-  - Trade-off, stated so it is not rediscovered: the new criterion pins a check to a **model
-    ID**, which ages. If the default worker tier changes, re-point the grep — the invariant is
-    "the ladder is named in exactly one file", not this particular string.
+  - **Corrected the same day, and the correction is the more useful record.** The model-ID form
+    broke within the hour: `P2-T17` added the 1M variants to `model-help`'s roster, exactly as
+    PD2's consequence note had said it would, so `claude-opus-4-8[1m]` appeared in two files.
+    A criterion keyed to a *value* named in two places was never going to hold. The check is now
+    keyed to a **self-describing marker of the invariant** — the sentence in `implement`'s Step 5
+    declaring itself the single statement — so it survives model renames, roster additions and
+    reformatting. General lesson worth keeping: verify a criterion against a value the plan
+    already predicts will recur, before adopting it.
   - Source: tasks.md Phase 2 Automated Verification · surfaced by `P2-T15` · Decided 2026-09-08
 
 - **The renames' dangling callers are repointed in one sweep at the end of Phase 2, as new

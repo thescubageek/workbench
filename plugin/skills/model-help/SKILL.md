@@ -1,6 +1,6 @@
 ---
 name: model-help
-description: Given a handoff file, task spec, ticket, or pasted work description, recommend which Claude model + reasoning-effort level to run it at (and whether to split it into tiers). Use when the user asks "what model/effort should I use", "which effort level", "tier this task", "model advice for this handoff", or hands over a task/handoff and asks how to run it. Also runs in "gate mode" inside the wb workflow — forge, resume_handoff, and the create_*/implement/validate phase commands consult it to pick the model + effort for the phase about to run and to decide whether switching the main model is worth the context-reload cost. Advice only — it does not do the work.
+description: Given a handoff file, task spec, ticket, or pasted work description, recommend which Claude model + reasoning-effort level to run it at (and whether to split it into tiers). Use when the user asks "what model/effort should I use", "which effort level", "tier this task", "model advice for this handoff", or hands over a task/handoff and asks how to run it. Also runs in "gate mode" inside the wb workflow — forge, resume_handoff, and the create_*/implement/validate phase skills consult it to pick the model + effort for the phase about to run and to decide whether switching the main model is worth the context-reload cost. Advice only — it does not do the work.
 ---
 
 # /model-help — pick the model + effort for a task
@@ -20,6 +20,15 @@ Read a handoff / task spec / ticket and return a **model + effort** recommendati
 **Effort = how much thinking to spend** at that ceiling. A cheap model at high effort ≠ a strong model at low effort — match model to the ceiling, effort to the depth.
 
 Current roster (most → least capable): **`claude-opus-5` (Opus 5)** · **`claude-opus-4-8` (Opus 4.8)** · **`claude-sonnet-5` (Sonnet 5)** · **`claude-haiku-4-5-20251001` (Haiku 4.5)**. `claude-fable-5` (Fable 5) also exists (fast Claude‑5 tier); default to the four above unless the user prefers Fable. Effort levels: `low` · `medium` · `high` · `xhigh` · `max`.
+
+**1M-context variants.** Append `[1m]` to a model ID for the wide-context form:
+`claude-opus-5[1m]` · `claude-opus-4-8[1m]` · `claude-sonnet-5[1m]`. Reach for one when the
+task must hold a lot at once — a whole-subsystem audit, a cross-file refactor, a long plan —
+not as a general upgrade: a wider window costs more per token and does nothing for a task that
+fits comfortably. **`claude-opus-4-8[1m]` is the default tier for coordinated implementation
+workers**, which is why the variants are listed here at all — the ladder that names it lives at
+the point of spawn (see the worker-tier note below), and a roster that did not contain the
+model would leave that ladder pointing at something this authority never mentions.
 
 **Two Opus tiers.** Opus 5 is the ceiling — reserve it for the genuinely hardest work: novel design, one-way doors, compliance / PHI / security-critical, wide blast radius, adversarial review of sensitive code. **Opus 4.8 is the default Opus** — reach for it when a task needs Opus-class reasoning but not the absolute top. Downshift 5 → 4.8 whenever 5 would be overkill; the reasoning ceiling is close and 4.8 is the cheaper Opus.
 
@@ -42,6 +51,28 @@ Score the task HIGH/MED/LOW on each — the **highest** dimension drives the tie
 | Multi-file feature, non-trivial logic, moderate correctness sensitivity, some design latitude | Sonnet 5 (Opus 4.8 if reasoning-dense) | high |
 | Compliance / PHI / security / billing critical · wide blast radius · novel design · hard-to-reverse migration · adversarial review of sensitive code | Opus 5 | high → max |
 
+### The upshift ladder (D12 — election, never baseline)
+
+Every tier above a phase's baseline is reached by **explicit election**, never by a stage
+choosing it automatically. The ladder, from any starting point:
+
+```
+Haiku 4.5  →  Sonnet 5  →  Opus 4.8  →  Opus 5  →  Fable
+```
+
+Two rules make it a ladder rather than a menu:
+
+- **One rung at a time, and say which rung and why.** Jumping two rungs on a failure tells you
+  nothing about which rung would have sufficed.
+- **Fable is the top rung and is never a default.** It is available — for architecture-critical
+  discussion, for decomposition, and as the escalation after a *verified* failure — but nothing
+  in the pipeline routes to it on its own. Wherever Fable is used, effort is **`high`**, never
+  `xhigh` or `max`: on long deliverables at higher settings it drafts in thinking and then
+  writes again, roughly doubling output for a patch-plus-report shaped task.
+
+This skill **advises** the election; it never makes it. That is the same advise-never-auto-switch
+policy the switch-cost rule below enforces.
+
 Effort guidance: **medium is the default for real eng work.** Drop to **low** only when genuinely mechanical. Reserve **high** for hard reasoning / review; **xhigh/max** for the thorniest multi-constraint problems or adversarial verification — they cost real time/tokens with diminishing returns, so don't reach for them by default.
 
 ## Splitting
@@ -50,7 +81,7 @@ If the handoff has parts with different ceilings, **recommend splitting** and ti
 
 ## Gate mode — advising a wb workflow phase
 
-The wb pipeline (`forge`, `resume_handoff`, and the `create_*` / `implement_tasks` / `validate_execution` commands) consults this skill at phase boundaries. Not every phase needs the same tier, but **switching the main-session model reloads the whole conversation** — so the goal is to spend the right amount per phase *without* churning the model. Two levers, very different costs:
+The wb pipeline (`forge`, `resume_handoff`, and the `create_*` / `implement` / `implement_inline` / `validate_execution` skills) consults this skill at phase boundaries. Not every phase needs the same tier, but **switching the main-session model reloads the whole conversation** — so the goal is to spend the right amount per phase *without* churning the model. Two levers, very different costs:
 
 - **Sub-agent model + effort is free** — each spawned agent is fresh context. Push cheap, parallelizable work down to cheap agents aggressively (the phase commands already set `model:` hints on their `Task(...)` spawns). This is where most cost optimization lives, and it never touches the main session.
 - **Main-session model/effort costs a context reload** on every switch (tokens + latency). Advise a main-session switch only when it pays for that tax.
@@ -61,9 +92,18 @@ The wb pipeline (`forge`, `resume_handoff`, and the `create_*` / `implement_task
 | --- | --- | --- | --- |
 | `create_research` | Sonnet 5 / medium | Main session decomposes + synthesizes; the heavy lifting is in parallel READ-ONLY agents | locator → haiku, analyzer → sonnet, pattern-finder → haiku |
 | `create_design` | **Opus 4.8 / high** (→ Opus 5 / high–max for novel / one-way-door / compliance-critical / high-blast-radius) | Reasoning-dense: trade-offs, architecture, locked decisions. Usually the pipeline's ceiling | little to delegate — the judgment is main-session |
-| `create_execution` | Sonnet 5 / medium | Decompose an already-decided design into phased tasks — structuring, not deciding | execution agents → sonnet / haiku |
-| `implement_tasks` | Sonnet 5 / medium (bump gnarly tasks to Opus 4.8 / high) | TDD execution of a locked plan; most tasks mechanical-to-moderate | `implement_coordinated` already picks per-task worker models |
+| `create_tasks` | Sonnet 5 / medium (upshift: Opus 4.8 / high) | Decompose an already-decided design into phased tasks — structuring, not deciding. Upshift when decomposition quality sets the ceiling for cheap workers | analysis agents → sonnet / haiku |
+| `implement` | Sonnet 5 / medium | Coordination, not coding: extract context, spawn, verify, commit. The main session holds little | **workers carry the cost, and their tiers are pinned at the point of spawn** — see `implement`'s Step 5, the single statement of the worker ladder |
+| `implement_inline` | Sonnet 5 / medium (bump gnarly tasks to Opus 4.8 / high) | TDD execution of a locked plan **on the session model**; most tasks mechanical-to-moderate. Nothing is delegated, so the session tier *is* the execution tier | nothing — use `/wb:implement` if you want work pushed to workers |
 | `validate_execution` | Sonnet 5 / medium → Opus 4.8 / high (→ Opus 5 for compliance-critical / hard-to-verify) | Adversarial check vs plan; raise for wide blast radius / compliance / hard-to-verify | validation agents → sonnet / haiku |
+
+### Where this skill's authority ends
+
+**Anything spawned is pinned at its definition; anything the session itself runs is advised
+here.** Sub-agent tiers live in `agents/*.md` frontmatter, and the coordinated worker ladder
+lives in `implement`'s Step 5 — this skill does not restate either, because two statements of a
+tier rule drift. What it does own is the **main-session** tier for every phase, and the
+switch-cost judgment about whether changing it is worth the reload.
 
 Bump a phase above its baseline whenever the ticket's own dimensions (blast radius, correctness sensitivity, novelty, cross-file reasoning, verification cost) say so — a research pass over an ambiguous cross-subsystem area is Opus/high, not Sonnet/medium.
 
@@ -115,5 +155,5 @@ Keep it tight. No preamble, no restating the whole handoff.
 - **Reef `review-reef` on a clinical notes-fan-out PR** → Opus 5 / high (compliance-critical, cross-file, adversarial). Bump to max for a focused pass on the sign-and-lock core.
 - **Add a nullable column + a one-line resolver change on a ~140-call-site hot path + form field** (e.g. TB-2936 Zoom `zoom_url`) → Sonnet 5 / medium; the migration alone would be Sonnet/low.
 - **Copy change / locale tweak / config bump** → Haiku 4.5 / low.
-- **Gate mode, a moderate forge** (bounded feature, decisions still open) → research Sonnet/medium → **switch up** to Opus 4.8/high for the design gate → **switch back down** to Sonnet/medium for execution + implement → validate Sonnet/medium. Two main-model switches total; research/execution/implement never leave Sonnet.
+- **Gate mode, a moderate forge** (bounded feature, decisions still open) → research Sonnet/medium → **switch up** to Opus 4.8/high for the design gate → **switch back down** to Sonnet/medium for `create_tasks` + `implement` → validate Sonnet/medium. Two main-model switches total; research, task-writing and implementation never leave Sonnet.
 - **Gate mode, `resume_handoff` into an implement phase** → Sonnet/medium (plan is locked, tasks are mechanical-to-moderate). The resume already reloaded context, so if the remaining work is gnarly it's a cheap moment to land on Opus 4.8/high (or Opus 5 if it's genuinely the hardest part) instead — the reload tax is already paid.

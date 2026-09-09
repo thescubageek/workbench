@@ -560,13 +560,13 @@ file lands.
       Move the commit to the coordinator, after the verifier passes. Update
       `plugin/agents/task-verifier.md` to check scope against the working tree rather than a
       caller-supplied base ref, since workers no longer commit. (~25 calls) (completed 2026-09-08 17:31)
-- [ ] **P2-T29** — The two `implement_*` alias stubs (PD4), mirroring `P2-T8`:
+- [x] **P2-T29** — The two `implement_*` alias stubs (PD4), mirroring `P2-T8`:
       `plugin/skills/implement_coordinated/` → `implement` and
       `plugin/skills/implement_tasks/` → `implement_inline`. Each is a stub `SKILL.md`
       (`disable-model-invocation: true`) that announces the rename once and then reads the
       canonical skill. **Stubs only — no pointer files** (decided 2026-09-08, design.md →
-      Resolved Decisions). (~10 calls)
-- [ ] **P2-T17** — `model-help` (D12): add the upshift-ladder semantics — a named next-tier-up
+      Resolved Decisions). (~10 calls) (completed 2026-09-08 17:37)
+- [x] **P2-T17** — `model-help` (D12): add the upshift-ladder semantics — a named next-tier-up
       per phase, entered only by explicit election, never by a baseline. Rename the
       `create_execution` row to `create_tasks`, the `implement_tasks` row to
       `implement_inline`, and add an `implement` row (PD4). Set the worker ladder per PD2 as
@@ -574,7 +574,7 @@ file lands.
       the 1M variants to the roster at `:22`** — it currently names four models with no 1M
       forms, so the ladder would otherwise reference a model this authority does not list.
       State which tier's 1M form is the default so roster and ladder cannot drift. Keep the switch-cost
-      rule and the advise-never-auto-switch policy verbatim. (~20 calls)
+      rule and the advise-never-auto-switch policy verbatim. (~20 calls) (completed 2026-09-08 17:44)
 
 **Handoff cluster**
 
@@ -650,8 +650,9 @@ file lands.
 
 - [ ] `grep -rn "bd \|BEADS_MODE\|BEADS_AVAILABLE\|beads_epic\|/beads:" plugin/` → **no hits**
 - [x] `grep -rln "NEVER treat markdown as source of truth\|tracked ONLY in beads\|NEVER check markdown checkboxes" plugin/` → no hits — cleared at `P2-T14`, the last file holding them
-- [ ] All six directories exist — canonicals `create_tasks`, `implement`, `implement_inline`
-      and aliases `create_execution`, `implement_coordinated`, `implement_tasks`
+- [x] All six directories exist — canonicals `create_tasks`, `implement`, `implement_inline`
+      and aliases `create_execution`, `implement_coordinated`, `implement_tasks` — verified;
+      34 skills enumerate, each alias holding a stub `SKILL.md` and nothing else
 - [ ] `P2-T30`: no reshaped skill names a renamed command except the alias stubs themselves —
       `grep -rn "create_execution\|implement_tasks\|implement_coordinated" plugin/skills/`
       returns only hits inside the three alias directories
@@ -661,19 +662,22 @@ file lands.
       discipline skill
 - [ ] `grep -rn "determineModel" plugin/` → no hits (D13)
 - [x] Exactly one statement of the worker tier rule:
-      `grep -rln 'claude-opus-4-8\[1m\]' plugin/skills/` → **exactly one file**
-      (`plugin/skills/implement/SKILL.md`). **Criterion reworded 2026-09-08** — it originally
-      read `grep -rln "Haiku:.*Sonnet:.*Opus:" plugin/`, written against the *old* one-line
-      prose shape that `P2-T15` replaced. The ladder is now a table, so the old pattern returned
-      0 rather than 1: it failed while the property it protects held. PD2 makes
-      `claude-opus-4-8[1m]` load-bearing, so its appearing in exactly one place *is* D13's
-      "stated once". See design.md → Resolved Decisions.
-      **Brittleness, stated so it is not rediscovered**: this pins a criterion to a model ID.
-      If the default worker tier ever changes, re-point the grep at whatever the new default's
-      identifier is — the invariant is "the ladder is named in exactly one file", not this
-      particular string. Remaining `haiku` mentions elsewhere are per-`Task()` pins for research
-      agents, agent frontmatter, and the main-session authorities (`model-help`,
-      `daily-digest`) — different rules; `P2-T17` owns aligning `model-help`
+      `grep -rln 'the one statement of the worker tier rule' plugin/skills/` → **exactly one
+      file** (`plugin/skills/implement/SKILL.md`, Step 5).
+      **Reworded twice, 2026-09-08, and the second time is the instructive one.**
+      It began as `grep -rln "Haiku:.*Sonnet:.*Opus:" plugin/`, written against the one-line
+      prose shape `P2-T15` replaced — the ladder became a table, so that returned 0, not 1.
+      It was then re-pointed at `claude-opus-4-8[1m]`, which **broke within the hour**: `P2-T17`
+      added the 1M variants to `model-help`'s roster, so the model ID appeared in two files. PD2's
+      own consequence note had said exactly that would happen, which is the lesson — *a criterion
+      keyed to a value named in two places was never going to hold, and the plan said so.*
+      Now keyed to a **self-describing marker of the invariant itself** rather than a proxy for
+      it: the sentence in `implement`'s Step 5 that declares it is the single statement. That
+      survives model renames, roster additions, and reformatting, because the thing being counted
+      is the declaration, not a value that happens to appear inside it.
+      Remaining `haiku` mentions elsewhere are per-`Task()` pins for research agents, agent
+      frontmatter, and the main-session authority `model-help` — which now states the D3
+      boundary explicitly and points at `implement` Step 5 rather than restating the ladder
 - [ ] `./plugin/scripts/lint --all` — clean, or no new findings vs the Phase 0 baseline
 - [ ] `grep -rn "think deeply\|ultrathink" plugin/ CLAUDE.md` → no hits
 - [ ] **The headline metric**: `claude plugin details wb` on-invoke total for the fourteen
@@ -1035,6 +1039,29 @@ None open.
 
 ### Implementation Notes
 
+- **2026-09-08, execution-path cluster complete** (`P2-T29`, `P2-T17`). All six skill
+  directories now exist — three canonicals and three stub-only aliases — and 34 skills
+  enumerate.
+  `model-help` took the four changes PD2 and PD4 forced, plus one the plan did not ask for and
+  should have: **the D3 boundary is now stated in the skill itself.** "Anything spawned is
+  pinned at its definition; anything the session itself runs is advised here." Without that
+  sentence, a reader of `model-help` has no way to tell why the worker ladder is absent from the
+  one document that is supposed to be the model authority — it reads as an omission rather than
+  a deliberate division, and the next person to notice would helpfully restate the ladder there
+  and reintroduce exactly the drift D13 forbids.
+  The 1M variants are in the roster with a note on *when* to reach for a wide window (holding a
+  lot at once) versus when not to (a task that fits — the window costs per token and buys
+  nothing), and `claude-opus-4-8[1m]` is named as the coordinated-worker default so roster and
+  ladder cannot disagree about which model exists.
+- **2026-09-08, the tier-rule criterion took two rewordings, and the second one is the lesson.**
+  After `P2-T15` made the original grep unmatchable, I re-pointed it at `claude-opus-4-8[1m]` —
+  and it **broke within the hour**, because `P2-T17` added the 1M variants to `model-help`'s
+  roster and the ID appeared in two files. PD2's own consequence note had said precisely that
+  would happen. A criterion keyed to a *value the plan already predicts will recur* was never
+  going to hold. It is now keyed to a self-describing marker of the invariant — the sentence in
+  `implement`'s Step 5 declaring itself the single statement — which survives model renames,
+  roster additions and reformatting. **Check a proposed criterion against what the plan already
+  says will change, before adopting it.**
 - **2026-09-08, validation and status cluster complete** (`P2-T12`, `P2-T13`, `P2-T14`) — and
   **the headline metric is cleared with four stages still untouched.**
   **Fourteen-stage total: 84.9k → 53.5k = −37.0%**, against a bar of ≤59.4k. `create_handoff`,
