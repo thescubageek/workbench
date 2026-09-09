@@ -742,6 +742,31 @@ Decisions made after the design was approved, recorded here by `/wb:resolve_ques
   - Trade-off: none. A briefer note would have been wrong for the second and third machine.
   - Source: design.md A1 · Decided 2026-09-08
 
+- **The task-ID shape is a contract, stated at the producer and enforced by the validator**
+  (closes the gap `P3-T5` surfaced). Every task line carries a bold ID matching
+  `[A-Z0-9-]*[0-9][A-Z0-9-]*` — uppercase, hyphens, **at least one digit**. Stated in
+  `create_tasks` (where IDs are minted) and `project-structure` (where the tracking doctrine
+  lives); checked by `validate_project`'s Task Tracking Integrity category, which already
+  verified uniqueness.
+  - Rationale: eight files now identify task lines by that pattern, and until now the only
+    thing any document said was an *example* — "Every task carries a stable local ID
+    (`P2-T7`)". A plan author numbering tasks `**Setup**`, `**API**` or `**one**` would get
+    counters that silently under-count: wrong totals from `/wb:update_status`, a wrong position
+    from the session-start bootstrap, and **nothing erroring anywhere**. An example is not a
+    constraint, and this one is load-bearing.
+  - Why a digit is the discriminator: the two shapes a criteria list actually produces are
+    lowercase phrases (`**End-to-end**`, which uppercase already excludes) and bare acronyms
+    (`**API**`, which only the digit excludes). Task IDs essentially always carry a number,
+    because they are ordinal.
+  - Trade-off: it constrains what a plan author may name a task, and a hand-written or
+    pre-2.0.0 plan can violate it. Accepted — `validate_project` now names the violating IDs
+    and says what breaks, which turns a silent miscount into a loud, fixable finding.
+  - **This is the third time this class of bug has appeared** (A2's positional-identity note,
+    `P3-T5`'s `**End-to-end**` over-count, and now the unstated contract). The general lesson:
+    *when several consumers agree on a format, something must state it and something must check
+    it* — a shared convention held only by convention decays into a shared bug.
+  - Source: surfaced by `P3-T5` · Decided 2026-09-08
+
 - **`wb-prime.sh` writes nothing; the PreCompact refresh is dropped** (resolves the
   PreCompact-refresh discovery, and narrows D8a). The hook prints session orientation, recovery
   text on a compact trigger, and the D8c bootstrap. It never edits `journal.md`.

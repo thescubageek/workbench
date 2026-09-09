@@ -1082,6 +1082,15 @@ None open.
 
 ### Implementation Notes
 
+- **2026-09-08, the ID over-count had a second half, and it was the more dangerous one.** Fixing
+  the eight counters made them agree on a pattern that **no document required**. A plan author
+  numbering tasks `**Setup**` or `**API**` would have had every counter under-count silently.
+  The shape is now stated where IDs are minted (`create_tasks`) and in the doctrine
+  (`project-structure`), and checked by `validate_project` — which already verified uniqueness,
+  so it was one more rule in an existing category. Decision in design.md → Resolved Decisions.
+  Third appearance of this class in one plan (A2's note, `P3-T5`'s live over-count, this).
+  **When several consumers agree on a format, something must state it and something must check
+  it** — otherwise a shared convention decays into a shared bug.
 - **2026-09-08, `wb-prime.sh` built (`P3-T1`–`P3-T5`) — and its own first run found a bug in the
   plan's most load-bearing convention.** The bootstrap counted 65 tasks against a frontmatter
   figure of 64; the extra match was `- [ ] **End-to-end**:`, a Phase 4 *criterion* that opens

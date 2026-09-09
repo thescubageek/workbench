@@ -44,6 +44,10 @@ list — and nothing to install before the workflow runs.
 - **Checkbox state is the source of truth.** Flipping `- [ ]` → `- [x]` *is* the act of
   recording a task done. A finished task with an unflipped checkbox is indistinguishable from
   unfinished work.
+- **Every task line carries a bold local ID matching `[A-Z0-9-]*[0-9][A-Z0-9-]*`** — uppercase,
+  hyphens, at least one digit (`P2-T7`, `T14`). This is a contract, not a style: a plan's
+  success criteria and prerequisites are checkboxes too, so counters identify task lines by this
+  pattern. An ID without a digit makes its task invisible to counting, silently.
 - **Frontmatter counters are a derived cache**, with exactly one writer: `/wb:update_status`.
   Never hand-edit them. Drift between checkpoints is expected; `status-sync` surfaces it.
 - **Git is the durable record.** One task, one commit, with the task ID in the message — so the

@@ -48,6 +48,17 @@ Every task carries a stable local ID (`P2-T7`). IDs are the handle to cite from 
 message, a journal entry, or a handoff — checkbox tracking is otherwise positional, and an ID
 costs nothing to add now. Number them in document order and never renumber.
 
+**The ID's shape is a contract, not a style preference.** It must match
+`[A-Z0-9-]*[0-9][A-Z0-9-]*` — uppercase letters, digits and hyphens, with **at least one
+digit** — and be wrapped in `**bold**` as the first thing after the checkbox. `P2-T7`, `T14`
+and `PHASE3-4` all qualify; `**Setup**`, `**API**` and `**one**` do not.
+
+That rule exists because a plan's own success criteria and prerequisites are checkboxes too, so
+every counter in the workflow identifies task lines by this pattern. An ID that does not match
+is not a style problem — it makes the task **invisible to counting**, so `/wb:update_status`
+writes wrong totals and the session-start bootstrap reports the wrong position, with nothing
+erroring anywhere.
+
 ## Implementation Strategy
 
 ### Phase Rationale

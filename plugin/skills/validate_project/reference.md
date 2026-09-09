@@ -37,6 +37,7 @@ checks are about whether the file can actually carry that role.
 - ✅ tasks.md has a section stating where status lives (checkboxes truth, counters a cache, git durable)
 - ✅ Every task line is a checkbox (`- [ ]` / `- [x]`), not prose or a bare bullet
 - ✅ Every task carries a stable local ID, and IDs are unique
+- ✅ Every ID matches `[A-Z0-9-]*[0-9][A-Z0-9-]*` — at least one digit. An ID without one is invisible to every counter in the workflow, silently
 - ✅ `completed_tasks` matches `grep -c '^- \[x\]'` over the task lines, and `total_tasks` matches the total
 - ⚠️ A `[x]` task with no `(completed …)` stamp — allowed, but the stamp is what makes the log readable
 - ❌ Any instruction telling the reader that checkboxes are documentation-only, or that status lives elsewhere — that is a pre-2.0.0 plan and its guidance is now wrong
@@ -181,6 +182,18 @@ if (ids.length !== taskLines.length) {
 const dupes = ids.filter((id, i) => ids.indexOf(id) !== i);
 if (dupes.length) {
   ERROR(`Duplicate task IDs: ${[...new Set(dupes)].join(', ')}`);
+}
+
+// Shape, not just presence. Counters identify task lines by this pattern, so an ID
+// that does not match is not a style issue — the task vanishes from every count,
+// and nothing errors. This is the one ID rule worth failing a validation over.
+const badShape = ids.filter(id => !/^[A-Z0-9-]*[0-9][A-Z0-9-]*$/.test(id));
+if (badShape.length) {
+  ERROR(
+    `Task IDs not matching [A-Z0-9-]*[0-9][A-Z0-9-]* (need at least one digit): ` +
+    `${badShape.join(', ')}. These tasks are invisible to /wb:update_status, status-sync ` +
+    `and the session-start bootstrap.`
+  );
 }
 
 // Status must not contradict the checkboxes.

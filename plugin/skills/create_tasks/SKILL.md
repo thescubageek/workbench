@@ -149,7 +149,9 @@ Three things about that template are load-bearing rather than cosmetic:
   those fields stay consistent with the checkboxes.
 - **Every task carries a stable local ID and a tool-call projection.** The ID is what a commit
   message, a journal entry, or a handoff cites; the projection is the number that predicts
-  truncation.
+  truncation. The ID's **shape is a contract**: `[A-Z0-9-]*[0-9][A-Z0-9-]*` in bold, with at
+  least one digit, because that pattern is what every counter in the workflow uses to tell a
+  task line from a bold criterion label. An ID without a digit is invisible to counting.
 
 **⛔⛔⛔ BARRIER 3: STOP! Verify NO placeholder values - ALL tasks MUST be specific and executable ⛔⛔⛔**
 
