@@ -739,6 +739,27 @@ Decisions made after the design was approved, recorded here by `/wb:resolve_ques
   - Trade-off: none. A briefer note would have been wrong for the second and third machine.
   - Source: design.md A1 · Decided 2026-09-08
 
+- **A2 is validated, and the one finding worth carrying is that checkbox counting must be
+  ID-scoped** (resolves A2). Checkbox-plus-counter status held at this plan's scale — 64 tasks,
+  five phases, 30 tracked live, position recoverable at every boundary and every commit citing
+  a task ID.
+  - Rationale: A2 is the assumption D4 rests on, and it was recorded as proven only in the
+    sibling workflow. This plan is now the larger test case, so the evidence exists rather than
+    being deferred indefinitely.
+  - The predicted strain was real but bounded. Task identity is positional, and that cost:
+    an edit whose text match broke when a completion stamp shifted the line; a `total_tasks`
+    bump that an ID-keyed count would not have needed; and — the one that would have silently
+    corrupted every counter — a naïve `grep -c '^- \[x\]'` reading **38** against 30 real
+    tasks, because a plan's own success criteria and prerequisites are checkboxes too.
+  - **Consequence already shipped**: `update_status` and `validate_project` both scope their
+    counts to lines carrying a task ID, and both say why. A future reader reaching for the
+    obvious grep gets the wrong number by exactly the count of criteria in the file, which on a
+    criteria-heavy plan is a ~25% over-count.
+  - Trade-off: none new. The mitigation is a stricter grep, not more machinery. If plans ever
+    reach several hundred tasks, an ID-keyed index is the escalation — but nothing in this
+    run pointed at needing one.
+  - Source: design.md A2 · evidenced by this plan's own execution · Decided 2026-09-08
+
 - **The worker tier rule stays a table; Phase 2's criterion is reworded to match it**
   (resolves the criterion/implementation mismatch `P2-T15` surfaced). The check becomes
   `grep -rln 'claude-opus-4-8[1m]' plugin/skills/` → exactly one file.
@@ -1085,7 +1106,7 @@ Tracked here rather than in a tracker — which is this design's own convention 
 | ID | Assumption | Validated? |
 | -- | ---------- | ---------- |
 | A1 | No consumer outside this repository depends on `wb`'s beads integration | **Validated 2026-09-08** — no other people or repos; but the user has `wb` installed on other machines/workspaces holding existing plan directories, so the migration note is written per-machine (see Resolved Decisions) |
-| A2 | Checkbox-plus-counter status is sufficient at our plan sizes, as it is for CaseSmith's | Partially — proven in the sibling workflow (including a live matter), not yet at wb's task counts. Known limitation: task identity becomes **positional** (a line and its checkbox) rather than a stable ID, so reconciliation is whole-file grep counts rather than a per-ID query. Acceptable while execution is sequential and the plan document is the unit of work; it is the first thing to strain if plans grow large |
+| A2 | Checkbox-plus-counter status is sufficient at our plan sizes, as it is for CaseSmith's | **Validated 2026-09-08** — tested by this plan itself at 64 tasks across five phases, 30 of them tracked live. Position was recoverable at every boundary, every commit cites a task ID, and the plan survived being re-scoped twice without losing its place. The predicted positional-identity limitation did strain, in three concrete ways, all now handled: **(1)** a text match against a task line failed because a completion stamp had shifted it, so edits must anchor on the ID, not the surrounding prose; **(2)** `total_tasks` needed a manual bump when a task was added mid-phase, which an ID-keyed count would not have; **(3) the important one** — a naïve `grep -c '^- \[x\]'` read **38** against 30 real tasks, because a plan's success criteria and prerequisites are checkboxes too. Counting must be **ID-scoped** (`grep -cE '^- \[[ x]\] \*\*[A-Z0-9-]+\*\*'`) or every counter is systematically wrong by the number of criteria in the file. `update_status` and `validate_project` both carry that scoping explicitly |
 | A3 | The ~70-call truncation ceiling generalizes to this environment | Pending — measured upstream on one machine/model; D15 states it as provenance-bearing, not constant |
 | A4 | `allowed-tools: Read` behaves as upstream describes for on-demand supporting files | **Validated 2026-09-08** — Phase 0 probe smoke session: **both** halves. The sibling `templates.md` and the cross-directory `../../docs/reference/probe-ref.md` each read with **no permission prompt**, and the marker `PROBE-REF-RESOLVED` was echoed verbatim (so the read resolved rather than being paraphrased) |
 | A5 | Deprecated-alias skills resolve correctly in our marketplace install, not just upstream's | **Validated 2026-09-08** — two-part evidence: a marketplace install from a `./plugin` source enumerated both skills (`Skills (2) probe, probe_old`, `Source: wbprobe@wb-probe`), and a `--plugin-dir` session invoked `probe_old`, which announced the rename **once** and then ran `probe`, reading both supporting files. Caveat: install/enumeration was observed under the marketplace identity; alias *invocation* was observed under `--plugin-dir` |
