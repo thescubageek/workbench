@@ -517,12 +517,12 @@ file lands.
 
 **Validation and status cluster**
 
-- [ ] **P2-T12** — `validate_execution`: template = `## Executive Summary` →
+- [x] **P2-T12** — `validate_execution`: template = `## Executive Summary` →
       `## Validation Completed`; prompts = the Step 2 `Task({...})` blocks; reference =
       `## Important Guidelines`, `## Relationship to Other Commands`, `## Configuration`.
       Content: D4 (reverse `:63`, `:203`, `:379` — checkbox state becomes the completion
-      signal it reads, not a thing to ignore). (~30 calls)
-- [ ] **P2-T13** — `validate_project`: template = `## Summary` → `## Validation Details`, plus
+      signal it reads, not a thing to ignore). (~30 calls) (completed 2026-09-08 17:06)
+- [x] **P2-T13** — `validate_project`: template = `## Summary` → `## Validation Details`, plus
       the `## Error Messages` canonical formats; reference = **`## Validation Checklist`** (the
       8-category criteria list — it is read by Step 3, not executed inline) and
       **`## Validation Rules`** (the per-check pseudocode), plus `## Important Guidelines` and
@@ -531,8 +531,8 @@ file lands.
       Integration and Beads State Alignment checklist categories, the Step 2 beads-state
       validation, the Beads Validation pseudocode, and the `beads_*` required-frontmatter
       list); D6 (validate the markdown planning-record sections instead of orphaned issue
-      IDs). (~30 calls)
-- [ ] **P2-T14** — `update_status`: template = the message and fragment set, which is larger
+      IDs). (~30 calls) (completed 2026-09-08 17:16)
+- [x] **P2-T14** — `update_status`: template = the message and fragment set, which is larger
       than it looks — the "Current Status Analysis" plan message, the per-file frontmatter
       update fragments for research/design/tasks, the success summary, and the three
       Error Handling message templates (~145 lines total); reference =
@@ -541,7 +541,7 @@ file lands.
       inverts most sharply. Reverse `:110`, `:371`, `:403` ("NEVER check markdown checkboxes")
       into the reconciliation mechanism: count `[x]`/`[ ]`, compare against frontmatter
       counters, report drift, reconcile to the counts. State the sole-writer rule here.
-      (~30 calls)
+      (~30 calls) (completed 2026-09-08 17:24)
 
 **Execution-path decisions** *(same cluster's files, split out per D15)*
 
@@ -649,7 +649,7 @@ file lands.
 #### Automated Verification
 
 - [ ] `grep -rn "bd \|BEADS_MODE\|BEADS_AVAILABLE\|beads_epic\|/beads:" plugin/` → **no hits**
-- [ ] `grep -rln "NEVER treat markdown as source of truth\|tracked ONLY in beads\|NEVER check markdown checkboxes" plugin/` → no hits
+- [x] `grep -rln "NEVER treat markdown as source of truth\|tracked ONLY in beads\|NEVER check markdown checkboxes" plugin/` → no hits — cleared at `P2-T14`, the last file holding them
 - [ ] All six directories exist — canonicals `create_tasks`, `implement`, `implement_inline`
       and aliases `create_execution`, `implement_coordinated`, `implement_tasks`
 - [ ] `P2-T30`: no reshaped skill names a renamed command except the alias stubs themselves —
@@ -1035,6 +1035,35 @@ None open.
 
 ### Implementation Notes
 
+- **2026-09-08, validation and status cluster complete** (`P2-T12`, `P2-T13`, `P2-T14`) — and
+  **the headline metric is cleared with four stages still untouched.**
+  **Fourteen-stage total: 84.9k → 53.5k = −37.0%**, against a bar of ≤59.4k. `create_handoff`,
+  `resume_handoff`, `create_mockup` and `help` have not been reshaped yet; their −2/−3%
+  readings are measurement noise, not progress. Landing at −37.0% against upstream's recorded
+  −37.5% is close enough to be worth noting: the design's projection was sound, even though
+  the *line-count* proxy it was originally written against overstated per-stage wins by roughly
+  half.
+  Per stage: `validate_project` **−69%** (5.8k → 1.8k), `update_status` **−60%** (5.3k → 2.1k),
+  `validate_execution` **−45%** (5.3k → 2.9k).
+- **2026-09-08, the sharpest inversion, and what it actually required.** `update_status` said
+  "NEVER check markdown checkboxes" in three places and had to become the thing that counts
+  them. The reversal is not a find-and-replace: the skill's *measurement step* had to be built,
+  because it never had one — it read status from a tracker. Step 2 is now a count, and every
+  downstream decision derives from it. The sole-writer rule (D5) is stated in the skill itself
+  with its reasoning: a cache with several writers and no owner is how these fields rotted
+  before, and one writer deriving from one source cannot disagree with itself.
+  `validate_project` needed the same shift in a different direction. With no second system to
+  cross-check against, "do two systems agree?" becomes **"can this document carry the role it
+  claims?"** — are tasks checkboxes rather than prose, are the IDs unique, does the declared
+  status contradict the boxes, is there stale guidance telling a reader status lives elsewhere.
+  Counter drift is a **warning** there, never an error; it is expected between checkpoints.
+- **2026-09-08, a criterion caught its own implementation.** `validate_project`'s stale-guidance
+  detector originally listed the legacy strings verbatim so it could match them — which made
+  Phase 2's own criterion (`grep -rln "NEVER treat markdown as source of truth\|…" plugin/`
+  → no hits) fail on the detector itself. Rewritten to describe the predicate rather than
+  enumerate the strings: flag any instruction asserting the checkboxes are documentation-only
+  or that status is authoritative elsewhere. More robust anyway — the wording varies by vintage,
+  and it is the claim that matters, not the phrasing.
 - **2026-09-08, implementation cluster complete** — and it took **six** tasks in one pass, not
   four. `P2-T9`, `P2-T10`, `P2-T28` and `P2-T11` as scheduled, **plus `P2-T15` and `P2-T16`
   pulled forward** from the execution-path cluster. Reasoning: all four of `P2-T10`, `P2-T28`,
