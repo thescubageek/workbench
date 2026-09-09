@@ -785,7 +785,9 @@ verification hint.
       `.claude/wb/PRIME.md` override. (~20 calls)
 - [ ] **P3-T2** — Same script, the recovery mode: on a compact payload and on PreCompact,
       print that summarized document contents are paraphrase and the plan documents must be
-      re-read before being asserted, naming the active plan directory. (~15 calls)
+      re-read before being asserted, naming the active plan directory. **Print only — the hook
+      writes nothing** (decided 2026-09-08; D8a's PreCompact journal refresh is dropped because
+      `P3-T3`'s bootstrap recomputes those fields from the repository anyway). (~15 calls)
 - [ ] **P3-T3** — Same script, the D8c bootstrap block: plan position from checkbox counts,
       the journal's last entry with its open/closed state, the knowledge-file line, and the
       journal-vs-tree reconciliation. (~20 calls)
@@ -794,7 +796,9 @@ verification hint.
       (~8 calls)
 - [ ] **P3-T5** — Verify the hook contract mechanically: run it against all four payload shapes
       (startup, compact, PreCompact, empty) with `time`, confirm it stays under budget, makes
-      no `bd` call, and exits 0 on an unknown payload. Record results in
+      no `bd` call, **writes no file** (the decision of 2026-09-08 — verify with a
+      before/after checksum of `journal.md` across a PreCompact run), and exits 0 on an unknown
+      payload. Record results in
       `thoughts/2026-09-08-baseline-measurements.md`. (~12 calls)
 - [ ] **P3-T6** — `plugin/skills/doc-adherence/SKILL.md` (D11): `user-invocable: false`; the
       rule that a claim about what a plan document says requires a read of that document in
@@ -1011,22 +1015,22 @@ To determine during implementation:
   cross-directory `../../docs/reference/probe-ref.md` with no permission prompt on either, and
   echoed the `PROBE-REF-RESOLVED` marker. A5 landed in the same session. Recorded in design.md
   → Resolved Decisions; the assumption rows are flipped
-- The real reduction ratio per stage — the −37% figure is a line-count projection, and
-  `claude plugin details` measures tokens, so the two will not match exactly. **Being answered
-  as the phase runs**; the gap is larger than "not exactly". Running tally, on-invoke tokens:
-  `create_research` −30.2% (5.3k → 3.7k, after the `P2-T1` amendment), `create_product_research`
-  −38.5% (6.5k → 4.0k). Line reduction ran roughly **twice** the token reduction in both, because
-  what moves out — fenced `Task({…})` blocks and templates of short bracketed lines — is much
-  sparser per line than the prose that stays. **Size future splits by what the tokens do, not by
-  `wc -l`.**
-- ~~Whether any of the four `create_project` templates is large enough to warrant its own file
-  rather than one `templates.md`~~ — **answered 2026-09-08: no.** README 51 lines, research 75,
-  design 82, tasks 81 — 289 total, no outlier, and upstream ships one `templates.md` at 321
-  lines for the same four. One file with four named sections, read **by section** per creation
-  step. Recorded in design.md → Resolved Decisions, which also generalizes the section-scoped
-  read to any supporting file holding several independent blocks
-- Whether the PreCompact journal refresh can be done in the hook without judgment, or needs a
-  model-written line (D8a assumes mechanical fields only)
+- ~~The real reduction ratio per stage~~ — **answered 2026-09-08.** Final: **84.9k → 45.3k =
+  −46.6%** across the fourteen stages, thirteen reshaped. Two findings worth keeping:
+  **(1)** line reduction ran roughly **twice** the token reduction, because what moves out —
+  fenced blocks, templates of short bracketed lines — is far sparser per line than the prose
+  that stays. Size splits by tokens, never by `wc -l`. **(2)** The per-stage range, −70%
+  (`create_mockup`) to −25% (`resume_handoff`), tracks the **ratio of template to judgment**,
+  not split quality: a stage that is mostly output shapes wins big, a stage that is mostly
+  reasoning barely moves, and one whose task *adds* judgment (D8c on `resume_handoff`) moves
+  least of all.
+- ~~Whether the PreCompact journal refresh can be done in the hook without judgment, or needs a
+  model-written line (D8a assumes mechanical fields only)~~ — **answered 2026-09-08: neither,
+  because the refresh is unnecessary.** The three mechanical fields are the ones D8c's bootstrap
+  recomputes at the next session start, from the repository, which it already treats as
+  authoritative over the journal. `wb-prime.sh` stays read-only and print-only, keeping its
+  inherited no-subprocess contract and unable to corrupt `journal.md`. D8a amended in place;
+  decision in design.md → Resolved Decisions
 
 ## 📝 Completed Tasks Archive
 

@@ -303,9 +303,12 @@ document rather than annotating it, and why this decision keeps the two lifetime
   append-only file is also safe under multiple writers in a way counters are not, so it needs
   no single-writer rule.
 - **The one termination mode we get warning of** is context exhaustion: PreCompact fires
-  before it. D11's hook is already registered there, so it refreshes the open entry's
-  mechanical fields (timestamp, working-tree state, checkbox counts) on that trigger — no
-  judgment, just the facts that would otherwise be lost.
+  before it. D11's hook is already registered there. ~~so it refreshes the open entry's
+  mechanical fields (timestamp, working-tree state, checkbox counts) on that trigger~~ —
+  *amended 2026-09-08: it prints recovery text and writes nothing.* The three "facts that would
+  otherwise be lost" are not lost: D8c's bootstrap recomputes all three at the next session
+  start, from the repository, which it treats as authoritative over the journal regardless.
+  See Resolved Decisions.
 - **Trade-off**: an entry can be left open by a session that simply moved on without closing
   it, so an open entry means "unfinished or interrupted", not "interrupted". D8c's
   reconciliation is what distinguishes them. One more file per plan, bounded by the plan's own
@@ -738,6 +741,32 @@ Decisions made after the design was approved, recorded here by `/wb:resolve_ques
     cannot assume the reader is in this repository looking at this plan.
   - Trade-off: none. A briefer note would have been wrong for the second and third machine.
   - Source: design.md A1 · Decided 2026-09-08
+
+- **`wb-prime.sh` writes nothing; the PreCompact refresh is dropped** (resolves the
+  PreCompact-refresh discovery, and narrows D8a). The hook prints session orientation, recovery
+  text on a compact trigger, and the D8c bootstrap. It never edits `journal.md`.
+  - Rationale: the fields D8a wanted refreshed — timestamp, working-tree state, checkbox counts
+    — are exactly the fields **D8c's bootstrap recomputes at the next session start**, from the
+    repository, under the rule that the repository is authoritative and the journal is never
+    reported as fact. Refreshing them at PreCompact writes values whose only readers recompute
+    them anyway. The entry's *judgment* fields, which a script could not produce, were written
+    when the entry opened and do not change.
+  - The in-session case is already covered separately: `P3-T2`'s recovery text tells the
+    post-compaction session that summarized document contents are paraphrase and the plan
+    documents must be re-read.
+  - What this buys: `wb-prime.sh` stays **read-only and print-only**, keeping the contract it
+    inherits from the hook it replaces — no subprocess beyond filesystem checks, well under its
+    time budget, exit 0 always. A writing hook would have needed a `git` subprocess (a time-budget
+    risk in a large repository) and, worse, would have been able to corrupt `journal.md` — an
+    append-only file whose value depends on being trustworthy.
+  - Trade-off: if a session dies *during* compaction rather than after it, the open entry's
+    timestamp is stale. Accepted: the entry is still correct about what was being attempted and
+    what came next, which is the part that matters, and the next session's tree check supplies
+    the rest.
+  - Rejected: having the hook print an instruction for the model to refresh the entry. That
+    depends on the model complying at the exact moment context is exhausted — the least
+    reliable moment available, and precisely why D8a chose a hook over skill text.
+  - Source: tasks.md Implementation Discoveries · Decided 2026-09-08
 
 - **A phase-exit criterion tests what that phase owns; the tree-wide assertion belongs at the
   cut** (resolves Phase 2's unmeetable beads criterion). Phase 2's
