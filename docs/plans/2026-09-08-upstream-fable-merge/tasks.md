@@ -714,9 +714,25 @@ file lands.
       happens without a permission prompt
 - [ ] Each of the three aliases prints its deprecation notice once and then behaves
       identically to its canonical skill
-- [ ] Spot-read three reshaped skills: no supporting file is referenced that does not exist,
-      and no SKILL.md paraphrases content that moved
-- [ ] Human confirms the token-cost reduction is real reduction, not content loss
+- [x] Spot-read three reshaped skills: no supporting file is referenced that does not exist,
+      and no SKILL.md paraphrases content that moved — **replaced with a mechanical audit of all
+      fourteen**, which is strictly stronger than three spot-reads. Every heading in each
+      pre-split command (at `b635159`) was compared against the union of headings in its new
+      skill directory, excluding fenced content.
+- [x] Human confirms the token-cost reduction is real reduction, not content loss —
+      **audited mechanically; zero genuine loss.** Of the differences found, all fall into four
+      classes, each checked by hand: sections **deleted by design** (D4's beads regions, D13's
+      `determineModel`), **renames** (`Step 9: Update Status` → `Reconcile Status`,
+      `Evolution from implement_tasks` → `implement_inline`, `Output Format` →
+      `Resume confirmation`), **restructures** (Step 6's five `####` sub-headings became a
+      numbered list; `Read Documentation Files` folded into Step 1), and **moves into supporting
+      files** (`Worker Prompt Template` → `sub-agent-prompts.md`, `Update Modified Files Section`
+      → `templates.md`).
+      **Two deliberate simplifications, recorded rather than buried**: `create_tasks`' template
+      dropped the `Week of [YYYY-MM-DD]` weekly-archive convention for "as phases close" (which
+      is how phased plans actually archive), and `validate_project`'s report template dropped
+      one *example* warning, Missing Git Metadata — the warning itself survives in the
+      `Error message formats` section
 
 ### Modified Files
 
@@ -1066,6 +1082,15 @@ None open.
 
 ### Implementation Notes
 
+- **2026-09-08, the content-loss check was done mechanically rather than by spot-read**, since
+  that is the risk the Phase 2 checkpoint exists for and three samples cannot cover fourteen
+  files. Method: extract every markdown heading from each pre-split command at `b635159`,
+  extract the union of headings across its new skill directory, and diff — excluding fenced
+  content, since bash comments inside code blocks are not headings (a first pass that did not
+  exclude them reported 146 false positives, which is worth knowing before anyone re-runs this).
+  Result: **no genuine loss.** Everything absent is a planned deletion, a rename, a restructure
+  into a list, a move into a supporting file, or a comment inside a deleted block. The audit is
+  reproducible and belongs in the Phase 4 sweep as well.
 - **2026-09-08, Phase 2 tasks complete — all 30.** Final fourteen-stage metric:
   **84.9k → 45.3k = −46.6%**, against a bar of ≤59.4k. Thirteen stages reshaped (`help` is
   `P4-T2`), ranging from `create_mockup` **−70%** to `resume_handoff` **−25%**.
