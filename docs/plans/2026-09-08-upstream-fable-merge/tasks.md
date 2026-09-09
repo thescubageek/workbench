@@ -795,27 +795,27 @@ verification hint.
 
 ### Tasks
 
-- [ ] **P3-T1** — `plugin/hooks/wb-prime.sh`: the orientation mode (stage chain, plan-directory
+- [x] **P3-T1** — `plugin/hooks/wb-prime.sh`: the orientation mode (stage chain, plan-directory
       convention, where status lives, checkpoints stop for a human, active plans in the
       repository, pointer to `/wb:help`). Under forty lines of output; `--export` support;
-      `.claude/wb/PRIME.md` override. (~20 calls)
-- [ ] **P3-T2** — Same script, the recovery mode: on a compact payload and on PreCompact,
+      `.claude/wb/PRIME.md` override. (~20 calls) (completed 2026-09-08 17:52)
+- [x] **P3-T2** — Same script, the recovery mode: on a compact payload and on PreCompact,
       print that summarized document contents are paraphrase and the plan documents must be
       re-read before being asserted, naming the active plan directory. **Print only — the hook
       writes nothing** (decided 2026-09-08; D8a's PreCompact journal refresh is dropped because
-      `P3-T3`'s bootstrap recomputes those fields from the repository anyway). (~15 calls)
-- [ ] **P3-T3** — Same script, the D8c bootstrap block: plan position from checkbox counts,
+      `P3-T3`'s bootstrap recomputes those fields from the repository anyway). (~15 calls) (completed 2026-09-08 17:52)
+- [x] **P3-T3** — Same script, the D8c bootstrap block: plan position from checkbox counts,
       the journal's last entry with its open/closed state, the knowledge-file line, and the
-      journal-vs-tree reconciliation. (~20 calls)
-- [ ] **P3-T4** — Register the hook in `plugin/.claude-plugin/plugin.json` on SessionStart (all
+      journal-vs-tree reconciliation. (~20 calls) (completed 2026-09-08 17:52)
+- [x] **P3-T4** — Register the hook in `plugin/.claude-plugin/plugin.json` on SessionStart (all
       triggers) and PreCompact; delete `plugin/hooks/setup-beads-mode.sh` and its registration.
-      (~8 calls)
-- [ ] **P3-T5** — Verify the hook contract mechanically: run it against all four payload shapes
+      (~8 calls) (completed 2026-09-08 17:58)
+- [x] **P3-T5** — Verify the hook contract mechanically: run it against all four payload shapes
       (startup, compact, PreCompact, empty) with `time`, confirm it stays under budget, makes
       no `bd` call, **writes no file** (the decision of 2026-09-08 — verify with a
       before/after checksum of `journal.md` across a PreCompact run), and exits 0 on an unknown
       payload. Record results in
-      `thoughts/2026-09-08-baseline-measurements.md`. (~12 calls)
+      `thoughts/2026-09-08-baseline-measurements.md`. (~12 calls) (completed 2026-09-08 17:56)
 - [ ] **P3-T6** — `plugin/skills/doc-adherence/SKILL.md` (D11): `user-invocable: false`; the
       rule that a claim about what a plan document says requires a read of that document in
       the current context window; the identify → check → read → assert gate; a
@@ -849,11 +849,11 @@ verification hint.
 
 #### Automated Verification
 
-- [ ] `plugin/hooks/wb-prime.sh` exits 0 on all four payload shapes and on empty stdin
-- [ ] `grep -c 'bd ' plugin/hooks/wb-prime.sh` → 0
-- [ ] The script's runtime is recorded and within the contract it inherited
-- [ ] `test ! -e plugin/hooks/setup-beads-mode.sh`; no reference to it in `plugin.json`
-- [ ] `grep -c 'PreCompact' plugin/.claude-plugin/plugin.json` → 1
+- [x] `plugin/hooks/wb-prime.sh` exits 0 on all four payload shapes and on empty stdin, and on an unrecognized event
+- [x] `grep -c 'bd ' plugin/hooks/wb-prime.sh` → 0
+- [x] The script's runtime is recorded and within the contract it inherited — **45 ms median**, against upstream's <100 ms target and a 5 s registered timeout. It also **writes nothing**, checksum-verified across all five runs
+- [x] `test ! -e plugin/hooks/setup-beads-mode.sh`; no reference to it in `plugin.json`
+- [x] `grep -c 'PreCompact' plugin/.claude-plugin/plugin.json` → 1
 - [ ] `ls plugin/skills/doc-adherence/SKILL.md plugin/skills/explore_design/SKILL.md`
 - [ ] `test -f .claude/wb/knowledge.md`; every entry matches the required shape
       (date, source plan, verification hint present)
@@ -1082,6 +1082,16 @@ None open.
 
 ### Implementation Notes
 
+- **2026-09-08, `wb-prime.sh` built (`P3-T1`–`P3-T5`) — and its own first run found a bug in the
+  plan's most load-bearing convention.** The bootstrap counted 65 tasks against a frontmatter
+  figure of 64; the extra match was `- [ ] **End-to-end**:`, a Phase 4 *criterion* that opens
+  with a bold phrase. That is precisely A2's recorded failure mode, hit live. Standardized all
+  eight files that count tasks (16 occurrences) on one pattern requiring **at least one digit**
+  in the ID — `**End-to-end**` fails on the lowercase, `**API**` (the other shape a criteria
+  list produces) fails on the digit, `**P3-T1**` passes. 64 of 64, zero false positives.
+  Worth recording *why* it surfaced now rather than earlier: the hook is the first consumer that
+  prints the count where a human reads it every session. The same latent error sat in five
+  skills, silent, because nothing displayed it. **A number nobody looks at is not verified.**
 - **2026-09-08, the content-loss check was done mechanically rather than by spot-read**, since
   that is the risk the Phase 2 checkpoint exists for and three samples cannot cover fourteen
   files. Method: extract every markdown heading from each pre-split command at `b635159`,

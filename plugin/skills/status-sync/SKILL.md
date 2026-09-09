@@ -28,8 +28,8 @@ Count the checkboxes and compare them with what the frontmatter claims:
 ```bash
 # Scope to lines carrying a task ID — a plan's success criteria and prerequisites
 # are checkboxes too, and counting them inflates progress.
-grep -cE '^- \[x\] \*\*[A-Z0-9-]+\*\*' tasks.md    # actually done
-grep -cE '^- \[ \] \*\*[A-Z0-9-]+\*\*' tasks.md    # actually remaining
+grep -cE '^- \[x\] \*\*[A-Z0-9-]*[0-9][A-Z0-9-]*\*\*' tasks.md    # actually done
+grep -cE '^- \[ \] \*\*[A-Z0-9-]*[0-9][A-Z0-9-]*\*\*' tasks.md    # actually remaining
 grep -E '^(status|current_phase|total_tasks|completed_tasks):' tasks.md
 ```
 

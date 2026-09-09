@@ -64,8 +64,8 @@ gh pr list $R --author "$ME" --state open \
 # Scope counts to lines carrying a task ID — criteria and prerequisites are
 # checkboxes too, and counting them inflates progress.
 for T in docs/plans/*/tasks.md; do
-  done=$(grep -cE '^- \[x\] \*\*[A-Z0-9-]+\*\*' "$T")
-  left=$(grep -cE '^- \[ \] \*\*[A-Z0-9-]+\*\*' "$T")
+  done=$(grep -cE '^- \[x\] \*\*[A-Z0-9-]*[0-9][A-Z0-9-]*\*\*' "$T")
+  left=$(grep -cE '^- \[ \] \*\*[A-Z0-9-]*[0-9][A-Z0-9-]*\*\*' "$T")
   [ "$left" -gt 0 ] && echo "$T: $done done, $left left"
 done
 

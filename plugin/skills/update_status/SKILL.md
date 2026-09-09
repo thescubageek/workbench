@@ -74,8 +74,8 @@ This is the measurement step. Everything downstream derives from it.
 ```bash
 # Task lines only — scope to lines carrying a task ID, so that a plan's own success
 # criteria and prerequisites (also checkboxes) are not miscounted as tasks.
-grep -cE '^- \[x\] \*\*[A-Z0-9-]+\*\*' tasks.md    # completed
-grep -cE '^- \[ \] \*\*[A-Z0-9-]+\*\*' tasks.md    # remaining
+grep -cE '^- \[x\] \*\*[A-Z0-9-]*[0-9][A-Z0-9-]*\*\*' tasks.md    # completed
+grep -cE '^- \[ \] \*\*[A-Z0-9-]*[0-9][A-Z0-9-]*\*\*' tasks.md    # remaining
 ```
 
 Then:

@@ -92,7 +92,7 @@ Before running the checklist, get the facts that most other checks depend on:
 ```bash
 grep -c '^- \[x\]' ${projectDir}/tasks.md    # tasks done
 grep -c '^- \[ \]' ${projectDir}/tasks.md    # tasks remaining
-grep -cE '^- \[[ x]\] \*\*[A-Z0-9-]+\*\*' ${projectDir}/tasks.md   # tasks carrying a local ID
+grep -cE '^- \[[ x]\] \*\*[A-Z0-9-]*[0-9][A-Z0-9-]*\*\*' ${projectDir}/tasks.md   # tasks carrying a local ID
 ```
 
 Note where a plan's own success criteria and prerequisites are also checkboxes: a raw

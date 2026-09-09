@@ -327,3 +327,47 @@ the boundary; and the root-`CLAUDE.md` warning behaves exactly as D1 predicts. T
 open assumptions (A4, A5) concern *permission-prompt ergonomics and alias behaviour at
 invocation*, not whether the layout loads — so they gate the Phase 0 checkpoint's human
 sign-off, not the structural verdict.
+
+---
+
+## `wb-prime.sh` contract verification (`P3-T5`)
+
+Run 2026-09-08 against the four payload shapes the hook can receive, plus an unrecognized one.
+
+| Payload | Exit | Output | Notes |
+| ------- | ---- | ------ | ----- |
+| `SessionStart` / `startup` | 0 | 23 lines | orientation + bootstrap |
+| `SessionStart` / `compact` | 0 | 4 lines | recovery text only |
+| `PreCompact` | 0 | 4 lines | recovery text only |
+| empty stdin | 0 | 0 lines | silent, as the contract requires |
+| unrecognized event | 0 | — | falls through to orientation; never errors |
+
+**Timing**: 45, 45, 45, 47, 45 ms — median **45 ms**. Upstream targets <100 ms for the same
+hook; the registered timeout is 5 s. The one subprocess is a single
+`git status --porcelain --untracked-files=no`, guarded by a `.git` check.
+
+**Writes nothing**: verified by checksumming `journal.md` before and after all five runs. This
+is the decision of 2026-09-08 — the PreCompact refresh was dropped because the bootstrap
+recomputes those fields from the repository, and a hook that can write an append-only record
+can corrupt it.
+
+**`bd` invocations**: 0.
+
+### The bug its own first run found
+
+The bootstrap's task counter initially used `\*\*[A-Za-z0-9-]+\*\*` to identify task lines,
+and reported **65** tasks against a frontmatter figure of 64. The extra match was
+`- [ ] **End-to-end**:` — a Phase 4 *manual verification criterion* that happens to open with a
+bold phrase.
+
+This is exactly the failure mode A2 records: a plan's success criteria and prerequisites are
+checkboxes too, so counting them inflates progress. Standardized across all eight files that
+count tasks (16 occurrences) on one pattern:
+
+```
+^- \[[ x]\] \*\*[A-Z0-9-]*[0-9][A-Z0-9-]*\*\*
+```
+
+Uppercase, digits and hyphens **with at least one digit required**. `**End-to-end**` fails on
+the lowercase; `**API**` — the other shape a criteria list produces — fails on the digit. On
+this plan it now matches 64 of 64 with zero false positives.

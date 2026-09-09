@@ -66,8 +66,8 @@ const journalFile = `${projectDir}/journal.md`;
 3. **Read plan state from `tasks.md`** — it is the record; there is no tracker to query:
 
    ```bash
-   grep -cE '^- \[x\] \*\*[A-Z0-9-]+\*\*' tasks.md   # tasks done
-   grep -cE '^- \[ \] \*\*[A-Z0-9-]+\*\*' tasks.md   # tasks remaining
+   grep -cE '^- \[x\] \*\*[A-Z0-9-]*[0-9][A-Z0-9-]*\*\*' tasks.md   # tasks done
+   grep -cE '^- \[ \] \*\*[A-Z0-9-]*[0-9][A-Z0-9-]*\*\*' tasks.md   # tasks remaining
    ```
 
    Scope the count to lines carrying a task ID: a plan's success criteria and prerequisites are

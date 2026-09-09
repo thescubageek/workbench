@@ -117,8 +117,8 @@ the document:
 ```bash
 git status --short     # uncommitted work — belongs to something that did not finish
 git log --oneline -5   # what actually landed
-grep -cE '^- \[x\] \*\*[A-Z0-9-]+\*\*' [project-dir]/tasks.md   # tasks actually done
-grep -cE '^- \[ \] \*\*[A-Z0-9-]+\*\*' [project-dir]/tasks.md   # tasks remaining
+grep -cE '^- \[x\] \*\*[A-Z0-9-]*[0-9][A-Z0-9-]*\*\*' [project-dir]/tasks.md   # tasks actually done
+grep -cE '^- \[ \] \*\*[A-Z0-9-]*[0-9][A-Z0-9-]*\*\*' [project-dir]/tasks.md   # tasks remaining
 ```
 
 Scope the counts to lines carrying a task ID — a plan's success criteria and prerequisites are
