@@ -1,10 +1,10 @@
 # Workbench (wb)
 
-A Claude Code plugin for structured software development workflows: project planning, research, design, execution, and validation with TDD enforcement and beads integration.
+A Claude Code plugin for structured software development workflows: project planning, research, design, execution, and validation with TDD enforcement.
 
 ## Overview
 
-A personal workbench of tools and workflows for Claude Code. Streamlines software development through structured planning, research, and persistent task tracking with [beads](https://github.com/steveyegge/beads).
+A personal workbench of tools and workflows for Claude Code. Streamlines software development through structured planning, research, and phased execution — with status tracked in the plan documents themselves, no external tracker required.
 
 **[Complete Workflow Guide](docs/workbench-workflow-guide.md)**
 
@@ -50,8 +50,8 @@ Note: `/reload-plugins` alone does NOT pull updates — the cache is keyed by ve
 /wb:create_research docs/plans/2025-01-15-TICKET-123-my-feature
 /wb:create_mockup docs/plans/... "UI component"  # Optional for UI
 /wb:create_design docs/plans/...
-/wb:create_execution docs/plans/...
-/wb:implement_tasks docs/plans/...
+/wb:create_tasks docs/plans/...
+/wb:implement docs/plans/...
 /wb:validate_execution docs/plans/...
 ```
 
@@ -70,9 +70,10 @@ Slash commands for project documentation and task management:
 - **`/wb:create_product_research`** - Document codebase from a product perspective (features, user flows, behaviors)
 - **`/wb:create_mockup`** - Research UI patterns and create HTML mockups with visual validation
 - **`/wb:create_design`** - Create architectural design decisions (WHAT and WHY)
-- **`/wb:create_execution`** - Transform design into phased execution plan (HOW)
-- **`/wb:implement_tasks`** - Implement with TDD (Red-Green-Refactor)
-- **`/wb:implement_coordinated`** - Coordinate implementation with worker agents
+- **`/wb:explore_design`** - *(optional)* Air the alternatives before choosing; records the decision in `thoughts/`
+- **`/wb:create_tasks`** - Transform design into phased execution plan (HOW)
+- **`/wb:implement`** - Implement with TDD via worker agents, main context kept clean *(recommended)*
+- **`/wb:implement_inline`** - The same plan, implemented inline on the session model
 - **`/wb:validate_execution`** - Validate implementation matches plan
 - **`/wb:validate_project`** - Validate project documentation structure
 - **`/wb:create_handoff`** - Create session handoff for work continuity
@@ -109,49 +110,69 @@ Background capabilities that Claude automatically invokes:
 - **`tracer-bullet`** - Fires one cheap probe at the riskiest assumption before fanning out into speculative work
 - **`touch-grass`** - Paces long-horizon research/audits across checkpointed segments with self-scheduled resumes
 - **`fetch-issues`** - Triages open GitHub issues into per-issue, session-ready handoffs
-- **`daily-digest`** - Morning "catch me up + plan my day" orchestrator across Jira, beads, git, and more
+- **`daily-digest`** - Morning "catch me up + plan my day" orchestrator across Jira, wb plans, git, and more
 - **`clip`** - Runs an instruction, then copies the result to the clipboard (cross-platform) instead of printing it
 - **`eli5-clip`** - Summarizes recent work as a warm, plain-language message for a non-technical reader and copies it to the clipboard, tailored to a named recipient
 
 ### Hooks
 
-- **SessionStart** - Auto-detects beads mode (stealth/git)
+- **SessionStart** - Session orientation, plan position, and the journal/working-tree reconciliation (`hooks/wb-prime.sh`)
+- **PreCompact** - Compaction recovery: says the summaries are paraphrase and the plan documents must be re-read
 - **PostToolUse** - Lints markdown files after Write/Edit operations
 
 ## Plugin Structure
 
 ```
 workbench/
-├── .claude-plugin/     # Plugin manifest + marketplace
-│   ├── plugin.json
-│   └── marketplace.json
-├── commands/           # Slash commands (/wb:*)
-├── agents/             # Specialized subagents
-├── skills/             # Auto-activated capabilities
-├── hooks/              # Event handlers
-├── scripts/            # Utility scripts (lint)
-└── docs/               # Guides and documentation
+├── .claude-plugin/
+│   └── marketplace.json    # marketplace entry; "source": "./plugin"
+├── plugin/                 # everything an installer receives
+│   ├── .claude-plugin/
+│   │   └── plugin.json
+│   ├── skills/             # workflow stages (/wb:*) and background skills
+│   ├── agents/             # specialized subagents
+│   ├── hooks/              # event handlers
+│   ├── scripts/            # utility scripts (lint)
+│   └── docs/reference/     # shipped, runtime-referenced docs
+└── docs/                   # maintainer-facing; never shipped
 ```
 
-## Beads Integration
-
-Requires [beads](https://github.com/steveyegge/beads) for persistent task tracking:
+**Local development points at `plugin/`, not the repository root:**
 
 ```bash
-bd init --stealth   # Stealth: .beads/ not committed (work repos)
-bd init             # Git: .beads/ in git (personal projects)
+claude --plugin-dir /path/to/workbench/plugin
 ```
 
-Commands create/track beads issues for phases, tasks, and UI questions. SessionStart hook detects mode automatically.
+Pointing it at the root does not error — it silently serves the *installed* copy, so
+working-tree changes are invisible.
+
+## Where status lives
+
+No external tracker. Nothing to install, nothing to initialize.
+
+- **Checkbox state in `tasks.md` is the source of truth.** Flipping `- [ ]` to `- [x]` is the
+  act of recording a task done.
+- **Frontmatter counters are a derived cache** with exactly one writer, `/wb:update_status`.
+  Drift between checkpoints is expected; `status-sync` surfaces it.
+- **Git is the durable record** — one task, one commit, task ID in the message.
+- **Questions, assumptions and decisions** live in the document that raises them, with local
+  IDs (`Q1`, `A1`, `PD1`) and an explicit state.
+
+Continuity across sessions comes from three artifacts with different lifetimes: a per-plan
+`journal.md` whose entries **open when work starts** (so an abrupt kill leaves a correct open
+entry rather than silence), a committed `.claude/wb/knowledge.md` of durable repository facts,
+and handoffs for planned transfers. The session-start hook reports all three, reconciled against
+the working tree — the repository is always the authority.
 
 ## Core Philosophy
 
 - **Document, Don't Judge**: Research describes what EXISTS, not what should change
 - **Explicit Barriers**: Synchronization points prevent rushing ahead
 - **Dual Verification**: Automated (tests, CI) + Manual (UX, edge cases)
-- **Zero Scope Creep**: Tasks only from plans - no ad-hoc additions
+- **Zero Scope Creep**: Tasks only from plans - no ad-hoc additions, but implement what the task asks for *completely*
+- **Status Lives in the Plan**: Checkboxes are truth, counters are a cache with one writer, git is the durable record
 
-## Output Discipline (optional opt-in)
+## Output discipline (optional opt-in)
 
 The `/wb:*` commands already keep narration terse (act on barriers silently, emit a one-line completion summary instead of recapping the written document). To enforce the same discipline **globally** across all your Claude Code work — not just wb — add this to your own `~/.claude/CLAUDE.md` (user-wide) or a project `CLAUDE.md`:
 

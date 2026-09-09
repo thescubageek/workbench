@@ -11,7 +11,7 @@ window: <SINCE> → now
 project: <active project / focus>
 branch: <current branch>
 generated: <YYYY-MM-DD HH:MM TZ>
-sources_ok: [git, beads, jira, calendar]
+sources_ok: [git, plans, jira, calendar]
 sources_gap: [sentry, notion, gmail]   # unavailable this run + why (below)
 ---
 

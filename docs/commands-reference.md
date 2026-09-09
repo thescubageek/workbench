@@ -21,7 +21,7 @@ Claude Code slash commands for managing project documentation, research, plannin
 ## Command Workflow
 
 ```mermaid
-/create_project → /create_research → /create_mockup → /create_design → /create_execution → /implement_tasks → /validate_execution
+/create_project → /create_research → /create_mockup → [/explore_design] → /create_design → /create_tasks → /implement_tasks → /validate_execution
      ↓                   ↓                 ↓                 ↓                 ↓                    ↓                   ↓
 [Structure]        [Research.md]      [Mockups/]        [Design.md]       [Tasks.md]         [Implementation]    [Validation]
                         ↓                 ↓                 ↓                 ↓                    ↓                   ↓
@@ -44,41 +44,38 @@ For multi-session work:
 7. **Validate**: Verify implementation matches plan
 8. **Handoff** (optional): Transfer context between sessions
 
-### Beads Integration (Required)
+### Where status lives
 
-These commands require [beads](https://github.com/steveyegge/beads):
+No external tracker. Nothing to install before the workflow runs.
+
+- **Checkbox state in `tasks.md` is the source of truth.** Flipping `- [ ]` to `- [x]` is the
+  act of recording a task done.
+- **Frontmatter counters are a derived cache**, with exactly one writer: `/update_status`.
+  Drift between checkpoints is expected; `status-sync` surfaces it.
+- **Git is the durable record** — one task, one commit, task ID in the message.
+- **Planning records** live in the document that raises them, with local IDs (`Q1`, `A1`,
+  `PD1`, `UIQ1`) and an explicit state.
+
+**How each stage uses it**:
+
+- **`/create_mockup`**: raises `UIQ` / `UIA` rows in the version's `mockup.md`; blocks finalization until they resolve
+- **`/create_tasks`**: writes the phased task list, each task a checkbox with a local ID
+- **`/implement`**, **`/implement_inline`**: flip a task's checkbox as the final act of finishing it
+- **`/update_status`**: counts the checkboxes and reconciles the counters to them
+- **`/create_handoff`**: reports position from the checkbox counts, and reviews knowledge candidates
+- **`mockup-iteration` skill**: raises UI questions, checks all are resolved before finalization
+
+**Progress, at any time**:
 
 ```bash
-# Initialize (choose mode)
-bd init --stealth   # Stealth: .beads/ not committed (work repos)
-bd init             # Git: .beads/ tracked in git (personal projects)
+# Scope to lines carrying a task ID — a plan's own success criteria and
+# prerequisites are checkboxes too, and counting them overstates progress.
+grep -cE '^- \[x\] \*\*[A-Z0-9-]*[0-9][A-Z0-9-]*\*\*' tasks.md
+grep -cE '^- \[ \] \*\*[A-Z0-9-]*[0-9][A-Z0-9-]*\*\*' tasks.md
 ```
 
-**How commands use beads**:
-
-- **`/create_mockup`**: Creates `UI Q:` and `UI Assumption:` issues, blocks finalization until resolved
-- **`/create_execution`**: Creates phase milestone and task issues with dependency chains
-- **`/implement_tasks`**: Uses `bd ready`/`bd update`/`bd close` to track implementation
-- **`/update_status`**: Reads beads state as source of truth for status
-- **`/create_handoff`**: Includes open beads issues in handoff context
-- **`mockup-iteration` skill**: Creates UI questions, validates all resolved before finalization
-
-**Beads workflow**:
-
-```bash
-bd ready                                    # Find available work (no blockers)
-bd show [id]                                # Review task details
-bd update [id] --status in_progress         # Claim task
-# ... implement ...
-bd close [id] --reason "..."                # Complete task
-bd sync                                     # Export to .beads/issues.jsonl
-# Git mode: commit .beads/ to persist across machines
-# Stealth mode: .beads/ stays uncommitted (local only)
-```
-
-**Mode Detection**: SessionStart hook auto-detects stealth vs git mode, sets `$BEADS_MODE` environment variable.
-
-**Note**: For markdown-only tracking, use the `v1.0.0` tag.
+**Task IDs are a contract**: bold, matching `[A-Z0-9-]*[0-9][A-Z0-9-]*`, at least one digit. An
+ID without one is invisible to every counter.
 
 ---
 
@@ -222,7 +219,7 @@ docs/plans/2025-10-07-my-feature/mockups/
 - **Versioned iteration**: Each feedback cycle creates new version
 - **Icon handling**: Uses discovered icon library (NOT emojis)
 - **Decision tracking**: KEEP/REMOVE/CHANGE captured with rationale
-- **Beads integration**: Creates UI questions as beads issues
+- **UI questions**: raised as `UIQ` rows in the version's mockup.md
 
 **Iteration with mockup-iteration skill**:
 
@@ -244,7 +241,7 @@ After initial mockup, provide feedback naturally:
 - **Researches app's icon library** (Font Awesome, Material Icons, Heroicons, SVG, custom)
 - **Never defaults to emojis** in HTML mockups
 - **Uses actual icon patterns** from research (classes, components)
-- **Creates beads issue** if icons needed but system unclear
+- **Adds a `UIQ` row** if icons are needed but the system is unclear
 - **Asks before adding** icons if no system found
 
 **Critical Rules**:
@@ -272,7 +269,7 @@ After initial mockup, provide feedback naturally:
 
 # 3. Finalize to design
 "finalize"
-> Checks for open UI questions (beads issues)
+> Checks the mockup's Open Questions table for rows still `Open`
 > Generates design.md section from confirmed requirements
 ```
 
@@ -323,14 +320,16 @@ Creates architectural design decisions based on validated research. Focuses on W
 
 ---
 
-### `/create_execution` - Create Execution Plan
+### `/create_tasks` - Create Execution Plan
+
+> Renamed from `/create_execution` at 2.0.0; the old name is a deprecated alias removed at 3.0.0.
 
 Transforms approved design into detailed phased execution plan with embedded tasks.
 
 **Usage**:
 
 ```bash
-/create_execution docs/plans/2025-10-07-my-feature
+/create_tasks docs/plans/2025-10-07-my-feature
 ```
 
 **Planning Process**:
@@ -381,14 +380,16 @@ Transforms approved design into detailed phased execution plan with embedded tas
 
 ---
 
-### `/implement_tasks` - Implement with TDD
+### `/implement` - Implement with TDD via worker agents
+
+> Renamed from `/implement_coordinated` at 2.0.0. `/implement_inline` (formerly `/implement_tasks`) runs the same plan inline on the session model. Both old names are deprecated aliases removed at 3.0.0.
 
 Implements tasks following Test-Driven Development (Red → Green → Refactor).
 
 **Usage**:
 
 ```bash
-/implement_tasks docs/plans/2025-10-07-my-feature
+/implement docs/plans/2025-10-07-my-feature
 ```
 
 **TDD Process**:
@@ -405,7 +406,7 @@ Implements tasks following Test-Driven Development (Red → Green → Refactor).
 - Follow TDD cycle strictly
 - Respect phase boundaries
 - Stop at checkpoints for human verification
-- Update task checkboxes as you complete work
+- Flip each task's checkbox as you complete it — that flip **is** the tracking act, and an unflipped box on finished work is indistinguishable from unfinished work
 
 ---
 
@@ -614,7 +615,7 @@ Interactive discussion → Design decisions (WHAT and WHY). Includes UI requirem
 #### 5. Create Execution Plan
 
 ```bash
-/create_execution docs/projects/2025-10-07-LINEAR-789-add-auth-middleware
+/create_tasks docs/projects/2025-10-07-LINEAR-789-add-auth-middleware
 ```
 
 Generates phased plan with specific tasks (HOW to implement).
@@ -622,7 +623,7 @@ Generates phased plan with specific tasks (HOW to implement).
 #### 6. Implement with TDD
 
 ```bash
-/implement_tasks docs/projects/2025-10-07-LINEAR-789-add-auth-middleware
+/implement docs/projects/2025-10-07-LINEAR-789-add-auth-middleware
 ```
 
 Work through tasks.md using TDD cycle:
@@ -712,15 +713,16 @@ Flexible ticket support:
 
 ### Extending Commands
 
-All commands are markdown files - edit to customize:
+All stages are skill directories under `plugin/skills/<name>/` — a `SKILL.md` plus supporting files read on demand. Edit to customize:
 
 ```
-commands/
+plugin/skills/
 ├── create_project.md    # Structure and metadata
 ├── create_research.md   # Research approach
 ├── create_design.md     # Design decisions (WHAT & WHY)
-├── create_execution.md  # Execution plan (HOW)
-├── implement_tasks.md   # TDD implementation
+├── create_tasks.md      # Execution plan (HOW)
+├── implement.md         # TDD implementation via worker agents
+├── implement_inline.md  # TDD implementation, inline
 ├── validate_execution.md # Implementation validation
 ├── create_handoff.md    # Session handoff
 ├── resume_handoff.md    # Resume from handoff

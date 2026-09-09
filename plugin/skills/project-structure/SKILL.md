@@ -38,8 +38,8 @@ user-invocable: false
 
 ## No external tracker
 
-**Status lives in `tasks.md`.** There is no beads database, no issue tracker, no parallel task
-list — and nothing to install before the workflow runs.
+**Status lives in `tasks.md`.** No external database, no issue tracker, no parallel task list —
+and nothing to install before the workflow runs.
 
 - **Checkbox state is the source of truth.** Flipping `- [ ]` → `- [x]` *is* the act of
   recording a task done. A finished task with an unflipped checkbox is indistinguishable from

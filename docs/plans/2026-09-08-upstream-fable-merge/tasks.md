@@ -312,7 +312,12 @@ Independent of beads removal because its only inbound references are documentati
       `docs/workbench-workflow-guide.md:893`) and both are done; the criterion over-reaches its
       own task by also covering a file scheduled for deletion two phases later. Clears at
       `P2-T27` with no further work
-- [x] `grep -c 'model:' plugin/agents/*.md` → 1 per file; no `effort:` on a haiku agent —
+- [x] ~~`grep -c 'model:' plugin/agents/*.md` → 1 per file~~; no `effort:` on a haiku agent —
+      **criterion amended 2026-09-08 at the Phase 4 sweep.** It was written when there were six
+      agents. `P2-T11` added a seventh, `task-worker`, whose design is precisely that it carries
+      **no** `model:` — the coordinator picks its tier per spawn from `implement`'s Step 5
+      ladder, which is D13's entire point. Working form: the six typed agents each have exactly
+      one `model:` and no `effort:` on a haiku one; `task-worker` has none and a `maxTurns` —
       but note this is a **spelling check, not a behaviour check**: neither
       `claude plugin validate` nor `claude plugin details` inspects agent frontmatter at all
       (proven by planting `model: totally-not-a-model` plus a nonsense key — both passed
@@ -912,7 +917,7 @@ from document existence, frontmatter status, and checkbox counts. `help` loses i
 
 ### Tasks
 
-- [ ] **P4-T1** — `forge` (D4, D6): rewrite the state-detection ladder at `:51-57`. Its first
+- [x] **P4-T1** — `forge` (D4, D6): rewrite the state-detection ladder at `:51-57`. Its first
       two branches key off documents; every branch after keys off tracker state ("no beads
       issues", "beads phases", "All phases closed in beads"). Re-derive all of them from
       documents — which of research/design/tasks exist, their frontmatter status, and checkbox
@@ -922,8 +927,8 @@ from document existence, frontmatter status, and checkbox counts. `help` loses i
       link to the deleted fast-fail doc — the only true markdown hyperlink in the group.
       Repoint `:77`, which instructs reading `commands/create_project.md`, at the relocated
       skill path. Update the sequence to name `create_tasks`. Split out
-      `examples.md` (`## Examples`) and keep `## Output style` as the template. (~30 calls)
-- [ ] **P4-T2** — `help`: delete `## Beads Integration` (`:60-96`), the `/beads:*`
+      `examples.md` (`## Examples`) and keep `## Output style` as the template. (~30 calls) (completed 2026-09-08 18:35)
+- [x] **P4-T2** — `help`: delete `## Beads Integration` (`:60-96`), the `/beads:*`
       slash-command tables (`:98-125`), `### CLI vs Slash Commands` (`:127-139`, which exists
       only to contrast with the deleted block), and `### Beads + Git Workflow` (`:141-153`).
       Reverse the per-command annotations that name beads as the status source — notably
@@ -933,22 +938,22 @@ from document existence, frontmatter status, and checkbox counts. `help` loses i
       Rewrite the workflow chain to include `explore_design` and `create_tasks`, and add a
       "where status lives" section (checkboxes, counters, git) plus D8's continuity artifacts.
       **No supporting-file split** — this stays a single SKILL.md, matching upstream's `help/`,
-      which has no siblings. (~25 calls)
-- [ ] **P4-T3** — `docs/workbench-workflow-guide.md`: the 47 `bd` lines go; the model map gains
+      which has no siblings. (~25 calls) (completed 2026-09-08 18:42)
+- [x] **P4-T3** — `docs/workbench-workflow-guide.md`: the 47 `bd` lines go; the model map gains
       D12's upshift ladder and the `create_tasks` row; the stage chain gains `explore_design`;
-      the beads-doc links are removed. Largest single doc rewrite. (~30 calls)
-- [ ] **P4-T4** — `docs/commands-reference.md`: rename `create_execution` → `create_tasks`
+      the beads-doc links are removed. Largest single doc rewrite. (~30 calls) (completed 2026-09-08 18:52)
+- [x] **P4-T4** — `docs/commands-reference.md`: rename `create_execution` → `create_tasks`
       with the alias noted; drop the beads sections; reconcile `:408` ("Update task checkboxes
       as you complete work") which becomes *correct* under D4 rather than contradictory.
-      (~25 calls)
-- [ ] **P4-T5** — `docs/claude-code-skills-guide.md`: record the progressive-disclosure
+      (~25 calls) (completed 2026-09-08 18:57)
+- [x] **P4-T5** — `docs/claude-code-skills-guide.md`: record the progressive-disclosure
       convention, `allowed-tools: Read`, `user-invocable: false`, and the alias-stub pattern as
-      house conventions. (~15 calls)
-- [ ] **P4-T6** — `README.md` and `CLAUDE.md`: the stage chain, the tracker-free tracking
+      house conventions. (~15 calls) (completed 2026-09-08 19:01)
+- [x] **P4-T6** — `README.md` and `CLAUDE.md`: the stage chain, the tracker-free tracking
       philosophy replacing "Beads Required", the `plugin/`-aware local-dev instruction, the
       `docs/` shipped-vs-maintainer boundary, and D19's where-rules-may-live rule. Fix the
-      duplicated `## Output Discipline` heading in `README.md`. (~20 calls)
-- [ ] **P4-T7** — `CHANGELOG.md` (D17): new file. A `[2.0.0]` entry with **Breaking**
+      duplicated `## Output Discipline` heading in `README.md`. (~20 calls) (completed 2026-09-08 19:06)
+- [x] **P4-T7** — `CHANGELOG.md` (D17): new file. A `[2.0.0]` entry with **Breaking**
       (beads removed; three renames — `create_execution` → `create_tasks`,
       `implement_coordinated` → `implement`, `implement_tasks` → `implement_inline`, each with
       a deprecated alias removed at the next major; tree relocated; `BEADS_MODE` gone;
@@ -962,10 +967,10 @@ from document existence, frontmatter status, and checkbox counts. `help` loses i
       users at the `v1.0.0` tag for a "markdown-only workflow", so this release does not
       invent tracker-free operation — it restores it as the only mode. Fold in the
       `beads-integration-learnings.md` migration narrative here in a few sentences if that
-      history is worth keeping anywhere (design.md D19 trade-off). (~20 calls)
-- [ ] **P4-T8** — Version bump to 2.0.0 in **both** `plugin/.claude-plugin/plugin.json` and
+      history is worth keeping anywhere (design.md D19 trade-off). (~20 calls) (completed 2026-09-08 19:10)
+- [x] **P4-T8** — Version bump to 2.0.0 in **both** `plugin/.claude-plugin/plugin.json` and
       `.claude-plugin/marketplace.json`, same commit. Verify with
-      `claude plugin tag --dry-run plugin/`. (~8 calls)
+      `claude plugin tag --dry-run plugin/`. (~8 calls) (completed 2026-09-08 19:04)
 - [ ] **P4-T9** — Final full verification sweep: every automated check from every phase, plus
       the end-to-end pipeline run below. Record results in the journal and close the plan's
       frontmatter status. (~20 calls)
@@ -977,15 +982,17 @@ from document existence, frontmatter status, and checkbox counts. `help` loses i
 
 #### Automated Verification
 
-- [ ] `grep -rn "bd \|beads\|BEADS_MODE\|/beads:" plugin/ README.md CLAUDE.md docs/ | grep -v docs/plans | grep -v CHANGELOG.md` → **no hits**
-- [ ] `grep -rn "create_execution" plugin/ docs/ README.md CLAUDE.md | grep -v docs/plans` — only
-      as the deprecated alias
-- [ ] `grep -c 'explore_design' plugin/skills/help/SKILL.md CLAUDE.md README.md docs/workbench-workflow-guide.md`
-      → 1 or more each
+- [x] `grep -rn "bd \|beads\|BEADS_MODE\|/beads:" plugin/ README.md CLAUDE.md docs/ | grep -v docs/plans | grep -v CHANGELOG.md` → **one hit**, `implement/reference.md`'s Migration section, which design.md's success criteria exempt ("outside the migration note")
+- [x] `grep -rn "create_execution" plugin/ docs/ README.md CLAUDE.md | grep -v docs/plans` — only
+      as the deprecated alias, plus the migration notes in `implement/reference.md` and
+      `commands-reference.md` that exist to name the old command
+- [x] `grep -c 'explore_design' plugin/skills/help/SKILL.md CLAUDE.md README.md docs/workbench-workflow-guide.md`
+      → 1 or more each (3 / 1 / 1 / 2)
 - [ ] Both manifests read `2.0.0`; `claude plugin tag --dry-run plugin/` exits 0 with no
-      warnings
-- [ ] `CHANGELOG.md` has `### ⚠️ Breaking` and `### Migration` sections under `[2.0.0]`
-- [ ] `./plugin/scripts/lint --all` — clean (D16 now makes this meaningful)
+      warnings — manifests done; the tag check runs after the release commit, per `P0-T3`'s
+      finding that `tag` refuses a dirty tree
+- [x] `CHANGELOG.md` has `### ⚠️ Breaking` and `### Migration` sections under `[2.0.0]`
+- [x] `./plugin/scripts/lint --all` — clean (D16 now makes this meaningful)
 - [ ] `claude plugin details wb` — final inventory and token cost recorded against baseline
 
 #### Manual Verification
@@ -1083,6 +1090,16 @@ None open.
 
 ### Implementation Notes
 
+- **2026-09-08, Phase 4's full sweep caught a fifth stale criterion.** Phase 1's
+  `grep -c 'model:' plugin/agents/*.md → 1 per file` failed — correctly, and for a good reason:
+  it was written when there were six agents, and `P2-T11` added `task-worker`, whose whole
+  design is that it carries **no** pinned model (the coordinator picks the tier per spawn, which
+  is D13). Amended in place.
+  That is the fifth criterion in this plan written against a state that later work changed
+  (`AGENTS.md` grep, two tier-rule rewordings, the Phase 2 beads scope, this). All five share a
+  shape: **a criterion written against the tree as it was when the task was authored, rather
+  than as it will be when the task runs.** Worth carrying into how criteria are written, not
+  just into this plan's record.
 - **2026-09-08, Phase 3 tasks complete.** `P3-T7` and most of `P3-T8` turned out to be **already
   done**: the journal protocol and the knowledge-file reads are content decisions (D8a/D8b/D8c)
   that appear in the *per-file* Phase 2 task specs, so they landed as each stage was reshaped.

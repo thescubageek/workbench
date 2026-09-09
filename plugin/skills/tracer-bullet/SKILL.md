@@ -83,4 +83,4 @@ In `/wb:create_design`, before **Step 4 (Solution Exploration)** presents option
 ask whether one probe would collapse the option set. If yes, run it and report
 the cull before listing what survives. A tracer bullet resolves the
 highest-leverage entry in the design's **Assumptions** table *now* rather than
-deferring every assumption to a beads "validate later" issue.
+deferring every assumption to a "validate later" row in the assumptions table.

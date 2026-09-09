@@ -159,7 +159,7 @@ Current diff:
 !`git diff HEAD`
 ```
 
-Multi-line blocks use a ```` ```! ```` fence. This is preprocessing, not something Claude executes — useful for injecting live state (git status, bd ready output) into a workflow prompt. Can be disabled via the `disableSkillShellExecution` setting.
+Multi-line blocks use a ```` ```! ```` fence. This is preprocessing, not something Claude executes — useful for injecting live state (git status, a plan's checkbox counts output) into a workflow prompt. Can be disabled via the `disableSkillShellExecution` setting.
 
 ---
 
@@ -247,7 +247,7 @@ Hook output supports `continue`, `systemMessage`, `suppressOutput`, and event-sp
 
 Hooks can now also live in **skill frontmatter** (active while the skill runs) and **agent frontmatter** (active while the agent runs), not just settings and plugin manifests. Hook types beyond `command` exist: `http`, `mcp_tool`, `prompt`, and `agent`.
 
-Events especially relevant to this repo: `SessionEnd`/`Stop` (deterministic `bd sync` reminders instead of skill-based ones), `PreCompact`/`PostCompact` (sync/restore beads state at context boundaries), `SubagentStop` (verify worker output automatically).
+Events especially relevant to this repo: `SessionStart`/`PreCompact` (`hooks/wb-prime.sh` — orientation, the plan bootstrap, and compaction recovery, since a hook is the only thing that survives a compaction boundary deterministicallyof skill-based ones), `PreCompact`/`PostCompact` (print orientation and recovery text at context boundaries), `SubagentStop` (verify worker output automatically).
 
 ---
 
@@ -311,12 +311,68 @@ The wb plugin's `commands/` files continue to work unchanged — plugin commands
 2. **The wb skills (tdd-discipline, verification-before-completion, status-sync, etc.) are the "Claude-only" pattern** — they could declare `user-invocable: false` explicitly.
 3. **Candidate upgrades** (not yet applied):
    - `context: fork` for research-heavy commands (`create_research`, `create_product_research`)
-   - `skills: [tdd-discipline]` preload + `maxTurns` on worker agents used by `implement_coordinated`
+   - `skills: [tdd-discipline]` preload + `maxTurns` on the `task-worker` agent used by `implement`
    - `memory: project` on research agents to accumulate codebase knowledge
-   - `SessionEnd`/`PreCompact` hooks for deterministic `bd sync` instead of relying on the status-sync skill activating
+   - `SessionStart`/`PreCompact` hooks for deterministic orientation and compaction recovery, which skill text cannot guarantee — see `hooks/wb-prime.skill activating
    - `displayName` in plugin.json
 
 ---
+
+## House conventions (wb 2.0.0)
+
+These are the conventions this repository settled on. They are choices, not requirements of the
+platform — recorded so the next skill written here matches the rest.
+
+### Progressive disclosure
+
+A workflow stage is `plugin/skills/<name>/SKILL.md` carrying judgment and control flow, plus
+supporting files read on demand:
+
+| File | Holds |
+| ---- | ----- |
+| `templates.md` | output documents and any multi-line message the skill emits verbatim |
+| `sub-agent-prompts.md` | `Task({…})` spawn blocks and agent prompt text |
+| `reference.md` | tail material — guidelines, error handling, configuration, long rules |
+| `examples.md` | worked examples of the judgment calls the skill makes |
+
+Every `SKILL.md` opens with a manifest naming its supporting files, using upstream's wording:
+*"read each when its step directs you to — never paraphrase from memory."* That sentence is
+load-bearing — the failure mode of progressive disclosure is a model summarizing a file it did
+not open.
+
+**Read by named section, not whole**, when a supporting file holds several independent blocks.
+A `templates.md` with four document skeletons should be read one section at a time; loading all
+four to write one file is the cost this layout exists to avoid. Two caveats: a section-scoped
+read breaks silently if the heading it names is renamed, and a section holding a fenced skeleton
+contains `##` headings of its own — so the file's header lists its real sections.
+
+### `allowed-tools: Read`
+
+Every workflow skill declares it. Without it, an on-demand supporting-file read prompts for
+permission mid-skill when the session is in another project. Measured here: with it, both a
+sibling read and one that climbs into `plugin/docs/reference/` are prompt-free.
+
+### `user-invocable: false`
+
+Background discipline skills — `doc-adherence`, `project-structure`, `status-sync`,
+`tdd-discipline`, `verification-before-completion`, `mockup-iteration` — carry it. They fire on
+context, not by name, and listing them in the menu is noise.
+
+### Deprecated-alias stubs
+
+A renamed stage keeps its old directory holding **one** file: a `SKILL.md` with
+`disable-model-invocation: true` that announces the rename once, then reads the canonical skill.
+No pointer files for the supporting files — they guard only a session already running when the
+plugin updates, which a restart fixes and the migration note already prescribes.
+
+The stub exists for muscle memory and for plan documents already written elsewhere that name
+the old command. It is removed at the next major.
+
+### Where rules may live
+
+A shipped skill may link only into `plugin/docs/reference/`. Everything under the repository's
+root `docs/` is maintainer-facing and is **never** a runtime rules source. Anything kept as
+history is marked non-normative at its top, so it cannot be read as current guidance.
 
 ## Changes from the 2025 Guide
 
