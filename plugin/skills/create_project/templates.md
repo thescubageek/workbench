@@ -32,8 +32,8 @@ This directory contains documentation for [project-name].
 1. ✅ Project structure created
 2. ⏳ Research phase (`/create_research [directory]`)
 3. ⏳ Design phase (`/create_design [directory]`)
-4. ⏳ Execution planning (`/create_execution [directory]`)
-5. ⏳ Implementation (`/implement_tasks [directory]`)
+4. ⏳ Execution planning (`/create_tasks [directory]`)
+5. ⏳ Implementation (`/implement [directory]`)
 6. ⏳ Testing & Verification
 
 ## Quick Commands
@@ -46,10 +46,10 @@ This directory contains documentation for [project-name].
 /create_design [this-directory]
 
 # Generate execution plan with tasks
-/create_execution [this-directory]
+/create_tasks [this-directory]
 
-# Implement tasks with TDD
-/implement_tasks [this-directory]
+# Implement with worker agents (/wb:implement_inline runs it in this session)
+/implement [this-directory]
 
 # Update status across all files
 /update_status [this-directory]
@@ -295,13 +295,13 @@ grep -c '^- \[ \]' tasks.md    # remaining
 - [x] Create project structure (completed [YYYY-MM-DD HH:MM])
 - [ ] Complete research using `/create_research [directory]`
 - [ ] Create design document using `/create_design [directory]`
-- [ ] Generate execution plan using `/create_execution [directory]`
+- [ ] Generate execution plan using `/create_tasks [directory]`
 
 ---
 
 ## Implementation Phases
 
-[To be populated by /create_execution after design is approved]
+[To be populated by /create_tasks after design is approved]
 
 ---
 

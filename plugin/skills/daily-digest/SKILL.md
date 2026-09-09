@@ -1,6 +1,6 @@
 ---
 name: daily-digest
-description: Morning "catch me up + plan my day" orchestrator. Restores active-project context, pulls what changed since yesterday across Jira, beads, git/GitHub PRs, Sentry, Notion, Gmail, and Calendar, then produces a prioritized, session-sustainable day plan — buckets work into Progress / Needs-review / Today / Blocked, assigns each task a complexity→(model, effort, parallelism) tier for cost-optimized results, budgets the day against the rolling 5-hour usage window and your meetings, and hands work off to forge / review skills / fetch-issues with touch-grass pacing (including breaks). Use at the start of a work session, or when the user says "daily digest", "morning digest", "catch me up", "what should I work on today", "start my day", "plan my day", "standup for myself".
+description: Morning "catch me up + plan my day" orchestrator. Restores active-project context, pulls what changed since yesterday across Jira, wb plans, git/GitHub PRs, Sentry, Notion, Gmail, and Calendar, then produces a prioritized, session-sustainable day plan — buckets work into Progress / Needs-review / Today / Blocked, assigns each task a complexity→(model, effort, parallelism) tier for cost-optimized results, budgets the day against the rolling 5-hour usage window and your meetings, and hands work off to forge / review skills / fetch-issues with touch-grass pacing (including breaks). Use at the start of a work session, or when the user says "daily digest", "morning digest", "catch me up", "what should I work on today", "start my day", "plan my day", "standup for myself".
 argument-hint: "[since-date?] [project-or-ticket?]"
 ---
 
@@ -28,7 +28,7 @@ RECONCILE BEFORE YOU RANK. NEVER WRITE PHI. ALWAYS LEAVE A CONCRETE FIRST MOVE.
 ```
 
 - **Reconcile before you rank** — one work item may appear as a Jira ticket, its PR,
-  its beads issue, and a Sentry error. Group them into ONE item before prioritizing,
+  its plan task, and a Sentry error. Group them into ONE item before prioritizing,
   or the day plan double-counts and misleads.
 - **Never write PHI** — see [PHI guardrail](#phi-guardrail). This is a HIPAA-covered
   org; the sources this skill reads (email, Jira, Sentry, Notion) can carry patient
@@ -70,8 +70,10 @@ git status --short
 ```
 
 - **Active project:** most-recently-modified dir under `docs/plans/`; cross-check
-  against the current branch name and any in-progress beads.
-- **In-flight work:** `bd list --status=in_progress` and `bd ready` (top few).
+  against the current branch name.
+- **In-flight work:** the first unchecked task in that plan's current phase, plus any
+  **OPEN** entry in its `journal.md` — an open entry beside a dirty tree is an
+  interrupted task, and it is the highest-signal item in the digest.
 - **Last handoff:** newest `docs/plans/**/handoff*.md` or `.context/**` — read it
   FULLY if present (this is the highest-signal context restore).
 - **Last digest:** read `.context/daily-digest/<prev-date>.md` if present — yesterday's
@@ -95,7 +97,7 @@ collector at it. Sources and what each contributes:
 | Source | Tool | Progress (done) | Needs review | Today / incoming |
 | --- | --- | --- | --- | --- |
 | **git / GitHub PRs** | `gh`, `git` | your merged PRs + commits since window | `review-requested:@me`; your PRs with new comments/failed CI | draft/changes-requested PRs to finish |
-| **beads** | `bd` | issues closed since window | issues in a review state | `bd ready`, `bd list --status=in_progress` |
+| **wb plans** | `docs/plans/` | tasks flipped `[x]` since window | phases at a ⛔ CHECKPOINT awaiting sign-off | first unchecked task; any OPEN journal entry |
 | **Jira** | Atlassian MCP | issues you moved to Done since window | `assignee=me AND status="In Review"`; where you're reviewer | open-sprint issues assigned to you, by rank |
 | **Sentry** | Sentry MCP (REST fallback) | issues you resolved | — | new / regressed / spiking issues in your projects since window |
 | **Notion** | Notion MCP | pages/db items you completed | docs/RFCs awaiting your review | tracker items assigned to you, updated since window |
@@ -115,7 +117,7 @@ Collect all collector outputs before Phase 2.
 **⛔ BARRIER 2: Deduplicate across sources into unified work items BEFORE ranking.**
 
 The same work shows up in many tools. Group them: match on ticket key in branch/PR
-names, PR↔issue closing refs, beads issue titles referencing a Jira key, Sentry
+names, PR↔issue closing refs, plan task titles referencing a Jira key, Sentry
 issue linked to a ticket, email subjects quoting a key. One **work item** = one row,
 carrying all its source links.
 
@@ -125,14 +127,15 @@ Then assign each unified item to exactly one bucket:
   this is the diff against yesterday's plan, not today's work.
 - **👀 Needs review** — split into *you owe a review* (blocks others — usually
   highest urgency) and *awaiting others' review of your work* (nudge-worthy).
-- **🎯 Today** — ready or in-progress work: sprint commitments, `bd ready`, PRs with
+- **🎯 Today** — ready or in-progress work: sprint commitments, the active plan's next
+  unchecked task, PRs with
   changes requested, actionable email/Sentry items.
 - **⛔ Blocked** — waiting on a dependency, decision, or someone else. Note what
   unblocks each.
 
 ## Phase 3 — Prioritize + effort/model advisory
 
-**think deeply about leverage and cost.** Rank the **Today** bucket, then tag each
+**Rank by leverage and cost.** Rank the **Today** bucket, then tag each
 item with the model + effort that fits its *hardest* sub-problem — not its average.
 
 Priority = **Impact × Urgency ÷ Effort**, with floors: *reviews that block others*

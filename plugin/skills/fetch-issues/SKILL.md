@@ -132,7 +132,7 @@ Collect all agent outputs before proceeding.
 
 ### Step 4: Prioritize
 
-**think deeply about leverage.** First **partition by STATE**: `fixed-merged`, `fix-in-flight`, and `stale-fixed` issues are *already-handled* — they do NOT enter the ready-work ranking and are never scored as fresh work. Only **`ready`** issues get the composite score below.
+**Rank by leverage.** First **partition by STATE**: `fixed-merged`, `fix-in-flight`, and `stale-fixed` issues are *already-handled* — they do NOT enter the ready-work ranking and are never scored as fresh work. Only **`ready`** issues get the composite score below.
 
 Score each `ready` issue: composite = **Impact × Confidence ÷ Effort**, adjusted by the modifiers below. Rank descending.
 
@@ -276,18 +276,6 @@ pbcopy < <(sed -n '/CLIP THIS/,/^```$/p' "$DIR/issue-<number>.md")
 By default clip the top **ready** issue — never default to an already-handled one. If every issue is already handled, say so plainly ("nothing ready to start — N issues are fixed/in-review, see the verify-&-close list") instead of clipping redundant work. Tell the user it's on the clipboard and ready to paste into a new session. Offer to clip any other issue by number.
 
 ---
-
-## Optional: track in beads
-
-If the repo uses beads (`.beads/` present) and the user wants the backlog tracked locally, offer to mirror the ranking:
-
-```bash
-bd create --title "<owner/repo>#<n>: <title>" \
-  --description "GH issue <url>. Handoff: <DIR>/issue-<n>.md" \
-  --type=bug|feature|task --priority=<0-4 from rank>
-```
-
-Map rank tiers to priority (top → P0/P1, mid → P2, tail → P3/P4). Don't do this unprompted — it adds local issues the user may not want.
 
 ## Guidelines
 

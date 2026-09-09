@@ -138,7 +138,7 @@ record — there is no external tracker.
   subsection if none fits), then sets this row's `Blocks` cell to `— resolved YYYY-MM-DD`.
   The row stays.
 
-Note: Decisions blocking execution should be resolved before `/create_execution`.
+Note: Decisions blocking execution should be resolved before `/create_tasks`.
 
 ## References
 

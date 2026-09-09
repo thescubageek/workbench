@@ -239,7 +239,7 @@ for a pending decision, writes the decision with its rationale and trade-off und
 
 ```
 Once you're satisfied with the design, please confirm approval.
-After approval, run `/create_execution` to build the implementation plan.
+After approval, run `/create_tasks` to build the implementation plan.
 ```
 
 ## Important Guidelines

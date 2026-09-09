@@ -1,5 +1,6 @@
 ---
 name: mockup-iteration
+user-invocable: false
 description: Iterate on UI mockups, capturing keeps/removes/changes with full fidelity. Versions each iteration and maintains decision log.
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash(ls:*, mkdir:*), mcp__plugin_playwright_playwright__browser_navigate, mcp__plugin_playwright_playwright__browser_take_screenshot, mcp__plugin_playwright_playwright__browser_snapshot
 triggers:
@@ -64,25 +65,33 @@ When user provides mockup feedback:
    - **KEEP**: Confirmed requirement - add to "Confirmed" in mockup-log.md
    - **REMOVE**: Rejected idea - add to "Rejected" with rationale
    - **CHANGE**: Modification needed - note for next version
-   - **QUESTION**: Needs clarification - create beads issue, ask before proceeding
-   - **ASSUMPTION**: Unvalidated belief - create beads issue for validation
+   - **QUESTION**: Needs clarification - add a `UIQ` row to the current version's mockup.md, ask before proceeding
+   - **ASSUMPTION**: Unvalidated belief - add a `UIA` row to the current version's mockup.md for validation
 
    **Compound feedback** (contains multiple types):
    - Split into separate entries
    - "Keep header but make it blue" → KEEP: header layout + CHANGE: header color to blue
    - Each part gets its own log entry
 
-   **Questions and assumptions** → Create beads issues:
+   **Questions and assumptions** → rows in the current version's `mockup.md`. There is no
+   external tracker; that document is the record.
 
-   ```bash
-   # For questions that need answers:
-   bd create "UI Q: [question]" --type=task --priority=2 \
-     -d "From mockup iteration. Blocks: finalization"
+   ```markdown
+   ## Open Questions
 
-   # For assumptions that need validation:
-   bd create "UI Assumption: [assumption]" --type=task --priority=3 \
-     -d "Assuming [X]. If wrong: [impact]. Validate before implementation."
+   | ID | Question | Blocks | State |
+   | -- | -------- | ------ | ----- |
+   | UIQ3 | [question] | finalization | Open |
+
+   ## Assumptions
+
+   | ID | Assumption | If wrong | Validated? |
+   | -- | ---------- | -------- | ---------- |
+   | UIA1 | Assuming [X] | [impact] | Pending |
    ```
+
+   IDs continue across versions — a question raised in v001 keeps `UIQ1` in v004, which is how
+   you see how long it stayed open. Never renumber.
 
 2. **Update mockup-log.md** immediately:
 
@@ -227,7 +236,7 @@ When updating mockup versions:
    - "use text only" → Remove icons, update HTML
    - "change icon to X" → Update using app's icon library
 3. **If icon system unclear**:
-   - Create beads issue: `bd create "UI Q: Icon for [element]?" --type=task`
+   - Add a `UIQ` row — "icon for [element]?" — to the current version's mockup.md
    - Ask user before adding icons
 4. **Never default to emojis** in mockup.html
 
@@ -246,10 +255,8 @@ When user says "finalize" or "ready for design":
 
 ### Pre-finalization Check
 
-```bash
-# Check for unresolved questions/assumptions:
-bd list --status=open | grep -E "UI Q:|UI Assumption:"
-```
+Read the latest version's `mockup.md` and check its Open Questions and Assumptions tables for
+any row whose state is still `Open` or `Pending`.
 
 If open issues exist:
 

@@ -307,6 +307,6 @@ Where status lives:
 
 Next steps:
 1. Review the execution plan in tasks.md
-2. Run `/implement_tasks` to begin implementation with TDD
+2. Run `/implement` to begin implementation with TDD via worker agents (`/implement_inline` runs it in this session)
 3. Flip checkboxes as work completes; run /wb:update_status at each phase checkpoint
 ```

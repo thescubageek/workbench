@@ -30,7 +30,7 @@ Read this when a step directs you to.
 The command accepts the directory path as a parameter:
 
 ```
-/create_research docs/plans/2025-10-07-my-project
+/wb:create_research docs/plans/2025-10-07-my-project
 ```
 
 Or prompts for it if not provided.

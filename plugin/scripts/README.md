@@ -94,7 +94,7 @@ The project uses `.markdownlintrc` for markdownlint configuration. Current setti
 
 - Line length checking disabled (for long code blocks)
 - Inline HTML allowed
-- Emphasis as heading allowed (for "think deeply" directives)
+- Emphasis as heading allowed (bold lines used as step directives, e.g. `**Decide WHAT to build**`)
 - Fenced code blocks without language specification allowed
 
 ## Claude Code Hooks

@@ -127,6 +127,6 @@ Based on the research findings:
 1. [Suggested next action based on findings]
 2. [Another logical next step]
 3. Review the research document
-4. Run `/create_design` to create design decisions
+4. Run `/wb:create_design` to create design decisions
 
 ````

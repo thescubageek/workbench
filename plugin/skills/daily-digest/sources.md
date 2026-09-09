@@ -57,25 +57,27 @@ gh pr list $R --author "$ME" --state open \
 # statusCheckRollup has FAILURE → Today (fix CI); reviewDecision="" + not draft → no reviewers assigned yet
 ```
 
-## beads (`bd`)
+## wb plans (`docs/plans/`)
 
 ```bash
-# Fast-fail availability (filesystem only — never `bd doctor`, which can hang).
-# See docs/beads-fast-fail.md. Beads is OPTIONAL here: if unavailable, skip + note gap.
-if ! { [ "$BEADS_AVAILABLE" = "yes" ] || { command -v bd >/dev/null 2>&1 && [ -d .beads ]; }; }; then
-  echo 'unavailable: "bd not installed or .beads/ not initialized"'   # skip, record as gap
-fi
+# Plan state comes from the plan documents; there is no tracker to query.
+# Scope counts to lines carrying a task ID — criteria and prerequisites are
+# checkboxes too, and counting them inflates progress.
+for T in docs/plans/*/tasks.md; do
+  done=$(grep -cE '^- \[x\] \*\*[A-Z0-9-]+\*\*' "$T")
+  left=$(grep -cE '^- \[ \] \*\*[A-Z0-9-]+\*\*' "$T")
+  [ "$left" -gt 0 ] && echo "$T: $done done, $left left"
+done
 
-# Today (only if available per the check above)
-bd ready
-bd list --status=in_progress
+# Today: the first unchecked task in the active plan's current phase
+# Progress: tasks whose (completed YYYY-MM-DD ...) stamp falls inside the window
+grep -nE '^- \[x\] .*\(completed '"$SINCE" docs/plans/*/tasks.md
 
-# Progress: closed since window (bd list is JSONL/table; filter by updated/closed date)
-bd list --status=closed --json 2>/dev/null | \
-  jq -r --arg s "$SINCE" '.[] | select(.closed_at >= $s or .updated_at >= $s) | "\(.id) \(.title)"'
-# Fallback if --json unsupported: bd list --status=closed and filter by the shown date.
+# In flight: an OPEN journal entry means work was interrupted mid-task
+grep -l 'OPEN' docs/plans/*/journal.md 2>/dev/null
 
-bd stats   # headline counts for the pulse line
+# Blocked: the plan says so itself
+sed -n '/^### Current Blockers/,/^###/p' docs/plans/*/tasks.md
 ```
 
 ## Jira (Atlassian MCP — `searchJiraIssuesUsingJql`)

@@ -1,6 +1,7 @@
 ---
 name: verification-before-completion
 description: Use when about to claim work is complete, fixed, passing, or done - requires running verification commands and confirming output before making any success claims. Evidence before assertions.
+user-invocable: false
 ---
 
 # Verification Before Completion

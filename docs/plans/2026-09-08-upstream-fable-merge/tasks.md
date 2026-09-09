@@ -4,12 +4,12 @@ ticket: N/A
 created: 2026-09-08
 status: in-progress
 last_updated: 2026-09-08
-current_phase: 2
-total_tasks: 63
-completed_tasks: 13
+current_phase: 3
+total_tasks: 64
+completed_tasks: 43
 task_tracking: markdown-checkboxes
 depends_on: [research.md, design.md]
-git_commit: b635159b1f4a26db24c8c1934029be6f06a47c44
+git_commit: a6de084d1cb89e81ca344e88c39b4f72d9ba19e2
 git_branch: thescubageek/gabe-fable-merge-research
 ---
 
@@ -594,42 +594,42 @@ file lands.
 
 **Remaining stages**
 
-- [ ] **P2-T20** — `create_mockup`: templates = `## UI Research Summary`,
+- [x] **P2-T20** — `create_mockup`: templates = `## UI Research Summary`,
       `## Overview`→`## Needs Validation`, `## Feature: [Name]`→`## Design Principles
       Emerging` (~300 lines); prompts = the Step 2 research agents; reference =
       `## Purpose`, `## Output Files`, `## Important Guidelines`,
       `## Relationship to Other Commands`. Content: D6 (`UI Q:` records become markdown with
-      `UIQ1` IDs); D18 bullet at `:174`. (~30 calls)
-- [ ] **P2-T21** — `resolve_questions`: reference = `## Operating Principles`,
+      `UIQ1` IDs); D18 bullet at `:174`. (~30 calls) (completed 2026-09-08 18:14)
+- [x] **P2-T21** — `resolve_questions`: reference = `## Operating Principles`,
       `## Edge Cases`; template = `## Persistence Format Reference`; **examples.md** =
       `## Example Invocation` (a full worked dialogue — the clearest `examples.md` candidate in
       the tree). Content: D6 — delete the beads branch (Step 2 Source B, the
       `bd comments`/`bd close` block in Step 4d, and the Edge Cases line) and keep the markdown
       walk, which becomes the only path. While here, de-duplicate: Step 4d restates the
       decision-record formats that `## Persistence Format Reference` already defines
-      canonically — point at the template instead of repeating it. (~25 calls)
-- [ ] **P2-T22** — `mockup-iteration` skill: drop its four `bd create` sites for
+      canonically — point at the template instead of repeating it. (~25 calls) (completed 2026-09-08 18:22)
+- [x] **P2-T22** — `mockup-iteration` skill: drop its four `bd create` sites for
       `UI Q:`/`UI Assumption:` records; use D6's markdown records. Add
       `user-invocable: false` where design.md's D2 calls for it on background skills, and to
       `project-structure`, `status-sync`, `tdd-discipline`,
-      `verification-before-completion`. (~20 calls)
-- [ ] **P2-T23** — `status-sync` (D5): add the frontmatter-drift indicator — compare counters
+      `verification-before-completion`. (~20 calls) (completed 2026-09-08 18:28)
+- [x] **P2-T23** — `status-sync` (D5): add the frontmatter-drift indicator — compare counters
       against actual `[x]`/`[ ]` counts at phase end and session end, and point at
-      `/wb:update_status` on mismatch. Drop the `bd sync` reminder. (~12 calls)
-- [ ] **P2-T24** — `project-structure` (D4): add the "No external tracker" section stating
+      `/wb:update_status` on mismatch. Drop the `bd sync` reminder. (~12 calls) (completed 2026-09-08 18:31)
+- [x] **P2-T24** — `project-structure` (D4): add the "No external tracker" section stating
       where status lives — checkboxes in tasks.md, counters as a cache, git as the durable
       record. This is the doctrine's home, mirroring where the sibling workflow puts it.
       Also carry **D21** here (added 2026-09-08): plan directories are transient by default,
       promoted into git with `git add -f` when the work must cross a session or machine or when
       the branch is about to merge, and anything that must outlive an abandoned branch belongs
       in `.claude/wb/knowledge.md` rather than a preserved plan directory. (~14 calls)
-- [ ] **P2-T25** — `daily-digest` and `fetch-issues`: drop their beads source blocks and
+- [x] **P2-T25** — `daily-digest` and `fetch-issues`: drop their beads source blocks and
       `bd` reads; both already treat beads as optional, so this is deletion plus a line
       about reading plan state from checkboxes. D18 bullets at
-      `daily-digest:135`, `fetch-issues:135`. (~15 calls)
-- [ ] **P2-T26** — Delete `docs/beads-fast-fail.md` and `docs/beads-stealth-mode.md` (D19).
-      Runs **after** `P2-T1`–`P2-T25` so the fifteen inbound links are already gone. (~5 calls)
-- [ ] **P2-T30** — **The rename sweep.** Runs **last** in Phase 2, after `create_tasks`,
+      `daily-digest:135`, `fetch-issues:135`. (~15 calls) (completed 2026-09-08 18:36)
+- [x] **P2-T26** — Delete `docs/beads-fast-fail.md` and `docs/beads-stealth-mode.md` (D19).
+      Runs **after** `P2-T1`–`P2-T25` so the fifteen inbound links are already gone. (~5 calls) (completed 2026-09-08 18:39)
+- [x] **P2-T30** — **The rename sweep.** Runs **last** in Phase 2, after `create_tasks`,
       `implement` and `implement_inline` all exist. Repoint every reference to a renamed
       command in the already-reshaped skills — at the time of writing, eleven:
       `create_project/SKILL.md` and `templates.md` (×8 across both),
@@ -639,10 +639,10 @@ file lands.
       file is touched once rather than once per rename (design.md → Resolved Decisions).
       Verify with the Phase 4 criterion run early:
       `grep -rn "create_execution\|implement_tasks\|implement_coordinated" plugin/skills/ | grep -v '/create_execution/\|/implement_tasks/\|/implement_coordinated/'`
-      → only the alias stubs' own self-references. (~12 calls)
-- [ ] **P2-T27** — Delete `docs/beads-integration-learnings.md` (D19). Separate task from
+      → only the alias stubs' own self-references. (~12 calls) (completed 2026-09-08 18:44) (completed 2026-09-08 18:31)
+- [x] **P2-T27** — Delete `docs/beads-integration-learnings.md` (D19). Separate task from
       `P2-T26` because it is orphaned rather than linked, and because design.md's D8 rationale
-      cites it — confirm that citation reads as past-tense before deleting. (~5 calls)
+      cites it — confirm that citation reads as past-tense before deleting. (~5 calls) (completed 2026-09-08 18:39)
 
 ### Success Criteria
 
@@ -662,14 +662,21 @@ file lands.
 - [x] All six directories exist — canonicals `create_tasks`, `implement`, `implement_inline`
       and aliases `create_execution`, `implement_coordinated`, `implement_tasks` — verified;
       34 skills enumerate, each alias holding a stub `SKILL.md` and nothing else
-- [ ] `P2-T30`: no reshaped skill names a renamed command except the alias stubs themselves —
+- [x] `P2-T30`: no reshaped skill names a renamed command except the alias stubs themselves —
       `grep -rn "create_execution\|implement_tasks\|implement_coordinated" plugin/skills/`
-      returns only hits inside the three alias directories
-- [ ] `test ! -e docs/beads-fast-fail.md -a ! -e docs/beads-stealth-mode.md -a ! -e docs/beads-integration-learnings.md`
-- [ ] `grep -L "allowed-tools" plugin/skills/*/SKILL.md` — no workflow skill missing it
-- [ ] `grep -c 'user-invocable: false' plugin/skills/*/SKILL.md` — set on every background
-      discipline skill
-- [ ] `grep -rn "determineModel" plugin/` → no hits (D13)
+      returns only hits inside the three alias directories **and in
+      `implement/reference.md`'s `## Migration from implement_tasks` section**, which must name
+      the old names — that is what migration guidance is *for*. Same exemption design.md's
+      success criteria already grant ("no `bd`, `beads`, or `BEADS_MODE` reference outside the
+      migration note"); recorded here rather than mangling the migration text to satisfy a grep.
+      14 references repointed across `create_project` (8), `create_design` (2), `create_tasks`
+      (1) and `create_research` (2, the missing `wb:` prefixes noted at the research cluster)
+- [x] `test ! -e docs/beads-fast-fail.md -a ! -e docs/beads-stealth-mode.md -a ! -e docs/beads-integration-learnings.md`
+- [x] `grep -L "allowed-tools" plugin/skills/*/SKILL.md` — no workflow skill missing it
+- [x] `grep -c 'user-invocable: false' plugin/skills/*/SKILL.md` — set on every background
+      discipline skill: `project-structure`, `status-sync`, `tdd-discipline`,
+      `verification-before-completion`, `mockup-iteration` (5)
+- [x] `grep -rn "determineModel" plugin/` → no hits (D13)
 - [x] Exactly one statement of the worker tier rule:
       `grep -rln 'the one statement of the worker tier rule' plugin/skills/` → **exactly one
       file** (`plugin/skills/implement/SKILL.md`, Step 5).
@@ -687,12 +694,19 @@ file lands.
       Remaining `haiku` mentions elsewhere are per-`Task()` pins for research agents, agent
       frontmatter, and the main-session authority `model-help` — which now states the D3
       boundary explicitly and points at `implement` Step 5 rather than restating the ladder
-- [ ] `./plugin/scripts/lint --all` — clean, or no new findings vs the Phase 0 baseline
-- [ ] `grep -rn "think deeply\|ultrathink" plugin/ CLAUDE.md` → no hits
-- [ ] **The headline metric**: `claude plugin details wb` on-invoke total for the fourteen
+- [x] `./plugin/scripts/lint --all` — clean
+- [x] `grep -rn "think deeply\|ultrathink" plugin/ CLAUDE.md` → no hits. The last one was a
+      **stale doc comment** at `plugin/scripts/README.md:97` justifying the MD036 lint setting
+      "for 'think deeply' directives" — a rationale for a convention the tree no longer has.
+      Upstream carries the identical stale line at its own `scripts/README.md:59`. Reworded to
+      describe what the rule is actually for; a comment justifying a config by a convention
+      that no longer exists is precisely the decay D19 targets
+- [x] **The headline metric**: `claude plugin details wb` on-invoke total for the fourteen
       stages is **at least 30% below** the Phase 0 baseline recorded in
       `thoughts/2026-09-08-baseline-measurements.md`, with no stage's content deleted
-      (supporting files account for the remainder)
+      (supporting files account for the remainder) — **84.9k → 45.3k = −46.6%**, against a bar
+      of ≤59.4k. Thirteen of fourteen stages reshaped; `help` is `P4-T2` and still reads −3%
+      (noise). Range across the thirteen: `create_mockup` −70% to `resume_handoff` −25%
 
 #### Manual Verification
 
@@ -1048,6 +1062,35 @@ None open.
 
 ### Implementation Notes
 
+- **2026-09-08, Phase 2 tasks complete — all 30.** Final fourteen-stage metric:
+  **84.9k → 45.3k = −46.6%**, against a bar of ≤59.4k. Thirteen stages reshaped (`help` is
+  `P4-T2`), ranging from `create_mockup` **−70%** to `resume_handoff` **−25%**.
+  **What separates the top from the bottom is not split quality — it is the ratio of template to
+  judgment.** `create_mockup` is 389 lines of templates behind a 157-line skill, and
+  section-scoped reads load one at a time. `resume_handoff` is nearly all judgment, and D8c
+  *added* to it. A stage that is mostly output shapes wins big; a stage that is mostly reasoning
+  barely moves, and no amount of splitting changes that.
+- **2026-09-08, the remaining nine tasks in one pass** (`P2-T20`–`P2-T27`, `P2-T30`):
+  `create_mockup` and `resolve_questions` reshaped; `mockup-iteration`'s four `bd create` sites
+  became `UIQ`/`UIA` rows that **carry their IDs across versions** — a question raised in v001
+  keeps `UIQ1` in v004, which is how you see how long it stayed open; `status-sync` rewritten
+  from a `bd sync` reminder into the D5 drift indicator, with drift explicitly framed as
+  **expected between checkpoints, not an error**; `project-structure` given the "No external
+  tracker" doctrine plus D21's persistence rule; `daily-digest`'s beads source block replaced by
+  a plan-document reader that treats an **OPEN journal entry as the highest-signal item in the
+  digest**; `fetch-issues`' optional beads mirror deleted; the three beads docs removed; and
+  `P2-T30` repointed 14 renamed-command references. `user-invocable: false` now on all five
+  background skills.
+- **2026-09-08, two things needed the migration-note exemption rather than a code change.**
+  `P2-T30`'s sweep leaves three hits in `implement/reference.md`'s
+  `## Migration from implement_tasks`, which *must* name the old names — that is what migration
+  guidance is for. design.md's success criteria already grant exactly this exemption for beads
+  ("outside the migration note"), and the same reading applies. Mangling migration text to
+  satisfy a grep would defeat the text's only purpose.
+  Separately, three inbound links to the now-deleted beads docs survive in
+  `hooks/setup-beads-mode.sh` (`P3-T4`), `commands/forge.md` (`P4-T1`) and
+  `docs/workbench-workflow-guide.md` (`P4-T3`) — each with a named owner, consistent with the
+  scoped-criterion decision taken earlier today.
 - **2026-09-08, handoff cluster complete** (`P2-T18`, `P2-T19`). Fourteen-stage total now
   **84.9k → 50.1k = −41.0%**, with only `create_mockup` and `help` untouched. `create_handoff`
   5.1k → 2.8k (−45%); `resume_handoff` 4.4k → 3.3k (−25%, the smallest win of the phase — D8c's
@@ -1274,6 +1317,11 @@ None open.
   the "no prose changes to any `commands/*.md` body" check conflicts with `P1-T7`, which the
   plan itself places in this phase as a deliberate content-only addition. Neither is a defect
   in the work; both are the plan checking a wider scope than the phase owns.
+- **2026-09-08, status reconciled by `/wb:update_status`** at the Phase 2 checkpoint:
+  `current_phase` 2 → 3, `completed_tasks` 13 → **43 of 64** (67%), `total_tasks` 63 → 64.
+  The 30-task drift is the largest of the run and exactly what D5 predicts between checkpoints —
+  the counters were last written at the Phase 1 gate, and every task since moved a checkbox
+  instead. `status-sync`, rewritten today, is what would have surfaced it.
 - **2026-09-08, status reconciled by `/wb:update_status`** at the Phase 1 checkpoint (the
   sole writer, D5): `current_phase` 1 → 2, `completed_tasks` 6 → 13 of 63 (20.6%),
   `git_commit` → the Phase 1 commit.

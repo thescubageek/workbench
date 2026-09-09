@@ -1,6 +1,7 @@
 ---
 name: tdd-discipline
 description: Use when implementing features, fixing bugs, or writing any production code - enforces RED-GREEN-REFACTOR cycle where tests must fail before writing implementation code. Activates before coding begins.
+user-invocable: false
 ---
 
 # Test-Driven Development
