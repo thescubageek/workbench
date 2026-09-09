@@ -5,7 +5,9 @@
 
 **Created**: [YYYY-MM-DD]
 **Ticket**: [ticket-reference or N/A]
-**Status**: Planning
+
+<!-- Status is not restated here. Each document carries its own `status:` in frontmatter, and a
+     summary copy in the hub is the one nobody remembers to update. -->
 
 ## Overview
 

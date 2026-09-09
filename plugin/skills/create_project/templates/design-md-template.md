@@ -21,7 +21,11 @@ depends_on: research.md
 **Created**: [YYYY-MM-DD HH:MM UTC]
 **Designer**: [username]
 **Ticket**: [ticket-reference or N/A]
-**Status**: Draft
+
+<!-- Status lives in frontmatter `status:` only. Do not restate it here: it is the field
+     /wb:create_tasks and forge gate on, it changes, and a second copy goes stale the moment
+     the design is approved. `created` and `ticket` are repeated above because they never
+     change after creation. -->
 
 ## Problem Statement
 

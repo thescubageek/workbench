@@ -149,3 +149,17 @@ we have the in-repo cautionary example for that.
 - **Verified**: 2026-09-09 · `docs/plans/2026-09-08-upstream-fable-merge/` (13 stale directories
   found on this machine, ~400 beads references; removed)
 - **Check it**: `ls -d ~/.claude/skills/wb-* 2>/dev/null` → no output.
+
+## The Task tool's `model` is an enum — full model IDs cannot be pinned per spawn
+
+- **Why it matters**: `implement`'s worker-tier ladder (PD2) names `claude-opus-4-8[1m]` as the
+  default rung and `claude-opus-5` as the first upshift, but the Task/Agent tool's `model`
+  parameter accepts only `sonnet | opus | haiku | fable`. Both Opus rungs collapse to `opus`, so
+  the ladder's middle step is unspecifiable and 6c's "Opus 4.8 1M → Opus 5" escalation is a
+  no-op. `haiku` and `fable` are selectable, so the bottom and top rungs work. An agent
+  *definition*'s frontmatter does accept a full ID, so a fixed tier can be pinned there — just
+  not varied per spawn, which is what D13 requires.
+- **Verified**: 2026-09-09 · `docs/plans/2026-09-08-upstream-fable-merge/` — surfaced by a live
+  `/wb:implement` run, which stated the limitation at the point of spawn
+- **Check it**: the Agent tool's schema — `model` carries
+  `"enum": ["sonnet","opus","haiku","fable"]`.

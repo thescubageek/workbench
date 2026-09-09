@@ -266,7 +266,9 @@ After approval, run `/wb:create_tasks` to build the implementation plan.
 ```
 
 **On confirmation, set `status: approved` in `design.md`'s frontmatter** and refresh
-`last_updated`. Until then it stays `draft`.
+`last_updated`. Until then it stays `draft`. If the document you inherited carries a
+`**Status**:` line in its body — older skeletons did — delete it rather than updating it;
+frontmatter is the only place status lives, and two copies is how they disagree.
 
 That edit is the gate, not a formality: `/wb:create_tasks` requires `approved`, and `forge`
 routes on it. A design left at `draft` stops the pipeline with no explanation, because the next
