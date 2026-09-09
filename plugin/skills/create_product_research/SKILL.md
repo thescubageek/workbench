@@ -2,7 +2,7 @@
 name: create_product_research
 description: Research codebase from a product perspective - features, user flows, behaviors, and patterns
 argument-hint: "[project-directory] [research-question]"
-allowed-tools: Read
+allowed-tools: Read, Write, Edit, Glob, Grep, Bash, Task
 ---
 
 # Generate Product Research Document
@@ -14,6 +14,13 @@ Supporting files in this directory (read each when its step directs you to — n
 - [reference.md](reference.md) — the **Audience: Product Managers** rules (read before Step 3 and again before Step 5 — they are what makes this skill different from `create_research`), workflow position, important notes, configuration
 - [sub-agent-prompts.md](sub-agent-prompts.md) — verbatim prompts for the Component Locator, Product Behavior Analyzer, Pattern Finder, additional specialized agents, and the Step 7 validator
 - [templates.md](templates.md) — the `product-research.md` output template, including the Open Questions table
+
+**If a directed read fails, stop — do not continue from memory.** These files live in the plugin
+directory, which is outside your project, so a read of one can be refused. Say which file was
+refused, that reads outside the working directory are gated, and that the fix is to allow the
+read once or to relaunch with `--add-dir <plugin-path>`. Writing the artifact from this manifest
+alone produces a plausible document that was never based on the template — the exact failure the
+sentence above exists to prevent. Do not route around a refusal with `cat`.
 
 ## Documentarian Rule
 
@@ -116,6 +123,20 @@ after this point is shaped by it.
 
 Read [sub-agent-prompts.md](sub-agent-prompts.md) NOW and spawn the agents it defines, concurrently. It carries the fan-out announcement, the three typed agent prompts verbatim, the list of additional specialized agents to consider, and the parallel-execution shape.
 
+**When the fan-out is skippable, and when it is not.** Spawn unless you have **already read the
+entire relevant surface** in this context — every file the agents would open, not a sample. That
+is a real case: a repository of three files, or a change confined to one module you have read
+whole. Then the agents can only return what you already hold, and spawning them spends tokens to
+learn nothing.
+
+Anything else, spawn. In particular, spawn when you have read *some* of the surface and are
+inferring the rest, when the change is cross-cutting, or when you are unsure which files are
+relevant — that uncertainty is the thing the fan-out resolves, so treating it as a reason to skip
+inverts the purpose.
+
+**If you skip, say so in your output and say why**, naming what you read instead. A silent skip
+is indistinguishable from forgetting, and the next reader cannot tell which happened.
+
 **Sub-agents are READ-ONLY** — they return findings only; YOU write `product-research.md` after synthesizing.
 
 **CRITICAL Agent Instructions (MUST follow exactly):**
@@ -129,6 +150,11 @@ Read [sub-agent-prompts.md](sub-agent-prompts.md) NOW and spawn the agents it de
 - **Remind EVERY agent: You are documenting the codebase AS IT EXISTS**
 
 **⛔⛔⛔ BARRIER 2: STOP! Wait for ALL sub-agents to complete — DO NOT proceed until EVERY agent returns ⛔⛔⛔**
+
+This barrier governs *waiting*, not spawning — synthesis on a
+partial set misses what the missing report would have changed. If you skipped the fan-out under
+the rule above, there is nothing to wait for and the barrier is satisfied trivially; it is not a
+reason to spawn agents you just established would return nothing.
 
 ### Step 5: Synthesize Findings into Three Layers
 

@@ -1,11 +1,4 @@
-# implement — sub-agent prompts
-
-Read the **section you need**, when its step directs you to.
-
-Sections: `Worker prompt` (Step 5) · `Verifier prompt` (Step 6) · `Escalation worker prompt`
-(Step 6, after a verified failure)
-
-## Worker prompt
+# Worker prompt
 
 Step 5 — spawn the `task-worker` agent with this prompt. The agent definition
 (`agents/task-worker.md`) already carries its tools, its preloaded `tdd-discipline` skill, its
@@ -98,49 +91,4 @@ If you encounter errors or blockers:
 - Return detailed error information
 `;
 }
-```
-
-## Verifier prompt
-
-Step 6 — spawn the `task-verifier` agent after the worker returns.
-
-```
-Use the task-verifier agent to verify task completion.
-
-Provide the agent with:
-- Task ID: ${taskId}
-- Task Description: ${task.description}
-- Test Command: ${workerOutput.testCommand}
-- Files Changed: ${workerOutput.filesChanged}
-- Tests Modified: ${workerOutput.testsModified}
-- Worker Summary: ${workerOutput.summary}
-
-Scope is checked against the **uncommitted working tree** (`git status --short`,
-`git diff`) — workers do not commit, so everything the worker touched is still
-unstaged. There is no base ref to supply.
-
-The agent will run tests, check scope adherence in both directions (nothing added
-beyond the task, nothing the task asked for left out), and return a structured
-markdown report with Status: PASS or FAIL.
-```
-
-## Escalation worker prompt
-
-Step 6 — spawn **once**, only after a verified failure, and only at one tier above the tier
-that failed.
-
-```
-Use the task-worker agent to fix a verified failure.
-
-Model: ${escalationTier}   # one rung above the tier that failed — see SKILL.md Step 5
-Effort: ${escalationTier == "fable" ? "high" : "<tier default>"}
-
-Provide:
-- Task ID: ${taskId}
-- Original Task: ${task.description}
-- Verification Report: ${verificationReport}
-- What the previous worker produced: ${workerOutput.summary}
-- Instructions: Fix the specific issues the report identifies. Do not re-do the parts
-  that passed. Same constraints as the original worker — no scope additions, TDD cycle,
-  flip the checkbox as your final act, do not commit.
 ```

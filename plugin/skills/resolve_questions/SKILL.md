@@ -2,7 +2,7 @@
 name: resolve_questions
 description: Walk through open questions raised by wb workflow documents one at a time, recording each decision (with rationale) in the design decisions log and closing the source question.
 argument-hint: "[project-directory]"
-allowed-tools: Read
+allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 ---
 
 # Resolve Open Questions
@@ -16,6 +16,13 @@ Supporting files in this directory (read each when its step directs you to — n
 - [templates.md](templates.md) — the **canonical** record shapes for every persistence path (Step 4d)
 - [reference.md](reference.md) — operating principles and edge cases
 - [examples.md](examples.md) — one full worked dialogue, including a skip and an unresolved critical question
+
+**If a directed read fails, stop — do not continue from memory.** These files live in the plugin
+directory, which is outside your project, so a read of one can be refused. Say which file was
+refused, that reads outside the working directory are gated, and that the fix is to allow the
+read once or to relaunch with `--add-dir <plugin-path>`. Writing the artifact from this manifest
+alone produces a plausible document that was never based on the template — the exact failure the
+sentence above exists to prevent. Do not route around a refusal with `cat`.
 
 ## What this skill does NOT do
 
@@ -182,7 +189,9 @@ Then do all three, in order:
 
 **Keep the original question text intact, and keep the row.** The audit trail is the point — a deleted row loses both the question and the fact that it was asked.
 
-**③ Reconcile the tracking table it came from.** A `## Pending Decisions` row's `Blocks` cell becomes `— resolved YYYY-MM-DD`; an `### Assumptions` row's `Validated?` cell becomes `Validated YYYY-MM-DD`, or `Invalid — <note>` if the answer refutes it.
+**③ Reconcile the tracking table it came from.** A `## Pending Decisions` row's **`State`** cell becomes `Resolved YYYY-MM-DD → design.md (## Technical Decisions)`; an `### Assumptions` row's `Validated?` cell becomes `Validated YYYY-MM-DD`, or `Invalid — <note>` if the answer refutes it.
+
+**Never write the resolution into `Blocks`.** That cell records what the decision was holding up, and it stays true after the decision is made — a reader asking "why did this matter?" has nowhere else to look. A plan whose Pending Decisions table predates the `State` column has three columns; add the column rather than overloading `Blocks`.
 
 Finally, if the project's index doc has a `last_updated:` field, bump it to today.
 

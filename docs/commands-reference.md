@@ -21,7 +21,7 @@ Claude Code slash commands for managing project documentation, research, plannin
 ## Command Workflow
 
 ```mermaid
-/create_project → /create_research → /create_mockup → [/explore_design] → /create_design → /create_tasks → /implement_tasks → /validate_execution
+/create_project → /create_research → /create_mockup → [/explore_design] → /create_design → /create_tasks → /implement → /validate_execution
      ↓                   ↓                 ↓                 ↓                 ↓                    ↓                   ↓
 [Structure]        [Research.md]      [Mockups/]        [Design.md]       [Tasks.md]         [Implementation]    [Validation]
                         ↓                 ↓                 ↓                 ↓                    ↓                   ↓

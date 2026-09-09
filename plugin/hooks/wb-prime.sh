@@ -3,7 +3,8 @@
 # compaction recovery.
 #
 # Contract (inherited from the hook this replaces):
-#   - fast: filesystem reads plus one cheap `git status` when a repo is present
+#   - fast: filesystem reads plus one cheap `git status` (which fails quietly and
+#     costs nothing outside a repository)
 #   - reads only. It NEVER writes a file, and in particular never touches journal.md:
 #     an append-only record that a hook could corrupt is worse than no record. The
 #     mechanical fields a PreCompact write would have refreshed are recomputed here,
@@ -45,6 +46,16 @@ Conventions:
 ORIENTATION
 }
 
+# `grep -c` prints `0` AND exits 1 when nothing matches. `|| echo 0` would therefore
+# print a *second* zero, and every arithmetic use of the result would then die with a
+# syntax error — which is exactly what a freshly generated tasks.md (no task lines yet)
+# produced. Swallow the status; default only the file-missing case, where grep prints
+# nothing at all.
+count() {
+  n=$(grep -cE "$1" "$2" 2>/dev/null) || true
+  echo "${n:-0}"
+}
+
 if [ "$1" = "--export" ]; then
   orientation
   exit 0
@@ -54,9 +65,15 @@ payload=$(cat 2>/dev/null || true)
 [ -z "$payload" ] && exit 0
 
 # Active plans: any docs/plans/*/tasks.md whose status is not complete, newest first.
+# Ordered by directory NAME descending, not by mtime. Plan directories are
+# `YYYY-MM-DD-<slug>`, so reverse-lexical is date order — and it survives a fresh clone
+# or a branch checkout, which stamp every file with the same mtime and make `ls -t`
+# arbitrary. That matters because the `Active plan:` line below is read downstream as the
+# answer to "which plan", so an arbitrary winner is a wrong answer, not just an odd sort.
 candidates=""
 if [ -d docs/plans ]; then
-  for f in $(ls -t docs/plans/*/tasks.md 2>/dev/null); do
+  for f in $(ls -d docs/plans/*/ 2>/dev/null | sort -r | sed 's|$|tasks.md|'); do
+    [ -f "$f" ] || continue
     status=$(sed -n '1,30p' "$f" | grep -m1 '^status:' | sed 's/^status:[[:space:]]*//')
     [ "$status" = "complete" ] && continue
     candidates="$candidates${candidates:+ }$(basename "$(dirname "$f")")"
@@ -105,12 +122,17 @@ fi
 
 # Position. Scope the counts to lines carrying a task ID: a plan's success criteria
 # and prerequisites are checkboxes too, and counting them overstates progress.
-done_n=$(grep -cE '^- \[x\] \*\*[A-Z0-9-]*[0-9][A-Z0-9-]*\*\*' "$tasks" 2>/dev/null || echo 0)
-left_n=$(grep -cE '^- \[ \] \*\*[A-Z0-9-]*[0-9][A-Z0-9-]*\*\*' "$tasks" 2>/dev/null || echo 0)
+done_n=$(count '^- \[x\] \*\*[A-Z0-9-]*[0-9][A-Z0-9-]*\*\*' "$tasks")
+left_n=$(count '^- \[ \] \*\*[A-Z0-9-]*[0-9][A-Z0-9-]*\*\*' "$tasks")
 phase=$(sed -n '1,30p' "$tasks" | grep -m1 '^current_phase:' | sed 's/^current_phase:[[:space:]]*//')
 if [ $((done_n + left_n)) -gt 0 ]; then
   echo "Position: phase ${phase:-?}, $done_n of $((done_n + left_n)) tasks done."
-  next=$(grep -m1 -E '^- \[ \] \*\*[A-Z0-9-]*[0-9][A-Z0-9-]*\*\*' "$tasks" 2>/dev/null | sed 's/^- \[ \] //' | cut -c1-100)
+  next=$(grep -m1 -E '^- \[ \] \*\*[A-Z0-9-]*[0-9][A-Z0-9-]*\*\*' "$tasks" 2>/dev/null | sed 's/^- \[ \] //')
+  # Trim at a word boundary and mark the elision. A bare `cut` stops mid-word, which
+  # reads as a truncation bug rather than as a deliberate one-line summary.
+  if [ ${#next} -gt 100 ]; then
+    next="$(printf '%s' "$next" | cut -c1-97 | sed 's/[[:space:]][^[:space:]]*$//')…"
+  fi
   [ -n "$next" ] && echo "Next unchecked task: $next"
 fi
 
@@ -121,7 +143,15 @@ if [ -f "$journal" ]; then
   last=$(grep -m1 -E '^## ' "$journal" 2>/dev/null)
   if [ -n "$last" ]; then
     echo "Journal, most recent entry: $last"
-    case "$last" in *OPEN*) entry_open=yes ;; esac
+    # The state lives in a trailing `(open)` / `(closed)`, matched case-insensitively and
+    # ANCHORED to the end of the heading. Not a substring search for "OPEN": that misses the
+    # lowercase form a writer reaches for unprompted, and it false-positives on a closed
+    # entry whose title contains "reopened". The shape is stated at every site that writes an
+    # entry — create_project's template, implement, implement_inline, create_handoff,
+    # resume_handoff — and checked by validate_project.
+    case "$(printf '%s' "$last" | tr 'A-Z' 'a-z' | sed 's/[[:space:]]*$//')" in
+      *'(open)') entry_open=yes ;;
+    esac
   else
     echo "Journal: present, no entries yet"
   fi
@@ -129,10 +159,12 @@ fi
 
 # Reconcile against the working tree. The repository is the authority — never report
 # the journal as fact when the two disagree.
-dirty=0
-if [ -d .git ]; then
-  dirty=$(git status --porcelain --untracked-files=no 2>/dev/null | grep -c . || echo 0)
-fi
+# Never test `[ -d .git ]`: in a git worktree `.git` is a *file*, and in any session
+# started from a subdirectory it is absent entirely — both cases would report a dirty
+# tree as clean and invert the reading below. Ask git instead; outside a repository it
+# fails quietly and the count is 0.
+dirty=$(git status --porcelain --untracked-files=no 2>/dev/null | grep -c . || true)
+dirty=${dirty:-0}
 if [ "$entry_open" = yes ] && [ "$dirty" -gt 0 ]; then
   echo "!! That entry is OPEN and the tree has $dirty uncommitted file(s): a task was interrupted mid-flight."
   echo "   Finish or supersede it before starting anything new. The entry's next action is the most reliable thing here."
@@ -147,7 +179,7 @@ kb=".claude/wb/knowledge.md"
 if [ -f "$kb" ]; then
   # Count real entries by their Verified line — '^## ' would also count the file's own
   # header sections and the shape example inside its fenced block.
-  n=$(grep -c '^- \*\*Verified\*\*' "$kb" 2>/dev/null || echo 0)
+  n=$(count '^- \*\*Verified\*\*' "$kb")
   n=$((n > 0 ? n - 1 : 0))   # the shape example carries one too
   echo "Repository knowledge: $kb ($n entries) — read it before research, design, or implementation."
 fi

@@ -2,7 +2,7 @@
 name: create_tasks
 description: Transform design into detailed phased execution plan with embedded tasks
 argument-hint: "[project-directory]"
-allowed-tools: Read
+allowed-tools: Read, Write, Edit, Glob, Grep, Bash, Task
 ---
 
 # Create Execution Plan
@@ -12,9 +12,16 @@ Transforms design decisions into a detailed, phased execution plan with embedded
 Supporting files in this directory (read each when its step directs you to — never paraphrase from memory):
 
 - [sub-agent-prompts.md](sub-agent-prompts.md) — the three Step 2 analysis agents
-- [templates.md](templates.md) — the `tasks.md` output template (Step 4) and the plan presentation message (Step 6), under named sections
+- `templates/` — [tasks-md-template.md](templates/tasks-md-template.md) (Step 4) · [plan-presentation-message.md](templates/plan-presentation-message.md) (Step 6)
 - [examples.md](examples.md) — worked examples of sizing a task by tool calls, splitting at a natural seam, and when a task needs an explicit `Depends on:`
 - [reference.md](reference.md) — planning principles, execution vs design, implementation discoveries, task granularity, configuration
+
+**If a directed read fails, stop — do not continue from memory.** These files live in the plugin
+directory, which is outside your project, so a read of one can be refused. Say which file was
+refused, that reads outside the working directory are gated, and that the fix is to allow the
+read once or to relaunch with `--add-dir <plugin-path>`. Writing the artifact from this manifest
+alone produces a plausible document that was never based on the template — the exact failure the
+sentence above exists to prevent. Do not route around a refusal with `cat`.
 
 **Output discipline**: act on barriers silently; don't restate the plan between steps; emit only the artifact and a one-line completion summary.
 
@@ -24,7 +31,7 @@ Supporting files in this directory (read each when its step directs you to — n
 
 When invoked, check for arguments:
 
-1. **If directory provided** (e.g., `/create_tasks docs/plans/2025-01-08-my-project/`):
+1. **If directory provided** (e.g., `/wb:create_tasks docs/plans/2025-01-08-my-project/`):
    - Use `$1` as the project directory
    - Read research.md, design.md, and tasks.md immediately
    - Begin execution planning
@@ -88,9 +95,28 @@ Remember: Now you're planning HOW to build what was designed.
 
 After reading all documents, read [sub-agent-prompts.md](sub-agent-prompts.md) NOW and spawn the three agents it defines, concurrently.
 
+**When the fan-out is skippable, and when it is not.** Spawn unless you have **already read the
+entire relevant surface** in this context — every file the agents would open, not a sample. That
+is a real case: a repository of three files, or a change confined to one module you have read
+whole. Then the agents can only return what you already hold, and spawning them spends tokens to
+learn nothing.
+
+Anything else, spawn. In particular, spawn when you have read *some* of the surface and are
+inferring the rest, when the change is cross-cutting, or when you are unsure which files are
+relevant — that uncertainty is the thing the fan-out resolves, so treating it as a reason to skip
+inverts the purpose.
+
+**If you skip, say so in your output and say why**, naming what you read instead. A silent skip
+is indistinguishable from forgetting, and the next reader cannot tell which happened.
+
 **Sub-agents are READ-ONLY** — they return findings only; YOU write `tasks.md` after synthesizing.
 
 **⛔⛔⛔ BARRIER 2: STOP! Wait for ALL agents - dependency, test, pattern agents ⛔⛔⛔**
+
+This barrier governs *waiting*, not spawning — synthesis on a
+partial set misses what the missing report would have changed. If you skipped the fan-out under
+the rule above, there is nothing to wait for and the barrier is satisfied trivially; it is not a
+reason to spawn agents you just established would return nothing.
 
 ### Step 3: Determine Implementation Strategy
 
@@ -138,7 +164,7 @@ This is distinct from minor discoveries you make as you code (see reference.md �
 
 ### Step 4: Generate Execution Plan
 
-Read the `## tasks.md Template` section of [templates.md](templates.md) NOW and write `tasks.md` in the shape it gives.
+Read [templates/tasks-md-template.md](templates/tasks-md-template.md) NOW and write `tasks.md` in the shape it gives.
 
 Three things about that template are load-bearing rather than cosmetic:
 
@@ -170,7 +196,7 @@ Verify with agent findings:
 
 ### Step 6: Present the Plan
 
-Read the `## Plan presentation message` section of [templates.md](templates.md) NOW and present it in that shape.
+Read [templates/plan-presentation-message.md](templates/plan-presentation-message.md) NOW and present it in that shape.
 
 ## Important Guidelines
 

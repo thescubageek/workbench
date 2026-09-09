@@ -2,7 +2,7 @@
 name: explore_design
 description: Optional facilitated architecture stage between research and design. Airs the alternatives, runs the trade-off discussion, and converges only on explicit approval — recording the decision at the top of a thoughts/ document for create_design to formalize. Use when research surfaced more than one viable approach and the choice has not been made. Never writes design.md.
 argument-hint: "[project-directory] [decision-topic]"
-allowed-tools: Read
+allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 ---
 
 # Explore Design Options
@@ -11,7 +11,14 @@ An optional stage between research and design. The pipeline otherwise goes from 
 
 Supporting file in this directory (read it when its step directs you to — never paraphrase from memory):
 
-- [templates.md](templates.md) — the exploration document and the completion message
+- `templates/` — [exploration-document.md](templates/exploration-document.md) (Step 6) · [completion-message.md](templates/completion-message.md) (Step 7)
+
+**If a directed read fails, stop — do not continue from memory.** These files live in the plugin
+directory, which is outside your project, so a read of one can be refused. Say which file was
+refused, that reads outside the working directory are gated, and that the fix is to allow the
+read once or to relaunch with `--add-dir <plugin-path>`. Writing the artifact from this manifest
+alone produces a plausible document that was never based on the template — the exact failure the
+sentence above exists to prevent. Do not route around a refusal with `cat`.
 
 **Output discipline**: act on barriers silently; don't restate the plan between steps; emit only the artifact and a one-line completion summary.
 
@@ -140,7 +147,7 @@ If the user is not ready, return to Step 4.
 
 ### Step 6: Record the Decision
 
-Read the `## Exploration document` section of [templates.md](templates.md) NOW and write `[project-dir]/thoughts/YYYY-MM-DD-<topic>.md`.
+Read [templates/exploration-document.md](templates/exploration-document.md) NOW and write `[project-dir]/thoughts/YYYY-MM-DD-<topic>.md`.
 
 **The decision record goes at the top of that document**, before the exploration. This is not
 formatting: `create_design` scans `thoughts/` for that section and formalizes it. A record
@@ -155,7 +162,7 @@ carries into design.md's Rejected Alternatives instead of inventing them.
 
 ### Step 7: Confirm Completion
 
-Read the `## Completion message` section of [templates.md](templates.md) NOW and present it.
+Read [templates/completion-message.md](templates/completion-message.md) NOW and present it.
 
 ## Important Notes
 

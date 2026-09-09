@@ -1,10 +1,4 @@
-# create_handoff — templates
-
-Read the **section you need**, when its step directs you to.
-
-Sections: `Handoff document` (Step 4) · `Completion message` (Step 5)
-
-## Handoff document
+# Handoff document
 
 Step 4 — write the handoff in this shape. Omit any section with nothing real to put in it;
 never fill one with placeholders.
@@ -31,7 +25,7 @@ repository: [repository name]
 
 ## Quick Start
 
-Same machine? Prefer native `claude --resume` — it restores the full prior session (including tool results) more reliably than any doc. This handoff exists for **cross-machine / cross-agent / teammate** transfer: resume with `/resume_handoff [this file path]`.
+Same machine? Prefer native `claude --resume` — it restores the full prior session (including tool results) more reliably than any doc. This handoff exists for **cross-machine / cross-agent / teammate** transfer: resume with `/wb:resume_handoff [this file path]`.
 
 ## Current State Summary
 
@@ -164,7 +158,7 @@ Journal: [most recent entry, and whether it is OPEN or CLOSED]
 
 ```bash
 # 1. Resume from handoff
-/resume_handoff [this file]
+/wb:resume_handoff [this file]
 
 # 2. Check git status
 git status
@@ -224,27 +218,5 @@ Before using this handoff, verify:
 
 ---
 
-**Handoff Complete**: Ready for resumption using `/resume_handoff [path]`
+**Handoff Complete**: Ready for resumption using `/wb:resume_handoff [path]`
 ````
-
-## Completion message
-
-Step 5 — emitted once, after the handoff is saved.
-
-```
-✅ Handoff document created successfully!
-
-Saved to: [full path]/handoff-YYYY-MM-DD-HH-MM.md
-
-This handoff captures:
-- Current progress: Phase [N], [X]/[Y] tasks complete
-- Critical learnings: [count] discoveries
-- Active blockers: [count] issues
-- Next steps: [count] specific tasks
-- Knowledge entries added: [count, or "none — nothing met the bar"]
-
-To resume this work in a new session:
-/resume_handoff [full path to handoff file]
-
-The handoff includes all context needed for seamless continuation.
-```

@@ -188,10 +188,15 @@ of the phase.
 
 #### Manual Verification
 
-- [x] A `claude --plugin-dir /tmp/wb-probe/plugin` session lists the `probe` skill, and
+- [ ] A `claude --plugin-dir /tmp/wb-probe/plugin` session lists the `probe` skill, and
       invoking it reads `templates.md` and `plugin/docs/reference/probe-ref.md` **without a
-      permission prompt** (settles A4) — confirmed 2026-09-08: `NO PROMPT` on both reads,
-      marker `PROBE-REF-RESOLVED` echoed. **A4 Validated**, both halves
+      permission prompt** (settles A4) — recorded 2026-09-08 as `NO PROMPT` on both reads with
+      the marker `PROBE-REF-RESOLVED` echoed, and **reopened 2026-09-09: A4 is FALSE.** Three
+      headless probes denied the read under `--plugin-dir` and again for a marketplace install;
+      only `--add-dir` passes. The 2026-09-08 session never recorded its **cwd**, and if it ran
+      from inside `/tmp/wb-probe` the working-directory boundary could not fire — so the probe
+      was structurally incapable of failing. Left unchecked deliberately: the criterion as
+      written is not met, and the release documents the boundary instead of claiming it away
 - [x] In that session, invoking `probe_old` announces the rename once and then behaves as
       `probe` (settles A5) — confirmed 2026-09-08: announced once, then read 2 files.
       **A5 Validated**
@@ -1034,11 +1039,16 @@ To determine during implementation:
   the global flag **before** the subcommand; `details` itself takes no `--plugin-dir` option.
   No local install is needed, so `P2`'s exit metric is captured against the working tree
 - ~~Whether `allowed-tools: Read` covers reads of `plugin/docs/reference/` as well as
-  same-directory supporting files (A4; `P0-T1` probes both deliberately)~~ — **answered
-  2026-09-08**: it covers **both**. The smoke session read the sibling `templates.md` and the
-  cross-directory `../../docs/reference/probe-ref.md` with no permission prompt on either, and
-  echoed the `PROBE-REF-RESOLVED` marker. A5 landed in the same session. Recorded in design.md
-  → Resolved Decisions; the assumption rows are flipped
+  same-directory supporting files (A4; `P0-T1` probes both deliberately) — **answered wrong on
+  2026-09-08, corrected 2026-09-09.** The smoke session reported no prompt on either read and
+  the assumption was flipped to Validated. It is **false**: `allowed-tools` has nothing to do
+  with it. Reads of the plugin directory are gated by the **working-directory boundary**, and
+  three headless probes denied them under `--plugin-dir` and again for a marketplace install;
+  only `--add-dir` passes. The 2026-09-08 session never recorded its **cwd** — run from inside
+  the probe directory, the boundary cannot fire, which is why a real defect measured clean.
+  **The transferable lesson is about the probe, not the feature: state the environment a
+  measurement was taken in, or the measurement is not reproducible and may not be a measurement
+  at all.**
 - ~~The real reduction ratio per stage~~ — **answered 2026-09-08.** Final: **84.9k → 45.3k =
   −46.6%** across the fourteen stages, thirteen reshaped. Two findings worth keeping:
   **(1)** line reduction ran roughly **twice** the token reduction, because what moves out —
@@ -1089,6 +1099,108 @@ None open.
   (## Technical Decisions → Resolved Decisions); carried by new task `P0-T6`.
 
 ### Implementation Notes
+
+- **2026-09-09, live testing falsified A4 and the section-read mechanism with it.** The two
+  Phase 2 manual criteria were finally run. Both findings are things no grep could have reached,
+  and both were latent in `P4-T9`'s "all green".
+  - **A4 is false.** Five headless probes, **each with its cwd recorded**: a Read of a supporting
+    file is DENIED under `--plugin-dir` from a project cwd; DENIED for a **marketplace-installed**
+    plugin reading its own root; passes only with `--add-dir`; and a discriminating control pair
+    showed path-scoped `Read(<plugin-root>/**)` does **not** cross the boundary. **A plugin cannot
+    self-grant.** The gate is the working-directory boundary, which `allowed-tools` does not
+    touch. `P0-T1`'s probe recorded `NO PROMPT` truthfully and concluded wrongly because **it
+    never recorded its working directory** — run from inside the probe directory, the boundary
+    cannot fire. *A probe that cannot fail is not evidence, and the way this one could not fail
+    was invisible until someone asked where it ran.*
+  - **This is a 2.0.0 regression, not an inherited condition.** Installed 1.12.4 has **zero**
+    supporting-file read instructions; its stages were monolithic. Progressive disclosure creates
+    the dependency.
+  - **`Read` has no section parameter.** The 33 "read the `## X` section of templates.md"
+    instructions had no correct implementation — only `offset`/`limit`. Observed live: asked for
+    a section starting at line **291**, the model read **180–239**, inside a fenced skeleton.
+  - **Upstream does not solve either.** It has 11 section-scoped reads (we had 33), no section
+    maps at all, and its `CHANGELOG.md:176` makes the same prompt-free claim these probes
+    disprove — plausibly true when written, since the boundary setting looks newer than its
+    3.0.0. Diverging from upstream here is deliberate.
+- **2026-09-09, what was changed in response.**
+  - **14 supporting files → 48**, one per readable unit, under `templates/`, `prompts/`,
+    `reference/`. A whole-file read now *is* the scoped read. `grep -rn 'Read the \`##'
+    plugin/skills/` returns **0**. A renamed heading can no longer break a read silently, and a
+    wrong path fails loudly instead of returning the wrong lines.
+  - **`allowed-tools` states each skill's real surface** — `implement` names
+    `Read, Write, Edit, Glob, Grep, Bash, Task`, `help` names `Read`. It is a pre-approval, so
+    this **removes the prompt before writes and commits**; recorded under Breaking rather than
+    filed as a doc fix, because it is a behaviour change.
+  - **A refused read is a hard stop**, in all 16 manifests. This is the only change that prevents
+    wrong output rather than annoyance: a session with outside reads blocked previously wrote a
+    plausible document from the manifest alone, with no error.
+  - A4 corrected to **false** in design.md, tasks.md, the baseline thoughts doc and the skills
+    guide; boundary documented in README and the per-machine migration list; two `wb-prime.sh`
+    fixes (plans ordered by date-prefix rather than mtime, elision at a word boundary); two
+    knowledge entries.
+  - **Cost, stated honestly**: fourteen-stage invocation 46.8k → **51.1k (+9.2%)**, still
+    **−39.8%** on the 84.9k baseline and 8.3k inside the ≤59.4k bar. Per-run cost moves the other
+    way — `create_mockup` no longer reads 389 lines to write one artifact — and that is the
+    number the split was actually for.
+
+- **2026-09-08, adversarial review of Phases 1–4, run after `P4-T9` declared every phase's
+  checks green.** Ten findings; **eight fixed in the tree**, two need a live session. The
+  pattern is one thing, not ten: **every capability verified by grep passed; every capability
+  that had to be *run* was broken or unrun.** `P4-T9` re-ran the greps, which is why it missed
+  all of it.
+  - `plugin/hooks/wb-prime.sh` — `grep -c … || echo 0` yields `"0\n0"`, because `grep -c`
+    prints `0` *and* exits 1. `$((done_n + left_n))` then died with a bash syntax error printed
+    into the model's first context. Trigger: any `tasks.md` with no ID-carrying task lines —
+    i.e. **every plan freshly made by `/wb:create_project`**. Fixed with a `count()` helper.
+  - `plugin/hooks/wb-prime.sh` — `[ -d .git ]` is **false in a git worktree** (`.git` is a
+    file) and absent from a subdirectory, so `dirty` stayed 0 and the hook asserted *"the tree
+    is clean … not mid-task"* over uncommitted work. That is D8's acceptance test, inverted.
+    Now asks git directly.
+  - **Two counting conventions shipped side by side**, and the unscoped one was in the
+    templates that mint every plan (`create_tasks`, `create_project`) plus `implement_inline`
+    Step 3, both resume-logic `reference.md`s and `validate_execution`. On this plan the two
+    read 116/133 vs 63/64 — `implement_inline` would report permanent false drift against
+    counters `update_status` writes scoped. All twelve sites scoped; `validate_project` keeps
+    the unscoped form deliberately, relabelled as the hazard it illustrates.
+    **Fourth appearance of this class in one plan.**
+  - The generated plan skeleton's four planning tasks carried **no IDs**, while its frontmatter
+    claimed `total_tasks: 4`. Every new plan was born with phantom drift. IDs added.
+  - `implement` **6c** — "revert or leave the work uncommitted as appropriate" breaks the
+    clean-tree invariant `6a`/`6b` depend on: the next worker inherits the blocked task's
+    changes, a worker that did nothing reads as truncation, and its verifier fails it for
+    files it never opened. Now a WIP commit or a scoped `git restore`, ending clean either way.
+  - `implement` **6c** — "leave its checkbox `[ ]`" was an assertion, not an instruction. The
+    worker flips the box *before* verification, so the FAIL path arrives at `[x]`; nothing
+    un-flipped it, and Step 8's phase gate would pass a failed task. Reset is now step 1 of
+    6c — before escalating, so the escalation attempt keeps its truncation signal too.
+  - `docs/claude-code-skills-guide.md` — `P4-T5`'s de-beading spliced new text over the old
+    bullet and left a truncated sentence with an unclosed backtick
+    (``see `hooks/wb-prime.skill activating``). Same block still said the plugin's `commands/`
+    files "continue to work unchanged" (no such directory), that background skills "could"
+    declare `user-invocable: false` (they do), and listed three **adopted** upgrades under
+    "not yet applied". Rewritten.
+  - `docs/commands-reference.md:24` — the headline pipeline diagram still ended
+    `→ /implement_tasks →`, the deprecated alias, contradicting `CLAUDE.md` and `help`.
+    `P4-T4`'s criterion grepped only `create_execution`; Phase 2's rename grep was scoped to
+    `plugin/skills/`. Neither net covered `implement_tasks` in `docs/`.
+  - `model-help:22` named `claude-fable-5`; the model is Fable 5.1, `claude-fable-5-1` — on the
+    branch whose stated purpose is the Fable 5.1 re-baseline.
+  - **70 bare `/create_*` references** prefixed to `/wb:`, 20 of them in
+    `create_project/templates.md` and therefore written into every generated plan, where a user
+    reads them and types them.
+  - Measured, not fixed, because nothing is broken by it: **`allowed-tools` on a skill is a
+    pre-approval, not a sandbox.** A skill declaring `allowed-tools: Read` performed a `Write`
+    under `bypassPermissions`, and under the default mode the write went to the ordinary
+    permission prompt rather than being refused. So `implement`'s `allowed-tools: Read` is
+    harmless — but the skills guide was advising it as a least-privilege boundary. Corrected
+    there.
+  - **Still open, and the reason the above existed**: `journal.md` did not exist anywhere,
+    including this plan's own directory, though `P3-T7`, `P3-T8` and `P4-T9` are all `[x]` and
+    `P4-T9` claims to have recorded into it. D8 — the release's headline new capability — went
+    the entire 64-task implementation unexercised, which is precisely why its two code paths
+    shipped broken. Journal opened 2026-09-08 19:20, honestly dated. The three manual criteria
+    it depends on (Phase 2's `--plugin-dir` read, Phase 3's abrupt-kill test, Phase 4's
+    end-to-end run) remain `[ ]` and are the next thing to run.
 
 - **2026-09-08, Phase 4's full sweep caught a fifth stale criterion.** Phase 1's
   `grep -c 'model:' plugin/agents/*.md → 1 per file` failed — correctly, and for a good reason:
@@ -1436,10 +1548,14 @@ None open.
   first would have made the Manual Verification impossible. The session returned `NO PROMPT`
   on **both** on-demand reads — the sibling file and the cross-directory
   `plugin/docs/reference/` file alike — plus a single rename announcement from the alias stub,
-  so A4 and A5 are both Validated and the probe was then deleted. Had `P0-T5` run in document
-  order, the plan would have had to rebuild the probe to answer its own checkpoint.
+  so A4 and A5 were both marked Validated and the probe was then deleted. Had `P0-T5` run in
+  document order, the plan would have had to rebuild the probe to answer its own checkpoint.
+  **A5 holds and was re-confirmed by live testing 2026-09-09. A4 does not** — see the
+  Implementation Discovery above; and note that deleting the probe is what made re-testing cost
+  a rebuild, which is the second reason this conclusion went unchallenged for a day.
 - **2026-09-08, four decisions taken via `/wb:resolve_questions`** after Phase 0's automated
-  work: A4/A5 validated; `lint --all` scoped to exclude `.context/` (new task `P0-T6`);
+  work: A4/A5 validated (**A4 since disproven, 2026-09-09**); `lint --all` scoped to exclude
+  `.context/` (new task `P0-T6`);
   commit cadence set to per-task except Phase 2, which commits per cluster; and **D21**, the
   transient-by-default plan-persistence convention, under which this plan directory was
   force-added into git. Records in design.md → D21 and Resolved Decisions.

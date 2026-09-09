@@ -3,7 +3,7 @@ name: create_execution
 description: Deprecated alias of create_tasks — use /wb:create_tasks (removed at 3.0.0)
 argument-hint: "[project-directory]"
 disable-model-invocation: true
-allowed-tools: Read
+allowed-tools: Read, Write, Edit, Glob, Grep, Bash, Task
 ---
 
 # Create Execution (Deprecated Alias)

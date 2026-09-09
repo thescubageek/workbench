@@ -1,10 +1,4 @@
-# create_tasks — templates
-
-Read the **section you need**, when its step directs you to — not the whole file.
-
-Sections: `tasks.md Template` (Step 4) · `Plan presentation message` (Step 6)
-
-## tasks.md Template
+# tasks.md Template
 
 Write `tasks.md` in this shape. Every bracketed placeholder must be replaced with something
 specific and executable before the file is written.
@@ -39,11 +33,6 @@ Implementing [brief summary] as specified in design.md
 counters are a derived cache with exactly one writer — `/wb:update_status` — and are never
 hand-edited. Git is the durable record: one task, one commit.
 
-```bash
-grep -c '^- \[x\]' tasks.md    # completed
-grep -c '^- \[ \]' tasks.md    # remaining
-```
-
 Every task carries a stable local ID (`P2-T7`). IDs are the handle to cite from a commit
 message, a journal entry, or a handoff — checkbox tracking is otherwise positional, and an ID
 costs nothing to add now. Number them in document order and never renumber.
@@ -58,6 +47,15 @@ every counter in the workflow identifies task lines by this pattern. An ID that 
 is not a style problem — it makes the task **invisible to counting**, so `/wb:update_status`
 writes wrong totals and the session-start bootstrap reports the wrong position, with nothing
 erroring anywhere.
+
+Which is why every count of this file is scoped to lines carrying an ID. A bare
+`grep -c '^- \[x\]'` also counts the success criteria and prerequisites below, and will not
+agree with the frontmatter counters:
+
+```bash
+grep -cE '^- \[x\] \*\*[A-Z0-9-]*[0-9][A-Z0-9-]*\*\*' tasks.md    # completed
+grep -cE '^- \[ \] \*\*[A-Z0-9-]*[0-9][A-Z0-9-]*\*\*' tasks.md    # remaining
+```
 
 ## Implementation Strategy
 
@@ -274,8 +272,8 @@ npm run build
 # Lint
 npm run lint
 
-# Progress
-grep -c '^- \[x\]' tasks.md
+# Progress (scoped to task lines — criteria checkboxes are not tasks)
+grep -cE '^- \[x\] \*\*[A-Z0-9-]*[0-9][A-Z0-9-]*\*\*' tasks.md
 ```
 
 ### Design Decisions Reference
@@ -283,41 +281,3 @@ Quick lookup of key design decisions:
 - [Decision 1]: [Brief reminder]
 - [Decision 2]: [Brief reminder]
 ````
-
-## Plan presentation message
-
-Step 6 — emitted once, after `tasks.md` is written.
-
-```
-✅ Execution plan created at: [path]/tasks.md
-
-Implementation structure:
-- Phase 1: [Name] - [X] tasks
-- Phase 2: [Name] - [Y] tasks
-- Phase 3: [Name] - [Z] tasks
-
-Total tasks: [total count]
-
-Agent findings incorporated:
-- Dependency order: [key dependency from agent]
-- Test coverage: [X] unit tests, [Y] integration tests
-- Similar patterns: [reference to pattern agent findings]
-
-Key features of the plan:
-- Clear implementation sequence based on dependency analysis
-- Specific code changes with before/after context
-- Comprehensive test coverage from agent analysis
-- Automated and manual verification per phase
-- Quick test commands to avoid running full suite
-- Every task sized by projected tool calls, split past ~50
-
-Where status lives:
-- Checkbox state in tasks.md is the source of truth
-- Frontmatter counters are a derived cache; /wb:update_status is their only writer
-- Git is the durable record — one task, one commit
-
-Next steps:
-1. Review the execution plan in tasks.md
-2. Run `/implement` to begin implementation with TDD via worker agents (`/implement_inline` runs it in this session)
-3. Flip checkboxes as work completes; run /wb:update_status at each phase checkpoint
-```

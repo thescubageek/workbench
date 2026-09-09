@@ -2,7 +2,7 @@
 name: create_project
 description: Initialize comprehensive project documentation with research, design, and task files
 argument-hint: "[project-name] [base-dir] [ticket-ref]"
-allowed-tools: Read
+allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 ---
 
 # Initialize Project Documentation
@@ -11,8 +11,15 @@ Creates a comprehensive documentation structure for a new project or feature, se
 
 Supporting files in this directory (read each when its step directs you to — never paraphrase from memory):
 
-- [templates.md](templates.md) — the five initial file templates, under five named sections. Step 4 reads **one section per file it creates**, not the whole file
+- `templates/` — the five initial file templates, one per file: [readme-md-template.md](templates/readme-md-template.md) · [research-md-template.md](templates/research-md-template.md) · [design-md-template.md](templates/design-md-template.md) · [tasks-md-template.md](templates/tasks-md-template.md) · [journal-md-template.md](templates/journal-md-template.md). Step 4 reads **one per file it creates**
 - [reference.md](reference.md) — argument usage, status progression, error handling
+
+**If a directed read fails, stop — do not continue from memory.** These files live in the plugin
+directory, which is outside your project, so a read of one can be refused. Say which file was
+refused, that reads outside the working directory are gated, and that the fix is to allow the
+read once or to relaunch with `--add-dir <plugin-path>`. Writing the artifact from this manifest
+alone produces a plausible document that was never based on the template — the exact failure the
+sentence above exists to prevent. Do not route around a refusal with `cat`.
 
 **Output discipline**: act on barriers silently; don't restate the plan between steps; emit only the artifact and a one-line completion summary.
 
@@ -20,11 +27,11 @@ Supporting files in this directory (read each when its step directs you to — n
 
 When invoked, check for arguments:
 
-1. **If arguments provided** (e.g., `/create_project auth-refactor docs/plans LINEAR-456`):
+1. **If arguments provided** (e.g., `/wb:create_project auth-refactor docs/plans LINEAR-456`):
    - Parse: `$1` = project-name, `$2` = base-dir, `$3` = ticket-ref
    - Skip prompting and proceed directly to Step 2
 
-2. **If partial arguments** (e.g., `/create_project auth-refactor`):
+2. **If partial arguments** (e.g., `/wb:create_project auth-refactor`):
    - Use provided arguments and prompt only for missing ones
 
 3. **If no arguments**:
@@ -86,18 +93,17 @@ Examples:
 
 ### Step 4: Create Initial Files with Rich Metadata
 
-Create five foundation files. **Read one template section per file**, at the moment you create
-that file — reading `templates.md` whole pulls in four skeletons you do not need.
+Create five foundation files. **Read one template file per file you create**, at the moment you
+create it — each template is its own file precisely so that writing one costs only its own.
 
-1. **README.md** — navigation hub. Read the `## README.md Template` section of
-   [templates.md](templates.md) NOW and create the file from it, with all metadata filled in.
-2. **research.md** — research documentation. Read the `## research.md Template` section NOW
+1. **README.md** — navigation hub. Read [templates/readme-md-template.md](templates/readme-md-template.md) NOW and create the file from it, with all metadata filled in.
+2. **research.md** — research documentation. Read [templates/research-md-template.md](templates/research-md-template.md) NOW
    and create the file from it, with all metadata filled in.
-3. **design.md** — design decisions. Read the `## design.md Template` section NOW and create
+3. **design.md** — design decisions. Read [templates/design-md-template.md](templates/design-md-template.md) NOW and create
    the file from it, with all metadata filled in.
-4. **tasks.md** — task tracking. Read the `## tasks.md Template` section NOW and create the
+4. **tasks.md** — task tracking. Read [templates/tasks-md-template.md](templates/tasks-md-template.md) NOW and create the
    file from it, with all metadata filled in.
-5. **journal.md** — the session journal. Read the `## journal.md Template` section NOW and
+5. **journal.md** — the session journal. Read [templates/journal-md-template.md](templates/journal-md-template.md) NOW and
    create the file from it. It starts with no entries; the implementation stages open the
    first one when work begins.
 
@@ -137,16 +143,16 @@ Present the created structure:
 🔄 Next Steps:
 
 1. Research the codebase:
-   /create_research [directory]
+   /wb:create_research [directory]
 
 2. After research, create design:
-   /create_design [directory]
+   /wb:create_design [directory]
 
 3. Then generate execution plan:
-   /create_tasks [directory]
+   /wb:create_tasks [directory]
 
 4. Implement with TDD:
-   /implement [directory]
+   /wb:implement [directory]
 
 Ready to begin research phase!
 ```

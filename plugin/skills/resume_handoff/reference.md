@@ -56,7 +56,7 @@ If handoff says one thing but code shows another:
 2. **Trust the handoff** for learnings and context — the code cannot tell you what was tried and abandoned
 3. **Document the discrepancy** in the resume confirmation, naming which you took
 4. **Proceed with caution**
-5. **Consider validation** via `/validate_execution`
+5. **Consider validation** via `/wb:validate_execution`
 
 ### Quality Indicators
 
@@ -74,24 +74,24 @@ Common workflows:
 
 **Simple Resume**:
 
-1. **`/resume_handoff`** - Load context
-2. `/implement` - Continue implementation
-3. `/validate_execution` - Verify when phase complete
+1. **`/wb:resume_handoff`** - Load context
+2. `/wb:implement` - Continue implementation
+3. `/wb:validate_execution` - Verify when phase complete
 
 **Complex Resume with Validation**:
 
-1. **`/resume_handoff`** - Load context
-2. `/validate_execution` - Check actual state
+1. **`/wb:resume_handoff`** - Load context
+2. `/wb:validate_execution` - Check actual state
 3. Resolve any discrepancies
-4. `/implement` - Continue work
+4. `/wb:implement` - Continue work
 
 **Chain of Handoffs**:
 
-1. **`/resume_handoff`** - Session 2 resumes from Session 1
+1. **`/wb:resume_handoff`** - Session 2 resumes from Session 1
 2. Work on implementation
-3. `/create_handoff` - Session 2 creates new handoff
+3. `/wb:create_handoff` - Session 2 creates new handoff
 4. [New session]
-5. **`/resume_handoff`** - Session 3 continues chain
+5. **`/wb:resume_handoff`** - Session 3 continues chain
 
 ## Error Handling
 

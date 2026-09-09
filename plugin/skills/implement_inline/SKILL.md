@@ -2,7 +2,7 @@
 name: implement_inline
 description: Implement tasks following TDD practices with phase boundaries, inline on the current session model
 argument-hint: "[project-directory] [phase-number|continue]"
-allowed-tools: Read
+allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 ---
 
 # Implement Tasks (inline)
@@ -13,8 +13,15 @@ This runs **inline, on the current session model**. For the coordinated path —
 
 Supporting files in this directory (read each when its step directs you to — never paraphrase from memory):
 
-- [templates.md](templates.md) — the Modified Files fragment and the two phase-checkpoint messages, under named sections
+- `templates/` — [modified-files-fragment.md](templates/modified-files-fragment.md) (Step 5) · [manual-verification-request.md](templates/manual-verification-request.md) and [phase-completion-report.md](templates/phase-completion-report.md) (Step 6)
 - [reference.md](reference.md) — handling mismatches, resume logic, TDD best practices, special considerations, error handling, the DO/DON'T lists, configuration
+
+**If a directed read fails, stop — do not continue from memory.** These files live in the plugin
+directory, which is outside your project, so a read of one can be refused. Say which file was
+refused, that reads outside the working directory are gated, and that the fix is to allow the
+read once or to relaunch with `--add-dir <plugin-path>`. Writing the artifact from this manifest
+alone produces a plausible document that was never based on the template — the exact failure the
+sentence above exists to prevent. Do not route around a refusal with `cat`.
 
 **Output discipline**: act on barriers silently; don't restate the plan between steps; emit only the artifact and a one-line completion summary.
 
@@ -24,7 +31,7 @@ Supporting files in this directory (read each when its step directs you to — n
 
 When invoked, check for arguments:
 
-1. **If directory and phase provided** (e.g., `/implement_inline docs/plans/2025-01-08-my-project/ 1`):
+1. **If directory and phase provided** (e.g., `/wb:implement_inline docs/plans/2025-01-08-my-project/ 1`):
    - Use `$1` as project directory
    - Use `$2` as phase number (or "continue" to resume)
    - Read all documentation immediately
@@ -164,9 +171,13 @@ establishing position is a read, not a setup step.
 3. **Check the counters against reality**:
 
    ```bash
-   grep -c '^- \[x\]' tasks.md    # completed
-   grep -c '^- \[ \]' tasks.md    # remaining
+   grep -cE '^- \[x\] \*\*[A-Z0-9-]*[0-9][A-Z0-9-]*\*\*' tasks.md    # completed
+   grep -cE '^- \[ \] \*\*[A-Z0-9-]*[0-9][A-Z0-9-]*\*\*' tasks.md    # remaining
    ```
+
+   **Scope the counts to lines carrying a task ID.** A plan's success criteria and
+   prerequisites are checkboxes too; an unscoped count includes them, disagrees with what
+   `/wb:update_status` wrote, and reports drift that is not there.
 
    If the frontmatter counters disagree with these counts, **the checkboxes are right and the
    counters are stale**. Note it and run `/wb:update_status` at the next checkpoint — do not
@@ -189,6 +200,14 @@ Before touching code, append an entry to `journal.md` naming the task ID, what y
 to do, and the exact next action. This is written **at the start**, not the end: a session
 does not get to choose how it ends, and an entry written only on completion is silent in
 exactly the cases it exists for.
+
+The heading shape is a contract, because the session-start hook, `forge`, `daily-digest`, `resume_handoff` and `create_handoff` all read it to decide whether work was interrupted:
+
+```
+## YYYY-MM-DD HH:MM — <task-id or short label> (open)
+```
+
+Ending in a literal `(open)` or `(closed)` is what makes the state detectable. An entry that ends any other way is invisible to every one of those readers, and the failure is silent — a session reads "closed" over interrupted work.
 
 **B. Test First (RED)**
 
@@ -298,7 +317,7 @@ Fix any issues before proceeding.
 
 #### Update Modified Files Section
 
-Read the `## Modified Files fragment` section of [templates.md](templates.md) NOW and update that section in `tasks.md`.
+Read [templates/modified-files-fragment.md](templates/modified-files-fragment.md) NOW and update that section in `tasks.md`.
 
 ### Step 6: Phase Checkpoint
 
@@ -312,11 +331,10 @@ Complete these steps IN ORDER before proceeding to next phase:
 
 2. **Run automated verification** (the block in Step 5). All checks must pass.
 
-3. **Request manual verification.** Read the `## Manual verification request` section of
-   [templates.md](templates.md) NOW, emit it, and **wait for the user's confirmation**.
+3. **Request manual verification.** Read [templates/manual-verification-request.md](templates/manual-verification-request.md) NOW, emit it, and **wait for the user's confirmation**.
 
 4. **Report completion.** Only after the user confirms: read the
-   `## Phase completion report` section of [templates.md](templates.md) NOW and emit it.
+   [templates/phase-completion-report.md](templates/phase-completion-report.md) NOW and emit it.
 
 ### Step 7: Reconcile Status
 

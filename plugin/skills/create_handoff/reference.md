@@ -73,19 +73,19 @@ Typical workflows:
 
 **Mid-Implementation Handoff**:
 
-1. `/implement` - Working on implementation
+1. `/wb:implement` - Working on implementation
 2. [Hit blocker or session limit]
-3. **`/create_handoff`** - Document current state
+3. **`/wb:create_handoff`** - Document current state
 4. [New session]
-5. `/resume_handoff` - Continue where left off
+5. `/wb:resume_handoff` - Continue where left off
 
 **Phase Completion Handoff**:
 
 1. Complete Phase N
-2. `/validate_execution` - Verify work
-3. **`/create_handoff`** - Document for next phase
+2. `/wb:validate_execution` - Verify work
+3. **`/wb:create_handoff`** - Document for next phase
 4. [New session]
-5. `/resume_handoff` - Start Phase N+1
+5. `/wb:resume_handoff` - Start Phase N+1
 
 ## Configuration
 

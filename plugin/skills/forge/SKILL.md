@@ -2,7 +2,7 @@
 name: forge
 description: Forge a ticket through the full wb pipeline — research → design → tasks → implementation. End-to-end sequencer for the wb workflow.
 argument-hint: "[ticket-or-directory] [stop-at-phase?]"
-allowed-tools: Read
+allowed-tools: Read, Write, Edit, Glob, Grep, Bash, Task
 ---
 
 # Forge — wb pipeline orchestrator
@@ -11,8 +11,15 @@ allowed-tools: Read
 
 Supporting files in this directory (read each when its step directs you to — never paraphrase from memory):
 
-- [templates.md](templates.md) — the per-phase output style and the model-plan table
+- `templates/` — [output-style.md](templates/output-style.md) (the per-phase report shape) · [model-plan.md](templates/model-plan.md) (the model-plan table)
 - [examples.md](examples.md) — invocation examples, and the evidence behind each detected state
+
+**If a directed read fails, stop — do not continue from memory.** These files live in the plugin
+directory, which is outside your project, so a read of one can be refused. Say which file was
+refused, that reads outside the working directory are gated, and that the fix is to allow the
+read once or to relaunch with `--add-dir <plugin-path>`. Writing the artifact from this manifest
+alone produces a plausible document that was never based on the template — the exact failure the
+sentence above exists to prevent. Do not route around a refusal with `cat`.
 
 **Output discipline**: act on barriers silently; don't restate the plan between steps; emit only the artifact and a one-line completion summary.
 
@@ -82,7 +89,7 @@ When invoked:
 
 4. **Report current state to the user** in 1–2 sentences. Example: "Project at `docs/plans/2026-05-12-project-roar/` has research + design complete, 0 of 18 tasks done. Next step is `/wb:implement`. Stop-after default is `create_tasks` — confirm to proceed."
 
-5. **Emit a one-time model plan.** Consult the `model-help` skill in **gate mode** (pass the ticket/design difficulty and the remaining phases) and print a compact per-phase tier table for the phases still ahead — the "model journey" for this forge. This is advisory: it shows where a main-model switch is worth the reload and, by clustering same-tier phases, keeps the whole run to ~1–2 switches. Read the `## Model plan` section of [templates.md](templates.md) for the shape.
+5. **Emit a one-time model plan.** Consult the `model-help` skill in **gate mode** (pass the ticket/design difficulty and the remaining phases) and print a compact per-phase tier table for the phases still ahead — the "model journey" for this forge. This is advisory: it shows where a main-model switch is worth the reload and, by clustering same-tier phases, keeps the whole run to ~1–2 switches. Read [templates/model-plan.md](templates/model-plan.md) for the shape.
 
 6. **Confirm with the user before each phase transition.** Forge does not auto-advance silently; the user must see what's about to run — and, at that moment, the model advisory for the phase about to run.
 
@@ -147,7 +154,7 @@ When invoked:
 
 ## Output style
 
-See the `## Output style` section of [templates.md](templates.md) for the per-phase report shape.
+See [templates/output-style.md](templates/output-style.md) for the per-phase report shape.
 
 ## Examples
 

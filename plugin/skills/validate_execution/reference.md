@@ -53,12 +53,12 @@ Always verify:
 
 Recommended workflow:
 
-1. `/create_research` - Document current state
-2. `/create_design` - Decide what to build
-3. `/create_tasks` - Plan how to build
-4. `/implement` - Build it with TDD via worker agents (`/implement_inline` runs it in this session)
-5. **`/validate_execution`** - Verify it was built correctly ← YOU ARE HERE
-6. `/create_handoff` - Document for next session (if needed)
+1. `/wb:create_research` - Document current state
+2. `/wb:create_design` - Decide what to build
+3. `/wb:create_tasks` - Plan how to build
+4. `/wb:implement` - Build it with TDD via worker agents (`/wb:implement_inline` runs it in this session)
+5. **`/wb:validate_execution`** - Verify it was built correctly ← YOU ARE HERE
+6. `/wb:create_handoff` - Document for next session (if needed)
 
 ## Configuration
 

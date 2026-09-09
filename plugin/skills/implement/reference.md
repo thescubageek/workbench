@@ -28,9 +28,12 @@ separate tracker to reload.
 1. **Read `tasks.md` FULLY.** The first `- [ ]` task in the current phase is the next task.
 
    ```bash
-   grep -c '^- \[x\]' tasks.md    # completed
-   grep -c '^- \[ \]' tasks.md    # remaining
+   grep -cE '^- \[x\] \*\*[A-Z0-9-]*[0-9][A-Z0-9-]*\*\*' tasks.md    # completed
+   grep -cE '^- \[ \] \*\*[A-Z0-9-]*[0-9][A-Z0-9-]*\*\*' tasks.md    # remaining
    ```
+
+   Scoped to lines carrying a task ID — the criteria checkboxes are not tasks, and counting
+   them manufactures drift against the counters.
 
    If the frontmatter counters disagree with these counts, the checkboxes are right and the
    counters are stale.

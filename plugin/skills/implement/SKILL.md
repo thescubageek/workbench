@@ -2,7 +2,7 @@
 name: implement
 description: Implement a plan's tasks with worker agents, keeping the main context clean. The recommended execution path — spawns one focused worker per task in fresh context, verifies each, and commits it. Use /wb:implement_inline instead to run tasks inline on the current session model.
 argument-hint: "[project-directory] [phase-number|continue]"
-allowed-tools: Read
+allowed-tools: Read, Write, Edit, Glob, Grep, Bash, Task
 ---
 
 # Implement Tasks (Coordinated)
@@ -15,15 +15,22 @@ The alternative is `/wb:implement_inline`, which runs the same plan **inline on 
 
 Supporting files in this directory (read each when its step directs you to — never paraphrase from memory):
 
-- [sub-agent-prompts.md](sub-agent-prompts.md) — the worker prompt, the verifier prompt, and the escalation prompt, under named sections
-- [templates.md](templates.md) — the Modified Files fragment, the two phase-checkpoint messages, and the incomplete-worker message
+- `prompts/` — [worker-prompt.md](prompts/worker-prompt.md) (Step 5) · [verifier-prompt.md](prompts/verifier-prompt.md) and [escalation-worker-prompt.md](prompts/escalation-worker-prompt.md) (Step 6)
+- `templates/` — [incomplete-worker-message.md](templates/incomplete-worker-message.md) (Step 6) · [modified-files-fragment.md](templates/modified-files-fragment.md) (Step 7) · [manual-verification-request.md](templates/manual-verification-request.md) and [phase-completion-report.md](templates/phase-completion-report.md) (Step 8)
 - [reference.md](reference.md) — evolution, resume logic, why the coordinator pattern exists, migration, the DO/DON'T lists, configuration
+
+**If a directed read fails, stop — do not continue from memory.** These files live in the plugin
+directory, which is outside your project, so a read of one can be refused. Say which file was
+refused, that reads outside the working directory are gated, and that the fix is to allow the
+read once or to relaunch with `--add-dir <plugin-path>`. Writing the artifact from this manifest
+alone produces a plausible document that was never based on the template — the exact failure the
+sentence above exists to prevent. Do not route around a refusal with `cat`.
 
 ## Initial Response
 
 When invoked, check for arguments:
 
-1. **If directory and phase provided** (e.g., `/implement docs/plans/2025-01-08-my-project/ 1`):
+1. **If directory and phase provided** (e.g., `/wb:implement docs/plans/2025-01-08-my-project/ 1`):
    - Use `$1` as project directory
    - Use `$2` as phase number (or "continue" to resume)
    - Read all documentation immediately
@@ -218,6 +225,14 @@ A task carrying a `Depends on:` field is the exception — check its named depen
 about to attempt, and the exact next action. Written at the start, not the end — an abrupt
 kill then leaves a correct open entry rather than silence.
 
+The heading shape is a contract, because the session-start hook, `forge`, `daily-digest`, `resume_handoff` and `create_handoff` all read it to decide whether work was interrupted:
+
+```
+## YYYY-MM-DD HH:MM — <task-id or short label> (open)
+```
+
+Ending in a literal `(open)` or `(closed)` is what makes the state detectable. An entry that ends any other way is invisible to every one of those readers, and the failure is silent — a session reads "closed" over interrupted work.
+
 **Choose the tier.** This is the one statement of the worker tier rule; every other mention in
 this skill and its supporting files points here rather than restating it.
 
@@ -234,7 +249,7 @@ work — it is **not** a truncation fix. Workers hit a *tool-call* ceiling, not 
 so a wider window does not change truncation behaviour; Step 3's context minimisation and the
 plan's ~50-call task sizing are what address that.
 
-**Then spawn.** Read the `## Worker prompt` section of [sub-agent-prompts.md](sub-agent-prompts.md) NOW and spawn the `task-worker` agent with it.
+**Then spawn.** Read [prompts/worker-prompt.md](prompts/worker-prompt.md) NOW and spawn the `task-worker` agent with it.
 
 **Loop**: Spawn → Wait → Verify → Commit → Next task
 
@@ -269,7 +284,7 @@ context spends the same budget and truncates at the same point, buying nothing.
 
 #### 6b. Verify
 
-Read the `## Verifier prompt` section of [sub-agent-prompts.md](sub-agent-prompts.md) NOW and spawn the `task-verifier` agent with it. Scope is checked against the uncommitted working tree — there is no base ref to supply, because the worker did not commit.
+Read [prompts/verifier-prompt.md](prompts/verifier-prompt.md) NOW and spawn the `task-verifier` agent with it. Scope is checked against the uncommitted working tree — there is no base ref to supply, because the worker did not commit.
 
 Parse the result:
 
@@ -291,26 +306,45 @@ is clean, so any uncommitted work belongs to something that did not finish.
 
 A verified failure gets **exactly one** escalation attempt:
 
-1. Escalate **one rung from the tier that failed** — haiku → Opus 4.8 1M, Opus 4.8 1M → Opus 5,
+1. **Reset the checkbox to `[ ]` first.** The worker flips it as its *final* act, before
+   anything verifies the work — so a task that reaches 6c is almost always sitting at `[x]`
+   while being unverified. Set it back before you do anything else. Skip this and the
+   escalation worker starts against an already-`[x]` box, which destroys 6a's only signal for
+   distinguishing a truncated escalation attempt from a finished one.
+2. Escalate **one rung from the tier that failed** — haiku → Opus 4.8 1M, Opus 4.8 1M → Opus 5,
    Opus 5 → Fable at `effort: high`. Reaching the Fable rung is an explicit election, never
    automatic.
-2. Say which rung you chose and why, in one line.
-3. Read the `## Escalation worker prompt` section of [sub-agent-prompts.md](sub-agent-prompts.md) NOW and spawn with it.
-4. Re-verify.
+3. Say which rung you chose and why, in one line.
+4. Read [prompts/escalation-worker-prompt.md](prompts/escalation-worker-prompt.md) NOW and spawn with it.
+5. Re-verify.
 
-**If re-verification fails**, stop. Add the task to the phase checkpoint's blocking list, leave
-its checkbox `[ ]`, revert or leave the work uncommitted as appropriate, and continue to the
-next task. A second automatic attempt is the one that reliably wastes a worker; the checkpoint
-is where a human sees it.
+**If re-verification fails**, stop, and leave the repository in the state the next task needs.
+A second automatic attempt is the one that reliably wastes a worker; the checkpoint is where a
+human sees it.
+
+**The tree must be clean before the next task starts.** 6a and 6b both read the uncommitted
+working tree as belonging to the task just spawned. Leave a blocked task's changes lying in it
+and the next worker inherits them: a worker that did nothing looks like *"substantial, coherent
+changes"* and gets misdiagnosed as truncation, and its verifier fails it for touching files it
+never opened. So pick one, and end clean either way:
+
+| The blocked work is | Do this |
+| ------------------- | ------- |
+| Worth keeping | Commit it **as work in progress, not as the task** — `WIP ${taskId}: blocked, verification failed — not a completion`. Git is the durable record; the checkpoint names the commit |
+| Not worth keeping | `git restore` **the paths the worker reported**, never a blanket `git checkout -- .`, which would also revert earlier committed-but-unstaged work |
+
+Then: checkbox stays `[ ]`, task goes on the phase checkpoint's blocking list with the reason
+and the WIP commit hash if there is one, journal entry closes as blocked, and you continue to
+the next task.
 
 If the diagnosis is a genuine failure with no usable work at all, read the
-`## Incomplete worker message` section of [templates.md](templates.md) and ask.
+[templates/incomplete-worker-message.md](templates/incomplete-worker-message.md) and ask.
 
 ### Step 7: Aggregate Results
 
 **⛔ BARRIER 4: All phase tasks complete**
 
-Every task in the phase is `[x]` and committed. Read the `## Modified Files fragment` section of [templates.md](templates.md) NOW and update that section of `tasks.md` from the aggregated worker outputs.
+Every task in the phase is `[x]` and committed. Read [templates/modified-files-fragment.md](templates/modified-files-fragment.md) NOW and update that section of `tasks.md` from the aggregated worker outputs.
 
 ### Step 8: Phase Checkpoint
 
@@ -320,8 +354,9 @@ Every task in the phase is `[x]` and committed. Read the `## Modified Files frag
    there is nothing else to close. Any task on the blocking list keeps its `[ ]` and is named
    at this checkpoint.
 
-2. **Confirm the tree is clean.** Each task was committed after its verifier passed, so
-   leftover uncommitted work means something did not finish.
+2. **Confirm the tree is clean.** Each task was committed after its verifier passed and each
+   blocked task was resolved to a WIP commit or restored (6c), so leftover uncommitted work
+   means something did not finish and nobody noticed.
 
 3. **Run automated verification**:
 
@@ -333,11 +368,10 @@ Every task in the phase is `[x]` and committed. Read the `## Modified Files frag
    make build          # or npm run build, go build
    ```
 
-4. **Request manual verification.** Read the `## Manual verification request` section of
-   [templates.md](templates.md) NOW, emit it, and **wait for the user's confirmation**.
+4. **Request manual verification.** Read [templates/manual-verification-request.md](templates/manual-verification-request.md) NOW, emit it, and **wait for the user's confirmation**.
 
 5. **Report completion.** Only after the user confirms: read the
-   `## Phase completion report` section of [templates.md](templates.md) NOW and emit it.
+   [templates/phase-completion-report.md](templates/phase-completion-report.md) NOW and emit it.
 
 ### Step 9: Reconcile Status
 

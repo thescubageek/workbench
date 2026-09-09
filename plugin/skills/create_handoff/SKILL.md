@@ -2,7 +2,7 @@
 name: create_handoff
 description: Create a handoff document to transfer work context to another session or agent
 argument-hint: "[project-directory] [handoff-reason]"
-allowed-tools: Read
+allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 ---
 
 # Create Handoff
@@ -11,8 +11,15 @@ Creates a comprehensive handoff document to transfer your work context to anothe
 
 Supporting files in this directory (read each when its step directs you to — never paraphrase from memory):
 
-- [templates.md](templates.md) — the handoff document and the completion message, under named sections
+- `templates/` — [handoff-document.md](templates/handoff-document.md) (Step 5) · [completion-message.md](templates/completion-message.md) (Step 7)
 - [reference.md](reference.md) — purpose, what to include and exclude, handoff quality, when to create one, workflow position, configuration
+
+**If a directed read fails, stop — do not continue from memory.** These files live in the plugin
+directory, which is outside your project, so a read of one can be refused. Say which file was
+refused, that reads outside the working directory are gated, and that the fix is to allow the
+read once or to relaunch with `--add-dir <plugin-path>`. Writing the artifact from this manifest
+alone produces a plausible document that was never based on the template — the exact failure the
+sentence above exists to prevent. Do not route around a refusal with `cat`.
 
 **Output discipline**: act on barriers silently; don't restate the plan between steps; emit only the artifact and a one-line completion summary.
 
@@ -20,7 +27,7 @@ Supporting files in this directory (read each when its step directs you to — n
 
 When invoked, check for arguments:
 
-1. **If directory provided** (e.g., `/create_handoff docs/plans/2025-01-08-my-project/ "switching to opus for complex logic"`):
+1. **If directory provided** (e.g., `/wb:create_handoff docs/plans/2025-01-08-my-project/ "switching to opus for complex logic"`):
    - Use `$1` as project directory
    - Use `$2+` as handoff reason (optional)
    - Begin handoff creation
@@ -169,7 +176,7 @@ Without that, the receiving machine gets a handoff pointing at documents it cann
 
 ### Step 5: Create the Handoff Document
 
-Read the `## Handoff document` section of [templates.md](templates.md) NOW and write the handoff in that shape.
+Read [templates/handoff-document.md](templates/handoff-document.md) NOW and write the handoff in that shape.
 
 Save it as:
 
@@ -185,13 +192,21 @@ Append an entry to `journal.md` recording that a handoff was written, and its pa
 session reading the journal tail then finds the handoff rather than reconstructing the same
 state from scratch — the journal is the index, the handoff is the detail.
 
+The heading shape is a contract, because the session-start hook, `forge`, `daily-digest`, `resume_handoff` and `create_handoff` all read it to decide whether work was interrupted:
+
+```
+## YYYY-MM-DD HH:MM — <task-id or short label> (closed)
+```
+
+Ending in a literal `(open)` or `(closed)` is what makes the state detectable. An entry that ends any other way is invisible to every one of those readers, and the failure is silent — a session reads "closed" over interrupted work.
+
 If an entry is currently **open**, close it first with what actually landed, then add the
 pointer. Handing off with an entry left open tells the next session a task was interrupted when
 in fact it was deliberately parked.
 
 ### Step 7: Confirm
 
-Read the `## Completion message` section of [templates.md](templates.md) NOW and present it.
+Read [templates/completion-message.md](templates/completion-message.md) NOW and present it.
 
 ## Important Guidelines
 

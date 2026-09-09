@@ -1,10 +1,4 @@
-# explore_design — templates
-
-Read the **section you need**, when its step directs you to.
-
-Sections: `Exploration document` (Step 6) · `Completion message` (Step 7)
-
-## Exploration document
+# Exploration document
 
 Step 6 — `[project-dir]/thoughts/YYYY-MM-DD-<topic>.md`.
 
@@ -78,22 +72,3 @@ written by the pass that already chose. Quote the user where their words settled
 
 [Anything raised and deliberately left unresolved, with why. Not everything has to close.]
 ````
-
-## Completion message
-
-Step 7 — emitted once, after the document is written.
-
-```
-✅ Exploration recorded: [path]/thoughts/[YYYY-MM-DD]-[topic].md
-
-Decided: [chosen direction]
-Because: [one-line rationale]
-Rejected: [N] alternatives, with reasons
-
-This stage does not write design.md. Run:
-  /wb:create_design [project-dir]
-
-It will find this record, present the decision for confirmation, and formalize
-it — including carrying the rejected alternatives across, so the reasoning is
-not regenerated from scratch.
-```

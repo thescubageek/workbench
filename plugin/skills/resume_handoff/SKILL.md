@@ -2,7 +2,7 @@
 name: resume_handoff
 description: Resume work from a handoff document created in a previous session
 argument-hint: "[handoff-file-path]"
-allowed-tools: Read
+allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 ---
 
 # Resume Handoff
@@ -14,13 +14,20 @@ Supporting files in this directory (read each when its step directs you to — n
 - [templates.md](templates.md) — the resume confirmation message
 - [reference.md](reference.md) — purpose, validation steps, resume best practices, handling handoff-vs-code conflicts, workflow position, error handling, configuration
 
+**If a directed read fails, stop — do not continue from memory.** These files live in the plugin
+directory, which is outside your project, so a read of one can be refused. Say which file was
+refused, that reads outside the working directory are gated, and that the fix is to allow the
+read once or to relaunch with `--add-dir <plugin-path>`. Writing the artifact from this manifest
+alone produces a plausible document that was never based on the template — the exact failure the
+sentence above exists to prevent. Do not route around a refusal with `cat`.
+
 **Output discipline**: act on barriers silently; don't restate the plan between steps; emit only the artifact and a one-line completion summary.
 
 ## Initial Response
 
 When invoked, check for arguments:
 
-1. **If handoff path provided** (e.g., `/resume_handoff docs/plans/2025-01-08-auth/handoff-2025-01-08-14-30.md`):
+1. **If handoff path provided** (e.g., `/wb:resume_handoff docs/plans/2025-01-08-auth/handoff-2025-01-08-14-30.md`):
    - Use `$1` as handoff file path
    - Begin resumption process immediately
 
@@ -197,11 +204,19 @@ If handoff documents active blockers:
 
 ### Step 6: Confirm and Continue
 
-Read the `## Resume confirmation` section of [templates.md](templates.md) NOW and present it.
+Read [templates.md](templates.md) NOW and present it.
 
 Then open a journal entry for the work you are about to resume — naming the task and the exact
 next action — and continue. If the previous session left an entry **open**, close it first with
 what actually landed, so the journal's tail describes this session rather than the last one.
+
+The heading shape is a contract, because the session-start hook, `forge`, `daily-digest`, `resume_handoff` and `create_handoff` all read it to decide whether work was interrupted:
+
+```
+## YYYY-MM-DD HH:MM — <task-id or short label> (open)
+```
+
+Ending in a literal `(open)` or `(closed)` is what makes the state detectable. An entry that ends any other way is invisible to every one of those readers, and the failure is silent — a session reads "closed" over interrupted work.
 
 Follow the "Next Steps" section from the handoff:
 

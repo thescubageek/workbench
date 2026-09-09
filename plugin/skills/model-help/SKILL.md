@@ -1,9 +1,10 @@
 ---
 name: model-help
 description: Given a handoff file, task spec, ticket, or pasted work description, recommend which Claude model + reasoning-effort level to run it at (and whether to split it into tiers). Use when the user asks "what model/effort should I use", "which effort level", "tier this task", "model advice for this handoff", or hands over a task/handoff and asks how to run it. Also runs in "gate mode" inside the wb workflow — forge, resume_handoff, and the create_*/implement/validate phase skills consult it to pick the model + effort for the phase about to run and to decide whether switching the main model is worth the context-reload cost. Advice only — it does not do the work.
+allowed-tools: Read, Glob, Grep
 ---
 
-# /model-help — pick the model + effort for a task
+# /wb:model-help — pick the model + effort for a task
 
 Read a handoff / task spec / ticket and return a **model + effort** recommendation with a one-paragraph rationale. Advice only — never start the implementation.
 
@@ -19,7 +20,7 @@ Read a handoff / task spec / ticket and return a **model + effort** recommendati
 **Model = capability ceiling.** How much raw reasoning the hardest part of the task needs.
 **Effort = how much thinking to spend** at that ceiling. A cheap model at high effort ≠ a strong model at low effort — match model to the ceiling, effort to the depth.
 
-Current roster (most → least capable): **`claude-opus-5` (Opus 5)** · **`claude-opus-4-8` (Opus 4.8)** · **`claude-sonnet-5` (Sonnet 5)** · **`claude-haiku-4-5-20251001` (Haiku 4.5)**. `claude-fable-5` (Fable 5) also exists (fast Claude‑5 tier); default to the four above unless the user prefers Fable. Effort levels: `low` · `medium` · `high` · `xhigh` · `max`.
+Current roster (most → least capable): **`claude-opus-5` (Opus 5)** · **`claude-opus-4-8` (Opus 4.8)** · **`claude-sonnet-5` (Sonnet 5)** · **`claude-haiku-4-5-20251001` (Haiku 4.5)**. `claude-fable-5-1` (Fable 5.1) also exists (fast Claude‑5 tier); default to the four above unless the user prefers Fable. Effort levels: `low` · `medium` · `high` · `xhigh` · `max`.
 
 **1M-context variants.** Append `[1m]` to a model ID for the wide-context form:
 `claude-opus-5[1m]` · `claude-opus-4-8[1m]` · `claude-sonnet-5[1m]`. Reach for one when the

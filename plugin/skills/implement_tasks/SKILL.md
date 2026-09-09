@@ -3,7 +3,7 @@ name: implement_tasks
 description: Deprecated alias of implement_inline — use /wb:implement_inline (removed at 3.0.0)
 argument-hint: "[project-directory] [phase-number|continue]"
 disable-model-invocation: true
-allowed-tools: Read
+allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 ---
 
 # Implement Tasks (Deprecated Alias)

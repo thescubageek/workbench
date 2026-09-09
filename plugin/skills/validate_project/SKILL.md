@@ -2,7 +2,7 @@
 name: validate_project
 description: Validate project documentation follows wb workflow correctly
 argument-hint: "[project-directory]"
-allowed-tools: Read
+allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 ---
 
 # Validate Project
@@ -11,8 +11,15 @@ Validates that a project's documentation structure follows the wb workflow corre
 
 Supporting files in this directory (read each when its step directs you to — never paraphrase from memory):
 
-- [reference.md](reference.md) — the eight-category **Validation Checklist**, the per-check **Validation Rules**, the DO/DON'T lists, and configuration
-- [templates.md](templates.md) — the validation report and the canonical error-message formats
+- `reference/` — [validation-checklist.md](reference/validation-checklist.md) and [validation-rules.md](reference/validation-rules.md) (Step 3) · [important-guidelines.md](reference/important-guidelines.md) · [configuration.md](reference/configuration.md)
+- `templates/` — [error-message-formats.md](templates/error-message-formats.md) (Step 3) · [validation-report.md](templates/validation-report.md) (Step 4)
+
+**If a directed read fails, stop — do not continue from memory.** These files live in the plugin
+directory, which is outside your project, so a read of one can be refused. Say which file was
+refused, that reads outside the working directory are gated, and that the fix is to allow the
+read once or to relaunch with `--add-dir <plugin-path>`. Writing the artifact from this manifest
+alone produces a plausible document that was never based on the template — the exact failure the
+sentence above exists to prevent. Do not route around a refusal with `cat`.
 
 **Output discipline**: act on barriers silently; don't restate the plan between steps; emit only the artifact and a one-line completion summary.
 
@@ -90,20 +97,22 @@ const files = {
 Before running the checklist, get the facts that most other checks depend on:
 
 ```bash
-grep -c '^- \[x\]' ${projectDir}/tasks.md    # tasks done
-grep -c '^- \[ \]' ${projectDir}/tasks.md    # tasks remaining
-grep -cE '^- \[[ x]\] \*\*[A-Z0-9-]*[0-9][A-Z0-9-]*\*\*' ${projectDir}/tasks.md   # tasks carrying a local ID
+grep -cE '^- \[x\] \*\*[A-Z0-9-]*[0-9][A-Z0-9-]*\*\*' ${projectDir}/tasks.md   # tasks done
+grep -cE '^- \[ \] \*\*[A-Z0-9-]*[0-9][A-Z0-9-]*\*\*' ${projectDir}/tasks.md   # tasks remaining
+grep -c  '^- \[[ x]\]' ${projectDir}/tasks.md                                  # ALL checkboxes
 ```
 
-Note where a plan's own success criteria and prerequisites are also checkboxes: a raw
-`grep -c '^- \[x\]'` counts those too, so scope the count to task lines when comparing against
-`total_tasks`. Getting this wrong makes every counter look drifted.
+The first two are the counts every other check compares against, and they are scoped to lines
+carrying a local ID. The third is deliberately unscoped: a plan's own success criteria and
+prerequisites are checkboxes too, so **the gap between the third number and the first two is
+expected**, and is not drift. Comparing a raw `grep -c '^- \[x\]'` against `total_tasks` is the
+mistake that makes every counter look drifted — flag it if you find it written into a plan.
 
 Hold these numbers; the checklist compares the frontmatter counters against them.
 
 ### Step 3: Run Validation Checks
 
-Read [reference.md](reference.md) NOW — the `## Validation Checklist` section for what to check, and `## Validation Rules` for how each check is evaluated.
+Read [reference/validation-checklist.md](reference/validation-checklist.md) NOW for what to check, and [reference/validation-rules.md](reference/validation-rules.md) for how each check is evaluated.
 
 Track:
 
@@ -117,11 +126,11 @@ Organize findings by category:
 2. Warnings (should fix)
 3. Passed Checks (all good)
 
-For each finding, use the shapes in the `## Error message formats` section of [templates.md](templates.md), so findings stay consistent and greppable.
+For each finding, use the shapes in the [templates/error-message-formats.md](templates/error-message-formats.md), so findings stay consistent and greppable.
 
 ### Step 4: Report Findings
 
-Read the `## Validation report` section of [templates.md](templates.md) NOW and present the report in that shape.
+Read [templates/validation-report.md](templates/validation-report.md) NOW and present the report in that shape.
 
 ### Step 5: Offer Fixes
 
@@ -141,4 +150,4 @@ consistent, and a second writer reintroduces exactly the drift this check report
 
 ## Important Guidelines
 
-See [reference.md](reference.md) — the DO/DON'T lists and configuration.
+See [reference/important-guidelines.md](reference/important-guidelines.md) for the DO/DON'T lists and [reference/configuration.md](reference/configuration.md).

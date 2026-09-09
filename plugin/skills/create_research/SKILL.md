@@ -2,7 +2,7 @@
 name: create_research
 description: Research codebase using parallel agents to document how things work
 argument-hint: "[project-directory] [research-question]"
-allowed-tools: Read
+allowed-tools: Read, Write, Edit, Glob, Grep, Bash, Task
 ---
 
 # Generate Research Document
@@ -14,6 +14,13 @@ Supporting files in this directory (read each when its step directs you to — n
 - [sub-agent-prompts.md](sub-agent-prompts.md) — verbatim prompts for the Component Locator, Implementation Analyzer, Pattern Finder, and additional specialized agents
 - [templates.md](templates.md) — the `research.md` output template, including the Open Questions table
 - [reference.md](reference.md) — configuration
+
+**If a directed read fails, stop — do not continue from memory.** These files live in the plugin
+directory, which is outside your project, so a read of one can be refused. Say which file was
+refused, that reads outside the working directory are gated, and that the fix is to allow the
+read once or to relaunch with `--add-dir <plugin-path>`. Writing the artifact from this manifest
+alone produces a plausible document that was never based on the template — the exact failure the
+sentence above exists to prevent. Do not route around a refusal with `cat`.
 
 ## Documentarian Rule
 
@@ -93,7 +100,7 @@ normal starting state. Fall through.
 ### Step 2: Validate Project Structure
 
 - Check that the specified directory exists
-- Verify research.md file exists (created by `/create_project`)
+- Verify research.md file exists (created by `/wb:create_project`)
 - Read the current research.md FULLY to see what's already documented
 - Check frontmatter status field
 
@@ -125,6 +132,20 @@ A `tracer-bullet` move adapted for research: spawning the heavy analyzer/pattern
 
 Read [sub-agent-prompts.md](sub-agent-prompts.md) NOW and spawn the agents it defines, concurrently. It carries the fan-out announcement, the three typed agent prompts verbatim, the list of additional specialized agents to consider, and the parallel-execution shape.
 
+**When the fan-out is skippable, and when it is not.** Spawn unless you have **already read the
+entire relevant surface** in this context — every file the agents would open, not a sample. That
+is a real case: a repository of three files, or a change confined to one module you have read
+whole. Then the agents can only return what you already hold, and spawning them spends tokens to
+learn nothing.
+
+Anything else, spawn. In particular, spawn when you have read *some* of the surface and are
+inferring the rest, when the change is cross-cutting, or when you are unsure which files are
+relevant — that uncertainty is the thing the fan-out resolves, so treating it as a reason to skip
+inverts the purpose.
+
+**If you skip, say so in your output and say why**, naming what you read instead. A silent skip
+is indistinguishable from forgetting, and the next reader cannot tell which happened.
+
 **Sub-agents are READ-ONLY** — they return findings only; YOU write `research.md` after synthesizing.
 
 **CRITICAL Agent Instructions (MUST follow exactly):**
@@ -137,6 +158,11 @@ Read [sub-agent-prompts.md](sub-agent-prompts.md) NOW and spawn the agents it de
 - **Remind EVERY agent: You are documenting the codebase AS IT EXISTS**
 
 **⛔⛔⛔ BARRIER 2: STOP! Wait for ALL sub-agents to complete - DO NOT proceed until EVERY agent returns ⛔⛔⛔**
+
+This barrier governs *waiting*, not spawning — synthesis on a
+partial set misses what the missing report would have changed. If you skipped the fan-out under
+the rule above, there is nothing to wait for and the barrier is satisfied trivially; it is not a
+reason to spawn agents you just established would return nothing.
 
 ### Step 5: Synthesize Findings
 
@@ -192,7 +218,7 @@ If the user has follow-up questions:
 Emit a one-line summary, not a recap:
 
 ```
-✅ research.md updated — [topic]; [N] findings, [M] code refs. Next: /create_design
+✅ research.md updated — [topic]; [N] findings, [M] code refs. Next: /wb:create_design
 ```
 
 **Then, only if the findings earned it, suggest `explore_design`.**

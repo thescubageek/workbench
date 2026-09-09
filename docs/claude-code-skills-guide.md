@@ -78,7 +78,7 @@ argument-hint: "[issue-number]"        # Optional. Shown in / autocomplete.
 arguments: [issue, branch]             # Optional. Named positional args, used as $issue, $branch.
 disable-model-invocation: true         # Optional. User-only — Claude cannot auto-invoke.
 user-invocable: false                  # Optional. Claude-only — hidden from / menu.
-allowed-tools: Read, Grep, Bash        # Optional. Tool allowlist while skill is active.
+allowed-tools: Read, Grep, Bash        # Optional. Pre-approves these tools; see the note below.
 disallowed-tools: Write, Edit          # Optional. Tool denylist while skill is active.
 model: sonnet                          # Optional. haiku|sonnet|opus|fable|<full-id>|inherit
 effort: high                           # Optional. low|medium|high|xhigh|max
@@ -94,7 +94,7 @@ Field details:
 
 - **`name`**: lowercase letters, numbers, hyphens; max 64 chars. Specific beats generic (`tdd-workflow`, not `test`).
 - **`description`**: max 1024 chars. This is what Claude matches against to decide whether to invoke the skill, so it must contain trigger terms. Pattern: *[What it does] + [When to use] + [Trigger terms]*. Not loaded into context at all when `disable-model-invocation: true`.
-- **`allowed-tools` / `disallowed-tools`**: space/comma-separated or YAML list. Claude Code only.
+- **`allowed-tools` / `disallowed-tools`**: space/comma-separated or YAML list. Claude Code only. `allowed-tools` reads as a **pre-approval, not a sandbox** — a tool it omits is still reachable, it just goes through the normal permission path (measured; see House conventions below).
 - **`model` / `effort`**: override the session model or reasoning effort while the skill runs.
 
 ### Skill content lifecycle
@@ -298,22 +298,27 @@ Deterministic automation on events?  → hook
 
 - Prefer skills for utilities and reference material; subagents for large isolated tasks.
 - Preload skills into subagents (`skills:` field) rather than duplicating instructions in agent prompts.
-- Use `allowed-tools` (skills) / `tools` (agents) for least privilege in anything shared.
+- Use `tools` (agents) for least privilege — an agent definition's `tools` list is genuinely restrictive.
+- Do **not** rely on `allowed-tools` (skills) as a privilege boundary, or as a grant. Measured in both directions: a skill declaring only `Read` still performed a `Write`, and a skill declaring `Write` still hit the permission dialog. It neither restricts nor pre-approves in this harness version — the ordinary permission path applies either way.
 - Use hooks — not skill descriptions — when something must *always* happen (skills activate probabilistically; hooks are deterministic).
 
 ---
 
 ## What This Means for This Repository
 
-The wb plugin's `commands/` files continue to work unchanged — plugin commands and plugin skills both resolve to `/wb:*`. Current assessment:
+**As of 2.0.0 there is no `commands/` directory.** Every stage is a skill under
+`plugin/skills/<name>/`; plugin commands and plugin skills both resolved to `/wb:*`, so the
+migration was invisible at the call site. What that settled:
 
-1. **Keep the explicit `/wb:*` workflow**, but the old rationale ("commands are user-invoked, skills are not") is obsolete. The modern equivalent of that intent is `disable-model-invocation: true`, which also keeps all 14 command descriptions out of baseline context.
-2. **The wb skills (tdd-discipline, verification-before-completion, status-sync, etc.) are the "Claude-only" pattern** — they could declare `user-invocable: false` explicitly.
-3. **Candidate upgrades** (not yet applied):
-   - `context: fork` for research-heavy commands (`create_research`, `create_product_research`)
-   - `skills: [tdd-discipline]` preload + `maxTurns` on the `task-worker` agent used by `implement`
+1. **The explicit `/wb:*` workflow stays**, but the old rationale ("commands are user-invoked, skills are not") is obsolete — skills are user-invocable by default. The modern expression of that intent is `disable-model-invocation: true`, used on the deprecated-alias stubs.
+2. **Background discipline skills carry `user-invocable: false`** — `doc-adherence`, `project-structure`, `status-sync`, `tdd-discipline`, `verification-before-completion`, `mockup-iteration`. They fire on context, not by name.
+3. **Adopted at 2.0.0**:
+   - `skills: [tdd-discipline]` preload + `maxTurns` on the `task-worker` agent spawned by `implement`
+   - `SessionStart`/`PreCompact` hooks for deterministic orientation and compaction recovery, which skill text cannot guarantee — `hooks/wb-prime.sh`
+   - `model:` / `effort:` / `maxTurns:` pinned on every sub-agent definition
+4. **Still open** (considered, not adopted):
+   - `context: fork` for research-heavy stages (`create_research`, `create_product_research`)
    - `memory: project` on research agents to accumulate codebase knowledge
-   - `SessionStart`/`PreCompact` hooks for deterministic orientation and compaction recovery, which skill text cannot guarantee — see `hooks/wb-prime.skill activating
    - `displayName` in plugin.json
 
 ---
@@ -328,29 +333,52 @@ platform — recorded so the next skill written here matches the rest.
 A workflow stage is `plugin/skills/<name>/SKILL.md` carrying judgment and control flow, plus
 supporting files read on demand:
 
-| File | Holds |
+| Path | Holds |
 | ---- | ----- |
-| `templates.md` | output documents and any multi-line message the skill emits verbatim |
-| `sub-agent-prompts.md` | `Task({…})` spawn blocks and agent prompt text |
-| `reference.md` | tail material — guidelines, error handling, configuration, long rules |
+| `templates.md` or `templates/` | output documents and any multi-line message the skill emits verbatim |
+| `prompts/` | `Task({…})` spawn blocks and agent prompt text |
+| `reference.md` or `reference/` | tail material — guidelines, error handling, configuration, long rules |
 | `examples.md` | worked examples of the judgment calls the skill makes |
 
 Every `SKILL.md` opens with a manifest naming its supporting files, using upstream's wording:
 *"read each when its step directs you to — never paraphrase from memory."* That sentence is
 load-bearing — the failure mode of progressive disclosure is a model summarizing a file it did
-not open.
+not open. The manifest also carries the hard-stop rule: a refused read is reported, never
+worked around and never written from memory.
 
-**Read by named section, not whole**, when a supporting file holds several independent blocks.
-A `templates.md` with four document skeletons should be read one section at a time; loading all
-four to write one file is the cost this layout exists to avoid. Two caveats: a section-scoped
-read breaks silently if the heading it names is renamed, and a section holding a fenced skeleton
-contains `##` headings of its own — so the file's header lists its real sections.
+**One file per readable unit.** A supporting file a step reads *whole* stays a single file
+(`create_research/templates.md`). A supporting file whose blocks are addressed *individually*
+is a directory of one file per block (`create_project/templates/{readme,research,design,tasks,journal}-md-template.md`).
 
-### `allowed-tools: Read`
+That rule replaced a "read the named section" convention, and the reason is worth keeping,
+because the convention read perfectly well and could not work: **the Read tool has no section
+parameter.** It scopes by `offset`/`limit` only. So a model told to read
+`## Plan presentation message` has three options — read the whole file, guess a line range, or
+grep for the heading first — and nothing said which. Observed: asked for a section beginning at
+line 291, it read lines 180–239, landing inside a fenced skeleton. Splitting removes the choice.
+A whole-file read of a per-section file *is* the scoped read, a renamed heading can no longer
+break a read silently, and a wrong path fails loudly instead of returning the wrong lines.
 
-Every workflow skill declares it. Without it, an on-demand supporting-file read prompts for
-permission mid-skill when the session is in another project. Measured here: with it, both a
-sibling read and one that climbs into `plugin/docs/reference/` are prompt-free.
+Upstream still uses named-section reads (11 sites at 3.0.0, without even a section map). This is
+a deliberate divergence, not drift.
+
+### `allowed-tools` states each skill's real tool surface
+
+Every workflow skill declares the tools it actually uses — `implement` names
+`Read, Write, Edit, Glob, Grep, Bash, Task`, `help` names `Read`. Treat it as **documentation of
+intent, not a permission control**. Measured in both directions: a skill declaring only `Read`
+still performed a `Write`, and a skill declaring `Write` still hit the permission dialog before
+writing. In this harness version it neither restricts nor grants — the ordinary permission path
+runs regardless. It is still worth stating accurately, because it is the only place a reader can
+see what a stage will reach for.
+
+**It does not make supporting-file reads prompt-free.** That was the original reason for
+`allowed-tools: Read`, and it is false. Measured 2026-09-09 with three headless probes: a Read
+of a supporting file is **denied** under `--plugin-dir` when the session cwd is elsewhere,
+passes only with `--add-dir <plugin>`, and is denied again for a marketplace-installed plugin
+reading its own root. The gate is the **working-directory boundary**, which `allowed-tools` does
+not touch — and neither does path-scoped `Read(<plugin-root>/**)`, which was probed and does not
+cross it. A plugin cannot self-grant; see the README and the 2.0.0 migration note.
 
 ### `user-invocable: false`
 

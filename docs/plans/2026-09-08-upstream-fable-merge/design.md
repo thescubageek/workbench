@@ -20,9 +20,11 @@ status_note: "Decisions D1–D17 set by the user 2026-09-08; D8 expanded and PD1
 
 Started 2026-09-08 (status `approved` → `implementing`; the approval record lives in
 `status_note`). Phase 0 landed: the layout probe returned **proceed with D1/D2 as designed**,
-so nothing in this document needs re-planning. D16's lint fix is in. Assumptions A4 and A5
-moved from Pending to Validated on probe evidence, which means D2's on-demand reads and D9/PD4's
-alias stubs rest on a measurement rather than on upstream's report, and D19's
+so nothing in this document needs re-planning. D16's lint fix is in. Assumption A5 moved from
+Pending to Validated on probe evidence and was re-confirmed by live testing, so D9/PD4's alias
+stubs rest on a measurement. **A4 was recorded Validated on the same evidence and is false** —
+disproven 2026-09-09; D2's on-demand reads are gated by the working-directory boundary and
+require `--add-dir` or a one-time allow. And D19's
 "a shipped skill may link only into `plugin/docs/reference/`" rule has a verified read path
 behind it. Per-phase execution notes live in `tasks.md` → Implementation Notes; this section
 records only what changed for the *design*.
@@ -926,7 +928,8 @@ Decisions made after the design was approved, recorded here by `/wb:resolve_ques
     report, for instance — stays put; moving it would cost more in indirection than it saves.
   - Measured: `create_design` 4.5k → **4.1k** (−29.3% against its 5.8k baseline), and the
     running fourteen-stage tally improves from −34.3% to **−36.1%**.
-  - Trade-off: one more read mid-conversation, which A4 confirmed is prompt-free; and a
+  - Trade-off: one more read mid-conversation — **not** prompt-free (A4 is false as of
+    2026-09-09; the read is gated by the working-directory boundary); and a
     second re-edit of a committed file, accepted for the same reason as the `P2-T1` amendment
     — the alternative is discovering the inconsistency at the Phase 2 checkpoint.
   - Related fragility, worth stating once: a `templates.md` section holding a fenced document
@@ -1040,10 +1043,12 @@ Decisions made after the design was approved, recorded here by `/wb:resolve_ques
     recorded as a decision with its own task ID rather than folded into `P0-T4`.
   - Source: tasks.md Current Blockers (raised by `P0-T4`) · Decided 2026-09-08
 
-- **A4 and A5 are validated, and the shipped-reference-directory convention has evidence behind
-  it** (resolves both assumptions). `allowed-tools: Read` suppresses the permission prompt for
-  on-demand supporting files in **both** shapes the design relies on — a sibling file inside the
-  skill directory, and a file reached by climbing out of it into `plugin/docs/reference/`. The
+- ~~**A4 and A5 are validated**~~ — **A5 holds; A4 was disproven 2026-09-09.** A5 was
+  independently re-confirmed by live testing (all three alias stubs announced once, then loaded
+  and followed the canonical skill), so nothing that rests on it is in doubt. A4 is false:
+  `allowed-tools: Read` does **not** suppress the prompt, because the gate is the
+  working-directory boundary and the plugin directory is outside the project in every real
+  configuration. Superseded text retained below for the audit trail. The
   deprecated-alias stub shape works: it announces the rename once, then reads and follows the
   canonical skill.
   - Rationale: the Phase 0 layout probe (`P0-T1`/`P0-T3`) was built to exercise exactly these two
@@ -1193,7 +1198,7 @@ Tracked here rather than in a tracker — which is this design's own convention 
 | A1 | No consumer outside this repository depends on `wb`'s beads integration | **Validated 2026-09-08** — no other people or repos; but the user has `wb` installed on other machines/workspaces holding existing plan directories, so the migration note is written per-machine (see Resolved Decisions) |
 | A2 | Checkbox-plus-counter status is sufficient at our plan sizes, as it is for CaseSmith's | **Validated 2026-09-08** — tested by this plan itself at 64 tasks across five phases, 30 of them tracked live. Position was recoverable at every boundary, every commit cites a task ID, and the plan survived being re-scoped twice without losing its place. The predicted positional-identity limitation did strain, in three concrete ways, all now handled: **(1)** a text match against a task line failed because a completion stamp had shifted it, so edits must anchor on the ID, not the surrounding prose; **(2)** `total_tasks` needed a manual bump when a task was added mid-phase, which an ID-keyed count would not have; **(3) the important one** — a naïve `grep -c '^- \[x\]'` read **38** against 30 real tasks, because a plan's success criteria and prerequisites are checkboxes too. Counting must be **ID-scoped** (`grep -cE '^- \[[ x]\] \*\*[A-Z0-9-]+\*\*'`) or every counter is systematically wrong by the number of criteria in the file. `update_status` and `validate_project` both carry that scoping explicitly |
 | A3 | The ~70-call truncation ceiling generalizes to this environment | Pending — measured upstream on one machine/model; D15 states it as provenance-bearing, not constant |
-| A4 | `allowed-tools: Read` behaves as upstream describes for on-demand supporting files | **Validated 2026-09-08** — Phase 0 probe smoke session: **both** halves. The sibling `templates.md` and the cross-directory `../../docs/reference/probe-ref.md` each read with **no permission prompt**, and the marker `PROBE-REF-RESOLVED` was echoed verbatim (so the read resolved rather than being paraphrased) |
+| A4 | `allowed-tools: Read` behaves as upstream describes for on-demand supporting files | **FALSE — disproven 2026-09-09.** Three headless probes: a Read of a supporting file was **denied** under `--plugin-dir` (cwd elsewhere), passed only with `--add-dir`, and was denied again for a **marketplace-installed** plugin reading its own root. The gate is the working-directory boundary, which `allowed-tools` does not touch; path-scoped `Read(<plugin-root>/**)` does not cross it either. The Phase 0 smoke session that recorded *Validated* never recorded its **session cwd** — if it ran from `/tmp/wb-probe`, the plugin was inside the working directory and the check could not fire. Runs and cwds in the baseline thoughts doc |
 | A5 | Deprecated-alias skills resolve correctly in our marketplace install, not just upstream's | **Validated 2026-09-08** — two-part evidence: a marketplace install from a `./plugin` source enumerated both skills (`Skills (2) probe, probe_old`, `Source: wbprobe@wb-probe`), and a `--plugin-dir` session invoked `probe_old`, which announced the rename **once** and then ran `probe`, reading both supporting files. Caveat: install/enumeration was observed under the marketplace identity; alias *invocation* was observed under `--plugin-dir` |
 
 ## Rejected Alternatives

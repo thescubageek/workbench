@@ -23,7 +23,7 @@ For local development:
 ```bash
 # Clone and test locally (changes take effect immediately)
 git clone git@github.com:thescubageek/workbench.git
-claude --plugin-dir /path/to/workbench
+claude --plugin-dir /path/to/workbench/plugin --add-dir /path/to/workbench/plugin
 ```
 
 ### Updating
@@ -146,6 +146,17 @@ claude --plugin-dir /path/to/workbench/plugin
 Pointing it at the root does not error — it silently serves the *installed* copy, so
 working-tree changes are invisible.
 
+**Pass `--add-dir` too, or every supporting-file read is denied:**
+
+```bash
+claude --plugin-dir /path/to/workbench/plugin --add-dir /path/to/workbench/plugin
+```
+
+Each stage reads its templates and prompts from the plugin directory, which sits outside your
+project, and reads outside the working directory are gated. Without `--add-dir` the first
+directed read is refused and the stage stops. This is measured, not theoretical — see
+`docs/claude-code-skills-guide.md` → House conventions.
+
 ## Where status lives
 
 No external tracker. Nothing to install, nothing to initialize.
@@ -198,8 +209,8 @@ The plugin cannot (and does not) write to your personal config — this rule is 
 ### Testing Changes
 
 ```bash
-# Run with local plugin
-claude --plugin-dir /path/to/this/repo
+# Run with local plugin (--add-dir lets stages read their own templates)
+claude --plugin-dir /path/to/this/repo/plugin --add-dir /path/to/this/repo/plugin
 
 # Reload after changes (inside Claude Code)
 /reload-plugins

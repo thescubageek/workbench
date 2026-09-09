@@ -2,7 +2,7 @@
 name: create_design
 description: Create architectural design decisions based on validated research
 argument-hint: "[project-directory]"
-allowed-tools: Read
+allowed-tools: Read, Write, Edit, Glob, Grep, Bash, Task
 ---
 
 # Create Design Document
@@ -12,8 +12,15 @@ Creates architectural and technical design decisions based on validated research
 Supporting files in this directory (read each when its step directs you to — never paraphrase from memory):
 
 - [sub-agent-prompts.md](sub-agent-prompts.md) — the three Step 2 verification agents
-- [templates.md](templates.md) — the `design.md` output template, including the Assumptions and Pending Decisions tables
+- `templates/` — one file per output shape: [design-md-template.md](templates/design-md-template.md) (Step 5, includes the Assumptions and Pending Decisions tables) · [recorded-decision-confirmation-message.md](templates/recorded-decision-confirmation-message.md) (Step 4, Mode A) · [design-options-message.md](templates/design-options-message.md) (Step 4, Mode B) · [design-presentation-message.md](templates/design-presentation-message.md) (Step 6)
 - [reference.md](reference.md) — design principles, what belongs in design vs execution, handling knowledge gaps, leveraging agent findings, configuration
+
+**If a directed read fails, stop — do not continue from memory.** These files live in the plugin
+directory, which is outside your project, so a read of one can be refused. Say which file was
+refused, that reads outside the working directory are gated, and that the fix is to allow the
+read once or to relaunch with `--add-dir <plugin-path>`. Writing the artifact from this manifest
+alone produces a plausible document that was never based on the template — the exact failure the
+sentence above exists to prevent. Do not route around a refusal with `cat`.
 
 **Model & effort (gate check)**: on entry, consult the `model-help` skill (gate mode) for the model + effort this phase warrants; surface its one-line verdict and — only if a switch clears the switch-cost bar — the `/model` action. Design is the reasoning-dense phase and usually the pipeline's ceiling: baseline **Opus/high**, rising to `max` for novel / one-way-door / compliance-critical / high-blast-radius decisions. This is the gate most likely to justify switching *up*. Best-effort and non-blocking: stay silent and proceed when the current tier is already right. See CLAUDE.md → "Model & effort at gates."
 
@@ -33,7 +40,7 @@ Supporting files in this directory (read each when its step directs you to — n
 
 When invoked, check for arguments:
 
-1. **If directory provided** (e.g., `/create_design docs/plans/2025-01-08-my-project/`):
+1. **If directory provided** (e.g., `/wb:create_design docs/plans/2025-01-08-my-project/`):
    - Use `$1` as the project directory
    - Read research.md and design.md immediately
    - Begin design process
@@ -122,9 +129,28 @@ Remember: You are deciding WHAT and WHY, not HOW.
 
 After reading research, read [sub-agent-prompts.md](sub-agent-prompts.md) NOW and spawn the three agents it defines, concurrently.
 
+**When the fan-out is skippable, and when it is not.** Spawn unless you have **already read the
+entire relevant surface** in this context — every file the agents would open, not a sample. That
+is a real case: a repository of three files, or a change confined to one module you have read
+whole. Then the agents can only return what you already hold, and spawning them spends tokens to
+learn nothing.
+
+Anything else, spawn. In particular, spawn when you have read *some* of the surface and are
+inferring the rest, when the change is cross-cutting, or when you are unsure which files are
+relevant — that uncertainty is the thing the fan-out resolves, so treating it as a reason to skip
+inverts the purpose.
+
+**If you skip, say so in your output and say why**, naming what you read instead. A silent skip
+is indistinguishable from forgetting, and the next reader cannot tell which happened.
+
 **Sub-agents are READ-ONLY** — they return findings only; YOU write `design.md` after synthesizing.
 
 **⛔⛔⛔ BARRIER 2: STOP! Wait for ALL agents to complete - NO EXCEPTIONS ⛔⛔⛔**
+
+This barrier governs *waiting*, not spawning — synthesis on a
+partial set misses what the missing report would have changed. If you skipped the fan-out under
+the rule above, there is nothing to wait for and the barrier is satisfied trivially; it is not a
+reason to spawn agents you just established would return nothing.
 
 ### Step 3: Problem Definition
 
@@ -157,8 +183,7 @@ The architectural decision was already made and argued in `/wb:explore_design`. 
 generate options.** Presenting a fresh option set here would re-litigate a decision the user
 already reached, and would discard the reasoning the exploration produced.
 
-Read the `## Recorded-decision confirmation message` section of
-[templates.md](templates.md) NOW and present the recorded decision for confirmation in that
+Read [templates/recorded-decision-confirmation-message.md](templates/recorded-decision-confirmation-message.md) NOW and present the recorded decision for confirmation in that
 shape.
 
 - **On confirmation**: treat the recorded direction as the approved approach and go to Step 5.
@@ -195,8 +220,7 @@ See the `tracer-bullet` skill for the full discipline.
 
 **Interactive Design Discussion**
 
-1. **Generate design options**: read the `## Design options message` section of
-   [templates.md](templates.md) NOW and present them in that shape.
+1. **Generate design options**: read the [templates/design-options-message.md](templates/design-options-message.md) NOW and present them in that shape.
 
 2. **Discuss trade-offs**:
    - Performance vs simplicity
@@ -208,7 +232,7 @@ See the `tracer-bullet` skill for the full discipline.
 
 ### Step 5: Document Design Decisions
 
-Read [templates.md](templates.md) NOW and update or create `design.md` in the shape it gives.
+Read [templates/design-md-template.md](templates/design-md-template.md) NOW and update or create `design.md` in the shape it gives.
 
 Two of its tables are the project's own record, because there is no external tracker:
 
@@ -225,8 +249,7 @@ for a pending decision, writes the decision with its rationale and trade-off und
 
 ### Step 6: Review and Iterate
 
-**1. Present the design:** read the `## Design presentation message` section of
-[templates.md](templates.md) NOW and present it in that shape.
+**1. Present the design:** read the [templates/design-presentation-message.md](templates/design-presentation-message.md) NOW and present it in that shape.
 
 **2. Iterate based on feedback:**
 
@@ -235,12 +258,21 @@ for a pending decision, writes the decision with its rationale and trade-off und
 - Add/remove scope items
 - Update risk analysis
 
-**3. Get explicit approval:**
+**3. Get explicit approval — and record it:**
 
 ```
 Once you're satisfied with the design, please confirm approval.
-After approval, run `/create_tasks` to build the implementation plan.
+After approval, run `/wb:create_tasks` to build the implementation plan.
 ```
+
+**On confirmation, set `status: approved` in `design.md`'s frontmatter** and refresh
+`last_updated`. Until then it stays `draft`.
+
+That edit is the gate, not a formality: `/wb:create_tasks` requires `approved`, and `forge`
+routes on it. A design left at `draft` stops the pipeline with no explanation, because the next
+stage can only see the field, not the conversation in which you approved it. Equally, never set
+it without the confirmation — writing `approved` on your own judgment removes the one review
+step between a design and the tasks built on it.
 
 ## Important Guidelines
 

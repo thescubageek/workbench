@@ -35,6 +35,13 @@ under `plugin/`, and every workflow stage becomes a skill with progressive discl
   they instructed — and a stale instruction reads as authority.
 - **`hooks/setup-beads-mode.sh` deleted**, replaced in the same SessionStart slot by
   `hooks/wb-prime.sh`.
+- **Each skill's `allowed-tools` now names the tools it actually uses**, where before every
+  workflow skill declared `Read` alone. This is **documentation, not a behaviour change** —
+  measured both ways: a skill declaring only `Read` still performed a `Write`, and a skill
+  declaring `Write` still hit the permission dialog before writing. In this harness version
+  `allowed-tools` has no observable effect on the permission path, so writes, edits and commands
+  prompt exactly as they did before. The field is now accurate about each stage's real surface,
+  which is worth having on its own; do not read it as a grant.
 
 ### Added
 
@@ -62,8 +69,23 @@ under `plugin/`, and every workflow stage becomes a skill with progressive discl
 ### Changed
 
 - **Every workflow stage is now `plugin/skills/<name>/SKILL.md`** plus supporting files read on
-  demand. Invocation-time context across the fourteen stages fell **from ~84.9k to ~45.3k
-  tokens (−47%)** with no content removed — the material is deferred, not deleted.
+  demand. Invocation-time context across the fourteen stages fell **from ~84.9k to ~51.1k
+  tokens (−40%)**; nothing was deleted, the material is deferred. The figure was ~46.8k before
+  the per-section split and the hard-stop rule, which cost ~9% back in longer manifests — paid
+  deliberately, because the mechanism they replace did not work. Per-*run* cost moves the other
+  way: a stage now loads only the template it needs rather than a file holding six others.
+- **Supporting files are one file per readable unit.** `templates.md` and
+  `sub-agent-prompts.md` became `templates/` and `prompts/` directories, one file per output
+  shape or agent prompt — 14 multi-section files became 48. The reason is mechanical: the Read
+  tool has no section parameter, only line offsets, so an instruction to "read the
+  `## Plan presentation message` section" had no correct implementation. Observed in testing, a
+  model asked for a section starting at line 291 read lines 180–239 instead. A whole-file read
+  of a per-section file **is** the scoped read, so the instruction now matches the tool, and a
+  wrong path fails loudly instead of returning the wrong lines.
+- **A supporting-file read that is refused is a hard stop.** Every skill's manifest says so:
+  name the file, name the cause, name the fix — never write the artifact from the manifest
+  alone. Without this, a locked-down session produced a plausible document that was never based
+  on the template, with no error shown.
 - **Status lives in the plan.** Checkbox state in `tasks.md` is the source of truth, the
   frontmatter counters are a derived cache with exactly one writer (`/wb:update_status`), and
   git is the durable record: one task, one commit.
@@ -106,16 +128,45 @@ On **each machine** where `wb` is installed:
 
    Then restart Claude, or `/reload-plugins`. A running session holds the old skill bodies.
 
-2. **Point local development at `plugin/`.**
+2. **Expect one permission prompt, the first time you run a stage.** Every stage now reads its
+   templates and prompts from the plugin directory, which sits outside your project, and reads
+   outside the working directory are gated. Allow it — **the grant is persistent and applies to
+   every project**, so you see it once per machine.
+
+   1.12.x never asked, because its stages were monolithic files with everything inline. The
+   dependency is new in 2.0.0, and it is not avoidable from inside the plugin: `allowed-tools`
+   is a pre-approval for the tools it names, not a path grant, and path-scoped
+   `Read(<plugin-root>/**)` was measured and does not cross the boundary either.
+
+   If you **block** it instead, stages will say so and stop rather than improvise a document
+   from a template they could not read. That is deliberate.
+
+3. **Delete any pre-2.0.0 `wb-*` skills from `~/.claude/skills/`.**
 
    ```bash
-   claude --plugin-dir /path/to/workbench/plugin    # NOT the repository root
+   ls -d ~/.claude/skills/wb-* 2>/dev/null   # look before you leap
+   rm -rf ~/.claude/skills/wb-*
+   ```
+
+   Older installs copied each stage in as a user-level skill (`wb-implement_tasks`,
+   `wb-create_execution`, …). Those copies **shadow the plugin**, so you get the old beads-era
+   body instead of the 2.0.0 one — including `bd doctor` gates that halt on any plan carrying
+   `task_tracking: markdown-checkboxes`, and the instruction "NEVER treat markdown as source of
+   truth", which this release inverts. They also pre-empt the deprecated-alias stubs, so the
+   rename notice never fires. Found on a real machine during release testing: 13 stale
+   directories, ~400 beads references between them.
+
+4. **Point local development at `plugin/`, and add it as a directory.**
+
+   ```bash
+   claude --plugin-dir /path/to/workbench/plugin --add-dir /path/to/workbench/plugin
    ```
 
    The root no longer holds the manifest. Pointing there does not error; it silently serves the
-   installed copy.
+   installed copy. `--add-dir` is what lets the stages read their own supporting files without
+   the prompt above.
 
-3. **Expect old plan directories to lose their tracker references.** Any `docs/plans/*/tasks.md`
+5. **Expect old plan directories to lose their tracker references.** Any `docs/plans/*/tasks.md`
    written before 2.0.0 has `beads_epic`, `beads_phases` and `beads_tasks` in its frontmatter.
    Those IDs no longer resolve, and nothing reads them.
 
@@ -129,11 +180,11 @@ On **each machine** where `wb` is installed:
    never maintained — likely, since the old guidance said not to — reconcile them by hand
    against the code first, then run it.
 
-4. **Old plans may carry stale guidance.** A pre-2.0.0 `tasks.md` can contain a note saying its
+6. **Old plans may carry stale guidance.** A pre-2.0.0 `tasks.md` can contain a note saying its
    checkboxes are "documentation only". Delete it; that note is now wrong.
    `/wb:validate_project` reports these.
 
-5. **Nothing to uninstall.** Removing `bd` is optional and unrelated — this plugin simply no
+7. **Nothing to uninstall.** Removing `bd` is optional and unrelated — this plugin simply no
    longer calls it.
 
 **Not new, restored.** `help.md` previously pointed users at the `v1.0.0` tag for a

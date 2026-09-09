@@ -305,11 +305,10 @@ LAYOUT PROBE
   marker from probe-ref.md:              PROBE-REF-RESOLVED
 ```
 
-- **A4 — Validated, both halves.** The sibling read and the read that climbs out of the skill
-  directory into `plugin/docs/reference/` were each unprompted. The cross-directory half was
-  the one design.md flagged as uncertain, and it is what D19's "a shipped skill may link only
-  into `plugin/docs/reference/`" rule depends on. The echoed `PROBE-REF-RESOLVED` marker is
-  what distinguishes a real read from a paraphrase.
+- **A4 — recorded Validated here on 2026-09-08, and it is FALSE.** See
+  "A4 re-probed, 2026-09-09" below. The reading was not wrong about what the session printed;
+  it was wrong about what the session tested. **This entry omitted the session's working
+  directory**, and that is the variable the result turns on.
 - **A5 — Validated.** `probe_old` announced the rename exactly once, then ran `probe` and read
   both of its supporting files. Note the shape of the evidence: marketplace **install and
   enumeration** of both skills was proven by the CLI (`Source: wbprobe@wb-probe`), while alias
@@ -440,3 +439,73 @@ Tag:     wb--v2.0.0
 
 Exit 0, manifests agree, and **no root-`CLAUDE.md` warning** — the warning present at `b902566`
 was D1's assertion under test, and its absence is the confirmation.
+
+## A4 re-probed, 2026-09-09 — it is false
+
+`P0-T1`'s smoke session recorded `NO PROMPT` on both supporting-file reads and A4 was flipped to
+Validated. Live testing of the Phase 2 criteria contradicted it, so A4 was re-probed headlessly,
+where an unanswered permission request resolves to a denial with no human in the loop.
+
+**Every run records its cwd. That is the field the 2026-09-08 entry omitted, and it is the one
+that decides the result** — if a session's cwd contains the plugin directory, the
+working-directory boundary cannot fire and the probe cannot fail.
+
+| # | cwd | Configuration | Read target | Result |
+| - | --- | ------------- | ----------- | ------ |
+| 1 | `/tmp/wb-a4` | `--plugin-dir <repo>/plugin` | `create_tasks/templates.md` | **DENIED** |
+| 2 | `/tmp/wb-a4` | run 1 plus `--add-dir <repo>/plugin` | same | **passed** (`# create_tasks — templates`) |
+| 3 | `/tmp/wb-a4` | marketplace-installed `wb` 1.12.4, no `--plugin-dir` | its own `.claude-plugin/plugin.json` | **DENIED** |
+| 4 | `/tmp/wbat/work` | scratch skill, `allowed-tools: Read` | a file outside both cwd and plugin | **DENIED** (control) |
+| 5 | `/tmp/wbat/work` | same, `allowed-tools: Read(/tmp/wbat/outside/**)` | same | **DENIED** |
+
+### What each run establishes
+
+- **1** — `allowed-tools: Read` does not make a supporting-file read prompt-free. Headless turns
+  a permission *request* into a denial, so this proves the read is **gated**; interactively it
+  prompts. Either way "without a permission prompt" is false.
+- **2** — `--add-dir <plugin>` is the workaround, and the only one proven. This is what the
+  README and the 2.0.0 migration note document.
+- **3** — the gate applies to **marketplace-installed** plugins reading their own root, not only
+  to `--plugin-dir`. So this is not developer-only friction; it reaches every machine.
+- **4 vs 5** — a discriminating pair. Path-scoped `allowed-tools` does **not** cross the
+  boundary: the control and the scoped variant behave identically. **A plugin cannot self-grant
+  read access to its own files.**
+
+A sixth run tried a project-level `permissions.allow` entry and was inconclusive — the entry was
+ignored because the scratch workspace was untrusted. Not pursued: `--add-dir` already answers it,
+and settling it would have meant editing the operator's real global config.
+
+### Scope: this is a 2.0.0 regression, not an inherited condition
+
+The installed 1.12.4 has **zero** supporting-file read instructions — its fourteen stages were
+monolithic `commands/*.md` with everything inline. Progressive disclosure is what creates the
+dependency on reading outside the project. Upstream's `CHANGELOG.md:176` makes the same claim
+this probe disproves and says it was "found in release testing"; that is probably not
+carelessness, since `permissions.blockReadsOutsideWorkingDirectories` appears newer than
+upstream's 3.0.0. The platform moved under both forks.
+
+**A5 is unaffected** and was independently re-confirmed by live testing on 2026-09-08: all three
+alias stubs announced the rename exactly once, then loaded and followed the canonical `SKILL.md`
+rather than the stub.
+
+## Re-measured 2026-09-09, after the per-section split
+
+The split (14 multi-section supporting files → 48 single-purpose ones), the per-skill
+`allowed-tools` surfaces, and the hard-stop rule added to every manifest all change the
+invocation-time figure, so it was re-taken with the same command from the same working tree.
+
+| | Baseline | `P4-T9` | Now | vs baseline |
+| - | -------- | ------- | --- | ----------- |
+| Fourteen-stage on-invoke | 84.9k | 46.8k | **51.1k** | **−39.8%** |
+| Phase 2 bar (−30%) | | | ≤59.4k | cleared by 8.3k |
+
+**+9.2% against `P4-T9`, and worth it.** The cost is the manifests: each now names its
+directory's files individually instead of one `templates.md`, and each carries the hard-stop
+paragraph. That buys a read instruction the Read tool can actually execute, and a refused read
+that stops instead of quietly producing a document from memory.
+
+**Invocation cost is the wrong number to optimise here anyway.** It counts what loads when a
+skill fires; the split targets what loads *per run*. `create_mockup` previously read a 389-line
+`templates.md` whole to write one artifact and did so up to seven times in a session — it now
+reads one file per artifact. That saving does not appear in this table, and it is larger than
+the 4.3k this table shows going the other way.

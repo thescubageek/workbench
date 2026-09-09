@@ -43,9 +43,9 @@ Resolving one question raised in `research.md` touches **two** places: the decis
 ```markdown
 ## Pending Decisions
 
-| ID | Decision Needed | Blocks |
-| -- | --------------- | ------ |
-| PD1 | Persistence layer for partial responses | — resolved 2026-05-18 |
+| ID | Decision Needed | Blocks | State |
+| -- | --------------- | ------ | ----- |
+| PD1 | Persistence layer for partial responses | execution start | Resolved 2026-05-18 → design.md (## Technical Decisions) |
 
 ### Assumptions
 

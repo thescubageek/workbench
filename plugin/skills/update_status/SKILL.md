@@ -2,7 +2,7 @@
 name: update_status
 description: Update status across all project documentation files based on progress
 argument-hint: "[project-directory]"
-allowed-tools: Read
+allowed-tools: Read, Edit, Glob, Grep, Bash
 ---
 
 # Update Project Status
@@ -11,8 +11,15 @@ Reconciles status across all project documentation files (research.md, design.md
 
 Supporting files in this directory (read each when its step directs you to — never paraphrase from memory):
 
-- [templates.md](templates.md) — the status update plan, the per-file frontmatter fragments, and the completion summary, under named sections
-- [reference.md](reference.md) — status transition logic, detection rules, error-handling messages, the sole-writer rule, configuration
+- `templates/` — [status-update-plan.md](templates/status-update-plan.md) (Step 4) · [frontmatter-fragments.md](templates/frontmatter-fragments.md) (Step 5) · [completion-summary.md](templates/completion-summary.md) (Step 7)
+- `reference/` — [smart-status-detection.md](reference/smart-status-detection.md) (Step 2) · [status-transition-logic.md](reference/status-transition-logic.md) (Step 3) · [error-handling.md](reference/error-handling.md) · [important-notes.md](reference/important-notes.md) (the sole-writer rule) · [configuration.md](reference/configuration.md)
+
+**If a directed read fails, stop — do not continue from memory.** These files live in the plugin
+directory, which is outside your project, so a read of one can be refused. Say which file was
+refused, that reads outside the working directory are gated, and that the fix is to allow the
+read once or to relaunch with `--add-dir <plugin-path>`. Writing the artifact from this manifest
+alone produces a plausible document that was never based on the template — the exact failure the
+sentence above exists to prevent. Do not route around a refusal with `cat`.
 
 **Output discipline**: act on barriers silently; don't restate the plan between steps; emit only the artifact and a one-line completion summary.
 
@@ -84,14 +91,14 @@ Then:
 2. **Compute the delta** between the counters and the counts. Drift is expected; record its
    size for the report.
 3. **Analyze research.md and design.md by content**, since their status is not expressed as
-   checkboxes. Read the `## Smart Status Detection` section of [reference.md](reference.md) for
+   checkboxes. Read [reference/smart-status-detection.md](reference/smart-status-detection.md) for
    how each is judged.
 
 **Examine the files to determine actual state.**
 
 ### Step 3: Determine Status Transitions
 
-Read the `## Status Transition Logic` section of [reference.md](reference.md) NOW and determine the appropriate status for each file.
+Read [reference/status-transition-logic.md](reference/status-transition-logic.md) NOW and determine the appropriate status for each file.
 
 Validation rules that constrain the result:
 
@@ -103,13 +110,13 @@ Validation rules that constrain the result:
 
 ### Step 4: Present Status Update Plan
 
-Read the `## Status update plan` section of [templates.md](templates.md) NOW and present it.
+Read [templates/status-update-plan.md](templates/status-update-plan.md) NOW and present it.
 
 **⛔ BARRIER 2**: Wait for user confirmation before proceeding
 
 ### Step 5: Apply Updates
 
-After the user confirms, read the `## Frontmatter fragments` section of [templates.md](templates.md) NOW and apply them to research.md, design.md and tasks.md.
+After the user confirms, read the [templates/frontmatter-fragments.md](templates/frontmatter-fragments.md) NOW and apply them to research.md, design.md and tasks.md.
 
 The counters written are the **counted** values from Step 2 — not the previous values adjusted,
 and not an estimate. If the count and the old counter disagree, the count is what lands.
@@ -128,8 +135,8 @@ and not an estimate. If the count and the old counter disagree, the count is wha
 
 ### Step 7: Confirm Completion
 
-Read the `## Completion summary` section of [templates.md](templates.md) NOW and present it.
+Read [templates/completion-summary.md](templates/completion-summary.md) NOW and present it.
 
 ## Important Notes
 
-See [reference.md](reference.md) — status transition logic, smart status detection, error-handling messages, the sole-writer rule, and configuration.
+See `reference/` — [status-transition-logic.md](reference/status-transition-logic.md), [smart-status-detection.md](reference/smart-status-detection.md), [error-handling.md](reference/error-handling.md), [important-notes.md](reference/important-notes.md) (the sole-writer rule), [configuration.md](reference/configuration.md).

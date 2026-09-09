@@ -2,7 +2,7 @@
 name: create_mockup
 description: Research UI patterns and create initial mockup with clarifying questions
 argument-hint: "[project-directory] [feature-description]"
-allowed-tools: Read
+allowed-tools: Read, Write, Edit, Glob, Grep, Bash, Task
 ---
 
 # Create Mockup
@@ -12,8 +12,15 @@ Researches existing UI patterns, styles, and layouts, then creates an initial mo
 Supporting files in this directory (read each when its step directs you to — never paraphrase from memory):
 
 - [sub-agent-prompts.md](sub-agent-prompts.md) — the five Step 1 UI research agents
-- [templates.md](templates.md) — the research summary, clarifying questions, `mockup.md`, `decisions.md`, `mockup.html`, `mockup-log.md`, and the presentation message, under named sections. **Read one section at a time**; this file is large
+- `templates/` — one file per output shape: [ui-research-summary.md](templates/ui-research-summary.md) (Step 2) · [clarifying-questions.md](templates/clarifying-questions.md) (Step 3) · [mockup-md.md](templates/mockup-md.md) and [decisions-md.md](templates/decisions-md.md) (Step 5) · [mockup-html.md](templates/mockup-html.md) (Step 6) · [mockup-log-md.md](templates/mockup-log-md.md) (Step 8) · [presentation-message.md](templates/presentation-message.md) (Step 9)
 - [reference.md](reference.md) — purpose, output files, guidelines, icon handling, HTML quality checks, workflow position
+
+**If a directed read fails, stop — do not continue from memory.** These files live in the plugin
+directory, which is outside your project, so a read of one can be refused. Say which file was
+refused, that reads outside the working directory are gated, and that the fix is to allow the
+read once or to relaunch with `--add-dir <plugin-path>`. Writing the artifact from this manifest
+alone produces a plausible document that was never based on the template — the exact failure the
+sentence above exists to prevent. Do not route around a refusal with `cat`.
 
 **Output discipline**: act on barriers silently; don't restate the plan between steps; emit only the artifact and a one-line completion summary.
 
@@ -21,7 +28,7 @@ Supporting files in this directory (read each when its step directs you to — n
 
 When invoked, check for arguments:
 
-1. **If directory and feature provided** (e.g., `/create_mockup docs/plans/2025-01-08-dashboard/ "user settings panel"`):
+1. **If directory and feature provided** (e.g., `/wb:create_mockup docs/plans/2025-01-08-dashboard/ "user settings panel"`):
    - Use `$1` as project directory
    - Use `$2+` as feature description
    - Begin research immediately
@@ -44,17 +51,36 @@ When invoked, check for arguments:
 
 Read [sub-agent-prompts.md](sub-agent-prompts.md) NOW and spawn the five agents it defines, concurrently. They document layout, components, styling, similar features, and the icon system — all as they exist.
 
+**When the fan-out is skippable, and when it is not.** Spawn unless you have **already read the
+entire relevant surface** in this context — every file the agents would open, not a sample. That
+is a real case: a repository of three files, or a change confined to one module you have read
+whole. Then the agents can only return what you already hold, and spawning them spends tokens to
+learn nothing.
+
+Anything else, spawn. In particular, spawn when you have read *some* of the surface and are
+inferring the rest, when the change is cross-cutting, or when you are unsure which files are
+relevant — that uncertainty is the thing the fan-out resolves, so treating it as a reason to skip
+inverts the purpose.
+
+**If you skip, say so in your output and say why**, naming what you read instead. A silent skip
+is indistinguishable from forgetting, and the next reader cannot tell which happened.
+
 **⛔ BARRIER 2**: Wait for ALL agents to complete before proceeding.
+
+This barrier governs *waiting*, not spawning — synthesis on a
+partial set misses what the missing report would have changed. If you skipped the fan-out under
+the rule above, there is nothing to wait for and the barrier is satisfied trivially; it is not a
+reason to spawn agents you just established would return nothing.
 
 ### Step 2: Synthesize Research
 
-Read the `## UI research summary` section of [templates.md](templates.md) NOW and write the summary in that shape.
+Read [templates/ui-research-summary.md](templates/ui-research-summary.md) NOW and write the summary in that shape.
 
 ### Step 3: Clarifying Questions
 
 **Identify what information is missing before anything is drawn**
 
-Read the `## Clarifying questions` section of [templates.md](templates.md) NOW and ask them.
+Read [templates/clarifying-questions.md](templates/clarifying-questions.md) NOW and ask them.
 
 Wait for user responses before proceeding.
 
@@ -82,7 +108,7 @@ Set up versioned mockup structure:
 
 **⛔ BARRIER 3**: No placeholders - all content must be specific based on research + answers.
 
-Read the `## mockup.md` section of [templates.md](templates.md) NOW and create `mockups/v001/mockup.md`. Then read the `## decisions.md` section and create `mockups/v001/decisions.md`.
+Read [templates/mockup-md.md](templates/mockup-md.md) NOW and create `mockups/v001/mockup.md`. Then read [templates/decisions-md.md](templates/decisions-md.md) and create `mockups/v001/decisions.md`.
 
 One thing in the mockup template is load-bearing rather than cosmetic: **UI questions live in
 that document, as a table with local `UIQ` IDs**. There is no external tracker. A question earns
@@ -93,7 +119,7 @@ stayed open, and resolving a question edits its row rather than deleting it.
 
 **⛔ BARRIER 4**: After ASCII mockup created, generate working HTML mockup with real app styles.
 
-Read the `## mockup.html` section of [templates.md](templates.md) NOW and create `mockups/v001/mockup.html`.
+Read [templates/mockup-html.md](templates/mockup-html.md) NOW and create `mockups/v001/mockup.html`.
 
 **Critical requirements:**
 
@@ -146,11 +172,11 @@ If anything looks off, let me know and I'll adjust.
 
 ### Step 8: Initialize Mockup Log
 
-Read the `## mockup-log.md` section of [templates.md](templates.md) NOW and create `mockups/mockup-log.md`.
+Read [templates/mockup-log-md.md](templates/mockup-log-md.md) NOW and create `mockups/mockup-log.md`.
 
 ### Step 9: Present for Iteration
 
-Read the `## Presentation message` section of [templates.md](templates.md) NOW and present it.
+Read [templates/presentation-message.md](templates/presentation-message.md) NOW and present it.
 
 ## Important Guidelines
 

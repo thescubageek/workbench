@@ -95,3 +95,57 @@ we have the in-repo cautionary example for that.
 - **Verified**: 2026-09-08 · `docs/plans/2026-09-08-upstream-fable-merge/`
 - **Check it**: `sed -n '/LINT_ALL.*true/,/^else/p' plugin/scripts/lint` shows the `find`
   exclusion list.
+
+## Plugin-directory reads are gated by the working-directory boundary
+
+- **Why it matters**: every wb stage reads supporting files from the plugin directory, which is
+  outside the project in every real configuration — under `--plugin-dir` *and* under a
+  marketplace install reading its own root. The read is gated, so the first stage a session runs
+  asks permission (once; the grant is persistent). `allowed-tools` does **not** exempt it: it is
+  a pre-approval for the tools it names, not a path grant, and path-scoped
+  `Read(<plugin-root>/**)` was probed and does not cross the boundary either. **A plugin cannot
+  self-grant.** The only proven fix is `--add-dir <plugin-path>`. This is what falsified
+  assumption A4, which had been recorded Validated on a probe whose session cwd was never
+  written down — run from inside the plugin directory, the boundary cannot fire.
+- **Verified**: 2026-09-09 · `docs/plans/2026-09-08-upstream-fable-merge/`
+- **Check it**: from a cwd that is not a parent of the plugin —
+  `claude --plugin-dir <repo>/plugin -p "Use the Read tool to read <repo>/plugin/skills/help/SKILL.md. Reply DENIED or the first line."`
+  → `DENIED`; adding `--add-dir <repo>/plugin` → the first line.
+
+## State the cwd of any permission or path measurement
+
+- **Why it matters**: a measurement of permission behaviour is only meaningful with the working
+  directory it was taken in, because the working-directory boundary is defined relative to it.
+  The Phase 0 layout probe recorded `NO PROMPT` truthfully and concluded wrongly, purely because
+  the environment field was missing — a real defect measured clean for a day. Generalise it: a
+  probe that cannot fail is not evidence, and the way this one could not fail was invisible
+  until someone asked where it ran.
+- **Verified**: 2026-09-09 · `docs/plans/2026-09-08-upstream-fable-merge/`
+- **Check it**: `grep -A12 'A4 re-probed' docs/plans/2026-09-08-upstream-fable-merge/thoughts/2026-09-08-baseline-measurements.md`
+  — the probe table carries a `cwd` column.
+
+## Auto mode bypasses the plugin's read conventions
+
+- **Why it matters**: in auto mode the harness instructs the model to prefer `cat`/`head`/`sed`
+  over the Read tool, and sandboxed Bash is not subject to the working-directory boundary. So in
+  auto mode `--add-dir` is unnecessary, a blocked read is not actually blocked, and the
+  hard-stop rule in every skill manifest cannot fire — the failure it guards against never
+  arrives. Every permission dialog advertises "Tip: auto mode handles these prompts for you" at
+  the top, so this is the path of least resistance, not an unusual setting. Any test of read
+  behaviour must confirm auto mode is **off** first, or it measures nothing.
+- **Verified**: 2026-09-09 · `docs/plans/2026-09-08-upstream-fable-merge/`
+- **Check it**: ask a session mid-run which tool it used to read a skill's supporting file —
+  `cat` means auto mode, `Read` means not.
+
+## Pre-2.0.0 `wb-*` skills in `~/.claude/skills/` shadow the plugin
+
+- **Why it matters**: an older install copied each stage in as a user-level skill
+  (`wb-implement_tasks`, `wb-create_execution`, …). They win over the plugin's `wb:` skills, so a
+  session silently gets the beads-era body — `bd doctor` gates that halt on
+  `task_tracking: markdown-checkboxes` plans, and "NEVER treat markdown as source of truth" — and
+  the deprecated-alias stubs never announce. Resolution between `wb:X` and `wb-X` is not
+  deterministic: one alias reached the plugin stub and two reached the stale copies in the same
+  session.
+- **Verified**: 2026-09-09 · `docs/plans/2026-09-08-upstream-fable-merge/` (13 stale directories
+  found on this machine, ~400 beads references; removed)
+- **Check it**: `ls -d ~/.claude/skills/wb-* 2>/dev/null` → no output.

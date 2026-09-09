@@ -3,7 +3,7 @@ name: implement_coordinated
 description: Deprecated alias of implement — use /wb:implement (removed at 3.0.0)
 argument-hint: "[project-directory] [phase-number|continue]"
 disable-model-invocation: true
-allowed-tools: Read
+allowed-tools: Read, Write, Edit, Glob, Grep, Bash, Task
 ---
 
 # Implement Coordinated (Deprecated Alias)
