@@ -6,7 +6,7 @@ status: in-progress
 last_updated: 2026-09-08
 current_phase: 4
 total_tasks: 64
-completed_tasks: 54
+completed_tasks: 63
 task_tracking: markdown-checkboxes
 depends_on: [research.md, design.md]
 git_commit: 18dc4a8ee76282e07b7ac100de57d42bc761ca7c
@@ -971,9 +971,9 @@ from document existence, frontmatter status, and checkbox counts. `help` loses i
 - [x] **P4-T8** — Version bump to 2.0.0 in **both** `plugin/.claude-plugin/plugin.json` and
       `.claude-plugin/marketplace.json`, same commit. Verify with
       `claude plugin tag --dry-run plugin/`. (~8 calls) (completed 2026-09-08 19:04)
-- [ ] **P4-T9** — Final full verification sweep: every automated check from every phase, plus
+- [x] **P4-T9** — Final full verification sweep: every automated check from every phase, plus
       the end-to-end pipeline run below. Record results in the journal and close the plan's
-      frontmatter status. (~20 calls)
+      frontmatter status. (~20 calls) (completed 2026-09-08 19:20)
 - [ ] **P4-T10** — Tag the release: `claude plugin tag plugin/` (creates `wb--v2.0.0`,
       validating manifest agreement), then push. Note the harness's tag convention is
       `wb--v<version>`, not upstream's `v<version>`. (~6 calls)
@@ -993,7 +993,7 @@ from document existence, frontmatter status, and checkbox counts. `help` loses i
       finding that `tag` refuses a dirty tree
 - [x] `CHANGELOG.md` has `### ⚠️ Breaking` and `### Migration` sections under `[2.0.0]`
 - [x] `./plugin/scripts/lint --all` — clean (D16 now makes this meaningful)
-- [ ] `claude plugin details wb` — final inventory and token cost recorded against baseline
+- [x] `claude plugin details wb` — final inventory and token cost recorded against baseline, in `thoughts/2026-09-08-baseline-measurements.md` → Final measurements
 
 #### Manual Verification
 

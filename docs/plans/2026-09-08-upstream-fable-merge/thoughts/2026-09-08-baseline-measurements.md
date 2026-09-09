@@ -371,3 +371,72 @@ count tasks (16 occurrences) on one pattern:
 Uppercase, digits and hyphens **with at least one digit required**. `**End-to-end**` fails on
 the lowercase; `**API**` — the other shape a criteria list produces — fails on the digit. On
 this plan it now matches 64 of 64 with zero false positives.
+
+---
+
+## Final measurements (`P4-T9`)
+
+Taken 2026-09-08 at the 2.0.0 release commit, with `claude --plugin-dir plugin plugin details wb`
+— the working tree, not the marketplace cache.
+
+### The headline metric
+
+| | Baseline | Final | Δ |
+| - | -------- | ----- | - |
+| Fourteen-stage on-invoke | **84.9k** | **46.8k** | **−44.9%** |
+| Bar (−30%) | | ≤59.4k | cleared by 12.6k |
+
+Per stage, worst to best:
+
+| Stage | Baseline | Final | Δ |
+| ----- | -------- | ----- | - |
+| `help` | 3.2k | 3.8k | **+19%** |
+| `resume_handoff` | 4.4k | 3.3k | −25% |
+| `create_research` | 5.3k | 3.6k | −32% |
+| `create_design` | 5.8k | 3.9k | −33% |
+| `implement_inline` | 8.0k | 5.0k | −38% |
+| `implement` | 9.8k | 5.8k | −41% |
+| `create_product_research` | 6.5k | 3.8k | −42% |
+| `create_handoff` | 5.1k | 2.8k | −45% |
+| `validate_execution` | 5.3k | 2.9k | −45% |
+| `create_project` | 4.0k | 2.0k | −50% |
+| `update_status` | 5.3k | 2.1k | −60% |
+| `create_tasks` | 9.4k | 3.1k | −67% |
+| `validate_project` | 5.8k | 1.8k | −69% |
+| `create_mockup` | 7.0k | 2.1k | −70% |
+
+**`help` grew, and that is correct.** `P4-T2` takes no supporting-file split by design, and the
+task *adds* the "where status lives" table and the continuity section. A stage told to grow
+grows.
+
+**The spread is explained by the ratio of template to judgment, not by split quality.**
+`create_mockup` is 389 lines of templates behind a 157-line skill, read one section at a time.
+`resume_handoff` is nearly all judgment, and D8c added to it. No amount of splitting moves a
+stage that is mostly reasoning.
+
+### Inventory
+
+| | Baseline | Final |
+| - | -------- | ----- |
+| Skills | 31 | **36** (+`create_tasks`, `implement`, `implement_inline` canonicals; +`doc-adherence`, `explore_design`; the three renamed names persist as stubs) |
+| Agents | 6 | **7** (+`task-worker`) |
+| Hooks | 2 | **3** (SessionStart, PostToolUse, **PreCompact**) |
+| Always-on | ~2,762 tok | ~3,220 tok |
+
+Always-on rose ~460 tokens: three alias stubs (~30 each), two new skills, and `implement`'s
+longer description, which PD4 requires to carry the discrimination against `implement_inline`.
+Paid by every session, so worth naming.
+
+### Release gate
+
+```
+$ claude plugin tag --dry-run plugin/
+Plugin:  wb
+Version: 2.0.0 (from plugin.json)
+Marketplace entry: plugins[0] in .claude-plugin/marketplace.json (version: 2.0.0)
+Tag:     wb--v2.0.0
+✔ Dry run — would create tag wb--v2.0.0 at HEAD
+```
+
+Exit 0, manifests agree, and **no root-`CLAUDE.md` warning** — the warning present at `b902566`
+was D1's assertion under test, and its absence is the confirmation.
