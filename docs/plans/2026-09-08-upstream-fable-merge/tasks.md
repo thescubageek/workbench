@@ -4,12 +4,12 @@ ticket: N/A
 created: 2026-09-08
 status: in-progress
 last_updated: 2026-09-08
-current_phase: 3
+current_phase: 4
 total_tasks: 64
-completed_tasks: 43
+completed_tasks: 54
 task_tracking: markdown-checkboxes
 depends_on: [research.md, design.md]
-git_commit: a6de084d1cb89e81ca344e88c39b4f72d9ba19e2
+git_commit: 18dc4a8ee76282e07b7ac100de57d42bc761ca7c
 git_branch: thescubageek/gabe-fable-merge-research
 ---
 
@@ -816,34 +816,34 @@ verification hint.
       before/after checksum of `journal.md` across a PreCompact run), and exits 0 on an unknown
       payload. Record results in
       `thoughts/2026-09-08-baseline-measurements.md`. (~12 calls) (completed 2026-09-08 17:56)
-- [ ] **P3-T6** — `plugin/skills/doc-adherence/SKILL.md` (D11): `user-invocable: false`; the
+- [x] **P3-T6** — `plugin/skills/doc-adherence/SKILL.md` (D11): `user-invocable: false`; the
       rule that a claim about what a plan document says requires a read of that document in
       the current context window; the identify → check → read → assert gate; a
       rationalizations table; and a section tying it to `wb-prime.sh`'s compaction signal.
-      (~15 calls)
-- [ ] **P3-T7** — `journal.md` (D8a): add the template to `create_project`'s generated plan
+      (~15 calls) (completed 2026-09-08 18:06)
+- [x] **P3-T7** — `journal.md` (D8a): add the template to `create_project`'s generated plan
       directory, and the open-at-start / close-at-completion protocol to
       `implement_tasks`, `implement_coordinated`, and `create_handoff`. Include the
-      PreCompact refresh of an open entry's mechanical fields. (~20 calls)
-- [ ] **P3-T8** — `.claude/wb/knowledge.md` (D8b): create the file with its header stating the
+      PreCompact refresh of an open entry's mechanical fields. (~20 calls) (completed 2026-09-08 18:08)
+- [x] **P3-T8** — `.claude/wb/knowledge.md` (D8b): create the file with its header stating the
       entry shape (fact, why it matters, date, source plan, verification hint) and the
       qualification rule. Wire the on-demand read into the research stages, `create_design`,
       both implementation stages, and `resume_handoff`. Add the correct-on-discovery
-      obligation. Seed it with the facts this plan itself established. (~20 calls)
-- [ ] **P3-T9** — Handoff-over-compact guidance (D11): a phase that would need a second
+      obligation. Seed it with the facts this plan itself established. (~20 calls) (completed 2026-09-08 18:12)
+- [x] **P3-T9** — Handoff-over-compact guidance (D11): a phase that would need a second
       compaction hands off instead. Lands in `implement_coordinated`'s recommendation text,
-      `create_handoff`'s "when to create" list, and `help`. (~10 calls)
-- [ ] **P3-T10** — `plugin/skills/explore_design/` (D10): the optional stage — frame, diverge,
+      `create_handoff`'s "when to create" list, and `help`. (~10 calls) (completed 2026-09-08 18:14)
+- [x] **P3-T10** — `plugin/skills/explore_design/` (D10): the optional stage — frame, diverge,
       discuss, converge only on explicit approval, record. Writes a `thoughts/` exploration
       document whose **top section is the decision record** — chosen direction, rationale,
       rejected alternatives (D6). Never writes `design.md`. **This is the exact shape `P2-T4`
       already consumes**: `create_design`'s Step 1 scans `[project-dir]/thoughts/` for that
       section, so a divergence here means the consumer silently finds nothing and the feature
       never fires. Decided 2026-09-08, see design.md → Resolved Decisions. Includes the model self-check in D12's shape: recommends Opus, names Fable
-      as the available upshift, warns below Opus, never blocks. (~30 calls)
-- [ ] **P3-T11** — The conditional nudge for `explore_design`: the research stages suggest it
+      as the available upshift, warns below Opus, never blocks. (~30 calls) (completed 2026-09-08 18:20)
+- [x] **P3-T11** — The conditional nudge for `explore_design`: the research stages suggest it
       only when findings show more than one viable approach. Word it against the false-positive
-      upstream found and fixed — it fires on evidence, not by default. (~10 calls)
+      upstream found and fixed — it fires on evidence, not by default. (~10 calls) (completed 2026-09-08 18:23)
 
 ### Success Criteria
 
@@ -854,11 +854,12 @@ verification hint.
 - [x] The script's runtime is recorded and within the contract it inherited — **45 ms median**, against upstream's <100 ms target and a 5 s registered timeout. It also **writes nothing**, checksum-verified across all five runs
 - [x] `test ! -e plugin/hooks/setup-beads-mode.sh`; no reference to it in `plugin.json`
 - [x] `grep -c 'PreCompact' plugin/.claude-plugin/plugin.json` → 1
-- [ ] `ls plugin/skills/doc-adherence/SKILL.md plugin/skills/explore_design/SKILL.md`
-- [ ] `test -f .claude/wb/knowledge.md`; every entry matches the required shape
-      (date, source plan, verification hint present)
-- [ ] `grep -rn "journal.md" plugin/skills/ | wc -l` — referenced by the stages D8a names
-- [ ] `./plugin/scripts/lint --all` — clean
+- [x] `ls plugin/skills/doc-adherence/SKILL.md plugin/skills/explore_design/SKILL.md`
+- [x] `test -f .claude/wb/knowledge.md`; every entry matches the required shape
+      (date, source plan, verification hint present) — 6 entries, each with a **Verified**
+      line naming the date and source plan and a **Check it** line giving a command
+- [x] `grep -rn "journal.md" plugin/skills/ | wc -l` — referenced by the stages D8a names
+- [x] `./plugin/scripts/lint --all` — clean
 
 #### Manual Verification
 
@@ -1082,6 +1083,21 @@ None open.
 
 ### Implementation Notes
 
+- **2026-09-08, Phase 3 tasks complete.** `P3-T7` and most of `P3-T8` turned out to be **already
+  done**: the journal protocol and the knowledge-file reads are content decisions (D8a/D8b/D8c)
+  that appear in the *per-file* Phase 2 task specs, so they landed as each stage was reshaped.
+  What remained was the knowledge file itself. Recorded because a future reader comparing task
+  IDs to commits will otherwise think these were skipped.
+  `.claude/wb/knowledge.md` seeded with **6 entries**, each carrying the date, the source plan,
+  and a **Check it** command. What did *not* qualify is as informative as what did: the task-ID
+  contract and the checkbox-counting rule were candidates, and both were rejected because they
+  now live in the tree itself (`project-structure`, `create_tasks`) — an entry duplicating a
+  shipped rule is the first step toward the two disagreeing.
+- **2026-09-08, the conditional nudge (`P3-T11`) is worded against a measured false positive.**
+  Upstream shipped this unconditionally and recorded 0/3. Ours fires only when the findings name
+  **two or more viable approaches** *and* nothing in the research already decides between them —
+  and says so explicitly, because "suggest optionally" without a test is how a nudge becomes
+  noise, and noise trains the reader to skip it when it finally matters.
 - **2026-09-08, the ID over-count had a second half, and it was the more dangerous one.** Fixing
   the eight counters made them agree on a pattern that **no document required**. A plan author
   numbering tasks `**Setup**` or `**API**` would have had every counter under-count silently.
@@ -1365,6 +1381,8 @@ None open.
   the "no prose changes to any `commands/*.md` body" check conflicts with `P1-T7`, which the
   plan itself places in this phase as a deliberate content-only addition. Neither is a defect
   in the work; both are the plan checking a wider scope than the phase owns.
+- **2026-09-08, status reconciled by `/wb:update_status`** at the Phase 3 checkpoint:
+  `current_phase` 3 → 4, `completed_tasks` 43 → **54 of 64** (84%).
 - **2026-09-08, status reconciled by `/wb:update_status`** at the Phase 2 checkpoint:
   `current_phase` 2 → 3, `completed_tasks` 13 → **43 of 64** (67%), `total_tasks` 63 → 64.
   The 30-task drift is the largest of the run and exactly what D5 predicts between checkpoints —

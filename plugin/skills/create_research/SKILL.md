@@ -195,6 +195,31 @@ Emit a one-line summary, not a recap:
 ✅ research.md updated — [topic]; [N] findings, [M] code refs. Next: /create_design
 ```
 
+**Then, only if the findings earned it, suggest `explore_design`.**
+
+Upstream shipped this nudge unconditionally and measured a 0/3 false-positive rate before
+fixing it — an optional stage suggested by default is noise, and noise trains the reader to
+skip the suggestion when it finally matters. So it fires on **evidence in what you just wrote**,
+not on the fact that research finished.
+
+Suggest it only when **both** hold:
+
+1. The findings surfaced **two or more genuinely viable approaches** — not one obvious path
+   plus alternatives you invented to seem balanced. You should be able to name them.
+2. **Nothing in the research already decides between them** — no constraint, no precedent, no
+   existing pattern that forecloses one.
+
+If both hold, add one line naming what the choice is between:
+
+```
+Research surfaced more than one viable approach here — [A] and [B], with nothing
+in the codebase deciding between them. /wb:explore_design [project-dir] would
+air that trade-off before design locks it in. Optional.
+```
+
+If either test fails — the path is clear, or the constraints already choose — **say nothing**.
+A decision the research already made does not need a discussion stage.
+
 ## Important Notes
 
 See [reference.md](reference.md) — critical ordering, documentation philosophy, and file reading.

@@ -145,7 +145,10 @@ fi
 # Knowledge file: named, not printed. It is read on demand by the stages that benefit.
 kb=".claude/wb/knowledge.md"
 if [ -f "$kb" ]; then
-  n=$(grep -c '^## ' "$kb" 2>/dev/null || echo 0)
+  # Count real entries by their Verified line — '^## ' would also count the file's own
+  # header sections and the shape example inside its fenced block.
+  n=$(grep -c '^- \*\*Verified\*\*' "$kb" 2>/dev/null || echo 0)
+  n=$((n > 0 ? n - 1 : 0))   # the shape example carries one too
   echo "Repository knowledge: $kb ($n entries) — read it before research, design, or implementation."
 fi
 

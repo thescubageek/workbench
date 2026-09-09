@@ -60,6 +60,12 @@ Create a handoff when:
 - Blocked and need different expertise
 - Completed significant milestone
 - Made important discoveries
+- **A phase would need a second compaction — hand off instead.** One compaction is survivable:
+  the recovery text fires and the plan documents get re-read. A second means the session is
+  running on a paraphrase of a paraphrase, and the things that degrade first are exactly the
+  ones a handoff captures deliberately — what was tried and abandoned, why a decision went the
+  way it did, which gotcha bit. Handing off costs one document; the alternative costs the
+  reasoning that made the work correct.
 
 ## Relationship to Other Commands
 
