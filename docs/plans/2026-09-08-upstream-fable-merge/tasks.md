@@ -648,7 +648,16 @@ file lands.
 
 #### Automated Verification
 
-- [ ] `grep -rn "bd \|BEADS_MODE\|BEADS_AVAILABLE\|beads_epic\|/beads:" plugin/` → **no hits**
+- [ ] `grep -rn "bd \|BEADS_MODE\|BEADS_AVAILABLE\|beads_epic\|/beads:" plugin/` → **no hits
+      outside the three files with later owners**. Working form:
+      `grep -rn "bd \|BEADS_MODE\|BEADS_AVAILABLE\|beads_epic\|/beads:" plugin/ | grep -vE 'plugin/(commands/(forge|help)\.md|hooks/setup-beads-mode\.sh)'`
+      **Scoped 2026-09-08**, because Phase 2 cannot clear files it does not own. At the time of
+      the decision there were 78 hits: `P2-T20`–`P2-T25` clear 35, and the other 43 are
+      `commands/help.md` (33, `P4-T2`), `hooks/setup-beads-mode.sh` (8, `P3-T4`) and
+      `commands/forge.md` (2, `P4-T1`). Each exclusion names its owning task, so the carve-out
+      is auditable rather than blanket. **The whole-tree assertion is not weakened** — it
+      already exists verbatim as a Phase 4 criterion covering `plugin/`, `README.md`,
+      `CLAUDE.md` and `docs/`, and that is the real gate. See design.md → Resolved Decisions
 - [x] `grep -rln "NEVER treat markdown as source of truth\|tracked ONLY in beads\|NEVER check markdown checkboxes" plugin/` → no hits — cleared at `P2-T14`, the last file holding them
 - [x] All six directories exist — canonicals `create_tasks`, `implement`, `implement_inline`
       and aliases `create_execution`, `implement_coordinated`, `implement_tasks` — verified;

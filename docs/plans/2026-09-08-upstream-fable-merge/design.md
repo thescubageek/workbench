@@ -739,6 +739,32 @@ Decisions made after the design was approved, recorded here by `/wb:resolve_ques
   - Trade-off: none. A briefer note would have been wrong for the second and third machine.
   - Source: design.md A1 · Decided 2026-09-08
 
+- **A phase-exit criterion tests what that phase owns; the tree-wide assertion belongs at the
+  cut** (resolves Phase 2's unmeetable beads criterion). Phase 2's
+  `grep … plugin/ → no hits` is scoped to exclude three files with named later owners —
+  `commands/help.md` (`P4-T2`), `hooks/setup-beads-mode.sh` (`P3-T4`), `commands/forge.md`
+  (`P4-T1`) — and Phase 4's existing whole-tree criterion is left untouched as the real gate.
+  - Rationale: as written, Phase 2 could execute perfectly and still fail its own headline
+    check, because 43 of the 78 hits at the time of the decision were in files it is not
+    allowed to touch. A criterion that cannot pass teaches the reader to discount it, and this
+    one guards D4 — the phase's whole point.
+  - Why not pull the files forward instead: `P4-T1` and `P4-T2` are ordered last deliberately,
+    because `forge` and `help` describe the pipeline's final shape and that shape is not final
+    until Phase 3 adds `explore_design`. `P3-T4` is worse to split — it deletes the hook *and*
+    registers `wb-prime.sh` in the same manifest slot, so taking only the deletion leaves
+    `plugin.json` pointing at a hook that no longer exists.
+  - Why the assertion is not weakened: the identical whole-tree check already exists as a
+    Phase 4 criterion, covering `plugin/`, `README.md`, `CLAUDE.md` and `docs/`. Nothing is
+    dropped; the check simply runs where every owner has had its turn.
+  - Trade-off: the exclusion list is a hardcoded set of three paths, so it rots if a file is
+    renamed. Bounded by naming the owning task beside each path — a reader who finds the
+    exclusion stale can see immediately which task should have removed it.
+  - **Generalizes**: this is the third criterion in this plan written against a scope wider than
+    its phase (after Phase 1's `AGENTS.md` grep and the two tier-rule rewordings). The pattern
+    is worth stating — **write a phase's exit check against the phase's own Modified Files
+    list**, and keep tree-wide assertions for the release phase.
+  - Source: tasks.md Phase 2 Automated Verification · Decided 2026-09-08
+
 - **A2 is validated, and the one finding worth carrying is that checkbox counting must be
   ID-scoped** (resolves A2). Checkbox-plus-counter status held at this plan's scale — 64 tasks,
   five phases, 30 tracked live, position recoverable at every boundary and every commit citing
