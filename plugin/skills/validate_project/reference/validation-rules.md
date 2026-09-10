@@ -39,7 +39,7 @@ for (const field of requiredFields.all) {
 ```javascript
 const validStatuses = {
   research: ['draft', 'in-progress', 'complete'],
-  design: ['draft', 'ready', 'implementing', 'complete'],
+  design: ['draft', 'approved'],   // approved is what create_tasks and forge gate on
   tasks: ['not-started', 'in-progress', 'complete']
 };
 
@@ -49,17 +49,17 @@ if (!validStatuses[fileType].includes(status)) {
 }
 
 // Check status progression
-if (design.status === 'ready' && research.status === 'draft') {
-  ERROR('Design cannot be ready if research is still draft');
+if (design.status === 'approved' && research.status !== 'complete') {
+  ERROR('Design cannot be approved while research is not complete');
 }
 
 if (tasks.status === 'in-progress' && design.status === 'draft') {
-  ERROR('Tasks cannot be in-progress if design is still draft');
+  ERROR('Tasks cannot be in-progress while design is still draft — ' +
+        'approve the design at /wb:create_design Step 6, or explain why work started early');
 }
 
-if (design.status === 'complete' && tasks.status !== 'complete') {
-  ERROR('Design cannot be complete if tasks are not complete');
-}
+// design.md has no 'complete': it is draft or approved, and stays approved once the work
+// built on it lands. Completion is tasks.md's state, not the design's.
 ```
 
 ## Task Tracking Validation

@@ -44,12 +44,12 @@ checks are about whether the file can actually carry that role.
 ## 4. Status Consistency
 
 - ✅ research.md status is valid: `draft`, `in-progress`, or `complete`
-- ✅ design.md status is valid: `draft`, `ready`, `implementing`, or `complete`
+- ✅ design.md status is valid: `draft` or `approved` — those are the only two. `approved` is
+  what `/wb:create_tasks` and `forge` gate on; a design left at `draft` stops the pipeline
 - ✅ tasks.md status is valid: `not-started`, `in-progress`, or `complete`
 - ✅ Status progression is logical:
-  - Cannot have design `ready` if research is `draft`
+  - Cannot have design `approved` if research is not `complete`
   - Cannot have tasks `in-progress` if design is `draft`
-  - Cannot have design `complete` if tasks is not `complete`
 - ✅ tasks.md status agrees with its own checkboxes: `not-started` with any `[x]`, or `complete` with any `[ ]`, is a contradiction
 - ✅ All files have same `last_updated` date (or close)
 

@@ -18,7 +18,7 @@ State detection reads documents, not a tracker. These are the cases and the evid
 | directory does not exist | nothing started | `create_project` |
 | `research.md` missing, or `status: draft` with placeholder sections | research not done | `create_research` |
 | `research.md` `status: complete`, `design.md` missing or `status: draft` | design not done | `create_design` |
-| `design.md` `status: approved`/`ready`, `tasks.md` has no phases or no task lines | not decomposed | `create_tasks` |
+| `design.md` `status: approved`, `tasks.md` has no phases or no task lines | not decomposed | `create_tasks` |
 | `tasks.md` has task checkboxes, at least one `[ ]` | mid-implementation | `implement` |
 | every task checkbox `[x]` | implementation done | `validate_execution` |
 

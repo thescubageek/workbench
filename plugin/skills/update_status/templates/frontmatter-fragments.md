@@ -20,7 +20,7 @@ git_commit: [current-commit]
 git_branch: [current-branch]
 ```
 
-If transitioning to `implementing`, add implementation notes:
+When `tasks.md` first moves to `in-progress`, add implementation notes:
 
 ```markdown
 ## Implementation Notes

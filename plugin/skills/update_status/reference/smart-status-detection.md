@@ -17,14 +17,17 @@ For research and design status, which are not expressed as checkboxes, use conte
 - If >20% complete → suggest "in-progress"
 - Otherwise → keep as "draft"
 
-## Plan Detection
+## Design Detection
 
-- Check if all phases have detailed "Changes Required"
-- Verify success criteria are specific (not "[To be defined]")
-- Cross-check with tasks.md for implementation progress
-- If any task is `[x]` → suggest "implementing"
-- If fully defined but nothing started → suggest "ready"
-- Otherwise → keep as "draft"
+`design.md` has exactly two statuses, `draft` and `approved`, and **detection does not apply to
+the transition between them.** `approved` records a human's confirmation at `create_design`
+Step 6; it is the gate `/wb:create_tasks` and `forge` read, so inferring it from how finished
+the document looks would remove the only review step between a design and the tasks built on it.
+
+- Read the stored value and keep it.
+- If it is `draft` while everything else is complete, **say so and ask** — do not flip it.
+- If it is neither `draft` nor `approved`, report it as invalid rather than guessing an
+  intent.
 
 ## Tasks Detection
 

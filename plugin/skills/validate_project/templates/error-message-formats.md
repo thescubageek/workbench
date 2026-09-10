@@ -31,8 +31,8 @@ Step 3 — use these shapes so findings are consistent and greppable.
 
 ```
 ❌ Status Progression Violation
-   Files: design.md (implementing), research.md (draft)
-   Cause: Design implementing but research not complete
+   Files: design.md (approved), research.md (draft)
+   Cause: Design approved but research not complete
    Impact: Violates workflow: research must complete before design
    Fix: Complete research OR set design back to draft
 ```

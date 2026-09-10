@@ -16,7 +16,7 @@ Read this when a step directs you to.
 Files progress through defined states:
 
 - `research.md`: draft → in-progress → complete
-- `design.md`: draft → ready → implementing → complete
+- `design.md`: draft → approved *(approval is a human act at `/wb:create_design` Step 6)*
 - `tasks.md`: not-started → in-progress → complete
 
 ## Error Handling

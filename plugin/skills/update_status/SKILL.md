@@ -102,11 +102,11 @@ Read [reference/status-transition-logic.md](reference/status-transition-logic.md
 
 Validation rules that constrain the result:
 
-- Cannot mark design as `ready` if research is still `draft`
+- Cannot mark design as `approved` if research is still `draft`
 - Cannot mark tasks as `in-progress` if design is still `draft`
-- Cannot mark design as `complete` if tasks is not `complete`
 - Cannot mark tasks `complete` while any task checkbox is `[ ]`
-- `implementing` requires at least one task checkbox `[x]`
+- **Never set design to `approved` yourself.** It records a human confirmation, not a state you
+  can infer — see `reference/smart-status-detection.md`
 
 ### Step 4: Present Status Update Plan
 
