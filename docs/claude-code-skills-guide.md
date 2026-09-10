@@ -373,12 +373,28 @@ runs regardless. It is still worth stating accurately, because it is the only pl
 see what a stage will reach for.
 
 **It does not make supporting-file reads prompt-free.** That was the original reason for
-`allowed-tools: Read`, and it is false. Measured 2026-09-09 with three headless probes: a Read
-of a supporting file is **denied** under `--plugin-dir` when the session cwd is elsewhere,
-passes only with `--add-dir <plugin>`, and is denied again for a marketplace-installed plugin
-reading its own root. The gate is the **working-directory boundary**, which `allowed-tools` does
-not touch — and neither does path-scoped `Read(<plugin-root>/**)`, which was probed and does not
-cross it. A plugin cannot self-grant; see the README and the 2.0.0 migration note.
+`allowed-tools: Read`, and it is false. `allowed-tools` is a pre-approval for the tools it
+names, not a path grant, and path-scoped `Read(<plugin-root>/**)` was probed and does not grant
+it either. **A plugin cannot self-grant.**
+
+What the gate actually is, settled 2026-09-10 after two probe sets appeared to contradict each
+other: the supporting-file read goes through the **ordinary permission-grant flow**, not the
+working-directory boundary. The two denials carry different messages, and reading the *message*
+rather than the pass/fail bit is what resolved it:
+
+- `Claude requested permissions to read from …, but you haven't granted it yet` — the grant
+  flow. This is what the plugin cache produces.
+- `… is outside <cwd>; the permissions.blockReadsOutsideWorkingDirectories setting blocks reads
+  outside the working directories` — the setting, which does **not** fire on the plugin cache.
+
+So the variable is **permission mode, not headlessness**. `default` and `acceptEdits` both deny
+with no way to grant; `bypassPermissions` succeeds; interactive prompts, and a human can approve
+— confirmed on this machine by a maintainer who answered the prompt and recalled doing so. The
+2026-09-09 headless result and the 2026-09-10 interactive one were **both correct**, measuring
+contexts that differ in whether anything *can* grant. Neither should be discarded.
+
+*A probe that cannot fail is not evidence — and two probes that disagree usually measured two
+different things.* See the README and the 2.0.0 migration note.
 
 ### `user-invocable: false`
 

@@ -18,6 +18,12 @@ claude plugin marketplace add thescubageek/workbench
 claude plugin install wb@thescubageek-workbench
 ```
 
+The first time you run a stage, Claude asks once for permission to read the plugin's own
+templates and prompts out of `~/.claude/plugins/cache/`. Approve it — choose the persistent
+option and the grant applies to every project, so you answer it once per machine. If you run
+Claude headless or in CI, see [Reading the plugin's supporting
+files](#reading-the-plugins-supporting-files) — nothing can answer a prompt there.
+
 For local development:
 
 ```bash
@@ -146,15 +152,37 @@ claude --plugin-dir /path/to/workbench/plugin
 Pointing it at the root does not error — it silently serves the *installed* copy, so
 working-tree changes are invisible.
 
-**Pass `--add-dir` too, or every supporting-file read is denied:**
+### Reading the plugin's supporting files
+
+Each stage reads its templates and prompts from the plugin directory, which sits outside your
+project. That read needs permission, and how you grant it depends on how you run Claude.
+
+**Interactive — you are prompted once.** Approve it and the stage continues; choose the
+persistent option and the grant covers every project on the machine. Nothing to configure in
+advance. This is the ordinary permission-grant flow, *not* the
+`permissions.blockReadsOutsideWorkingDirectories` setting — that setting governs a different
+boundary and does not fire on the plugin cache.
+
+**Headless, CI, or `claude -p` — pre-grant it, because nothing can answer a prompt there.**
+Under `default` and `acceptEdits` alike the read is denied and the stage stops. Either grant the
+path in `permissions.allow`:
+
+```json
+{ "permissions": { "allow": ["Read(//Users/<you>/.claude/plugins/cache/**)"] } }
+```
+
+or pass the plugin directory as a working directory:
 
 ```bash
 claude --plugin-dir /path/to/workbench/plugin --add-dir /path/to/workbench/plugin
 ```
 
-Each stage reads its templates and prompts from the plugin directory, which sits outside your
-project, and reads outside the working directory are gated. Without `--add-dir` the first
-directed read is refused and the stage stops. This is measured, not theoretical — see
+`--add-dir` is the one to use for local development, where the plugin is your working tree
+rather than the cache. Both work, and they target different things: `--add-dir` puts the path in
+scope, the `allow` rule grants the read directly.
+
+When the read is refused, a stage names the file it could not read and stops, rather than
+improvising a document from a template it never saw. That is deliberate — see
 `docs/claude-code-skills-guide.md` → House conventions.
 
 ## Where status lives

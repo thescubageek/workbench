@@ -196,7 +196,10 @@ of the phase.
       only `--add-dir` passes. The 2026-09-08 session never recorded its **cwd**, and if it ran
       from inside `/tmp/wb-probe` the working-directory boundary could not fire — so the probe
       was structurally incapable of failing. Left unchecked deliberately: the criterion as
-      written is not met, and the release documents the boundary instead of claiming it away
+      written is not met, and the release documents the boundary instead of claiming it away.
+      **Superseded in mechanism 2026-09-10** — the gate is the ordinary permission-grant flow,
+      not the working-directory boundary; see the `2026-09-10, A4 resolved` note below. The
+      criterion still fails as written, because interactive **does** prompt
 - [x] In that session, invoking `probe_old` announces the rename once and then behaves as
       `probe` (settles A5) — confirmed 2026-09-08: announced once, then read 2 files.
       **A5 Validated**
@@ -1224,6 +1227,47 @@ in this plan to have work pending somewhere the tree cannot see.
     **−39.8%** on the 84.9k baseline and 8.3k inside the ≤59.4k bar. Per-run cost moves the other
     way — `create_mockup` no longer reads 389 lines to write one artifact — and that is the
     number the split was actually for.
+
+- **2026-09-10, A4 resolved: the two probe sets never actually disagreed.** The 2026-09-09
+  finding above ("DENIED for a marketplace-installed plugin reading its own root") and a
+  2026-09-10 interactive probe that read the same class of file *successfully* are **both
+  correct**. They measured contexts that differ in whether anything *can* grant the permission.
+  - **There are two denials with two different messages, and conflating them was the whole
+    confusion.** `Claude requested permissions to read from …, but you haven't granted it yet`
+    is the ordinary grant flow — that is what the plugin cache produces. `… is outside <cwd>;
+    the permissions.blockReadsOutsideWorkingDirectories setting blocks reads outside the working
+    directories` is the setting, and it does **not** fire on the plugin cache. Three-way
+    headless probe, cwd `/tmp/wbe`, no `--add-dir`, no `--plugin-dir`: an in-working-directory
+    read **succeeded** (ruling out the tool-permission confound that would fake a denial), the
+    cache read was denied by the *grant* message, the tallinn path by the *setting* message.
+  - **The variable is permission mode, not headlessness.** `default` → denied; `acceptEdits` →
+    denied (so it is not merely "auto mode is permissive"); `bypassPermissions` → succeeds;
+    interactive → prompts, and the maintainer confirmed answering that prompt. No persisted
+    grant exists for the plugin path — `~/.claude/settings.local.json` holds only
+    `Read(//opt/homebrew/**)`-family entries, which proves this machine *does* persist "allow
+    always" when chosen — so the interactive success was an allow-once click, not an
+    auto-exemption.
+  - **There is no design problem underneath.** Progressive disclosure is one prompt on first use
+    for interactive users and a hard stop for headless/CI, where nothing can grant. The context
+    result stands; nothing was inlined back, no postinstall copier was written.
+  - **What was actually wrong was the documentation**, fixed this date. `README.md` asserted
+    "every supporting-file read is denied" without `--add-dir` — false for interactive users;
+    it and `CHANGELOG.md` both attributed the gate to `blockReadsOutsideWorkingDirectories` —
+    wrong mechanism; neither mentioned headless/CI — the real breakage; and
+    `grep -rn 'plugins/cache' README.md CHANGELOG.md plugin/` returned **nothing**, so the
+    marketplace-install path, which is every copy but a development checkout, had no guidance at
+    all. Both now split interactive from headless and name
+    `Read(//Users/<you>/.claude/plugins/cache/**)` as the direct grant; the skills guide's
+    superseded "working-directory boundary" paragraph was replaced.
+  - **`validate_project` does not glob** — raised as a caveat because the probing session had no
+    Grep/Glob. Its `reference/` split is **four** files, each reached by an explicit named link
+    (`SKILL.md:14`, `:115`, `:153`). There is no glob path, so the untested surface does not
+    exist.
+  - Still unconfirmed, low risk: the probes ran against **1.12.4's** installed tree; 2.0.0's
+    cache path differs only in the version segment.
+  - *The transferable lesson: two probes that disagree have usually measured two different
+    things. Reading the denial **message** instead of the pass/fail bit is what settled a
+    question that had held the release for two days.*
 
 - **2026-09-08, adversarial review of Phases 1–4, run after `P4-T9` declared every phase's
   checks green.** Ten findings; **eight fixed in the tree**, two need a live session. The
