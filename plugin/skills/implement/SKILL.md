@@ -239,15 +239,21 @@ this skill and its supporting files points here rather than restating it.
 | Tier | When | Notes |
 | ---- | ---- | ----- |
 | `haiku` | Mechanical only — config, docs, renames, version bumps, typos | **Never annotate `effort` on a haiku spawn** |
-| **`claude-opus-4-8[1m]`** | **Default.** Everything that is not plainly mechanical | The **1M-context variant**, not base `claude-opus-4-8` |
-| `claude-opus-5` | Architectural or cross-cutting tasks, on your judgment of the task's content | The first upshift rung |
+| `sonnet` | Bounded and fully specified — the task names the exact change and leaves no design latitude | The deliberate downshift, not the default |
+| **`opus`** | **Default.** Anything with judgment in it | |
 | `fable` | **Never a first spawn.** Only as an explicit election after a *verified* failure | Always `effort: high` — never `xhigh` or `max` |
 
+**These four are the only values the spawn tool accepts.** Its `model` parameter is an enum —
+`haiku · sonnet · opus · fable` — so a full identifier like `claude-opus-4-8[1m]` cannot be
+pinned per spawn, and `opus` resolves to whatever the current Opus is. Full IDs belong to the
+*main-session* model, chosen with `/model`; see the `model-help` skill. Do not write one into a
+spawn and assume it took.
+
 Judgment over the task's body, not a keyword match on its title: a regex over titles is a proxy
-for difficulty, and you have the task itself. The 1M default buys headroom for cross-cutting
-work — it is **not** a truncation fix. Workers hit a *tool-call* ceiling, not a context limit,
-so a wider window does not change truncation behaviour; Step 3's context minimisation and the
-plan's ~50-call task sizing are what address that.
+for difficulty, and you have the task itself. And note what the tier does **not** fix: workers
+hit a *tool-call* ceiling, not a context limit, so reaching for a bigger model does not change
+truncation behaviour. Step 3's context minimisation and the plan's ~50-call task sizing are what
+address that.
 
 **Then spawn.** Read [prompts/worker-prompt.md](prompts/worker-prompt.md) NOW and spawn the `task-worker` agent with it.
 
@@ -311,9 +317,10 @@ A verified failure gets **exactly one** escalation attempt:
    while being unverified. Set it back before you do anything else. Skip this and the
    escalation worker starts against an already-`[x]` box, which destroys 6a's only signal for
    distinguishing a truncated escalation attempt from a finished one.
-2. Escalate **one rung from the tier that failed** — haiku → Opus 4.8 1M, Opus 4.8 1M → Opus 5,
-   Opus 5 → Fable at `effort: high`. Reaching the Fable rung is an explicit election, never
-   automatic.
+2. Escalate **one rung up Step 5's ladder from the tier that failed** — `haiku` → `sonnet`,
+   `sonnet` → `opus`, `opus` → `fable` at `effort: high`. Reaching the `fable` rung is an
+   explicit election, never automatic. A task that failed at `opus` has one rung left, so if
+   `fable` also fails the answer is the checkpoint's blocking list, not a third model.
 3. Say which rung you chose and why, in one line.
 4. Read [prompts/escalation-worker-prompt.md](prompts/escalation-worker-prompt.md) NOW and spawn with it.
 5. Re-verify.

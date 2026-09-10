@@ -163,3 +163,7 @@ we have the in-repo cautionary example for that.
   `/wb:implement` run, which stated the limitation at the point of spawn
 - **Check it**: the Agent tool's schema — `model` carries
   `"enum": ["sonnet","opus","haiku","fable"]`.
+- **Resolved 2026-09-10**: `implement`'s Step 5 ladder is now stated in those four values —
+  `haiku → sonnet → opus → fable`, with `opus` the default and `sonnet` the deliberate
+  downshift. Full IDs remain correct for the *main-session* model via `/model`, which is what
+  `model-help` governs; the two vocabularies are now distinguished in both files.

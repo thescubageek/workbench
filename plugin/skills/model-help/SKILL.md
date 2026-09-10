@@ -26,10 +26,14 @@ Current roster (most → least capable): **`claude-opus-5` (Opus 5)** · **`clau
 `claude-opus-5[1m]` · `claude-opus-4-8[1m]` · `claude-sonnet-5[1m]`. Reach for one when the
 task must hold a lot at once — a whole-subsystem audit, a cross-file refactor, a long plan —
 not as a general upgrade: a wider window costs more per token and does nothing for a task that
-fits comfortably. **`claude-opus-4-8[1m]` is the default tier for coordinated implementation
-workers**, which is why the variants are listed here at all — the ladder that names it lives at
-the point of spawn (see the worker-tier note below), and a roster that did not contain the
-model would leave that ladder pointing at something this authority never mentions.
+fits comfortably.
+
+**This roster is for the *main session*, set with `/model`.** Sub-agent spawns are a different
+mechanism with a narrower vocabulary: the spawn tool's `model` parameter is an enum of
+`haiku · sonnet · opus · fable`, so no full identifier and no `[1m]` variant can be pinned per
+spawn. `/wb:implement`'s Step 5 states the worker ladder in those four values, and is the single
+statement of it. Advising a worker tier by full model ID would name something the spawner cannot
+select.
 
 **Two Opus tiers.** Opus 5 is the ceiling — reserve it for the genuinely hardest work: novel design, one-way doors, compliance / PHI / security-critical, wide blast radius, adversarial review of sensitive code. **Opus 4.8 is the default Opus** — reach for it when a task needs Opus-class reasoning but not the absolute top. Downshift 5 → 4.8 whenever 5 would be overkill; the reasoning ceiling is close and 4.8 is the cheaper Opus.
 
