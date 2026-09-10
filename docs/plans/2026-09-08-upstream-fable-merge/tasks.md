@@ -1112,6 +1112,22 @@ None open.
 
 ### Implementation Notes
 
+### D8's open-entry heuristic has only two states, and there are three (2026-09-10)
+
+`wb-prime.sh` reads an open entry beside a clean tree as "a session left it open without
+finishing the close-out." That is right for the case it was designed for. It is wrong for the
+case that actually came up while writing this plan's own handoff: an entry opened because work
+is genuinely in flight **in a different process** — a separate Claude testing session — with
+nothing uncommitted in this tree to show for it.
+
+The warning is still useful (it sends the reader to the entry, which explains itself), so this
+is a follow-up rather than a fix, per D20. If it is worth closing later, the cheap version is a
+third state keyed off the entry naming a delegate; the honest version is admitting the working
+tree cannot observe another process and saying so in the warning text.
+
+Filed while handing off, which is when the gap became visible — the handoff is the first thing
+in this plan to have work pending somewhere the tree cannot see.
+
 - **2026-09-10, the D8 acceptance test happened by accident, and was worth more than the staged
   version.** The end-to-end run took a real hard close mid-task. Recovery worked: the resumed
   session found the open `P2-T2` entry, finished the task, and closed the entry with its commit.
