@@ -1296,6 +1296,43 @@ in this plan to have work pending somewhere the tree cannot see.
     conservative default that `update_status` reconciles. `✅` was an optimistic false claim
     nothing owned.*
 
+- **2026-09-10, D8 re-verified across sessions: PASS.** The first D8 check was a shape check and
+  passed while the feature was inverted, which is why this one was re-run. Session A
+  (`/wb:create_project`) wrote `docs/plans/2026-09-10-semver-compare/journal.md` in a scratch
+  repo at `~/projects/wb-e2e`; session B was then started fresh and its **real SessionStart
+  hook** produced, verbatim:
+
+  ```text
+  Active plan: docs/plans/2026-09-10-semver-compare
+  Position: phase 0, 1 of 4 tasks done.
+  Next unchecked task: **P0-T2** — Complete research using `/wb:create_research docs/plans/2026-09-10-semver-compare`
+  Journal: present, no entries yet
+  ```
+
+  No phantom interrupted task, no open-entry warning. The hook took the **`present, no entries
+  yet`** branch rather than the "most recent entry" branch — which is precisely where the
+  placeholder would have surfaced as `(open)`. `5fb7025` holds across sessions.
+  - **The verdict is cross-session by construction**, which is what makes it worth anything: the
+    writing session deliberately declined to record a verdict, on the grounds that a hand-run of
+    `wb-prime.sh` is the same process that wrote the file. That is the discipline the first D8
+    check lacked.
+  - **The two defenses are independent, and only one is load-bearing for this hook.** The
+    matcher is `grep -E '^## ' | grep -vE '\[YYYY|<YYYY|YYYY-MM-DD'` — **not fence-aware**. The
+    example headings still sit at column zero inside the ```` ```text ```` fence; what saves them
+    is the placeholder filter. Both were added together in `5fb7025` and the reasoning is in
+    `wb-prime.sh:145-147`, so this is intentional, not luck.
+  - **Filed, not fixed**: `journal-md-template.md:31-32` tells a future editor the examples "are
+    shown fenced because an unfenced example is itself a `##` heading, and would be read as the
+    most recent entry." That explanation is **wrong** — the fence is not what protects this hook.
+    An editor who believed it could swap the `YYYY-MM-DD` placeholders for realistic dates and
+    re-open the bug with the fence intact. The hook checks the contract; the template states it
+    incorrectly.
+  - **Also filed**: `create_project` splits a prose argument positionally into
+    project-name / base-dir / ticket-ref with no prompt and no rejection, silently producing a
+    wrongly-named plan directory. And the PostToolUse lint hook rewrites every generated file —
+    on `journal.md` it only trimmed a space inside inline code, but a formatter with write
+    access to the journal is another route to breaking it later.
+
 - **2026-09-08, adversarial review of Phases 1–4, run after `P4-T9` declared every phase's
   checks green.** Ten findings; **eight fixed in the tree**, two need a live session. The
   pattern is one thing, not ten: **every capability verified by grep passed; every capability
