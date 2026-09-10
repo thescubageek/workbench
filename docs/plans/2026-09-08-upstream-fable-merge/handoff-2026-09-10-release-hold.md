@@ -82,6 +82,27 @@ Item 2 exists specifically because the *first* D8 verification was a shape check
 Also inherited, and worth keeping: **when several consumers agree on a format, something must
 state it and something must check it.** Several bugs here were two readers quietly disagreeing.
 
+## Found while writing this handoff — read before judging item 2
+
+`journal.md` **had never been committed.** It sat on disk, gitignored and untracked, from
+creation until `fbf6532`. Fixed there; all plan files are tracked now.
+
+This narrows a result you will otherwise misread. The D8 acceptance test reported "recovery
+worked" — and it did, *on the same machine, off the local disk*. A fresh clone or the user's
+second machine would have found no journal at all, which is the cross-machine case D8 was
+written for. The mechanism is sound. Its durable copy did not exist.
+
+The cause is structural, not a slip: plans are gitignored until promoted, promotion is a
+**one-time** `git add -f` over the files that exist at that moment, and `journal.md`,
+`handoff-*.md` and `thoughts/` all appear afterward. `git status` never lists ignored files, so
+this class of omission is invisible unless asked for directly:
+
+```bash
+git ls-files --others --ignored --exclude-standard docs/plans/<dir>/
+```
+
+Run that before any handoff or push. Clean across all plans as of `ccc21ec`.
+
 ## Decisions already made — do not reopen
 
 - **D13 / the worker tier ladder.** `agents/task-worker.md` deliberately carries **no `model:`**

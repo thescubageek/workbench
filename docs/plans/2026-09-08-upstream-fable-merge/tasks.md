@@ -1112,6 +1112,36 @@ None open.
 
 ### Implementation Notes
 
+### Promotion is a one-time act; plan directories keep growing (2026-09-10)
+
+Found while committing this handoff. `journal.md` — the file D8 exists to provide — **had never
+been committed.** It lived on disk, gitignored and untracked, from creation until `fbf6532`.
+
+The cause is not the gitignore policy, which is deliberate (plans are ignored until promoted on
+trigger). It is that **promotion happened once, over the files that existed at the time**, and
+`journal.md` was created afterward. Nothing re-runs the force-add, and `git status` never
+mentions an ignored file, so the omission is invisible by construction. Two other file kinds
+land after promotion the same way: `handoff-*.md` and `thoughts/`.
+
+What this cost, honestly: the D8 acceptance test's "recovery worked" result is narrower than it
+read. Recovery worked *on the same machine*, off the disk. Had the resumed session been a fresh
+clone or the user's second machine, there would have been no journal to resume from — which is
+the cross-machine continuity case D8 was written for. The mechanism was sound; its durable copy
+did not exist.
+
+`create_handoff` already documents re-running `git add -f <plan-dir>/` (SKILL.md:170), which is
+the right instinct and would have caught this. The gap is that nothing *checks*. The check is
+one command and returns exactly the stragglers:
+
+```bash
+git ls-files --others --ignored --exclude-standard docs/plans/<dir>/
+```
+
+Clean across all plans as of `fbf6532`. Filing rather than fixing, per D20 — but note this is
+the fourth instance of the plan's recurring lesson, and the sharpest: *when several consumers
+agree on a format, something must state it and something must check it.* Here promotion was
+stated in four skills and checked in none.
+
 ### D8's open-entry heuristic has only two states, and there are three (2026-09-10)
 
 `wb-prime.sh` reads an open entry beside a clean tree as "a session left it open without
