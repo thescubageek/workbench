@@ -192,13 +192,14 @@ npm test src/component.test.ts tests/integration/feature.test.ts
 
 ### ⛔ CHECKPOINT: Phase 1 Complete
 
-Before proceeding to Phase 2:
+These are the conditions to meet before Phase 2 — **not a record of having met them.** Tick
+each one as it is actually satisfied:
 
-1. ✅ Every Phase 1 checkbox is `[x]`
-2. ✅ All automated verification passing
-3. ✅ Manual verification confirmed by human
-4. ✅ Run `/wb:update_status` to reconcile the frontmatter counters — it is the only writer of
-   those fields, so do not edit `current_phase` or `completed_tasks` by hand
+- [ ] Every Phase 1 checkbox is `[x]`
+- [ ] All automated verification passing
+- [ ] Manual verification confirmed by human
+- [ ] `/wb:update_status` run to reconcile the frontmatter counters — it is the only writer of
+      those fields, so do not edit `current_phase` or `completed_tasks` by hand
 
 **Do not proceed without human confirmation of manual tests.**
 

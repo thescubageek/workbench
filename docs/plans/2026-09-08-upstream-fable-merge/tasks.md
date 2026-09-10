@@ -1269,6 +1269,33 @@ in this plan to have work pending somewhere the tree cannot see.
     things. Reading the denial **message** instead of the pass/fail bit is what settled a
     question that had held the release for two days.*
 
+- **2026-09-10, the journal bug's twin, found by Item 3's cold read.**
+  `create_tasks/templates/tasks-md-template.md:197-200` pre-printed **four `✅` marks** in the
+  phase checkpoint block, so every generated plan asserted its own checkpoint from the moment of
+  creation. In the slugify run this produced nine of them (`tasks.md:287-290`, `:473-477`),
+  including `✅ Manual verification confirmed by human` while all six of that phase's manual
+  boxes were `[ ]`, and `✅ Run /wb:update_status` before `update_status` had ever run — three
+  lines above the template's own **"Do not proceed without human confirmation of manual tests."**
+  - **Same class as `P2-T5`/`5fb7025`**: template decoration that a reader takes as live state.
+    The journal one used `(open)` and fooled a hook; this one used `✅` and fools a human. Both
+    linted clean and neither was reachable by any shape check.
+  - **This is the cause of the `tasks.md:1021` cold-read failure**, not a separate symptom. A
+    cold reader concludes the plan is fully checkpointed and nothing remains, while
+    `status: in-progress` says the opposite. Question 3 — "what happens next?" — is not just
+    unanswerable but actively misleading.
+  - **Fixed**: the block is now four unchecked checkboxes under the sentence *"These are the
+    conditions to meet before Phase 2 — not a record of having met them."* Verified with a
+    control that fires: the four new lines match the task-ID counter pattern **0** times while
+    the template's real task lines match **10**, so the checkpoint cannot inflate any count.
+  - **Scope checked, not assumed.** A sweep of every shipped template found `✅` in 15 files;
+    all the others are **transient chat messages** (`✅ Design document created`, `✅ Phase
+    complete`) where the glyph is true when printed. `create_project/templates/readme-md-template.md:25`
+    marks only the one step that has actually happened and leaves the rest `⏳`. The persisted
+    artifact written by `create_tasks` was the only defect.
+  - *`⏸️ Not Started` in the progress tables is the opposite failure mode and is safe: a
+    conservative default that `update_status` reconciles. `✅` was an optimistic false claim
+    nothing owned.*
+
 - **2026-09-08, adversarial review of Phases 1–4, run after `P4-T9` declared every phase's
   checks green.** Ten findings; **eight fixed in the tree**, two need a live session. The
   pattern is one thing, not ten: **every capability verified by grep passed; every capability
