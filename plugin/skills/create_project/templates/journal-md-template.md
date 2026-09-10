@@ -1,9 +1,15 @@
 # journal.md Template
 
+The generated `journal.md` must contain **no `##` heading until a real entry is written**.
+Every reader of this file takes the first `##` line as the most recent entry, so an example
+heading left in the document is read as an entry — and since the example ends in `(open)`, the
+plan reports an interrupted task from the moment it is created, forever, while the real latest
+entry is never seen. Keep the entry shapes fenced, exactly as below.
+
 ````markdown
 # Session Journal: [Project Name]
 
-Append-only, reverse-chronological — newest entry at the top.
+Append-only, reverse-chronological — newest entry at the top. **No entries yet.**
 
 **Entries open when work starts, not when it ends.** A session does not get to choose how it
 ends: a token limit, a closed laptop, or a crashed harness runs no shutdown step. An entry
@@ -17,22 +23,29 @@ An open entry beside uncommitted changes means an interrupted task. An open entr
 clean tree means a session that simply moved on. The working tree is the authority, never this
 file.
 
-**The heading must end in a literal `(open)` or `(closed)`.** That suffix is what every reader
-of this file matches on — the session-start hook, `forge`, `daily-digest`, `resume_handoff`,
-`create_handoff`. A heading ending any other way is invisible to all of them, and the failure is
-silent: the next session is told "closed" over work that was interrupted.
+**A heading must end in a literal `(open)` or `(closed)`.** That suffix is what every reader
+matches on — the session-start hook, `forge`, `daily-digest`, `resume_handoff`,
+`create_handoff`. A heading ending any other way is invisible to all of them, and the failure
+is silent: the next session is told "closed" over work that was interrupted.
 
-## [YYYY-MM-DD HH:MM] — [task-id or short label] (open)
+Entries take these two shapes. They are shown fenced because an unfenced example is itself a
+`## ` heading, and would be read as the most recent entry:
 
-- **Task/phase**: [ID and one-line description]
-- **Next action**: [the literal next thing to do, specific enough to act on cold]
-- **Started at**: [commit hash]
+```text
+## YYYY-MM-DD HH:MM — <task-id or short label> (open)
 
-## [YYYY-MM-DD HH:MM] — [task-id or short label] (closed)
+- **Task/phase**: <ID and one-line description>
+- **Next action**: <the literal next thing to do, specific enough to act on cold>
+- **Started at**: <commit hash>
 
-- **Task/phase**: [ID and one-line description]
-- **Landed**: [what actually changed]
-- **Commits**: [range or hashes]
-- **Learned**: [anything that changes how the remaining work should proceed — omit if nothing]
-- **Blocked by**: [anything blocking — omit if nothing]
+## YYYY-MM-DD HH:MM — <task-id or short label> (closed)
+
+- **Task/phase**: <ID and one-line description>
+- **Landed**: <what actually changed>
+- **Commits**: <range or hashes>
+- **Learned**: <anything that changes how the remaining work should proceed — omit if nothing>
+- **Blocked by**: <anything blocking — omit if nothing>
+```
+
+<!-- Real entries begin below this line, newest first. -->
 ````

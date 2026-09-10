@@ -140,7 +140,12 @@ fi
 journal="$dir/journal.md"
 entry_open=no
 if [ -f "$journal" ]; then
-  last=$(grep -m1 -E '^## ' "$journal" 2>/dev/null)
+  # Skip placeholder headings. A journal generated before the entry shapes were fenced
+  # carries the template's own examples as real `## ` lines, above any entry — and the
+  # example ends in `(open)`, so the first match would report an interrupted task forever
+  # while the real latest entry is never seen. A bracketed or angle-bracketed date is the
+  # tell; a written entry has a literal one.
+  last=$(grep -E '^## ' "$journal" 2>/dev/null | grep -vE '\[YYYY|<YYYY|YYYY-MM-DD' | head -1)
   if [ -n "$last" ]; then
     echo "Journal, most recent entry: $last"
     # The state lives in a trailing `(open)` / `(closed)`, matched case-insensitively and
