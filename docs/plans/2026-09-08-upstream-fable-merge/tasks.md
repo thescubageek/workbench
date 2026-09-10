@@ -875,10 +875,22 @@ verification hint.
 
 - [ ] A fresh `--plugin-dir` session's first context contains the orientation and, in this
       repository, names this plan directory
-- [ ] **The D8 acceptance test**: start a session, open a journal entry, make an uncommitted
+- [~] **The D8 acceptance test**: start a session, open a journal entry, make an uncommitted
       edit, then kill the session without any shutdown step. A new session's first context
       reports the entry as **open**, names the attempted work and next action, and names the
-      uncommitted changes
+      uncommitted changes — **partially verified 2026-09-10, unplanned.** The end-to-end run
+      (`docs/plans/2026-09-09-slugify-maxlength`) took a genuine hard close mid-task, with an
+      open `P2-T2` entry and uncommitted work in the tree. **Recovery worked**: the resumed
+      session picked up from the journal, completed the task, and replaced the open entry with a
+      closed one recording what landed (`3fa7e24`) — which is the half D8a exists for, and it
+      was not staged.
+      **The bootstrap half is not yet verified**, and the same run found why: the journal
+      template's example entries were live `##` headings, so the hook's "most recent entry"
+      matcher read the *placeholder* — which ends in `(open)` — rather than the real one. Every
+      plan therefore reported a phantom interrupted task from creation onward. Fixed in
+      `5fb7025` (shapes fenced; the hook additionally skips a heading whose date is still a
+      placeholder). **Re-run needed** against a journal created after that fix, checking the
+      first context specifically, not just that resumption succeeded
 - [ ] Triggering `/compact` mid-plan produces the recovery text in the next context
 - [ ] `explore_design` on a real question produces a `thoughts/` record and a decision-log
       entry, and `create_design` then formalizes it instead of regenerating options
@@ -1099,6 +1111,30 @@ None open.
   (## Technical Decisions → Resolved Decisions); carried by new task `P0-T6`.
 
 ### Implementation Notes
+
+- **2026-09-10, the D8 acceptance test happened by accident, and was worth more than the staged
+  version.** The end-to-end run took a real hard close mid-task. Recovery worked: the resumed
+  session found the open `P2-T2` entry, finished the task, and closed the entry with its commit.
+  Several decisions were exercised at once and held —
+  **D20** (the worker found dead code, *measured* that it was dead across 33 tests and a 76-pair
+  differential probe, then declined to remove it as out of scope and escalated the call to the
+  checkpoint — follow-ups-not-fixes and the completeness clause, both firing);
+  **D14** (a rejected tool call would have swapped a source file in place while uncommitted work
+  sat in the tree; the recovery re-ran the probe in a scratchpad, preserving the
+  uncommitted-work signal truncation detection depends on);
+  **D5** (counter drift surfaced and deferred to `/wb:update_status` rather than hand-patched);
+  **D4** (one task, one commit); **D21** (`docs/` stayed untracked); and the phase checkpoint
+  stopped for a human instead of self-certifying.
+- **2026-09-10, but the same run found that the bootstrap half was broken — by me.** The
+  `journal.md` template `P2-T5` wrote used live `##` headings for its example entries, and the
+  hook reads the first `##` as the most recent entry. Since the example ends in `(open)`, every
+  generated plan reported an interrupted task from the moment it was created, permanently, while
+  the real latest entry was never read. Fixed in `5fb7025`.
+  Worth naming plainly: **this is the third time in this plan that something was "verified" by a
+  grep or a shape check rather than by running it.** The template linted clean, the hook exited
+  0, the matcher matched — and the feature was inverted. The Phase 3 automated checks I ran
+  could not have caught it; only reading the hook's actual output against a real generated plan
+  could, which is what the end-to-end run did.
 
 - **2026-09-09, live testing falsified A4 and the section-read mechanism with it.** The two
   Phase 2 manual criteria were finally run. Both findings are things no grep could have reached,
