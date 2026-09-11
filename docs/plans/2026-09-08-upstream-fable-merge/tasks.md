@@ -1605,6 +1605,37 @@ in this plan to have work pending somewhere the tree cannot see.
     not honour — and the second one was introduced *by this very change*, caught only by
     sweeping for it afterwards.
 
+- **2026-09-11, an accidental power-off exposed a structural gap in D8: the journal does not
+  cover the planning stages.** A macOS upgrade restarted the machine mid-run, killing the test
+  session during `create_design` — precisely the class of ending D8 was written for ("a token
+  limit, a closed laptop, or a crashed harness runs no shutdown step").
+  - **What the kill left behind.** `design.md` had gone from 7 placeholder sections to **0** —
+    a complete design, written — while `status:` was still `draft`, because the session had
+    correctly stopped to ask for approval and died waiting. Real work, finished, unrecorded.
+  - **The journal recorded none of it.** `wb-prime.sh` reports *"Journal: present, no entries
+    yet"*, and the matcher confirms zero real entries against two template placeholders. So the
+    bootstrap tells a resuming session *"Next unchecked task: `P0-T3` — Create design
+    document"*, with nothing indicating the document already exists in finished form.
+  - **Measured cause**: `create_research` and `create_design` contain **zero** mentions of
+    `journal.md` anywhere in their directories, supporting files included. `implement` opens one
+    per task (`SKILL.md:229`, "Open a journal entry first"). The journal covers implementation
+    and skips planning — and `create_design` is the longest-running of the three planning
+    stages, so it is the one most likely to be interrupted.
+  - **The concrete cost, not a hypothetical one.** `create_design`'s resume check
+    (`SKILL.md:109-115`) looks for a `thoughts/` exploration document carrying a decision record.
+    This run generated its options inline rather than via `explore_design`, so there is no such
+    document; a naive re-run therefore takes "its normal interactive path", regenerates the
+    A/B/C options and asks the user the same question a second time. The finished design is not
+    consulted because nothing tells the resuming session it exists.
+  - **This is the same shape as the plan's own history**, recorded in `journal.md`'s header:
+    *"This file starts at 2026-09-08 19:20, after `P4-T9`. Phases 0–4 ran without it."* That was
+    read as a historical accident. It is not — it is the mechanism's actual coverage.
+  - **Filed, not fixed.** The targeted version would have `create_design` open an entry when it
+    starts and close it at approval; the general version extends that to all three planning
+    stages. Worth noting the irony for the record: D8 was verified three times today against
+    journals that planning stages never write to, and the gap surfaced only when a real machine
+    really died.
+
 - **2026-09-08, adversarial review of Phases 1–4, run after `P4-T9` declared every phase's
   checks green.** Ten findings; **eight fixed in the tree**, two need a live session. The
   pattern is one thing, not ten: **every capability verified by grep passed; every capability
