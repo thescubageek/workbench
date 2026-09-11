@@ -1363,6 +1363,56 @@ in this plan to have work pending somewhere the tree cannot see.
       cannot extract reliably, so the Bash branch is skipped rather than guessed at. Write and
       Edit keep their existing fallback.
 
+- **2026-09-10, the end-to-end run (criterion 1020) — what it found.** A full
+  `create_project → create_research → explore_design → create_design → create_tasks → implement
+  → validate_execution` in a scratch repo, 17 tasks, 43 tests, 13 implementation commits.
+  - **Check 1 PASS**: the generated plan carries **zero** pre-printed checkmarks in its
+    checkpoint blocks, and the `84da251` framing sentence appears verbatim in all **three**,
+    each adapted per phase. Verified in the artifact, not the report.
+  - **`lint`'s fallback config used a dead option name — FIXED.** `plugin/scripts/lint` writes a
+    temporary markdownlint config when a project has none, and it specified
+    `"MD024": { "allow_different_nesting": true }`, which modern markdownlint does not recognise.
+    The `create_tasks` template deliberately repeats `### Objective`, `### Prerequisites` and the
+    rest once per phase, so MD024 fired on every one. **Measured on the generated plan: 24
+    errors with the shipped fallback, 0 with `siblings_only`** — same file, same linter, one
+    option name. This repo passed only because its own `.markdownlintrc` already used the
+    current name, so wb's template was unlintable *everywhere except here*. A gate that could
+    not pass, beside a `lint-hook` that exits 0 regardless, so nothing ever noticed. Corrected
+    and re-proved through the real script in a config-less repo.
+  - **Workers fabricate completion timestamps.** The plan accumulated times in the *future*
+    (18:05, 18:31 recorded at 17:41), three hours in the past (14:32), and non-monotonic
+    (17:30 → 17:23) — with `P0` entries in UTC and worker entries in local time.
+    `agents/task-worker.md:64` and the template both say to append `(completed YYYY-MM-DD HH:MM)`
+    but neither says to **read the clock** or fixes a timezone. Not cosmetic: a cold reader sees
+    a task completed ten hours before the plan containing it was generated, which corrupts
+    "what is done, and in what order" — criterion 1021 directly. The run normalised against
+    `git log`, which is the truthful record. **Filed, not fixed.**
+  - **The cold read found two real defects, both in "what happens next" again.** The
+    `### Next Action` section contradicted itself — prose saying all 17 tasks were complete and
+    to run `validate_execution`, above a stale template line still reading
+    `**Run**: /wb:implement`. And the Progress Overview showed every phase `✅ Complete` while
+    every checkpoint condition sat unticked. Both corrected in the run. Notably the session
+    **refused to tick "Manual verification confirmed by human"**, because no human had — the
+    exact self-certification `84da251` removed.
+  - **A test that passed for the wrong reason**, found by the coverage agent and independently
+    confirmed: all three negative-component forms are rejected, but every one fails on
+    core-arity because the leading `-` is consumed by the pre-release partition, so the
+    "not a non-negative integer" branch is never reached with an actual negative. Behaviour
+    correct, test vacuous. Fifth recurrence of this class on this plan.
+  - **Strongest positive result**: the regression agent walked the entire commit history and
+    confirmed every RED commit genuinely fails and every GREEN genuinely passes, with test
+    counts rising monotonically 8 → 18 → 25 → 33 → 37 → 43. That is direct evidence the
+    RED-GREEN cycle was *executed* rather than asserted — something no checkbox can prove.
+  - **Item 2 re-confirmed incidentally at end of run**: simulating the hook against the
+    now-populated journal read `## 2026-09-10 21:36 — P3-T4 (closed)` as newest, with 13 real
+    closed entries, 0 real open, and the fenced template placeholders filtered **by the
+    `YYYY-MM-DD` guard rather than by the fence** — independently confirming the correction made
+    to that template's explanation.
+  - **The human checkpoint was crossed on standing authorization twice more** (Phase 1 and
+    Phase 2), each time flagged explicitly rather than self-certified. Same shape as the
+    `design.md` approval: a "run to completion" instruction issued *before* the artifact existed
+    is being read as confirmation *of* it. Still open.
+
 - **2026-09-08, adversarial review of Phases 1–4, run after `P4-T9` declared every phase's
   checks green.** Ten findings; **eight fixed in the tree**, two need a live session. The
   pattern is one thing, not ten: **every capability verified by grep passed; every capability
