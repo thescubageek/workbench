@@ -57,6 +57,24 @@ When invoked, check for arguments:
 
 **⛔⛔⛔ BARRIER 1: STOP! Read ALL documents FULLY - research.md, design.md, tasks.md ⛔⛔⛔**
 
+**Open a journal entry before you begin reading**, so an interrupted decomposition leaves a
+record rather than a half-written plan with nothing explaining it.
+
+The heading shape is a contract — the session-start hook, `forge`, `daily-digest`,
+`resume_handoff` and `create_handoff` all match on the trailing `(open)` / `(closed)`:
+
+```text
+## 2026-09-11 14:02 — create_tasks (open)
+
+- **Task/phase**: P0-T4 — execution plan for <plan>
+- **Next action**: generate the phased plan, then present it at Step 6
+- **Started at**: <commit hash, or `no-commits-yet`>
+```
+
+**Read the clock for the timestamp** — `date -u +"%Y-%m-%d %H:%M"`. Do not estimate it and do
+not copy a time from elsewhere in the file: entries out of order, or dated in the future,
+corrupt the one thing the journal is for, which is what happened when and in what sequence.
+
 ```javascript
 const projectDir = $1 || /* prompt for it */;
 
@@ -195,6 +213,8 @@ Verify with agent findings:
 8. **Every task carries an ID and a tool-call projection**, and nothing projects past ~50
 
 ### Step 6: Present the Plan
+
+**Close the journal entry first**, naming the phase and task counts the plan landed with.
 
 Read [templates/plan-presentation-message.md](templates/plan-presentation-message.md) NOW and present it in that shape.
 

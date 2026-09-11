@@ -1636,6 +1636,25 @@ in this plan to have work pending somewhere the tree cannot see.
     journals that planning stages never write to, and the gap surfaced only when a real machine
     really died.
 
+  - **2026-09-11, fixed on the user's instruction — the journal now covers the planning stages.**
+    `create_research`, `create_design` and `create_tasks` each open an entry before their first
+    expensive step and close it when the stage's work actually ends. Extended to `create_tasks`
+    as well as the two named, because covering two of three planning stages would have recreated
+    the identical hole one step later.
+    - **`create_design` closes on approval, not on writing the document.** That is the whole
+      point of the fix: a session that writes `design.md` and stops to ask now leaves an entry
+      still open, whose next action reads *awaiting approval at Step 6*. That residue is what
+      tells the next session the design exists and is finished, instead of letting it re-run the
+      stage and regenerate options the user already chose — which is exactly what the 2026-09-11
+      restart would have caused.
+    - **Each open instruction says to read the clock** (`date -u`), and says why: entries out of
+      order or dated in the future corrupt the one thing a journal is for. That closes the
+      fabricated-timestamp finding for these three stages, though not for task workers.
+    - **The heading contract is restated at each site** rather than centralised, matching what
+      `implement` and `implement_inline` already do. `grep -rc 'match on the trailing'` returns
+      exactly 1 per planning stage, so drift between the four statements is detectable by grep
+      rather than only by a failure.
+
 - **2026-09-08, adversarial review of Phases 1–4, run after `P4-T9` declared every phase's
   checks green.** Ten findings; **eight fixed in the tree**, two need a live session. The
   pattern is one thing, not ten: **every capability verified by grep passed; every capability

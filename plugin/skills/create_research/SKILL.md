@@ -104,6 +104,26 @@ normal starting state. Fall through.
 - Read the current research.md FULLY to see what's already documented
 - Check frontmatter status field
 
+**Open a journal entry before Step 3.** Append it to `journal.md` in the plan directory, naming
+this stage and the exact next action. Written at the start, not the end — research is
+long-running and a token limit, a closed laptop or a machine restart runs no shutdown step, so
+an entry written only at completion would be silent in exactly the cases it exists for.
+
+The heading shape is a contract — the session-start hook, `forge`, `daily-digest`,
+`resume_handoff` and `create_handoff` all match on the trailing `(open)` / `(closed)`:
+
+```text
+## 2026-09-11 14:02 — create_research (open)
+
+- **Task/phase**: P0-T2 — research for <plan>
+- **Next action**: spawn the Step 4 agents, then synthesize into research.md
+- **Started at**: <commit hash, or `no-commits-yet`>
+```
+
+**Read the clock for the timestamp** — `date -u +"%Y-%m-%d %H:%M"`. Do not estimate it and do
+not copy a time from elsewhere in the file: entries out of order, or dated in the future,
+corrupt the one thing the journal is for, which is what happened when and in what sequence.
+
 ### Step 3: Analyze and Decompose the Research Question
 
 **Document what EXISTS in the codebase**
@@ -214,6 +234,11 @@ If the user has follow-up questions:
 6. **Continue building** on previous findings
 
 ### Step 8: Confirm Completion
+
+**Close the journal entry first**, with a `(closed)` heading naming what landed and which stage
+follows. An entry left open beside finished work tells the next session that research was
+interrupted — a false alarm is worse than no entry, because it costs a human the time to
+disprove it.
 
 Emit a one-line summary, not a recap:
 

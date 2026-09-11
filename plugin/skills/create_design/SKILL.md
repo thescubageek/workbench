@@ -78,6 +78,25 @@ Assumptions table, which states what being wrong would cost.
 
 **⛔⛔⛔ BARRIER 1: STOP! Read research.md and existing design.md FULLY - NO SKIMMING ⛔⛔⛔**
 
+**Open a journal entry before you begin reading.** Design is the longest-running stage in the
+pipeline and the likeliest to be interrupted; an entry written only at the end would be silent
+in precisely that case.
+
+The heading shape is a contract — the session-start hook, `forge`, `daily-digest`,
+`resume_handoff` and `create_handoff` all match on the trailing `(open)` / `(closed)`:
+
+```text
+## 2026-09-11 14:02 — create_design (open)
+
+- **Task/phase**: P0-T3 — design for <plan>
+- **Next action**: write design.md, then request approval at Step 6
+- **Started at**: <commit hash, or `no-commits-yet`>
+```
+
+**Read the clock for the timestamp** — `date -u +"%Y-%m-%d %H:%M"`. Do not estimate it and do
+not copy a time from elsewhere in the file: entries out of order, or dated in the future,
+corrupt the one thing the journal is for, which is what happened when and in what sequence.
+
 ```javascript
 const projectDir = $1 || /* prompt for it */;
 
@@ -275,6 +294,13 @@ routes on it. A design left at `draft` stops the pipeline with no explanation, b
 stage can only see the field, not the conversation in which you approved it. Equally, never set
 it without the confirmation — writing `approved` on your own judgment removes the one review
 step between a design and the tasks built on it.
+
+**Close the journal entry on approval — not when `design.md` is written.** The stage's work ends
+when the design is approved, so a session that writes the document and then stops to ask leaves
+an entry that is still open, whose next action reads *awaiting approval at Step 6*. That is the
+correct residue: it is what tells the next session the design exists and is finished, rather
+than letting it re-run this stage and regenerate options the user has already chosen. This
+mattered on 2026-09-11, when a machine restart killed a session in exactly that position.
 
 ## Important Guidelines
 
