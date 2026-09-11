@@ -10,7 +10,12 @@
 #     mechanical fields a PreCompact write would have refreshed are recomputed here,
 #     at session start, from the repository — which is authoritative anyway.
 #   - plain-text stdout. SessionStart's stdout is model-visible; PreCompact's is not,
-#     but the hook still exits 0 and prints harmlessly.
+#     but the hook still exits 0 and prints harmlessly. That does NOT make the recovery
+#     text unreachable, and reading it that way has already misled one diagnosis: this
+#     same script is registered for BOTH events, and after a compaction the harness
+#     re-fires it as SessionStart with source=compact, which IS visible. Measured
+#     2026-09-10 — the four recovery lines arrived in the next context, naming the active
+#     plan. This bullet describes one delivery path, not whether the feature works.
 #   - silent on an empty or unrecognized payload
 #   - exit 0 always. A hook that fails a session start is worse than no hook.
 #

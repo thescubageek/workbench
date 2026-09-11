@@ -1528,6 +1528,46 @@ in this plan to have work pending somewhere the tree cannot see.
     easiest possible test of a mechanism built for plans in flight. That reasoning was right,
     and it points at exactly the re-test now required.*
 
+- **2026-09-10, `/compact` attempt 3 — PASS.** Re-run against a genuinely in-flight plan
+  (`docs/plans/2026-09-10-dotenv-parser`, `status: not-started`, 2 of 4 planning tasks `[x]`,
+  design still `draft`) in a **fresh session that had never opened the hook source** — the
+  contamination the previous attempt had acquired by reading `wb-prime.sh` during its own
+  diagnosis. Precondition verified *before* compacting this time: the hook emitted **372 bytes**
+  against 0 on the previous attempt, the whole difference being one `status:` field.
+  - **The four recovery lines reached the model, twice**, byte-identical: once relayed inside
+    the `/compact` command's own stdout block, and once as a system block prefixed
+    `SessionStart:compact hook success:`. They named the active plan, so the instruction was
+    actionable without the session having to work out which plan was meant.
+  - **This rescues the header comment rather than falsifying it.** `wb-prime.sh` is registered
+    for **both** `SessionStart` and `PreCompact`; after a compaction the harness re-fires it as
+    `SessionStart` with `source=compact`, which *is* visible. So "PreCompact's stdout is not
+    model-visible" can be true while the feature still works. That bullet described one delivery
+    path and was read as a verdict on the whole mechanism — it has now been amended in place.
+  - **My own error, recorded because it shaped two rounds**: I claimed the criterion expects a
+    phase/task position the code cannot emit. It does not. Criterion (line 897) asks only that
+    *"triggering `/compact` mid-plan produces the recovery text in the next context"*. The
+    broader expectation came from my own test prompt, and I then treated the gap between my
+    wording and the code as a defect in the plan. The code and the criterion agreed all along.
+  - **A confound the session disclosed unprompted**: before compacting it had written its own
+    note telling its future self to re-read the plan documents, near-synonymous with the hook's
+    payload. So *delivery* is cleanly established, but the *behavioural* contribution of the
+    hook cannot be separated from its own note on this run. Disclosed rather than glossed.
+  - **The sharpest result concerns what compaction actually does to counts.** The summary
+    preserved the checkbox lines correctly **and** the stale `completed_tasks: 1` against a
+    counted 2 — both faithfully, side by side, unresolved. Compaction did not corrupt the count;
+    it preserved a pre-existing contradiction and stripped the context saying which side wins.
+    **The hook's second imperative — read status from the checkboxes, not the summary — is
+    exactly that tiebreaker.** That is the clearest statement yet of why this text earns its
+    place, and it is only visible on a plan in flight.
+  - **A real gap in the recovery text, now filed.** Compaction cost provenance rather than
+    values: `research.md`'s ~25 `file:line` citations survived intact while the four source
+    files they were verified against did not. The document "looks exactly as authoritative as it
+    did an hour ago, and is no longer backed by anything in context." Re-reading the plan
+    documents — which the hook tells you to do — recovers the text but **cannot recover the
+    verification**; only re-reading the cited sources would, and the hook does not ask for that.
+    Candidate one-line addition to the recovery branch: re-verify citations against source
+    before relying on them.
+
 - **2026-09-08, adversarial review of Phases 1–4, run after `P4-T9` declared every phase's
   checks green.** Ten findings; **eight fixed in the tree**, two need a live session. The
   pattern is one thing, not ten: **every capability verified by grep passed; every capability
