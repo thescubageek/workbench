@@ -28,8 +28,13 @@ matches on — the session-start hook, `forge`, `daily-digest`, `resume_handoff`
 `create_handoff`. A heading ending any other way is invisible to all of them, and the failure
 is silent: the next session is told "closed" over work that was interrupted.
 
-Entries take these two shapes. They are shown fenced because an unfenced example is itself a
-`## ` heading, and would be read as the most recent entry:
+Entries take these two shapes. **Keep the dates as the literal placeholder `YYYY-MM-DD`.** The
+session-start hook finds the newest entry with `grep -E '^## '` and then discards headings whose
+date is still a placeholder — so the placeholder is what stops these examples being read as a
+real entry. The fence is for readability and is *not* the protection: the hook is not
+fence-aware, and these headings still begin at column zero inside it. An example rewritten with
+a realistic-looking date would be reported as an interrupted task in every plan generated from
+this template, silently, from the moment of creation.
 
 ```text
 ## YYYY-MM-DD HH:MM — <task-id or short label> (open)

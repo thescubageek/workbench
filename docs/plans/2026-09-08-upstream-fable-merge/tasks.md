@@ -1333,6 +1333,36 @@ in this plan to have work pending somewhere the tree cannot see.
     on `journal.md` it only trimmed a space inside inline code, but a formatter with write
     access to the journal is another route to breaking it later.
 
+- **2026-09-10, two fixes taken rather than filed, both pre-tag.**
+  - **The journal template explained its own protection wrongly.** It told a future editor the
+    examples are fenced "because an unfenced example is itself a heading, and would be read as
+    the most recent entry." That is false: the hook's matcher is not fence-aware, the example
+    headings still sit at column zero inside the fence, and what actually protects them is the
+    placeholder-date filter. An editor who trusted that sentence could swap `YYYY-MM-DD` for a
+    realistic date and re-open the original bug with the fence fully intact. Now states the real
+    contract — keep the literal placeholder, the fence is readability only. Re-verified: the
+    matcher still returns nothing against the template.
+  - **The lint hook had no `Bash` matcher, so heredoc writes bypassed it entirely.** Found by
+    the end-to-end session, which wrote `research.md` with a Bash heredoc and noticed the format
+    gate never fired. This is not an edge case: the harness tells sessions in auto/bypass mode to
+    *prefer* Bash for file changes, so **the default path for such a session had no gate at
+    all** — and the session recording this note had been doing exactly the same thing all day,
+    caught only by running `./plugin/scripts/lint` by hand each time. Two independent sessions,
+    same silent bypass.
+    - Fixed by adding a `Bash` matcher and a Bash branch that lints the `.md` paths named in the
+      command — **but only those modified in the last minute.** Without that guard, merely
+      *reading* a markdown file (a `grep`, a `cat`) would have had `--fix` silently rewrite it,
+      which is a worse failure than the one being fixed.
+    - **Verified with a control that fires**: a Write payload lints; a Bash payload that wrote a
+      fresh file lints; a Bash payload that only read a **lint-dirty** file (2 real MD errors,
+      confirmed separately) stays silent; a Bash payload with no markdown stays silent. The
+      silence is the mtime guard working, not a clean file.
+    - Cost measured, since this now runs after *every* Bash call: **~27ms** on the
+      no-markdown path, against a 5s timeout.
+    - Degrades honestly without `jq`: a Bash command is a multi-line JSON string that grep/sed
+      cannot extract reliably, so the Bash branch is skipped rather than guessed at. Write and
+      Edit keep their existing fallback.
+
 - **2026-09-08, adversarial review of Phases 1–4, run after `P4-T9` declared every phase's
   checks green.** Ten findings; **eight fixed in the tree**, two need a live session. The
   pattern is one thing, not ten: **every capability verified by grep passed; every capability
