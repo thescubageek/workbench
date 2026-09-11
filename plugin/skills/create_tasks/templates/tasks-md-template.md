@@ -193,7 +193,12 @@ npm test src/component.test.ts tests/integration/feature.test.ts
 ### ⛔ CHECKPOINT: Phase 1 Complete
 
 These are the conditions to meet before Phase 2 — **not a record of having met them.** Tick
-each one as it is actually satisfied:
+each one as it is actually satisfied.
+
+The first three are **derivable**: a tool can establish them, and `/wb:implement` ticks them at
+its Step 8 checkpoint. The last is an **attestation** — it records that a person looked, so only
+a person ticks it. An unticked attestation beside finished work means *"done, sign-off
+pending"*, not a contradiction.
 
 - [ ] Every Phase 1 checkbox is `[x]`
 - [ ] All automated verification passing

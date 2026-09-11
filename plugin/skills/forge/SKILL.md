@@ -1,7 +1,7 @@
 ---
 name: forge
 description: Forge a ticket through the full wb pipeline — research → design → tasks → implementation. End-to-end sequencer for the wb workflow.
-argument-hint: "[ticket-or-directory] [stop-at-phase?]"
+argument-hint: "[ticket-or-directory] [stop-at-phase?] [--auto]"
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash, Task
 ---
 
@@ -92,6 +92,12 @@ When invoked:
 5. **Emit a one-time model plan.** Consult the `model-help` skill in **gate mode** (pass the ticket/design difficulty and the remaining phases) and print a compact per-phase tier table for the phases still ahead — the "model journey" for this forge. This is advisory: it shows where a main-model switch is worth the reload and, by clustering same-tier phases, keeps the whole run to ~1–2 switches. Read [templates/model-plan.md](templates/model-plan.md) for the shape.
 
 6. **Confirm with the user before each phase transition.** Forge does not auto-advance silently; the user must see what's about to run — and, at that moment, the model advisory for the phase about to run.
+
+   **Unless `--auto` was passed**, in which case advance without confirming and pass `--auto`
+   through to `implement`. Two gates still stop regardless, because neither is a wait the user
+   can pre-authorise: `create_design` never sets `status: approved` on its own judgment, and
+   `update_status` still presents a plan when a `status:` value would change. `--auto` skips
+   confirmations, not decisions.
 
 ## Per-phase behavior
 

@@ -34,6 +34,9 @@ draft → approved
 not-started → in-progress
   Trigger: At least one task checkbox is [x]
   Updates: current_phase to the phase holding the first unchecked task
+  Note:    Phase 0's planning tasks count. They are ticked while design.md is still
+           `draft`, and that is legitimate — see the implementation-task guard in
+           SKILL.md Step 3. Do not read that guard as forbidding this transition.
 
 in-progress → complete
   Trigger: Every task checkbox is [x]

@@ -103,20 +103,44 @@ Read [reference/status-transition-logic.md](reference/status-transition-logic.md
 Validation rules that constrain the result:
 
 - Cannot mark design as `approved` if research is still `draft`
-- Cannot mark tasks as `in-progress` if design is still `draft`
+- Cannot mark tasks `in-progress` on the strength of an **implementation** task while design is
+  still `draft`. Phase 0's own planning tasks are the opposite case: they are ticked *precisely*
+  while `design.md` is a draft, and ticking them is what `in-progress` legitimately means at
+  that stage. Without this distinction, this guard and the `not-started → in-progress` trigger
+  contradict each other for every plan still in planning — which is every plan, briefly
 - Cannot mark tasks `complete` while any task checkbox is `[ ]`
 - **Never set design to `approved` yourself.** It records a human confirmation, not a state you
   can infer — see `reference/smart-status-detection.md`
 
-### Step 4: Present Status Update Plan
+### Step 4: Present Status Update Plan — when there is a judgment to present
 
-Read [templates/status-update-plan.md](templates/status-update-plan.md) NOW and present it.
+**This barrier is scoped to judgment, not to arithmetic.** Counter reconciliation is
+deterministic: Step 2 counted the checkboxes, and `SKILL.md`'s own rule is that the counted
+value is what lands. Asking a human to approve arithmetic they cannot meaningfully dispute is
+ceremony, and worse than useless — a barrier that fires on trivia gets clicked through, which
+trains the same reflex on the barrier that matters.
+
+Decide which case this run is.
+
+**Counters only** — `completed_tasks`, `total_tasks` or `current_phase` change, and every
+`status:` value stays exactly as it is. **Apply them without stopping.** Present no plan and
+wait for nothing; report what changed in one line at Step 7.
+
+**Anything else** — apply nothing yet. Read [templates/status-update-plan.md](templates/status-update-plan.md)
+NOW, present it, and then:
 
 **⛔ BARRIER 2**: Wait for user confirmation before proceeding
 
+"Anything else" is any of:
+
+- a `status:` value would change, in any of the three files
+- any status would move **backward** — the NO REGRESSION rule
+- `design.md` would reach `approved`, which you never set yourself in any case
+- the count and the checkboxes disagree in a way you cannot account for
+
 ### Step 5: Apply Updates
 
-After the user confirms, read the [templates/frontmatter-fragments.md](templates/frontmatter-fragments.md) NOW and apply them to research.md, design.md and tasks.md.
+In the counters-only case you have already applied them; skip to Step 6. Otherwise, after the user confirms, read the [templates/frontmatter-fragments.md](templates/frontmatter-fragments.md) NOW and apply them to research.md, design.md and tasks.md.
 
 The counters written are the **counted** values from Step 2 — not the previous values adjusted,
 and not an estimate. If the count and the old counter disagree, the count is what lands.

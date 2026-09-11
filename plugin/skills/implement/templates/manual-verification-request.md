@@ -2,6 +2,10 @@
 
 Step 8 — emitted at the phase checkpoint, then **stop and wait**.
 
+**Attended runs only.** Under `--auto` this request is not emitted and nothing waits: the
+checkpoint ticks the conditions it established, leaves "Manual verification confirmed by human"
+`[ ]`, and records the phase as having closed unattended.
+
 ```
 ✅ Phase ${phase} Automated Verification Complete
 

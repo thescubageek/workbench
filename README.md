@@ -89,6 +89,25 @@ Slash commands for project documentation and task management:
 - **`/wb:update_status`** - Intelligently sync status across all documentation files
 - **`/wb:help`** - Quick reference for all commands
 
+#### Running unattended
+
+`/wb:implement` and `/wb:forge` accept **`--auto`**, which skips the wait at each phase
+checkpoint. It removes a wait, not a check: per-task verification, one-task-one-commit, and
+every earlier barrier are unchanged.
+
+What `--auto` will **not** do is claim a sign-off nobody gave. At an unattended checkpoint the
+three derivable conditions get ticked — phase checkboxes `[x]`, automated verification passing,
+counters reconciled — while **"Manual verification confirmed by human" stays `[ ]`** and the
+phase is recorded as having closed unattended, naming the manual steps nobody performed. That
+unticked box is the point: it is what keeps "ran unattended" and "a person approved this"
+distinguishable months later, when the plan is the only witness.
+
+Two gates still stop even under `--auto`, because neither is a wait you can pre-authorise:
+`create_design` never writes `status: approved` on its own judgment, and `/wb:update_status`
+still presents a plan when a `status:` value would change or move backward. Counter
+reconciliation — arithmetic over checkboxes you already control — applies silently either way,
+so you never have to remember to run it.
+
 ### Agents
 
 Specialized agents for codebase analysis:

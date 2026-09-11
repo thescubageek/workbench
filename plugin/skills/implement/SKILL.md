@@ -1,7 +1,7 @@
 ---
 name: implement
 description: Implement a plan's tasks with worker agents, keeping the main context clean. The recommended execution path — spawns one focused worker per task in fresh context, verifies each, and commits it. Use /wb:implement_inline instead to run tasks inline on the current session model.
-argument-hint: "[project-directory] [phase-number|continue]"
+argument-hint: "[project-directory] [phase-number|continue] [--auto]"
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash, Task
 ---
 
@@ -29,6 +29,11 @@ sentence above exists to prevent. Do not route around a refusal with `cat`.
 ## Initial Response
 
 When invoked, check for arguments:
+
+**`--auto` may appear anywhere in the arguments.** It changes exactly one thing: the Step 8
+phase checkpoint does not stop to request manual verification. Per-task verification, the
+one-task-one-commit rule, the blocking list and every barrier before Step 8 are unchanged —
+`--auto` removes a wait, not a check. What it costs is recorded rather than hidden; see Step 8.
 
 1. **If directory and phase provided** (e.g., `/wb:implement docs/plans/2025-01-08-my-project/ 1`):
    - Use `$1` as project directory
@@ -375,10 +380,26 @@ Every task in the phase is `[x]` and committed. Read [templates/modified-files-f
    make build          # or npm run build, go build
    ```
 
-4. **Request manual verification.** Read [templates/manual-verification-request.md](templates/manual-verification-request.md) NOW, emit it, and **wait for the user's confirmation**.
+4. **Request manual verification — or record that nobody was asked.**
 
-5. **Report completion.** Only after the user confirms: read the
-   [templates/phase-completion-report.md](templates/phase-completion-report.md) NOW and emit it.
+   **Attended (the default).** Read [templates/manual-verification-request.md](templates/manual-verification-request.md) NOW, emit it, and **wait for the user's confirmation**.
+
+   **Under `--auto`.** Do not wait. Tick the checkpoint conditions you actually established —
+   every phase checkbox `[x]`, automated verification passing, `update_status` run — and
+   **leave "Manual verification confirmed by human" as `[ ]`**, because no human was asked.
+   Then add one line under the checkpoint naming the run unattended, with the phase and the
+   time, and listing the manual steps from `design.md` that nobody performed.
+
+   **The unticked box is the feature, not an oversight.** `--auto` buys you the wait; it does
+   not buy the attestation, because an attestation is a claim about what a person did. A run
+   that ticked that box on its own authority would have every finished plan assert a sign-off
+   that never happened — the defect `84da251` removed from the template, reintroduced
+   systematically rather than once. Leaving it `[]` is what keeps "unattended" and "approved"
+   distinguishable later, when the plan is the only witness.
+
+5. **Report completion.** Attended: only after the user confirms. Under `--auto`: immediately.
+   Either way read the [templates/phase-completion-report.md](templates/phase-completion-report.md) NOW and emit it,
+   and under `--auto` say in it that the phase closed unattended.
 
 ### Step 9: Reconcile Status
 

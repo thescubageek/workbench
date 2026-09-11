@@ -1568,6 +1568,43 @@ in this plan to have work pending somewhere the tree cannot see.
     Candidate one-line addition to the recovery branch: re-verify citations against source
     before relying on them.
 
+- **2026-09-10, unattended running added on the user's requirement — `--auto`.** The ask: stop
+  requiring manual sign-off on things an agent has clearly established, keep the checks that
+  carry judgment, and never have to *remember* to reconcile status. Three changes, plus the two
+  contradictions they surfaced.
+  - **`update_status`'s BARRIER 2 is now scoped to judgment rather than arithmetic.** Counter
+    reconciliation applies silently: Step 2 counts the checkboxes and the skill's own rule is
+    that the counted value lands, so there was never anything for a human to dispute. Both times
+    the barrier fired during testing, the entire proposed change was `completed_tasks: 1 → 2`.
+    It still stops when a `status:` value would change, when anything moves backward, when
+    `design.md` would reach `approved`, or when the count and the checkboxes disagree
+    inexplicably. *A barrier that fires on trivia gets clicked through, and that reflex is then
+    trained on the barrier three lines later that matters.*
+  - **`implement` and `forge` accept `--auto`**, which skips the wait at the phase checkpoint.
+    Per-task verification, one-task-one-commit, the blocking list and every earlier barrier are
+    untouched — it removes a wait, not a check.
+  - **`--auto` does not buy the attestation, and that is the whole design.** At an unattended
+    checkpoint the three **derivable** conditions are ticked (phase checkboxes `[x]`, automated
+    verification passing, counters reconciled) while **"Manual verification confirmed by human"
+    stays `[ ]`**, and the phase is recorded as closed unattended, naming the manual steps
+    nobody performed. Ticking it automatically would make every finished plan assert a sign-off
+    that never happened — `84da251`'s defect reintroduced systematically rather than once. This
+    is the fact/attestation split the Item 3 session identified, now load-bearing rather than
+    filed: `--auto` is only safe *because* that distinction exists.
+  - **The template now states the split**, so an unticked attestation beside finished work reads
+    as "done, sign-off pending" rather than as a contradiction — which is exactly how it read
+    during the end-to-end run, and why that cold read failed.
+  - **Two contradictions resolved in passing.** (a) `SKILL.md`'s guard "cannot mark tasks
+    `in-progress` if design is still `draft`" versus the transition trigger "at least one task
+    checkbox is `[x]`" — irreconcilable for *every* plan in planning, since Phase 0's own tasks
+    are ticked precisely while `design.md` is a draft. The guard is now scoped to
+    **implementation** tasks, which is what it always meant, and the transition table points at
+    it. (b) `manual-verification-request.md` still opened "emitted at the phase checkpoint, then
+    **stop and wait**", which `--auto` falsifies; it now says which mode it describes. Fifth and
+    sixth instances of the same class — a shipped file asserting a contract another part does
+    not honour — and the second one was introduced *by this very change*, caught only by
+    sweeping for it afterwards.
+
 - **2026-09-08, adversarial review of Phases 1–4, run after `P4-T9` declared every phase's
   checks green.** Ten findings; **eight fixed in the tree**, two need a live session. The
   pattern is one thing, not ten: **every capability verified by grep passed; every capability
