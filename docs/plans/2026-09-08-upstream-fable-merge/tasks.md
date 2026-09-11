@@ -1413,6 +1413,53 @@ in this plan to have work pending somewhere the tree cannot see.
     `design.md` approval: a "run to completion" instruction issued *before* the artifact existed
     is being read as confirmation *of* it. Still open.
 
+- **2026-09-10, Item 4 and the closing verdicts.**
+  - **Criterion 1021 PASSES.** The corrected `tasks.md` answers all three questions from the
+    document alone: 17/17 across 4 phases with a library, a CLI and 43 tests; Phase 3 complete;
+    next step is validation, not implementation. Worth stating plainly: **it passed only after
+    the cold read failed first and the defects were fixed.** The criterion did its job by
+    failing.
+  - **The MD024 fix was verified discriminatingly, not just by a clean exit.** Three checks, any
+    of which could have failed: the duplicate headings are **still in the file** (4× `### Objective`,
+    3× `### Prerequisites`), so the clean result comes from `siblings_only` rather than from the
+    document changing; the linter still fails on a deliberately broken file (MD040); and MD024
+    **still fires** on a true sibling duplicate under one parent. The rule was narrowed, not
+    blinded.
+  - **All three deprecated aliases PASS.** Notice fired exactly once each, correct canonical
+    loaded (`create_tasks`, `implement`, `implement_inline`), each stub holds only `SKILL.md`
+    with no duplicated behaviour, and **nothing wrote** — the plan checksum was unchanged before
+    and after. The run deliberately stopped before each canonical executed, since following
+    through would have had `create_tasks` regenerate the finished plan. So this verifies
+    notice-once and correct dispatch, not downstream behaviour, which the pipeline run exercised
+    directly. The `implement_tasks` notice additionally disambiguates `implement` from
+    `implement_inline` — the one place a user could pick the wrong successor.
+  - **The checkpoint-tick question, answered better than it was asked.** My framing — "two
+    derived surfaces with one writer" — was wrong, and treating them as symmetric is itself the
+    error. The Progress Overview *is* purely derived. The checkpoint block is **mixed**: of its
+    four conditions exactly one (`Every Phase N checkbox is [x]`) is derivable from the
+    document, while the other three are attestations about acts outside it — tests were run, a
+    human confirmed, `update_status` was run.
+    - **So auto-reconciling would be a regression, not a fix.** Having `update_status` tick
+      those boxes would machine-tick "Manual verification confirmed by human" on its own
+      authority — the `84da251` bug restored through a different door. Correct-but-unticked is
+      the right default for an attestation, and this run proves it: leaving that box `[ ]` is
+      the only reason the finished plan honestly records that no human ever signed off.
+    - **The real defect is narrower and twofold.** (a) *The tick has no owner and no moment* —
+      the block says "Tick each one as it is actually satisfied" but no stage ever does it;
+      `implement` Step 8 is the natural home, being the one step holding the human's
+      confirmation, yet it stops at emitting the completion report. An instruction with no
+      executing step means every finished plan self-contradicts. (b) *The block does not
+      distinguish facts from attestations*, so an unticked checkpoint under a `✅ Complete`
+      phase reads as a contradiction rather than as "work done, sign-off pending."
+    - **Filed, not fixed.** Shape of a fix: `implement` Step 8 ticks the mechanically-verifiable
+      boxes after its verification run, and the human-confirmation box only after the human
+      answers; marking the derivable box as derivable removes the remaining ambiguity.
+  - **`/compact` cannot be self-triggered** — it is a built-in CLI command, not a skill, and no
+    tool initiates compaction. That limitation is intrinsic to the test rather than incidental:
+    the criterion is what the `PreCompact` hook puts in front of a session *without* its
+    involvement, the same cross-boundary property that made Item 2 meaningful. It requires the
+    human to type it. **Still open — the last unverified criterion.**
+
 - **2026-09-08, adversarial review of Phases 1–4, run after `P4-T9` declared every phase's
   checks green.** Ten findings; **eight fixed in the tree**, two need a live session. The
   pattern is one thing, not ten: **every capability verified by grep passed; every capability
