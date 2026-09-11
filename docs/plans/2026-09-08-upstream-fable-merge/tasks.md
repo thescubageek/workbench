@@ -1460,6 +1460,35 @@ in this plan to have work pending somewhere the tree cannot see.
     involvement, the same cross-boundary property that made Item 2 meaningful. It requires the
     human to type it. **Still open — the last unverified criterion.**
 
+- **2026-09-10, `design-md-template.md` contradicted itself about where a resolution is
+  recorded — FIXED.** Two bullets eight lines apart gave opposite instructions for the same
+  cell: `:126` said **"Resolution goes in `State`, never in `Blocks`"** and explained that
+  overwriting `Blocks` destroys the record of why the row mattered, while `:134` told
+  `/wb:resolve_questions` to set **`Blocks`** to `— resolved YYYY-MM-DD`. Whichever a session
+  followed, the other bullet declared it wrong.
+  - The direction was settled by the consumer rather than by preference:
+    `resolve_questions/SKILL.md:192` sets the **`State`** cell, and five other templates
+    (`create_research`, `create_product_research` ×2, `create_mockup`, and `:126` itself) agree.
+    `:134` was the lone outlier. Corrected to `State`, with `Blocks` explicitly left as written.
+  - Same class as the journal template's wrong explanation: a shipped file stating a contract
+    its own implementation does not follow. Third instance on this plan of *"when several
+    consumers agree on a format, something must state it and something must check it"* — here
+    two halves of one file disagreed and nothing checked either.
+
+- **2026-09-10, the `/compact` criterion was attempted and returned UNVERIFIED — correctly.**
+  The session received no `PreCompact` output and refused to report one. Its evidence was
+  positive rather than merely an absence: it still held pre-compaction detail at full fidelity —
+  the P2-T1 failure split (33 `<`-variant, 1 `>`-variant `TypeError`), the plan checksum
+  `9a68230bfff814be`, and the RED/GREEN ladder 8 → 18 → 25 → 33 → 37 → 43 — all of which a
+  compaction would have collapsed into paraphrase, which is exactly what the expected hook line
+  warns about. Their survival verbatim is evidence no summarisation occurred.
+  - **Verdict recorded as UNVERIFIED, not PASS and not FAIL**, because the precondition never
+    happened. Reporting either would have invented evidence for the one criterion whose whole
+    value is that it cannot be reproduced from inside the session's own process.
+  - **Cause was the instruction, not the plugin**: the `/compact` command was clipped inside a
+    larger block of prose, so pasting it sent the slash command as message text and it never
+    fired. A slash command has to be sent alone.
+
 - **2026-09-08, adversarial review of Phases 1–4, run after `P4-T9` declared every phase's
   checks green.** Ten findings; **eight fixed in the tree**, two need a live session. The
   pattern is one thing, not ten: **every capability verified by grep passed; every capability

@@ -131,8 +131,9 @@ record — there is no external tracker.
   decision — decide it here and record it under Technical Decisions.
 - **Resolving writes two places.** `/wb:resolve_questions` records the decision with its
   rationale and trade-off under `## Technical Decisions` (in a `### Resolved Decisions`
-  subsection if none fits), then sets this row's `Blocks` cell to `— resolved YYYY-MM-DD`.
-  The row stays.
+  subsection if none fits), then sets this row's `State` cell to
+  `Resolved YYYY-MM-DD → design.md (## Technical Decisions)`. The row stays, and `Blocks` is
+  left exactly as written.
 
 Note: Decisions blocking execution should be resolved before `/wb:create_tasks`.
 
