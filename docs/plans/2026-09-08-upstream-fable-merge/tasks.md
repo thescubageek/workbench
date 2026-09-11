@@ -1489,6 +1489,45 @@ in this plan to have work pending somewhere the tree cannot see.
     larger block of prose, so pasting it sent the slash command as message text and it never
     fired. A slash command has to be sent alone.
 
+- **2026-09-10, `/compact` attempt 2 — the session reported FAIL; the correct verdict is still
+  UNVERIFIED, because the test ran in the one state where the feature does nothing.**
+  Compaction genuinely occurred this time and no recovery text reached the model, so the
+  observation is sound. The *diagnosis* is not.
+  - The session concluded the cause was `PreCompact` stdout not being model-visible, citing the
+    hook's own header comment (`wb-prime.sh:12-13` — "SessionStart's stdout is model-visible;
+    PreCompact's is not"), and explicitly ruled out the early-exit: *"the candidate list was
+    non-empty."* **That is the one claim it did not test, and it is false.**
+  - `wb-prime.sh:78` reads `[ "$status" = "complete" ] && continue` — the candidate scan
+    **skips completed plans**. `docs/plans/2026-09-10-semver-compare/tasks.md` carries
+    `status: complete`, so `count` was 0 and line 86 exited before printing anything.
+  - **Measured, with a control that fires**: a `PreCompact` payload run against the real plan
+    emits **0 bytes**, exit 0. The same payload against a byte-identical copy with only
+    `status:` flipped to `in-progress` emits the full four-line recovery text. The difference is
+    that one field.
+  - **So the criterion was never exercised.** `tasks.md:894` says "triggering `/compact`
+    **mid-plan**"; the plan was finished. The test design did not match the criterion, and the
+    session's own caveat — *"the recovery text earns its keep on a half-done plan, and that case
+    was not exercised"* — was closer to right than its verdict. It found the gap and then did
+    not connect it to the early exit.
+  - **Two candidate causes remain, and they are separable.** (a) the completed-plan early exit,
+    now confirmed to have fired; (b) the stdout-visibility claim in the header comment, which is
+    the plugin author's own statement and remains **untested**, because (a) meant no text was
+    ever emitted to be seen. The clean experiment is a `/compact` in a session whose active plan
+    is **in-progress**: text appears → the comment is stale and the criterion passes; nothing
+    appears → (b) is confirmed and the `PreCompact` hook is decorative for every plan.
+  - **A third finding stands regardless of which way that lands.** The recovery branch
+    `exit 0`s at line 95, *before* the orientation block at 98. So even with visible stdout it
+    emits the paraphrase warning, the plan path and two re-read instructions — and never a phase
+    or task count. `tasks.md:894` expects "the recovery text" including position; the code
+    cannot produce position on its best day. The criterion is broader than the implementation,
+    and that mismatch is real independent of visibility.
+  - **Filed from the same run**: `tasks.md` frontmatter carried `git_commit: f00d561` against
+    HEAD `505a577` — counter drift in the one field `update_status` refreshes from git.
+  - *Worth keeping: the session refused to round agreement-after-re-read into a vindication,
+    on the grounds that a finished plan has counts that cannot drift, so it was near the
+    easiest possible test of a mechanism built for plans in flight. That reasoning was right,
+    and it points at exactly the re-test now required.*
+
 - **2026-09-08, adversarial review of Phases 1–4, run after `P4-T9` declared every phase's
   checks green.** Ten findings; **eight fixed in the tree**, two need a live session. The
   pattern is one thing, not ten: **every capability verified by grep passed; every capability
