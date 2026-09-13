@@ -1688,6 +1688,54 @@ in this plan to have work pending somewhere the tree cannot see.
     not obtained**. Seventh instance of this class on this plan, and the third introduced by a
     change of mine rather than inherited.
 
+- **2026-09-13, the plan ran to completion under `--auto`. The design holds; four defects found,
+  three of them mine.**
+  - **The question that mattered passed decisively.** Cold read Q4 — *can a reader tell that no
+    human signed off?* — **"Yes, unmistakably, in four independent places."** The progress table
+    says `Complete (unattended)` three times; three attestation boxes sit `[ ]`; three prose
+    notes say "Nobody was asked"; Implementation Notes repeat it per phase. *"A reader who only
+    counts boxes sees 16/16 and might say 'done' — but they cannot get to 'reviewed' without
+    walking past three unticked attestations labelled as attestations."* That is the whole point
+    of the fact/attestation split, met.
+  - **Both halves of the scoped barrier proved out in one invocation.** At the Phase 3
+    checkpoint `update_status` reconciled `completed_tasks` 12 → 16 **silently**, and refused
+    the `in-progress → complete` transition because that is a `status:` change behind Barrier 2.
+    Arithmetic applied, judgment withheld, same call.
+  - **Cold read Q3 is the weak answer**, and was reported as such rather than rounded up: a
+    reader meets `status: in-progress` at line 6, then a table showing every phase at 100%, and
+    must reach the Phase 3 checkpoint's parenthetical to learn the transition is held for a
+    human. The contradiction is *caused by* respecting the barrier but is never explained near
+    the top, where it appears.
+  - **Four defects. Three were mine, all now fixed.**
+    - **(a) The `--auto` carve-out had a second surface I missed.** `tasks-md-template.md:209`
+      was fixed on 2026-09-13; `:223` — `- [ ] Phase 1 manual testing confirmed`, in the *next*
+      phase's Prerequisites — was not, so every generated plan had a phase whose stated
+      prerequisite is unsatisfiable under `--auto`. **Eighth instance of this class, fourth of
+      mine**, and the lesson is precise: fixing one site is not fixing the cause.
+    - **(b) `--auto` broke positional argument binding.** `implement` substitutes `$1`/`$2`
+      positionally, so "may appear anywhere" meant `/wb:implement --auto <dir>` bound `$1` to
+      `--auto` and lost the project directory. Observed live: *"Use `--auto` as project
+      directory"*. Now stated as a flag to **strip before** binding.
+    - **(c) I stranded `git_commit` by scoping the silent path too narrowly.** The counters-only
+      branch named `completed_tasks`/`total_tasks`/`current_phase` and omitted git metadata, so
+      nothing refreshes it — the plan still reads `git_commit: 505a577`, the pre-implementation
+      commit. The semver plan was reconciled correctly *before* this change, which dates the
+      regression to it. Git metadata is read from the repository rather than judged, so it
+      belongs on the silent side; a stale fact that looks current is worse than an absent one.
+    - **(d) `--auto` cannot close a plan, and nothing said so.** The final
+      `in-progress → complete` always hits `update_status`'s barrier, so an unattended run ends
+      with work committed, counters reconciled, and the plan still reading `in-progress`. That
+      is *correct* — `complete` is a claim — but it was silent. `implement` now says so in the
+      final phase's report.
+  - **Not mine, still filed**: `splitlines()` line-number drift (recorded by `P1-T4`, never
+    handled, no test — the one risk that yields a *wrong* answer rather than a missing one), and
+    a worker again stamping a completion time six minutes in the future. The timestamp
+    instruction added to the planning stages does not reach task workers.
+  - *About the run itself: a validation agent caught a factual error in the coordinator's own
+    write-up — "four raise sites" when `P3-T4` had made it five — and it was corrected. The
+    fan-out was spawned here precisely because the coordinator had read the source only at
+    earlier states, which is the documented reason to spawn rather than skip.*
+
 - **2026-09-08, adversarial review of Phases 1–4, run after `P4-T9` declared every phase's
   checks green.** Ten findings; **eight fixed in the tree**, two need a live session. The
   pattern is one thing, not ten: **every capability verified by grep passed; every capability
