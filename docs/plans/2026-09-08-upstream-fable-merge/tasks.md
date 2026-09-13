@@ -1655,6 +1655,39 @@ in this plan to have work pending somewhere the tree cannot see.
       exactly 1 per planning stage, so drift between the four statements is detectable by grep
       rather than only by a failure.
 
+- **2026-09-11/13, `--auto` and the planning-stage journal both PASS, verified from the
+  artifacts.** The run reached Phase 2 before being interrupted again; everything below was read
+  off disk rather than from a session report.
+  - **The unattended checkpoint behaves exactly as designed.** Phase 1's block carries
+    `[x] [x] [ ] [x]` — the three derivable conditions ticked, **"Manual verification confirmed
+    by human" left `[ ]`** — under a recorded note: *"Phase 1 closed unattended at 2026-09-11
+    21:27 UTC (14:27 PDT), under `/wb:implement --auto`. Nobody was asked… it is an attestation
+    about what a person did, and no person did it."* Committed as `bc11de4`, so it is durable
+    rather than transient.
+  - **The silent counter path works.** No stop occurred at the checkpoint, `update_status`'s own
+    box is ticked, and the counters have since drifted to `completed_tasks: 8` against 10 counted
+    — drift accumulated *after* the checkpoint reconciliation, which is the expected steady
+    state. Both halves of the scoped barrier are now proven: it fires on a `status:` change and
+    stays silent on arithmetic.
+  - **The planning-stage journal code worked on first execution.** `## 2026-09-11 21:08 —
+    create_design (closed)` and `## 2026-09-11 21:12 — create_tasks (closed)` — real clock-read
+    timestamps, correct `(closed)` suffix, written by code that had never run before that
+    afternoon.
+  - **RED-GREEN is visible in the history rather than asserted**: `a1db0bb` (RED) → `d783bab`
+    (GREEN) → `d8260f3` (RED) → `5fb7e3a` (GREEN) → `420fb94` (RED) → `cc46a41` (GREEN). 59
+    tests, OK.
+  - **A second interruption, correctly recorded this time.** `## 2026-09-11 21:35 — P2-T3 (open)`
+    sits beside a dirty tree — which is precisely D8's stated signal for an interrupted task, as
+    against the 2026-09-11 restart that left silence. The fix is doing its job on the very next
+    interruption.
+  - **One contradiction found, and it was mine.** The template's
+    **"Do not proceed without human confirmation of manual tests."** was left unconditional when
+    `--auto` was added, so the generated plan asserts it at line 287 and then records having
+    proceeded without that confirmation directly beneath. Now reconciled: the instruction still
+    governs attended runs and names what `--auto` does instead — the confirmation is **deferred,
+    not obtained**. Seventh instance of this class on this plan, and the third introduced by a
+    change of mine rather than inherited.
+
 - **2026-09-08, adversarial review of Phases 1–4, run after `P4-T9` declared every phase's
   checks green.** Ten findings; **eight fixed in the tree**, two need a live session. The
   pattern is one thing, not ten: **every capability verified by grep passed; every capability

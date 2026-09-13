@@ -206,7 +206,10 @@ pending"*, not a contradiction.
 - [ ] `/wb:update_status` run to reconcile the frontmatter counters — it is the only writer of
       those fields, so do not edit `current_phase` or `completed_tasks` by hand
 
-**Do not proceed without human confirmation of manual tests.**
+**Do not proceed without human confirmation of manual tests** — unless the phase is being run
+under `/wb:implement --auto`, which buys the wait and not the attestation. In that case the
+attestation stays `[ ]`, the checkpoint records that the phase closed unattended and names the
+manual steps nobody performed, and the confirmation is **deferred, not obtained.**
 
 ---
 
