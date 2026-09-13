@@ -122,9 +122,14 @@ trains the same reflex on the barrier that matters.
 
 Decide which case this run is.
 
-**Counters only** — `completed_tasks`, `total_tasks` or `current_phase` change, and every
-`status:` value stays exactly as it is. **Apply them without stopping.** Present no plan and
-wait for nothing; report what changed in one line at Step 7.
+**Counters only** — `completed_tasks`, `total_tasks` or `current_phase` change, **the git
+metadata (`git_commit`, `git_branch`, `repository`) refreshes**, and every `status:` value stays
+exactly as it is. **Apply all of it without stopping.** Present no plan and wait for nothing;
+report what changed in one line at Step 7.
+
+Git metadata belongs on this side for the same reason the counters do: it is read out of the
+repository, not judged. Leaving it out strands `git_commit` at whatever commit the plan was
+created on, which is a stale fact that looks like a current one — worse than an absent one.
 
 **Anything else** — apply nothing yet. Read [templates/status-update-plan.md](templates/status-update-plan.md)
 NOW, present it, and then:

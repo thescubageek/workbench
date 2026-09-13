@@ -30,10 +30,15 @@ sentence above exists to prevent. Do not route around a refusal with `cat`.
 
 When invoked, check for arguments:
 
-**`--auto` may appear anywhere in the arguments.** It changes exactly one thing: the Step 8
-phase checkpoint does not stop to request manual verification. Per-task verification, the
-one-task-one-commit rule, the blocking list and every barrier before Step 8 are unchanged —
-`--auto` removes a wait, not a check. What it costs is recorded rather than hidden; see Step 8.
+**`--auto` is a flag, not a positional argument. Strip it out before binding `$1` and `$2`.**
+It may appear anywhere in the invocation, so `/wb:implement --auto <dir> continue` must still
+bind `$1` to the directory — binding it to `--auto` loses the project directory entirely, and
+that has happened. Match it by name, remove it, then treat what remains as the positional list.
+
+Its only effect is that the Step 8 phase checkpoint does not stop to request manual
+verification. Per-task verification, the one-task-one-commit rule, the blocking list and every
+barrier before Step 8 are unchanged — `--auto` removes a wait, not a check. What it costs is
+recorded rather than hidden; see Step 8.
 
 1. **If directory and phase provided** (e.g., `/wb:implement docs/plans/2025-01-08-my-project/ 1`):
    - Use `$1` as project directory
@@ -400,6 +405,14 @@ Every task in the phase is `[x]` and committed. Read [templates/modified-files-f
 5. **Report completion.** Attended: only after the user confirms. Under `--auto`: immediately.
    Either way read the [templates/phase-completion-report.md](templates/phase-completion-report.md) NOW and emit it,
    and under `--auto` say in it that the phase closed unattended.
+
+   **On the final phase under `--auto`, say plainly that the plan cannot close itself.** Once
+   every task is `[x]`, `tasks.md` wants `status: in-progress → complete` — and that is a
+   `status:` change, which `/wb:update_status` gates behind its own barrier. `--auto` is scoped
+   to this checkpoint and does not reach another skill's gate. So an unattended run ends with
+   the counters reconciled, the work committed, and the plan's own status still `in-progress`,
+   waiting on a person. Name that in the report rather than leaving the user to discover a plan
+   that looks unfinished; it is the one thing `--auto` deliberately cannot finish.
 
 ### Step 9: Reconcile Status
 

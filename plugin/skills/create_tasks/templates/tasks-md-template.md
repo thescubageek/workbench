@@ -219,8 +219,11 @@ manual steps nobody performed, and the confirmation is **deferred, not obtained.
 [Clear goal for phase 2]
 
 ### Prerequisites
+
 - [ ] Phase 1 complete and verified
-- [ ] Phase 1 manual testing confirmed
+- [ ] Phase 1 manual testing confirmed — *an attestation, like the checkpoint's. Under
+      `/wb:implement --auto` it stays `[ ]` and the phase proceeds anyway; the previous phase's
+      checkpoint records that nobody was asked. Unticked here means deferred, not blocked.*
 - [ ] [Additional prerequisites from dependency agent]
 
 [Continue with similar structure...]
