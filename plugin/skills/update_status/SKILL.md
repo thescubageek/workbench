@@ -131,6 +131,15 @@ Git metadata belongs on this side for the same reason the counters do: it is rea
 repository, not judged. Leaving it out strands `git_commit` at whatever commit the plan was
 created on, which is a stale fact that looks like a current one — worse than an absent one.
 
+**`not-started` → `in-progress` belongs on this side too**, even though it is a `status:` value.
+Its trigger is "at least one task checkbox is `[x]`" — arithmetic over the same checkboxes the
+counters read, not a claim about the world. Apply it silently.
+
+Gating it was measured to break the feature: the *first* checkpoint of every plan hit the
+barrier, and in a two-phase plan the `complete` gate caught the second, so **neither** checkpoint
+could ever be silent. A fully implemented six-task plan ended up reading `status: not-started`
+with `completed_tasks: 6` — a worse lie than any stale counter.
+
 **Anything else** — apply nothing yet. Read [templates/status-update-plan.md](templates/status-update-plan.md)
 NOW, present it, and then:
 
@@ -141,12 +150,6 @@ NOW, present it, and then:
 - a **judgment-bearing** `status:` value would change. `tasks.md` reaching **`complete`** is
   the one that matters: it is a claim that the work is finished, not a count. So is any
   `research.md` or `design.md` transition
-- **`not-started` → `in-progress` is NOT judgment and must not stop.** Its trigger is "at least
-  one task checkbox is `[x]`", which is arithmetic over the same checkboxes the counters read.
-  Gating it made the *first* checkpoint of every plan hit the barrier, and in a two-phase plan —
-  the common shape — that plus the `complete` gate meant **neither** checkpoint could ever be
-  silent. Measured: a fully implemented six-task plan ended reading `status: not-started` with
-  `completed_tasks: 6`, which is a worse lie than a stale counter
 - any status would move **backward** — the NO REGRESSION rule
 - `design.md` would reach `approved`, which you never set yourself in any case
 - the count and the checkboxes disagree in a way you cannot account for
