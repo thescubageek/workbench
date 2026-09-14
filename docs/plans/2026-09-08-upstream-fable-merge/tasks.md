@@ -1736,6 +1736,52 @@ in this plan to have work pending somewhere the tree cannot see.
     fan-out was spawned here precisely because the coordinator had read the source only at
     earlier states, which is the documented reason to spawn rather than skip.*
 
+- **2026-09-13, the four-fix verification run: 3 of 4 confirmed, and it found the worst bug of
+  the week.** Checks (1), (2) and (4) pass; (3)'s *premise* turned out to be wrong.
+  - **(1) PASS** — `/wb:implement --auto <dir> continue` bound the directory correctly with the
+    flag first. **(2) PASS** — the Prerequisites carve-out is present and propagated into the
+    generated plan. **(4) PASS** — the final phase stated plainly that the plan cannot close
+    itself, quoted at length.
+  - **F4 — the checkpoint prose contradicted its own box order. Fixed; this was the worst one.**
+    The block said *"the first three are derivable… the last is an attestation"*, but the order
+    is checkbox / automated / **manual-confirmed-by-human** / `update_status`. Position 3 is the
+    attestation and position 4 is derivable. **Anyone following that prose positionally ticks
+    the human sign-off box** — reintroducing the exact defect `84da251` removed, via the very
+    text added to prevent it. `implement` Step 8 names the boxes explicitly, so execution was
+    safe; the template was wrong. Now each box is labelled `(derivable)` / `(attestation)`
+    inline, with a note saying to go by the label and never by position, and why.
+  - **F9 — the silent path was unreachable in the common plan shape. Fixed.** `not-started →
+    in-progress` triggers on one `[x]`, and my Barrier 2 fired on *any* `status:` change — so the
+    **first** checkpoint of every plan hit the barrier, and in a two-phase plan the `complete`
+    gate caught the second, leaving **no** checkpoint silent. The measured end state was worse
+    than a stale counter: a fully implemented six-task plan reading `status: not-started` with
+    `completed_tasks: 6`. The scoping was too coarse — `not-started → in-progress` is arithmetic
+    over the same checkboxes the counters read, not a claim. It is now explicitly on the silent
+    side; `complete` and backward moves still stop.
+  - **F7 — the completion-report template knew nothing about `--auto`. Fixed.** Its header read
+    *"emitted once, after the human confirms manual verification"* and its body had no slot for
+    either the unattended line or the cannot-close-itself statement. Both were mandated only in
+    `SKILL.md` prose, so a coordinator rendering the template faithfully would emit neither —
+    a plausible mechanism for check (4) regressing silently later. The template now carries both.
+  - **F1 — my own fix text was illegible because the harness substituted into it. Fixed.** The
+    `--auto` paragraph said "strip it before binding `$1` and `$2`"; the harness substitutes
+    those *values*, so it read back as "strip the flag before binding `<the correct directory>`"
+    — circular, and **legible only when the binding already works**. Rewritten without literal
+    placeholders, with a note explaining why they must not reappear.
+  - **F8 — tick-before-run. Fixed.** Step 8 had the coordinator tick the `update_status` box
+    while Step 9 is what runs it. Ticking it there asserts something not yet done — the same
+    error in miniature as ticking the attestation.
+  - **Filed, not fixed**: F10, `create_project` binding its positional arguments to words 2/3/4
+    with the first word bound to nothing — pre-existing, same family as F1, and the second time
+    that skill's argument handling has been reported. F3 (the journal convention has no
+    *blocked-on-a-human* state, so the hook reads open-entry-plus-clean-tree as a missed
+    close-out). F6 (`docs/plans/` is gitignored, so the status surface has no durable record
+    until promoted — independently surfaced by a worker as well). F2 and F5, cosmetic.
+  - *The run's own quality is worth recording: it mutation-tested the anchoring criterion three
+    independent ways, corrected its own claim about running a README example "verbatim" after a
+    verifier ran it genuinely verbatim, and flagged F7 as "the finding most likely to matter"
+    before reaching the checkpoint where it would have mattered.*
+
 - **2026-09-08, adversarial review of Phases 1–4, run after `P4-T9` declared every phase's
   checks green.** Ten findings; **eight fixed in the tree**, two need a live session. The
   pattern is one thing, not ten: **every capability verified by grep passed; every capability

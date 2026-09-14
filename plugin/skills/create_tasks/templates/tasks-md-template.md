@@ -195,16 +195,20 @@ npm test src/component.test.ts tests/integration/feature.test.ts
 These are the conditions to meet before Phase 2 — **not a record of having met them.** Tick
 each one as it is actually satisfied.
 
-The first three are **derivable**: a tool can establish them, and `/wb:implement` ticks them at
-its Step 8 checkpoint. The last is an **attestation** — it records that a person looked, so only
-a person ticks it. An unticked attestation beside finished work means *"done, sign-off
-pending"*, not a contradiction.
+Each box below is labelled **(derivable)** or **(attestation)**. A derivable condition is one a
+tool can establish, and `/wb:implement` ticks those at its Step 8 checkpoint. An attestation
+records that a *person* looked, so only a person ticks it, and an unticked attestation beside
+finished work means *"done, sign-off pending"* rather than a contradiction.
 
-- [ ] Every Phase 1 checkbox is `[x]`
-- [ ] All automated verification passing
-- [ ] Manual verification confirmed by human
-- [ ] `/wb:update_status` run to reconcile the frontmatter counters — it is the only writer of
-      those fields, so do not edit `current_phase` or `completed_tasks` by hand
+**Go by the label, never by position.** An earlier version of this block described them by
+position — "the first three" — and the description did not match the order, which would have a
+reader tick the human sign-off box and leave `update_status` unticked.
+
+- [ ] **(derivable)** Every Phase 1 checkbox is `[x]`
+- [ ] **(derivable)** All automated verification passing
+- [ ] **(attestation)** Manual verification confirmed by human
+- [ ] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
+      only writer of those fields, so do not edit `current_phase` or `completed_tasks` by hand
 
 **Do not proceed without human confirmation of manual tests** — unless the phase is being run
 under `/wb:implement --auto`, which buys the wait and not the attestation. In that case the

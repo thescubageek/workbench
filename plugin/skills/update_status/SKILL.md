@@ -138,7 +138,15 @@ NOW, present it, and then:
 
 "Anything else" is any of:
 
-- a `status:` value would change, in any of the three files
+- a **judgment-bearing** `status:` value would change. `tasks.md` reaching **`complete`** is
+  the one that matters: it is a claim that the work is finished, not a count. So is any
+  `research.md` or `design.md` transition
+- **`not-started` → `in-progress` is NOT judgment and must not stop.** Its trigger is "at least
+  one task checkbox is `[x]`", which is arithmetic over the same checkboxes the counters read.
+  Gating it made the *first* checkpoint of every plan hit the barrier, and in a two-phase plan —
+  the common shape — that plus the `complete` gate meant **neither** checkpoint could ever be
+  silent. Measured: a fully implemented six-task plan ended reading `status: not-started` with
+  `completed_tasks: 6`, which is a worse lie than a stale counter
 - any status would move **backward** — the NO REGRESSION rule
 - `design.md` would reach `approved`, which you never set yourself in any case
 - the count and the checkboxes disagree in a way you cannot account for

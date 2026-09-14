@@ -30,10 +30,16 @@ sentence above exists to prevent. Do not route around a refusal with `cat`.
 
 When invoked, check for arguments:
 
-**`--auto` is a flag, not a positional argument. Strip it out before binding `$1` and `$2`.**
+**`--auto` is a flag, not a positional argument. Strip it out before positional binding.**
 It may appear anywhere in the invocation, so `/wb:implement --auto <dir> continue` must still
-bind `$1` to the directory — binding it to `--auto` loses the project directory entirely, and
-that has happened. Match it by name, remove it, then treat what remains as the positional list.
+bind the *directory* into the first positional slot — putting the flag there loses the project
+directory entirely, and that has happened. Match `--auto` by name, remove it, then treat what
+remains as the positional list.
+
+*This paragraph deliberately does not write the positional placeholders literally. The harness
+substitutes their **values** into skill text, so a sentence that names them reads back as the
+values it was meant to explain — "strip the flag before binding `<the correct directory>`" —
+which is circular, and legible only when the binding already worked. Measured 2026-09-13.*
 
 Its only effect is that the Step 8 phase checkpoint does not stop to request manual
 verification. Per-task verification, the one-task-one-commit rule, the blocking list and every
@@ -375,7 +381,12 @@ Every task in the phase is `[x]` and committed. Read [templates/modified-files-f
    blocked task was resolved to a WIP commit or restored (6c), so leftover uncommitted work
    means something did not finish and nobody noticed.
 
-3. **Run automated verification**:
+3. **Run automated verification** — and note the ordering: `update_status` runs at **Step 9**,
+   after this checkpoint. Do not tick its checkpoint box until it has actually run. Ticking it
+   here asserts something not yet done, which is the same error in miniature as ticking the
+   human attestation.
+
+   Run the checks:
 
    ```bash
    # Adapt these to actual commands from tasks.md
