@@ -61,7 +61,22 @@ The rules above say what not to **add**. They say nothing about what to do with 
 ### Your final act
 
 When the task is done, edit `tasks.md`: change this task's `- [ ]` to `- [x]` and append
-`(completed YYYY-MM-DD HH:MM)`. Then stop.
+`(completed YYYY-MM-DD HH:MM)` **at the end of the task's text**, after the description — not
+between the ID and the description.
+
+**Read the clock. Do not estimate the time and do not copy one from elsewhere in the file:**
+
+```bash
+date -u +"%Y-%m-%d %H:%M"
+```
+
+Use UTC, which is what the rest of the plan uses. Workers have repeatedly stamped times in the
+future, hours in the past, and out of order relative to the task before them — one plan
+accumulated a completion time ten hours before the plan containing it was generated. The journal
+and the checkbox log exist to answer *what happened, and in what order*; a guessed timestamp
+corrupts exactly that and nothing else in the record contradicts it.
+
+Then stop.
 
 **Do this last, and do not commit.** Two things depend on it:
 

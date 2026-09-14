@@ -20,8 +20,14 @@ residue of an abrupt kill correct: an open entry naming what was being attempted
 next.
 
 An open entry beside uncommitted changes means an interrupted task. An open entry beside a
-clean tree means a session that simply moved on. The working tree is the authority, never this
-file.
+**clean** tree is ambiguous and the tree cannot resolve it: the session may have finished without
+closing out, or be **blocked waiting on a human** — a design awaiting approval is exactly this,
+and it is the correct residue rather than a fault — or still be running in another session, which
+this repository cannot observe at all.
+
+**So read the entry's `Next action` before concluding anything.** The working tree is the
+authority on whether work is *in flight*; only the entry says what the work was and what it is
+waiting for.
 
 **A heading must end in a literal `(open)` or `(closed)`.** That suffix is what every reader
 matches on — the session-start hook, `forge`, `daily-digest`, `resume_handoff`,

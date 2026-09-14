@@ -179,7 +179,9 @@ if [ "$entry_open" = yes ] && [ "$dirty" -gt 0 ]; then
   echo "!! That entry is OPEN and the tree has $dirty uncommitted file(s): a task was interrupted mid-flight."
   echo "   Finish or supersede it before starting anything new. The entry's next action is the most reliable thing here."
 elif [ "$entry_open" = yes ]; then
-  echo "!! That entry is OPEN but the tree is clean: a session left it open without finishing the close-out, not mid-task."
+  echo "!! That entry is OPEN beside a clean tree. Read the entry's next action before assuming why:"
+  echo "   a session may have finished without closing out, OR be waiting on a human (design approval),"
+  echo "   OR still be running elsewhere. A clean tree cannot tell these apart; the entry text can."
 elif [ "$dirty" -gt 0 ]; then
   echo "!! The last entry is closed but the tree has $dirty uncommitted file(s) — something ran outside the journal. Check before trusting either."
 fi

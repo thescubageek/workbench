@@ -279,6 +279,13 @@ for a pending decision, writes the decision with its rationale and trade-off und
 
 **3. Get explicit approval — and record it:**
 
+**An instruction given before this document existed is not approval of it.** "Run the plan",
+"take it through to implementation", or a `forge` invocation all predate the design they would be
+authorising, so none of them can serve as the confirmation. Ask, and wait for an answer that
+refers to *this* design. Three separate sessions reached this conclusion unprompted, two of them
+after having conflated the two and disclosed it; it is written down here so the fourth does not
+have to derive it.
+
 ```
 Once you're satisfied with the design, please confirm approval.
 After approval, run `/wb:create_tasks` to build the implementation plan.

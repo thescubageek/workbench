@@ -33,6 +33,18 @@ Implementing [brief summary] as specified in design.md
 counters are a derived cache with exactly one writer — `/wb:update_status` — and are never
 hand-edited. Git is the durable record: one task, one commit.
 
+**One caveat about that, worth knowing before you rely on it.** Git is the durable record *of
+the code*. Plan directories are gitignored until promoted with `git add -f`, so until you
+promote this one, the checkboxes above — the actual source of truth — exist only on this disk
+and in no commit. Promote early if the plan matters, and note that promotion is a **one-time**
+act over the files that exist at that moment: `journal.md`, `handoff-*.md` and `thoughts/`
+appear afterwards and need adding too. `git status` never lists ignored files, so the omission
+is invisible unless asked for directly:
+
+```bash
+git ls-files --others --ignored --exclude-standard docs/plans/<this-directory>/
+```
+
 Every task carries a stable local ID (`P2-T7`). IDs are the handle to cite from a commit
 message, a journal entry, or a handoff — checkbox tracking is otherwise positional, and an ID
 costs nothing to add now. Number them in document order and never renumber.

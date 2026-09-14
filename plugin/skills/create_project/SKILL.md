@@ -28,8 +28,19 @@ sentence above exists to prevent. Do not route around a refusal with `cat`.
 When invoked, check for arguments:
 
 1. **If arguments provided** (e.g., `/wb:create_project auth-refactor docs/plans LINEAR-456`):
-   - Parse: `$1` = project-name, `$2` = base-dir, `$3` = ticket-ref
+   - Read them in order as **project-name**, then **base-dir**, then **ticket-ref**
    - Skip prompting and proceed directly to Step 2
+
+   **Do not split a sentence into these three slots.** If the first argument contains spaces, or
+   reads as a description rather than a slug — "a small parser for duration strings" — then the
+   user typed a description, not three positional values. **Ask** for the project name instead
+   of taking word one as the name, word two as a directory and word three as a ticket. Silently
+   accepting prose produces a wrongly-named plan directory and a ticket reference that is a
+   stray English word, and nothing downstream notices.
+
+   *(This step describes the slots by name rather than by their positional placeholders. The
+   harness substitutes placeholder **values** into skill text, so a sentence naming them reads
+   back as the values it was meant to explain — legible only when the binding already worked.)*
 
 2. **If partial arguments** (e.g., `/wb:create_project auth-refactor`):
    - Use provided arguments and prompt only for missing ones

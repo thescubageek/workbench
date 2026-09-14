@@ -11,6 +11,14 @@ This is a **general** discipline — research is the leading example, but it app
 
 **Core principle:** A long task survives interruption only if its entire state lives in a file a cold-context model could resume from. Pace the work to the *next* step's cost, not a fixed clock.
 
+This skill reads [state-template.md](state-template.md) when it checkpoints.
+
+**If a directed read of one of this skill's supporting files fails, stop — do not continue from
+memory.** They live in the plugin directory, outside your project, so a read of one can be
+refused. Say which file you could not read and what would unblock it (approving the permission
+prompt once, or relaunching with `--add-dir <plugin-path>`). Running on what this file alone
+carries produces confident output missing the part that was supposed to inform it.
+
 ## The Iron Law
 
 ```

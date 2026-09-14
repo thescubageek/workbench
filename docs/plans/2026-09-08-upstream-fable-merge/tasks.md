@@ -1782,6 +1782,47 @@ in this plan to have work pending somewhere the tree cannot see.
     verifier ran it genuinely verbatim, and flagged F7 as "the finding most likely to matter"
     before reaching the checkpoint where it would have mattered.*
 
+- **2026-09-14, the filed backlog cleared on the user's instruction — no tagging a release with
+  known defects.** Eight items, each verified fixed by inspection with a control where one was
+  available.
+  1. **Workers fabricated completion timestamps.** `agents/task-worker.md` said to append
+     `(completed YYYY-MM-DD HH:MM)` and never said to read a clock or fix a timezone, producing
+     times in the future, hours in the past, and out of order — one plan recorded a completion
+     ten hours before the plan containing it was generated. Now instructs `date -u`, says to use
+     UTC, and says **why**: the record exists to answer *what happened and in what order*, and
+     nothing else contradicts a guessed timestamp. Also fixes F5 by stating the placement —
+     appended after the description, not wedged between the ID and the text.
+  2. **F10, `create_project` mangling its arguments.** Reported twice. Two causes, both handled:
+     the step named its positional placeholders literally, which the harness substitutes (the
+     F1 family); and it split a *sentence* into name / dir / ticket with no prompt and no
+     rejection. It now describes the slots by name and refuses prose — if the first argument
+     has spaces or reads as a description, it asks instead of guessing.
+  3. **F2, JavaScript pseudo-code that the harness substituted into.** `implement` Step 1 held
+     a `const projectDir = …` block; substitution made one line invalid JS, and the block had
+     the same illegibility problem as F1. Replaced with prose, which removes both at once.
+  4. **F3, the journal convention modelled two states where there are three.** Open-entry +
+     clean-tree was documented as "a session that simply moved on", and the hook asserted that
+     single cause — but a design awaiting approval is exactly this state, and `create_design`'s
+     own fix now *creates* it routinely. Both the template and `wb-prime.sh` now name all three
+     possibilities and direct the reader to the entry's `Next action`, which is the only thing
+     that can tell them apart. **Verified with a control**: the clean-tree branch emits the new
+     message, and the dirty-tree branch still reports "interrupted mid-flight" unchanged.
+  5. **The approval principle, encoded at last.** Three sessions independently concluded that an
+     instruction predating a document cannot be approval *of* it — two after conflating them and
+     disclosing it. `create_design` now says so, so the fourth session does not have to derive it.
+  6. **`daily-digest` and `touch-grass` lacked the refused-read stop.** Filed 2026-09-10. Both
+     now carry it; **every** skill with supporting files is covered, verified by sweep.
+  7. **F6, the durable-record caveat.** The template asserted "Git is the durable record" beside
+     a status surface that is gitignored until promoted — true of the code, misleading about the
+     checkboxes. The claim now carries its own caveat, including that promotion is a *one-time*
+     act and that `git status` never lists what it missed.
+  8. **The `not-started` transition was filed in the list of things that stop** — a bullet
+     saying "must not stop" inside the stop list, which is the F4 shape reintroduced by the F9
+     fix one commit later. Found by auditing my own fixes rather than by a test round, which is
+     the whole argument for auditing them.
+  - **Still open and deliberately so**: the `splitlines()` line-number drift belongs to the
+    scratch deliverable in `~/projects/wb-auto`, not to wb.
+
 - **2026-09-08, adversarial review of Phases 1–4, run after `P4-T9` declared every phase's
   checks green.** Ten findings; **eight fixed in the tree**, two need a live session. The
   pattern is one thing, not ten: **every capability verified by grep passed; every capability

@@ -11,6 +11,15 @@ moved since you last worked, and leave with a **paced, prioritized plan** you ca
 execute all day without blowing the 5-hour usage window — hyper-focused, maximally
 fanned out, and cost-optimized per task.
 
+This skill reads [sources.md](sources.md) and [digest-template.md](digest-template.md) when its
+steps direct it to.
+
+**If a directed read of one of this skill's supporting files fails, stop — do not continue from
+memory.** They live in the plugin directory, outside your project, so a read of one can be
+refused. Say which file you could not read and what would unblock it (approving the permission
+prompt once, or relaunching with `--add-dir <plugin-path>`). Running on what this file alone
+carries produces confident output missing the part that was supposed to inform it.
+
 **Core principle:** A good morning digest replaces the 20 minutes you'd spend
 tab-hopping across Jira/GitHub/Sentry/email with one reconciled picture — *the same
 work item seen from six tools is one line, not six* — and turns that picture into a
