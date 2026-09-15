@@ -15,12 +15,10 @@ Supporting files in this directory (read each when its step directs you to — n
 - [templates.md](templates.md) — the `research.md` output template, including the Open Questions table
 - [reference.md](reference.md) — configuration
 
-**If a directed read fails, stop — do not continue from memory.** These files live in the plugin
-directory, which is outside your project, so a read of one can be refused. Say which file was
-refused, that reads outside the working directory are gated, and that the fix is to allow the
-read once or to relaunch with `--add-dir <plugin-path>`. Writing the artifact from this manifest
-alone produces a plausible document that was never based on the template — the exact failure the
-sentence above exists to prevent. Do not route around a refusal with `cat`.
+**If a directed read fails, stop — do not continue from memory.** These files live outside your
+project, so a read can be refused. Say which file was refused, that reads outside the working
+directory are gated, and that the fix is to allow the read once or to relaunch with
+`--add-dir <plugin-path>`. Do not route around a refusal with `cat`.
 
 ## Documentarian Rule
 
@@ -83,8 +81,7 @@ The `Agents` section shapes **where** you look; it does not change **what** you 
 
 **Also read `.claude/wb/knowledge.md` if it exists.** It holds durable facts about this
 repository — a constraint, a convention, a tool quirk — each with a date and a verification
-hint. Reading it here is what stops this session rediscovering what an earlier one already
-established. Two rules on how to use it:
+hint. Two rules on how to use it:
 
 - **The entries are dated claims, not current truth.** If an entry bears on your research,
   check it against the codebase using its verification hint rather than repeating it. An entry
@@ -92,8 +89,7 @@ established. Two rules on how to use it:
 - **A knowledge entry is never a substitute for a finding.** `research.md` cites the codebase;
   the knowledge file only tells you where to look and what has already been settled.
 
-Absent file, no problem — it is created on first use, so a repository with no entries is the
-normal starting state. Fall through.
+Absent file, fall through — a repository with no entries is the normal starting state.
 
 **⛔⛔⛔ BARRIER 1: STOP! Do NOT proceed to Step 2 until ALL mentioned files are FULLY read ⛔⛔⛔**
 
@@ -105,12 +101,9 @@ normal starting state. Fall through.
 - Check frontmatter status field
 
 **Open a journal entry before Step 3.** Append it to `journal.md` in the plan directory, naming
-this stage and the exact next action. Written at the start, not the end — research is
-long-running and a token limit, a closed laptop or a machine restart runs no shutdown step, so
-an entry written only at completion would be silent in exactly the cases it exists for.
-
-The heading shape is a contract — the session-start hook, `forge`, `daily-digest`,
-`resume_handoff` and `create_handoff` all match on the trailing `(open)` / `(closed)`:
+this stage and the exact next action — written at the start, not the end. The heading shape is a
+contract — the session-start hook, `forge`, `daily-digest`, `resume_handoff` and
+`create_handoff` all match on the trailing `(open)` / `(closed)`:
 
 ```text
 ## 2026-09-11 14:02 — create_research (open)
@@ -120,9 +113,8 @@ The heading shape is a contract — the session-start hook, `forge`, `daily-dige
 - **Started at**: <commit hash, or `no-commits-yet`>
 ```
 
-**Read the clock for the timestamp** — `date -u +"%Y-%m-%d %H:%M"`. Do not estimate it and do
-not copy a time from elsewhere in the file: entries out of order, or dated in the future,
-corrupt the one thing the journal is for, which is what happened when and in what sequence.
+**Read the clock for the timestamp** — `date -u +"%Y-%m-%d %H:%M"`. Never estimate it or copy a
+time from elsewhere in the file.
 
 ### Step 3: Analyze and Decompose the Research Question
 
@@ -152,19 +144,10 @@ A `tracer-bullet` move adapted for research: spawning the heavy analyzer/pattern
 
 Read [sub-agent-prompts.md](sub-agent-prompts.md) NOW and spawn the agents it defines, concurrently. It carries the fan-out announcement, the three typed agent prompts verbatim, the list of additional specialized agents to consider, and the parallel-execution shape.
 
-**When the fan-out is skippable, and when it is not.** Spawn unless you have **already read the
-entire relevant surface** in this context — every file the agents would open, not a sample. That
-is a real case: a repository of three files, or a change confined to one module you have read
-whole. Then the agents can only return what you already hold, and spawning them spends tokens to
-learn nothing.
-
-Anything else, spawn. In particular, spawn when you have read *some* of the surface and are
-inferring the rest, when the change is cross-cutting, or when you are unsure which files are
-relevant — that uncertainty is the thing the fan-out resolves, so treating it as a reason to skip
-inverts the purpose.
-
-**If you skip, say so in your output and say why**, naming what you read instead. A silent skip
-is indistinguishable from forgetting, and the next reader cannot tell which happened.
+**Skip the fan-out only if you have already read the entire relevant surface in this context** —
+every file the agents would open, not a sample. Having read *some* of it, a cross-cutting change,
+or uncertainty about which files are relevant are each a reason to spawn, not to skip. **If you
+skip, say so in your output and say why**, naming what you read instead.
 
 **Sub-agents are READ-ONLY** — they return findings only; YOU write `research.md` after synthesizing.
 
@@ -179,10 +162,8 @@ is indistinguishable from forgetting, and the next reader cannot tell which happ
 
 **⛔⛔⛔ BARRIER 2: STOP! Wait for ALL sub-agents to complete - DO NOT proceed until EVERY agent returns ⛔⛔⛔**
 
-This barrier governs *waiting*, not spawning — synthesis on a
-partial set misses what the missing report would have changed. If you skipped the fan-out under
-the rule above, there is nothing to wait for and the barrier is satisfied trivially; it is not a
-reason to spawn agents you just established would return nothing.
+This barrier governs *waiting*, not spawning — synthesis on a partial set misses what the missing
+report would have changed. A fan-out skipped under the rule above satisfies it trivially.
 
 ### Step 5: Synthesize Findings
 
@@ -236,9 +217,7 @@ If the user has follow-up questions:
 ### Step 8: Confirm Completion
 
 **Close the journal entry first**, with a `(closed)` heading naming what landed and which stage
-follows. An entry left open beside finished work tells the next session that research was
-interrupted — a false alarm is worse than no entry, because it costs a human the time to
-disprove it.
+follows — an entry left open beside finished work reads as an interruption.
 
 Emit a one-line summary, not a recap:
 
@@ -248,10 +227,8 @@ Emit a one-line summary, not a recap:
 
 **Then, only if the findings earned it, suggest `explore_design`.**
 
-Upstream shipped this nudge unconditionally and measured a 0/3 false-positive rate before
-fixing it — an optional stage suggested by default is noise, and noise trains the reader to
-skip the suggestion when it finally matters. So it fires on **evidence in what you just wrote**,
-not on the fact that research finished.
+It fires on **evidence in what you just wrote**, not on the fact that research finished — a
+suggestion made by default is noise.
 
 Suggest it only when **both** hold:
 
@@ -269,7 +246,6 @@ air that trade-off before design locks it in. Optional.
 ```
 
 If either test fails — the path is clear, or the constraints already choose — **say nothing**.
-A decision the research already made does not need a discussion stage.
 
 ## Important Notes
 

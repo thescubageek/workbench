@@ -16,12 +16,10 @@ Supporting files in this directory (read each when its step directs you to — n
 - `templates/` — [modified-files-fragment.md](templates/modified-files-fragment.md) (Step 5) · [manual-verification-request.md](templates/manual-verification-request.md) and [phase-completion-report.md](templates/phase-completion-report.md) (Step 6)
 - [reference.md](reference.md) — handling mismatches, resume logic, TDD best practices, special considerations, error handling, the DO/DON'T lists, configuration
 
-**If a directed read fails, stop — do not continue from memory.** These files live in the plugin
-directory, which is outside your project, so a read of one can be refused. Say which file was
-refused, that reads outside the working directory are gated, and that the fix is to allow the
-read once or to relaunch with `--add-dir <plugin-path>`. Writing the artifact from this manifest
-alone produces a plausible document that was never based on the template — the exact failure the
-sentence above exists to prevent. Do not route around a refusal with `cat`.
+**If a directed read fails, stop — do not continue from memory.** These files live outside your
+project, so a read can be refused. Say which file was refused, that reads outside the working
+directory are gated, and that the fix is to allow the read once or to relaunch with
+`--add-dir <plugin-path>`. Do not route around a refusal with `cat`.
 
 **Output discipline**: act on barriers silently; don't restate the plan between steps; emit only the artifact and a one-line completion summary.
 
@@ -197,17 +195,14 @@ yet, and `/wb:create_tasks` is what writes it.
 **A. Open a journal entry**
 
 Before touching code, append an entry to `journal.md` naming the task ID, what you are about
-to do, and the exact next action. This is written **at the start**, not the end: a session
-does not get to choose how it ends, and an entry written only on completion is silent in
-exactly the cases it exists for.
+to do, and the exact next action — written **at the start**, not the end, because a session does
+not get to choose how it ends.
 
-The heading shape is a contract, because the session-start hook, `forge`, `daily-digest`, `resume_handoff` and `create_handoff` all read it to decide whether work was interrupted:
+The heading shape is a contract — the session-start hook, `forge`, `daily-digest`, `resume_handoff` and `create_handoff` all match on the trailing `(open)` / `(closed)`, and an entry ending any other way is invisible to them. Timestamp from `date -u +"%Y-%m-%d %H:%M"`, never estimated:
 
 ```
 ## YYYY-MM-DD HH:MM — <task-id or short label> (open)
 ```
-
-Ending in a literal `(open)` or `(closed)` is what makes the state detectable. An entry that ends any other way is invisible to every one of those readers, and the failure is silent — a session reads "closed" over interrupted work.
 
 **B. Test First (RED)**
 

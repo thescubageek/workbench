@@ -22,6 +22,19 @@ file.
 > `P3-T7`/`P3-T8` wiring shipped but was never exercised, which is itself one of the review
 > findings below. There is no earlier history to reconstruct and none is invented here.
 
+## 2026-09-15 16:46 — context-budget recovery (closed)
+
+- **Task/phase**: phase 4; 63 of 64, unchanged. Not a task — remediation of the 2026-09-15
+  measured regression (fourteen-stage on-invoke 58.4k), run from a handoff.
+- **Next action**: `P4-T10` stays held — see the 2026-09-10 entry below, which remains open by
+  design. Nothing tagged, nothing pushed.
+- **Started at**: `a7e9c64`
+- **Landed**: 58.4k → 54.0k with every one of the eight protected rules verified by grep; lint
+  clean, tag dry-run clean, hook reporting position. Full record, per-stage table and filed
+  findings in `tasks.md` → Implementation Notes, 2026-09-15 "regression remediated". Written at
+  close: this session did not open an entry when it started, a lapse of the convention it spent
+  the afternoon editing.
+
 ## 2026-09-10 15:05 — release held on the installed-plugin read test (open)
 
 - **Task/phase**: phase 4; 63 of 64. `P4-T10` (tag `wb--v2.0.0`) is the only unchecked task and

@@ -156,6 +156,32 @@ clean.
 - ❌ **NEVER** let a worker commit; the coordinator commits after verification, and that is what makes an unfinished task detectable
 - ❌ **NEVER** declare a phase complete while any of its checkboxes is `[ ]`
 
+## Why the Step 6 and Step 8 rules are shaped this way
+
+`SKILL.md` carries the instruction; the reason lives here. The full evidence, with dates and
+measurements, is in the 2026-09-08 upstream-fable-merge plan's Implementation Notes.
+
+- **The `--auto` paragraph names no positional placeholder.** The harness substitutes
+  placeholder values into skill text, so a sentence naming the first placeholder read back as
+  "strip the flag before binding `<the directory>`" — circular, and legible only when the
+  binding already worked. The binding really did fail once: `/wb:implement --auto <dir>` bound
+  the flag as the directory.
+- **6c resets the checkbox before escalating** because the worker flips it as its final act,
+  before verification. Without the reset, 6a cannot tell a truncated escalation attempt from a
+  finished one.
+- **6c ends with a clean tree** because a blocked task's leftovers make the next worker's
+  "did nothing" look like substantial changes — misdiagnosed as truncation — and make its
+  verifier fail it for files it never opened.
+- **The attestation stays unticked under `--auto`.** A run that ticked "Manual verification
+  confirmed by human" on its own authority would make every finished plan assert a sign-off
+  that never happened — the pre-printed-✅ template defect reintroduced systematically. Leaving
+  it `[ ]` keeps "unattended" and "approved" distinguishable when the plan is the only witness.
+- **The final-phase statement** exists because an unattended run always ends at
+  `status: in-progress`: `complete` is a claim, gated by `update_status`'s barrier, and a user
+  not told this discovers a plan that looks unfinished.
+- **The `update_status` box is ticked after Step 9 runs it, not at Step 8**, because ticking it
+  first asserts something not yet done — the attestation error in miniature.
+
 ## Configuration
 
 This skill coordinates task implementation using sequential worker agents with focused context. It preserves all disciplines from `implement_inline` while keeping the main session context clean.

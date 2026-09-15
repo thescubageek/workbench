@@ -14,12 +14,10 @@ Supporting files in this directory (read each when its step directs you to — n
 - `templates/` — the five initial file templates, one per file: [readme-md-template.md](templates/readme-md-template.md) · [research-md-template.md](templates/research-md-template.md) · [design-md-template.md](templates/design-md-template.md) · [tasks-md-template.md](templates/tasks-md-template.md) · [journal-md-template.md](templates/journal-md-template.md). Step 4 reads **one per file it creates**
 - [reference.md](reference.md) — argument usage, status progression, error handling
 
-**If a directed read fails, stop — do not continue from memory.** These files live in the plugin
-directory, which is outside your project, so a read of one can be refused. Say which file was
-refused, that reads outside the working directory are gated, and that the fix is to allow the
-read once or to relaunch with `--add-dir <plugin-path>`. Writing the artifact from this manifest
-alone produces a plausible document that was never based on the template — the exact failure the
-sentence above exists to prevent. Do not route around a refusal with `cat`.
+**If a directed read fails, stop — do not continue from memory.** These files live outside your
+project, so a read can be refused. Say which file was refused, that reads outside the working
+directory are gated, and that the fix is to allow the read once or to relaunch with
+`--add-dir <plugin-path>`. Do not route around a refusal with `cat`.
 
 **Output discipline**: act on barriers silently; don't restate the plan between steps; emit only the artifact and a one-line completion summary.
 
@@ -32,15 +30,10 @@ When invoked, check for arguments:
    - Skip prompting and proceed directly to Step 2
 
    **Do not split a sentence into these three slots.** If the first argument contains spaces, or
-   reads as a description rather than a slug — "a small parser for duration strings" — then the
-   user typed a description, not three positional values. **Ask** for the project name instead
-   of taking word one as the name, word two as a directory and word three as a ticket. Silently
-   accepting prose produces a wrongly-named plan directory and a ticket reference that is a
-   stray English word, and nothing downstream notices.
-
-   *(This step describes the slots by name rather than by their positional placeholders. The
-   harness substitutes placeholder **values** into skill text, so a sentence naming them reads
-   back as the values it was meant to explain — legible only when the binding already worked.)*
+   reads as a description rather than a slug — "a small parser for duration strings" — the user
+   typed a description, not three positional values: **ask** for the project name instead of
+   binding word one, two and three. *(This step names the slots, not their positional
+   placeholders — the harness substitutes those values into skill text.)*
 
 2. **If partial arguments** (e.g., `/wb:create_project auth-refactor`):
    - Use provided arguments and prompt only for missing ones
@@ -105,7 +98,7 @@ Examples:
 ### Step 4: Create Initial Files with Rich Metadata
 
 Create five foundation files. **Read one template file per file you create**, at the moment you
-create it — each template is its own file precisely so that writing one costs only its own.
+create it.
 
 1. **README.md** — navigation hub. Read [templates/readme-md-template.md](templates/readme-md-template.md) NOW and create the file from it, with all metadata filled in.
 2. **research.md** — research documentation. Read [templates/research-md-template.md](templates/research-md-template.md) NOW

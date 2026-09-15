@@ -1854,6 +1854,88 @@ in this plan to have work pending somewhere the tree cannot see.
     file or leave it here in the plan record, which is where the evidence already lives. Nothing
     substantive is lost — the rules stay enforced — and most of the 12.4k should come back.
 
+- **2026-09-15, the regression remediated: 58.4k → 54.0k, every rule kept.** Run from the
+  context-budget handoff at `a7e9c64`. Method as specified: measure first, work worst-first,
+  separate instruction from explanation, keep the instruction inline, move or delete the
+  explanation, re-measure, then verify the rules with greps that can fail.
+
+  | Stage | 2.0.0 release | 2026-09-15 a.m. | After | Δ today |
+  | ----- | ------------- | --------------- | ----- | ------- |
+  | `implement` | 5.7k | 8.0k | **7.3k** | −0.7k |
+  | `create_design` | 3.9k | 5.7k | **5.0k** | −0.7k |
+  | `create_research` | 4.1k | 5.2k | **4.6k** | −0.6k |
+  | `create_product_research` | 4.3k | 4.9k | **4.4k** | −0.5k |
+  | `create_tasks` | 3.1k | 4.1k | **3.7k** | −0.4k |
+  | `update_status` | 2.1k | 3.4k | **3.0k** | −0.4k |
+  | `create_mockup` | 2.1k | 2.8k | **2.5k** | −0.3k |
+  | `create_project` | 2.0k | 2.6k | **2.4k** | −0.2k |
+  | `validate_execution` | 2.9k | 3.5k | **3.3k** | −0.2k |
+  | `implement_inline` | 5.0k | 5.5k | **5.4k** | −0.1k |
+  | `validate_project` | 1.8k | 2.2k | **2.1k** | −0.1k |
+  | `create_handoff` | 2.8k | 3.1k | **3.0k** | −0.1k |
+  | `resume_handoff` | 3.2k | 3.6k | **3.5k** | −0.1k |
+  | `help` | 3.8k | 3.8k | 3.8k | — |
+  | **Fourteen-stage total** | **46.8k** | **58.4k** | **54.0k** | **−4.4k** |
+  | vs 84.9k baseline | −44.9% | −31.2% | **−36.4%** | |
+  | Headroom under the ≤59.4k bar | 12.6k | 1.0k | **5.4k** | |
+
+  - **What moved, and where.** Three blocks repeated verbatim across skills carried most of it:
+    the refused-read stop (16 skills, 6 lines → 4, rationale already in the 2026-09-09 note
+    above); the fan-out skip rule (6 skills, 3 paragraphs → 1); the journal heading contract (4
+    skills, the "Ending in a literal…" paragraph folded into the contract sentence). Per-stage
+    rationale — `--auto` binding, the 6c reset, the clean-tree rule, the unticked attestation,
+    the cannot-close-itself statement, the approval principle, the `approved` gate,
+    close-on-approval, the scoped barrier and its silent side — now lives in
+    `implement/reference.md`, `create_design/reference.md`,
+    `update_status/reference/important-notes.md` and `create_project/reference.md`, each under a
+    heading that says `SKILL.md` carries the instruction and the reason lives there.
+  - **Rationale deleted rather than moved, recorded here so it is not lost.** The fan-out skip
+    rule's reasoning: spawning agents over a surface already read whole in this context spends
+    tokens to learn nothing; a partial read is the case the fan-out exists to resolve, so it is a
+    reason to spawn, not to skip; and a silent skip is indistinguishable from forgetting. The
+    planning-stage journal reasoning is the 2026-09-11 note above. The `explore_design` nudge
+    reasoning is the 2026-09-08 `P3-T11` note. The research close-out reasoning: an open entry
+    beside finished work costs a human the time to disprove a false interruption.
+  - **The eight protected rules, verified by greps that can fail — all present.** (1) five
+    `(derivable)`/`(attestation)` labels and "Go by the label, never by position" in the
+    template; (2) `implement` Step 8 still leaves the human box `[ ]`, records the unattended
+    close and names the steps nobody performed, and both templates still carry it; (3)
+    `update_status` Step 4 lists `not-started → in-progress` on the silent side and `complete`,
+    backward moves and `approved` behind Barrier 2; (4) "An instruction given before this
+    document existed is not approval of it" at `create_design` Step 6; (5) "Strip it out before
+    positional binding" present and the paragraph contains zero literal positional placeholders;
+    (6) `date -u` in all seven journal-writing stages and `task-worker.md`; (7) the stop in all
+    16 stages plus the `daily-digest`/`touch-grass` variant — `review-prep` is the one skill with
+    a supporting file and no stop, and correctly so: `nvim-helper.sh` is executed via Bash, never
+    read; (8) open and close points in all three planning stages; `match on the trailing` now
+    returns exactly 1 in all seven journal writers, not just the three planning stages.
+  - **One small strengthening, not a compression.** The heading-contract sentence in
+    `implement`, `implement_inline`, `create_handoff` and `resume_handoff` now says the timestamp
+    comes from `date -u`. The 2026-09-13 note recorded that the clock instruction "does not reach
+    task workers"; `task-worker.md` got it on 2026-09-14, and the coordinators writing their own
+    entries now have it too. Also clarified in `implement` Step 8 that the `update_status` box is
+    ticked once Step 9 has run it, which is what F8 meant.
+  - **Invariants re-checked.** Template checkpoint block: 0 pre-printed `✅`, task-ID pattern 0
+    over the block and 10 over the template (control fired). `lint --all` clean. `claude plugin
+    tag --dry-run plugin/` exits 0 (with `--force` on the dirty tree; re-run clean after the
+    commit), both manifests `2.0.0`. Hook reports `phase 4, 63 of 64 tasks done`, next `P4-T10`.
+  - **What is left over, and why it stays.** 54.0k is 7.2k over the release figure. Reading the
+    residue stage by stage, it is new rules, not story: `--auto` and its two checkpoint
+    statements, the 6c reset and clean-tree table, the spawn-enum note, journal open/close in
+    three planning stages with an example entry each, the fan-out rule, the approval principle,
+    and the silent-side list. Recovering more means deleting one of those, which is the failure
+    the handoff names as the one this task is most exposed to. Stopped here on purpose.
+  - **Filed, not fixed (D20).** (a) `plugin/docs/reference/README.md` still says reads from that
+    directory "do not prompt for permission … this was measured", citing the 2026-09-08 probe
+    that the 2026-09-09/10 A4 finding disproved — a stale contract in a shipped file.
+    (b) `update_status/reference/important-notes.md` → Read-Only Analysis says "**ALWAYS present
+    the update plan** before applying changes", which the silent counters path in Step 4 no
+    longer honours; the same class as the seven earlier instances. (c) The sweep for rule 7
+    should be phrased "directs a Read of a supporting file", not "has supporting files" —
+    `review-prep` shows the difference. (d) The template's "Go by the label" paragraph carries
+    its own history ("An earlier version of this block…") into every generated `tasks.md`; not on
+    the on-invoke metric, but it is story in a persisted artifact.
+
 - **2026-09-08, adversarial review of Phases 1–4, run after `P4-T9` declared every phase's
   checks green.** Ten findings; **eight fixed in the tree**, two need a live session. The
   pattern is one thing, not ten: **every capability verified by grep passed; every capability

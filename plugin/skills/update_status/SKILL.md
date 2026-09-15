@@ -14,12 +14,10 @@ Supporting files in this directory (read each when its step directs you to — n
 - `templates/` — [status-update-plan.md](templates/status-update-plan.md) (Step 4) · [frontmatter-fragments.md](templates/frontmatter-fragments.md) (Step 5) · [completion-summary.md](templates/completion-summary.md) (Step 7)
 - `reference/` — [smart-status-detection.md](reference/smart-status-detection.md) (Step 2) · [status-transition-logic.md](reference/status-transition-logic.md) (Step 3) · [error-handling.md](reference/error-handling.md) · [important-notes.md](reference/important-notes.md) (the sole-writer rule) · [configuration.md](reference/configuration.md)
 
-**If a directed read fails, stop — do not continue from memory.** These files live in the plugin
-directory, which is outside your project, so a read of one can be refused. Say which file was
-refused, that reads outside the working directory are gated, and that the fix is to allow the
-read once or to relaunch with `--add-dir <plugin-path>`. Writing the artifact from this manifest
-alone produces a plausible document that was never based on the template — the exact failure the
-sentence above exists to prevent. Do not route around a refusal with `cat`.
+**If a directed read fails, stop — do not continue from memory.** These files live outside your
+project, so a read can be refused. Say which file was refused, that reads outside the working
+directory are gated, and that the fix is to allow the read once or to relaunch with
+`--add-dir <plugin-path>`. Do not route around a refusal with `cat`.
 
 **Output discipline**: act on barriers silently; don't restate the plan between steps; emit only the artifact and a one-line completion summary.
 
@@ -104,52 +102,36 @@ Validation rules that constrain the result:
 
 - Cannot mark design as `approved` if research is still `draft`
 - Cannot mark tasks `in-progress` on the strength of an **implementation** task while design is
-  still `draft`. Phase 0's own planning tasks are the opposite case: they are ticked *precisely*
-  while `design.md` is a draft, and ticking them is what `in-progress` legitimately means at
-  that stage. Without this distinction, this guard and the `not-started → in-progress` trigger
-  contradict each other for every plan still in planning — which is every plan, briefly
+  still `draft`. Phase 0's planning tasks are exempt: they are ticked while `design.md` is a
+  draft, and that is what `in-progress` legitimately means at that stage
 - Cannot mark tasks `complete` while any task checkbox is `[ ]`
 - **Never set design to `approved` yourself.** It records a human confirmation, not a state you
   can infer — see `reference/smart-status-detection.md`
 
 ### Step 4: Present Status Update Plan — when there is a judgment to present
 
-**This barrier is scoped to judgment, not to arithmetic.** Counter reconciliation is
-deterministic: Step 2 counted the checkboxes, and `SKILL.md`'s own rule is that the counted
-value is what lands. Asking a human to approve arithmetic they cannot meaningfully dispute is
-ceremony, and worse than useless — a barrier that fires on trivia gets clicked through, which
-trains the same reflex on the barrier that matters.
+**This barrier is scoped to judgment, not to arithmetic** — a barrier that fires on trivia gets
+clicked through. Decide which case this run is.
 
-Decide which case this run is.
+**Silent side — apply without stopping.** Present no plan, wait for nothing, and report what
+changed in one line at Step 7. This side is exactly:
 
-**Counters only** — `completed_tasks`, `total_tasks` or `current_phase` change, **the git
-metadata (`git_commit`, `git_branch`, `repository`) refreshes**, and every `status:` value stays
-exactly as it is. **Apply all of it without stopping.** Present no plan and wait for nothing;
-report what changed in one line at Step 7.
+- the counters — `completed_tasks`, `total_tasks`, `current_phase` — at their counted values
+- the git metadata — `git_commit`, `git_branch`, `repository` — read from the repository, not
+  judged; a stale `git_commit` is a false fact that looks current
+- **`tasks.md` `not-started` → `in-progress`**, the one `status:` value on this side: its trigger
+  is "at least one task checkbox is `[x]`", arithmetic over the same checkboxes the counters
+  read, not a claim about the world
 
-Git metadata belongs on this side for the same reason the counters do: it is read out of the
-repository, not judged. Leaving it out strands `git_commit` at whatever commit the plan was
-created on, which is a stale fact that looks like a current one — worse than an absent one.
-
-**`not-started` → `in-progress` belongs on this side too**, even though it is a `status:` value.
-Its trigger is "at least one task checkbox is `[x]`" — arithmetic over the same checkboxes the
-counters read, not a claim about the world. Apply it silently.
-
-Gating it was measured to break the feature: the *first* checkpoint of every plan hit the
-barrier, and in a two-phase plan the `complete` gate caught the second, so **neither** checkpoint
-could ever be silent. A fully implemented six-task plan ended up reading `status: not-started`
-with `completed_tasks: 6` — a worse lie than any stale counter.
-
-**Anything else** — apply nothing yet. Read [templates/status-update-plan.md](templates/status-update-plan.md)
+**Anything else — apply nothing yet.** Read [templates/status-update-plan.md](templates/status-update-plan.md)
 NOW, present it, and then:
 
-**⛔ BARRIER 2**: Wait for user confirmation before proceeding
+**⛔ BARRIER 2**: Wait for user confirmation — these are claims about the work, not counts
 
 "Anything else" is any of:
 
-- a **judgment-bearing** `status:` value would change. `tasks.md` reaching **`complete`** is
-  the one that matters: it is a claim that the work is finished, not a count. So is any
-  `research.md` or `design.md` transition
+- a **judgment-bearing** `status:` value would change — `tasks.md` reaching **`complete`**,
+  which claims the work is finished, or any `research.md` or `design.md` transition
 - any status would move **backward** — the NO REGRESSION rule
 - `design.md` would reach `approved`, which you never set yourself in any case
 - the count and the checkboxes disagree in a way you cannot account for

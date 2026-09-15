@@ -19,12 +19,10 @@ Supporting files in this directory (read each when its step directs you to — n
 - `templates/` — [incomplete-worker-message.md](templates/incomplete-worker-message.md) (Step 6) · [modified-files-fragment.md](templates/modified-files-fragment.md) (Step 7) · [manual-verification-request.md](templates/manual-verification-request.md) and [phase-completion-report.md](templates/phase-completion-report.md) (Step 8)
 - [reference.md](reference.md) — evolution, resume logic, why the coordinator pattern exists, migration, the DO/DON'T lists, configuration
 
-**If a directed read fails, stop — do not continue from memory.** These files live in the plugin
-directory, which is outside your project, so a read of one can be refused. Say which file was
-refused, that reads outside the working directory are gated, and that the fix is to allow the
-read once or to relaunch with `--add-dir <plugin-path>`. Writing the artifact from this manifest
-alone produces a plausible document that was never based on the template — the exact failure the
-sentence above exists to prevent. Do not route around a refusal with `cat`.
+**If a directed read fails, stop — do not continue from memory.** These files live outside your
+project, so a read can be refused. Say which file was refused, that reads outside the working
+directory are gated, and that the fix is to allow the read once or to relaunch with
+`--add-dir <plugin-path>`. Do not route around a refusal with `cat`.
 
 ## Initial Response
 
@@ -32,19 +30,13 @@ When invoked, check for arguments:
 
 **`--auto` is a flag, not a positional argument. Strip it out before positional binding.**
 It may appear anywhere in the invocation, so `/wb:implement --auto <dir> continue` must still
-bind the *directory* into the first positional slot — putting the flag there loses the project
-directory entirely, and that has happened. Match `--auto` by name, remove it, then treat what
-remains as the positional list.
-
-*This paragraph deliberately does not write the positional placeholders literally. The harness
-substitutes their **values** into skill text, so a sentence that names them reads back as the
-values it was meant to explain — "strip the flag before binding `<the correct directory>`" —
-which is circular, and legible only when the binding already worked. Measured 2026-09-13.*
+bind the *directory* into the first positional slot. Match `--auto` by name, remove it, then
+treat what remains as the positional list. *(This paragraph names no positional placeholder
+literally: the harness substitutes their values, and the sentence goes circular.)*
 
 Its only effect is that the Step 8 phase checkpoint does not stop to request manual
 verification. Per-task verification, the one-task-one-commit rule, the blocking list and every
-barrier before Step 8 are unchanged — `--auto` removes a wait, not a check. What it costs is
-recorded rather than hidden; see Step 8.
+barrier before Step 8 are unchanged — `--auto` removes a wait, not a check.
 
 1. **If directory and phase provided** (e.g., `/wb:implement docs/plans/2025-01-08-my-project/ 1`):
    - Use `$1` as project directory
@@ -235,13 +227,11 @@ A task carrying a `Depends on:` field is the exception — check its named depen
 about to attempt, and the exact next action. Written at the start, not the end — an abrupt
 kill then leaves a correct open entry rather than silence.
 
-The heading shape is a contract, because the session-start hook, `forge`, `daily-digest`, `resume_handoff` and `create_handoff` all read it to decide whether work was interrupted:
+The heading shape is a contract — the session-start hook, `forge`, `daily-digest`, `resume_handoff` and `create_handoff` all match on the trailing `(open)` / `(closed)`, and an entry ending any other way is invisible to them. Timestamp from `date -u +"%Y-%m-%d %H:%M"`, never estimated:
 
 ```
 ## YYYY-MM-DD HH:MM — <task-id or short label> (open)
 ```
-
-Ending in a literal `(open)` or `(closed)` is what makes the state detectable. An entry that ends any other way is invisible to every one of those readers, and the failure is silent — a session reads "closed" over interrupted work.
 
 **Choose the tier.** This is the one statement of the worker tier rule; every other mention in
 this skill and its supporting files points here rather than restating it.
@@ -253,17 +243,13 @@ this skill and its supporting files points here rather than restating it.
 | **`opus`** | **Default.** Anything with judgment in it | |
 | `fable` | **Never a first spawn.** Only as an explicit election after a *verified* failure | Always `effort: high` — never `xhigh` or `max` |
 
-**These four are the only values the spawn tool accepts.** Its `model` parameter is an enum —
-`haiku · sonnet · opus · fable` — so a full identifier like `claude-opus-4-8[1m]` cannot be
-pinned per spawn, and `opus` resolves to whatever the current Opus is. Full IDs belong to the
-*main-session* model, chosen with `/model`; see the `model-help` skill. Do not write one into a
-spawn and assume it took.
+**These four are the only values the spawn tool accepts** — its `model` parameter is an enum, so
+a full identifier like `claude-opus-4-8[1m]` cannot be pinned per spawn, and `opus` resolves to
+the current Opus. Full IDs belong to the *main-session* model (`/model`; see `model-help`).
 
-Judgment over the task's body, not a keyword match on its title: a regex over titles is a proxy
-for difficulty, and you have the task itself. And note what the tier does **not** fix: workers
-hit a *tool-call* ceiling, not a context limit, so reaching for a bigger model does not change
-truncation behaviour. Step 3's context minimisation and the plan's ~50-call task sizing are what
-address that.
+Judge the task's body, not a keyword match on its title. The tier does **not** fix truncation:
+workers hit a *tool-call* ceiling, not a context limit — Step 3's context minimisation and the
+plan's ~50-call task sizing are what address that.
 
 **Then spawn.** Read [prompts/worker-prompt.md](prompts/worker-prompt.md) NOW and spawn the `task-worker` agent with it.
 
@@ -323,14 +309,13 @@ is clean, so any uncommitted work belongs to something that did not finish.
 A verified failure gets **exactly one** escalation attempt:
 
 1. **Reset the checkbox to `[ ]` first.** The worker flips it as its *final* act, before
-   anything verifies the work — so a task that reaches 6c is almost always sitting at `[x]`
-   while being unverified. Set it back before you do anything else. Skip this and the
-   escalation worker starts against an already-`[x]` box, which destroys 6a's only signal for
-   distinguishing a truncated escalation attempt from a finished one.
+   anything verifies the work, so a task reaching 6c is usually at `[x]` while unverified. An
+   escalation started against an `[x]` box leaves 6a no signal to tell truncation from
+   completion.
 2. Escalate **one rung up Step 5's ladder from the tier that failed** — `haiku` → `sonnet`,
-   `sonnet` → `opus`, `opus` → `fable` at `effort: high`. Reaching the `fable` rung is an
-   explicit election, never automatic. A task that failed at `opus` has one rung left, so if
-   `fable` also fails the answer is the checkpoint's blocking list, not a third model.
+   `sonnet` → `opus`, `opus` → `fable` at `effort: high`. The `fable` rung is an explicit
+   election, never automatic; if `fable` also fails, the answer is the checkpoint's blocking
+   list, not a third model.
 3. Say which rung you chose and why, in one line.
 4. Read [prompts/escalation-worker-prompt.md](prompts/escalation-worker-prompt.md) NOW and spawn with it.
 5. Re-verify.
@@ -339,11 +324,9 @@ A verified failure gets **exactly one** escalation attempt:
 A second automatic attempt is the one that reliably wastes a worker; the checkpoint is where a
 human sees it.
 
-**The tree must be clean before the next task starts.** 6a and 6b both read the uncommitted
-working tree as belonging to the task just spawned. Leave a blocked task's changes lying in it
-and the next worker inherits them: a worker that did nothing looks like *"substantial, coherent
-changes"* and gets misdiagnosed as truncation, and its verifier fails it for touching files it
-never opened. So pick one, and end clean either way:
+**The tree must be clean before the next task starts.** 6a and 6b read the uncommitted working
+tree as the current task's, so a blocked task's leftovers would be misdiagnosed as the next
+worker's truncation and fail its verifier. Pick one, and end clean either way:
 
 | The blocked work is | Do this |
 | ------------------- | ------- |
@@ -371,16 +354,11 @@ Every task in the phase is `[x]` and committed. Read [templates/modified-files-f
    there is nothing else to close. Any task on the blocking list keeps its `[ ]` and is named
    at this checkpoint.
 
-2. **Confirm the tree is clean.** Each task was committed after its verifier passed and each
-   blocked task was resolved to a WIP commit or restored (6c), so leftover uncommitted work
-   means something did not finish and nobody noticed.
+2. **Confirm the tree is clean.** Every task was committed after its verifier passed or resolved
+   under 6c, so leftover uncommitted work means something did not finish.
 
-3. **Run automated verification** — and note the ordering: `update_status` runs at **Step 9**,
-   after this checkpoint. Do not tick its checkpoint box until it has actually run. Ticking it
-   here asserts something not yet done, which is the same error in miniature as ticking the
-   human attestation.
-
-   Run the checks:
+3. **Run automated verification.** `update_status` runs at **Step 9**, after this checkpoint —
+   do not tick its checkpoint box until it has actually run.
 
    ```bash
    # Adapt these to actual commands from tasks.md
@@ -395,29 +373,23 @@ Every task in the phase is `[x]` and committed. Read [templates/modified-files-f
    **Attended (the default).** Read [templates/manual-verification-request.md](templates/manual-verification-request.md) NOW, emit it, and **wait for the user's confirmation**.
 
    **Under `--auto`.** Do not wait. Tick the checkpoint conditions you actually established —
-   every phase checkbox `[x]`, automated verification passing, `update_status` run — and
-   **leave "Manual verification confirmed by human" as `[ ]`**, because no human was asked.
-   Then add one line under the checkpoint naming the run unattended, with the phase and the
-   time, and listing the manual steps from `design.md` that nobody performed.
+   every phase checkbox `[x]`, automated verification passing, and the `update_status` box once
+   Step 9 has run it — and **leave "Manual verification confirmed by human" as `[ ]`**, because
+   no human was asked. Then add one line under the checkpoint naming the run unattended, with
+   the phase and the time, and listing the manual steps from `design.md` that nobody performed.
 
-   **The unticked box is the feature, not an oversight.** `--auto` buys you the wait; it does
-   not buy the attestation, because an attestation is a claim about what a person did. A run
-   that ticked that box on its own authority would have every finished plan assert a sign-off
-   that never happened — the defect `84da251` removed from the template, reintroduced
-   systematically rather than once. Leaving it `[]` is what keeps "unattended" and "approved"
-   distinguishable later, when the plan is the only witness.
+   **The unticked box is the feature, not an oversight.** `--auto` buys the wait, not the
+   attestation: that box records what a person did, and no run may tick it on its own authority.
 
 5. **Report completion.** Attended: only after the user confirms. Under `--auto`: immediately.
    Either way read the [templates/phase-completion-report.md](templates/phase-completion-report.md) NOW and emit it,
    and under `--auto` say in it that the phase closed unattended.
 
-   **On the final phase under `--auto`, say plainly that the plan cannot close itself.** Once
-   every task is `[x]`, `tasks.md` wants `status: in-progress → complete` — and that is a
-   `status:` change, which `/wb:update_status` gates behind its own barrier. `--auto` is scoped
-   to this checkpoint and does not reach another skill's gate. So an unattended run ends with
-   the counters reconciled, the work committed, and the plan's own status still `in-progress`,
-   waiting on a person. Name that in the report rather than leaving the user to discover a plan
-   that looks unfinished; it is the one thing `--auto` deliberately cannot finish.
+   **On the final phase under `--auto`, say plainly that the plan cannot close itself.**
+   `status: in-progress → complete` is a `status:` change gated by `/wb:update_status`'s own
+   barrier, which `--auto` does not reach — so the run ends with the work committed, the
+   counters reconciled, and the plan still `in-progress`, waiting on a person. Name that in the
+   report.
 
 ### Step 9: Reconcile Status
 

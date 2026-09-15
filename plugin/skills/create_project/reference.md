@@ -27,3 +27,7 @@ Check for and handle:
 - Invalid project name → Request kebab-case format
 - Git not available → Use placeholder values
 - No write permissions → Suggest different location
+- Prose where a project name was expected → ask; never bind words one, two and three to
+  name, directory and ticket. Silently accepting a sentence produced a wrongly-named plan
+  directory and a ticket reference that was a stray English word, and nothing downstream
+  noticed (reported twice, 2026-09-10 and 2026-09-13)

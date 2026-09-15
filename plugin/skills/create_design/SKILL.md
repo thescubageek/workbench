@@ -15,12 +15,10 @@ Supporting files in this directory (read each when its step directs you to — n
 - `templates/` — one file per output shape: [design-md-template.md](templates/design-md-template.md) (Step 5, includes the Assumptions and Pending Decisions tables) · [recorded-decision-confirmation-message.md](templates/recorded-decision-confirmation-message.md) (Step 4, Mode A) · [design-options-message.md](templates/design-options-message.md) (Step 4, Mode B) · [design-presentation-message.md](templates/design-presentation-message.md) (Step 6)
 - [reference.md](reference.md) — design principles, what belongs in design vs execution, handling knowledge gaps, leveraging agent findings, configuration
 
-**If a directed read fails, stop — do not continue from memory.** These files live in the plugin
-directory, which is outside your project, so a read of one can be refused. Say which file was
-refused, that reads outside the working directory are gated, and that the fix is to allow the
-read once or to relaunch with `--add-dir <plugin-path>`. Writing the artifact from this manifest
-alone produces a plausible document that was never based on the template — the exact failure the
-sentence above exists to prevent. Do not route around a refusal with `cat`.
+**If a directed read fails, stop — do not continue from memory.** These files live outside your
+project, so a read can be refused. Say which file was refused, that reads outside the working
+directory are gated, and that the fix is to allow the read once or to relaunch with
+`--add-dir <plugin-path>`. Do not route around a refusal with `cat`.
 
 **Model & effort (gate check)**: on entry, consult the `model-help` skill (gate mode) for the model + effort this phase warrants; surface its one-line verdict and — only if a switch clears the switch-cost bar — the `/model` action. Design is the reasoning-dense phase and usually the pipeline's ceiling: baseline **Opus/high**, rising to `max` for novel / one-way-door / compliance-critical / high-blast-radius decisions. This is the gate most likely to justify switching *up*. Best-effort and non-blocking: stay silent and proceed when the current tier is already right. See CLAUDE.md → "Model & effort at gates."
 
@@ -78,11 +76,8 @@ Assumptions table, which states what being wrong would cost.
 
 **⛔⛔⛔ BARRIER 1: STOP! Read research.md and existing design.md FULLY - NO SKIMMING ⛔⛔⛔**
 
-**Open a journal entry before you begin reading.** Design is the longest-running stage in the
-pipeline and the likeliest to be interrupted; an entry written only at the end would be silent
-in precisely that case.
-
-The heading shape is a contract — the session-start hook, `forge`, `daily-digest`,
+**Open a journal entry before you begin reading** — appended to `journal.md` in the plan
+directory. The heading shape is a contract — the session-start hook, `forge`, `daily-digest`,
 `resume_handoff` and `create_handoff` all match on the trailing `(open)` / `(closed)`:
 
 ```text
@@ -93,9 +88,8 @@ The heading shape is a contract — the session-start hook, `forge`, `daily-dige
 - **Started at**: <commit hash, or `no-commits-yet`>
 ```
 
-**Read the clock for the timestamp** — `date -u +"%Y-%m-%d %H:%M"`. Do not estimate it and do
-not copy a time from elsewhere in the file: entries out of order, or dated in the future,
-corrupt the one thing the journal is for, which is what happened when and in what sequence.
+**Read the clock for the timestamp** — `date -u +"%Y-%m-%d %H:%M"`. Never estimate it or copy a
+time from elsewhere in the file.
 
 ```javascript
 const projectDir = $1 || /* prompt for it */;
@@ -148,28 +142,17 @@ Remember: You are deciding WHAT and WHY, not HOW.
 
 After reading research, read [sub-agent-prompts.md](sub-agent-prompts.md) NOW and spawn the three agents it defines, concurrently.
 
-**When the fan-out is skippable, and when it is not.** Spawn unless you have **already read the
-entire relevant surface** in this context — every file the agents would open, not a sample. That
-is a real case: a repository of three files, or a change confined to one module you have read
-whole. Then the agents can only return what you already hold, and spawning them spends tokens to
-learn nothing.
-
-Anything else, spawn. In particular, spawn when you have read *some* of the surface and are
-inferring the rest, when the change is cross-cutting, or when you are unsure which files are
-relevant — that uncertainty is the thing the fan-out resolves, so treating it as a reason to skip
-inverts the purpose.
-
-**If you skip, say so in your output and say why**, naming what you read instead. A silent skip
-is indistinguishable from forgetting, and the next reader cannot tell which happened.
+**Skip the fan-out only if you have already read the entire relevant surface in this context** —
+every file the agents would open, not a sample. Having read *some* of it, a cross-cutting change,
+or uncertainty about which files are relevant are each a reason to spawn, not to skip. **If you
+skip, say so in your output and say why**, naming what you read instead.
 
 **Sub-agents are READ-ONLY** — they return findings only; YOU write `design.md` after synthesizing.
 
 **⛔⛔⛔ BARRIER 2: STOP! Wait for ALL agents to complete - NO EXCEPTIONS ⛔⛔⛔**
 
-This barrier governs *waiting*, not spawning — synthesis on a
-partial set misses what the missing report would have changed. If you skipped the fan-out under
-the rule above, there is nothing to wait for and the barrier is satisfied trivially; it is not a
-reason to spawn agents you just established would return nothing.
+This barrier governs *waiting*, not spawning — synthesis on a partial set misses what the missing
+report would have changed. A fan-out skipped under the rule above satisfies it trivially.
 
 ### Step 3: Problem Definition
 
@@ -282,9 +265,7 @@ for a pending decision, writes the decision with its rationale and trade-off und
 **An instruction given before this document existed is not approval of it.** "Run the plan",
 "take it through to implementation", or a `forge` invocation all predate the design they would be
 authorising, so none of them can serve as the confirmation. Ask, and wait for an answer that
-refers to *this* design. Three separate sessions reached this conclusion unprompted, two of them
-after having conflated the two and disclosed it; it is written down here so the fourth does not
-have to derive it.
+refers to *this* design.
 
 ```
 Once you're satisfied with the design, please confirm approval.
@@ -293,21 +274,17 @@ After approval, run `/wb:create_tasks` to build the implementation plan.
 
 **On confirmation, set `status: approved` in `design.md`'s frontmatter** and refresh
 `last_updated`. Until then it stays `draft`. If the document you inherited carries a
-`**Status**:` line in its body — older skeletons did — delete it rather than updating it;
-frontmatter is the only place status lives, and two copies is how they disagree.
+`**Status**:` line in its body, delete it rather than updating it — frontmatter is the only
+place status lives.
 
-That edit is the gate, not a formality: `/wb:create_tasks` requires `approved`, and `forge`
-routes on it. A design left at `draft` stops the pipeline with no explanation, because the next
-stage can only see the field, not the conversation in which you approved it. Equally, never set
-it without the confirmation — writing `approved` on your own judgment removes the one review
-step between a design and the tasks built on it.
+That edit is the gate: `/wb:create_tasks` requires `approved`, and `forge` routes on it — the
+next stage can only see the field, not the conversation. Equally, never set it without the
+confirmation.
 
-**Close the journal entry on approval — not when `design.md` is written.** The stage's work ends
-when the design is approved, so a session that writes the document and then stops to ask leaves
-an entry that is still open, whose next action reads *awaiting approval at Step 6*. That is the
-correct residue: it is what tells the next session the design exists and is finished, rather
-than letting it re-run this stage and regenerate options the user has already chosen. This
-mattered on 2026-09-11, when a machine restart killed a session in exactly that position.
+**Close the journal entry on approval — not when `design.md` is written.** A session that writes
+the document and stops to ask leaves the entry open with next action *awaiting approval at
+Step 6* — the correct residue, and what tells the next session the design exists rather than
+letting it regenerate options the user already chose.
 
 ## Important Guidelines
 

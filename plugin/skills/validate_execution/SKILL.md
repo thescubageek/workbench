@@ -15,12 +15,10 @@ Supporting files in this directory (read each when its step directs you to — n
 - [templates.md](templates.md) — the validation report
 - [reference.md](reference.md) — validation philosophy, PASS/FAIL criteria, the common-checks list, workflow position, configuration
 
-**If a directed read fails, stop — do not continue from memory.** These files live in the plugin
-directory, which is outside your project, so a read of one can be refused. Say which file was
-refused, that reads outside the working directory are gated, and that the fix is to allow the
-read once or to relaunch with `--add-dir <plugin-path>`. Writing the artifact from this manifest
-alone produces a plausible document that was never based on the template — the exact failure the
-sentence above exists to prevent. Do not route around a refusal with `cat`.
+**If a directed read fails, stop — do not continue from memory.** These files live outside your
+project, so a read can be refused. Say which file was refused, that reads outside the working
+directory are gated, and that the fix is to allow the read once or to relaunch with
+`--add-dir <plugin-path>`. Do not route around a refusal with `cat`.
 
 **Model & effort (gate check)**: on entry, consult the `model-help` skill (gate mode) for the model + effort this phase warrants; surface its one-line verdict and — only if a switch clears the switch-cost bar — the `/model` action. Baseline is Sonnet/medium, rising to Opus/high when the change has wide blast radius, is compliance/security-sensitive, or is hard to verify (mistakes hide until prod) — adversarial checking of sensitive code earns the higher tier. Best-effort and non-blocking: stay silent and proceed when the current tier is already right. See CLAUDE.md → "Model & effort at gates."
 
@@ -120,28 +118,17 @@ const tasksFile = `${projectDir}/tasks.md`;
 
 Read [sub-agent-prompts.md](sub-agent-prompts.md) NOW and spawn the four agents it defines, concurrently.
 
-**When the fan-out is skippable, and when it is not.** Spawn unless you have **already read the
-entire relevant surface** in this context — every file the agents would open, not a sample. That
-is a real case: a repository of three files, or a change confined to one module you have read
-whole. Then the agents can only return what you already hold, and spawning them spends tokens to
-learn nothing.
-
-Anything else, spawn. In particular, spawn when you have read *some* of the surface and are
-inferring the rest, when the change is cross-cutting, or when you are unsure which files are
-relevant — that uncertainty is the thing the fan-out resolves, so treating it as a reason to skip
-inverts the purpose.
-
-**If you skip, say so in your output and say why**, naming what you read instead. A silent skip
-is indistinguishable from forgetting, and the next reader cannot tell which happened.
+**Skip the fan-out only if you have already read the entire relevant surface in this context** —
+every file the agents would open, not a sample. Having read *some* of it, a cross-cutting change,
+or uncertainty about which files are relevant are each a reason to spawn, not to skip. **If you
+skip, say so in your output and say why**, naming what you read instead.
 
 **CRITICAL: Sub-agents gather information and return findings. They do NOT write files. YOU (the main agent) will write the validation report after synthesizing their findings.**
 
 **⛔⛔⛔ BARRIER 2: STOP! Wait for ALL validation agents to complete ⛔⛔⛔**
 
-This barrier governs *waiting*, not spawning — synthesis on a
-partial set misses what the missing report would have changed. If you skipped the fan-out under
-the rule above, there is nothing to wait for and the barrier is satisfied trivially; it is not a
-reason to spawn agents you just established would return nothing.
+This barrier governs *waiting*, not spawning — synthesis on a partial set misses what the missing
+report would have changed. A fan-out skipped under the rule above satisfies it trivially.
 
 ### Step 3: Run Automated Verification
 

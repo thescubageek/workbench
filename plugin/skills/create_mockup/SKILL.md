@@ -15,12 +15,10 @@ Supporting files in this directory (read each when its step directs you to — n
 - `templates/` — one file per output shape: [ui-research-summary.md](templates/ui-research-summary.md) (Step 2) · [clarifying-questions.md](templates/clarifying-questions.md) (Step 3) · [mockup-md.md](templates/mockup-md.md) and [decisions-md.md](templates/decisions-md.md) (Step 5) · [mockup-html.md](templates/mockup-html.md) (Step 6) · [mockup-log-md.md](templates/mockup-log-md.md) (Step 8) · [presentation-message.md](templates/presentation-message.md) (Step 9)
 - [reference.md](reference.md) — purpose, output files, guidelines, icon handling, HTML quality checks, workflow position
 
-**If a directed read fails, stop — do not continue from memory.** These files live in the plugin
-directory, which is outside your project, so a read of one can be refused. Say which file was
-refused, that reads outside the working directory are gated, and that the fix is to allow the
-read once or to relaunch with `--add-dir <plugin-path>`. Writing the artifact from this manifest
-alone produces a plausible document that was never based on the template — the exact failure the
-sentence above exists to prevent. Do not route around a refusal with `cat`.
+**If a directed read fails, stop — do not continue from memory.** These files live outside your
+project, so a read can be refused. Say which file was refused, that reads outside the working
+directory are gated, and that the fix is to allow the read once or to relaunch with
+`--add-dir <plugin-path>`. Do not route around a refusal with `cat`.
 
 **Output discipline**: act on barriers silently; don't restate the plan between steps; emit only the artifact and a one-line completion summary.
 
@@ -51,26 +49,15 @@ When invoked, check for arguments:
 
 Read [sub-agent-prompts.md](sub-agent-prompts.md) NOW and spawn the five agents it defines, concurrently. They document layout, components, styling, similar features, and the icon system — all as they exist.
 
-**When the fan-out is skippable, and when it is not.** Spawn unless you have **already read the
-entire relevant surface** in this context — every file the agents would open, not a sample. That
-is a real case: a repository of three files, or a change confined to one module you have read
-whole. Then the agents can only return what you already hold, and spawning them spends tokens to
-learn nothing.
-
-Anything else, spawn. In particular, spawn when you have read *some* of the surface and are
-inferring the rest, when the change is cross-cutting, or when you are unsure which files are
-relevant — that uncertainty is the thing the fan-out resolves, so treating it as a reason to skip
-inverts the purpose.
-
-**If you skip, say so in your output and say why**, naming what you read instead. A silent skip
-is indistinguishable from forgetting, and the next reader cannot tell which happened.
+**Skip the fan-out only if you have already read the entire relevant surface in this context** —
+every file the agents would open, not a sample. Having read *some* of it, a cross-cutting change,
+or uncertainty about which files are relevant are each a reason to spawn, not to skip. **If you
+skip, say so in your output and say why**, naming what you read instead.
 
 **⛔ BARRIER 2**: Wait for ALL agents to complete before proceeding.
 
-This barrier governs *waiting*, not spawning — synthesis on a
-partial set misses what the missing report would have changed. If you skipped the fan-out under
-the rule above, there is nothing to wait for and the barrier is satisfied trivially; it is not a
-reason to spawn agents you just established would return nothing.
+This barrier governs *waiting*, not spawning — synthesis on a partial set misses what the missing
+report would have changed. A fan-out skipped under the rule above satisfies it trivially.
 
 ### Step 2: Synthesize Research
 
