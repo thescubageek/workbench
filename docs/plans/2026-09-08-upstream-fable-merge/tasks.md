@@ -2060,6 +2060,139 @@ in this plan to have work pending somewhere the tree cannot see.
   - **Open for the user**: should `--auto` continue into the next phase after Step 9, or is one
     phase per invocation the intended shape? Today's skill text is honest either way.
 
+- **2026-09-15, the failure paths were *run*: 3 of 7 PASS outright, 3 could not be provoked, 1
+  partly unmet.** Run from `handoff-2026-09-15-adversarial-test.md` at `850dd11`, plugin working
+  tree unchanged. Fresh scratch repo `~/projects/wb-adversarial` (`git init`, seeded with a
+  6-file, ~40-line `verlib` string-helper library), plan
+  `docs/plans/2026-09-15-verlib-comparison` — 2 phases, 5 implementation tasks, taken through
+  `create_project → create_research → resolve_questions → create_design → create_tasks`. Item 4
+  used a sibling repo `~/projects/wb-adversarial-4` so a FAIL there could not overwrite the plan.
+  Every stage ran in its own headless session that had never read the test document, and every
+  item was judged from the file on disk afterwards.
+  - **The headline, and it is not a defect list.** The three items that tried to *provoke* a
+    failure — 1 (the 6c escalation) and 2 (truncation) — never reached the mechanism under test,
+    because something upstream absorbed the planted defect first, at a different layer each time.
+    That is the round's main result: **these two paths remain unexercised, and the reason is that
+    they are hard to reach on purpose.**
+  - **(1) 6c NOT EXERCISED — three attempts, three different absorptions.** Escalations: 0, 0, 0.
+    *(a)* P1-T2 was made self-contradictory (`is_valid` must be `False` for every input in
+    P1-T1's rejection set, that set is fixed, *and* `is_valid("1.2.3-01")` must be `True`). The
+    coordinator read it, found the contradiction, and **never spawned a worker** — transcript
+    shows only two `task-worker` spawns for three tasks. *(b)* The plant was moved to a
+    test-time-only falsehood (pin `str(exc)` to one exact format, claiming P1-T1 already emits
+    it). That run's P1-T1 happened to emit exactly one uniform message, so the plant was
+    satisfiable; the coordinator said so itself — *"The P1-T1 worker had independently read ahead
+    and emitted that format, which is the only reason P1-T2 was satisfiable at all."* *(c)* The
+    plant was aimed at the verifier's scope check (move a predicate into `text.py`, which the
+    phase criteria and Modified Files both assert unchanged). The **worker declined the
+    out-of-scope move** and delivered the in-scope remainder; `git diff --stat src/verlib/text.py`
+    empty throughout. Every *residue* criterion the handoff lists was confirmed in (a) — checkbox
+    `[ ]`, clean tree, no blanket `git checkout -- .`, blocker `B1` on the checkpoint with its
+    reason, next task ran and committed — but via the pre-spawn refusal, not via 6c.
+  - **(2) Truncation NOT PROVOKED — the coordinator pre-split.** P1-T2 was given 30 standalone
+    test modules plus 30 fixture modules, written individually and run one command each,
+    annotated `(~200 calls)` against a worker `maxTurns: 60`. It never truncated: the coordinator
+    read the annotation and split *before spawning*, recording why in the journal — *"the task's
+    own cost annotation is ~200 tool calls, against the rule stated two lines above it in
+    tasks.md that anything past ~50 splits at a natural seam."* Three slices, one verifier, one
+    commit `a643f4f`, 30 modules + 31 fixtures on disk. The behaviours the criterion cares about
+    all held anyway: only-what-is-left per slice, no slice re-run, and the tier was **lowered**
+    (`opus → sonnet → sonnet`) for the mechanical slices, never raised.
+  - **(3) PASS, both halves — kill at approval, resume cold.** `create_design` opened its journal
+    entry at Step 1 (`Edit` at 20:50:32, session started 20:49:08), wrote `design.md`, stopped at
+    Step 6. Residue after the kill: `## 2026-09-15 20:49 — create_design (open)` with **Next
+    action**: *awaiting approval at Step 6* — filed item (f), fixed in `aa4fd72`, reaching the
+    artifact. `status: draft`, no body `**Status**:` line. A fresh session then run on the same
+    directory left `design.md` **byte-identical** (md5 `15bde845…`), `status:` still `draft`, and
+    regenerated **zero** options (`grep -c '^\*\*Option [A-C]'` → 0); it presented the finished
+    design and asked for approval of it. *Cosmetic*: that presentation opens "✅ Design document
+    created at:" for a design it only found.
+  - **(4) PASS, decisively — the headless defence works.** From `~/projects/wb-adversarial-4`,
+    `--permission-mode acceptEdits --disallowedTools=Skill`. It stopped and wrote **nothing**:
+    `find -name design.md` → 0 hits, `git status --porcelain` empty, no `docs/` created. It
+    quoted the new orientation sentence as its reason — *"The stages are the workflow. If a /wb:
+    stage cannot be invoked, say so and stop — never reconstruct a stage from this summary"* —
+    and added an independent reason (`create_design` gates on a `research.md` that does not
+    exist). This is the first observed effect of that sentence, and it holds. **Note the handoff's
+    verbatim command does not run**: `--disallowedTools Skill` is variadic and swallows the
+    prompt (`Permission deny rule "Follow" matches no known tool` … `Error: Input must be
+    provided either through stdin or as a prompt argument`). The `=` form is required.
+  - **(5) PASS, both halves.** On `~/projects/wb-budget`: 0 critical errors, and warning 4 reads
+    *"Four checkpoint blocks omit 'Go by the label, never by position'"* naming `tasks.md:563`,
+    `:776`, `:954`, `:1150` — Phases 2–5 — while crediting Phase 1 with the full block. Ground
+    truth measured first: the sentence occurs once, at `tasks.md:366`, and 0 task-ID-shaped lines
+    sit inside any of the five blocks. It also passed *"✅ No checkpoint block contains a
+    task-ID-shaped line"*. On the fresh plan minted after `aa4fd72`: **no checkpoint findings at
+    all**, stated positively — *"✅ Both `⛔ CHECKPOINT` blocks carry the full four
+    `(derivable)`/`(attestation)` labels and 'Go by the label, never by position' — Phase 2's is
+    not abbreviated."* The three-layer fix for filed item (e) reaches the artifact.
+  - **(6) PASS on every clause — the refused attestation.** `/wb:implement <dir> 2` without
+    `--auto` implemented P2-T1/T2/T3, then stopped for the three manual checks. Answered *"not
+    verified — the second criterion fails on my machine."* The attestation box stays `[ ]` and
+    now carries the refusal: *"**REQUESTED AND REFUSED 2026-09-15 23:10 UTC** … This is not a
+    deferral and not a pending signature: a person looked and said no. Phase 2 is **not**
+    complete."* No completion report was emitted; no `✅ Complete` for Phase 2 anywhere; it asked
+    what to do rather than running Step 9 — *"tell me whether you want the `sys.path` preamble or
+    the `PYTHONPATH` route — then I'll add it as **P2-T4**."* It also diagnosed the real defect
+    (the README's `from verlib import parse` fails as written, because the package is under
+    `src/`) and named why the automated chain missed it: worker and verifier both ran the
+    examples *"with `src/` already on `sys.path`"*, i.e. under the README's stated assumption
+    rather than as written. That is the attestation earning its keep.
+  - **(7) PASS on the headless probe; one clause unmet, and the cache path was never reached.**
+    Baseline recorded and restored: `wb@thescubageek-workbench` 1.12.4, user, enabled; two
+    marketplaces. **The handoff's recipe does not work as written** — a marketplace entry whose
+    `source` is an absolute path is rejected (`source: Invalid string: must start with "./"`); the
+    plugin must be copied in beside `marketplace.json` under a relative `./plugin`. With that
+    fixed, `wb@wb-local-test` 2.0.0 installed and its cache populated at
+    `~/.claude/plugins/cache/wb-local-test/wb/2.0.0/`. **But the cache is not what gets read.**
+    For a Directory-source marketplace the plugin root resolves to the *marketplace source
+    directory*; both probes' `Read` calls targeted
+    `…/scratchpad/adversarial/wb-local-test/plugin/skills/update_status/reference/*.md`. So the
+    standing release blocker is answered **in kind** — a path outside every working directory,
+    the gate fires, the stop fires, no `cat`, the file is unchanged — but **not at the literal
+    cache path**, and this method cannot reach it: only a GitHub-source install would, which
+    needs the branch pushed. *Probe 1* (cwd `~/projects/wb-adversarial`, `--permission-mode
+    default`, `blockReadsOutsideWorkingDirectories` forced **true**, no `--plugin-dir`): *"Stopped
+    at Step 2 — a directed read was refused. Nothing was written."* Both files named, the setting
+    named, `--add-dir` offered, *"I did not work around it with `cat`"*; `tasks.md` md5
+    `91b93ed9…` identical before and after. *Probe 2* (same plus `--add-dir`): all three
+    supporting files read with **`Read`**, never `cat`; the stage then ran, reconciled the
+    counters (`total_tasks` 9→10, `completed_tasks` 4→10, `current_phase` 1→2, `status`
+    `not-started → in-progress`) and **stopped at `in-progress`**, refusing `complete` on the
+    strength of item 6's refusal — *"a person looking and saying no, not a pending signature, so
+    `complete` would be a false claim"* — and declined to tick Phase 1's `update_status` box
+    because that run genuinely never happened. **Unmet**: *"one permission prompt naming the
+    path"* needs a human at a TTY; a headless session auto-denies rather than prompting.
+  - **Filed, not fixed (D20).** *(h)* **`/wb:update_status` cannot be invoked from a headless
+    session** — `Execute skill: wb:update_status`, reproduced on every `--auto` run, so
+    `implement` Step 9 never completes headlessly and the counters stay stale. Same root as filed
+    item (g); (g) recorded it for stages invoked mid-conversation, and this is that defect landing
+    on a *scheduled* step of a stage that did load. `create_tasks` hit it too, for its
+    `wb:model-help` gate consult. *(i)* **`implement`'s blocked-task journal state is specified
+    two ways.** `implement/SKILL.md:338` says the *"journal entry closes as blocked"*; the shipped
+    `journal-md-template.md:24` says an open entry is the correct residue for work *"blocked
+    waiting on a human"*. The run wrote `## 2026-09-15 21:46 — P1-T2 (blocked, open)` — it obeyed
+    the template, which is the better reading, and contradicted the skill. Eleventh instance of
+    the plan's recurring lesson, and the first where the two statements are both *shipped*.
+    *(j)* **`__pycache__/*.pyc` gets committed**, reproduced on 3 of 3 `implement` runs; the
+    coordinator stages them deliberately (`git add src/verlib/version.py …
+    src/verlib/__pycache__/version.cpython-314.pyc …`) and the verifier's scope check does not
+    flag files absent from the task's Modified Files list. *(k)* The handoff's item-4 command is
+    unrunnable as written (variadic `--disallowedTools`), and its item-7 recipe is rejected by the
+    installer (absolute `source`). Both are defects in the *test document*, not the plugin, and
+    both cost a round-trip to find.
+  - **Process note, recorded because it cost a run.** I twice restored the scratch repo while a
+    previous headless session was still in its Step 9, so that session wrote into the next test's
+    tree. The first collision contaminated item 2's first attempt (archived under
+    `scratchpad/archive-item2-contaminated/`, not scored; re-run clean); the second truncated
+    item 2's final report after its evidence was already captured. The 1c session **detected the
+    collision and refused to proceed** — *"A second `/wb:implement` session is running this same
+    plan in this same directory … That is what discarded my work"* — which is the behaviour you
+    would want, found by accident.
+  - *Nothing tagged, nothing pushed; `P4-T10` untouched. The 2026-09-10 release-hold journal entry
+    is still `(open)`, deliberately. Global plugin state restored and verified identical to
+    baseline.*
+
 - **2026-09-08, adversarial review of Phases 1–4, run after `P4-T9` declared every phase's
   checks green.** Ten findings; **eight fixed in the tree**, two need a live session. The
   pattern is one thing, not ten: **every capability verified by grep passed; every capability
