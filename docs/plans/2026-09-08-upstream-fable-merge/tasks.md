@@ -1823,6 +1823,37 @@ in this plan to have work pending somewhere the tree cannot see.
   - **Still open and deliberately so**: the `splitlines()` line-number drift belongs to the
     scratch deliverable in `~/projects/wb-auto`, not to wb.
 
+- **2026-09-15, MEASURED REGRESSION against this plan's own headline metric — the week of fixes
+  cost 12.4k on-invoke tokens.** Raised by the user asking about performance, since this plugin
+  is the substrate for every project they run. Measured with the same instrument as the baseline
+  (`claude --plugin-dir plugin plugin details wb`), not estimated.
+
+  | | 2026-09-08 final | 2026-09-15 | Δ |
+  | - | ---------------- | ---------- | - |
+  | Fourteen-stage on-invoke | **46.8k** | **58.4k** | **+12.4k (+26%)** |
+  | Against the Phase 2 bar (≤59.4k) | cleared by 12.6k | cleared by **1.0k** | |
+  | Reduction vs the 84.9k baseline | **−44.9%** | **−31.2%** | |
+
+  Worst per stage: `implement` +2.2k, `create_design` +1.8k, `create_research` +1.6k,
+  `update_status` +1.3k, `create_product_research` +1.1k, `create_tasks` +1.0k.
+
+  - **The exit criterion still holds, but the margin is gone.** 12.6k of headroom became 1.0k.
+    Another week of fixes at this rate breaches the bar the release was built to clear.
+  - **The cause is architectural, and it is the one D2 exists to prevent.** Progressive
+    disclosure says `SKILL.md` carries the *rule* and supporting files carry the *detail*, read
+    on demand. Every fix this week put its **rationale** into `SKILL.md` — "measured
+    2026-09-10", "this happened when", multi-sentence justifications of why a rule exists. That
+    rationale is what a maintainer needs and what the plan record is *for*; paying for it on
+    every invocation, in every project, is precisely the cost D2 removed. **The fixes violated
+    the architecture they were protecting.**
+  - **This is why it matters more than it looks.** wb is the substrate for several unrelated
+    real projects, so a 12.4k per-invocation regression is paid on every stage of every plan in
+    every one of them — silently, and forever, unlike a defect which at least announces itself
+    once.
+  - **Remediation, not yet applied**: keep the rule in `SKILL.md`, move the story to a supporting
+    file or leave it here in the plan record, which is where the evidence already lives. Nothing
+    substantive is lost — the rules stay enforced — and most of the 12.4k should come back.
+
 - **2026-09-08, adversarial review of Phases 1–4, run after `P4-T9` declared every phase's
   checks green.** Ten findings; **eight fixed in the tree**, two need a live session. The
   pattern is one thing, not ten: **every capability verified by grep passed; every capability
