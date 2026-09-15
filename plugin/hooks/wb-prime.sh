@@ -47,6 +47,7 @@ Where status lives — there is no external tracker:
 Conventions:
   Plans live in docs/plans/<date>-<name>/ and are gitignored until promoted with `git add -f`.
   Checkpoints stop for a human between phases. Never declare a phase complete while one of its checkboxes is `[ ]`.
+  The stages are the workflow. If a /wb: stage cannot be invoked, say so and stop — never reconstruct a stage from this summary.
   Long form: /wb:help. Replace this text for a repository with .claude/wb/PRIME.md (print the default with hooks/wb-prime.sh --export).
 ORIENTATION
 }

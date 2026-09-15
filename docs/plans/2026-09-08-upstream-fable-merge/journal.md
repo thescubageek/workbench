@@ -22,6 +22,15 @@ file.
 > `P3-T7`/`P3-T8` wiring shipped but was never exercised, which is itself one of the review
 > findings below. There is no earlier history to reconstruct and none is invented here.
 
+## 2026-09-15 20:45 — test-run findings fixed (closed)
+
+- **Task/phase**: phase 4; 63 of 64, unchanged. Fixes for the behavioural test's findings (e), (f),
+  (g), the `--auto` phase-scope clause, a `validate_project` checkpoint-block check, two knowledge
+  entries.
+- **Next action**: second test round per the handoff's advice; `P4-T10` still held.
+- **Started at**: `7fd3f51`
+- **Landed**: see tasks.md → Implementation Notes, 2026-09-15 "findings fixed". 54.2k.
+
 ## 2026-09-15 16:46 — context-budget recovery (closed)
 
 - **Task/phase**: phase 4; 63 of 64, unchanged. Not a task — remediation of the 2026-09-15

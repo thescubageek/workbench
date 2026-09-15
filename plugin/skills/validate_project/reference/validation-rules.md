@@ -122,6 +122,24 @@ if (badShape.length) {
   );
 }
 
+// Every phase checkpoint must carry the full block: the (derivable)/(attestation) labels and
+// the go-by-the-label rule. The template states the block once; a generated plan that
+// abbreviates later checkpoints leaves a reader at Phase 4 with four boxes and no instruction
+// for reading them — which is how the human sign-off box gets ticked by position.
+const checkpointBlocks = splitOn(tasksContent, /^### ⛔ CHECKPOINT:/m);
+for (const block of checkpointBlocks) {
+  const labels = (block.match(/\*\*\((derivable|attestation)\)\*\*/g) || []).length;
+  if (labels < 4 || !/\(attestation\)/.test(block)) {
+    WARNING(`Checkpoint "${block.heading}" is missing (derivable)/(attestation) labels — abbreviated block`);
+  }
+  if (!/Go by the label, never by position/.test(block)) {
+    WARNING(`Checkpoint "${block.heading}" omits "Go by the label, never by position"`);
+  }
+  if (/^- \[[ x]\] \*\*[A-Z0-9-]*[0-9][A-Z0-9-]*\*\*/m.test(block)) {
+    ERROR(`Checkpoint "${block.heading}" contains a task-ID-shaped line — it will inflate the task count`);
+  }
+}
+
 // Status must not contradict the checkboxes.
 if (tasksFrontmatter.status === 'not-started' && done > 0) {
   ERROR(`tasks.md status is not-started but ${done} task(s) are [x]`);

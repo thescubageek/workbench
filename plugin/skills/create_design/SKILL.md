@@ -281,10 +281,10 @@ That edit is the gate: `/wb:create_tasks` requires `approved`, and `forge` route
 next stage can only see the field, not the conversation. Equally, never set it without the
 confirmation.
 
-**Close the journal entry on approval — not when `design.md` is written.** A session that writes
-the document and stops to ask leaves the entry open with next action *awaiting approval at
-Step 6* — the correct residue, and what tells the next session the design exists rather than
-letting it regenerate options the user already chose.
+**Close the journal entry on approval — not when `design.md` is written.** When you stop to ask,
+rewrite the open entry's **Next action** to *awaiting approval at Step 6*. That open entry is the
+correct residue, and its text is what tells the next session the design exists and what it is
+waiting on, rather than letting it regenerate options the user already chose.
 
 ## Important Guidelines
 

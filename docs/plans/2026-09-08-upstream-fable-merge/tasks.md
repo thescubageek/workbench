@@ -2033,6 +2033,33 @@ in this plan to have work pending somewhere the tree cannot see.
   - *Nothing tagged, nothing pushed; `P4-T10` untouched. The 2026-09-10 release-hold journal entry
     is still `(open)`, deliberately.*
 
+- **2026-09-15, the test run's findings fixed on the user's instruction; cost +0.2k (54.2k).**
+  - **(e) fixed at three layers** — stated, minted, checked. The template's Phase 2 section now
+    carries an explicit `### ⛔ CHECKPOINT: Phase 2 Complete` placeholder saying the full block
+    recurs verbatim, and the Phase 1 block says so itself; `create_tasks` Step 5 validates that
+    every phase ends with the full block; `validate_project` gains a per-checkpoint check
+    (labels present, go-by-the-label sentence present — warnings; task-ID-shaped line inside a
+    block — error). Tenth instance of the plan's lesson, and the first fixed on all three sides
+    at once. The template's self-history sentence (filed item d) was dropped in the same edit,
+    keeping the rule's force in one clause.
+  - **(f) fixed.** `create_design` Step 6 now rewrites the open entry's **Next action** to
+    *awaiting approval at Step 6* when it stops to ask, so the entry's text matches its state.
+  - **(g) defended, not solvable here.** The `Skill` denial under headless `acceptEdits` is
+    harness behaviour. The SessionStart orientation now says *"The stages are the workflow. If
+    a /wb: stage cannot be invoked, say so and stop — never reconstruct a stage from this
+    summary"*, and the knowledge file records `--allowedTools=Skill` as the fix. Whether a
+    headless session obeys that line is untested — next round.
+  - **`--auto` is phase-scoped, now said in `implement`**: one `continue` invocation per phase.
+    Whether it *should* roll phases is a design decision for the user, filed below.
+  - **Test-6 precondition recorded** in the knowledge file's boundary entry:
+    `blockReadsOutsideWorkingDirectories` is off on this machine; force it with `--settings` or
+    the test measures nothing.
+  - **Re-verified**: lint clean; hook exits 0 and prints the new line; template checkpoint
+    blocks carry 0 `✅` and 0 task-ID matches against a control of 10; fourteen-stage total
+    54.0k → **54.2k**, headroom 5.2k.
+  - **Open for the user**: should `--auto` continue into the next phase after Step 9, or is one
+    phase per invocation the intended shape? Today's skill text is honest either way.
+
 - **2026-09-08, adversarial review of Phases 1–4, run after `P4-T9` declared every phase's
   checks green.** Ten findings; **eight fixed in the tree**, two need a live session. The
   pattern is one thing, not ten: **every capability verified by grep passed; every capability

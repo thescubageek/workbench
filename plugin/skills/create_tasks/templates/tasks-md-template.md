@@ -212,9 +212,10 @@ tool can establish, and `/wb:implement` ticks those at its Step 8 checkpoint. An
 records that a *person* looked, so only a person ticks it, and an unticked attestation beside
 finished work means *"done, sign-off pending"* rather than a contradiction.
 
-**Go by the label, never by position.** An earlier version of this block described them by
-position — "the first three" — and the description did not match the order, which would have a
-reader tick the human sign-off box and leave `update_status` unticked.
+**Go by the label, never by position** — a positional reading of these boxes has been wrong
+before, and following it ticks the human sign-off box. **This block, labels and this sentence
+included, is repeated in full at every phase's checkpoint**; a later phase never gets a
+shortened one.
 
 - [ ] **(derivable)** Every Phase 1 checkbox is `[x]`
 - [ ] **(derivable)** All automated verification passing
@@ -242,7 +243,13 @@ manual steps nobody performed, and the confirmation is **deferred, not obtained.
       checkpoint records that nobody was asked. Unticked here means deferred, not blocked.*
 - [ ] [Additional prerequisites from dependency agent]
 
-[Continue with similar structure...]
+[Tasks, Success Criteria and Modified Files, as in Phase 1...]
+
+### ⛔ CHECKPOINT: Phase 2 Complete
+
+[The Phase 1 checkpoint block in full, with only the phase number changed — the label
+definitions, the go-by-the-label rule, the four labelled boxes and the `--auto` clause. Every
+phase's checkpoint is the complete block, never an abbreviated one.]
 
 ---
 

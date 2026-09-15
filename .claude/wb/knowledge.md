@@ -107,7 +107,11 @@ we have the in-repo cautionary example for that.
   self-grant.** The only proven fix is `--add-dir <plugin-path>`. This is what falsified
   assumption A4, which had been recorded Validated on a probe whose session cwd was never
   written down — run from inside the plugin directory, the boundary cannot fire.
-- **Verified**: 2026-09-09 · `docs/plans/2026-09-08-upstream-fable-merge/`
+- **Also**: the gate is the `permissions.blockReadsOutsideWorkingDirectories` setting, and it is
+  **off** in this machine's `~/.claude/settings.json`. A read-boundary test must force it on —
+  `--settings '{"permissions":{"blockReadsOutsideWorkingDirectories":true}}'` — or it measures
+  nothing: run verbatim on 2026-09-15, nothing was refused and the stage completed.
+- **Verified**: 2026-09-09, precondition note 2026-09-15 · `docs/plans/2026-09-08-upstream-fable-merge/`
 - **Check it**: from a cwd that is not a parent of the plugin —
   `claude --plugin-dir <repo>/plugin -p "Use the Read tool to read <repo>/plugin/skills/help/SKILL.md. Reply DENIED or the first line."`
   → `DENIED`; adding `--add-dir <repo>/plugin` → the first line.
@@ -178,3 +182,16 @@ we have the in-repo cautionary example for that.
 - **Verified**: 2026-09-15 · `docs/plans/2026-09-08-upstream-fable-merge/`
 - **Check it**: on a clean tree, `git add docs/plans/<dir>/tasks.md` prints the ignored-paths
   hint and exits 1; `git add -f` on the same path exits 0.
+
+## Headless sessions cannot invoke a wb stage mid-conversation without `--allowedTools=Skill`
+
+- **Why it matters**: under `-p`, a `Skill` tool call for `wb:<stage>` is denied in
+  `acceptEdits` mode; only a slash command that *leads* the prompt is expanded before the session
+  starts. A headless session that cannot load a stage does not stop — one improvised the whole
+  pipeline from the SessionStart orientation and wrote `status: approved` into `design.md` with
+  no human asked, which is the failure the approval rule exists to prevent, reached by never
+  loading the rule. Pass `--allowedTools=Skill`, or lead the prompt with the one stage to run.
+  The orientation block now says to stop rather than reconstruct a stage, as a second defence.
+- **Verified**: 2026-09-15 · `docs/plans/2026-09-08-upstream-fable-merge/`
+- **Check it**: `claude -p --plugin-dir plugin --permission-mode acceptEdits "Use the Skill tool to invoke wb:help"`
+  → the Skill call is denied; add `--allowedTools=Skill` → `/wb:help` runs.

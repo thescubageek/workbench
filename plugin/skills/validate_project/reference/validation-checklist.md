@@ -39,6 +39,8 @@ checks are about whether the file can actually carry that role.
 - ✅ Every ID matches `[A-Z0-9-]*[0-9][A-Z0-9-]*` — at least one digit. An ID without one is invisible to every counter in the workflow, silently
 - ✅ `completed_tasks` matches the count of `^- \[x\] \*\*<ID>\*\*` lines and `total_tasks` the count of all ID-carrying task lines — scoped to the ID shape, never a raw `grep -c '^- \[x\]'`
 - ⚠️ A `[x]` task with no `(completed …)` stamp — allowed, but the stamp is what makes the log readable
+- ⚠️ Every `### ⛔ CHECKPOINT` block carries the four `(derivable)`/`(attestation)` labels and "Go by the label, never by position" — the template states it once, so a generated plan that abbreviates later checkpoints is the likely shape
+- ❌ A checkpoint block containing a task-ID-shaped line — it inflates every counter
 - ❌ Any instruction telling the reader that checkboxes are documentation-only, or that status lives elsewhere — that is a pre-2.0.0 plan and its guidance is now wrong
 
 ## 4. Status Consistency

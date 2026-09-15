@@ -36,7 +36,8 @@ literally: the harness substitutes their values, and the sentence goes circular.
 
 Its only effect is that the Step 8 phase checkpoint does not stop to request manual
 verification. Per-task verification, the one-task-one-commit rule, the blocking list and every
-barrier before Step 8 are unchanged — `--auto` removes a wait, not a check.
+barrier before Step 8 are unchanged — `--auto` removes a wait, not a check. It is phase-scoped:
+the run still ends after Step 9, so a multi-phase plan takes one `continue` invocation per phase.
 
 1. **If directory and phase provided** (e.g., `/wb:implement docs/plans/2025-01-08-my-project/ 1`):
    - Use `$1` as project directory
