@@ -167,3 +167,14 @@ we have the in-repo cautionary example for that.
   `haiku → sonnet → opus → fable`, with `opus` the default and `sonnet` the deliberate
   downshift. Full IDs remain correct for the *main-session* model via `/model`, which is what
   `model-help` governs; the two vocabularies are now distinguished in both files.
+
+## Tracked files under `docs/plans/` still need `git add -f`, every time
+
+- **Why it matters**: promotion is not one-time in practice. `docs/plans` is gitignored, and
+  `git add <plan-dir>/tasks.md` on an **already-tracked** file still exits 1 with "The
+  following paths are ignored", so a session that stages its status edits the ordinary way
+  gets a failed `&&` chain and no commit — `git status` shows the modification, which makes the
+  refusal look like something else. Stage plan files with `git add -f` unconditionally.
+- **Verified**: 2026-09-15 · `docs/plans/2026-09-08-upstream-fable-merge/`
+- **Check it**: on a clean tree, `git add docs/plans/<dir>/tasks.md` prints the ignored-paths
+  hint and exits 1; `git add -f` on the same path exits 0.
