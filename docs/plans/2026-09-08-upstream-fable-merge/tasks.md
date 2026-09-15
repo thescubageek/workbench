@@ -1936,6 +1936,103 @@ in this plan to have work pending somewhere the tree cannot see.
     its own history ("An earlier version of this block…") into every generated `tasks.md`; not on
     the on-invoke metric, but it is story in a persisted artifact.
 
+- **2026-09-15, the compressed skills were *run*, not grepped: 6 of 7 items PASS, one partial.**
+  Run from `handoff-2026-09-15-context-budget-test.md` at `bf55845`, plugin working tree at
+  `cef3762`. Scratch repo `~/projects/wb-budget`, `git init`, no commits, nothing shared with
+  `wb-e2e` or `wb-auto`. Deliverable: a stdlib-only 5-field Vixie cron parser — 26 tasks over 5
+  phases, 22 commits `4d5834d` … `f8efa65`, 142 tests.
+  - **Method, because it changes what the results are worth.** Every stage ran in its own
+    **headless session that had never read the test document**, and each item was judged from the
+    file on disk afterwards. The handoff's premise is that a grep cannot prove a session obeys; a
+    session that has read the pass criteria before acting cannot prove it either. The one place
+    this cost something is item 2's "before any agent spawns", which is ordering rather than
+    residue — recorded from the run's own tool-call stream instead.
+  - **(1) PASS — `create_project` refuses prose.** `/wb:create_project a small parser for cron
+    expressions` created **nothing**: no `docs/`, no directory named `a`. It asked for the three
+    slots by name and said why — *"I don't want to bind 'a' / 'small' / 'parser' to them."* This
+    is F10 (filed 2026-09-13, `create_project` binding words 2/3/4) not reproducing.
+  - **(2) PASS — journal opened, closed, and the skipped fan-out declared.** The tool stream
+    shows `date -u +"%Y-%m-%d %H:%M"` as call 10 and the journal `Edit` as call 11 of 17, with
+    **no `Task` spawn anywhere in the run** — the open entry cannot have followed an agent because
+    none exists. Stamp `17:00` against a run that started `17:00`; `(closed)` at `17:02` inside a
+    window ending `17:03`. The skip is declared twice and names its replacement: research.md's
+    `## Research Method` — *"No parallel research agents were spawned … all five files were read
+    in full, and they are the only files present. Agents would have had nothing additional to
+    open"* — plus six absence sweeps recorded as commands. No `explore_design` nudge, correctly:
+    the findings name no two viable approaches, only four blocking questions.
+  - **(3) PASS, both halves — a prior instruction is not approval.** *"Take this all the way
+    through implementation"* was given as a real prior turn, then `/wb:create_design` invoked on
+    resume. It stopped at Step 6 and said so: *"Status stays `draft` and the journal entry stays
+    open until you confirm."* Artifact at that moment: `status: draft`, **no** body `**Status**:`
+    line, journal `## 2026-09-15 17:30 — create_design (open)`. On explicit approval:
+    `status: approved`, still no body line, `(closed)` with *"approved by the user at 17:34"*. It
+    also did not roll on into `create_tasks` on the strength of the standing instruction.
+  - **(4) PASS on the block, FAIL on one clause.** Over the generated `tasks.md`, per checkpoint
+    block: `✅` count **0** in all five (file-wide count is 1, in an unrelated progress row);
+    three `(derivable)` boxes and one `(attestation)` in all five, Phase 5 carrying a fifth
+    `(derivable)` for `validate_execution`. Control fired: the task-ID pattern matches **0** lines
+    inside every block and **26** over the file. **But "Go by the label, never by position"
+    appears exactly once — line 336, the Phase 1 block.** Blocks 2–5 carry the labels and not the
+    rule, so a reader who opens at Phase 4's checkpoint meets four boxes and no instruction for
+    reading them. Filed as (e). Conversely, filed item (d) **did not reach the artifact**: the
+    session dropped the template's "An earlier version of this block…" history rather than
+    copying it — judgment, not a fix; `tasks-md-template.md:215` still carries it.
+  - **(5) PASS on every clause.** `/wb:implement --auto <dir> continue` bound the *directory*
+    with the flag first — no *"use `--auto` as project directory"*. All five checkpoints read
+    **`[x] [x] [ ] [x]`**, attestation unticked, each with a note naming the phase, a UTC time and
+    the manual steps nobody performed (Phase 1's lists three, with the actual rejection strings to
+    judge). `update_status` applied `not-started → in-progress` and `current_phase` 1 → 2
+    **silently** at the first checkpoint, and **stopped** on the final transition: 26/26 `[x]` and
+    `status: in-progress` still. The final report names it — *"The plan cannot close itself … the
+    status is not [reconciled]."* One commit per task, **22 commits for 22 implementation tasks,
+    every subject `P<n>-T<n>: …`**, zero commits without a task ID. Completion stamps are UTC,
+    strictly monotonic, and each precedes its own commit by 0–7 minutes — **no future stamps**,
+    the 2026-09-13 worker-clock defect not reproducing. `git_commit` tracked to `f8efa65`, so
+    defect (c) of 2026-09-13 stays fixed.
+    - *Worth knowing before the next run: `--auto` is **phase**-scoped. It closes one phase, emits
+      the report and exits; the plan took **five** invocations of `continue`, not one. Nothing in
+      the skill claims otherwise — "`--auto` removes a wait, not a check" — but the 2026-09-13
+      note's "ran to completion under `--auto`" reads like one invocation and is not.*
+  - **(6) PASS, but only after restoring the precondition — and that is the finding.** Run
+    verbatim from cwd `/Users/thescubageek/projects/wb-budget`, `--permission-mode default`, no
+    `--add-dir`, **nothing was refused**: the stage read its two `reference/` files and completed.
+    This machine's `~/.claude/settings.json:28` sets
+    `"blockReadsOutsideWorkingDirectories": false`, which is the gate the test is aimed at. **A
+    test whose precondition is off measures nothing**, and the handoff's own A4 lesson is that a
+    probe which cannot fail is not evidence. Re-run identically plus
+    `--settings '{"permissions":{"blockReadsOutsideWorkingDirectories":true}}'` — **PASS, cleanly**:
+    it stopped before writing, named both files (`update_status/reference/smart-status-detection.md`,
+    `status-transition-logic.md`), named the mechanism (*"outside this session's working
+    directory … gated by `permissions.blockReadsOutsideWorkingDirectories`"*), offered both fixes
+    (allow once, or `--add-dir <plugin root>`), and said *"I'm not routing around it with `cat`,
+    and I won't continue the transition logic from memory."* `tasks.md` md5 identical before and
+    after both runs. The ungated run is not wasted: it exercised Barrier 2 independently and
+    refused `in-progress → complete` with counters already reconciled.
+  - **(7) PASS, decisively.** A cold session with **no plugin loaded**, told only to read
+    `tasks.md`: done — 26/26 across 6 phases with per-phase test counts; next — four items, none
+    of them a task, correctly led by the five missing attestations and `validate_execution`; and
+    *"Did a human sign off? **No.**"* backed by the unticked attestation line, the per-checkpoint
+    unattended note, the label definition and the cannot-close-itself paragraph — four independent
+    places, the same answer the 2026-09-13 run got. The 2026-09-13 weak answer (Q3: a reader meets
+    `status: in-progress` beside a 100% table with no nearby explanation) **did not recur** — this
+    reader reached "close the plan" as next action without help.
+  - **Filed, not fixed (D20).** (e) The "Go by the label, never by position" sentence reaches only
+    the first checkpoint block of a generated `tasks.md`; the template states it once and nothing
+    requires it per block. Ninth instance of *stated in one place, checked in none*. (f)
+    `create_design` writes its open journal entry with **Next action**: *"write design.md, then
+    request approval at Step 6"* and never updates it while waiting — so the entry that exists to
+    tell a cold reader what the work is blocked on names a step already finished. The `(open)`
+    state is right; the text under it is stale. (g) **Headless sessions cannot invoke wb stages
+    mid-conversation.** A `Skill` tool call for `wb:create_design` is denied under
+    `--permission-mode acceptEdits` (`--allowedTools=Skill` fixes it); only a *leading* slash
+    command is expanded before the session starts. Observed consequence, and it is the ugly one: a
+    session that could not load the skills improvised the whole workflow from the SessionStart
+    prime and **wrote `status: approved` into `design.md` with no human ever asked** — the exact
+    failure rule (4) exists to prevent, reached by never loading rule (4). That run was discarded
+    and is not scored above; the artifact is kept under `scratchpad/archive-contaminated-run/`.
+  - *Nothing tagged, nothing pushed; `P4-T10` untouched. The 2026-09-10 release-hold journal entry
+    is still `(open)`, deliberately.*
+
 - **2026-09-08, adversarial review of Phases 1–4, run after `P4-T9` declared every phase's
   checks green.** Ten findings; **eight fixed in the tree**, two need a live session. The
   pattern is one thing, not ten: **every capability verified by grep passed; every capability
