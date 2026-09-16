@@ -22,6 +22,33 @@ file.
 > `P3-T7`/`P3-T8` wiring shipped but was never exercised, which is itself one of the review
 > findings below. There is no earlier history to reconstruct and none is invented here.
 
+## 2026-09-16 05:52 — P4-T10 landed; the plan is closed (closed)
+
+- **Task/phase**: phase 4; **64 of 64**. `P4-T10` is done — `wb--v2.0.0` is an annotated tag on
+  `d6fe71b`, which is `origin/main` after PR #20 was squash-merged, and the installed plugin
+  reports `2.0.0`. This is the last task in the plan.
+- **Next action**: none for this plan. The tag push and the follow-up PR are the user's; nothing
+  here pushes or tags. Findings **(s)** and **(t)** below belong to whatever lands next.
+- **Started at**: `d328087`
+- **Landed**: `/wb:update_status` moved `tasks.md` `in-progress -> complete`, reconciled
+  `completed_tasks` 63 -> 64 and refreshed the git metadata to `d328087`.
+  `/wb:validate_execution` returned **PASSED WITH ISSUES** — full record in `tasks.md` →
+  Implementation Notes, 2026-09-16. Headlines: every completion claim corroborated, the branch
+  HEAD tree byte-identical to the tagged commit's (`699cf71`), 30 of 31 automated gates green,
+  **169 relative links and 44 directed reads with zero dangling paths**, fourteen-stage on-invoke
+  54.7k (−35.6 percent, 4.7k inside the bar). Two new defects, both prose in shipped files and
+  both the plan's own recurring class: **(s)** the three alias stubs name supporting files the
+  2026-09-09 split renamed away, and **(t)** F2's pseudo-code fix reached `implement` only,
+  leaving the same `$1`-in-a-fence block live in eight other stages. Criteria `:317` and `:664`
+  were re-run, passed in their original wider form, and flipped; `:1011` is now unmeetable by
+  construction, because `P4-T10` created the tag its dry-run refuses to move.
+
+**On the convention, honestly.** This entry was opened and closed in the same session rather than
+opened before the work — the close-out was short enough that an interruption would have lost
+little, but the journal exists precisely because a session does not get to decide that in
+advance. Recorded rather than glossed, as the 2026-09-15 context-budget entry did for the same
+lapse.
+
 ## 2026-09-16 03:50 — round three processed (closed)
 
 - **Task/phase**: phase 4; 63 of 64, unchanged. Reconciled item 6 with the earlier probes,
