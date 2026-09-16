@@ -54,14 +54,12 @@ When invoked, check for arguments:
 
 ### Step 1: Parse Arguments
 
-```javascript
-// Parse provided arguments
-const projectName = $1;  // First argument
-const baseDir = $2 || 'docs/plans';  // Second argument with default
-const ticketRef = $3 || null;  // Third argument (optional)
+Bind three slots, in order: the **project name**, then the **base directory** (default
+`docs/plans`), then an optional **ticket reference**. Prompt for any that is missing.
 
-// If any required args missing, prompt for them
-```
+**Refuse prose.** If the first argument contains spaces or reads as a description of the work
+rather than a name, do not split it across the slots — ask for the three values by name instead.
+Splitting a sentence positionally produces a wrongly-named plan directory with no error.
 
 ### Step 2: Gather Metadata
 

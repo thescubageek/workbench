@@ -46,16 +46,10 @@ When invoked, check for arguments:
 
 **⛔⛔⛔ BARRIER 1: STOP! Read ALL project docs AND review conversation history ⛔⛔⛔**
 
-```javascript
-const projectDir = $1 || /* prompt for it */;
-const handoffReason = $2 || "session transfer";
-
-// Read all project documentation
-const researchFile = `${projectDir}/research.md`;
-const designFile = `${projectDir}/design.md`;
-const tasksFile = `${projectDir}/tasks.md`;
-const journalFile = `${projectDir}/journal.md`;
-```
+Take the project directory from the arguments, prompting for it if it is missing; take the
+handoff reason from the next argument, defaulting to "session transfer". Then read
+`research.md`, `design.md`, `tasks.md` and `journal.md` from that directory — **fully**, no
+`limit` or `offset`.
 
 1. **Read all project documentation** to understand:
    - Project goals and current status

@@ -113,15 +113,9 @@ For each implementation task:
 
 **⛔⛔⛔ BARRIER 1: STOP! Read ALL documentation files FULLY - NO SHORTCUTS ⛔⛔⛔**
 
-```javascript
-const projectDir = $1 || /* prompt for it */;
-const phase = $2 || /* prompt for it */;
-
-// Read all project files
-const researchFile = `${projectDir}/research.md`;
-const designFile = `${projectDir}/design.md`;
-const tasksFile = `${projectDir}/tasks.md`;
-```
+Take the project directory and the phase from the arguments, prompting for either if it is
+missing. Then read `research.md`, `design.md` and `tasks.md` from that directory — **fully**, no
+`limit` or `offset`.
 
 1. **Read project structure**:
    - Check that specified directory exists

@@ -412,6 +412,50 @@ plugin updates, which a restart fixes and the migration note already prescribes.
 The stub exists for muscle memory and for plan documents already written elsewhere that name
 the old command. It is removed at the next major.
 
+### A stub's manifest names paths, so it has to be checked like one
+
+A deprecated-alias stub lists the canonical skill's supporting files in prose. That list is a
+**claim about paths**, and nothing resolves it — a session that believes it reads a file that
+does not exist. The 2.0.0 per-section split renamed `templates.md` to `templates/` and
+`sub-agent-prompts.md` to `prompts/` in the canonicals and left all three stubs naming the old
+files for six days, because a prose list is invisible to a link checker.
+
+Re-run this whenever a canonical's supporting layout changes — it prints a `MISS` line per
+broken name:
+
+```bash
+for pair in create_execution:create_tasks implement_coordinated:implement \
+            implement_tasks:implement_inline; do
+  stub=${pair%%:*}; canon=${pair##*:}
+  grep -o 'Its supporting files ([^)]*)' plugin/skills/$stub/SKILL.md |
+    grep -o '`[^`]*`' | tr -d '`' | while IFS= read -r n; do
+      [ -e "plugin/skills/$canon/${n%/}" ] || echo "MISS $stub -> $canon/$n"
+    done
+done
+```
+
+### No pseudo-code in a skill body, and no bare positional placeholder in prose
+
+Describe argument binding in **prose**, not in a fenced `javascript` block. Two independent
+reasons, and the first is the one that bites:
+
+1. **The harness substitutes `$1` before the model sees the text.** A block reading
+   `const projectDir = $1 || /* prompt for it */;` arrives as
+   `const projectDir = docs/plans/2026-09-08-thing || /* prompt for it */;` — invalid, and
+   *legible only when the binding already works*, which is precisely when it is not needed.
+2. Pseudo-code invites a reader to treat control flow as executable when the skill is prose.
+
+State the slots by name instead: *"Take the project directory and the phase from the arguments,
+prompting for either if it is missing."* Naming a variable in backticks inside ordinary prose —
+``Use `$1` as the project directory`` — is fine; it is the fenced block that breaks.
+
+This was fixed once in `implement` and left in eight other stages for a further two days, so the
+check matters more than the rule. It must return nothing:
+
+```bash
+grep -rn '^const \w* = \$[0-9]' plugin/skills/*/SKILL.md
+```
+
 ### Where rules may live
 
 A shipped skill may link only into `plugin/docs/reference/`. Everything under the repository's
