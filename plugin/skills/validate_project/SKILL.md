@@ -62,17 +62,10 @@ the counts win.
 
 **⛔ BARRIER 1: Read ALL files FULLY - no shortcuts**
 
-```javascript
-const projectDir = $1 || /* prompt for it */;
-
-const files = {
-  research: `${projectDir}/research.md`,
-  design: `${projectDir}/design.md`,
-  tasks: `${projectDir}/tasks.md`,
-  journal: `${projectDir}/journal.md`,  // optional
-  handoff: `${projectDir}/handoff.md`   // optional
-};
-```
+Take the project directory from the arguments, prompting for it if it is missing. Then read
+every document it holds — **fully**, no `limit` or `offset`: `research.md`, `design.md` and
+`tasks.md` are required; `journal.md` and any `handoff*.md` are optional and validated only when
+present.
 
 1. **Check directory exists**:
 

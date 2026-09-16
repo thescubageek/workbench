@@ -60,14 +60,9 @@ When invoked, check for arguments:
 
 **⛔⛔⛔ BARRIER 1: STOP! Read ALL documentation FULLY - research.md, design.md, tasks.md ⛔⛔⛔**
 
-```javascript
-const projectDir = $1 || /* prompt for it */;
-
-// Read all project documentation
-const researchFile = `${projectDir}/research.md`;
-const designFile = `${projectDir}/design.md`;
-const tasksFile = `${projectDir}/tasks.md`;
-```
+Take the project directory from the arguments, prompting for it if it is missing. Then read
+`research.md`, `design.md` and `tasks.md` from that directory — **fully**, no `limit` or
+`offset`.
 
 1. **Read tasks.md completely** to understand:
    - What phases were planned

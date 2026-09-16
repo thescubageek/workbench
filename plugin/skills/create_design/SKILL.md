@@ -91,13 +91,8 @@ directory. The heading shape is a contract — the session-start hook, `forge`, 
 **Read the clock for the timestamp** — `date -u +"%Y-%m-%d %H:%M"`. Never estimate it or copy a
 time from elsewhere in the file.
 
-```javascript
-const projectDir = $1 || /* prompt for it */;
-
-// Read all project files
-const researchFile = `${projectDir}/research.md`;
-const designFile = `${projectDir}/design.md`;
-```
+Take the project directory from the arguments, prompting for it if it is missing. Then read
+`research.md` and `design.md` from that directory — **fully**, no `limit` or `offset`.
 
 1. **Read research.md completely**:
    - Understand current implementation

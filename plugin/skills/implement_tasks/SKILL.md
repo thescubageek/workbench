@@ -20,6 +20,6 @@ This command was renamed to `/wb:implement_inline`: it runs the plan inline on t
    This alias works through 2.x and will be removed at 3.0.0.
    ```
 
-2. **Then run the canonical skill**: Read [../implement_inline/SKILL.md](../implement_inline/SKILL.md) NOW and follow it exactly, passing through any arguments unchanged. Its supporting files (`templates.md`, `reference.md`) live in `../implement_inline/` and are read from there — this directory holds the stub and nothing else.
+2. **Then run the canonical skill**: Read [../implement_inline/SKILL.md](../implement_inline/SKILL.md) NOW and follow it exactly, passing through any arguments unchanged. Its supporting files (`templates/`, `reference.md`) live in `../implement_inline/` and are read from there — this directory holds the stub and nothing else.
 
 Do not duplicate any behavior here; the canonical skill is the single source of truth.
