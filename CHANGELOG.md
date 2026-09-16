@@ -253,6 +253,19 @@ On **each machine** where `wb` is installed:
    instead** — it refuses to write when both counts are zero and the stored counters are not.
    Convert first regardless; the guard is a backstop, not the procedure.
 
+   **Do not do this by eye — `/wb:validate_project` is the checklist.** Run it on the plan
+   before converting and it itemises exactly what is wrong:
+
+   ```bash
+   /wb:validate_project docs/plans/<the-plan>/
+   ```
+
+   On a pre-2.0.0 plan its Task Tracking Integrity category returns six findings — no
+   `task_tracking` key, no statement of where status lives, task lines that are bare bullets
+   rather than checkboxes, no IDs, counters that do not match the count, and the stale
+   "tracked ONLY in beads" guidance. Run it again after converting; a clean category is the
+   signal the conversion took.
+
    **The conversion**, per plan still in flight:
 
    ```markdown
@@ -260,9 +273,11 @@ On **each machine** where `wb` is installed:
    ```
 
    Give every task line a bold ID carrying **at least one digit** — that shape is what every
-   counter matches, and an ID without a digit is invisible to all of them. Tick what is done,
-   delete the "tracked ONLY in beads" note, and drop the `beads_*` frontmatter keys. If the old
-   tracker is gone from that machine, reconstruct completion from `git log` rather than memory.
+   counter matches, and an ID without a digit is invisible to all of them, **silently**. That
+   last failure is the one worth re-running the validator for: a plan converted with IDs like
+   `**Setup**` or `**API**` looks finished and counts as empty. Tick what is done, delete the
+   "tracked ONLY in beads" note, and drop the `beads_*` frontmatter keys. If the old tracker is
+   gone from that machine, reconstruct completion from `git log` rather than memory.
 
    Then, and only then:
 
