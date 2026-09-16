@@ -44,9 +44,7 @@ When invoked, check for arguments:
 
 **⛔⛔⛔ BARRIER 1: STOP! Read handoff document COMPLETELY - every section matters ⛔⛔⛔**
 
-```javascript
-const handoffPath = $1 || /* prompt for it */;
-```
+Take the handoff file path from the arguments, prompting for it if it is missing.
 
 1. **Read handoff document fully** to understand:
    - Current state and progress

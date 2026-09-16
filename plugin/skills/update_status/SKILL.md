@@ -83,6 +83,22 @@ grep -cE '^- \[x\] \*\*[A-Z0-9-]*[0-9][A-Z0-9-]*\*\*' tasks.md    # completed
 grep -cE '^- \[ \] \*\*[A-Z0-9-]*[0-9][A-Z0-9-]*\*\*' tasks.md    # remaining
 ```
 
+**⛔ STOP if both counts are zero and the stored counters are not.** A plan whose task lines
+carry no ID returns `0` and `0` here, which is indistinguishable from a plan with no tasks —
+and writing those zeros over stored counters destroys the only record of progress the file
+still holds. Pre-2.0.0 plans are the case this exists for: they tracked status in an external
+tracker and wrote tasks as plain bullets, so there is nothing for either grep to match.
+
+Report what you found, name the likely cause, and **write nothing**:
+
+```
+Counted 0 task lines carrying an ID, but tasks.md records total_tasks: 9, completed_tasks: 4.
+Its task lines do not match `- [ ] **ID**`. Nothing was written.
+This is what a pre-2.0.0 plan looks like: tasks were bullets and status lived in the tracker.
+Convert the task lines first — `- [ ] **P1-T1** — <description>`, ticking what is done — then
+re-run. Reconstruct completion from git log if the old tracker is gone.
+```
+
 Then:
 
 1. **Locate the current phase** — the phase containing the **first unchecked task**.
@@ -135,6 +151,9 @@ NOW, present it, and then:
 - any status would move **backward** — the NO REGRESSION rule
 - `design.md` would reach `approved`, which you never set yourself in any case
 - the count and the checkboxes disagree in a way you cannot account for
+- **both counts are zero while the stored counters are not** — Step 2 already stops here; it is
+  repeated because the counters are otherwise on the silent side, and zeroing them is the one
+  silent write that destroys information rather than refreshing it
 
 ### Step 5: Apply Updates
 

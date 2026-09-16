@@ -5,6 +5,50 @@ All notable changes to the `wb` plugin are recorded here.
 Versioning follows semver as it applies to a prompt library: **patch** for prompt bugfixes,
 **minor** for additive skills/agents/hooks, **major** for removed or renamed stages.
 
+## [2.0.1] — 2026-09-16
+
+Two prompt bugfixes in the shipped skill bodies, found by running `/wb:validate_execution`
+against the 2.0.0 plan. No behaviour was added or removed; both defects made an instruction
+unreadable rather than wrong.
+
+### Fixed
+
+- **Argument-binding pseudo-code arrived at the model already substituted, in 8 stages.**
+  `create_design`, `create_handoff`, `create_project`, `create_tasks`, `implement_inline`,
+  `resume_handoff`, `validate_execution` and `validate_project` each opened their first step
+  with a fenced `javascript` block reading `const projectDir = $1 || /* prompt for it */;`.
+  The harness substitutes `$1` before the model sees the text, so the block arrived with the
+  path spliced into it — invalid, and **legible only when the binding already worked**, which
+  is precisely when the instruction is not needed. All eight now describe the slots in prose,
+  matching the shape `implement` Step 1 already carried. `create_project` additionally states
+  its refuse-prose rule in the body, having previously carried it only inside the deleted block.
+- **All three deprecated-alias stubs named supporting files that no longer exist.** The 2.0.0
+  per-section split renamed `templates.md` to `templates/` and `sub-agent-prompts.md` to
+  `prompts/` in the canonical skills; the stub manifests were not updated, leaving four wrong
+  paths. The stubs still dispatched correctly — their executable instruction is a read of the
+  canonical `SKILL.md` — but a session trusting the stub's file list got a failed read. No
+  markdown link checker could see this, because a stub's file list is prose rather than links.
+
+### Changed
+
+- `docs/claude-code-skills-guide.md` gains both conventions under House conventions, each with
+  a runnable check: a grep that must return nothing for the pseudo-code rule, and a resolver
+  loop that must print no `MISS` for stub manifests. Both were verified against a planted
+  failure, so they are known to fire rather than merely known to pass. Each defect above
+  existed because a convention was stated in one place and checked in none.
+
+### Migration
+
+None. Update the plugin and restart:
+
+```bash
+claude plugin update wb@thescubageek-workbench
+```
+
+This is a patch release specifically so the version-keyed plugin cache picks the fixes up —
+the changes edit files that already existed at 2.0.0, and a same-version cache is not
+guaranteed to refresh.
+
 ## [2.0.0] — 2026-09-08
 
 The tracker-free modernization. Status moves into the plan documents, the shipped runtime moves
@@ -181,19 +225,67 @@ On **each machine** where `wb` is installed:
    supporting files without the prompt above — the local-development counterpart to the
    `permissions.allow` rule in step 2.
 
-5. **Expect old plan directories to lose their tracker references.** Any `docs/plans/*/tasks.md`
-   written before 2.0.0 has `beads_epic`, `beads_phases` and `beads_tasks` in its frontmatter.
-   Those IDs no longer resolve, and nothing reads them.
+5. **Convert in-flight plans before running any stage against them — do not run
+   `/wb:update_status` first.**
 
-   **Checkbox state in those files is now authoritative.** For each plan still in flight:
+   Any `docs/plans/*/tasks.md` written before 2.0.0 has `beads_epic`, `beads_phases` and
+   `beads_tasks` in its frontmatter. Those IDs no longer resolve and nothing reads them. That
+   much is cosmetic. **The part that is not cosmetic: in 1.12.x, tasks were not checkboxes at
+   all.** The generated plan listed them as plain bullets —
+
+   ```markdown
+   #### Implementation Tasks
+   - Create Parser class at `src/parser.ts` → `[beads:lf-t3]`
+   ```
+
+   — under a note reading *"Task status is tracked ONLY in beads."* So every 2.0.x counter,
+   which matches `- [x] **P1-T3**`, finds **nothing**, and the only checkboxes in the file are
+   its prerequisites and success criteria, which are not tasks.
+
+   Measured on a nine-task plan with four complete: the ID-scoped count returns `0 / 0`, and
+   counting every checkbox instead returns `5 / 5` — not one of which is a task. The
+   session-start hook prints the plan's name and then **no position line and no next task**,
+   because it has nothing to count.
+
+   Running `/wb:update_status` in that state used to write those zeros. Counters are on the
+   silent side of its barrier, so `total_tasks: 9 → 0` and `completed_tasks: 4 → 0` applied
+   without asking, destroying the last record of progress the file held. **2.0.1 stops
+   instead** — it refuses to write when both counts are zero and the stored counters are not.
+   Convert first regardless; the guard is a backstop, not the procedure.
+
+   **Do not do this by eye — `/wb:validate_project` is the checklist.** Run it on the plan
+   before converting and it itemises exactly what is wrong:
+
+   ```bash
+   /wb:validate_project docs/plans/<the-plan>/
+   ```
+
+   On a pre-2.0.0 plan its Task Tracking Integrity category returns six findings — no
+   `task_tracking` key, no statement of where status lives, task lines that are bare bullets
+   rather than checkboxes, no IDs, counters that do not match the count, and the stale
+   "tracked ONLY in beads" guidance. Run it again after converting; a clean category is the
+   signal the conversion took.
+
+   **The conversion**, per plan still in flight:
+
+   ```markdown
+   - [x] **P1-T3** — Create Parser class at `src/parser.ts`
+   ```
+
+   Give every task line a bold ID carrying **at least one digit** — that shape is what every
+   counter matches, and an ID without a digit is invisible to all of them, **silently**. That
+   last failure is the one worth re-running the validator for: a plan converted with IDs like
+   `**Setup**` or `**API**` looks finished and counts as empty. Tick what is done, delete the
+   "tracked ONLY in beads" note, and drop the `beads_*` frontmatter keys. If the old tracker is
+   gone from that machine, reconstruct completion from `git log` rather than memory.
+
+   Then, and only then:
 
    ```bash
    /wb:update_status docs/plans/<the-plan>/
    ```
 
-   It counts the checkboxes and reconciles the counters to them. If a plan's checkboxes were
-   never maintained — likely, since the old guidance said not to — reconcile them by hand
-   against the code first, then run it.
+   A finished plan needs none of this. Leave it; nothing reads it again.
 
 6. **Old plans may carry stale guidance.** A pre-2.0.0 `tasks.md` can contain a note saying its
    checkboxes are "documentation only". Delete it; that note is now wrong.
