@@ -225,19 +225,52 @@ On **each machine** where `wb` is installed:
    supporting files without the prompt above — the local-development counterpart to the
    `permissions.allow` rule in step 2.
 
-5. **Expect old plan directories to lose their tracker references.** Any `docs/plans/*/tasks.md`
-   written before 2.0.0 has `beads_epic`, `beads_phases` and `beads_tasks` in its frontmatter.
-   Those IDs no longer resolve, and nothing reads them.
+5. **Convert in-flight plans before running any stage against them — do not run
+   `/wb:update_status` first.**
 
-   **Checkbox state in those files is now authoritative.** For each plan still in flight:
+   Any `docs/plans/*/tasks.md` written before 2.0.0 has `beads_epic`, `beads_phases` and
+   `beads_tasks` in its frontmatter. Those IDs no longer resolve and nothing reads them. That
+   much is cosmetic. **The part that is not cosmetic: in 1.12.x, tasks were not checkboxes at
+   all.** The generated plan listed them as plain bullets —
+
+   ```markdown
+   #### Implementation Tasks
+   - Create Parser class at `src/parser.ts` → `[beads:lf-t3]`
+   ```
+
+   — under a note reading *"Task status is tracked ONLY in beads."* So every 2.0.x counter,
+   which matches `- [x] **P1-T3**`, finds **nothing**, and the only checkboxes in the file are
+   its prerequisites and success criteria, which are not tasks.
+
+   Measured on a nine-task plan with four complete: the ID-scoped count returns `0 / 0`, and
+   counting every checkbox instead returns `5 / 5` — not one of which is a task. The
+   session-start hook prints the plan's name and then **no position line and no next task**,
+   because it has nothing to count.
+
+   Running `/wb:update_status` in that state used to write those zeros. Counters are on the
+   silent side of its barrier, so `total_tasks: 9 → 0` and `completed_tasks: 4 → 0` applied
+   without asking, destroying the last record of progress the file held. **2.0.1 stops
+   instead** — it refuses to write when both counts are zero and the stored counters are not.
+   Convert first regardless; the guard is a backstop, not the procedure.
+
+   **The conversion**, per plan still in flight:
+
+   ```markdown
+   - [x] **P1-T3** — Create Parser class at `src/parser.ts`
+   ```
+
+   Give every task line a bold ID carrying **at least one digit** — that shape is what every
+   counter matches, and an ID without a digit is invisible to all of them. Tick what is done,
+   delete the "tracked ONLY in beads" note, and drop the `beads_*` frontmatter keys. If the old
+   tracker is gone from that machine, reconstruct completion from `git log` rather than memory.
+
+   Then, and only then:
 
    ```bash
    /wb:update_status docs/plans/<the-plan>/
    ```
 
-   It counts the checkboxes and reconciles the counters to them. If a plan's checkboxes were
-   never maintained — likely, since the old guidance said not to — reconcile them by hand
-   against the code first, then run it.
+   A finished plan needs none of this. Leave it; nothing reads it again.
 
 6. **Old plans may carry stale guidance.** A pre-2.0.0 `tasks.md` can contain a note saying its
    checkboxes are "documentation only". Delete it; that note is now wrong.

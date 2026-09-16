@@ -49,3 +49,10 @@ grep -cE '^- \[ \] \*\*[A-Z0-9-]*[0-9][A-Z0-9-]*\*\*' tasks.md    # remaining
 **If a plan does not use task IDs**, fall back to counting every `^- \[[ x]\]` line inside
 phase task sections, and say in the report that the count is approximate because task lines
 could not be distinguished from criteria.
+
+**If a plan's tasks are not checkboxes at all**, no count is available and the fallback is
+worse than none — it returns the plan's prerequisites and success criteria, which are
+checkboxes and are not tasks. This is the pre-2.0.0 shape: tasks were plain bullets
+(`- Create the parser at src/parser.ts → [tracker-ref]`) under a note saying status lived in
+an external tracker. Do not count, do not write, and do not fall back. Report the shape and
+say the task lines need converting first — see SKILL.md Step 2's stop.
