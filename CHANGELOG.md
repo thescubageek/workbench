@@ -5,6 +5,50 @@ All notable changes to the `wb` plugin are recorded here.
 Versioning follows semver as it applies to a prompt library: **patch** for prompt bugfixes,
 **minor** for additive skills/agents/hooks, **major** for removed or renamed stages.
 
+## [2.0.1] — 2026-09-16
+
+Two prompt bugfixes in the shipped skill bodies, found by running `/wb:validate_execution`
+against the 2.0.0 plan. No behaviour was added or removed; both defects made an instruction
+unreadable rather than wrong.
+
+### Fixed
+
+- **Argument-binding pseudo-code arrived at the model already substituted, in 8 stages.**
+  `create_design`, `create_handoff`, `create_project`, `create_tasks`, `implement_inline`,
+  `resume_handoff`, `validate_execution` and `validate_project` each opened their first step
+  with a fenced `javascript` block reading `const projectDir = $1 || /* prompt for it */;`.
+  The harness substitutes `$1` before the model sees the text, so the block arrived with the
+  path spliced into it — invalid, and **legible only when the binding already worked**, which
+  is precisely when the instruction is not needed. All eight now describe the slots in prose,
+  matching the shape `implement` Step 1 already carried. `create_project` additionally states
+  its refuse-prose rule in the body, having previously carried it only inside the deleted block.
+- **All three deprecated-alias stubs named supporting files that no longer exist.** The 2.0.0
+  per-section split renamed `templates.md` to `templates/` and `sub-agent-prompts.md` to
+  `prompts/` in the canonical skills; the stub manifests were not updated, leaving four wrong
+  paths. The stubs still dispatched correctly — their executable instruction is a read of the
+  canonical `SKILL.md` — but a session trusting the stub's file list got a failed read. No
+  markdown link checker could see this, because a stub's file list is prose rather than links.
+
+### Changed
+
+- `docs/claude-code-skills-guide.md` gains both conventions under House conventions, each with
+  a runnable check: a grep that must return nothing for the pseudo-code rule, and a resolver
+  loop that must print no `MISS` for stub manifests. Both were verified against a planted
+  failure, so they are known to fire rather than merely known to pass. Each defect above
+  existed because a convention was stated in one place and checked in none.
+
+### Migration
+
+None. Update the plugin and restart:
+
+```bash
+claude plugin update wb@thescubageek-workbench
+```
+
+This is a patch release specifically so the version-keyed plugin cache picks the fixes up —
+the changes edit files that already existed at 2.0.0, and a same-version cache is not
+guaranteed to refresh.
+
 ## [2.0.0] — 2026-09-08
 
 The tracker-free modernization. Status moves into the plan documents, the shipped runtime moves
