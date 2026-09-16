@@ -2227,6 +2227,161 @@ in this plan to have work pending somewhere the tree cannot see.
     copy of the plugin with `task-worker.md` at `maxTurns: 8` (deterministic truncation, so 6a
     fires). Neither requires the task itself to be wrong.
 
+- **2026-09-15, round three reached 6a and answered the release blocker; 6c is still unreached
+  after seven absorptions.** Run from `handoff-2026-09-15-failure-paths-test.md` at `d14e436`,
+  plugin working tree unchanged. Fresh scratch repo `~/projects/wb-round3` (`git init`, **no
+  `.gitignore`**, seeded with a 5-test `durlib` unit table), plan
+  `docs/plans/2026-09-15-duration-format` — 2 phases, 5 implementation tasks, taken through
+  `create_project → create_research → create_design → create_tasks`, every task's acceptance
+  carrying *"the full test suite passes"*. Items 2 and 4b used a sibling repo
+  `~/projects/wb-round3-trunc` seeded from the finished library, plan
+  `docs/plans/2026-09-15-week-unit` — 2 phases, 4 tasks. Every stage ran in its own headless
+  session that had never read the test document, launched with `--allowedTools=Skill` except
+  where a run deliberately omitted it; every item judged from the file on disk, ordering claims
+  from the run's own tool-call stream.
+  - **(1) 6c NOT EXERCISED — two attempts, two absorptions, both at layers no previous round had
+    reached.** Escalations: 0, 0.
+    *(a) The handoff's method, run verbatim.* `tests/test_sentinel.py` — one unconditional
+    `self.fail()` — committed at `e9eac89` so the tree was clean, then
+    `/wb:implement --auto <dir> 1`. **The coordinator absorbed it before spawning anything**: it
+    ran the full suite at Step 2, read the sentinel file, classified it as a pre-existing red and
+    briefed both worker and verifier with that baseline. Both verifiers returned `### Status:
+    PASS`, scoring the delta (6 → 24 tests, same one failure) rather than the literal criterion.
+    It was not quiet about it — the report says *"I treated the sentinel as pre-existing and out
+    of scope — reported, not fixed — and substituted the bar every non-sentinel test green"*, and
+    the checkpoint's automated-verification box was left **`[ ]`** *"because the literal condition
+    is unmet, not because anything in the phase's work is wrong"*, with the sentinel's fate put to
+    a human. The worker never touched the file (`git diff --stat tests/test_sentinel.py` empty
+    throughout), so the handoff's first contingency did not fire; the **second did** — the
+    verifier passed the task by attributing the failure elsewhere, which the handoff itself says
+    *"means 6c is still unreached."*
+    *(b) A second route designed against that absorption.* `tests/test_surface_guard.py` pinned
+    `durlib.__all__` by exact equality — **green at baseline** (26 tests `OK`), and P2-T4's own
+    scope (adding `format_duration` to `__all__`) must turn it red. A regression caused by the
+    task, not dismissible as pre-existing, and the guard is absent from P2-T4's Modified Files.
+    **Absorbed at the worker layer**: the P2-T4 worker edited the guard to add the new name and
+    declared it, and the verifier's scope check accepted it as *"minimal"* and returned `PASS`.
+    The coordinator surfaced it as the run's one judgment call — *"no task line authorised it —
+    it was my call, and it's the one judgment in this run worth your review."*
+    - **The tally is now seven absorptions across three rounds, each at a different layer**:
+      coordinator pre-spawn refusal on a contradiction; worker declining an out-of-scope move;
+      pre-split on a cost annotation; coordinator baseline substitution; verifier delta-scoring;
+      worker in-scope repair; verifier scope tolerance. **That consistency is the result.** A
+      verified failure reaching 6c needs a fault that is simultaneously unrepairable in scope,
+      not attributable to the environment, and not dismissible as pre-existing — and the layers
+      above 6c are good enough that constructing one takes deliberate contrivance. *The honest
+      reading is that 6c is unreachable by any plant that leaves both the task and the
+      environment sound, which is the condition the last two rounds imposed on themselves. If 6c
+      is to be exercised at all, it wants a unit test of the coordinator's FAIL branch, not
+      another scratch repo.*
+  - **(2) 6a PASS on every clause — the first time truncation has ever been observed.** Scratch
+    copy at `/tmp/wb-trunc` with `maxTurns: 60 → 8` in `agents/task-worker.md` and **nothing
+    else** (`diff -rq` against the original names that one file). `/wb:implement --auto
+    docs/plans/2026-09-15-week-unit 1`. The P1-T1 worker hit the cap at 14 tool calls —
+    *"this agent stopped at its 8-turn limit before finishing … treat it as incomplete"* — with
+    all three expected files correctly edited and its checkbox unflipped. The coordinator, from
+    its own stream: *"The worker hit its turn limit. Step 6a — diagnose whether this is
+    truncation or failure."* → *"**Truncation** — the checkbox is still `[ ]` but all three
+    expected files carry coherent changes. The remaining slice is tiny (verify + flip the
+    checkbox), so I'll finish it myself rather than respawn."* It finished only that slice, the
+    verifier then passed the work independently, and the report records *"Truncations recovered:
+    **1**"*, *"Escalations: 0"*, and the reason for not re-running — *"the same task with the
+    same context would have truncated at the same point."* Nothing landed was re-run; the tier
+    was not raised; 6c was not entered. `/tmp/wb-trunc` deleted afterwards.
+    - *Worth recording from the run's own findings: **tool-call budget, not model tier, is the
+      binding constraint.** P1-T1 projected ~14 calls against the 8-turn cap and truncated;
+      P1-T2, given exact code and insertion anchors, finished in 7 on `sonnet`.*
+  - **(3) PASS on all three clauses — fix (j) holds.** Across **9 implementation commits** in
+    `wb-round3` and **4** in `wb-round3-trunc`, `git log --all --name-only` matched
+    `__pycache__|\.pyc` **zero** times. Both `wb-round3` verifiers emitted the new warning naming
+    the artifacts *and* the missing entry — *"there is **no `.gitignore`** in the repo at all, and
+    7 untracked `__pycache__` artifacts exist … A `.gitignore` containing `__pycache__/` and
+    `*.pyc` is missing"* — and it recurred at every later checkpoint. Control fired: `git status
+    --short` after every run still shows `durlib/__pycache__/` and `tests/__pycache__/`
+    **untracked**, so the artifacts existed throughout and were deliberately left alone.
+  - **(4) PASS on both halves.** *With* `--allowedTools=Skill`: the Step 9 `Skill` call returned
+    `Launching skill: wb:update_status` and ran, reconciling at both `wb-round3` checkpoints —
+    `completed_tasks` 4 → 6 → 9 against 6 then 9 `[x]`, `current_phase` 1 → 2, `status`
+    `not-started → in-progress`, and the checkpoint's `update_status` box `[x]`. *Without* the
+    flag (`docs/plans/2026-09-15-week-unit` phase 2, cwd `~/projects/wb-round3-trunc`,
+    `--permission-mode acceptEdits`, no `--settings`): the same call returned **`is_error: True`,
+    `Execute skill: wb:update_status`** — filed item (h) reproducing exactly — and the (h)
+    fallback did its job. Four checkboxes `[x]`, frontmatter **`completed_tasks: 2`, byte-for-byte
+    the pre-run value**, `update_status` box `[ ]`, and the report saying so: *"`/wb:update_status`
+    was refused in this session. Per Step 9 I left the counters alone rather than hand-editing
+    them … the drift is expected and the next `/wb:update_status` reconciles it."*
+  - **(5) PASS.** Resumed cold onto a `create_design` left stopped at Step 6 (residue verified
+    first: `status: draft`, no body `**Status**:` line, journal `## 2026-09-16 01:11 —
+    create_design (open)` with **Next action** *"awaiting approval at Step 6"* — filed item (f)'s
+    fix reaching the artifact for the second round running). The resumed session opened
+    **"✅ Design document ready for approval at:"**, not *created at*. `design.md` md5
+    `7bb27e64…` identical before and after, `status:` still `draft`, `grep -c '^\*\*Option [A-C]'`
+    → **0**. *Method note: the Step-6 state was reached by the session stopping to ask rather than
+    by `kill`; the on-disk residue was verified equal in kind before the resume, and the resumed
+    session sees only disk.*
+  - **(6) The standing release blocker is ANSWERED — and the answer is that it does not exist.**
+    The branch was pushed by the user, so the literal cache path was reachable for the first time.
+    Global state recorded before (`wb@thescubageek-workbench` **1.12.4**, user, enabled; two
+    marketplaces) and each mutating step confirmed with the user first. The marketplace clone at
+    `~/.claude/plugins/marketplaces/thescubageek-workbench` was checked out to the branch
+    (`d14e436`, marketplace.json `2.0.0`, `"source": "./plugin"`) and `claude plugin update`
+    installed **2.0.0 into `~/.claude/plugins/cache/thescubageek-workbench/wb/2.0.0/`** — the
+    literal path, from a GitHub-source install, which round two could not produce.
+    - Probe: cwd `/Users/thescubageek/projects/wb-round3-trunc`, `--permission-mode default`,
+      `--settings '{"permissions":{"blockReadsOutsideWorkingDirectories":true}}'`, **no
+      `--add-dir`, no `--plugin-dir`**, `/wb:update_status docs/plans/2026-09-15-week-unit`.
+    - **All four cache reads SUCCEEDED**, with `Read` and never `cat`:
+      `…/wb/2.0.0/skills/update_status/reference/smart-status-detection.md`,
+      `…/status-transition-logic.md`, `…/templates/status-update-plan.md`,
+      `…/templates/frontmatter-fragments.md`. The stage then ran to completion and reconciled
+      correctly — `completed_tasks` 2 → 4, git metadata refreshed, and it **stopped** at
+      `in-progress`, refusing `complete` because both phases' attestations are `[ ]`.
+    - **The precondition was demonstrably on**, which is the whole reason this counts. A `Bash`
+      call in the same run was refused with *"Contains shell syntax (string) that cannot be
+      statically analyzed; under the read block (`permissions.blockReadsOutsideWorkingDirectories`)
+      a command the shell parser cannot analyze asks the person."* The setting fired on Bash in
+      that very session and **did not fire on the plugin's own cache directory**. This is not the
+      2026-09-09 A4 mistake repeated: the control that would have exposed a dead precondition is
+      present and it fired.
+    - **So every PASS criterion the handoff wrote for item 6 is unmet, because its premise is
+      false.** There is no refusal to name the cache directory, no stop, and `tasks.md` md5
+      changed (`bb9dac8d…` → `73fe8698…`) because the stage legitimately did its work.
+      **`blockReadsOutsideWorkingDirectories` does not gate a plugin's own cache.** The 2026-09-10
+      note that *"it does not fire on the plugin cache"* is confirmed and extended: in headless
+      `default` mode no grant prompt blocked it either. Progressive disclosure is **not** broken
+      for marketplace-installed plugins in headless/CI, which is what the release was being held
+      on.
+    - **Global state restored, with one deviation, recorded because the claim must be accurate.**
+      The 2.0.0 install and its cache directory were removed and the probe branch deleted; the
+      clone is back on `main` with a clean tree and the two marketplaces are unchanged. But
+      `claude plugin update` pulled `main` forward and installed **1.12.5**, one released version
+      above the 1.12.4 baseline — an upgrade the restore caused, not one that was asked for. The
+      CLI has no version pin, so returning to 1.12.4 would mean hand-editing
+      `installed_plugins.json`; **the user chose to stay on 1.12.5**, since it is the current
+      release and any future `claude plugin update` reaches it anyway. `wb` ends `1.12.5`, user,
+      enabled.
+  - **Filed, not fixed (D20).** *(l)* **The verifier will pass a task whose stated acceptance
+    criterion is literally unmet**, substituting a baseline-delta bar. Defensible, and this run
+    surfaced it plainly — but nothing in `prompts/verifier-prompt.md` authorises the substitution
+    or requires it to be declared; that it was declared is the agent's judgment, not the
+    contract. *(m)* **The verifier's scope check passes an edit to a file absent from the task's
+    Modified Files when it judges the edit necessary.** The same check *declined* an out-of-scope
+    move in round two's item 1c, so the rule is not applied consistently in both directions.
+    Twelfth instance of the plan's recurring lesson, and the first where the inconsistency is in
+    one agent rather than between two documents. *(n)* **The handoff's item-6 premise was wrong**
+    — the cache path is not gated — which cost a marketplace install and a restore to discover.
+    A defect in the test document, like (k) before it. *(o)* `python3 -m unittest tests.<module>
+    -t .` does not run (`-t` is `discover`-only); `create_tasks` minted that broken form into
+    four task lines, and the P1-T1 worker caught it rather than the plan.
+  - **Process note.** The item-4b run was killed mid-P1 by the harness before reaching Step 9;
+    its residue is archived under `~/projects/wb-round3-trunc/scratchpad/archive-item4b-killed-run/`
+    and is **not scored**. The tree was restored to the exact pre-run state (`tasks.md` md5 back
+    to `030fcec0…`, suite green at 45) before the clean re-run, and no second session was ever
+    live against the same tree — the collision that cost round two a run did not recur.
+  - *Nothing tagged, nothing pushed by me; `P4-T10` untouched. The 2026-09-10 release-hold
+    journal entry is still `(open)`, deliberately — though item 6 has now removed its stated
+    reason.*
+
 - **2026-09-08, adversarial review of Phases 1–4, run after `P4-T9` declared every phase's
   checks green.** Ten findings; **eight fixed in the tree**, two need a live session. The
   pattern is one thing, not ten: **every capability verified by grep passed; every capability
