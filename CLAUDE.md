@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository Overview
 
-This is a Claude Code plugin (`wb`) providing structured software development workflows: project planning, research, design, execution, and validation with TDD enforcement and beads integration.
+This is a Claude Code plugin (`wb`) providing structured software development workflows: project planning, research, design, execution, and validation with TDD enforcement. Status lives in the plan documents; there is no external tracker.
 
 ## Output Discipline
 
@@ -18,14 +18,22 @@ This is the global reinforcement of each command's inline output-discipline dire
 
 ## Repository Structure (Plugin Layout)
 
-- `.claude-plugin/` - Plugin manifest
-- `commands/` - Slash commands (`/wb:*`)
-- `agents/` - Specialized subagent definitions
-- `skills/` - Auto-activated background capabilities
-- `hooks/` - Event handlers (SessionStart, PostToolUse)
-- `scripts/` - Utility scripts (lint, lint-hook)
-- `docs/` - Documentation and guides
-- `.claude/` - Local development configuration
+**Everything an installer receives lives under `plugin/`.** The root holds the marketplace
+entry and maintainer material that is never shipped.
+
+- `.claude-plugin/marketplace.json` - marketplace entry; `"source": "./plugin"`
+- `plugin/.claude-plugin/plugin.json` - the plugin manifest
+- `plugin/skills/` - workflow stages (`/wb:*`) and background skills
+- `plugin/agents/` - specialized subagent definitions
+- `plugin/hooks/` - event handlers (SessionStart, PreCompact, PostToolUse)
+- `plugin/scripts/` - utility scripts (lint, lint-hook)
+- `plugin/docs/reference/` - shipped, runtime-referenced docs a skill may link into
+- `docs/` - **maintainer-facing; never shipped.** Not a runtime rules source
+- `.claude/` - local development config, plus `wb/knowledge.md` (committed)
+
+**Where rules may live** (this is a rule, not a preference): a shipped skill may link only into
+`plugin/docs/reference/`. Nothing under root `docs/` is read at runtime. Anything kept as
+history is marked non-normative at its top, so it cannot be read as current guidance.
 
 ## Development Tools
 
@@ -33,16 +41,16 @@ This is the global reinforcement of each command's inline output-discipline dire
 
 ```bash
 # Lint changed markdown files
-./scripts/lint
+./plugin/scripts/lint
 
 # Auto-fix markdown issues
-./scripts/lint --fix
+./plugin/scripts/lint --fix
 
 # Lint specific files
-./scripts/lint file1.md file2.md
+./plugin/scripts/lint file1.md file2.md
 
 # Lint all markdown files
-./scripts/lint --all
+./plugin/scripts/lint --all
 ```
 
 **Automatic Linting**: PostToolUse hooks automatically lint markdown files after Write/Edit operations.
@@ -91,7 +99,7 @@ For local dev (`--plugin-dir` install), changes take effect immediately without 
 The commands follow a strict sequential workflow:
 
 ```
-/wb:create_project → /wb:create_research → /wb:create_design → /wb:create_execution → /wb:implement_tasks → /wb:validate_execution
+/wb:create_project → /wb:create_research → [/wb:explore_design] → /wb:create_design → /wb:create_tasks → /wb:implement → /wb:validate_execution
 ```
 
 For multi-session work:
@@ -119,39 +127,46 @@ The workflow separates three distinct concerns:
 3. **File Reading Protocol**: ALWAYS read files FULLY (no limit/offset) before analysis
 4. **Dual Verification**: Separate automated checks from manual verification
 5. **Zero Scope Creep**: Tasks only come from plans, no additions
-6. **Beads Required**: These commands require beads for ALL task tracking (`bd init`)
-   - Use beads for phases AND granular tasks
-   - Do NOT use TaskCreate, TaskUpdate, TodoWrite, or markdown checkboxes for tracking
-   - Markdown files document the PLAN, beads tracks the STATUS
+6. **Status Lives in the Plan**: checkbox state in `tasks.md` is the source of truth
+   - Flipping `- [ ]` → `- [x]` **is** the act of recording a task done
+   - Frontmatter counters are a derived cache with exactly one writer, `/wb:update_status`
+   - Git is the durable record — one task, one commit, task ID in the message
+   - No TaskCreate, TaskUpdate, or TodoWrite: a parallel list only goes stale beside the checkboxes
 
-### Beads Error Handling
+### Task Tracking
 
-If any `bd` command fails:
+**The plan documents are the record.** There is no external tracker to install, initialize, or
+recover.
 
-1. **Diagnose**: Run `bd doctor` to check for issues
-2. **Report**: Tell the user the specific error and suggest fixes
-3. **Fix**: Common fixes:
-   - "beads not initialized" → `bd init`
-   - "issue not found" → `bd list` to find correct ID
-   - "database locked" → wait and retry
-4. **Retry**: After fixing, re-run the failed command
+| Surface | Holds | Written by |
+| ------- | ----- | ---------- |
+| Checkboxes in `tasks.md` | task and phase status | whoever finishes the task |
+| Frontmatter counters | a derived cache of the counts | `/wb:update_status`, and nothing else |
+| Git | the durable audit trail | one task, one commit |
+| `journal.md` | what a session was attempting | opened at start of work, closed at completion |
+| `.claude/wb/knowledge.md` | durable repository facts | curated, committed, each entry dated with a verification hint |
 
-### Task Tracking Philosophy
+Counter drift between checkpoints is **expected, not an error** — `status-sync` surfaces it and
+`/wb:update_status` reconciles it. The checkboxes are always what's right.
 
-**Beads for STATUS, Markdown for PLAN**:
-
-- **Beads issues** (`bd create`, `bd update`, `bd close`): Track live status of ALL work
-- **Markdown files** (tasks.md, research.md, design.md): Document the PLAN and rationale
+**Task IDs are a contract**: every task line carries a bold ID matching
+`[A-Z0-9-]*[0-9][A-Z0-9-]*` — at least one digit. Every counter identifies task lines by that
+shape, so an ID without a digit makes the task invisible to counting, silently.
 
 ### Command Structure Patterns
 
-When modifying commands, maintain these patterns:
+Mark each real synchronization point **once**, and state the reason in the marker. A marker
+whose text only restates the rule ("full context required") tells a session nothing it did not
+already know; the reason is what makes it hold when the session is under pressure to proceed.
 
 ```markdown
-⛔ BARRIER 1: After file reading - full context required
-⛔ BARRIER 2: After agent spawning - wait for ALL
-⛔ BARRIER 3: Before writing - no placeholders allowed
-⛔ CHECKPOINT: Between phases - human verification required
+⛔ BARRIER 1: full context read — analysis on partial context produces placeholders
+⛔ BARRIER 2: every spawned agent has returned — synthesis on a partial set misses what the
+   missing report would have changed
+⛔ BARRIER 3: no placeholder values — a placeholder that ships becomes a task nobody can
+   execute
+⛔ CHECKPOINT: human verification between phases — the next phase builds on what a human has
+   accepted
 ```
 
 ### Frontmatter Standards
@@ -173,7 +188,7 @@ Commands support model hints when spawning agents:
 
 ## Model & effort at gates
 
-The `model-help` skill is the plugin's single authority on **which Claude model + reasoning-effort** to run at. Its **gate mode** carries per-phase baselines and the switch-cost rule; `forge`, `resume_handoff`, and the `create_*` / `implement_tasks` / `validate_execution` commands delegate to it rather than re-deriving the rubric. Keep model IDs and effort levels consistent with `skills/model-help/SKILL.md` (and the `daily-digest` rubric) as they change.
+The `model-help` skill is the plugin's single authority on **which Claude model + reasoning-effort** to run at. Its **gate mode** carries per-phase baselines and the switch-cost rule; `forge`, `resume_handoff`, and the `create_*` / `implement` / `implement_inline` / `validate_execution` stages delegate to it rather than re-deriving the rubric. Keep model IDs and effort levels consistent with `plugin/skills/model-help/SKILL.md` (and the `daily-digest` rubric) as they change.
 
 The policy these commands enforce:
 
@@ -187,12 +202,14 @@ The policy these commands enforce:
 When creating or modifying commands:
 
 1. Follow existing command patterns
-2. Include all three barriers and checkpoints
-3. Use "think deeply" directives at critical decision points
+2. Mark each real synchronization point once — `⛔ BARRIER` for "do not proceed until X",
+   `⛔ CHECKPOINT` for human confirmation — and state the reason in a plain sentence
+3. At decision points, say what the decision is **about**; do not instruct the model how hard
+   to think. Thinking depth is the session's effort setting, not prompt text
 4. Maintain the documentarian philosophy for research
 5. Separate automated from manual verification
-6. Always read files FULLY before processing
-7. Use parallel agents for efficiency but wait for ALL to complete
+6. Read files fully before processing
+7. Spawn independent agents in parallel; synthesize only after all have returned
 
 ## Best Practices
 
@@ -208,7 +225,7 @@ When creating new prompts or commands:
 
 - The main branch is `main`
 - Commit messages should be descriptive
-- Run `./scripts/lint` before committing markdown files
+- Run `./plugin/scripts/lint` before committing markdown files
 - Keep the repository organized by category
 
 ### Branch naming
@@ -222,28 +239,26 @@ When a ticket reference is known, the working branch uses `<TICKET>/<snake_case_
 
 Branch create/rename is a git state change: **confirm with the user before running it**, and it is non-blocking — if declined, proceed on the current branch. Never touch remotes or force-push here — this only affects the local branch name.
 
-## Beads Issue Tracking
-
-This repository uses [beads](https://github.com/steveyegge/beads) for task tracking across sessions.
-
-### Quick Reference
-
-```bash
-bd ready              # Find available work (no blockers)
-bd show <id>          # View issue details
-bd update <id> --status in_progress  # Claim work
-bd close <id>         # Complete work
-bd sync               # Sync with git (run at session end)
-```
+## Session Conventions
 
 ### Session Protocol
 
-See [AGENTS.md](AGENTS.md) for the full session close protocol. Key points:
+`CLAUDE.md` is the single root for session protocol. Before ending a work session:
 
-1. **Before ending**: Close completed issues with `bd close`
-2. **Sync**: Run `bd sync` to persist changes
-3. **Push**: Commit and push to remote
+1. **File follow-ups** — anything discovered but out of scope becomes an issue or a line in
+   the plan's Implementation Notes. An intention that exists only in the transcript is lost
+   when the session ends.
+2. **Run the quality gates** if anything changed — tests, linters, build.
+3. **Reconcile status**: flip every finished task's checkbox, then run `/wb:update_status` so
+   the counters follow.
+4. **Commit, and confirm the push with the user.** Work that ends in the working tree is
+   stranded on one machine. Pushing is an outward-facing state change, so it is confirmed
+   rather than assumed — do not claim work is complete on the user's behalf, and do not treat
+   an unpushed branch as a failure state that licenses pushing without asking.
+5. **Clean up** — clear stashes, prune stale remote branches.
+6. **Hand off** — leave enough context for the next session to resume without you
+   (`/wb:create_handoff`).
 
-### Integration with wb Commands
+### Integration with wb Stages
 
-The workbench commands (`/wb:*`) automatically detect beads and use it for phase tracking. See [docs/commands-reference.md](docs/commands-reference.md) for details.
+The workbench stages (`/wb:*`) read and write status directly in the plan documents. See [docs/commands-reference.md](docs/commands-reference.md) for details.

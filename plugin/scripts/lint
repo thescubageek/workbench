@@ -1,0 +1,230 @@
+#!/usr/bin/env bash
+
+# Lint all changed markdown files in the project
+# Usage: ./scripts/lint [options] [file...]
+#
+# Options:
+#   --all    Lint all markdown files, not just changed ones
+#   --fix    Auto-fix markdown issues
+#   --help   Show this help message
+#
+# Arguments:
+#   file...  Specific markdown file(s) to lint
+
+set -euo pipefail
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # No Color
+
+# Help message
+show_help() {
+    echo "Lint markdown files in the project"
+    echo ""
+    echo "Usage: $0 [options] [file...]"
+    echo ""
+    echo "Options:"
+    echo "  --all     Lint all markdown files, not just changed ones"
+    echo "  --fix     Auto-fix markdown issues (passes -f to markdownlint)"
+    echo "  --help    Show this help message"
+    echo ""
+    echo "Arguments:"
+    echo "  file...   Specific markdown file(s) to lint"
+    echo ""
+    echo "By default, only lints markdown files that have been changed (git diff)"
+    echo ""
+    echo "Examples:"
+    echo "  $0                  # Lint only changed markdown files"
+    echo "  $0 --fix            # Auto-fix issues in changed markdown files"
+    echo "  $0 --all            # Lint all markdown files"
+    echo "  $0 README.md        # Lint specific file"
+    echo "  $0 --fix docs/*.md  # Auto-fix specific files"
+    exit 0
+}
+
+# Parse arguments
+LINT_ALL=false
+AUTO_FIX=""
+SPECIFIC_FILES=()
+
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --all)
+            LINT_ALL=true
+            shift
+            ;;
+        --fix)
+            AUTO_FIX="-f"
+            shift
+            ;;
+        --help)
+            show_help
+            ;;
+        -*)
+            echo -e "${RED}Unknown option: $1${NC}"
+            echo "Use --help for usage information"
+            exit 1
+            ;;
+        *)
+            # Assume it's a file path
+            SPECIFIC_FILES+=("$1")
+            shift
+            ;;
+    esac
+done
+
+# Check if markdownlint is installed
+if ! command -v markdownlint &> /dev/null; then
+    echo -e "${RED}Error: markdownlint is not installed${NC}"
+    echo ""
+    echo "To install markdownlint, run one of the following:"
+    echo "  npm install -g markdownlint-cli"
+    echo "  brew install markdownlint-cli"
+    exit 1
+fi
+
+# Check if we're in a git repository
+if ! git rev-parse --git-dir > /dev/null 2>&1; then
+    echo -e "${YELLOW}Warning: Not in a git repository, will lint all markdown files${NC}"
+    LINT_ALL=true
+fi
+
+# Determine which files to lint
+if [ ${#SPECIFIC_FILES[@]} -gt 0 ]; then
+    # Lint specific files provided as arguments
+    echo -e "${GREEN}Linting specified files...${NC}"
+    FILES=""
+    for file in "${SPECIFIC_FILES[@]}"; do
+        # Check if it's a markdown file
+        if [[ "$file" == *.md ]]; then
+            if [ -f "$file" ]; then
+                FILES="${FILES}${file}\n"
+            else
+                echo -e "${YELLOW}Warning: File not found: $file${NC}"
+            fi
+        else
+            echo -e "${YELLOW}Warning: Not a markdown file: $file${NC}"
+        fi
+    done
+    FILES=$(echo -e "$FILES" | grep -v '^$' || true)
+elif [ "$LINT_ALL" = true ]; then
+    echo -e "${GREEN}Linting all markdown files...${NC}"
+    # Find all markdown files, excluding node_modules and other common directories
+    FILES=$(find . \
+        -type f \
+        -name "*.md" \
+        -not -path "./node_modules/*" \
+        -not -path "./.git/*" \
+        -not -path "./.context/*" \
+        -not -path "./vendor/*" \
+        -not -path "./tmp/*" \
+        -not -path "./.next/*" \
+        -not -path "./dist/*" \
+        -not -path "./build/*" \
+        2>/dev/null | sort)
+else
+    echo -e "${GREEN}Finding changed markdown files...${NC}"
+
+    # Get changed files (both staged and unstaged)
+    STAGED=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.md$' || true)
+    UNSTAGED=$(git diff --name-only --diff-filter=ACM | grep -E '\.md$' || true)
+    UNTRACKED=$(git ls-files --others --exclude-standard | grep -E '\.md$' || true)
+
+    # Combine and deduplicate
+    FILES=$(echo -e "${STAGED}\n${UNSTAGED}\n${UNTRACKED}" | sort -u | grep -v '^$' || true)
+fi
+
+# Check if there are any files to lint
+if [ -z "$FILES" ]; then
+    echo -e "${GREEN}✓ No markdown files to lint${NC}"
+    exit 0
+fi
+
+# Count files
+FILE_COUNT=$(echo "$FILES" | wc -l | tr -d ' ')
+
+echo -e "${GREEN}Found ${FILE_COUNT} markdown file(s) to lint:${NC}"
+echo "$FILES" | while read -r file; do
+    echo "  • $file"
+done
+echo ""
+
+# Create a temporary markdownlint config if one doesn't exist
+if [ ! -f ".markdownlintrc" ] && [ ! -f ".markdownlint.json" ] && [ ! -f ".markdownlint.yaml" ]; then
+    echo -e "${YELLOW}No markdownlint config found, using default settings${NC}"
+    # Create a sensible default config
+    cat > .markdownlintrc.tmp << 'EOF'
+{
+  "default": true,
+  "MD003": { "style": "atx" },
+  "MD007": { "indent": 2 },
+  "MD013": false,
+  "MD024": { "siblings_only": true },
+  "MD033": false,
+  "MD041": false,
+  "line-length": false
+}
+EOF
+    CONFIG_ARG="-c .markdownlintrc.tmp"
+    TEMP_CONFIG=true
+else
+    CONFIG_ARG=""
+    TEMP_CONFIG=false
+fi
+
+# Run markdownlint
+echo -e "${GREEN}Running markdownlint...${NC}"
+echo ""
+
+# Track if any issues were found
+ISSUES_FOUND=false
+
+# Run markdownlint on each file.
+# NOTE: use a here-string, not `echo "$FILES" | while`. A pipe runs the loop in
+# a subshell, so ISSUES_FOUND would never propagate to the parent and the script
+# would always exit 0 even on lint failures.
+while read -r file; do
+    if [ -f "$file" ]; then
+        if markdownlint $AUTO_FIX $CONFIG_ARG "$file" 2>&1; then
+            if [ -n "$AUTO_FIX" ]; then
+                echo -e "${GREEN}✓${NC} Fixed: $file"
+            else
+                echo -e "${GREEN}✓${NC} Clean: $file"
+            fi
+        else
+            ISSUES_FOUND=true
+            if [ -z "$AUTO_FIX" ]; then
+                echo -e "${YELLOW}⚠${NC} Issues found in: $file"
+                echo "  Run with --fix to auto-fix issues"
+            fi
+        fi
+    fi
+done <<< "$FILES"
+
+# Clean up temporary config
+if [ "$TEMP_CONFIG" = true ]; then
+    rm -f .markdownlintrc.tmp
+fi
+
+# Final status
+echo ""
+if [ "$ISSUES_FOUND" = false ]; then
+    if [ -n "$AUTO_FIX" ]; then
+        echo -e "${GREEN}✅ All markdown files have been fixed!${NC}"
+    else
+        echo -e "${GREEN}✅ All markdown files are clean!${NC}"
+    fi
+    exit 0
+else
+    if [ -z "$AUTO_FIX" ]; then
+        echo -e "${YELLOW}⚠️  Markdown linting issues found${NC}"
+        echo "Run '$0 --fix' to auto-fix issues"
+    else
+        echo -e "${YELLOW}⚠️  Some issues could not be auto-fixed${NC}"
+    fi
+    # exit 1 sits OUTSIDE the mode check on purpose: a gate that reports success
+    # when findings remain is worse than no gate. --fix that leaves findings fails too.
+    exit 1
+fi

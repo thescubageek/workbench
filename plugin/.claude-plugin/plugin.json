@@ -1,0 +1,71 @@
+{
+  "name": "wb",
+  "version": "2.0.0",
+  "description": "Workbench for structured software development: TDD, project planning, and phased execution with status tracked in the plan documents.",
+  "author": {
+    "name": "Steve Craig"
+  },
+  "repository": "https://github.com/thescubageek/workbench",
+  "keywords": [
+    "planning",
+    "tdd",
+    "workflow",
+    "documentation"
+  ],
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/wb-prime.sh",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/lint-hook",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/lint-hook",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/lint-hook",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/wb-prime.sh",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  }
+}

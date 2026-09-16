@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+
+# Hook script for Claude Code to run after a tool changes a markdown file.
+# Called by the PostToolUse hook for Write, Edit and Bash.
+
+# Resolve script directory (works whether invoked from plugin or directly)
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+
+# Parse the JSON payload. Claude Code delivers the PostToolUse payload as JSON
+# on stdin, not via an env var. Prefer jq; fall back to grep/sed if jq is absent.
+# (CLAUDE_TOOL_ARGS is honored as a legacy fallback.)
+PAYLOAD="$(cat)"
+[ -z "$PAYLOAD" ] && PAYLOAD="${CLAUDE_TOOL_ARGS:-}"
+if command -v jq >/dev/null 2>&1; then
+    FILE_PATH=$(printf '%s' "$PAYLOAD" | jq -r '.tool_input.file_path // .file_path // empty')
+    COMMAND=$(printf '%s' "$PAYLOAD" | jq -r '.tool_input.command // empty')
+else
+    FILE_PATH=$(printf '%s' "$PAYLOAD" | grep -o '"file_path"[[:space:]]*:[[:space:]]*"[^"]*"' | sed 's/.*"file_path"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/')
+    # A Bash command is a multi-line JSON string; extracting it without jq is not
+    # reliable, so the Bash branch below is simply skipped when jq is absent.
+    COMMAND=""
+fi
+
+lint_one() {
+    echo "🔍 Linting markdown: $(basename "$1")"
+    "$SCRIPT_DIR/lint" --fix "$1" 2>&1 | grep -E "(✓|✅|⚠️|Clean|Fixed)" | head -3
+}
+
+# Write / Edit deliver an explicit path.
+if [[ "$FILE_PATH" == *.md ]]; then
+    lint_one "$FILE_PATH"
+    exit 0
+fi
+
+# Bash delivers no file_path, and a heredoc, redirect or inline script writes
+# markdown exactly as Write does. That route had no gate at all, so a session
+# told to prefer Bash for file changes silently bypassed this hook entirely.
+#
+# Lint the .md paths named in the command, but ONLY those modified in the last
+# minute: a command that merely READ a markdown file must never be rewritten by
+# --fix as a side effect of having been mentioned.
+if [ -n "$COMMAND" ]; then
+    printf '%s' "$COMMAND" | grep -oE '[A-Za-z0-9._~/-]+\.md' | sort -u | while read -r f; do
+        [ -f "$f" ] || continue
+        [ -n "$(find "$f" -mmin -1 2>/dev/null)" ] || continue
+        lint_one "$f"
+    done
+fi
+
+exit 0

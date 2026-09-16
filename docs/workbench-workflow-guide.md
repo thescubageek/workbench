@@ -1,12 +1,12 @@
 # Workbench Workflow Guide
 
-Comprehensive guide to the wb commands workflow, beads integration, and best practices.
+Comprehensive guide to the wb workflow stages, where status lives, and best practices.
 
 ## Table of Contents
 
 - [Quick Start](#quick-start)
 - [Complete Workflow](#complete-workflow)
-- [Beads Integration](#beads-integration)
+- [Where status lives](#where-status-lives)
 - [Mockup Workflow](#mockup-workflow)
 - [Core Philosophy](#core-philosophy)
 - [Best Practices](#best-practices)
@@ -24,10 +24,7 @@ cd prompts
 # Install globally for Claude Code
 ./scripts/install-commands --claude
 
-# Initialize beads in your project (choose mode)
-cd ~/your-project
-bd init --stealth   # For work repos (beads not committed)
-bd init             # For personal projects (beads in git)
+# Nothing else to initialize — status lives in the plan documents.
 ```
 
 ### Basic Workflow
@@ -43,16 +40,19 @@ bd init             # For personal projects (beads in git)
 # 3. Create mockup (optional - for UI features)
 /wb:create_mockup docs/plans/2025-01-15-TICKET-123-my-feature "settings panel"
 
-# 4. Design decisions
+# 4. Explore the alternatives (optional — only if research found more than one viable approach)
+/wb:explore_design docs/plans/2025-01-15-TICKET-123-my-feature "how sessions are stored"
+
+# 5. Design decisions
 /wb:create_design docs/plans/2025-01-15-TICKET-123-my-feature
 
-# 5. Create execution plan
-/wb:create_execution docs/plans/2025-01-15-TICKET-123-my-feature
+# 6. Create execution plan
+/wb:create_tasks docs/plans/2025-01-15-TICKET-123-my-feature
 
-# 6. Implement with TDD
-/wb:implement_tasks docs/plans/2025-01-15-TICKET-123-my-feature
+# 7. Implement with TDD (worker agents; /wb:implement_inline runs it in this session)
+/wb:implement docs/plans/2025-01-15-TICKET-123-my-feature
 
-# 7. Validate implementation
+# 8. Validate implementation
 /wb:validate_execution docs/plans/2025-01-15-TICKET-123-my-feature
 ```
 
@@ -138,13 +138,13 @@ mockups/
 - Creates `UI Q: [question]` issues for unresolved questions
 - Creates `UI Assumption: [assumption]` issues for unvalidated beliefs
 - Blocks finalization until all UI issues resolved
-- Uses `bd list --status=open | grep "UI Q:"` to check
+- Reads the latest mockup.md Open Questions table for rows still `Open`
 
 **Icon Handling**:
 
 - **Never uses emojis** in HTML mockups
 - Uses discovered icon system from research
-- Creates beads issue if icon system unclear
+- Adds a `UIQ` row to the mockup if the icon system is unclear
 - Asks user before adding icons if no system found
 
 **Iteration**:
@@ -166,6 +166,33 @@ mockups/
 → Compiles KEEP decisions into requirements
 → Lists REMOVE decisions as out of scope
 ```
+
+### Stage 3b: Explore Design Options (Optional)
+
+**Command**: `/wb:explore_design`
+
+Airs the alternatives *before* one is chosen. The pipeline otherwise goes from facts straight to
+a locked decision, so the reasoning behind an architecture choice survives only as design.md's
+Rejected Alternatives — written by the same pass that chose.
+
+**When it earns its cost**: research surfaced **more than one viable approach** and nothing in
+the codebase decides between them. `create_research` suggests it only under those two
+conditions; running it on a decision that was never in doubt produces a document nobody reads.
+
+**Process**:
+
+1. Frame the decision — the question, what is explicitly *not* being decided, and the
+   constraints any answer must satisfy
+2. Diverge — two to four genuinely different directions, each with a precedent, what it buys,
+   what it costs, and when it is the wrong choice. No strawmen
+3. Discuss the trade-offs with the user, one thread at a time
+4. ⛔ CHECKPOINT — converge **only** on explicit approval. Silence is not approval
+5. Record — the decision at the **top** of a `thoughts/` document, with the rejected
+   alternatives and why
+
+**Output**: `thoughts/YYYY-MM-DD-<topic>.md`. It never writes `design.md` — `create_design`
+finds the record, presents it for confirmation, and formalizes it, carrying the rejected
+alternatives across rather than inventing new ones.
 
 ### Stage 4: Design
 
@@ -195,7 +222,7 @@ Creates architectural design decisions (WHAT and WHY).
 
 ### Stage 5: Execution Plan
 
-**Command**: `/wb:create_execution`
+**Command**: `/wb:create_tasks`
 
 Transforms design into detailed phased execution plan.
 
@@ -210,96 +237,54 @@ Transforms design into detailed phased execution plan.
 
 **Beads Integration**:
 
-Creates hierarchical beads issues:
+Writes the phased task list. Each task is a checkbox carrying a stable local ID and a projected
+tool-call cost:
 
-```bash
-# Epic for overall project
-bd create "[Project Name] Implementation" \
-  --type=epic --priority=1
+```markdown
+#### Implementation
 
-# Phase milestones with dependencies
-bd create "Phase 1 Milestone: [Name]" \
-  --type=milestone --priority=1 \
-  --blocks "[epic-id]"
-
-bd create "Phase 2 Milestone: [Name]" \
-  --type=milestone --priority=2 \
-  --blocks "[epic-id]" \
-  --blocked-by "[phase-1-id]"
-
-# Tasks within phases
-bd create "Implement [Component]" \
-  --type=task --priority=1 \
-  --blocks "[phase-1-milestone-id]"
-
-bd create "Write tests for [Component]" \
-  --type=task --priority=1 \
-  --blocks "[phase-1-milestone-id]" \
-  --blocked-by "[implement-component-id]"
+- [ ] **P1-T4** — Create [Component] class at `src/component.ts` (~20 calls)
+- [ ] **P1-T5** — Modify [ExistingComponent] at `src/existing.ts:45` (~15 calls)
 ```
 
-**Result**: Dependency chain where:
+Ordering **is** the dependency graph: phases run in document order, tasks run in order within a
+phase. A task depending on something other than the task before it says so in one `Depends on:`
+field; nothing else encodes dependencies. If many tasks need one, the phase is ordered wrong.
 
-- Tasks must complete before phase milestones
-- Phases must complete before epic
-- `bd ready` shows only unblocked work
+Tasks are sized by projected **tool calls**, not hours — anything past ~50 splits at a natural
+seam before it is ever spawned, because truncation is a function of call count and always eats
+the finishing tail.
 
 ### Stage 6: Implementation
 
-**Command**: `/wb:implement_tasks`
+**Command**: `/wb:implement`
 
-Implements using TDD with beads tracking.
-
-**Workflow**:
+Implements using TDD, one task at a time.
 
 ```bash
-# 1. Find available work
-bd ready
-→ Shows tasks with no blockers
+# 1. Find the next task: the first unchecked line in the current phase
+grep -m1 -E '^- \[ \] \*\*[A-Z0-9-]*[0-9][A-Z0-9-]*\*\*' tasks.md
 
-# 2. Review task details
-bd show [task-id]
-→ Full description, dependencies, context
+# 2. Open a journal entry naming the task and the exact next action
 
-# 3. Claim task
-bd update [task-id] --status in_progress
+# 3. TDD cycle — Red: failing test / Green: minimum code / Refactor: clean up
 
-# 4. TDD Cycle
-# Red: Write failing test
-# Green: Implement minimum code
-# Refactor: Clean up while tests pass
+# 4. Flip the checkbox. This IS the act of recording it done:
+#    - [ ] **P1-T4** ...  ->  - [x] **P1-T4** ... (completed 2026-09-08 14:32)
 
-# 5. Complete task
-bd close [task-id] --reason "Implemented X, tests passing"
+# 5. Commit — one task, one commit, task ID in the message
 
-# 6. Find next task
-bd ready
-→ Shows newly unblocked tasks
+# 6. Close the journal entry with what landed and its commit
 ```
 
-**Phase Checkpoints**:
+**Phase completion is "every checkbox in the phase is `[x]`".** There is nothing else to close.
+At the ⛔ CHECKPOINT run the automated verification, ask the human for the manual checks, then
+run `/wb:update_status` to reconcile the counters.
 
-After completing all phase tasks:
-
-```bash
-# Check phase milestone
-bd show [phase-milestone-id]
-→ Shows remaining blockers
-
-# When all tasks done
-bd close [phase-milestone-id] --reason "Phase 1 complete: all tasks done, tests passing"
-
-# Next phase unblocks
-bd ready
-→ Shows Phase 2 tasks
-```
-
-**Critical Rules**:
-
-- ZERO SCOPE CREEP - only implement tasks from tasks.md
-- Follow TDD cycle strictly
-- Respect phase boundaries
-- Stop at checkpoints for human verification
+With `/wb:implement`, a worker does steps 2–4 in fresh context and the coordinator does step 5
+after a verifier passes. That split is what makes an unfinished task detectable: workers never
+commit, so a flipped checkbox in an uncommitted tree means finished, while an unflipped one
+beside real changes means the worker exhausted its tool-call budget.
 
 ### Stage 7: Validation
 
@@ -331,7 +316,7 @@ Syncs status across all files based on actual progress.
 **Process**:
 
 1. Reads ALL files fully
-2. Reads beads state (source of truth)
+2. Counts the checkboxes in tasks.md (the source of truth)
 3. Determines actual state
 4. Proposes updates
 5. Applies consistently
@@ -360,7 +345,7 @@ Captures:
 - Critical learnings not in docs
 - Problems solved
 - Active blockers
-- **Open beads issues** with context
+- **Open questions and blockers**, cited by their local IDs
 - Next steps
 - Git state
 
@@ -377,134 +362,88 @@ Restores:
 - Continues from exact point
 - Applies discovered solutions
 
-## Beads Integration
+## Where status lives
 
-### Overview
+There is no external tracker. Nothing to install, nothing to initialize, nothing that can be
+unavailable — which is the point: before 2.0.0, six stages halted on a dependency that had to
+be present.
 
-Beads provides persistent, git-backed task tracking that survives context compaction and session changes.
+### The three surfaces
 
-### Beads Modes
+| Surface | Holds | Written by |
+| ------- | ----- | ---------- |
+| Checkboxes in `tasks.md` | task and phase status | whoever finishes the task |
+| Frontmatter counters | a derived cache of those counts | `/wb:update_status`, and nothing else |
+| Git | the durable record | one task, one commit, task ID in the message |
 
-**Stealth Mode** (`.beads/` not committed):
-
-- `.beads/` added to `.git/info/exclude`
-- Beads state stays local
-- Good for work repos where you don't want to expose task tracking
-- `bd sync` exports to `.beads/issues.jsonl` locally
-- State doesn't persist across machines
-
-**Git Mode** (`.beads/` tracked in git):
-
-- `.beads/` committed like normal code
-- Beads state persists across machines
-- Good for personal projects
-- `bd sync` then commit `.beads/` to push state
-- Full team collaboration on task state
-
-**Auto-detection**: SessionStart hook (`.claude/hooks/setup-beads-mode.sh`) checks:
+**Flipping a checkbox is the act of recording a task done** — not a note about it. A finished
+task with an unflipped box is indistinguishable from unfinished work to the next session.
 
 ```bash
-if git check-ignore -q .beads/; then
-  export BEADS_MODE=stealth
-else
-  export BEADS_MODE=git
-fi
+# Progress, at any time. Scope to lines carrying a task ID: a plan's own success
+# criteria and prerequisites are checkboxes too.
+grep -cE '^- \[x\] \*\*[A-Z0-9-]*[0-9][A-Z0-9-]*\*\*' tasks.md
+grep -cE '^- \[ \] \*\*[A-Z0-9-]*[0-9][A-Z0-9-]*\*\*' tasks.md
 ```
 
-### Command-Specific Usage
+### The counters are a cache, and drift is normal
 
-**`/wb:create_mockup`**:
+Implementation stages flip checkboxes and defer the counters to `/wb:update_status`, which is
+their **only** writer. That single-writer rule is the whole mechanism: a cache with several
+writers and no owner is how these fields rotted before.
 
-```bash
-# Creates UI questions
-bd create "UI Q: Which color for primary button?" \
-  --type=task --priority=2 \
-  -d "From mockup v001. Blocks: finalization"
+So the counters lag between checkpoints. That is expected, not an error. `status-sync` surfaces
+the drift, `/wb:update_status` reconciles it, and **the checkboxes are always what's right**.
 
-# Creates assumptions
-bd create "UI Assumption: Using 2-column layout" \
-  --type=task --priority=3 \
-  -d "Assuming desktop-first. If wrong: need responsive design"
-```
+### Task IDs are a contract
 
-**`/wb:create_execution`**:
+Every task line carries a bold local ID matching `[A-Z0-9-]*[0-9][A-Z0-9-]*` — uppercase,
+hyphens, **at least one digit** (`P2-T7`, `T14`).
 
-```bash
-# Creates epic
-bd create "Add Authentication System" --type=epic
+This is not a style preference. Every counter in the workflow identifies task lines by that
+shape, so an ID without a digit makes its task **invisible to counting**: wrong totals, wrong
+reported position, and nothing erroring. `/wb:validate_project` checks it.
 
-# Creates phase milestones with dependencies
-bd create "Phase 1: Core Auth" \
-  --type=milestone \
-  --blocks "[epic-id]"
+### Planning records
 
-# Creates tasks with dependencies
-bd create "Implement JWT middleware" \
-  --type=task \
-  --blocks "[phase-1-id]"
-```
+Questions, assumptions and pending decisions live in the document that raises them, each with a
+short local ID and an explicit state:
 
-**`/wb:implement_tasks`**:
+| Record | Lives in | ID |
+| ------ | -------- | -- |
+| Open question | `research.md` → `## Open Questions` | `Q1` |
+| Assumption | `design.md` → `### Assumptions` | `A1` |
+| Pending decision | `design.md` → `## Pending Decisions` | `PD1` |
+| UI question | `mockups/v00N/mockup.md` | `UIQ1` |
 
-```bash
-# Find work
-bd ready
+`/wb:resolve_questions` walks them one at a time, records each answer as a decision with its
+rationale in `design.md`, and marks the source row resolved. **Rows are never deleted** — the
+audit trail is the point.
 
-# Claim it
-bd update [task-id] --status in_progress
+### Continuity across sessions
 
-# Complete it
-bd close [task-id] --reason "Done"
+| Artifact | Scope | Read when |
+| -------- | ----- | --------- |
+| `journal.md` | one plan | session start (the tail), and on resume |
+| `.claude/wb/knowledge.md` | the repository, committed | before research, design, implementation |
+| `handoff-*.md` | one transfer | by `/wb:resume_handoff` |
 
-# Sync (export to file)
-bd sync
+**Journal entries open when work starts, not when it ends.** A session does not choose how it
+ends, so an entry written only at completion is silent in exactly the cases it exists for —
+and worse than silent, because its tail would still show the last *finished* phase.
 
-# Git mode: commit beads state
-git add .beads/
-git commit -m "Update task state"
-```
+The session-start hook (`hooks/wb-prime.sh`) prints the plan's position, the journal's last
+entry and whether it is open, and reconciles both against the working tree. **The repository is
+always the authority**; the hook never reports the journal as fact when the two disagree.
 
-**`mockup-iteration` skill**:
+### Model and effort
 
-```bash
-# Before finalization
-bd list --status=open | grep -E "UI Q:|UI Assumption:"
+This guide does not carry a per-stage model table. `model-help` is the single authority for
+main-session model and effort, and sub-agent tiers are pinned in each agent's own frontmatter —
+anything spawned is pinned at its definition, anything the session runs is advised by
+`model-help`. Two documents naming tiers is how they drift.
 
-# If open issues exist → can't finalize
-# Must resolve or close as "deferred"
-```
-
-### Session Protocol
-
-**At session end**:
-
-```bash
-# 1. Close completed tasks
-bd close [task-id] --reason "..."
-
-# 2. Sync beads state
-bd sync
-
-# 3. Git mode: commit and push
-git add .beads/
-git commit -m "Update task state: [summary]"
-git push
-
-# 4. Stealth mode: just sync (stays local)
-```
-
-**At session start**:
-
-```bash
-# 1. Git mode: pull latest
-git pull
-
-# 2. Check available work
-bd ready
-
-# 3. Review details
-bd show [task-id]
-```
+Run `/wb:model-help` for the per-phase baselines, the upshift ladder, and the switch-cost rule.
 
 ## Mockup Workflow
 
@@ -547,7 +486,7 @@ Spawns 5 parallel agents:
 **If no system found**:
 
 - Documents "None - text only"
-- Creates beads issue if icons needed: `bd create "UI Q: Icon system?"`
+- Adds a `UIQ` row if icons are needed and no system exists
 - Never defaults to emojis
 
 ### Mockup Creation
@@ -619,8 +558,8 @@ Shows screenshot to user for validation.
 - **KEEP**: Confirmed requirement → add to mockup-log.md "Confirmed"
 - **REMOVE**: Rejected idea → add to "Rejected" with reason
 - **CHANGE**: Modification needed → note for next version
-- **QUESTION**: Needs clarification → `bd create "UI Q: ..."`
-- **ASSUMPTION**: Unvalidated belief → `bd create "UI Assumption: ..."`
+- **QUESTION**: Needs clarification → a `UIQ` row in the current mockup.md
+- **ASSUMPTION**: Unvalidated belief → a `UIA` row in the current mockup.md
 
 **Version Creation**:
 
@@ -649,7 +588,7 @@ Before finalizing to design.md:
 
 ```bash
 # Check for open issues
-bd list --status=open | grep -E "UI Q:|UI Assumption:"
+grep -A20 "^## Open Questions" mockups/v00N/mockup.md   # any row still Open?
 ```
 
 **If open issues exist**:
@@ -781,7 +720,7 @@ Tasks come ONLY from plans.
 - Research icon system first
 - Use app's actual styles
 - Never use emojis in HTML
-- Create beads issues for unknowns
+- Record unknowns as `Q`/`A` rows in the document that raises them
 - Screenshot after each version
 - Resolve all UI Q: before finalizing
 
@@ -795,11 +734,11 @@ Tasks come ONLY from plans.
 
 ### Implementation Phase
 
-- Use `bd ready` to find work
-- Claim with `bd update`
+- Take the first unchecked task in the current phase
+- Open a journal entry before touching code
 - Follow TDD cycle strictly
-- Close with `bd close`
-- Sync with `bd sync`
+- Flip the checkbox when done, then commit
+- Run `/wb:update_status` at each phase checkpoint
 - Respect phase boundaries
 - Stop at checkpoints
 
@@ -807,26 +746,26 @@ Tasks come ONLY from plans.
 
 **At session end**:
 
-- Close completed beads issues
-- Run `bd sync`
-- Git mode: commit .beads/
+- Flip every finished task's checkbox
+- Run `/wb:update_status`
+- Commit the work — one task, one commit
 - Create handoff if needed
 
 **At session start**:
 
 - Git mode: `git pull`
-- Check `bd ready`
-- Review `bd show [id]`
+- Read tasks.md for the first unchecked task
+- Read the journal tail for an open entry
 - Resume from handoff if exists
 
 ## Troubleshooting
 
 ### Beads Issues
 
-**"beads not initialized"**:
+**"The counters disagree with the checkboxes"**:
 
 ```bash
-bd init --stealth   # or bd init
+/wb:update_status [project-dir]   # the checkboxes are right; this reconciles
 ```
 
 **"database locked"**:
@@ -837,7 +776,7 @@ bd init --stealth   # or bd init
 **"issue not found"**:
 
 ```bash
-bd list   # Find correct ID
+grep -n '^- \[' tasks.md   # find the task line
 ```
 
 ### Mockup Issues
@@ -845,7 +784,7 @@ bd list   # Find correct ID
 **No icon system found**:
 
 - Document as "None - text only"
-- Create beads issue if icons needed
+- Add a `UIQ` row if icons are needed
 - Ask user for direction
 
 **HTML mockup not rendering**:
@@ -879,17 +818,16 @@ bd list   # Find correct ID
 **Status progression blocked**:
 
 - Verify all tasks complete
-- Check beads state: `bd list`
+- Check the checkboxes in tasks.md
 - Ensure checkpoints passed
 
 **Inconsistent status across files**:
 
 - Run `/wb:update_status`
-- Let it sync from beads (source of truth)
+- It counts the checkboxes and reconciles the counters to them
 
 ## Additional Resources
 
 - [Commands Reference](commands-reference.md) - Detailed command documentation
-- [AGENTS.md](../AGENTS.md) - Beads workflow protocol
+- [CLAUDE.md](../CLAUDE.md) - Session protocol and repository conventions
 - [Skills Guide](claude-code-skills-guide.md) - Skills documentation
-- [Beads Stealth Mode](beads-stealth-mode.md) - Beads mode setup and detection
