@@ -2615,6 +2615,41 @@ in this plan to have work pending somewhere the tree cannot see.
     `:929`) are derivable and true but were left unticked; they are not flipped here, because
     machine-ticking a box nobody owns is the failure mode this plan spent a week removing.
 
+- **2026-09-16, findings (s) and (t) fixed on the user's instruction, and the tag re-cut — the
+  standard is "no tagging a release with known defects", and filing them was the wrong call.**
+  I recorded both as `filed, not fixed` under D20 an hour earlier. D20 governs a *worker* mid-task;
+  this was a close-out, and `tasks.md:1796` already records the opposite instruction from the user,
+  under which eight items were cleared on 2026-09-14 specifically so the tag would be clean. The
+  inconsistency was mine and is corrected here.
+  - **(s) fixed.** The three stub manifests now name `templates/`, `prompts/` and the files that
+    actually exist. Verified by a loop resolving every name against its canonical — 9 names, 0
+    misses — and the loop was proved to fire by planting `nonexistent.md` in one stub.
+  - **(t) fixed as a sweep.** All eight `const … = $1` fences replaced with prose naming the
+    slots, in the shape `implement` Step 1 already carried. `create_project`'s replacement also
+    carries the refuse-prose rule, which had been living only inside the block being deleted.
+    `grep -rn '^const \w* = \$[0-9]' plugin/skills/*/SKILL.md` now returns nothing, and the grep
+    was proved to fire against a planted line.
+  - **The missing half, supplied.** Both defects existed because a convention was stated in one
+    place and checked in none — the plan's own recurring lesson, now at fourteen instances, with
+    **(t) being that failure happening to the very fix meant to end it**. Both conventions and
+    both checks are now written into `docs/claude-code-skills-guide.md`'s house-conventions
+    section, with the reason each one is cheap to get wrong: a stub's manifest is a claim about
+    paths that no link checker resolves, and a fenced `$1` is legible only when the binding
+    already works.
+  - **Gates re-run**: `lint --all` clean; `wb-prime.sh` exits 0 on startup, compact, PreCompact
+    and empty stdin; inventory unchanged at 36 skills / 7 agents / 3 hooks; fourteen-stage
+    on-invoke **54.7k → 54.3k**, −36.0 percent against the 84.9k baseline and 5.1k inside the
+    ≤59.4k bar — prose is cheaper than the fences it replaced, so the fix paid for itself.
+  - **The tag was re-cut, not left stale.** `wb--v2.0.0` moved off `d6fe71b` onto the commit
+    carrying these fixes. It had never been pushed — 0 remote refs — so nothing external depended
+    on the old target and no history was rewritten for anyone. **If PR #21 is squash-merged, the
+    tag will need re-pointing at the resulting `main` commit**, for the same ancestry reason #20
+    created: a squash produces a new commit, and a tag on a non-`main` commit is the condition
+    that made this plan's own tag verification rest on tree equality rather than ancestry.
+  - *Worth keeping: validation's value here was not the 30 green gates, it was the two findings —
+    and the findings were only actionable because the tag was still local. A release that had been
+    pushed an hour earlier would have turned both into 2.0.1 work.*
+
 - **2026-09-08, adversarial review of Phases 1–4, run after `P4-T9` declared every phase's
   checks green.** Ten findings; **eight fixed in the tree**, two need a live session. The
   pattern is one thing, not ten: **every capability verified by grep passed; every capability
