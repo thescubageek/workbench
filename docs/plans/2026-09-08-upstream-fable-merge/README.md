@@ -35,10 +35,10 @@ design stage.
   de-beads + content, one edit per file); Phase 3 adds the capabilities that did not exist
   (continuity, drift hardening, `explore_design`); Phase 4 rewrites the consumers and cuts
   2.0.0. Written in the markdown-checkbox convention it establishes
-- **[handoff-2026-09-08-implementation.md](handoff-2026-09-08-implementation.md)** — the
-  orientation for the fresh implementation session: state, the two open decisions and what
-  they gate, nine critical discoveries with verification hints, the model decision and its
-  reasoning, and the things that will bite
+- **[journal.md](journal.md)** — the session journal: one entry per unit of work, newest first,
+  each ending in `(open)` or `(closed)`. The Implementation Notes at the bottom of `tasks.md`
+  carry every finding, deviation and test round; the six session handoffs that once lived here
+  were removed 2026-09-15 once their content was in those notes (see git history)
 - **thoughts/** — `2026-09-08-baseline-measurements.md` is written by task `P0-T2` and holds
   the before-measurements Phase 2's exit compares against
 
