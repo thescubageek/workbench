@@ -63,6 +63,13 @@ You will receive:
 
 ### Step 2: Run Tests
 
+**The verdict is on the task's own criteria, judged literally.** A failure the task did not
+cause — a test that was already red before the worker started, in a file the task never named —
+does not fail the task, but it is never silently absorbed either: report it under
+`### Baseline failures` with the test name and evidence that it predates the task, so the
+coordinator carries it to the checkpoint and leaves the automated-verification box `[ ]`. If you
+cannot show it predates the task, it is the task's failure.
+
 Execute the test command and capture output:
 
 ```bash
@@ -102,6 +109,11 @@ with an empty diff.
 - Files modified match task description
 - No extra files changed (scope creep)
 - Changes are in correct modules
+- **An edit to a file outside the task's list is allowed only if the behaviour the task asks
+  for cannot work without it** — the same exception the worker is held to. List every such file
+  under Files Changed as *outside the task's list — necessary because …*. Any other out-of-list
+  edit is scope creep and a FAIL, whether it looks minimal or not. Apply this the same way in
+  both directions: the rule does not soften for an edit that happens to be small
 - **Untracked generated artifacts** — `__pycache__/`, `*.pyc`, build output — in `git status`.
   Not scope creep, but a **warning** the coordinator must see: name them and the `.gitignore`
   entry that is missing, so they are never staged with the task
@@ -140,7 +152,11 @@ ${testOutput}
 ### Files Changed
 - ✅ `src/feature.ts` - Expected (task requirement)
 - ✅ `tests/feature.test.ts` - Expected (test file)
+- ⚠️ `src/index.ts` - Outside the task's list — necessary because the new export cannot be reached without it
 - ❌ `src/other.ts` - Unexpected (not in task scope)
+
+### Baseline failures
+- `tests/legacy.test.ts::old_case` — red at `git stash`-free baseline (failing in the seed commit `abc1234`); not caused by this task
 
 ### Scope Verification
 - ✅ Task requirement 1: Implemented

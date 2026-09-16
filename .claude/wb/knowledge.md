@@ -111,7 +111,16 @@ we have the in-repo cautionary example for that.
   **off** in this machine's `~/.claude/settings.json`. A read-boundary test must force it on —
   `--settings '{"permissions":{"blockReadsOutsideWorkingDirectories":true}}'` — or it measures
   nothing: run verbatim on 2026-09-15, nothing was refused and the stage completed.
-- **Verified**: 2026-09-09, precondition note 2026-09-15 · `docs/plans/2026-09-08-upstream-fable-merge/`
+- **Also, and this narrows the whole entry (2026-09-15)**: the gate follows the *plugin root*.
+  A **marketplace-installed** stage read four supporting files out of
+  `~/.claude/plugins/cache/thescubageek-workbench/wb/2.0.0/` in a headless `default`-mode
+  session with the boundary forced on, while Bash in the same session was gated — so a running
+  skill may read its own installed root. A *bare* Read of the same cache from a session with no
+  stage running is still refused by the grant flow (re-probed 2026-09-15, with and without the
+  boundary setting, no persisted grant). Only a `--plugin-dir` **checkout** run from another
+  cwd is gated for a running stage. The release blocker this entry was written for does not
+  exist for installed copies.
+- **Verified**: 2026-09-09, narrowed 2026-09-15 · `docs/plans/2026-09-08-upstream-fable-merge/`
 - **Check it**: from a cwd that is not a parent of the plugin —
   `claude --plugin-dir <repo>/plugin -p "Use the Read tool to read <repo>/plugin/skills/help/SKILL.md. Reply DENIED or the first line."`
   → `DENIED`; adding `--add-dir <repo>/plugin` → the first line.

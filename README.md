@@ -18,11 +18,11 @@ claude plugin marketplace add thescubageek/workbench
 claude plugin install wb@thescubageek-workbench
 ```
 
-The first time you run a stage, Claude asks once for permission to read the plugin's own
-templates and prompts out of `~/.claude/plugins/cache/`. Approve it — choose the persistent
-option and the grant applies to every project, so you answer it once per machine. If you run
-Claude headless or in CI, see [Reading the plugin's supporting
-files](#reading-the-plugins-supporting-files) — nothing can answer a prompt there.
+Installed this way, a stage reads the plugin's own templates and prompts out of
+`~/.claude/plugins/cache/` without a prompt, interactively and headless alike — measured
+2026-09-15 with the read boundary forced on. A **development checkout** run through
+`--plugin-dir` from another directory is different: see [Reading the plugin's supporting
+files](#reading-the-plugins-supporting-files).
 
 For local development:
 
@@ -174,17 +174,19 @@ working-tree changes are invisible.
 ### Reading the plugin's supporting files
 
 Each stage reads its templates and prompts from the plugin directory, which sits outside your
-project. That read needs permission, and how you grant it depends on how you run Claude.
+project. Whether that read needs a grant depends on how the plugin is installed.
 
-**Interactive — you are prompted once.** Approve it and the stage continues; choose the
-persistent option and the grant covers every project on the machine. Nothing to configure in
-advance. This is the ordinary permission-grant flow, *not* the
-`permissions.blockReadsOutsideWorkingDirectories` setting — that setting governs a different
-boundary and does not fire on the plugin cache.
+**Marketplace install — no grant needed.** A running stage may read its own plugin root under
+`~/.claude/plugins/cache/`; measured 2026-09-15 in a headless `default`-mode session with
+`permissions.blockReadsOutsideWorkingDirectories` forced on, where the same session's Bash
+calls were gated and the four cache reads were not. A *bare* Read of that path from a session
+with no stage running is still refused by the ordinary grant flow, which is why earlier probes
+reported a denial.
 
-**Headless, CI, or `claude -p` — pre-grant it, because nothing can answer a prompt there.**
-Under `default` and `acceptEdits` alike the read is denied and the stage stops. Either grant the
-path in `permissions.allow`:
+**Development checkout via `--plugin-dir`, run from another directory — gated.** Interactive
+sessions are prompted once (choose the persistent option and the grant covers every project);
+headless sessions are denied and the stage stops, saying which file was refused. Either grant
+the path in `permissions.allow`:
 
 ```json
 { "permissions": { "allow": ["Read(//Users/<you>/.claude/plugins/cache/**)"] } }

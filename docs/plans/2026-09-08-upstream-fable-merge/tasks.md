@@ -2382,6 +2382,46 @@ in this plan to have work pending somewhere the tree cannot see.
     journal entry is still `(open)`, deliberately — though item 6 has now removed its stated
     reason.*
 
+- **2026-09-16, round three processed: the blocker's answer reconciled with the old probes,
+  findings (l) and (m) encoded, two stale shipped claims corrected; cost +0.1k (54.7k).**
+  - **Item 6 checked against the one confound it did not rule out — and it stands.** No
+    persisted `Read(…plugins/cache/**)` grant exists in any settings file, so the successful
+    cache reads were not a stale "allow always". A re-probe from a bare headless session
+    (`/tmp/wb-probe6`, `default` mode, with **and** without the boundary setting, an existing
+    file in the 1.12.5 cache) was **DENIED** by the grant-flow message both times — exactly the
+    2026-09-10 result. So the two facts are: *a running installed stage reads its own plugin
+    root freely; a session with no stage running does not.* The gate follows the plugin root.
+    The 2026-09-10 headless denial and the 2026-09-15 headless success were both bare-vs-in-skill,
+    not before-vs-after, and **the release blocker does not exist for marketplace installs**.
+    Only a `--plugin-dir` checkout run from another cwd is gated for a running stage — which is
+    every test this plan ran before today, and why the blocker looked real for six days.
+  - **Corrected on that basis**: `README.md` (install paragraph and the supporting-files
+    section), `CHANGELOG.md` item 2, `plugin/docs/reference/README.md` (filed item a — its
+    2026-09-08 claim is replaced by the narrowed rule), and the knowledge file's boundary entry.
+    The pre-grant JSON stays, scoped to development checkouts.
+  - **(l) encoded.** `task-verifier` Step 2 now states the contract the round-three coordinator
+    followed by judgment: the verdict is on the task's own criteria, judged literally; a failure
+    the task did not cause is reported under `### Baseline failures` with evidence it predates
+    the task, never silently absorbed; unprovable predating is the task's failure. `implement`
+    6b: a PASS carrying that section commits, but the automated-verification box stays `[ ]`
+    and the failure goes to the checkpoint.
+  - **(m) encoded.** Out-of-list edits are allowed only when the task's behaviour cannot work
+    without them — the worker's own exception — listed as such under Files Changed; anything
+    else is a FAIL whether it looks minimal or not, in both directions.
+  - **Filed item (b) fixed**: `update_status/reference/important-notes.md` no longer says to
+    always present the plan before any change; it names the Barrier 2 side.
+  - **(o)**: the broken `unittest … -t .` form is not in any shipped file; `create_tasks`
+    generated it. Nothing to fix in the plugin.
+  - **6c after seven absorptions.** Three rounds show the layers above 6c absorb any plant that
+    leaves the task or the environment sound. The remaining honest test is the one that worked
+    for 6a: a scratch plugin copy whose `task-verifier.md` is edited to return `### Status:
+    FAIL` unconditionally, run on an ordinary task. That reaches 6c deterministically — reset,
+    one escalation, re-verify fails, WIP-or-restore, blocking list, `(open)` blocked entry —
+    without contriving a fault. One run, under thirty minutes.
+  - **Re-verified**: lint clean; hook exits 0; fourteen-stage total 54.6k → **54.7k**, headroom
+    4.7k. The 2026-09-10 release-hold journal entry is closed below, since the question it was
+    opened for is answered; `P4-T10` remains the user's decision.
+
 - **2026-09-08, adversarial review of Phases 1–4, run after `P4-T9` declared every phase's
   checks green.** Ten findings; **eight fixed in the tree**, two need a live session. The
   pattern is one thing, not ten: **every capability verified by grep passed; every capability

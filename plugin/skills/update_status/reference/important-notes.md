@@ -2,8 +2,9 @@
 
 ## Read-Only Analysis
 
-- **NEVER modify files** without explicit user confirmation
-- **ALWAYS present the update plan** before applying changes
+- **NEVER change a judgment-bearing `status:` value** without explicit user confirmation
+- **ALWAYS present the update plan** before applying a change behind Barrier 2 — the silent
+  side (counters, git metadata, `not-started → in-progress`) applies without one
 - **VERIFY actual progress** by reading file contents and counting checkboxes, not by trusting frontmatter
 
 ## Sole Writer

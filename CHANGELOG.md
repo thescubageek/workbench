@@ -128,23 +128,25 @@ On **each machine** where `wb` is installed:
 
    Then restart Claude, or `/reload-plugins`. A running session holds the old skill bodies.
 
-2. **Expect one permission prompt, the first time you run a stage.** Every stage now reads its
-   templates and prompts from the plugin directory, which sits outside your project. Allow it —
-   choose the persistent option and **the grant applies to every project**, so you see it once
-   per machine.
+2. **Stages now read their templates and prompts from the plugin directory**, which sits
+   outside your project. For a marketplace install this needs no grant: a running stage may read
+   its own root under `~/.claude/plugins/cache/`, interactively and headless alike (measured
+   2026-09-15 with the read boundary forced on). A development checkout run through
+   `--plugin-dir` from another directory is gated — one prompt interactively, a denial headless.
 
-   This is the ordinary permission-grant flow for a path outside your project. It is *not* the
-   `permissions.blockReadsOutsideWorkingDirectories` setting, which governs a different boundary
-   and does not fire on the plugin cache. The two produce different denial messages, and telling
-   them apart is what settled this.
+   The gate is the ordinary permission-grant flow for a path outside your project. It is *not*
+   the `permissions.blockReadsOutsideWorkingDirectories` setting, which governs a different
+   boundary and does not fire on the plugin cache. The two produce different denial messages,
+   and telling them apart is what settled this.
 
    1.12.x never asked, because its stages were monolithic files with everything inline. The
    dependency is new in 2.0.0, and it is not avoidable from inside the plugin: `allowed-tools`
    is a pre-approval for the tools it names, not a path grant, and path-scoped
    `Read(<plugin-root>/**)` was measured and does not grant it either.
 
-   **Headless, in CI, or `claude -p`? Pre-grant it — nothing can answer a prompt there.** Under
-   `default` and `acceptEdits` alike the read is denied and the stage stops:
+   **Running a development checkout headless, in CI, or under `claude -p`? Pre-grant it —
+   nothing can answer a prompt there.** Under `default` and `acceptEdits` alike the read is
+   denied and the stage stops:
 
    ```json
    { "permissions": { "allow": ["Read(//Users/<you>/.claude/plugins/cache/**)"] } }

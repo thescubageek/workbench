@@ -22,6 +22,16 @@ file.
 > `P3-T7`/`P3-T8` wiring shipped but was never exercised, which is itself one of the review
 > findings below. There is no earlier history to reconstruct and none is invented here.
 
+## 2026-09-16 03:50 — round three processed (closed)
+
+- **Task/phase**: phase 4; 63 of 64, unchanged. Reconciled item 6 with the earlier probes,
+  encoded findings (l) and (m), corrected README/CHANGELOG/reference boundary claims, fixed
+  filed item (b), closed the release-hold entry.
+- **Next action**: the user's decision on `P4-T10`; optionally one 6c run via a scratch plugin
+  copy whose verifier always FAILs. Branch on GitHub is at `d14e436`; later commits are local.
+- **Started at**: `9d70855`
+- **Landed**: see tasks.md → Implementation Notes, 2026-09-16 "round three processed". 54.7k.
+
 ## 2026-09-16 00:12 — adversarial-round findings fixed (closed)
 
 - **Task/phase**: phase 4; 63 of 64, unchanged. Fixes for findings (h)–(k) of the adversarial
@@ -53,7 +63,7 @@ file.
   close: this session did not open an entry when it started, a lapse of the convention it spent
   the afternoon editing.
 
-## 2026-09-10 15:05 — release held on the installed-plugin read test (open)
+## 2026-09-10 15:05 — release held on the installed-plugin read test (closed)
 
 - **Task/phase**: phase 4; 63 of 64. `P4-T10` (tag `wb--v2.0.0`) is the only unchecked task and
   is deliberately held.
@@ -75,6 +85,11 @@ which is every copy but this one. Tagging before knowing that would ship the bre
 — inline the supporting content back into `SKILL.md`, ship a postinstall that copies into the
 project, or document an `additionalDirectories` requirement — differ enough that the answer
 should decide it, and the −44.9% context result is what is at stake.
+
+**Closed 2026-09-16.** It came back clean, at the literal path: round three installed 2.0.0 from
+GitHub into `~/.claude/plugins/cache/thescubageek-workbench/wb/2.0.0/` and a headless stage read
+all four of its supporting files with the boundary forced on. The hold's question is answered;
+the tag itself is still the user's call (`P4-T10`).
 
 ## 2026-09-09 16:10 — Test E, end-to-end, paused mid-implement (closed)
 

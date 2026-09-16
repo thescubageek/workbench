@@ -306,6 +306,10 @@ Step 4.
 **Committing here is what makes an unfinished task detectable.** After a passing task the tree
 is clean, so any uncommitted work belongs to something that did not finish.
 
+A PASS that carries a `### Baseline failures` section still commits, but the failure goes on the
+checkpoint's notes and the automated-verification box stays `[ ]` until the suite is actually
+green — a substituted bar is reported, never silently adopted.
+
 **If FAIL**: go to 6c.
 
 #### 6c. One escalation, then a human

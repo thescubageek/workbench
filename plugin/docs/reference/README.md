@@ -17,10 +17,11 @@ A document belongs in `plugin/docs/reference/` when all four are true:
    skills, where the copies drift.
 
 Link to it from the skill with a relative path and an explicit read instruction, the way the
-supporting-file manifests do — never paraphrase it from memory. Reads from here do not prompt
-for permission in a skill declaring `allowed-tools: Read`; this was measured, not assumed
-(see the 2026-09-08 layout probe: a read that climbs out of the skill directory into this one
-returned no prompt).
+supporting-file manifests do — never paraphrase it from memory. Permission follows the plugin
+root, not the skill directory: a marketplace-installed stage reads here without a prompt
+(measured 2026-09-15, headless, boundary forced on), while a `--plugin-dir` checkout run from
+another directory is gated like any other supporting file. `allowed-tools: Read` does not
+change either case — it is a tool pre-approval, not a path grant.
 
 ## What does not belong here
 
