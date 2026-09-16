@@ -22,6 +22,53 @@ file.
 > `P3-T7`/`P3-T8` wiring shipped but was never exercised, which is itself one of the review
 > findings below. There is no earlier history to reconstruct and none is invented here.
 
+## 2026-09-16 06:05 — findings (s) and (t) fixed; tag re-cut (closed)
+
+- **Task/phase**: phase 4; 64 of 64, unchanged. Not a task — repair of the two defects
+  `/wb:validate_execution` found an hour earlier and I filed rather than fixed.
+- **Next action**: none. **If PR #21 is squash-merged, re-point `wb--v2.0.0` at the resulting
+  `main` commit** — a squash makes a new commit and the tag would otherwise sit off `main` again.
+  The tag push remains the user's.
+- **Started at**: `e412725`
+- **Landed**: `150f5dc`. (s) the three stub manifests now name paths that exist, verified by a
+  resolver loop proved to fire on a planted miss; (t) all eight `const … = $1` fences replaced
+  with prose in one sweep, `grep -rn '^const \w* = \$[0-9]' plugin/skills/*/SKILL.md` now empty
+  and proved to fire on a planted line. Both conventions and both checks written into the skills
+  guide, because each defect existed for want of a check rather than for want of a rule.
+  Fourteen-stage on-invoke 54.7k → 54.3k. Full record in `tasks.md` → Implementation Notes.
+
+**The correction worth naming.** Filing these under D20 was wrong: D20 is a rule for a worker
+mid-task, and the user's standing instruction for this release — recorded at `tasks.md:1796` — is
+no tagging with known defects. I applied the narrower rule and reported it as a decision rather
+than asking. That the tag was still unpushed is what made the mistake recoverable.
+
+## 2026-09-16 05:52 — P4-T10 landed; the plan is closed (closed)
+
+- **Task/phase**: phase 4; **64 of 64**. `P4-T10` is done — `wb--v2.0.0` is an annotated tag on
+  `d6fe71b`, which is `origin/main` after PR #20 was squash-merged, and the installed plugin
+  reports `2.0.0`. This is the last task in the plan.
+- **Next action**: none for this plan. The tag push and the follow-up PR are the user's; nothing
+  here pushes or tags. Findings **(s)** and **(t)** below belong to whatever lands next.
+- **Started at**: `d328087`
+- **Landed**: `/wb:update_status` moved `tasks.md` `in-progress -> complete`, reconciled
+  `completed_tasks` 63 -> 64 and refreshed the git metadata to `d328087`.
+  `/wb:validate_execution` returned **PASSED WITH ISSUES** — full record in `tasks.md` →
+  Implementation Notes, 2026-09-16. Headlines: every completion claim corroborated, the branch
+  HEAD tree byte-identical to the tagged commit's (`699cf71`), 30 of 31 automated gates green,
+  **169 relative links and 44 directed reads with zero dangling paths**, fourteen-stage on-invoke
+  54.7k (−35.6 percent, 4.7k inside the bar). Two new defects, both prose in shipped files and
+  both the plan's own recurring class: **(s)** the three alias stubs name supporting files the
+  2026-09-09 split renamed away, and **(t)** F2's pseudo-code fix reached `implement` only,
+  leaving the same `$1`-in-a-fence block live in eight other stages. Criteria `:317` and `:664`
+  were re-run, passed in their original wider form, and flipped; `:1011` is now unmeetable by
+  construction, because `P4-T10` created the tag its dry-run refuses to move.
+
+**On the convention, honestly.** This entry was opened and closed in the same session rather than
+opened before the work — the close-out was short enough that an interruption would have lost
+little, but the journal exists precisely because a session does not get to decide that in
+advance. Recorded rather than glossed, as the 2026-09-15 context-budget entry did for the same
+lapse.
+
 ## 2026-09-16 03:50 — round three processed (closed)
 
 - **Task/phase**: phase 4; 63 of 64, unchanged. Reconciled item 6 with the earlier probes,
