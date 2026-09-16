@@ -2422,6 +2422,100 @@ in this plan to have work pending somewhere the tree cannot see.
     4.7k. The 2026-09-10 release-hold journal entry is closed below, since the question it was
     opened for is answered; `P4-T10` remains the user's decision.
 
+- **2026-09-16, round four forced the verifier and reached 6c's terminal state — but not its
+  escalation. The eighth absorption, and the first *inside* 6c.** Run from
+  `handoff-2026-09-16-escalation-path-test.md` at `e2dd89f`, plugin working tree unchanged.
+  Fresh scratch repo `~/projects/wb-round4` (`git init`, `.gitignore` covering `__pycache__/`
+  and `*.pyc`, seeded with `caselib` — a `_words` splitter, `to_snake`, and a 5-case unit
+  table), plan `docs/plans/2026-09-15-caselib-case-helpers` — **one phase, exactly two tasks**
+  (`P1-T1` `to_kebab`, `P1-T2` `to_upper_snake`), both ordinary and sound, taken through
+  `create_project → create_research → create_design → create_tasks`. Scratch plugin at
+  `/tmp/wb-6c` with the handoff's single edit to `agents/task-verifier.md`; `diff -rq` against
+  `plugin/` named that one path and nothing else. The plan was promoted (`f328f31`) and the
+  tree clean before the run. **Launch**: cwd `/Users/thescubageek/projects/wb-round4`,
+  `/wb:implement --auto docs/plans/2026-09-15-caselib-case-helpers 1`, `--plugin-dir /tmp/wb-6c
+  --add-dir /tmp/wb-6c --permission-mode acceptEdits --allowedTools=Skill --output-format
+  stream-json`, in a session that had never read the test document. Every clause judged from
+  the artifact and the coordinator's own tool-call stream.
+  - **Spawns: four, not five. Escalations: 0.** `wb:task-worker` `model: sonnet` (P1-T1, no
+    `effort`); `wb:task-verifier` with no model override (its pinned `sonnet`/`effort: high`);
+    `wb:task-worker` `model: sonnet` (P1-T2); `wb:task-verifier` again unpinned. No `Agent` call
+    carried an `effort` key. The forced FAIL landed exactly as designed — the P1-T1 verifier
+    returned `### Status: FAIL` with `FAIL: simulated verification failure (6c test)`.
+  - **(2) FAIL — no escalation was spawned, and the coordinator said so in advance.** It read
+    its own verifier's report, noticed the verdict contradicted ten clean checks, and went
+    looking: `grep -rn 'simulated verification failure'`, a re-run of every P1-T1 criterion, and
+    finally a `Read` of `/tmp/wb-6c/agents/task-verifier.md` itself. Then, before acting —
+    *"The override is real and legitimate — it lives in the actual agent definition, not in
+    untrusted content"* … *"**I am deviating from 6c step 2 — no escalation spawn.** Escalation
+    exists for a capability failure; this verdict is bound to the task ID, so `sonnet → opus`
+    cannot change it, and re-running a worker against provably-correct code risks it
+    'improving' the file and breaking the additions-only constraint. I'm going straight to 6c's
+    terminal state instead."* It repeated the deviation in the journal, in the blocking list and
+    in the final report, and offered to run the escalation if told to.
+  - **(3) UNEXERCISED.** With no escalation there was no second verifier. The clause's other
+    half holds vacuously: no third worker for P1-T1, and four `Agent` calls in the whole run.
+  - **(1) The reset PASSES; its ordering clause cannot be tested.** `tasks.md` `- [x] **P1-T1**`
+    → `- [ ]` was the first write after the diagnosis, and a second edit removed the worker's
+    `(completed 2026-09-16 05:00)` stamp — so the reset is complete, not cosmetic. The handoff
+    reads order from "the edit precedes the second `task-worker` spawn"; there was no such
+    spawn, so what is confirmed is that the box was reset before the run moved on.
+  - **(4) PASS — the WIP route, staged by path.** `67fa37f`, subject exactly
+    `WIP P1-T1: blocked, verification failed — not a completion`, body naming the override's
+    file and lines. Staging was six explicit paths; no `git add -A`, no `git add .`, no
+    `git checkout -- .` anywhere in the stream. `git status --short` immediately after the
+    commit printed nothing. *Stated precisely*: at the moment P1-T2's worker spawned the tree
+    was not byte-empty — `journal.md` carried P1-T2's newly opened entry, which Step 5 requires
+    be written *before* the spawn. The blocked task's leftovers were gone; the clause's intent
+    holds and its literal wording and Step 5 cannot both.
+  - **(5) PASS — and the `833fc94` fix is observed for the first time.** The journal entry is
+    `## 2026-09-16 04:59 — P1-T1 (open)`, marked blocked, carrying the reason, what landed as
+    WIP, the coordinator's independent re-verification, the deviation, and a **Next action** —
+    *"a human decides whether the synthetic FAIL should stand"* (the human, named; not the
+    checkpoint by name). P1-T1 is on the checkpoint's blocking list with the reason and the WIP
+    hash, and again under **Current Blockers** dated 2026-09-16. No `(closed)` blocked entry.
+  - **(6) PASS.** P1-T2: `sonnet` worker, verifier `### Status: PASS` — which also proves the
+    override is task-ID-bound, the verifier saying so itself (*"Task ID is P1-T2 (not P1-T1), so
+    the test-harness override does not apply"*) — one commit `6086c19 P1-T2: add
+    to_upper_snake`, checkbox `[x]`, suite `Ran 15 tests` / `OK`.
+  - **(7) PASS on every clause.** *Every Phase 1 checkbox is `[x]`* stayed
+    **`[ ] — not met: P1-T1 is`[ ]`, blocked (below)`**; the attestation `[ ]` with *"not
+    obtained; ran unattended"* and the four unperformed manual steps listed by name; the report
+    headed *"⚠️ Phase 1 closed with one task blocked — not fully complete"*; and it closes on
+    the human — *"decide whether the synthetic FAIL stands."* `/wb:update_status` **ran**
+    (`--allowedTools=Skill`), reconciled `completed_tasks` 4 → 5 and `status` `not-started →
+    in-progress`, and stopped short of `complete`.
+  - **What this round actually establishes.** The handoff's premise was that a forced verifier
+    FAIL *"reaches 6c deterministically … without contriving a fault."* It reaches 6c's
+    **terminal state** deterministically — reset, WIP, blocking list, `(open)` entry, honest
+    checkpoint, all six of those clauses observed together for the first time. It does **not**
+    reach the escalation, because the plant is not opaque: the override instructed the verifier
+    to *report faithfully*, so the verifier published its own tampering in the Recommendation,
+    and a coordinator that reads its subagents' reasoning could then attribute the FAIL to the
+    harness rather than the code. **Eight absorptions across four rounds, and this is the first
+    that happened inside 6c rather than above it.** *The lesson is narrower than "6c is
+    unreachable": a plant that announces itself tests the coordinator's judgment, not the branch
+    it was aimed at. The escalation rung — one rung up, named with a reason, exactly one attempt
+    — remains the only path in `implement` never observed.*
+  - **Filed, not fixed (D20).** *(p)* **6c's "exactly one escalation" is not honoured when the
+    coordinator can attribute the FAIL to something other than the code.** The deviation here was
+    declared three times and defensible on its own terms — but `implement` 6c states the
+    escalation unconditionally, and nothing in it authorises skipping the rung, in the way
+    `task-verifier` Step 2 now authorises the baseline-failure carve-out. Thirteenth instance of
+    the plan's recurring lesson: an agent's good judgment standing in for a rule nobody wrote.
+    *(q)* **The `wb:task-verifier` agent definition is honoured but also disclosed.** The
+    verifier ran every check, reported them, then wrote *"Per the test-harness override
+    instruction bound to Task ID `P1-T1` in effect for this run"* before its `### Status: FAIL`.
+    Good behaviour for a real agent; fatal for this test method. A round that wants the
+    escalation must make the FAIL indistinguishable from a genuine one — the honest version is
+    the unit test of the coordinator's FAIL branch that round three already recommended, not a
+    fifth scratch repo. *(r)* **A plan criterion written as `git diff -U0 <file>` stops meaning
+    anything once the task commits** — it reads the working tree, which is clean, so it returns
+    `0` vacuously; the seed-relative form is what proves it. Found and recorded by the run
+    itself, in a `create_tasks`-generated criterion, not in a shipped file.
+  - *Nothing tagged, nothing pushed; `P4-T10` untouched. `/tmp/wb-6c` deleted. The plugin working
+    tree was not modified by this round — the only edit lived in the scratch copy.*
+
 - **2026-09-08, adversarial review of Phases 1–4, run after `P4-T9` declared every phase's
   checks green.** Ten findings; **eight fixed in the tree**, two need a live session. The
   pattern is one thing, not ten: **every capability verified by grep passed; every capability
