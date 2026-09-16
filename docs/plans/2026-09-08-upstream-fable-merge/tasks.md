@@ -2,14 +2,14 @@
 project: upstream-fable-merge
 ticket: N/A
 created: 2026-09-08
-status: in-progress
-last_updated: 2026-09-08
+status: complete
+last_updated: 2026-09-16
 current_phase: 4
 total_tasks: 64
-completed_tasks: 63
+completed_tasks: 64
 task_tracking: markdown-checkboxes
 depends_on: [research.md, design.md]
-git_commit: 18dc4a8ee76282e07b7ac100de57d42bc761ca7c
+git_commit: d3280876149ac5fc52c98da7045896555b269af3
 git_branch: thescubageek/gabe-fable-merge-research
 ---
 
@@ -314,8 +314,9 @@ Independent of beads removal because its only inbound references are documentati
       **no** root-`CLAUDE.md` warning (the warning present at `b902566` is itself the D1
       assertion under test) — **the warning is gone.** Run on a clean tree after the phase
       commit, per `P0-T3`'s finding that `tag` refuses a dirty tree
-- [ ] `grep -rn "AGENTS.md" CLAUDE.md docs/ plugin/ | grep -v docs/plans` → **2 hits
-      remain**, both in `docs/beads-integration-learnings.md` (`:156`, `:193`), which `P2-T27`
+- [x] `grep -rn "AGENTS.md" CLAUDE.md docs/ plugin/ | grep -v docs/plans` → **0 hits,
+      confirmed 2026-09-16 at `/wb:validate_execution`.** It read **2 hits
+      remain** when written, both in `docs/beads-integration-learnings.md` (`:156`, `:193`), which `P2-T27`
       deletes. `P1-T5` names exactly two inbound references to repoint (`CLAUDE.md:241`,
       `docs/workbench-workflow-guide.md:893`) and both are done; the criterion over-reaches its
       own task by also covering a file scheduled for deletion two phases later. Clears at
@@ -661,7 +662,10 @@ file lands.
 
 #### Automated Verification
 
-- [ ] `grep -rn "bd \|BEADS_MODE\|BEADS_AVAILABLE\|beads_epic\|/beads:" plugin/` → **no hits
+- [x] `grep -rn "bd \|BEADS_MODE\|BEADS_AVAILABLE\|beads_epic\|/beads:" plugin/` → **0 hits
+      unscoped, confirmed 2026-09-16 at `/wb:validate_execution`** — the three later owners
+      (`P3-T4`, `P4-T1`, `P4-T2`) all landed, so the carve-out below is now historical and the
+      criterion passes in its original, wider form. As written it required **no hits
       outside the three files with later owners**. Working form:
       `grep -rn "bd \|BEADS_MODE\|BEADS_AVAILABLE\|beads_epic\|/beads:" plugin/ | grep -vE 'plugin/(commands/(forge|help)\.md|hooks/setup-beads-mode\.sh)'`
       **Scoped 2026-09-08**, because Phase 2 cannot clear files it does not own. At the time of
@@ -994,9 +998,9 @@ from document existence, frontmatter status, and checkbox counts. `help` loses i
 - [x] **P4-T9** — Final full verification sweep: every automated check from every phase, plus
       the end-to-end pipeline run below. Record results in the journal and close the plan's
       frontmatter status. (~20 calls) (completed 2026-09-08 19:20)
-- [ ] **P4-T10** — Tag the release: `claude plugin tag plugin/` (creates `wb--v2.0.0`,
+- [x] **P4-T10** — Tag the release: `claude plugin tag plugin/` (creates `wb--v2.0.0`,
       validating manifest agreement), then push. Note the harness's tag convention is
-      `wb--v<version>`, not upstream's `v<version>`. (~6 calls)
+      `wb--v<version>`, not upstream's `v<version>`. (~6 calls) (completed 2026-09-16 05:41)
 
 ### Success Criteria
 
@@ -1010,7 +1014,14 @@ from document existence, frontmatter status, and checkbox counts. `help` loses i
       → 1 or more each (3 / 1 / 1 / 2)
 - [ ] Both manifests read `2.0.0`; `claude plugin tag --dry-run plugin/` exits 0 with no
       warnings — manifests done; the tag check runs after the release commit, per `P0-T3`'s
-      finding that `tag` refuses a dirty tree
+      finding that `tag` refuses a dirty tree.
+      **Left unchecked deliberately, 2026-09-16.** The manifests half is verified (both read
+      `2.0.0`, `"source": "./plugin"`). The dry-run half is **unmeetable at this version**: now
+      that `P4-T10` has created `wb--v2.0.0`, the command exits **1** with
+      *"Tag \"wb--v2.0.0\" already exists locally"* — it aborts on the tag-existence
+      precondition before it would report manifest agreement. Sixth instance of the plan's
+      "criterion written against a state that later work changed" class, and the first where the
+      state was changed by the criterion's own task. Re-exercisable only after a version bump
 - [x] `CHANGELOG.md` has `### ⚠️ Breaking` and `### Migration` sections under `[2.0.0]`
 - [x] `./plugin/scripts/lint --all` — clean (D16 now makes this meaningful)
 - [x] `claude plugin details wb` — final inventory and token cost recorded against baseline, in `thoughts/2026-09-08-baseline-measurements.md` → Final measurements
@@ -2515,6 +2526,94 @@ in this plan to have work pending somewhere the tree cannot see.
     itself, in a `create_tasks`-generated criterion, not in a shipped file.
   - *Nothing tagged, nothing pushed; `P4-T10` untouched. `/tmp/wb-6c` deleted. The plugin working
     tree was not modified by this round — the only edit lived in the scratch copy.*
+
+- **2026-09-16, `/wb:validate_execution` on the closed plan: ⚠️ PASSED WITH ISSUES.** Run after
+  `P4-T10` landed and `/wb:update_status` moved the plan to `complete`. Four validation agents
+  (code changes, gates, regressions, patterns) plus direct checks; every figure below is from
+  real tool output, and the two findings are new — neither is on the filed list (a)–(r).
+  - **The completion claims hold.** 64 of 64 task checkboxes `[x]`, 0 outstanding, frontmatter
+    reconciled to 64/64 with no drift. Every phase has commits behind it, and the cluster
+    commits carry their task-ID ranges in the subject (`P2-T6..T8`, `P3-T1..T5`, `P4-T1..T8`).
+    No `[x]` was found without corresponding files; no `[ ]` was found whose work is already in
+    the tree. The agent sweep found **no unexpected modifications** — all 168 changed paths map
+    to a declared Modified Files category.
+  - **The tag is corroborated by the tree, not by the message.** `wb--v2.0.0` is an annotated tag
+    (`a24c9210`) on commit `d6fe71b`, whose tree is `699cf71` — **byte-identical to this
+    branch's HEAD tree**. `d6fe71b` is *not* an ancestor of HEAD, because PR #20 was
+    squash-merged; content equality is what makes the tagged release provably this plan's output.
+    Installed plugin reports `wb 2.0.0`.
+  - **30 of 31 automated gates PASS.** `./plugin/scripts/lint --all` clean across 136 files
+    (exit 0). The D16 fixture passes in both directions — an unfixable finding returns **1** from
+    plain *and* from `--fix`, a clean file returns 0 from both. `wb-prime.sh` exits 0 on seven
+    payload shapes, makes no `bd` call, **writes nothing** (checksum-verified), and runs in
+    66–95 ms against a 5 s timeout; `lint-hook` exits 0 on nine. The whole-tree beads grep returns
+    **exactly one** hit, `implement/reference.md:126`, the exempted migration note. Inventory:
+    36 skills, 7 agents, 3 hooks. Fourteen-stage on-invoke **54.7k = −35.6%**, 4.7k inside the
+    ≤59.4k bar — reproducing the last recorded figure exactly.
+  - **The strongest structural result, and it is the one this architecture is most exposed to:**
+    **169 relative markdown links across 122 files, 0 dangling; 44 "Read … NOW" directives, 0
+    unresolved; 0 orphaned supporting files.** For a plugin whose headline decision is
+    progressive disclosure, a dangling supporting-file path is the characteristic way it breaks
+    silently, and there are none in the canonical skills.
+  - **(s) The three alias stubs name supporting files that no longer exist.** The 2026-09-09
+    per-section split turned `templates.md` into `templates/` and `sub-agent-prompts.md` into
+    `prompts/`, and the stubs' prose manifests were never swept:
+    `create_execution/SKILL.md:22` names `templates.md`; `implement_coordinated/SKILL.md:22`
+    names `sub-agent-prompts.md` **and** `templates.md`; `implement_tasks/SKILL.md:23` names
+    `templates.md`. None of those four paths exists. Impact is bounded — the stub's *executable*
+    instruction is `Read ../<canonical>/SKILL.md NOW`, which resolves, and each canonical's own
+    manifest is correct — so a session that follows the stub is fine and only a session that
+    believes the stub's file list would miss, where the hard-stop rule converts the miss into a
+    stop rather than an improvisation. **Fourteenth instance of the plan's recurring lesson**,
+    and the first found by a link audit rather than by a run.
+  - **(t) F2's pseudo-code fix reached `implement` and nothing else.** The 2026-09-14 sweep
+    recorded replacing `implement` Step 1's `const projectDir = …` block with prose "which
+    removes both at once". The identical block is still live in **eight** other stages —
+    `create_handoff/SKILL.md:50`, `create_design/SKILL.md:95`, `create_tasks/SKILL.md:74`,
+    `implement_inline/SKILL.md:117`, `resume_handoff/SKILL.md:48`, `validate_project/SKILL.md:66`,
+    `validate_execution/SKILL.md:64`, and `create_project/SKILL.md:59` — each a ```javascript
+    fence containing a literal `$1` the harness substitutes, which is exactly the F1/F2
+    illegibility defect. `implement/SKILL.md:174-210` keeps a `contextPackage` block using
+    `${projectDir}`, the same family one step milder. *This is the plan's own stated lesson
+    landing again — "fixing one site is not fixing the cause" — and it is worth saying plainly
+    that the note claiming the fix was written the same day the eight survivors were left in
+    place.* The prose lines (``Use `$1` as the project directory``) are the documented argument
+    convention and are **not** part of this finding.
+  - **Filed items (a), (b) and (d) verified fixed.** `plugin/docs/reference/README.md` now states
+    the narrowed, measured read rule instead of the disproven 2026-09-08 prompt-free claim, and
+    it agrees with `README.md` and `CHANGELOG.md` Migration step 2.
+  - **Three criteria reconciled, two of them upward.** `tasks.md:317` (the `AGENTS.md` grep) and
+    `:664` (the scoped beads grep) both now return **0 hits** in their original wider form and
+    were flipped `[x]` with the evidence inline — they had been left unchecked as over-reaching
+    their phase, and the later tasks that owned the remainder have since landed. `:1011` stays
+    `[ ]` and now records why it cannot pass: `P4-T10` created the tag the dry-run refuses to
+    move.
+  - **Deviation, recorded not corrected**: Phases 3 and 4 committed per *cluster*
+    (`P3-T1..T5`, `P3-T6..T11`, `P4-T1..T8`) against the recorded cadence of one commit per task
+    outside Phase 2. The task IDs are in the subjects so the audit trail survives, but D14's
+    per-task granularity does not hold for 19 of the 64 tasks. Phase 1's single commit was
+    already recorded as deliberate; these were not.
+  - **Smaller observations, none blocking.** `allowed-tools` is absent from `daily-digest`,
+    `fetch-issues` and `jira-context` — they are not among the fourteen stages, so the criterion
+    passes as worded, but if the intent was every user-invocable skill these are the gap.
+    `plugin/docs/reference/` contains only its own `README.md`: D19's rule is asserted with zero
+    instances behind it. `CLAUDE.md` describes `plugin/scripts/` as "(lint, lint-hook)" and omits
+    the shipped `quiet` / `test-quiet`. `.claude/wb/knowledge.md` has grown to **14** entries from
+    the 6 recorded, each still carrying its date, source plan and **Check it** command.
+  - **Why the verdict is PASSED WITH ISSUES rather than PASSED.** Nothing found blocks the
+    release, and the release is already cut — findings (s) and (t) are prose defects in shipped
+    files, of the exact class this plan has now recorded fourteen times, and both are cheap to
+    fix. They are recorded here rather than fixed because the plan is closing and the fix belongs
+    to whatever lands next, per D20.
+  - **What validation could not establish.** Eleven criteria boxes remain `[ ]`, each with its
+    reason already in the document: the A4 criterion that fails as written (`:191`), the two
+    Phase 2 `--plugin-dir` manual checks (`:726`, `:728`) — both since answered by the
+    2026-09-15 rounds at the marketplace-cache path, the three Phase 3 live-session items
+    (`:879`, `:897`, `:898`), the tag dry-run (`:1011`), and Phase 4's four human items
+    (`:1020`–`:1027`) of which the end-to-end run and the cold read were performed and recorded
+    on 2026-09-10 without their boxes being ticked. Three Prerequisites boxes (`:782`, `:783`,
+    `:929`) are derivable and true but were left unticked; they are not flipped here, because
+    machine-ticking a box nobody owns is the failure mode this plan spent a week removing.
 
 - **2026-09-08, adversarial review of Phases 1–4, run after `P4-T9` declared every phase's
   checks green.** Ten findings; **eight fixed in the tree**, two need a live session. The
