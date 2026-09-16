@@ -83,7 +83,7 @@ new deliverable (four to six tasks, two phases). Item 5 uses the existing `~/pro
    cwd:
 
    ```bash
-   claude -p --plugin-dir <plugin> --permission-mode acceptEdits --disallowedTools Skill \
+   claude -p --plugin-dir <plugin> --permission-mode acceptEdits --disallowedTools=Skill \
      "Follow the wb workflow to design a small config-file validator for this repo. Produce design.md."
    ```
 
@@ -114,8 +114,12 @@ new deliverable (four to six tasks, two phases). Item 5 uses the existing `~/pro
    restore afterwards.** The existing `thescubageek-workbench` marketplace points at GitHub, and
    this branch is unpushed, so install from a local marketplace instead: copy
    `.claude-plugin/marketplace.json` into a temp directory under a different `name` (e.g.
-   `wb-local-test`) with `"source"` pointing at the absolute path of this worktree's `plugin/`,
-   `claude plugin marketplace add <that dir>`, then `claude plugin install wb@wb-local-test`.
+   `wb-local-test`), **copy `plugin/` in beside it** and keep `"source": "./plugin"` — the
+   installer rejects an absolute `source` — then `claude plugin marketplace add <that dir>` and
+   `claude plugin install wb@wb-local-test`. *Corrected after the run. Known limit: a
+   Directory-source install resolves the plugin root to the marketplace source directory, not
+   the cache, so this reaches the boundary but not the literal cache path; only a GitHub-source
+   install does.*
    From a scratch cwd with the boundary setting forced on:
    - headless, `--permission-mode default`, a stage with supporting files
      (`/wb:update_status <dir>`): PASS is the refused-read stop naming the **cache** path, no

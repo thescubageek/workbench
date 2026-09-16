@@ -2193,6 +2193,40 @@ in this plan to have work pending somewhere the tree cannot see.
     is still `(open)`, deliberately. Global plugin state restored and verified identical to
     baseline.*
 
+- **2026-09-15, the adversarial round's findings fixed on the user's instruction; cost +0.4k
+  (54.6k, headroom 4.8k).**
+  - **(i) fixed — one blocked-task journal state.** `implement` 6c now says the entry stays
+    `(open)`, marked blocked, with its Next action naming the checkpoint it waits on; the
+    template's blocked-on-a-human reading wins, and the run that wrote `(blocked, open)` was
+    right. Closing it would have reported the task finished.
+  - **(j) fixed at both ends.** `implement` 6b stages the worker's reported files plus `tasks.md`
+    and `journal.md` **by path** — never `git add -A` or `.` — and leaves generated artifacts
+    unstaged, naming the missing `.gitignore` entry at the checkpoint. `task-verifier` Step 3
+    now warns on untracked `__pycache__/`, `*.pyc` and build output so the coordinator sees them
+    before committing.
+  - **(h) mitigated, not solvable in wb.** `implement` Step 9 and `implement_inline` Step 7 say
+    what to do when `/wb:update_status` cannot be invoked (headless runs deny mid-conversation
+    skill calls unless launched with `--allowedTools=Skill`): say so in the report, leave the
+    counters, never hand-edit. The knowledge entry carries the launch flag and the variadic
+    `--disallowedTools=` gotcha.
+  - **(k) fixed in the test document**, marked *corrected after the run*: `--disallowedTools=Skill`,
+    and the local-marketplace recipe now copies `plugin/` beside a relative `./plugin` source. A
+    new knowledge entry records that a Directory-source install resolves the plugin root to the
+    marketplace source, not the cache — so **the literal cache path can only be tested from a
+    pushed branch**, which is the user's call and the one thing still standing between this
+    branch and `P4-T10`.
+  - *Cosmetic from item 3*: the design presentation message now says *ready for approval at*
+    rather than *created at*, since Step 6 also emits it for a design found complete on resume.
+  - **Re-verified**: lint clean; hook exits 0; fourteen-stage total 54.2k → **54.6k**.
+  - **Still unexercised, and worth a third round designed differently**: 6c's exactly-one
+    escalation and 6a's truncation diagnosis. Planting a defect in the *task* is absorbed upstream
+    every time — the coordinator reads, the worker declines, the pre-split fires — which is good
+    news about those layers and no news about 6c/6a. Reach them from the *environment* instead:
+    a pre-planted failing test elsewhere in the suite that the worker's targeted run never
+    executes but the verifier's full run does (a real verifier FAIL, so 6c fires); and a scratch
+    copy of the plugin with `task-worker.md` at `maxTurns: 8` (deterministic truncation, so 6a
+    fires). Neither requires the task itself to be wrong.
+
 - **2026-09-08, adversarial review of Phases 1–4, run after `P4-T9` declared every phase's
   checks green.** Ten findings; **eight fixed in the tree**, two need a live session. The
   pattern is one thing, not ten: **every capability verified by grep passed; every capability

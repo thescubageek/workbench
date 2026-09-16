@@ -1,9 +1,10 @@
 # Design presentation message
 
-Step 6 — emitted once, after `design.md` is written.
+Step 6 — emitted once, when `design.md` is ready for approval: freshly written, or found
+complete on a resumed run.
 
 ```
-✅ Design document created at: [path]/design.md
+✅ Design document ready for approval at: [path]/design.md
 
 Design approach: [selected approach name]
 

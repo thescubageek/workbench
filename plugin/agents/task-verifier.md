@@ -102,6 +102,9 @@ with an empty diff.
 - Files modified match task description
 - No extra files changed (scope creep)
 - Changes are in correct modules
+- **Untracked generated artifacts** — `__pycache__/`, `*.pyc`, build output — in `git status`.
+  Not scope creep, but a **warning** the coordinator must see: name them and the `.gitignore`
+  entry that is missing, so they are never staged with the task
 
 ### Step 4: Basic Sanity Checks
 

@@ -340,6 +340,11 @@ After phase completion and verification:
    reconciles the counters to them. Do not edit those fields here; two writers and no owner is
    how they rotted before.
 
+   If the skill cannot be invoked in this session — headless runs deny mid-conversation skill
+   calls unless launched with `--allowedTools=Skill` — say so in the report and leave the
+   counters as they are. Do not hand-edit them; drift is expected, and the next
+   `/wb:update_status` reconciles it.
+
 2. **Add implementation notes** if there were discoveries:
 
    ```markdown

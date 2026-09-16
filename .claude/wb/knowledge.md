@@ -192,6 +192,25 @@ we have the in-repo cautionary example for that.
   no human asked, which is the failure the approval rule exists to prevent, reached by never
   loading the rule. Pass `--allowedTools=Skill`, or lead the prompt with the one stage to run.
   The orientation block now says to stop rather than reconstruct a stage, as a second defence.
+- **Also**: this lands on *scheduled* steps too — `implement` Step 9's `/wb:update_status` and
+  `create_tasks`'s `model-help` gate were denied on every headless `--auto` run, so counters
+  stay stale until an interactive session reconciles them. Launch headless runs with
+  `--allowedTools=Skill`. And `--disallowedTools` is variadic: write `--disallowedTools=Skill`,
+  or it swallows the prompt.
 - **Verified**: 2026-09-15 · `docs/plans/2026-09-08-upstream-fable-merge/`
 - **Check it**: `claude -p --plugin-dir plugin --permission-mode acceptEdits "Use the Skill tool to invoke wb:help"`
   → the Skill call is denied; add `--allowedTools=Skill` → `/wb:help` runs.
+
+## A local marketplace needs a relative `./` source, and does not exercise the cache path
+
+- **Why it matters**: `claude plugin marketplace add <dir>` rejects a `marketplace.json` whose
+  plugin `source` is an absolute path (`must start with "./"`), so a local test marketplace must
+  carry a copy of `plugin/` beside it. And for a Directory-source marketplace the installed
+  plugin's root resolves to the **marketplace source directory**, not
+  `~/.claude/plugins/cache/<marketplace>/<plugin>/<version>/` — the cache is populated but never
+  read. So a local install proves the read boundary fires on an out-of-tree path, but the
+  literal cache path that a real (GitHub-source) install reads can only be tested from a pushed
+  branch.
+- **Verified**: 2026-09-15 · `docs/plans/2026-09-08-upstream-fable-merge/`
+- **Check it**: install from a local marketplace, run a stage with the read boundary forced on,
+  and read the refused path in its output — it names the marketplace source directory.

@@ -22,6 +22,15 @@ file.
 > `P3-T7`/`P3-T8` wiring shipped but was never exercised, which is itself one of the review
 > findings below. There is no earlier history to reconstruct and none is invented here.
 
+## 2026-09-16 00:12 — adversarial-round findings fixed (closed)
+
+- **Task/phase**: phase 4; 63 of 64, unchanged. Fixes for findings (h)–(k) of the adversarial
+  round, plus the verifier's generated-artifact warning and the presentation wording.
+- **Next action**: third round aimed at 6c and 6a from the environment, not the task; and the
+  user's decision on pushing the branch so the literal cache path can be tested. `P4-T10` held.
+- **Started at**: `c14532a`
+- **Landed**: see tasks.md → Implementation Notes, 2026-09-15 "adversarial round's findings fixed". 54.6k.
+
 ## 2026-09-15 20:45 — test-run findings fixed (closed)
 
 - **Task/phase**: phase 4; 63 of 64, unchanged. Fixes for the behavioural test's findings (e), (f),

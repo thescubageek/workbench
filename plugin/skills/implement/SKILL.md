@@ -296,9 +296,12 @@ Parse the result:
 const passed = verificationReport.includes("### Status: PASS");
 ```
 
-**If PASS**: commit the task — one task, one commit, with the task ID in the message. Close the
-journal entry with what landed and the commit hash. Aggregate its modified files and test
-commands. Return to Step 4.
+**If PASS**: commit the task — one task, one commit, with the task ID in the message. Stage the
+files the worker reported plus `tasks.md` and `journal.md`, **by path** — never `git add -A` or
+`.`. Generated artifacts (`__pycache__/`, `*.pyc`, build output) are not the task's work: leave
+them unstaged and name the missing `.gitignore` entry at the checkpoint. Close the journal entry
+with what landed and the commit hash. Aggregate its modified files and test commands. Return to
+Step 4.
 
 **Committing here is what makes an unfinished task detectable.** After a passing task the tree
 is clean, so any uncommitted work belongs to something that did not finish.
@@ -335,8 +338,10 @@ worker's truncation and fail its verifier. Pick one, and end clean either way:
 | Not worth keeping | `git restore` **the paths the worker reported**, never a blanket `git checkout -- .`, which would also revert earlier committed-but-unstaged work |
 
 Then: checkbox stays `[ ]`, task goes on the phase checkpoint's blocking list with the reason
-and the WIP commit hash if there is one, journal entry closes as blocked, and you continue to
-the next task.
+and the WIP commit hash if there is one, and you continue to the next task. The journal entry
+stays **`(open)`**, marked blocked, with its Next action naming the checkpoint it waits on — an
+open entry beside a clean tree is the journal's blocked-on-a-human state, and closing it would
+report the task finished.
 
 If the diagnosis is a genuine failure with no usable work at all, read the
 [templates/incomplete-worker-message.md](templates/incomplete-worker-message.md) and ask.
@@ -399,6 +404,11 @@ After phase completion:
 1. **Run `/wb:update_status`.** It is the only writer of the progress frontmatter fields — it
    counts the checkboxes and reconciles the counters to them. Do not edit `current_phase` or
    `completed_tasks` here.
+
+   If the skill cannot be invoked in this session — headless runs deny mid-conversation skill
+   calls unless launched with `--allowedTools=Skill` — say so in the report and leave the
+   counters as they are. Do not hand-edit them; drift is expected, and the next
+   `/wb:update_status` reconciles it.
 
 2. **Add implementation notes** with worker insights:
 
