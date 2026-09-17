@@ -44,7 +44,14 @@ When invoked, check for arguments:
    - If `$2+` exists, use as research question
    - Otherwise, prompt for research focus
 
-2. **If no arguments**:
+2. **If a ticket reference provided** — a Jira key (`[A-Z]+-\d+`) or a ticket URL
+   (e.g., `/wb:create_research https://<jira-host>/browse/TB-3462`):
+   - There is no project directory yet. Look for an existing one carrying that ticket, and if
+     none exists, take the missing-directory branch in Step 2 — it provisions one through
+     `create_project` rather than inventing a slug and a partial file set.
+   - Carry the ticket ref into Step 0 so `jira-context` runs against it.
+
+3. **If no arguments**:
 
    ```
    I'm ready to research the codebase and document findings. Please provide:
@@ -99,6 +106,25 @@ Absent file, fall through — a repository with no entries is the normal startin
 - Verify research.md file exists (created by `/wb:create_project`)
 - Read the current research.md FULLY to see what's already documented
 - Check frontmatter status field
+
+**If the directory or `research.md` is missing, provision it through `create_project` — never
+improvise one.** `research.md` is the artifact *this* stage writes, so bootstrapping it is in
+scope; inventing a slug and a partial file set is not. A hand-rolled plan directory diverges
+silently from what every later stage reads — it is the invocation `/wb:create_research
+<ticket-url>` invites, and the one this branch exists to catch.
+
+Invoke `/wb:create_project` semantics first — read `../create_project/SKILL.md` and follow it,
+templates included:
+
+- **Project name** — derive it from the ticket summary when a ticket ref was given, otherwise
+  from the research question. **Confirm the derived name with the user before anything is
+  created**; a wrongly-named plan directory is not something a later stage can fix.
+- **Base directory** — `docs/plans` unless the arguments say otherwise.
+- **Ticket reference** — pass through whatever was given, a bare ticket URL included.
+
+Then continue at this step against the directory it created. Do not hand-write `README.md`,
+`journal.md`, or any other plan file by copying the shape of a neighbouring plan directory —
+every file comes from a `create_project` template, or it is not the same file set.
 
 **Open a journal entry before Step 3.** Append it to `journal.md` in the plan directory, naming
 this stage and the exact next action — written at the start, not the end. The heading shape is a

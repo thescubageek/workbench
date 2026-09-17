@@ -117,6 +117,12 @@ Two things about the generated `tasks.md` are load-bearing rather than cosmetic:
 - **The frontmatter counters are a derived cache with exactly one writer**, `/wb:update_status`.
   The template carries `task_tracking: markdown-checkboxes` to say so in the file itself.
 
+**`thoughts/` is deliberately not provisioned here.** `/wb:explore_design` writes
+`[project-dir]/thoughts/<date>-<topic>.md`, and a write to a nested path creates its parent
+directories — so the directory appears on first use. Git does not track an empty directory, so
+creating one now buys nothing without also planting a `.gitkeep`. Do not add a sixth file or a
+`mkdir` for it.
+
 **⛔ BARRIER 1**: Ensure all files are created with proper frontmatter before proceeding
 
 ### Step 5: Confirm Creation
@@ -135,6 +141,8 @@ Present the created structure:
 ├── tasks.md       - Execution plan (1/4 tasks complete)
 └── journal.md     - Session journal (no entries yet)
 
+📂 thoughts/ — explorations; created on first use by /wb:explore_design
+
 📊 Metadata captured:
 - Git commit: [commit-hash]
 - Branch: [branch-name]
@@ -147,13 +155,17 @@ Present the created structure:
 1. Research the codebase:
    /wb:create_research [directory]
 
-2. After research, create design:
+2. Optional — if research surfaces more than one viable approach,
+   air the trade-off before design locks it in:
+   /wb:explore_design [directory]      (writes to thoughts/)
+
+3. After research, create design:
    /wb:create_design [directory]
 
-3. Then generate execution plan:
+4. Then generate execution plan:
    /wb:create_tasks [directory]
 
-4. Implement with TDD:
+5. Implement with TDD:
    /wb:implement [directory]
 
 Ready to begin research phase!
