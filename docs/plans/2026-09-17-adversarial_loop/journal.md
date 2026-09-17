@@ -51,6 +51,17 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-17 23:21 — create_tasks (closed)
+
+- **Task/phase**: P0-T4 — execution plan for 2026-09-17-adversarial_loop
+- **Landed**: tasks.md — 6 phases, 27 tasks (4 already complete), 5 checkpoints. Phase 1 is a
+  tracer bullet on the wrapper shape; everything after it is contingent on that verdict.
+- **Commits**: plan promoted in a1793aa; this revision pending
+- **Learned**: A1 proved the built-in is *invocable*, not that the two-leg *shape* holds — recon
+  sizing, both legs spawning, two finding sets merging into one verified report. That gap is what
+  Phase 1 exists to close before any shipped file is written.
+- **Started at**: a1793aa
+
 ## 2026-09-17 21:31 — create_design (closed)
 
 - **Task/phase**: P0-T3 — design for 2026-09-17-adversarial_loop

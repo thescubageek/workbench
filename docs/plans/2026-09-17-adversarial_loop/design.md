@@ -484,8 +484,9 @@ There is no database here; the "data" is the record shapes this design commits t
 - **Re-implementing any part of `/code-review`, `/verify` or `/security-review`.**
 - **Fixing the plugin's journal-ordering defect.** Discovered during this stage and fixed
   separately; it is unrelated to review and belongs in its own commit.
-- **Retiring the personal `~/.claude/skills/adversarial-*` copies.** Out of this repository's
-  control; raised as PD1 because it affects whether the shipped skills are reachable.
+- **Anything that would delete the personal `~/.claude/skills/adversarial-*` copies before the wb
+  versions are verified.** PD1 moved their removal *into* scope, but strictly ordered last: those
+  files are the port's source material and are not reproduced in full in this repository.
 
 ## Success Criteria
 
