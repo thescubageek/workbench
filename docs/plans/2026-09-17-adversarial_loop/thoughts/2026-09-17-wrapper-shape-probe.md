@@ -6,7 +6,7 @@ task: P1-T2 (pre-registration) · P1-T3 (results) · P1-T4 (verdict)
 status: complete — both halves pass
 cwd: /Users/scraig/conductor/workspaces/workbench/ankara
 fixture: /tmp/wb-adv-probe (bare origin at /tmp/wb-adv-probe-origin.git)
-git_commit: d994b1f
+git_commit: 9f3caf1 (results); d994b1f (pre-registration)
 git_branch: adversarial-loop-skill-research
 ---
 

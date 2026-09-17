@@ -182,10 +182,10 @@ is deleted at the end of the phase.
       over the same diff, then dedupe with the built-in's own predicate and run the three-state
       verify over the pooled set. Record whether provenance survived, what deduped, and what the
       verify changed. (~26 calls) (completed 2026-09-17 23:57)
-- [ ] **P1-T4** — Record the verdict in `thoughts/2026-09-17-wrapper-shape-probe.md`: frontmatter
+- [x] **P1-T4** — Record the verdict in `thoughts/2026-09-17-wrapper-shape-probe.md`: frontmatter
       with `git_commit`/`git_branch`, the exact commands, the recorded cwd, and verbatim captured
       output — not a paraphrase. State plainly whether the shape holds, and if it does not, which
-      design decisions it invalidates. Then delete `/tmp/wb-adv-probe/`. (~15 calls)
+      design decisions it invalidates. Then delete `/tmp/wb-adv-probe/`. (~15 calls) (completed 2026-09-17 23:58)
 
 ### Success Criteria
 

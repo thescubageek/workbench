@@ -51,11 +51,24 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
-## 2026-09-17 23:42 — P1-T3 (open)
+## 2026-09-17 23:57 — P1-T4 (closed)
+
+- **Task/phase**: P1-T4 — close out the probe document and delete the fixture
+- **Landed**: probe document closed out with both commits in its frontmatter; fixture and bare
+  origin deleted. Phase 1 complete — 4/4 tasks.
+- **Commits**: 83ff352
+- **Learned**: nothing new beyond P1-T3's findings; this task was bookkeeping and cleanup.
+- **Started at**: 9f3caf1
+## 2026-09-17 23:42 — P1-T3 (closed)
 
 - **Task/phase**: P1-T3 — run both halves of the probe and append verbatim results
-- **Next action**: Half A recon over the fixture branches, then Half B merge test against this
-  repository's diff; append results to the probe document without editing the pre-registration
+- **Landed**: both halves run and appended to the probe document; verdict — the wrapper shape
+  holds. Pre-registration untouched.
+- **Commits**: 9f3caf1
+- **Learned**: a leg's *clearance* can be wrong, and only verification catches it. The lens leg
+  cleared `daily-digest/sources.md:77`; the built-in flagged it; source settled it as a real
+  bug. Also: the recon step's own measurement can fail silently and read as clean.
+- **Blocked by**: nothing — B1 is recorded against P4-T2, not blocking.
 - **Started at**: ef24356
 ## 2026-09-17 23:42 — P1-T2 (closed)
 
