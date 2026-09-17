@@ -172,7 +172,7 @@ is deleted at the end of the phase.
       pass/fail conditions for both halves. Written first so the run cannot be retrofitted — a
       probe whose success conditions are set afterwards is the unfalsifiable kind the previous
       plan hit. (~22 calls) (completed 2026-09-17 23:42)
-- [ ] **P1-T3** — Run both halves of the probe inline in this session, from a recorded cwd, and
+- [x] **P1-T3** — Run both halves of the probe inline in this session, from a recorded cwd, and
       append verbatim results to the probe document.
       **Half A — does recon discriminate?** Rate the six axes over `/tmp/wb-adv-probe`'s `trivial`
       and `risky` diffs, record the tier and the deciding axis for each, and record which lenses
@@ -181,7 +181,7 @@ is deleted at the end of the phase.
       `/code-review` is addressable: take the built-in leg's real output, spawn one wb lens agent
       over the same diff, then dedupe with the built-in's own predicate and run the three-state
       verify over the pooled set. Record whether provenance survived, what deduped, and what the
-      verify changed. (~26 calls)
+      verify changed. (~26 calls) (completed 2026-09-17 23:57)
 - [ ] **P1-T4** — Record the verdict in `thoughts/2026-09-17-wrapper-shape-probe.md`: frontmatter
       with `git_commit`/`git_branch`, the exact commands, the recorded cwd, and verbatim captured
       output — not a paraphrase. State plainly whether the shape holds, and if it does not, which
@@ -700,6 +700,13 @@ Things to determine during implementation:
 - Whether the six-lens guard ever bites in practice, or whether content selection keeps the count
   below it on its own.
 - Whether `model-help`'s new gate rows want one row for both new skills or one each.
+- **The reconnaissance step must confirm its own measurement ran.** P1-T3's blast-radius grep
+  errored under zsh glob expansion and the loop still printed `0 call site(s)` — a failed
+  measurement reporting a clean result, in the direction of under-review. The real skill's recon
+  section needs this guard; it is not a hypothetical.
+- **The verify pass must verify clearances, not only findings.** In P1-T3 one leg explicitly
+  cleared a finding the other raised, and the clearance was wrong. "Checked and clear" is an
+  assertion, not coverage information.
 - **Whether running the probe inline was sufficient.** P1-T2 originally specified a loadable
   `SKILL.md` in the fixture; that is not reachable from a session that cannot start a new one in
   the fixture's directory. The inline substitution tests the shape but not skill loading, which
@@ -716,7 +723,12 @@ Note: Update this section with findings as you implement.
 Recorded here with the task ID they block and the date raised. Remove a blocker when it is
 resolved, leaving a dated line saying how.
 
-- None as of 2026-09-17.
+- **[2026-09-17] B1 — live defect in committed shipped code, blocks nothing but must not ship.**
+  `plugin/skills/daily-digest/sources.md:77`'s open-entry grep has no placeholder filter, so it
+  matches the journal template's fenced example heading and reports every untouched plan as having
+  interrupted work. Found by the built-in leg during P1-T3 and CONFIRMED empirically (3 matches
+  against a real journal). **Attaches to P4-T2**, which already edits that file. Fix: add the same
+  `grep -vE '\[YYYY|<YYYY|YYYY-MM-DD'` filter the hook uses.
 
 ### Implementation Notes
 

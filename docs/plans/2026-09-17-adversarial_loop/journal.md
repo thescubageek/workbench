@@ -51,11 +51,21 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
-## 2026-09-17 23:42 — P1-T2 (open)
+## 2026-09-17 23:42 — P1-T3 (open)
+
+- **Task/phase**: P1-T3 — run both halves of the probe and append verbatim results
+- **Next action**: Half A recon over the fixture branches, then Half B merge test against this
+  repository's diff; append results to the probe document without editing the pre-registration
+- **Started at**: ef24356
+## 2026-09-17 23:42 — P1-T2 (closed)
 
 - **Task/phase**: P1-T2 — pre-register the wrapper-shape probe before running it
-- **Next action**: write thoughts/2026-09-17-wrapper-shape-probe.md with the six-axis rubric,
-  per-branch predictions and explicit pass/fail conditions; do not run the probe in this task
+- **Landed**: thoughts/2026-09-17-wrapper-shape-probe.md, pre-registration only — rubric,
+  predictions for both branches, and pass/fail conditions for Half A (sizing) and Half B (merge)
+- **Commits**: ef24356
+- **Learned**: the probe had to split targets. `/code-review` resolves from the current
+  repository, so the fixture answers the sizing question and this repository answers the merge
+  question. Skill-file loading is not probed here at all; P5-T4 covers it.
 - **Started at**: d994b1f
 ## 2026-09-17 23:35 — P1-T1 (closed)
 
