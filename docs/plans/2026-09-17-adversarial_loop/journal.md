@@ -51,6 +51,16 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-17 23:35 — P1-T1 (closed)
+
+- **Task/phase**: P1-T1 — build the throwaway fixture repo for the wrapper-shape probe
+- **Landed**: fixture at /tmp/wb-adv-probe with bare origin; `trivial` (docs, 4 insertions) and
+  `risky` (app/auth.py, 6 changed lines, two planted defects). Build cwd recorded in tasks.md.
+- **Commits**: be0d107
+- **Learned**: the risky branch came out at 6 lines while carrying a privilege-escalation path —
+  a cleaner demonstration of the LOC-is-not-complexity premise than the plan assumed.
+- **Started at**: 2f00ea9
+
 ## 2026-09-17 23:21 — create_tasks (closed)
 
 - **Task/phase**: P0-T4 — execution plan for 2026-09-17-adversarial_loop

@@ -160,12 +160,12 @@ is deleted at the end of the phase.
 
 ### Tasks
 
-- [ ] **P1-T1** — Build a throwaway fixture repository at `/tmp/wb-adv-probe/` with an
+- [x] **P1-T1** — Build a throwaway fixture repository at `/tmp/wb-adv-probe/` with an
       `origin/main` baseline and two branches: `trivial` (a docs-only change, no runtime surface)
       and `risky` (a ≤20-line change that narrows a permission check and widens a params
       allowlist — small by line count, high on the reversibility and behavioural-delta axes).
       **Record the working directory in the task's notes**; a probe whose cwd is unrecorded is
-      the failure mode the previous plan hit. (~14 calls)
+      the failure mode the previous plan hit. (~14 calls) (completed 2026-09-17 23:36)
 - [ ] **P1-T2** — Write a throwaway minimal wrapper at `/tmp/wb-adv-probe/.claude/skills/probe-review/SKILL.md`:
       a reconnaissance step that rates the six axes and picks a tier, an invocation of the
       built-in `/code-review` via the `Skill` tool, one wb lens agent spawned in the same message,
@@ -708,6 +708,17 @@ resolved, leaving a dated line saying how.
   because PD2 ships them in the same `2.2.0` release.
 - **`design.md`'s Out of Scope was corrected** on 2026-09-17 to match PD1: removing the personal
   copies is *in* scope, strictly ordered last. The original line predated the decision.
+- **[2026-09-17] P1-T1 — fixture built.** `/tmp/wb-adv-probe` (working tree) with
+  `/tmp/wb-adv-probe-origin.git` as its bare origin, so `origin/main` resolves for the base-ref
+  read. Built from cwd `/tmp/wb-adv-probe`. Branches: `trivial` (docs only, 4 insertions, no
+  runtime surface) and `risky` (`app/auth.py`, **6 changed lines**). The risky diff carries two
+  real defects by construction — `ALLOWED_PARAMS` widened to admit `owner_id` and `role`
+  (mass-assignment privilege escalation via `update_item`), and the `if not user.get("id")`
+  guard deleted so a user with no id matches an item with no owner via `None == None`. Python,
+  deliberately: the fixture must not be a stack the lens table could special-case.
+- **P1-T3's session cwd must be `/tmp/wb-adv-probe`** — `/code-review` resolves its target from
+  the cwd's git repo. Record it in the probe document; that is the field whose absence made the
+  previous plan's probe unfalsifiable.
 
 ---
 
