@@ -74,7 +74,7 @@ done
 grep -nE '^- \[x\] .*\(completed '"$SINCE" docs/plans/*/tasks.md
 
 # In flight: an OPEN journal entry means work was interrupted mid-task
-grep -l 'OPEN' docs/plans/*/journal.md 2>/dev/null
+grep -lE '^## .*\(open\)[[:space:]]*$' docs/plans/*/journal.md 2>/dev/null
 
 # Blocked: the plan says so itself
 sed -n '/^### Current Blockers/,/^###/p' docs/plans/*/tasks.md

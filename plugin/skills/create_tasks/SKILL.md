@@ -15,6 +15,7 @@ Supporting files in this directory (read each when its step directs you to — n
 - `templates/` — [tasks-md-template.md](templates/tasks-md-template.md) (Step 4) · [plan-presentation-message.md](templates/plan-presentation-message.md) (Step 6)
 - [examples.md](examples.md) — worked examples of sizing a task by tool calls, splitting at a natural seam, and when a task needs an explicit `Depends on:`
 - [reference.md](reference.md) — planning principles, execution vs design, implementation discoveries, task granularity, configuration
+- [../../docs/reference/journal-entries.md](../../docs/reference/journal-entries.md) — where a journal entry goes (newest first, never appended), its heading contract, and when it opens and closes
 
 **If a directed read fails, stop — do not continue from memory.** These files live outside your
 project, so a read can be refused. Say which file was refused, that reads outside the working
@@ -55,9 +56,10 @@ When invoked, check for arguments:
 
 **⛔⛔⛔ BARRIER 1: STOP! Read ALL documents FULLY - research.md, design.md, tasks.md ⛔⛔⛔**
 
-**Open a journal entry before you begin reading** — appended to `journal.md` in the plan
-directory. The heading shape is a contract — the session-start hook, `forge`, `daily-digest`,
-`resume_handoff` and `create_handoff` all match on the trailing `(open)` / `(closed)`:
+**Open a journal entry before you begin reading.** Placement and heading shape are both
+contracts: read [../../docs/reference/journal-entries.md](../../docs/reference/journal-entries.md) NOW
+and follow it. The entry goes at the **top** of `journal.md`, under the marker comment — never
+appended to the end, which the session-start hook cannot see:
 
 ```text
 ## 2026-09-11 14:02 — create_tasks (open)

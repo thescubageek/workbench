@@ -9,7 +9,18 @@ entry is never seen. Keep the entry shapes fenced, exactly as below.
 ````markdown
 # Session Journal: [Project Name]
 
-Append-only, reverse-chronological — newest entry at the top. **No entries yet.**
+Reverse-chronological — **newest entry at the top. No entries yet.**
+
+**Where a new entry goes: directly under the marker comment at the bottom of this preamble,
+above every existing entry. Never appended to the end of the file.** This is not a style
+preference. The session-start hook picks the most recent entry with
+`grep -E '^## ' journal.md | grep -vE '\[YYYY|<YYYY|YYYY-MM-DD' | head -1` — the *first* heading
+in the file. An entry written at the bottom is invisible to it, and the failure is silent and
+inverted: the hook reports the oldest entry as current, so a resuming session is told the plan is
+mid-research when design has already finished, or that an entry is `(open)` when its own
+`(closed)` entry sits further down. `forge`, `daily-digest`, `resume_handoff` and
+`create_handoff` inherit the same first-heading assumption. For the same reason, "the journal
+tail" means the newest entry — which is at the top.
 
 **Entries open when work starts, not when it ends.** A session does not get to choose how it
 ends: a token limit, a closed laptop, or a crashed harness runs no shutdown step. An entry

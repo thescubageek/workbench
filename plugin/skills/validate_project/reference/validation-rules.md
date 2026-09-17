@@ -95,7 +95,10 @@ if (malformed.length) {
         malformed.join(', ') +
         ` — invisible to the session-start hook and every other reader`);
 }
-const openCount = journalHeadings.filter(h => /\(open\)\s*$/i.test(h)).length;
+// Placeholder headings from the template are not entries — the session-start hook discards
+// them the same way, so this filter must match it or a fresh plan warns forever.
+const realHeadings = journalHeadings.filter(h => !/\[YYYY|<YYYY|YYYY-MM-DD/.test(h));
+const openCount = realHeadings.filter(h => /\(open\)\s*$/i.test(h)).length;
 if (openCount > 1) {
   WARN(`journal.md has ${openCount} open entries; only the most recent should be open`);
 }

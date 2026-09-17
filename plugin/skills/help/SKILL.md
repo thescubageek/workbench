@@ -156,7 +156,7 @@ Researches existing UI patterns, asks clarifying questions, creates versioned mo
 
 ### `/wb:create_handoff [directory] [reason]`
 
-Captures context for session transfer, reviews the session's knowledge candidates, and appends a journal pointer. A handoff crossing machines must `git add -f` its plan directory — plan directories are gitignored by default.
+Captures context for session transfer, reviews the session's knowledge candidates, and adds a journal pointer at the top of `journal.md`. A handoff crossing machines must `git add -f` its plan directory — plan directories are gitignored by default.
 
 ### `/wb:resume_handoff [handoff-file]`
 
