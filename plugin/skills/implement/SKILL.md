@@ -18,6 +18,7 @@ Supporting files in this directory (read each when its step directs you to — n
 - `prompts/` — [worker-prompt.md](prompts/worker-prompt.md) (Step 5) · [verifier-prompt.md](prompts/verifier-prompt.md) and [escalation-worker-prompt.md](prompts/escalation-worker-prompt.md) (Step 6)
 - `templates/` — [incomplete-worker-message.md](templates/incomplete-worker-message.md) (Step 6) · [modified-files-fragment.md](templates/modified-files-fragment.md) (Step 7) · [manual-verification-request.md](templates/manual-verification-request.md) and [phase-completion-report.md](templates/phase-completion-report.md) (Step 8)
 - [reference.md](reference.md) — evolution, resume logic, why the coordinator pattern exists, migration, the DO/DON'T lists, configuration
+- [../../docs/reference/branch-naming.md](../../docs/reference/branch-naming.md) — the branch-name rule Step 2 applies as a backstop, shared with `create_project`, `jira-context` and `forge`
 
 **If a directed read fails, stop — do not continue from memory.** These files live outside your
 project, so a read can be refused. Say which file was refused, that reads outside the working
@@ -164,6 +165,16 @@ status surface.
 
    It should be clean before the first spawn. Uncommitted changes mean a previous task was
    never committed — diagnose with Step 6 before spawning anything new.
+
+5. **Check the branch name — the last backstop before code lands on it.** Every commit this
+   stage makes is stamped with the current branch, and after the first push the name is
+   expensive to change. Read
+   [../../docs/reference/branch-naming.md](../../docs/reference/branch-naming.md) NOW and apply
+   it, taking the scope from the plan's `ticket:` frontmatter or from a release version the plan
+   targets, and the description from the plan's directory name.
+
+   If an earlier stage already named the branch, this check finds it correct and costs nothing.
+   Non-blocking: a declined rename does not hold up the phase.
 
 ### Step 3: Extract Context Package
 

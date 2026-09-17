@@ -91,24 +91,18 @@ Fall back to the ticket summary + description as background context. Report that
 
 Loading a ticket's context implies you are working (or about to work) that ticket —
 so the working branch should be named after it. This is the **one action** this
-otherwise read-only skill takes. It is a git state change, so **propose it and act
-only on the user's go-ahead**; it is non-blocking (if declined, unavailable, or not
-in a git repo, proceed and just note it in the report). Never touch remotes or
-force-push here — this only affects the **local** branch name.
+otherwise read-only skill takes, and resolving the ticket key in Step 1 is the
+earliest moment the right name is knowable.
 
-Convention: `<TICKET>/<snake_case_description>`, where the description is a short
-snake_case slug derived from the ticket summary (e.g. `TB-2421/combobox_aria_pattern`).
+Read [../../docs/reference/branch-naming.md](../../docs/reference/branch-naming.md)
+NOW and apply it. The ticket key from Step 1 is the scope — the highest-precedence
+one, so it wins even if a release version is also in play — and the snake_case
+description comes from the ticket **summary** fetched in Step 2, giving names like
+`TB-2421/combobox_aria_pattern`.
 
-Check the current branch (`git branch --show-current`):
-
-- **Already starts with `<TICKET>/`** → nothing to do.
-- **On a base branch** (`main`, `master`, `develop`) → offer to create it:
-  `git checkout -b <TICKET>/<snake_case_description>`.
-- **On another feature branch** that doesn't start with `<TICKET>/` — the branch was
-  cut before the ticket was known, or a Conductor worktree pre-created it → offer to
-  **rename in place**: `git branch -m <TICKET>/<snake_case_description>`. Do NOT create
-  a second branch and orphan the work.
-- **Not in a git repo** → skip.
+The reference doc carries the rest: which branches to leave alone, rename-in-place
+over cutting a second branch, the go-ahead requirement, and what changes once the
+branch has already been pushed. Report the outcome in the **Branch** field below.
 
 ## Output — the verifiable report
 

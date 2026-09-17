@@ -230,14 +230,16 @@ When creating new prompts or commands:
 
 ### Branch naming
 
-When a ticket reference is known, the working branch uses `<TICKET>/<snake_case_description>` (e.g. `TB-2421/combobox_aria_pattern`). This is the portable, initials-free convention the `/wb:*` commands apply. Loading a ticket via the **`jira-context` skill** is the trigger: if we've loaded a ticket's context, we're working that ticket, so the branch should be named after it (see `jira-context` Step 6).
+`plugin/docs/reference/branch-naming.md` is the shipped, runtime-read authority. `create_project`, `jira-context`, `forge` and `implement` each link into it rather than restating it; keep it as the one place the rule changes.
 
-- **Ticket known / loaded** → create or rename the branch to the convention.
-- **On a base branch** (`main`/`master`/`develop`) → `git checkout -b <TICKET>/<snake_case_description>`.
-- **On a branch that predates the ticket** (or a Conductor worktree pre-cut it) → **rename in place** with `git branch -m <TICKET>/<snake_case_description>` rather than cutting a second branch and orphaning the work.
-- **No ticket** → leave the branch name as-is; the convention only applies once a ticket exists.
+The convention is `<scope>/<snake_case_description>`, where `<scope>` is a **ticket key** if one is known (`TB-2421/combobox_aria_pattern`), otherwise a **release version** if the work targets one (`wb-2.1.0/branch_naming_policy`), otherwise nothing (bare description, no slash). A ticket outranks a version; they are never concatenated.
 
-Branch create/rename is a git state change: **confirm with the user before running it**, and it is non-blocking — if declined, proceed on the current branch. Never touch remotes or force-push here — this only affects the local branch name.
+Two things the rule exists to prevent, both observed:
+
+- **A name derived from the user's last message.** A Conductor auto-rename produced `commit-and-push` from the instruction that triggered it. The description names the *change*, never the prompt.
+- **Waiting for the commit to name the branch.** The name is applied at the first moment it is knowable — ticket resolved, plan directory created, version decided — not when code is ready to land.
+
+Rename **in place** (`git branch -m`), never by cutting a second branch. Branch create/rename is a git state change: **confirm with the user before running it**, and it is non-blocking — if declined, proceed on the current branch. A branch that has already been pushed is a separate decision: the local rename leaves the remote branch and any open PR behind, so surface that and let the user choose. Never delete a remote branch or force-push without explicit go-ahead.
 
 ## Session Conventions
 

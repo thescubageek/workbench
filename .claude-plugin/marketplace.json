@@ -9,7 +9,7 @@
       "name": "wb",
       "source": "./plugin",
       "description": "Workbench for structured software development: TDD, project planning, and phased execution with status tracked in the plan documents.",
-      "version": "2.0.2"
+      "version": "2.1.0"
     }
   ]
 }
