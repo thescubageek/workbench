@@ -13,6 +13,8 @@ Supporting files in this directory (read each when its step directs you to — n
 
 - `templates/` — the five initial file templates, one per file: [readme-md-template.md](templates/readme-md-template.md) · [research-md-template.md](templates/research-md-template.md) · [design-md-template.md](templates/design-md-template.md) · [tasks-md-template.md](templates/tasks-md-template.md) · [journal-md-template.md](templates/journal-md-template.md). Step 4 reads **one per file it creates**
 - [reference.md](reference.md) — argument usage, status progression, error handling
+- [../../docs/reference/branch-naming.md](../../docs/reference/branch-naming.md) — the branch-name
+  rule Step 3 applies, shared with `jira-context`, `forge` and `implement`
 
 **If a directed read fails, stop — do not continue from memory.** These files live outside your
 project, so a read can be refused. Say which file was refused, that reads outside the working
@@ -93,6 +95,27 @@ Examples:
 - `docs/plans/2025-01-08-auth-refactor/`
 - `docs/plans/2025-01-08-LINEAR-789-api-migration/`
 
+**Then align the working branch, before any file is written.** Naming the plan directory is the
+moment the work acquires a name — the project name and the ticket ref are both in hand, and
+nothing later in the pipeline knows more than you do right now. Waiting until the first commit
+is how a session ends up shipping a branch named after a Conductor codeword or the user's last
+message.
+
+Read [../../docs/reference/branch-naming.md](../../docs/reference/branch-naming.md) NOW and
+apply it. Two inputs it needs, both already parsed in Step 1:
+
+- The **ticket reference**, if one was given — it is the highest-precedence scope.
+- The **project name** — the source of the snake_case description when there is no ticket
+  summary to draw from.
+
+If no ticket was given, check whether this work targets a **known release version** (a version
+bump this plan will make, or a plan named for a release) before concluding there is no scope.
+
+Propose, don't run: the reference doc requires the user's go-ahead, and a declined or
+unavailable rename is non-blocking — carry on and create the directory either way. Record the
+branch you end up on in Step 2's `git_branch`, re-reading it after any rename so the frontmatter
+does not capture the old name.
+
 ### Step 4: Create Initial Files with Rich Metadata
 
 Create five foundation files. **Read one template file per file you create**, at the moment you
@@ -117,6 +140,12 @@ Two things about the generated `tasks.md` are load-bearing rather than cosmetic:
 - **The frontmatter counters are a derived cache with exactly one writer**, `/wb:update_status`.
   The template carries `task_tracking: markdown-checkboxes` to say so in the file itself.
 
+**`thoughts/` is deliberately not provisioned here.** `/wb:explore_design` writes
+`[project-dir]/thoughts/<date>-<topic>.md`, and a write to a nested path creates its parent
+directories — so the directory appears on first use. Git does not track an empty directory, so
+creating one now buys nothing without also planting a `.gitkeep`. Do not add a sixth file or a
+`mkdir` for it.
+
 **⛔ BARRIER 1**: Ensure all files are created with proper frontmatter before proceeding
 
 ### Step 5: Confirm Creation
@@ -135,6 +164,8 @@ Present the created structure:
 ├── tasks.md       - Execution plan (1/4 tasks complete)
 └── journal.md     - Session journal (no entries yet)
 
+📂 thoughts/ — explorations; created on first use by /wb:explore_design
+
 📊 Metadata captured:
 - Git commit: [commit-hash]
 - Branch: [branch-name]
@@ -147,13 +178,17 @@ Present the created structure:
 1. Research the codebase:
    /wb:create_research [directory]
 
-2. After research, create design:
+2. Optional — if research surfaces more than one viable approach,
+   air the trade-off before design locks it in:
+   /wb:explore_design [directory]      (writes to thoughts/)
+
+3. After research, create design:
    /wb:create_design [directory]
 
-3. Then generate execution plan:
+4. Then generate execution plan:
    /wb:create_tasks [directory]
 
-4. Implement with TDD:
+5. Implement with TDD:
    /wb:implement [directory]
 
 Ready to begin research phase!

@@ -13,6 +13,7 @@ Supporting files in this directory (read each when its step directs you to — n
 
 - `templates/` — [output-style.md](templates/output-style.md) (the per-phase report shape) · [model-plan.md](templates/model-plan.md) (the model-plan table)
 - [examples.md](examples.md) — invocation examples, and the evidence behind each detected state
+- [../../docs/reference/branch-naming.md](../../docs/reference/branch-naming.md) — the branch-name rule, shared with `create_project`, `jira-context` and `implement`
 
 **If a directed read fails, stop — do not continue from memory.** These files live outside your
 project, so a read can be refused. Say which file was refused, that reads outside the working
@@ -85,11 +86,21 @@ When invoked:
    work was interrupted; that is more informative about where the ticket really is than any
    status field, and it belongs in the state report.
 
-4. **Report current state to the user** in 1–2 sentences. Example: "Project at `docs/plans/2026-05-12-project-roar/` has research + design complete, 0 of 18 tasks done. Next step is `/wb:implement`. Stop-after default is `create_tasks` — confirm to proceed."
+4. **Align the working branch — once, here.** Forge is the only stage that sees the whole run,
+   so it is where a branch that no single stage owns gets its name. Read
+   [../../docs/reference/branch-naming.md](../../docs/reference/branch-naming.md) NOW and apply
+   it, using the ticket ref from `$1` or the project's `ticket:` frontmatter as the scope.
 
-5. **Emit a one-time model plan.** Consult the `model-help` skill in **gate mode** (pass the ticket/design difficulty and the remaining phases) and print a compact per-phase tier table for the phases still ahead — the "model journey" for this forge. This is advisory: it shows where a main-model switch is worth the reload and, by clustering same-tier phases, keeps the whole run to ~1–2 switches. Read [templates/model-plan.md](templates/model-plan.md) for the shape.
+   Skip it when the run will start at `create_project` — that stage applies the same rule with
+   the same inputs, and proposing a rename twice is noise. Include the outcome in the state
+   report below. Non-blocking, as the reference doc requires: a declined rename never delays a
+   phase.
 
-6. **Confirm with the user before each phase transition.** Forge does not auto-advance silently; the user must see what's about to run — and, at that moment, the model advisory for the phase about to run.
+5. **Report current state to the user** in 1–2 sentences. Example: "Project at `docs/plans/2026-05-12-project-roar/` has research + design complete, 0 of 18 tasks done. Next step is `/wb:implement`. Stop-after default is `create_tasks` — confirm to proceed."
+
+6. **Emit a one-time model plan.** Consult the `model-help` skill in **gate mode** (pass the ticket/design difficulty and the remaining phases) and print a compact per-phase tier table for the phases still ahead — the "model journey" for this forge. This is advisory: it shows where a main-model switch is worth the reload and, by clustering same-tier phases, keeps the whole run to ~1–2 switches. Read [templates/model-plan.md](templates/model-plan.md) for the shape.
+
+7. **Confirm with the user before each phase transition.** Forge does not auto-advance silently; the user must see what's about to run — and, at that moment, the model advisory for the phase about to run.
 
    **Unless `--auto` was passed**, in which case advance without confirming and pass `--auto`
    through to `implement`. Two gates still stop regardless, because neither is a wait the user

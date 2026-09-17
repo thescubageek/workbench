@@ -94,6 +94,21 @@ time from elsewhere in the file.
 Take the project directory from the arguments, prompting for it if it is missing. Then read
 `research.md` and `design.md` from that directory — **fully**, no `limit` or `offset`.
 
+**When a read finds nothing, which file it was decides what happens.** A stage may create the
+artifact it writes; it may never invent the artifact it reads.
+
+- **`design.md` absent, `research.md` present and complete** — proceed. `design.md` is this
+  stage's own output: create it from
+  [templates/design-md-template.md](templates/design-md-template.md) and fill it as Step 5
+  directs.
+- **`research.md` absent, or the project directory itself absent** — **stop.** Do not create
+  the directory, do not stub `research.md`, and do not design against an empty file. Say which
+  one is missing and name the stage that produces it: `/wb:create_project [name] [base-dir]
+  [ticket-ref]` creates the directory, `/wb:create_research [project-dir]` fills `research.md`.
+- **`research.md` present but still `status: draft` carrying template placeholders** — the same
+  stop, pointing at `/wb:create_research`. A design argued over placeholder findings is
+  confident fiction, and nothing downstream can tell it from the real thing.
+
 1. **Read research.md completely**:
    - Understand current implementation
    - Note all patterns and conventions found
