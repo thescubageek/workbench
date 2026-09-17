@@ -51,6 +51,12 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-17 23:42 — P1-T2 (open)
+
+- **Task/phase**: P1-T2 — pre-register the wrapper-shape probe before running it
+- **Next action**: write thoughts/2026-09-17-wrapper-shape-probe.md with the six-axis rubric,
+  per-branch predictions and explicit pass/fail conditions; do not run the probe in this task
+- **Started at**: d994b1f
 ## 2026-09-17 23:35 — P1-T1 (closed)
 
 - **Task/phase**: P1-T1 — build the throwaway fixture repo for the wrapper-shape probe

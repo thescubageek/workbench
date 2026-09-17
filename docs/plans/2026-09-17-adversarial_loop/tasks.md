@@ -166,15 +166,22 @@ is deleted at the end of the phase.
       allowlist — small by line count, high on the reversibility and behavioural-delta axes).
       **Record the working directory in the task's notes**; a probe whose cwd is unrecorded is
       the failure mode the previous plan hit. (~14 calls) (completed 2026-09-17 23:36)
-- [ ] **P1-T2** — Write a throwaway minimal wrapper at `/tmp/wb-adv-probe/.claude/skills/probe-review/SKILL.md`:
-      a reconnaissance step that rates the six axes and picks a tier, an invocation of the
-      built-in `/code-review` via the `Skill` tool, one wb lens agent spawned in the same message,
-      a merge using the built-in's own dedupe predicate, and a three-state verify over the pooled
-      set. Minimal, not production shape — it exists to test the seams. (~28 calls)
-- [ ] **P1-T3** — Run the probe against both branches from a recorded cwd. Capture verbatim: the
-      tier chosen and the axis that set it, the number and identity of agents spawned, whether the
-      built-in leg's findings arrived in a form that could be deduped against the lens leg's, and
-      whether the security lens fired on `risky` and not on `trivial`. (~18 calls)
+- [x] **P1-T2** — **Pre-register** the probe in `thoughts/2026-09-17-wrapper-shape-probe.md`
+      *before running it*: the six-axis rubric, the tier each fixture branch is predicted to get
+      and which axis should drive it, the lenses predicted to fire on each, and the explicit
+      pass/fail conditions for both halves. Written first so the run cannot be retrofitted — a
+      probe whose success conditions are set afterwards is the unfalsifiable kind the previous
+      plan hit. (~22 calls) (completed 2026-09-17 23:42)
+- [ ] **P1-T3** — Run both halves of the probe inline in this session, from a recorded cwd, and
+      append verbatim results to the probe document.
+      **Half A — does recon discriminate?** Rate the six axes over `/tmp/wb-adv-probe`'s `trivial`
+      and `risky` diffs, record the tier and the deciding axis for each, and record which lenses
+      fire. No built-in leg: recon is pure analysis of a diff.
+      **Half B — do two finding sets merge?** Against *this* repository's own diff, where
+      `/code-review` is addressable: take the built-in leg's real output, spawn one wb lens agent
+      over the same diff, then dedupe with the built-in's own predicate and run the three-state
+      verify over the pooled set. Record whether provenance survived, what deduped, and what the
+      verify changed. (~26 calls)
 - [ ] **P1-T4** — Record the verdict in `thoughts/2026-09-17-wrapper-shape-probe.md`: frontmatter
       with `git_commit`/`git_branch`, the exact commands, the recorded cwd, and verbatim captured
       output — not a paraphrase. State plainly whether the shape holds, and if it does not, which
@@ -186,7 +193,8 @@ is deleted at the end of the phase.
 
 - [ ] The fixture's two branches differ as intended: `git -C /tmp/wb-adv-probe diff --stat main trivial`
       and `... main risky` both return a diff, and `risky` is ≤20 changed lines
-- [ ] `thoughts/2026-09-17-wrapper-shape-probe.md` exists and contains a `cwd:` line
+- [ ] `thoughts/2026-09-17-wrapper-shape-probe.md` exists, contains a `cwd:` line, and its
+      pre-registration section is dated earlier than its results section
 - [ ] `test ! -e /tmp/wb-adv-probe` after P1-T4
 
 #### Manual Verification
@@ -639,6 +647,11 @@ personal copies the port was made from.
       the deciding axis
 - [ ] `wb:adversarial-loop` reached clean with no `gh` available and said so
 - [ ] The user has confirmed the deletion of the three personal skills
+- [ ] **Evaluate the P1-T2 substitution**: the probe ran inline rather than as a loadable skill
+      file, and split across two targets. Did that actually establish what Phase 1 needed, or did
+      shipping on a partially-evidenced shape cost something? Record the answer in the probe
+      document — this is a deliberate methodological call the user asked to have assessed here,
+      not a formality
 
 ### Modified Files
 
@@ -687,6 +700,10 @@ Things to determine during implementation:
 - Whether the six-lens guard ever bites in practice, or whether content selection keeps the count
   below it on its own.
 - Whether `model-help`'s new gate rows want one row for both new skills or one each.
+- **Whether running the probe inline was sufficient.** P1-T2 originally specified a loadable
+  `SKILL.md` in the fixture; that is not reachable from a session that cannot start a new one in
+  the fixture's directory. The inline substitution tests the shape but not skill loading, which
+  P5-T4's smoke session covers instead. Assessed explicitly at P5-T4.
 
 Note: Update this section with findings as you implement.
 
@@ -716,9 +733,17 @@ resolved, leaving a dated line saying how.
   (mass-assignment privilege escalation via `update_item`), and the `if not user.get("id")`
   guard deleted so a user with no id matches an item with no owner via `None == None`. Python,
   deliberately: the fixture must not be a stack the lens table could special-case.
-- **P1-T3's session cwd must be `/tmp/wb-adv-probe`** — `/code-review` resolves its target from
-  the cwd's git repo. Record it in the probe document; that is the field whose absence made the
-  previous plan's probe unfalsifiable.
+- **[2026-09-17] P1-T2/P1-T3 deviated from the plan as written, deliberately.** Two constraints
+  surfaced at execution. First, a `SKILL.md` written into the fixture's `.claude/skills/` is only
+  loadable by a session *started in that directory*, which this session cannot do — so the probe
+  runs inline instead, exercising the wrapper logic without a skill file. Second, `/code-review`
+  resolves its target from the current repository, so it cannot be pointed at `/tmp/wb-adv-probe`
+  at all. The probe therefore splits: the sizing question is answered against the fixture (recon
+  is pure analysis and needs no built-in leg), and the merge question against this repository's
+  own diff, where the built-in is addressable and two real runs already exist. P1-T2 became a
+  pre-registration step so the run cannot be retrofitted. What this does **not** establish is that
+  a skill file loads and executes the shape — P5-T4's smoke session covers that, and P5's manual
+  verification now carries an explicit assessment of whether this substitution was adequate.
 
 ---
 
