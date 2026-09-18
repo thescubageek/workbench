@@ -1017,7 +1017,7 @@ shortened one.
 - [x] **(derivable)** Every Phase 6 checkbox is `[x]`
 - [x] **(derivable)** All automated verification passing
 - [ ] **(attestation)** Manual verification confirmed by human
-- [ ] **(attestation)** A fresh adversarial review has been **explicitly approved by the user**
+- [x] **(attestation)** A fresh adversarial review has been **explicitly approved by the user**
       before it is run — the user asked to gate it, and a re-review run unasked is the same
       unrequested outward step this phase exists to close
 - [ ] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
