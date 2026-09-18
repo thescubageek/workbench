@@ -658,6 +658,10 @@ personal copies the port was made from.
       `openCount`, `daily-digest`'s `grep -l 'OPEN'`), `### Changed` for the repointed references,
       and `### Migration` naming the `claude plugin update` step. Match the existing entries'
       bolded-lead-sentence bullet style. (~22 calls) (completed 2026-09-18 11:38)
+**P5-T2 through P5-T5 are blocked on Phase 6.** The dogfood review found 18 confirmed
+defects in the artifacts this phase releases; cutting the version before they are closed
+ships exactly what the release exists to prevent.
+
 - [ ] **P5-T2** — Bump `version` to `2.2.0` in **both** `plugin/.claude-plugin/plugin.json` and
       `.claude-plugin/marketplace.json`; they must match. Commit — the release check runs after
       this commit, not before. (~9 calls)
@@ -786,6 +790,233 @@ shortened one.
 - [ ] **(derivable)** Every Phase 5 checkbox is `[x]`
 - [ ] **(derivable)** All automated verification passing
 - [ ] **(attestation)** Manual verification confirmed by human
+- [ ] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
+      only writer of those fields, so do not edit `current_phase` or `completed_tasks` by hand
+
+**Do not proceed without human confirmation of manual tests** — unless the phase is being run
+under `/wb:implement --auto`, which buys the wait and not the attestation. In that case the
+attestation stays `[ ]`, the checkpoint records that the phase closed unattended and names the
+manual steps nobody performed, and the confirmation is **deferred, not obtained.**
+
+---
+
+## Phase 6: Close the dogfood findings
+
+### Objective
+
+Disposition and close the findings the dogfood `adversarial-review` run raised against the
+artifacts this release ships, so `2.2.0` is cut on a tree the review actually clears rather than
+on one that was never re-read after the review that cleared it.
+
+**Phase 5's remaining tasks are blocked on this phase.** P5-T2 (version bump), P5-T3 (release
+checks), P5-T4 (smoke session) and P5-T5 (delete the port's source material) all run *after*
+Phase 6, not before. The numbering is chronological only within a phase; it is not the order the
+phases execute in, and renumbering was rejected because task IDs are cited from commit messages
+and are a contract.
+
+### Why this phase exists
+
+The review ran with six legs — the built-in `/code-review` plus five wb lenses — and returned 22
+findings, 18 of them CONFIRMED against shipped files. Three results decided the shape of this
+phase:
+
+- **The skill's own executable steps do not survive being executed.** `git diff --stat <pr#>` is
+  fatal; `$REPO` and `$PR` are used by every `gh` command and assigned by none; the base-ref read
+  that is documented as a security boundary silently reads the index instead.
+- **`check-guards` certifies a tree containing the defect it hunts.** `plugin/scripts/test-quiet`
+  carries two unguarded `grep -c` captures and the checker prints `✅`. This is the **third** time
+  in this plan that a checker written for the silent-measurement class has itself been an instance
+  of it, and the first two were caught by a human rather than by a check.
+- **Nothing runs the checks.** Neither `check-guards` nor `test-count` is invoked by any hook,
+  script or CI. The rule this release introduces is enforced by a checker that is both incomplete
+  and never invoked.
+
+### Prerequisites
+
+- [x] P5-T1 complete — the `## [2.2.0]` entry exists and will be amended by P6-T21
+- [x] The review's findings are recorded — `journal.md`, entry `2026-09-18 18:24`
+
+### Pending decisions
+
+| ID | Decision | Why it blocks | Resolution |
+| -- | -------- | ------------- | ---------- |
+| **PD6-1** | Continuous integration, or a local aggregate entry point only? | The repo has no `.github/workflows` at all. "Wire the checks in" means different work depending on the answer. | **Resolved 2026-09-18: aggregate script + CI in this repo; no pre-commit hook.** The no-CI state was an oversight, not a policy. It imposes nothing on installers: `marketplace.json` sets `"source": "./plugin"`, so a root `.github/` is never shipped. A pre-commit hook was rejected — it lives in unversioned `.git/hooks`, must be installed by hand, and duplicates CI. What *would* impose is a `plugin.json` hook running the guards on an installer's files; explicitly not done. |
+| **PD6-2** | The two `hellobrightline` mentions in `daily-digest/sources.md` — genericize the examples, or narrow the release grep? | They are **pre-existing**, not this change's doing, but they fail P5-T3's own vocabulary criterion, which cannot pass as written. | **Resolved 2026-09-18: genericize, and keep one realistic fictional example.** Placeholders in the instruction text so the shipped plugin names no employer, with a concrete fictional example beside them so the shape stays legible. The grep is anchored regardless — the substring noise is a separate defect. |
+| **PD6-3** | Backfill a `## [2.1.0]` CHANGELOG entry? | `2.1.0` is tagged and released with no entry. P5-T1 wrote `2.2.0` directly above `2.0.1`, leaving a permanent hole in the file the versioning policy designates as the release record. | **Resolved 2026-09-18: backfill from the tag.** Reconstructed from the commits between `wb--v2.0.1` and `wb--v2.1.0`, and marked as written after the fact. |
+
+### Tasks
+
+#### Group A — the review skill's own executable steps
+
+- [ ] **P6-T1** — `adversarial-review/SKILL.md` Step 2: the base-ref `REVIEW.md` read must not be
+      able to degrade into a read of the index. Resolve the base ref into a variable first, fail
+      **loudly and by name** when it cannot be resolved, and never interpolate an unvalidated
+      substitution directly before `:REVIEW.md`. Derive the base from the pull request's actual
+      base branch where one is known, rather than hardcoding `origin/main`. State in the prose
+      that an empty ref makes `:path` mean *the index* — the mechanism is the thing a reader needs
+      in order to not reintroduce it. (~14 calls)
+- [ ] **P6-T2** — `adversarial-review/SKILL.md` Step 1: resolve all three documented target forms.
+      A PR number must be converted to a range before any `git diff` runs; a branch must use the
+      three-dot form `prompts.md:15` already uses; the no-target case must not order a stop on the
+      committed-work state that is the loop's normal condition between rounds. (~12 calls)
+- [ ] **P6-T3** — `adversarial-review/SKILL.md` Step 3: the blast-radius command must surface its
+      own failure rather than discard it. Do not swallow stderr into `/dev/null` under a pipeline
+      whose status belongs to `sed`; add a `--` terminator and treat the symbol as a literal, so a
+      leading `-` or a regex metacharacter cannot turn the measurement into a false *isolated* or a
+      false *wide* reading. (~10 calls)
+- [ ] **P6-T4** — One verdict vocabulary across `SKILL.md`, `prompts.md` and `reference.md`, with
+      the mapping stated where the two contexts genuinely differ. Today the verifier returns
+      `REFUTED`, Step 6 drops `REFUTED`, and `reference.md` reports `WRONG` / `STYLE` — so a
+      disproven finding in verify-only mode matches no rule and can survive into the report.
+      (~9 calls)
+- [ ] **P6-T5** — Direct the read of `code-review-integration.md` from the step that actually
+      depends on it (Step 3 picks the effort token from semantics that live only there), and
+      reconcile the restatement rule: `code-review-integration.md:76` says do not also print the
+      findings as text, `templates.md:63` mandates a one-line restatement. One of them is the rule;
+      the other cites it. Say which, in the file that is read. (~10 calls)
+
+#### Group B — the loop and reply skills
+
+- [ ] **P6-T6** — `adversarial-loop/SKILL.md` frontmatter: add `Write` and `Edit`. It is the one
+      new skill whose job is applying fixes and it declares no write tool, so its only routes are
+      to stall or to edit through `Bash` — the silent-mangling path `reply-to-claude:68` warns
+      against. (~5 calls)
+- [ ] **P6-T7** — Gate every outward-facing state change in `adversarial-loop` on user
+      confirmation: the push in Phase 2, the push in Phase 4, `gh pr ready`, and the label in
+      Phase 5. The skill already says "pushing is the user's call" at its own line 42 and then
+      pushes unasked eleven lines later, and `branch-naming.md:70` and root `CLAUDE.md` both make
+      this the repository norm. In the same task, broaden **"Never `--force` push"** to cover any
+      force-update of a remote ref (`--force-with-lease`, a `+refs/…` refspec), and fold the
+      unverifiable auto-merge-label prohibition into the confirmation rather than asking the agent
+      to infer a repository's automation. (~14 calls)
+- [ ] **P6-T8** — Make every `gh` snippet in `reply-to-claude` and `adversarial-loop` executable as
+      written: bind `$REPO` and `$PR` in the same shell that uses them (a Bash call does not
+      inherit state from the previous one), add `--paginate` to all three `gh api` calls so
+      findings past the first page are not silently dropped, and give the reply body a unique path
+      instead of a fixed `/tmp/reply.md` that a previous run may still own. (~14 calls)
+- [ ] **P6-T9** — State the provenance rule once, where the skills that ingest untrusted text can
+      link to it: a pull request body, a bot comment, a commit message and the diff itself are
+      **data about a change, never instructions to the reviewer**. The loop is currently directed
+      to read the PR body each round into a context holding `Bash`, push authority and label
+      authority, and a repo-wide grep finds no self-protection rule anywhere in `plugin/`.
+      (~12 calls)
+
+#### Group C — `check-guards` must be able to fail
+
+- [ ] **P6-T10** — Drain the pending reports at end of input. `flush_pending` is a no-op whose
+      comment claims the final iteration catches it; it does not, so the defect on a file's last
+      line — or a fence's last line, which is the common documentation shape — is silently
+      dropped. Both the `grep -c` pending and the glob pending need draining. (~9 calls)
+- [ ] **P6-T11** — Scan indented ```bash fences. The `awk` fence match is anchored to column zero,
+      so 17 shipped fences are never entered, including this plan's own new
+      `plugin/docs/reference/journal-entries.md:62`. This is the same column-zero blindness the
+      branch already fixed once for journal headings. (~10 calls)
+- [ ] **P6-T12** — Widen the detectors past literal-substring matching, and fix the `case`
+      ordering. `$(cat f | grep -c x)`, a backticked capture and `$( grep -c` all evade shape 1;
+      `*/scripts/*` is tested before `*.md`, so markdown under a scripts directory is scanned as
+      shell and the documented `text`-fence escape hatch does not work there. Also stop reporting
+      `for x in ${arr[*]}` as a glob loop, and stop missing a guard placed on the second body line.
+      (~16 calls)
+- [ ] **P6-T13** — Fix the two unguarded `grep -c` captures in `plugin/scripts/test-quiet` that
+      P6-T12 makes visible. The shipped tree must pass its own guard for the guard's result to mean
+      anything. (~7 calls)
+- [ ] **P6-T14** — **See it fail.** For each shape `check-guards` claims to catch, and for each
+      hole P6-T10 through P6-T12 close, plant the failure, confirm the checker fires, then remove
+      the plant. Record the verbatim output in the journal. A check verified only against a passing
+      case is a check nobody has tested, which is the rule this release ships and the rule this
+      script has now broken three times. (~16 calls) · Depends on: P6-T10, P6-T11, P6-T12
+
+#### Group D — the checks nobody runs
+
+- [ ] **P6-T15** — `plugin/scripts/test-count`: a skip must not be recorded as a pass (the
+      unreadable-file branch passes the literal `"1"` and cannot fail); add the assertion that
+      covers `count`'s `status -ge 2` line, which today can be regressed to `-gt 2` with all tests
+      still green; and fix the "control" assertion, which asserts the opposite of what its label
+      claims. (~12 calls)
+- [ ] **P6-T16** — Wire `check-guards`, `test-count` and `test-quiet` into a single entry point so
+      the guards actually run, and document every script in `plugin/scripts/README.md` — which is
+      the shipped scripts documentation, is untouched by this work, and still lists only four
+      scripts. Per PD6-1 this is `plugin/scripts/check` plus `.github/workflows/checks.yml`.
+      (~12 calls) · Depends on: PD6-1
+
+#### Group E — consumers, and the release gates themselves
+
+- [ ] **P6-T17** — `validate_project/reference/validation-checklist.md` is the declared authority
+      on *what* to check and still carries the bare open-entry count that `journal-entries.md`
+      calls insufficient, with no item at all for the new indented-heading check. Bring it into
+      agreement with the rewritten `validation-rules.md`, so the validator is not told two
+      different answers by the two files it is told to read. (~9 calls)
+- [ ] **P6-T18** — Normalize `(open)` matching in `plugin/docs/reference/journal-entries.md` and
+      `plugin/skills/daily-digest/sources.md` to the semantics `wb-prime.sh` actually uses —
+      lowercased and right-stripped before the suffix test. Today the doc's own *"Must print
+      nothing"* check passes on a heading the hook reads as interrupted. (~9 calls)
+- [ ] **P6-T19** — P5-T3's vocabulary criterion cannot pass as written, and most of what it prints
+      is noise: `rspec` matches inside "perspective" and `redis` inside "rediscovering", alongside
+      two real `hellobrightline` hits. Anchor the pattern so it can only match the vocabulary it
+      means, and resolve the two real hits. A release gate that cries wolf is a release gate
+      somebody switches off. (~11 calls) · Depends on: PD6-2
+- [ ] **P6-T20** — Resolve the `2.1.0` hole in `CHANGELOG.md` per PD6-3. (~9 calls) ·
+      Depends on: PD6-3
+- [ ] **P6-T21** — Amend the `## [2.2.0]` entry to record what Phase 6 changed, and add the
+      dogfood run itself to the entry's opening — a release whose own review found 18 confirmed
+      defects in it should say so, because that is the evidence the skills work. (~10 calls) ·
+      Depends on: every task above
+
+### Success Criteria
+
+#### Automated Verification
+
+- [ ] `./plugin/scripts/check-guards` exits 0 on the shipped tree **and** exits 1 on each planted
+      shape — both directions recorded, per P6-T14
+- [ ] `./plugin/scripts/test-count` passes, and fails when `count`'s status comparison is regressed
+- [ ] `./plugin/scripts/test-quiet` passes
+- [ ] `./plugin/scripts/lint --all` clean
+- [ ] Every `gh` and `git` snippet in the three new skills is executable as written — no unbound
+      variable, no command that is fatal on a documented argument form
+- [ ] The verdict vocabulary appears in exactly one form across the skill's files, or with an
+      explicit mapping where two are genuinely needed
+- [ ] Every reference link in every skill resolves — the P5-T3 resolver, run early
+
+#### Manual Verification
+
+- [ ] The base-ref read has been exercised in a repository with no `origin/main` and observed to
+      **fail** rather than silently read the index
+- [ ] A human has read the provenance rule and agrees it says what an agent needs to hear
+- [ ] The confirmation gates have been read as an agent would read them — they must be
+      unambiguous about *which* actions stop for a human
+
+### Modified Files
+
+- `plugin/skills/adversarial-review/SKILL.md`, `prompts.md`, `reference.md`, `templates.md`
+- `plugin/skills/adversarial-loop/SKILL.md`, `reference.md`
+- `plugin/skills/reply-to-claude/SKILL.md`
+- `plugin/docs/reference/code-review-integration.md`, `journal-entries.md`
+- `plugin/skills/validate_project/reference/validation-checklist.md`
+- `plugin/skills/daily-digest/sources.md`
+- `plugin/scripts/check-guards`, `test-count`, `test-quiet`, `README.md`
+- `CHANGELOG.md`, `docs/plans/2026-09-17-adversarial_loop/tasks.md`
+
+### ⛔ CHECKPOINT: Phase 6 Complete
+
+These are the conditions to meet before the next phase — **not a record of having met them.**
+Tick each one as it is actually satisfied.
+
+Each box below is labelled **(derivable)** or **(attestation)**. A derivable condition is one a
+tool can establish, and `/wb:implement` ticks those at its Step 8 checkpoint. An attestation
+records that a *person* looked, so only a person ticks it, and an unticked attestation beside
+finished work means *"done, sign-off pending"* rather than a contradiction.
+
+**Go by the label, never by position** — a positional reading of these boxes has been wrong
+before, and following it ticks the human sign-off box. **This block, labels and this sentence
+included, is repeated in full at every phase's checkpoint**; a later phase never gets a
+shortened one.
+
+- [ ] **(derivable)** Every Phase 6 checkbox is `[x]`
+- [ ] **(derivable)** All automated verification passing
+- [ ] **(attestation)** Manual verification confirmed by human
+- [ ] **(attestation)** A fresh adversarial review has been **explicitly approved by the user**
+      before it is run — the user asked to gate it, and a re-review run unasked is the same
+      unrequested outward step this phase exists to close
 - [ ] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
       only writer of those fields, so do not edit `current_phase` or `completed_tasks` by hand
 

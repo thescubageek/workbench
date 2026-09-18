@@ -74,6 +74,11 @@ Three rules come with it:
    instructions tell you to report findings with this tool." A skill that wants it must say so
    explicitly in its own body; inheriting the intent is not enough.
 2. **Call it once**, with findings ranked most-severe first, and do not also print them as text.
+   **wb deviates here, deliberately and narrowly**: its review skills add a one-line-per-finding
+   restatement after the call, because a forked or non-rendering session receives nothing
+   otherwise and `adversarial-loop` adjudicates from what it receives. The bounds are set in
+   `adversarial-review/templates.md` — one line each, no scenario, no fix. A skill that wants more
+   than that is writing the competing report this rule forbids.
 3. **Re-report after fixes**, with an `outcome` on each finding. The host UI's per-finding status
    updates only from that call; without it the findings stay marked unresolved.
 

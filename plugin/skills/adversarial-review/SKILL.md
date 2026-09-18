@@ -52,30 +52,67 @@ mandatory ones.
 
 ## Step 1: Resolve the target
 
+**Resolve the target into a range before running any `git diff`.** The three argument forms do
+not share a spelling, and the one that fails is fatal rather than empty:
+
 ```bash
-git diff --stat <target>
+# A PR number — `git diff --stat 25` is `fatal: ambiguous argument`, so convert it first.
+range=$(gh pr view "$target" --json baseRefName,headRefName \
+          --jq '"origin/" + .baseRefName + "...origin/" + .headRefName') || range=""
+
+# A branch — three dots, against its base. Two dots answers a different question.
+range="origin/main...$target"
+
+# No target — this branch's own range. NOT a bare `git diff`, which shows only uncommitted
+# work and is empty in the loop's normal state, between a fix commit and the next round.
+range="origin/main...HEAD"
+
+git diff --stat "$range"
 ```
 
-State the target and its size before reviewing — a wrong target wastes the whole pass. If the
-diff is empty, or is plainly not what was asked for, stop and say so rather than reviewing
-nothing.
+State the target and its size before reviewing — a wrong target wastes the whole pass.
+
+**An empty range and an unresolvable one are different, and only one of them is a stop.** If
+`gh` could not resolve the PR, say that; do not report it as a change with no content. If the
+range is genuinely empty, or is plainly not what was asked for, stop and say so rather than
+reviewing nothing.
 
 The built-in resolves its own target from the current repository and cannot be pointed at another
 checkout, so the target named here and the one it reviews must be the same repository.
 
 ## Step 2: Load the repository's review instructions
 
-Read `REVIEW.md` **from the base ref, never the working tree**:
+Read `REVIEW.md` **from the base ref, never the working tree**. Resolve the ref into a variable
+first and stop if it is empty — the one-liner that interpolates the substitution directly is the
+version of this step that fails open:
 
 ```bash
-git show "$(git merge-base HEAD origin/main)":REVIEW.md
+base_branch=$(gh pr view --json baseRefName --jq .baseRefName 2>/dev/null)
+base_branch=${base_branch:-origin/main}
+base=$(git merge-base HEAD "$base_branch" 2>/dev/null)
+
+if [ -z "$base" ]; then
+  echo "REVIEW.md NOT READ: no base ref resolved from '$base_branch'" >&2
+else
+  git show "$base:REVIEW.md"
+fi
 ```
+
+⛔ **Never write `git show "$(git merge-base HEAD origin/main)":REVIEW.md`.** When the merge-base
+fails — a remote named `upstream`, a default branch of `master` or `develop`, a shallow or
+single-branch clone, a fork checkout — the substitution is empty and the argument collapses to
+`:REVIEW.md`. That is **git's syntax for the index**, so the command reads the staged file, prints
+it, and **exits 0**. The guard inverts into a read of the least trustworthy copy on disk, and the
+absent-case tell below never fires.
 
 - **Present** — treat its contents as additional rules and known false positives. It may point at
   a rules directory or name a repository skill to consult.
-- **Absent** — the command exits non-zero with `does not exist in`. That is the normal case, not
-  a failure. Fall through; the built-in's conventions angle already reads every governing
+- **Absent** — `git show` exits non-zero with `does not exist in`. That is the normal case, not a
+  failure. Fall through; the built-in's conventions angle already reads every governing
   `CLAUDE.md`.
+- **Base ref unresolved** — the branch above printed `REVIEW.md NOT READ`. This is neither of the
+  first two. Say in the report that the repository's own review instructions were not loaded; do
+  not treat it as absent.
 
 Two constraints, both load-bearing:
 
@@ -114,11 +151,26 @@ and confirm it ran — a search that errored returns the same emptiness as a gen
 change, and that error direction is toward believing the change is safe.
 
 ```bash
-grep -rn "<changed symbol>" . 2>/dev/null | grep -v "<the changed file>" | sed 's/^/  /'
+grep -rnF -- "<changed symbol>" . | grep -v "<the changed file>" | sed 's/^/  /'
+search=${PIPESTATUS[0]}
+[ "$search" -le 1 ] || echo "SEARCH FAILED (grep exit $search) — NOT an isolated change" >&2
 ```
 
-Then choose the built-in's effort token from documented semantics — `low`/`medium` for precision,
-`high`→`max` for coverage — and the lens set from [lenses.md](lenses.md). A `--effort` argument
+Three details in that command are the difference between a measurement and a guess:
+
+- **`-F`** treats the symbol as a literal. Without it a name containing `[`, `(` or `\` is an
+  invalid pattern, grep exits 2 printing nothing, and the empty output reads as "no callers".
+- **`--`** terminates the options. Without it a symbol beginning with `-` is consumed as a flag,
+  which fails in the other direction and returns a flood.
+- **`${PIPESTATUS[0]}`** is grep's own status, not `sed`'s. Do not send grep's stderr to
+  `/dev/null`: the diagnostic is the only thing that distinguishes a broken search from a clean
+  one, and this measurement's errors all point toward believing the change is safe.
+
+Then choose the built-in's effort token. Read
+[../../docs/reference/code-review-integration.md](../../docs/reference/code-review-integration.md)
+NOW — it is where the published semantics live, and it is also the authority on which parts of the
+built-in may be relied on at all. The short form is `low`/`medium` for precision, `high`→`max` for
+coverage. Take the lens set from [lenses.md](lenses.md). A `--effort` argument
 overrides the token but changes neither the tier nor the lens set.
 
 Emit the reconnaissance summary from [templates.md](templates.md) before proceeding.
@@ -175,6 +227,8 @@ without one was never verified — drop it rather than reporting it with a lower
 
 When the invocation supplies findings and asks whether they are accurate, skip Steps 3–5 entirely
 — there is nothing to size — and run Step 6 against each pasted finding. Read
-[reference.md](reference.md) for the verdicts and the five dispositions. Never inherit another
-reviewer's confidence: a finding labelled CONFIRMED by its author has been asserted, and that
-assertion is what you were asked to check.
+[reference.md](reference.md) for the verdicts and the five dispositions. The verifier's three
+verdicts are the same here as everywhere — **CONFIRMED**, **PLAUSIBLE**, **REFUTED** — and
+verify-only mode adds one reporting-only outcome, **STYLE**, for a finding that is real and not
+worth the change. Never inherit another reviewer's confidence: a finding labelled CONFIRMED by its
+author has been asserted, and that assertion is what you were asked to check.

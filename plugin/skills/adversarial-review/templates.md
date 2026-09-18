@@ -68,9 +68,19 @@ not render tool output:
 🟡 app/items.py:7 — widened allowlist admits owner_id, reachable only via the bulk path
 ```
 
-`🔴` for CONFIRMED, `🟡` for PLAUSIBLE. This is a restatement, not a second report: the tool's
-"do not also print the findings as text" rule is about producing a competing report, and one line
-per finding is what the built-in's own prompt prescribes for the same reason.
+`🔴` for CONFIRMED, `🟡` for PLAUSIBLE.
+
+**This is a documented deviation, not a reading of the rule.** `ReportFindings` says plainly: call
+it once and *do not also print the findings as text*. wb prints one line per finding anyway,
+because a forked or non-rendering session otherwise receives nothing — and `adversarial-loop`
+adjudicates from what it receives, so a suppressed restatement gives it an empty finding set and a
+gate that passes for the wrong reason. The deviation is recorded in
+[../../docs/reference/code-review-integration.md](../../docs/reference/code-review-integration.md)
+so the two files state one rule between them rather than two.
+
+Its bounds are what keep it a restatement rather than a competing report: **one line per finding,
+no failure scenario, no fix, no severity prose.** Anything more is the second report the tool is
+telling you not to write.
 
 ## Checked and clear
 
