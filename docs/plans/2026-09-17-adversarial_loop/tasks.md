@@ -5,12 +5,12 @@ created: 2026-09-17
 status: in-progress
 last_updated: 2026-09-18
 assignee: scraig
-current_phase: 4
+current_phase: 5
 total_tasks: 29
-completed_tasks: 18
+completed_tasks: 23
 task_tracking: markdown-checkboxes
 depends_on: [research.md, design.md]
-git_commit: 5a402a3
+git_commit: be7568f
 git_branch: adversarial-loop-skill-research
 repository: thescubageek/workbench
 tags: [tasks, tracking, adversarial_loop]
@@ -108,8 +108,8 @@ tasks, not greps.
 | Phase 1: Tracer bullet — prove the wrapper shape | ✅ Complete | 4/4 | 100% |
 | Phase 2: Reference doc and `wb:adversarial-review` | ✅ Complete | 7/7 | 100% |
 | Phase 3: `wb:reply-to-claude` and `wb:adversarial-loop` | ✅ Complete | 3/3 | 100% |
-| Phase 4: Repoint the ecosystem | 🔄 In Progress | 0/5 | 0% |
-| Phase 5: Release | ⏸️ Not Started | 0/6 | 0% |
+| Phase 4: Repoint the ecosystem | ✅ Complete | 5/5 | 100% |
+| Phase 5: Release | 🔄 In Progress | 0/6 | 0% |
 
 Counts come from the checkboxes below and are reconciled by `/wb:update_status`.
 
@@ -624,10 +624,10 @@ before, and following it ticks the human sign-off box. **This block, labels and 
 included, is repeated in full at every phase's checkpoint**; a later phase never gets a
 shortened one.
 
-- [ ] **(derivable)** Every Phase 4 checkbox is `[x]`
-- [ ] **(derivable)** All automated verification passing
-- [ ] **(attestation)** Manual verification confirmed by human
-- [ ] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
+- [x] **(derivable)** Every Phase 4 checkbox is `[x]`
+- [x] **(derivable)** All automated verification passing
+- [x] **(attestation)** Manual verification confirmed by human — confirmed 2026-09-18
+- [x] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
       only writer of those fields, so do not edit `current_phase` or `completed_tasks` by hand
 
 **Do not proceed without human confirmation of manual tests** — unless the phase is being run
@@ -646,9 +646,9 @@ personal copies the port was made from.
 
 ### Prerequisites
 
-- [ ] Phase 4 complete and verified
-- [ ] Phase 4 manual testing confirmed — *attestation; see the checkpoint block.*
-- [ ] Working tree clean — `claude plugin tag` refuses a dirty tree without `--force`
+- [x] Phase 4 complete and verified
+- [x] Phase 4 manual testing confirmed — *attestation; see the checkpoint block.*
+- [x] Working tree clean — `claude plugin tag` refuses a dirty tree without `--force`
 
 ### Tasks
 
@@ -681,9 +681,11 @@ personal copies the port was made from.
       *distinguishable* failure otherwise, so the correct path is shorter than the unguarded one —
       the same reason `scripts/quiet` exists. Contract test follows `scripts/test-quiet`: a real
       count, a zero-match count, a missing file, and an unreadable file must each be
-      distinguishable. **This is the third of three responses to the silent-measurement class;
-      items 1 and 2 shipped 2026-09-18 and this one must land before the effort is called
-      complete.** (~20 calls)
+      distinguishable. **Add it to README's Scripts section in the same task** — that section
+      documents every script, and adding one without it is how documentation goes stale inside the
+      very release that was supposed to make it accurate. **This is the third of three responses
+      to the silent-measurement class; items 1 and 2 shipped 2026-09-18 and this one must land
+      before the effort is called complete.** (~22 calls)
 
 ### Success Criteria
 
@@ -711,6 +713,28 @@ print('\n'.join('MISS '+x for x in bad))"
 ```
 
 - [ ] `CHANGELOG.md` has a `## [2.2.0]` heading
+- [ ] Docs are accurate **at release**, not merely accurate when written — every user-invocable
+      skill in help, every skill in README, every script in README's Scripts section, and no
+      absent skill named anywhere:
+
+```bash
+python3 -c "
+import os,glob,re
+h=open('plugin/skills/help/SKILL.md').read(); r=open('README.md').read()
+gaps=[]
+for f in sorted(glob.glob('plugin/skills/*/SKILL.md')):
+    n=os.path.basename(os.path.dirname(f)); fm=open(f).read().split('---')[1]
+    if 'disable-model-invocation: true' in fm: continue
+    if 'user-invocable: false' not in fm and n not in h: gaps.append('help missing: '+n)
+    if n not in r: gaps.append('README missing: '+n)
+for sc in os.listdir('plugin/scripts'):
+    if os.path.isfile('plugin/scripts/'+sc) and not sc.endswith('.md') and sc not in r:
+        gaps.append('README missing script: '+sc)
+for ghost in ('review-reef','review-strict','pr-feedback'):
+    if ghost in h or ghost in r: gaps.append('names absent skill: '+ghost)
+print('\n'.join(gaps))"
+```
+
 - [ ] Guard check clean: `./plugin/scripts/check-guards` → exit 0
 - [ ] `./plugin/scripts/test-count` passes, and `scripts/count` distinguishes a zero count from a
       failed one

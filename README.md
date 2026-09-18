@@ -271,6 +271,9 @@ The plugin cannot (and does not) write to your personal config — this rule is 
 ./plugin/scripts/test-quiet     # Contract test for scripts/quiet
 ```
 
+`lint-hook` is not run by hand — it is the PostToolUse hook body, wired in `plugin.json`, which
+runs `lint --fix` on any markdown a Write or Edit touches.
+
 `check-guards` scans shipped shell and fenced `bash` blocks for three shapes whose failure is
 indistinguishable from "nothing matched": a `grep -c` captured without a status guard, an unquoted
 `--include` glob, and a `for` over a glob with no existence test. Prose and tables are not scanned,
