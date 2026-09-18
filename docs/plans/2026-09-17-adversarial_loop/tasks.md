@@ -310,10 +310,10 @@ does-not-apply list, then exact one-line report shapes.
       tool; the "Checked and clear" coverage list and why carrying it in the restatement does not
       violate the tool's do-not-duplicate rule; the reconnaissance summary shape so the sizing can
       be argued with. (~22 calls) (completed 2026-09-18 00:51)
-- [ ] **P2-T5** — Write `plugin/skills/adversarial-review/reference.md`: verify-only mode for
+- [x] **P2-T5** — Write `plugin/skills/adversarial-review/reference.md`: verify-only mode for
       adjudicating another session's findings; the five reviewer dispositions (valid / wrong /
       over-fitted / real-but-disproportionate / pre-existing); the proportionality gate; the
-      coverage check; and "'clean' describes a tree state, not the branch". (~24 calls)
+      coverage check; and "'clean' describes a tree state, not the branch". (~24 calls) (completed 2026-09-18 00:54)
 
 #### Then the skill body
 
@@ -444,8 +444,9 @@ to the built-in `/verify`. Creating a PR stays out of scope.
       and `claude[bot]` as hard dependencies *where those phases engage*; the stated stop when one
       is missing; "'clean' describes a tree state, not the branch" as the re-review trigger; and
       the explicit non-goal of creating a PR. (~42 calls)
-- [ ] **P3-T3** — Write `plugin/skills/adversarial-loop/reference.md`: the reviewer-adjudication
-      pass in full; the coverage question ("what did nothing look at?") with its standing
+- [ ] **P3-T3** — Write `plugin/skills/adversarial-loop/reference.md`: **link** to
+      `adversarial-review/reference.md` for the adjudication pass rather than restating it —
+      P2-T5 wrote it as the authority, and two statements of the five dispositions would drift; the coverage question ("what did nothing look at?") with its standing
       candidates generalised off reef; the `claude[bot]` mechanics that are harness facts rather
       than repo facts — the login is `claude[bot]` not `claude`, the bot edits its comment in
       place so watch `updated_at`, and the check rollup must be read against the head SHA.

@@ -51,6 +51,17 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-18 00:54 — P2-T5 (closed)
+
+- **Task/phase**: P2-T5 — write plugin/skills/adversarial-review/reference.md
+- **Landed**: reference.md as the adjudication authority; P3-T3 amended in tasks.md to link to
+  it rather than restate the dispositions
+- **Commits**: 1f0863f
+- **Learned**: my own portability check had an unreachable negative branch — piping grep into sed
+  masked its exit status, so `|| echo silent` could never fire. The check was right about the
+  file and wrong about itself. Same family as everything else this session, in a new disguise.
+- **Started at**: 49e0317
+
 ## 2026-09-18 00:51 — P2-T4 (closed)
 
 - **Task/phase**: P2-T4 — write plugin/skills/adversarial-review/templates.md
