@@ -8,7 +8,7 @@ last_updated: 2026-09-18
 assignee: scraig
 current_phase: 1
 total_tasks: 8
-completed_tasks: 1
+completed_tasks: 2
 task_tracking: markdown-checkboxes
 git_branch: adversarial-loop-skill-research
 repository: thescubageek/workbench
@@ -44,7 +44,7 @@ finding cannot be expressed as a corpus case, the task says which shape it uses 
       **Acceptance (shape 2 + shape 1)**: mutate a temp copy, never `CG`; assert a sha256 of the
       tracked file is unchanged across a full run; a planted SIGTERM leaves the file intact.
       **First — this is a prerequisite for any larger mutation sweep.** (~12 calls)
-- [ ] **R4-T2** — `check-guards:241` — `main()` chdirs to the repo root before resolving targets,
+- [x] **R4-T2** — `check-guards:241` — `main()` chdirs to the repo root before resolving targets,
       so a relative path scans the workbench tree and reports its file count.
       **Fails when:** from `/tmp/victim`, `check-guards plugin` prints `✅ … (142 files scanned)`
       having never opened `/tmp/victim/plugin/scripts/bad.sh`. The scanned-count guard is

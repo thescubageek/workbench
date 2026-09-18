@@ -238,8 +238,14 @@ def collect(targets):
 
 def main(argv):
     root = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..'))
+    # Resolve the user's targets against the CALLER's cwd, before any chdir. Resolving
+    # after meant a relative path was reinterpreted against the repo root: run from
+    # /tmp/victim, `check-guards plugin` scanned the workbench's 142 files, reported them
+    # confidently, and never opened the victim's tree. The scanned-count guard — the one
+    # defence against reporting clean having scanned nothing — was satisfied by the wrong
+    # tree, which is this tool's own defect class inside the tool.
+    targets = [os.path.abspath(a) for a in argv] if argv else [os.path.join(root, 'plugin')]
     os.chdir(root)
-    targets = argv or ['plugin']
 
     findings, scanned = collect(targets)
 
@@ -250,7 +256,8 @@ def main(argv):
 
     if findings:
         for path, no, shape, raw in findings:
-            print(f'{path}:{no}\n  {shape}\n  found: {raw}\n  fix:   {FIXES[shape]}\n')
+            shown = os.path.relpath(path, root) if path.startswith(root + os.sep) else path
+            print(f'{shown}:{no}\n  {shape}\n  found: {raw}\n  fix:   {FIXES[shape]}\n')
         print('❌ check-guards: unguarded measurements above — '
               "each one's failure reads as a clean result", file=sys.stderr)
         return 1

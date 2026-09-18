@@ -62,6 +62,9 @@ MUTATIONS = [
      "os.walk(t, followlinks=True)", "os.walk(t, followlinks=False)"),
     ('silently skip an unreadable file',
      "                raise SystemExit(2)", "                continue"),
+    ('resolve targets after the chdir',
+     "    targets = [os.path.abspath(a) for a in argv] if argv else [os.path.join(root, 'plugin')]\n    os.chdir(root)",
+     "    os.chdir(root)\n    targets = argv or ['plugin']"),
     ('lose the status-test lookahead',
      "            if nxt is not None and STATUS_TEST.search(strip_comment(texts[nxt])):",
      "            if False:"),
@@ -173,6 +176,20 @@ def run_integrity(impl):
         m = re.search(r'\((\d+) files scanned\)', r.stdout)
         checks.append(('the reported file count is the real one (4)',
                        bool(m) and int(m.group(1)) == 4))
+    finally:
+        shutil.rmtree(d, ignore_errors=True)
+
+    # CLAIM: a target means what the CALLER meant. Run from another cwd, a relative
+    # target must scan THAT tree — it scanned the repo root and reported its file count.
+    d = tempfile.mkdtemp()
+    try:
+        os.makedirs(os.path.join(d, 'plugin', 'scripts'))
+        open(os.path.join(d, 'plugin', 'scripts', 'bad.sh'), 'w').write(
+            '#!/usr/bin/env bash\nn=$(grep -c foo f.txt)\necho "$n"\n')
+        r = subprocess.run([sys.executable, impl, 'plugin'], capture_output=True,
+                           text=True, cwd=d)
+        checks.append(('a relative target resolves against the caller cwd',
+                       r.returncode == 1 and 'bad.sh' in r.stdout))
     finally:
         shutil.rmtree(d, ignore_errors=True)
 
