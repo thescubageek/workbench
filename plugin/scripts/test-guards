@@ -1,103 +1,174 @@
-#!/usr/bin/env bash
+#!/usr/bin/env python3
+"""Contract tests for scripts/check-guards — corpus AND mutation survivability.
 
-# Contract tests for scripts/check-guards.
-#
-# The contract is one thing: the checker must be able to FAIL, on the thing it claims to
-# catch. Every case plants a defect and asserts it fires — naming WHICH finding it expects —
-# or plants the correct form and asserts nothing fires.
-#
-# Asserting only the exit code is not enough, and that is not hypothetical: an earlier
-# version of this file did exactly that, and breaking check-guards' closing-fence reset left
-# it 19/19 green while the checker flagged plain English prose. An expect-1 case that does
-# not say what it expects cannot tell "found the planted defect" from "crashed".
-#
-# Usage: plugin/scripts/test-guards [path-to-check-guards]
+Two scores, because round 3 of this repository's own review established that one is not
+enough: the previous suite scored 31/31 while four of the checker's guards could each be
+deleted with a single-line edit and the suite stayed green. A corpus proves the detectors
+fire on what you thought of. Mutation proves the corpus would notice if a detector stopped
+firing at all.
 
-set -uo pipefail
-CG="${1:-$(cd "$(dirname "$0")" && pwd)/check-guards}"
-pass=0; fail=0
+Acceptance bar, pre-registered: 100% of the corpus, and every planted mutation caught.
 
-CAPTURE="grep -c captured without a status guard"
-GLOB="for over a glob with no existence test"
-INCLUDE="unquoted --include glob"
-FENCE="unclosed bash fence"
+Usage: plugin/scripts/test-guards [path-to-check-guards]
+"""
+import json
+import os
+import shutil
+import subprocess
+import sys
+import tempfile
 
-case_run() {  # name expect_exit expect_pattern file_rel content
-  local name="$1" expect="$2" pattern="$3" rel="$4" content="$5"
-  local d; d=$(mktemp -d)
-  mkdir -p "$d/$(dirname "$rel")"
-  printf '%b' "$content" > "$d/$rel"
-  local out; out=$("$CG" "$d" 2>&1); local code=$?
+HERE = os.path.dirname(os.path.abspath(__file__))
+CG = sys.argv[1] if len(sys.argv) > 1 else os.path.join(HERE, 'check-guards')
+CORPUS = os.path.join(HERE, 'fixtures', 'guard-corpus.json')
 
-  local ok=1 why=""
-  if [ "$code" -ne "$expect" ]; then
-    ok=0; why="expected exit $expect, got $code"
-  elif [ "$expect" -eq 1 ] && ! printf '%s' "$out" | grep -qF -- "$pattern"; then
-    ok=0; why="exit 1, but no finding matching: $pattern"
-  elif [ "$expect" -eq 1 ] && ! printf '%s' "$out" | grep -qF -- "$(basename "$rel")"; then
-    ok=0; why="fired, but not on the planted file $rel"
-  elif [ "$expect" -eq 0 ] && printf '%s' "$out" | grep -q 'found:'; then
-    ok=0; why="exit 0 but a finding was still reported"
-  fi
+# Each is a single-line edit a maintainer could plausibly make. If the corpus does not
+# notice, the corpus is certifying whatever that line does.
+MUTATIONS = [
+    ('disable the capture detector',
+     "if not COUNTING.search(inner):", "if True or not COUNTING.search(inner):"),
+    ('disable the --include detector',
+     "for m in re.finditer(r'--include=(\\S+)', line):", "for m in re.finditer(r'__NEVER__', line):"),
+    ('disable the glob detector',
+     "if m and '*' in m.group(1)", "if False and m and '*' in m.group(1)"),
+    ('treat every capture as guarded',
+     "if GUARD.search(inner) or re.match(", "if True or GUARD.search(inner) or re.match("),
+    ('break the quote-aware comment strip',
+     "    out, quote = [], None", "    return line.split('#')[0]\n    out, quote = [], None"),
+    ('stop scanning sh/shell fences',
+     "SHELL_INFO = {'bash', 'sh', 'shell'}", "SHELL_INFO = {'bash'}"),
+    ('break the fence closer',
+     "if m and m.group('f')[0] == ch and len(m.group('f')) >= ln and not m.group('info'):",
+     "if False:"),
+    ('stop scanning extensionless scripts',
+     "is_sh = ext == '.sh' or (ext == '' and f'{os.sep}scripts{os.sep}' in path)",
+     "is_sh = ext == '.sh'"),
+    ('drop the unclosed-fence report',
+     "                if unclosed:", "                if False:"),
+    ('drop the trailing glob flush',
+     "    if pending_glob is not None:\n        found.append", "    if False:\n        found.append"),
+    ('delete the missing-target refusal',
+     "        if not os.path.exists(t):", "        if False:"),
+    ('lose the status-test lookahead',
+     "            if nxt is not None and STATUS_TEST.search(strip_comment(texts[nxt])):",
+     "            if False:"),
+]
 
-  if [ "$ok" -eq 1 ]; then
-    echo "  ✓ $name"; pass=$((pass+1))
-  else
-    echo "  ✗ $name — $why"; printf '%s\n' "$out" | sed 's/^/      /'; fail=$((fail+1))
-  fi
-  rm -rf "$d"
-}
 
-echo "== shape 1: an unguarded counting capture MUST fire =="
-case_run "capture on the file's LAST line"       1 "$CAPTURE" scripts/a.sh '#!/usr/bin/env bash\necho hi\nn=$(grep -c foo /etc/hosts)\n'
-case_run "piped grep -c"                         1 "$CAPTURE" scripts/b.sh '#!/usr/bin/env bash\nn=$(cat f.txt | grep -c foo)\necho "$n"\n'
-case_run "backticked capture"                    1 "$CAPTURE" scripts/c.sh '#!/usr/bin/env bash\nn=`grep -c foo f.txt`\necho "$n"\n'
-case_run "spaced \$( grep -c"                    1 "$CAPTURE" scripts/d.sh '#!/usr/bin/env bash\nn=$( grep -c foo f.txt )\necho "$n"\n'
-case_run "--count long form"                     1 "$CAPTURE" scripts/e.sh '#!/usr/bin/env bash\nn=$(grep --count foo f.txt)\necho "$n"\n'
-case_run "guard on a LATER capture, same line"   1 "$CAPTURE" scripts/q.sh '#!/usr/bin/env bash\nn=`grep -c x f`; m=`grep -c y g || true`\necho hi\n'
-case_run "an earlier grep inside a string"       1 "$CAPTURE" scripts/r.sh '#!/usr/bin/env bash\necho "grep || true"; n=$(grep -c x f)\necho hi\n'
+def run_corpus(impl):
+    cases = json.load(open(CORPUS))
+    tp = fn = fp = tn = 0
+    misses, falses = [], []
+    for case in cases:
+        d = tempfile.mkdtemp()
+        try:
+            p = os.path.join(d, case['path'])
+            os.makedirs(os.path.dirname(p), exist_ok=True)
+            open(p, 'w').write(case['content'])
+            if p.endswith('.sh'):
+                os.chmod(p, 0o755)
+            r = subprocess.run([sys.executable, impl, d], capture_output=True, text=True)
+            fired = r.returncode == 1
+            if case['expect'] == 1:
+                (tp := tp + 1) if fired else (misses.append(case['id']), fn := fn + 1)
+            else:
+                (falses.append(case['id']), fp := fp + 1) if fired else (tn := tn + 1)
+        finally:
+            shutil.rmtree(d, ignore_errors=True)
+    return dict(total=len(cases), correct=tp + tn, tp=tp, fn=fn, fp=fp, tn=tn,
+                misses=misses, falses=falses)
 
-echo "== shape 2: an unquoted --include glob MUST fire =="
-case_run "unquoted --include glob"               1 "$INCLUDE" scripts/g.sh '#!/usr/bin/env bash\ngrep -r --include=*.py foo .\n'
 
-echo "== shape 3: an unguarded glob loop MUST fire =="
-case_run "for over a glob, unguarded"            1 "$GLOB" scripts/h.sh '#!/usr/bin/env bash\nfor x in *.txt; do\n  echo "$x"\ndone\n'
-case_run "guard placed past the window"          1 "$GLOB" scripts/i.sh '#!/usr/bin/env bash\nfor x in *.txt; do\n  a=1\n  b=2\n  c=3\n  echo "$x"\ndone\n'
-case_run "echo -e does not cancel the check"     1 "$GLOB" scripts/s.sh '#!/usr/bin/env bash\nfor x in *.log; do\n  echo -e "processing $x"\n  cat "$x"\ndone\n'
-case_run "the word continue in a string neither" 1 "$GLOB" scripts/u.sh '#!/usr/bin/env bash\nfor x in *.log; do\n  msg="continue anyway"\n  cat "$x"\ndone\n'
+def run_integrity(impl):
+    """Properties the corpus structurally cannot test, because every corpus case
+    materialises a real directory with real content. Without these, a mutation deleting
+    the missing-target refusal survives — and a check that silently scans nothing is the
+    exact defect class this tool exists to catch."""
+    checks = []
 
-echo "== fenced blocks inside markdown MUST be scanned =="
-case_run "an INDENTED bash fence"                1 "$CAPTURE" doc.md  'text\n\n   ```bash\n   n=$(grep -c foo f.txt)\n   echo "$n"\n   ```\n'
-case_run "a fence ending on the capture"         1 "$CAPTURE" doc2.md 'text\n\n```bash\necho hi\nn=$(grep -c foo f.txt)\n```\n'
-case_run "a fence with an info string"           1 "$CAPTURE" doc6.md '```bash copy\nn=$(grep -c foo f.txt)\necho "$n"\n```\n'
-case_run "an sh fence, not just bash"            1 "$CAPTURE" doc7.md '```sh\nn=$(grep -c foo f.txt)\necho "$n"\n```\n'
+    r = subprocess.run([sys.executable, impl, '/tmp/no-such-path-for-test-guards'],
+                       capture_output=True, text=True)
+    checks.append(('a missing target exits 2', r.returncode == 2))
 
-echo "== a fence that never terminates MUST be reported, not leaked past =="
-case_run "closed at a different indent"          1 "$FENCE" doc4.md 'text\n\n  ```bash\n  n=$(count foo f) || exit 2\n'
-case_run "never closed at all"                   1 "$FENCE" doc5.md 'text\n\n```bash\nn=$(count foo f) || exit 2\n'
+    d = tempfile.mkdtemp()
+    try:
+        r = subprocess.run([sys.executable, impl, d], capture_output=True, text=True)
+        checks.append(('an empty directory exits 0, not a hard fail', r.returncode == 0))
+    finally:
+        shutil.rmtree(d, ignore_errors=True)
 
-echo "== the correct forms MUST NOT fire =="
-case_run "guarded with plugin/scripts/count"     0 "" scripts/j.sh '#!/usr/bin/env bash\nn=$(count foo f.txt) || exit 2\necho "$n"\n'
-case_run "capture with a trailing || true"       0 "" scripts/k.sh '#!/usr/bin/env bash\nn=$(grep -c foo f.txt) || true\necho "${n:-0}"\n'
-case_run "|| true inside the substitution"       0 "" scripts/v.sh '#!/usr/bin/env bash\nn=$(cat f | grep -c . || true)\necho "${n:-0}"\n'
-case_run "status checked on the next line"       0 "" scripts/l.sh '#!/usr/bin/env bash\nn=$(grep -c foo f.txt)\nif [ $? -ge 2 ]; then exit 2; fi\n'
-case_run "quoted --include glob"                 0 "" scripts/m.sh '#!/usr/bin/env bash\ngrep -r --include="*.py" foo .\n'
-case_run "glob loop WITH a guard"                0 "" scripts/n.sh '#!/usr/bin/env bash\nfor x in *.txt; do\n  [ -e "$x" ] || continue\n  echo "$x"\ndone\n'
-case_run "guard after a comment line"            0 "" scripts/o.sh '#!/usr/bin/env bash\nfor x in *.txt; do\n  # the guard is below\n  [ -e "$x" ] || continue\n  echo "$x"\ndone\n'
-case_run "array expansion, not a glob"           0 "" scripts/p.sh '#!/usr/bin/env bash\narr=(a b)\nfor x in ${arr[*]}; do echo "$x"; done\n'
-case_run "a trailing comment naming grep -c"     0 "" scripts/t.sh '#!/usr/bin/env bash\nn=$(count foo f.txt) || exit 2   # was: grep -c\necho "$n"\n'
-case_run "prose in a scripts/*.md file"          0 "" scripts/README.md 'Never write `grep -r --include=*.py foo .` — quote the glob.\n'
-case_run "an example in a text fence"            0 "" doc3.md 'Bad:\n\n```text\nn=$(grep -c foo f.txt)\n```\n'
-case_run "a fence closed at its own indent"      0 "" doc8.md 'text\n\n  ```bash\n  n=$(count foo f) || exit 2\n  ```\n\nProse after.\n'
+    d = tempfile.mkdtemp()
+    try:
+        open(os.path.join(d, 'notes.txt'), 'w').write('nothing scannable here\n')
+        r = subprocess.run([sys.executable, impl, d], capture_output=True, text=True)
+        checks.append(('a directory with no shell or markdown exits 0', r.returncode == 0))
+    finally:
+        shutil.rmtree(d, ignore_errors=True)
 
-echo "== the scan itself must be verifiable =="
-out=$("$CG" /tmp/no-such-dir-for-test-guards 2>&1); code=$?
-if [ "$code" -eq 2 ]; then
-  echo "  ✓ a nonexistent path exits 2 rather than reporting clean"; pass=$((pass+1))
-else
-  echo "  ✗ a nonexistent path should exit 2, got $code"; fail=$((fail+1))
-fi
+    d = tempfile.mkdtemp()
+    try:
+        real = os.path.join(d, 'real')
+        os.makedirs(os.path.join(real, 'scripts'))
+        open(os.path.join(real, 'scripts', 'a.sh'), 'w').write(
+            '#!/usr/bin/env bash\nn=$(grep -c foo f.txt)\necho "$n"\n')
+        link = os.path.join(d, 'link')
+        os.symlink(real, link)
+        r = subprocess.run([sys.executable, impl, link], capture_output=True, text=True)
+        checks.append(('a symlinked directory is followed, not refused', r.returncode == 1))
+    finally:
+        shutil.rmtree(d, ignore_errors=True)
 
-echo
-echo "test-guards: $pass passed, $fail failed"
-[ "$fail" -eq 0 ]
+    return checks
+
+
+def main():
+    print(f'corpus: {CORPUS}')
+    base = run_corpus(CG)
+    print(f"\n== corpus ==\n  {base['correct']}/{base['total']} "
+          f"({base['tp']} of {base['tp'] + base['fn']} must-fire caught, "
+          f"{base['fp']} false positives)")
+    for m in base['misses']:
+        print(f'  ✗ MISSED  {m}')
+    for f in base['falses']:
+        print(f'  ✗ FALSE+  {f}')
+
+    integ = run_integrity(CG)
+    print('\n== scan integrity (outside the corpus) ==')
+    for label, ok in integ:
+        print(f"  {'✓' if ok else '✗'} {label}")
+    integ_ok = sum(1 for _, ok in integ if ok)
+
+    print('\n== mutation survivability ==')
+    orig = open(CG).read()
+    caught = 0
+    for label, old, new in MUTATIONS:
+        if old not in orig:
+            print(f'  ?? {label}: anchor not found — MUTATION DID NOT APPLY')
+            continue
+        open(CG, 'w').write(orig.replace(old, new, 1))
+        os.chmod(CG, 0o755)
+        try:
+            s = run_corpus(CG)
+            si = sum(1 for _, ok in run_integrity(CG) if ok)
+        finally:
+            open(CG, 'w').write(orig)
+            os.chmod(CG, 0o755)
+        # Scored against corpus AND integrity together. Scoring on the corpus alone left
+        # the integrity guards deletable, which is the same hole one level up.
+        if (s['correct'] + si) < (base['correct'] + integ_ok):
+            caught += 1
+            print(f"  ✓ {label}: caught ({s['correct']}/{s['total']} + {si}/{len(integ)})")
+        else:
+            print(f"  ✗ {label}: SURVIVED ({s['correct']}/{s['total']} + {si}/{len(integ)})")
+    print(f'\n  {caught}/{len(MUTATIONS)} mutations caught')
+
+    ok = (base['correct'] == base['total'] and caught == len(MUTATIONS)
+          and integ_ok == len(integ))
+    print(f"\ntest-guards: corpus {base['correct']}/{base['total']}, "
+          f"integrity {integ_ok}/{len(integ)}, "
+          f"mutations {caught}/{len(MUTATIONS)} — {'PASS' if ok else 'FAIL'}")
+    return 0 if ok else 1
+
+
+if __name__ == '__main__':
+    sys.exit(main())

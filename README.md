@@ -296,9 +296,16 @@ indistinguishable from "nothing matched": a `grep -c` captured without a status 
 so a document may describe a bad pattern freely — a deliberate counter-example belongs in a `text`
 fence rather than a `bash` one.
 
-`scripts/test-guards` is the contract test for that checker, in both directions — each shape must
-fire, each correct form must not. It exists because `check-guards` has been an instance of the
-class it hunts more than once, and a check observed only passing is a check nobody has tested.
+`scripts/test-guards` is its contract test, in three parts: a 43-case labelled corpus, scan-integrity
+checks the corpus structurally cannot cover, and **mutation survivability** — twelve single-line
+breaks planted in the checker, each of which must be caught. The third part exists because an
+earlier suite reported 31/31 while four of the checker's guards were each deletable with a one-line
+edit. A corpus proves the detectors fire on what you thought of; mutation proves the corpus would
+notice if one stopped firing at all.
+
+`check-guards` and `test-guards` require **`python3`**. They were bash through three review rounds,
+each of which patched real holes and opened comparable ones; measured on one corpus, the bash
+version scored 89% with 50% mutation survivability against the rewrite's 100% and 100%.
 
 `scripts/quiet <command>` wraps any command so a green run collapses to a checkmark plus the
 runner's own summary line, while a failure dumps the full log. Exit codes pass through unchanged.

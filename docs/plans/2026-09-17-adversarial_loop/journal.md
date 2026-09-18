@@ -51,6 +51,38 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-18 21:06 — Phase 9: check-guards rebuilt (closed)
+
+- **Task/phase**: Q8-3/Q8-4 recorded; Phase 9 added and executed, P9-T1 through P9-T5.
+- **Landed**: `check-guards` and `test-guards` rebuilt in Python on the probed approach;
+  the 43-case corpus shipped at `plugin/scripts/fixtures/guard-corpus.json`. Counters 71 → 76
+  of 85.
+- **Learned**:
+  - **Corpus 43/43, integrity 4/4, mutations 12/12 — the pre-registered bar exactly.** Against
+    the bash scanner's 89% corpus and 50% mutation on the same cases.
+  - **The corpus caught a real bug in the tool on its first run.** `s1-guard-on-earlier` failed:
+    I had written `break` where `continue` belonged, so a guarded capture earlier on a line
+    excused an unguarded one after it — the *same* defect, in the *same* direction, that Phase 7
+    shipped and round 3 found. Writing the corpus first is what stopped it shipping a third time.
+  - **Two mutations survived the first harness, and both were corpus gaps rather than tool
+    gaps**: no case used an extensionless script, and none had an unclosed fence as its only
+    defect. Both are now cases. This is the mutation score doing precisely its job — telling you
+    the corpus has a hole, not that the tool does.
+  - **The missing-target refusal could never be caught by the corpus**, because every corpus
+    case materialises a real directory. That needed assertions *outside* the corpus, and the
+    mutation score had to be computed against corpus **and** integrity together — otherwise the
+    integrity guards were themselves deletable, which is the identical hole one level up.
+  - **The old dispatch rule was too broad**: `'/scripts/' in path` fed the corpus JSON to the
+    shell analyser and reported 24 findings in this tool's own fixtures. Keying on file type
+    rather than location fixed that and the scripts-README-parsed-as-shell case together.
+  - **Q8-5 is now implemented, not just answered**: the rule is *captured and the status never
+    tested*, with next-line lookahead. `shellcheck` was right that a bare assignment masks
+    nothing.
+- **Commits**: `ab17659`, and this one.
+- **Blocked by**: nothing mechanical. P8-T3, P8-T4, P8-T5 and P8-T8 remain; whether to re-run
+  the adversarial review is the user's call, and this phase is a rewrite — the
+  highest-defect-density shape in the plan.
+
 ## 2026-09-18 20:51 — P8-T2, P8-T6, P8-T7: the check-guards spike (closed)
 
 - **Task/phase**: Q8-1/Q8-2 decided and recorded; the spike pre-registered, run, and written up.

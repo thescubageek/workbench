@@ -110,15 +110,15 @@ an installer.
 
 ### `check-guards`
 
-Finds shell measurements whose failure reads as a clean result — the defect class where a broken
-command and a genuinely empty result produce the same output, and the error always points toward
-believing things are fine. Three shapes:
+Finds measurements whose failure is indistinguishable from a clean result — the class where a
+broken command and a genuinely empty result produce the same output, and the error always points
+toward believing things are fine. Three shapes:
 
-1. A `grep -c` capture with no status guard, in `$( )` or backticks, piped or not. grep exits 1 on
-   no match and 2 on **error**, so a missing file and a clean file both yield a usable-looking
-   value.
-2. An unquoted `--include=` glob. Shell-dependent: `bash` passes it through, `zsh` errors and the
-   count silently comes back zero.
+1. A counting `grep` captured in a substitution **whose exit status is never tested**. grep exits
+   1 on no match and 2 on **error**, so a missing file and a clean file both yield something that
+   looks like a usable count.
+2. An unquoted `--include=` glob. Shell-dependent: `bash` passes an unmatched glob through, `zsh`
+   errors and the result is silently zero.
 3. A `for` over a glob with no existence test. An unmatched glob runs the body once with the
    literal pattern as the filename.
 
@@ -127,27 +127,55 @@ believing things are fine. Three shapes:
 ./plugin/scripts/check-guards some/dir
 ```
 
-It scans shipped shell scripts and the fenced `bash` blocks inside shipped markdown, including
-**indented** fences — a block nested in a numbered step is still an instruction a model executes.
-Prose and tables are deliberately not scanned, so a document may describe a bad pattern without
-tripping it. **A deliberate counter-example belongs in a `text` fence rather than a `bash` one**;
-that is the convention instead of a suppression marker, because a marker can silence a real
-finding and a fence language cannot. Two files are exempt by name — `check-guards` and
-`test-guards` — because their content *is* the fixtures.
+Exit 0 clean, 1 findings, **2 the scan could not be trusted** — a missing target, or a file it
+could not read. That third state matters: a checker that reports clean because it scanned nothing
+is the defect it exists to catch.
 
-The remedy it recommends is `count`, never `|| true` with `${n:-0}`: that pairing is the collapse
-written out longhand, not a fix for it.
+It scans shell scripts and the fenced shell blocks inside markdown, including **indented** fences
+and `sh`/`shell` as well as `bash` — a block nested in a numbered step is still an instruction a
+model executes. Prose and tables are not scanned, so a document may describe a bad pattern freely.
+**A deliberate counter-example belongs in a `text` fence rather than a `bash` one**; that is the
+convention instead of a suppression marker, because a marker can silence a real finding and a
+fence language cannot. Two files are exempt by name — `check-guards` and `test-guards` — because
+their content *is* the fixtures.
+
+**Note on shape 1**: the rule is *captured and the status never tested*, not merely *captured*. A
+bare `n=$(grep -c x f)` does not mask `$?` — the assignment's status is the substitution's — so a
+following `$?` test is accepted. `shellcheck` is right to decline to flag the bare form, which is
+why it was rejected as the engine for this check.
+
+**Requires `python3`.** It was a bash regex scanner through three review rounds, each of which
+patched real holes and opened comparable ones; the rewrite parses fences properly and locates a
+capture by finding the substitution containing it. Measured on the same corpus, the bash version
+scored 89% with 50% mutation survivability; this one scores 100% and 100%.
 
 ### `test-guards`
 
-Contract tests for `check-guards`. Nineteen planted cases in **both** directions — each shape must
-fire, and each correct form must not. It exists because a check observed only passing is a check
-nobody has tested, and `check-guards` has been an instance of the class it hunts three separate
-times in this repository's history.
+Contract tests for `check-guards`, in **three** parts — and the third is the one that matters:
 
 ```bash
 ./plugin/scripts/test-guards
 ```
+
+- **Corpus** — 43 labelled cases in `fixtures/guard-corpus.json`, each carrying the review round
+  that found it. Every shape must fire; every correct form must not.
+- **Scan integrity** — properties the corpus structurally cannot test, because every corpus case
+  materialises a real directory: a missing target exits 2, an empty directory does not hard-fail,
+  a symlinked directory is followed.
+- **Mutation survivability** — twelve single-line breaks are planted in `check-guards` and the
+  suite asserts each one is caught. This exists because a previous suite reported 31/31 while four
+  of the checker's guards could each be deleted with a one-line edit and it stayed green. **A
+  corpus proves the detectors fire on what you thought of; mutation proves the corpus would notice
+  if one stopped firing at all.** The mutation score is computed against corpus *and* integrity
+  together, or the integrity guards would themselves be deletable.
+
+Acceptance bar: 100% of the corpus, all integrity checks, every mutation caught.
+
+### `fixtures/guard-corpus.json`
+
+The labelled corpus. Not a test on its own — it is the asset three adversarial review rounds
+bought, and every case records which round found it, so it doubles as the regression record.
+Add a case here when a new shape is found; that is cheaper than adding a detector.
 
 ### `count`
 

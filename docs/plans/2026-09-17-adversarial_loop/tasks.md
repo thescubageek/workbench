@@ -7,7 +7,7 @@ last_updated: 2026-09-18
 assignee: scraig
 current_phase: 5
 total_tasks: 85
-completed_tasks: 71
+completed_tasks: 76
 task_tracking: markdown-checkboxes
 depends_on: [research.md, design.md]
 git_commit: 1990b40
@@ -1407,27 +1407,27 @@ closure is checkable rather than asserted.
 
 ### Tasks
 
-- [ ] **P9-T1** — Promote the corpus to a shipped fixture at
+- [x] **P9-T1** — Promote the corpus to a shipped fixture at
       `plugin/scripts/fixtures/guard-corpus.json`, with each case keeping its `provenance` field.
       The corpus is the asset three review rounds bought; it must not live in `thoughts/`.
       (~9 calls)
-- [ ] **P9-T2** — Close the two gaps the spike itself found in the corpus **before** building
+- [x] **P9-T2** — Close the two gaps the spike itself found in the corpus **before** building
       against it: a case where a fence must close correctly for the outcome to differ (the one
       mutation candidate C survived), and a case pinning the `$?`-on-the-next-line behaviour that
       is C's single false positive. A corpus with a known hole is a corpus that certifies the
       hole. (~11 calls) · Depends on: P9-T1
-- [ ] **P9-T3** — Build `plugin/scripts/check-guards` on the probed approach. Carry over what the
+- [x] **P9-T3** — Build `plugin/scripts/check-guards` on the probed approach. Carry over what the
       current implementation got right: the missing-target check, the find-stderr refusal, the
       scanned-count refusal, and the two by-name exemptions. **Resolve C's false positive** with
       next-line lookahead for `$?`, per Q8-5 — the rule is *"captured and the status never
       tested"*. **Fix the scanned-count** so it counts files actually fed to the scanner, not
       `find` output. Handle a symlinked target and a content-free directory without hard-failing.
       (~30 calls) · Depends on: P9-T2
-- [ ] **P9-T4** — Rewrite `plugin/scripts/test-guards` to run the corpus **and** the mutation
+- [x] **P9-T4** — Rewrite `plugin/scripts/test-guards` to run the corpus **and** the mutation
       suite, reporting both numbers. The mutation runner is what round 3 proved was missing — a
       corpus alone certified four deletable guards. Pre-register the acceptance bar: **100% of
       the corpus, and every planted mutation caught.** (~22 calls) · Depends on: P9-T3
-- [ ] **P9-T5** — Delete nothing until P9-T4 is green, then remove the superseded implementation
+- [x] **P9-T5** — Delete nothing until P9-T4 is green, then remove the superseded implementation
       and update `plugin/scripts/README.md` and the root `README.md` in the same task — the
       release that documents a tool it no longer ships is the drift this plan has hit twice.
       (~11 calls) · Depends on: P9-T4
@@ -1436,10 +1436,10 @@ closure is checkable rather than asserted.
 
 #### Automated Verification
 
-- [ ] `./plugin/scripts/test-guards` reports **corpus 38/38** and **mutations: all caught**
-- [ ] `./plugin/scripts/check-guards` exits 0 on the shipped tree, and 2 on a missing path
-- [ ] `./plugin/scripts/check` passes
-- [ ] The six round-3 `check-guards` findings each have a passing corpus case naming them
+- [x] `./plugin/scripts/test-guards` reports **corpus 38/38** and **mutations: all caught**
+- [x] `./plugin/scripts/check-guards` exits 0 on the shipped tree, and 2 on a missing path
+- [x] `./plugin/scripts/check` passes
+- [x] The six round-3 `check-guards` findings each have a passing corpus case naming them
 
 #### Manual Verification
 
@@ -1461,8 +1461,8 @@ before, and following it ticks the human sign-off box. **This block, labels and 
 included, is repeated in full at every phase's checkpoint**; a later phase never gets a
 shortened one.
 
-- [ ] **(derivable)** Every Phase 9 checkbox is `[x]`
-- [ ] **(derivable)** All automated verification passing
+- [x] **(derivable)** Every Phase 9 checkbox is `[x]`
+- [x] **(derivable)** All automated verification passing
 - [ ] **(attestation)** Manual verification confirmed by human
 - [ ] **(attestation)** Whether to re-run the adversarial review has been **decided by the user**.
       Three rounds established that a fix phase is the highest-defect-density surface in the

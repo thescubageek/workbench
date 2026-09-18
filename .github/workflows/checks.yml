@@ -24,6 +24,12 @@ jobs:
         with:
           fetch-depth: 0
 
+      # python3 is preinstalled on ubuntu-latest; asserted rather than assumed, because a
+      # missing interpreter would make check-guards and test-guards fail in a way that reads
+      # as a gate failure rather than a missing dependency.
+      - name: Assert python3
+        run: python3 --version
+
       - name: Install markdownlint-cli
         # Pinned. Unpinned against a .markdownlintrc carrying "default": true, the next
         # upstream release that adds a rule turns CI red on a pull request that changed
