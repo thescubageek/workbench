@@ -39,9 +39,9 @@ RECONCILE BEFORE YOU RANK. NEVER WRITE PHI. ALWAYS LEAVE A CONCRETE FIRST MOVE.
 - **Reconcile before you rank** — one work item may appear as a Jira ticket, its PR,
   its plan task, and a Sentry error. Group them into ONE item before prioritizing,
   or the day plan double-counts and misleads.
-- **Never write PHI** — see [PHI guardrail](#phi-guardrail). This is a HIPAA-covered
-  org; the sources this skill reads (email, Jira, Sentry, Notion) can carry patient
-  data. The digest and every `.context/` file it writes must be PHI-free.
+- **Never write PHI** — see [PHI guardrail](#phi-guardrail). The sources this skill reads
+  (email, Jira, Sentry, Notion) can carry patient data in any HIPAA-covered organization.
+  The digest and every `.context/` file it writes must be PHI-free.
 - **A digest with no first move failed.** The deliverable is not a status report; it's
   a plan. Every "Today" item ends in a concrete next action and its effort tier.
 
@@ -238,11 +238,19 @@ identifiers from a planning artifact that never needed them.
 
 - **Never write PHI** into the digest, `.context/` files, `bd` issues, commit
   messages, or clipboard. Refer to work by ticket key / PR number / issue title —
-  never by patient name, DOB, address, contact info, or **Member ID** — your organization's
-  canonical member/patient identifier format, and obvious variants of it (lowercase, missing
-  or extra separators). A format of the shape `(?:AA|AB|AC)-[A-Z]{2}-\d{8}` is typical; if
-  your repository has its own, state it in the repository's `CLAUDE.md` so this rule has
-  something concrete to match.
+  never by patient name, DOB, address, contact info, or **Member ID**.
+
+  **Member IDs are matched, not described.** Scrub anything matching either of these, plus
+  obvious variants — lowercase, missing or extra separators, surrounding punctuation:
+
+  - `(?:BM|BC|BA)-[A-Z]{2}-\d{8}` — the canonical form this rule was written against.
+  - `\b[A-Z]{2}-[A-Z]{2}-\d{6,10}\b` — the general shape, which catches member-ID formats
+    this rule has not been told about.
+
+  If your repository uses a different format, add it in the repository's `CLAUDE.md`. That is
+  **additive**: a repository may widen this rule and may never narrow it. An undeclared format
+  does not disable the two patterns above — a de-identification rule that goes quiet when it
+  is unconfigured is worse than no rule, because it still reports clean.
 - **Collectors scrub at the source.** Instruct each collector to return
   identifiers/subjects and *categories* of content, not PHI values. If a Jira summary
   or email subject embeds a patient identifier, replace it with a placeholder

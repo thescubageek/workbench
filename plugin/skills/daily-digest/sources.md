@@ -9,9 +9,11 @@ Conventions:
 - `SINCE` = the window start as ISO date (`YYYY-MM-DD`). Default: contents of
   `.context/daily-digest/last-run`, else 24h ago; on Monday with no last-run, the
   previous Friday.
-- **Scrub PHI before returning** (see the PHI guardrail in SKILL.md). Return keys,
-  numbers, titles, and *categories* — replace any patient identifier / Member ID
-  (`(?:BM|BC|BA)-[A-Z]{2}-\d{8}`) with a placeholder.
+- **Scrub PHI before returning.** Return keys, numbers, titles, and *categories* —
+  replace any patient identifier or Member ID with a placeholder (`[PATIENT]`,
+  `[MEMBER_ID]`, `[DOB]`). **The patterns live in SKILL.md's PHI guardrail and only
+  there** — a second copy here drifted from it once already, and two scrub rules that
+  disagree means the narrower one silently wins on whichever surface reads it.
 - Return **structured notes**, not raw tool output.
 
 ---
