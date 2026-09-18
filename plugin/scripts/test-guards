@@ -13,6 +13,7 @@ Usage: plugin/scripts/test-guards [path-to-check-guards]
 """
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -55,6 +56,29 @@ MUTATIONS = [
 ]
 
 
+SHAPE_OF = {
+    'grep -c captured without a status guard': 'capture',
+    'unquoted --include glob': 'include',
+    'for over a glob with no existence test': 'glob',
+    'unclosed shell fence': 'fence',
+}
+
+
+def parse_findings(stdout, root):
+    """-> {(lineno, shape)} from check-guards' report."""
+    out, pending = set(), None
+    for line in stdout.splitlines():
+        m = re.match(r'^(.*):(\d+)$', line.strip())
+        if m and (m.group(1).startswith(root) or os.sep in m.group(1)):
+            pending = int(m.group(2))
+            continue
+        key = line.strip()
+        if pending is not None and key in SHAPE_OF:
+            out.add((pending, SHAPE_OF[key]))
+            pending = None
+    return out
+
+
 def run_corpus(impl):
     cases = json.load(open(CORPUS))
     tp = fn = fp = tn = 0
@@ -68,11 +92,23 @@ def run_corpus(impl):
             if p.endswith('.sh'):
                 os.chmod(p, 0o755)
             r = subprocess.run([sys.executable, impl, d], capture_output=True, text=True)
-            fired = r.returncode == 1
+            got = parse_findings(r.stdout, d)
+            want = {(ln, sh) for ln, sh in case.get('expect_at', [])}
             if case['expect'] == 1:
-                (tp := tp + 1) if fired else (misses.append(case['id']), fn := fn + 1)
+                # Assert WHAT was reported, not merely that something was. Asserting the
+                # exit code alone let mutations that report every finding at line 1, or
+                # under the wrong shape, or truncated to the first one, all score clean.
+                if got == want:
+                    tp += 1
+                else:
+                    fn += 1
+                    misses.append(f"{case['id']} (want {sorted(want)}, got {sorted(got)})")
             else:
-                (falses.append(case['id']), fp := fp + 1) if fired else (tn := tn + 1)
+                if got:
+                    fp += 1
+                    falses.append(f"{case['id']} (got {sorted(got)})")
+                else:
+                    tn += 1
         finally:
             shutil.rmtree(d, ignore_errors=True)
     return dict(total=len(cases), correct=tp + tn, tp=tp, fn=fn, fp=fp, tn=tn,

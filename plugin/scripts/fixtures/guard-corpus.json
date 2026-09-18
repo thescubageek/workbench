@@ -5,7 +5,13 @@
   "expect": 1,
   "path": "scripts/a.sh",
   "content": "#!/usr/bin/env bash\necho hi\nn=$(grep -c foo /etc/hosts)\n",
-  "provenance": "R2"
+  "provenance": "R2",
+  "expect_at": [
+   [
+    3,
+    "capture"
+   ]
+  ]
  },
  {
   "id": "s1-piped",
@@ -13,7 +19,13 @@
   "expect": 1,
   "path": "scripts/b.sh",
   "content": "#!/usr/bin/env bash\nn=$(cat f.txt | grep -c foo)\necho \"$n\"\n",
-  "provenance": "R2"
+  "provenance": "R2",
+  "expect_at": [
+   [
+    2,
+    "capture"
+   ]
+  ]
  },
  {
   "id": "s1-backtick",
@@ -21,7 +33,13 @@
   "expect": 1,
   "path": "scripts/c.sh",
   "content": "#!/usr/bin/env bash\nn=`grep -c foo f.txt`\necho \"$n\"\n",
-  "provenance": "R2"
+  "provenance": "R2",
+  "expect_at": [
+   [
+    2,
+    "capture"
+   ]
+  ]
  },
  {
   "id": "s1-spaced",
@@ -29,7 +47,13 @@
   "expect": 1,
   "path": "scripts/d.sh",
   "content": "#!/usr/bin/env bash\nn=$( grep -c foo f.txt )\necho \"$n\"\n",
-  "provenance": "R2"
+  "provenance": "R2",
+  "expect_at": [
+   [
+    2,
+    "capture"
+   ]
+  ]
  },
  {
   "id": "s1-longflag",
@@ -37,7 +61,13 @@
   "expect": 1,
   "path": "scripts/e.sh",
   "content": "#!/usr/bin/env bash\nn=$(grep --count foo f.txt)\necho \"$n\"\n",
-  "provenance": "R2"
+  "provenance": "R2",
+  "expect_at": [
+   [
+    2,
+    "capture"
+   ]
+  ]
  },
  {
   "id": "s1-guard-on-later",
@@ -45,7 +75,13 @@
   "expect": 1,
   "path": "scripts/q.sh",
   "content": "#!/usr/bin/env bash\nn=`grep -c x f`; m=`grep -c y g || true`\necho hi\n",
-  "provenance": "R3"
+  "provenance": "R3",
+  "expect_at": [
+   [
+    2,
+    "capture"
+   ]
+  ]
  },
  {
   "id": "s1-guard-on-earlier",
@@ -53,7 +89,13 @@
   "expect": 1,
   "path": "scripts/q2.sh",
   "content": "#!/usr/bin/env bash\nm=`grep -c y g || true`; n=`grep -c x f`\necho hi\n",
-  "provenance": "R3"
+  "provenance": "R3",
+  "expect_at": [
+   [
+    2,
+    "capture"
+   ]
+  ]
  },
  {
   "id": "s1-grep-in-string",
@@ -61,7 +103,13 @@
   "expect": 1,
   "path": "scripts/r.sh",
   "content": "#!/usr/bin/env bash\necho \"grep || true\"; n=$(grep -c x f)\necho hi\n",
-  "provenance": "R3"
+  "provenance": "R3",
+  "expect_at": [
+   [
+    2,
+    "capture"
+   ]
+  ]
  },
  {
   "id": "s1-hash-in-string",
@@ -69,7 +117,13 @@
   "expect": 1,
   "path": "scripts/j.sh",
   "content": "#!/usr/bin/env bash\nn=$(grep -v \"^#\" f.txt | grep -c foo)\necho \"$n\"\n",
-  "provenance": "R3"
+  "provenance": "R3",
+  "expect_at": [
+   [
+    2,
+    "capture"
+   ]
+  ]
  },
  {
   "id": "s2-unquoted",
@@ -77,7 +131,13 @@
   "expect": 1,
   "path": "scripts/g.sh",
   "content": "#!/usr/bin/env bash\ngrep -r --include=*.py foo .\n",
-  "provenance": "R1"
+  "provenance": "R1",
+  "expect_at": [
+   [
+    2,
+    "include"
+   ]
+  ]
  },
  {
   "id": "s3-bare",
@@ -85,7 +145,13 @@
   "expect": 1,
   "path": "scripts/h.sh",
   "content": "#!/usr/bin/env bash\nfor x in *.txt; do\n  echo \"$x\"\ndone\n",
-  "provenance": "R1"
+  "provenance": "R1",
+  "expect_at": [
+   [
+    2,
+    "glob"
+   ]
+  ]
  },
  {
   "id": "s3-guard-past-window",
@@ -93,7 +159,13 @@
   "expect": 1,
   "path": "scripts/i.sh",
   "content": "#!/usr/bin/env bash\nfor x in *.txt; do\n  a=1\n  b=2\n  c=3\n  echo \"$x\"\ndone\n",
-  "provenance": "R2"
+  "provenance": "R2",
+  "expect_at": [
+   [
+    2,
+    "glob"
+   ]
+  ]
  },
  {
   "id": "s3-echo-e",
@@ -101,7 +173,13 @@
   "expect": 1,
   "path": "scripts/s.sh",
   "content": "#!/usr/bin/env bash\nfor x in *.log; do\n  echo -e \"processing $x\"\n  cat \"$x\"\ndone\n",
-  "provenance": "R3"
+  "provenance": "R3",
+  "expect_at": [
+   [
+    2,
+    "glob"
+   ]
+  ]
  },
  {
   "id": "s3-continue-in-string",
@@ -109,7 +187,13 @@
   "expect": 1,
   "path": "scripts/u.sh",
   "content": "#!/usr/bin/env bash\nfor x in *.log; do\n  msg=\"continue anyway\"\n  cat \"$x\"\ndone\n",
-  "provenance": "R3"
+  "provenance": "R3",
+  "expect_at": [
+   [
+    2,
+    "glob"
+   ]
+  ]
  },
  {
   "id": "s3-do-next-line",
@@ -117,7 +201,13 @@
   "expect": 1,
   "path": "scripts/w.sh",
   "content": "#!/usr/bin/env bash\nfor x in *.md\ndo\n  echo \"$x\"\ndone\n",
-  "provenance": "R3"
+  "provenance": "R3",
+  "expect_at": [
+   [
+    2,
+    "glob"
+   ]
+  ]
  },
  {
   "id": "md-indented",
@@ -125,7 +215,13 @@
   "expect": 1,
   "path": "doc1.md",
   "content": "text\n\n   ```bash\n   n=$(grep -c foo f.txt)\n   echo \"$n\"\n   ```\n",
-  "provenance": "R2"
+  "provenance": "R2",
+  "expect_at": [
+   [
+    4,
+    "capture"
+   ]
+  ]
  },
  {
   "id": "md-last-line",
@@ -133,7 +229,13 @@
   "expect": 1,
   "path": "doc2.md",
   "content": "text\n\n```bash\necho hi\nn=$(grep -c foo f.txt)\n```\n",
-  "provenance": "R2"
+  "provenance": "R2",
+  "expect_at": [
+   [
+    5,
+    "capture"
+   ]
+  ]
  },
  {
   "id": "md-info-string",
@@ -141,7 +243,13 @@
   "expect": 1,
   "path": "doc6.md",
   "content": "```bash copy\nn=$(grep -c foo f.txt)\necho \"$n\"\n```\n",
-  "provenance": "R3"
+  "provenance": "R3",
+  "expect_at": [
+   [
+    2,
+    "capture"
+   ]
+  ]
  },
  {
   "id": "md-sh-fence",
@@ -149,7 +257,13 @@
   "expect": 1,
   "path": "doc7.md",
   "content": "```sh\nn=$(grep -c foo f.txt)\necho \"$n\"\n```\n",
-  "provenance": "R3"
+  "provenance": "R3",
+  "expect_at": [
+   [
+    2,
+    "capture"
+   ]
+  ]
  },
  {
   "id": "md-tilde-fence",
@@ -157,7 +271,13 @@
   "expect": 1,
   "path": "doc9.md",
   "content": "~~~bash\nn=$(grep -c foo f.txt)\necho \"$n\"\n~~~\n",
-  "provenance": "R3"
+  "provenance": "R3",
+  "expect_at": [
+   [
+    2,
+    "capture"
+   ]
+  ]
  },
  {
   "id": "ok-count",
@@ -165,7 +285,8 @@
   "expect": 0,
   "path": "scripts/j2.sh",
   "content": "#!/usr/bin/env bash\nn=$(count foo f.txt) || exit 2\necho \"$n\"\n",
-  "provenance": "R2"
+  "provenance": "R2",
+  "expect_at": []
  },
  {
   "id": "ok-ortrue",
@@ -173,7 +294,8 @@
   "expect": 0,
   "path": "scripts/k.sh",
   "content": "#!/usr/bin/env bash\nn=$(grep -c foo f.txt) || true\necho \"${n:-0}\"\n",
-  "provenance": "R2"
+  "provenance": "R2",
+  "expect_at": []
  },
  {
   "id": "ok-ortrue-inside",
@@ -181,7 +303,8 @@
   "expect": 0,
   "path": "scripts/v.sh",
   "content": "#!/usr/bin/env bash\nn=$(cat f | grep -c . || true)\necho \"${n:-0}\"\n",
-  "provenance": "R3"
+  "provenance": "R3",
+  "expect_at": []
  },
  {
   "id": "ok-ortrue-comment",
@@ -189,7 +312,8 @@
   "expect": 0,
   "path": "scripts/x.sh",
   "content": "#!/usr/bin/env bash\nn=$(grep -c foo f.txt) || true   # tolerate no matches\necho \"${n:-0}\"\n",
-  "provenance": "R3"
+  "provenance": "R3",
+  "expect_at": []
  },
  {
   "id": "ok-status-next-line",
@@ -197,7 +321,8 @@
   "expect": 0,
   "path": "scripts/l.sh",
   "content": "#!/usr/bin/env bash\nn=$(grep -c foo f.txt)\nif [ $? -ge 2 ]; then exit 2; fi\n",
-  "provenance": "Q8-5 \u2014 the same capture with the status tested on the next line. Requires lookahead; candidate C's single false positive."
+  "provenance": "Q8-5 \u2014 the same capture with the status tested on the next line. Requires lookahead; candidate C's single false positive.",
+  "expect_at": []
  },
  {
   "id": "ok-quoted-include",
@@ -205,7 +330,8 @@
   "expect": 0,
   "path": "scripts/m.sh",
   "content": "#!/usr/bin/env bash\ngrep -r --include=\"*.py\" foo .\n",
-  "provenance": "R1"
+  "provenance": "R1",
+  "expect_at": []
  },
  {
   "id": "ok-glob-guarded",
@@ -213,7 +339,8 @@
   "expect": 0,
   "path": "scripts/n.sh",
   "content": "#!/usr/bin/env bash\nfor x in *.txt; do\n  [ -e \"$x\" ] || continue\n  echo \"$x\"\ndone\n",
-  "provenance": "R1"
+  "provenance": "R1",
+  "expect_at": []
  },
  {
   "id": "ok-glob-guard-after-comment",
@@ -221,7 +348,8 @@
   "expect": 0,
   "path": "scripts/o.sh",
   "content": "#!/usr/bin/env bash\nfor x in *.txt; do\n  # the guard is below\n  [ -e \"$x\" ] || continue\n  echo \"$x\"\ndone\n",
-  "provenance": "R2"
+  "provenance": "R2",
+  "expect_at": []
  },
  {
   "id": "ok-glob-guard-dbl-bracket",
@@ -229,7 +357,8 @@
   "expect": 0,
   "path": "scripts/o2.sh",
   "content": "#!/usr/bin/env bash\nfor x in *.txt; do\n  [[ -e \"$x\" ]] || continue\n  echo \"$x\"\ndone\n",
-  "provenance": "R3"
+  "provenance": "R3",
+  "expect_at": []
  },
  {
   "id": "ok-glob-guard-test",
@@ -237,7 +366,8 @@
   "expect": 0,
   "path": "scripts/o3.sh",
   "content": "#!/usr/bin/env bash\nfor x in *.txt; do\n  test -e \"$x\" || continue\n  echo \"$x\"\ndone\n",
-  "provenance": "R3"
+  "provenance": "R3",
+  "expect_at": []
  },
  {
   "id": "ok-array",
@@ -245,7 +375,8 @@
   "expect": 0,
   "path": "scripts/p.sh",
   "content": "#!/usr/bin/env bash\narr=(a b)\nfor x in ${arr[*]}; do echo \"$x\"; done\n",
-  "provenance": "R2"
+  "provenance": "R2",
+  "expect_at": []
  },
  {
   "id": "ok-comment-mentions",
@@ -253,7 +384,8 @@
   "expect": 0,
   "path": "scripts/t.sh",
   "content": "#!/usr/bin/env bash\nn=$(count foo f.txt) || exit 2   # was: grep -c\necho \"$n\"\n",
-  "provenance": "R3"
+  "provenance": "R3",
+  "expect_at": []
  },
  {
   "id": "ok-prose-in-scripts-md",
@@ -261,7 +393,8 @@
   "expect": 0,
   "path": "scripts/README.md",
   "content": "Never write `grep -r --include=*.py foo .` \u2014 quote the glob.\n",
-  "provenance": "R2"
+  "provenance": "R2",
+  "expect_at": []
  },
  {
   "id": "ok-text-fence",
@@ -269,7 +402,8 @@
   "expect": 0,
   "path": "doc3.md",
   "content": "Bad:\n\n```text\nn=$(grep -c foo f.txt)\n```\n",
-  "provenance": "R2"
+  "provenance": "R2",
+  "expect_at": []
  },
  {
   "id": "ok-fence-same-indent",
@@ -277,7 +411,8 @@
   "expect": 0,
   "path": "doc8.md",
   "content": "text\n\n  ```bash\n  n=$(count foo f) || exit 2\n  ```\n\nProse after.\n",
-  "provenance": "R3"
+  "provenance": "R3",
+  "expect_at": []
  },
  {
   "id": "q85-bare-assign",
@@ -285,7 +420,13 @@
   "expect": 1,
   "path": "scripts/y.sh",
   "content": "#!/usr/bin/env bash\nn=$(grep -c foo f.txt)\necho \"$n\"\n",
-  "provenance": "Q8-5 \u2014 captured, status NEVER tested. With ok-status-next-line this pair DEFINES the rule: the defect is not the capture, it is the untested status. Label disputed: shellcheck declines to flag a bare assignment and is right that nothing is masked."
+  "provenance": "Q8-5 \u2014 captured, status NEVER tested. With ok-status-next-line this pair DEFINES the rule: the defect is not the capture, it is the untested status. Label disputed: shellcheck declines to flag a bare assignment and is right that nothing is masked.",
+  "expect_at": [
+   [
+    2,
+    "capture"
+   ]
+  ]
  },
  {
   "id": "q85-masked-local",
@@ -293,7 +434,13 @@
   "expect": 1,
   "path": "scripts/z.sh",
   "content": "#!/usr/bin/env bash\nf() { local n=$(grep -c foo f.txt); echo \"$n\"; }\nf\n",
-  "provenance": "Q8-5"
+  "provenance": "Q8-5",
+  "expect_at": [
+   [
+    2,
+    "capture"
+   ]
+  ]
  },
  {
   "id": "q85-masked-in-test",
@@ -301,7 +448,13 @@
   "expect": 1,
   "path": "scripts/z2.sh",
   "content": "#!/usr/bin/env bash\nif [[ $(grep -c foo f.txt) -le 2 ]]; then echo ok; fi\n",
-  "provenance": "Q8-5"
+  "provenance": "Q8-5",
+  "expect_at": [
+   [
+    2,
+    "capture"
+   ]
+  ]
  },
  {
   "id": "md-fence-closer-matters",
@@ -309,7 +462,13 @@
   "expect": 1,
   "path": "doc10.md",
   "content": "```bash\necho hi\n```\n\nProse, not shell: n=$(grep -c foo f.txt)\n\n```bash\nn=$(grep -c bar g.txt)\n```\n",
-  "provenance": "P9-T2 \u2014 the mutation candidate C survived: if the closer never closes, the prose line is scanned and reported, and the real finding on the second fence is reported at the wrong place"
+  "provenance": "P9-T2 \u2014 the mutation candidate C survived: if the closer never closes, the prose line is scanned and reported, and the real finding on the second fence is reported at the wrong place | expect_at corrected 2026-09-18: the derived spec named line 5 (prose, outside the fence); adjudicated to line 8, the only in-fence capture.",
+  "expect_at": [
+   [
+    8,
+    "capture"
+   ]
+  ]
  },
  {
   "id": "ok-fence-closer-prose",
@@ -317,7 +476,8 @@
   "expect": 0,
   "path": "doc11.md",
   "content": "```bash\nn=$(count foo f) || exit 2\n```\n\nProse mentioning n=$(grep -c foo f.txt) which must NOT be scanned.\n",
-  "provenance": "P9-T2 \u2014 the direct test of fence termination: a broken closer makes this fire"
+  "provenance": "P9-T2 \u2014 the direct test of fence termination: a broken closer makes this fire",
+  "expect_at": []
  },
  {
   "id": "ok-status-tested-next-line",
@@ -325,7 +485,8 @@
   "expect": 0,
   "path": "scripts/aa.sh",
   "content": "#!/usr/bin/env bash\nn=$(grep -c foo f.txt)\nif [ $? -ge 2 ]; then exit 2; fi\necho \"${n:-0}\"\n",
-  "provenance": "P9-T2 \u2014 candidate C's single false positive. Q8-5: the rule is 'captured and the status never tested', which needs next-line lookahead"
+  "provenance": "P9-T2 \u2014 candidate C's single false positive. Q8-5: the rule is 'captured and the status never tested', which needs next-line lookahead",
+  "expect_at": []
  },
  {
   "id": "extensionless-script",
@@ -333,7 +494,13 @@
   "expect": 1,
   "path": "scripts/deploy",
   "content": "#!/usr/bin/env bash\nn=$(grep -c foo f.txt)\necho \"$n\"\n",
-  "provenance": "P9-T4 \u2014 no case had an extensionless script, so 'stop scanning extensionless scripts' survived mutation. This repo's own gates are all extensionless."
+  "provenance": "P9-T4 \u2014 no case had an extensionless script, so 'stop scanning extensionless scripts' survived mutation. This repo's own gates are all extensionless.",
+  "expect_at": [
+   [
+    2,
+    "capture"
+   ]
+  ]
  },
  {
   "id": "md-unclosed-fence-only",
@@ -341,6 +508,12 @@
   "expect": 1,
   "path": "doc12.md",
   "content": "text\n\n```bash\necho hi\n\nno closer follows\n",
-  "provenance": "P9-T4 \u2014 no case had an unclosed fence as its ONLY defect, so 'drop the unclosed-fence report' survived mutation."
+  "provenance": "P9-T4 \u2014 no case had an unclosed fence as its ONLY defect, so 'drop the unclosed-fence report' survived mutation.",
+  "expect_at": [
+   [
+    3,
+    "fence"
+   ]
+  ]
  }
 ]
