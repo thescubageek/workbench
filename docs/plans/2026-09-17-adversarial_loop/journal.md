@@ -51,6 +51,20 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-18 00:26 — P2-T3 (closed)
+
+- **Task/phase**: P2-T3 — write plugin/skills/adversarial-review/prompts.md
+- **Landed**: prompts.md — shared evidence-contract preamble, stance agent, lens agent,
+  verifier, and the four-value tier table
+- **Commits**: 307fff8
+- **Learned**: the stance agent's prompt is better written as "review only what a hunk-scoped pass
+  cannot see" than as a second sweep — it composes with the built-in's `low` pass instead of
+  contradicting its explicit hunk-only instruction, which was the Tier 0 conflict from
+  explore_design, resolved in prompt text rather than in the ladder.
+- **Deviation**: placed the verifier prompt here though the task did not assign it; recorded in
+  tasks.md Implementation Notes.
+- **Started at**: fb82f8e
+
 ## 2026-09-18 00:23 — P2-T2 (closed)
 
 - **Task/phase**: P2-T2 — write plugin/skills/adversarial-review/lenses.md

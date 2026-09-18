@@ -300,11 +300,11 @@ does-not-apply list, then exact one-line report shapes.
       outside the diff → cross-file tracer); the rule that a mandatory lens pulls the tier up; the
       six-lens runaway guard and the requirement to name any dropped lens and why. (~24 calls)
       (completed 2026-09-18 00:24)
-- [ ] **P2-T3** — Write `plugin/skills/adversarial-review/prompts.md`: verbatim prompts for the
+- [x] **P2-T3** — Write `plugin/skills/adversarial-review/prompts.md`: verbatim prompts for the
       lens agents and the low-tier stance agent (enclosing function, deleted invariants, blast
       radius), each carrying the evidence contract — a finding without a concrete failure scenario
       is dropped. Model per lens from the four-value enum only (`haiku`/`sonnet`/`opus`/`fable`),
-      per A6. (~26 calls)
+      per A6. (~26 calls) (completed 2026-09-18 00:27)
 - [ ] **P2-T4** — Write `plugin/skills/adversarial-review/templates.md`: the `ReportFindings` call
       shape; the one-line-per-finding restatement; the markdown fallback for sessions without the
       tool; the "Checked and clear" coverage list and why carrying it in the restatement does not
