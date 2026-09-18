@@ -293,12 +293,13 @@ does-not-apply list, then exact one-line report shapes.
 
 #### Supporting files before the SKILL.md that directs reads into them
 
-- [ ] **P2-T2** — Write `plugin/skills/adversarial-review/lenses.md`: the lens table keyed on what
+- [x] **P2-T2** — Write `plugin/skills/adversarial-review/lenses.md`: the lens table keyed on what
       the diff touches, generalised off all Rails/reef vocabulary; the four mandatory triggers
       (auth/permissions/params/uploads/external-calls/PII → security; prompt text, skill files,
       agent definitions → AI-systems; migrations/backfills → data; changed signature with callers
       outside the diff → cross-file tracer); the rule that a mandatory lens pulls the tier up; the
       six-lens runaway guard and the requirement to name any dropped lens and why. (~24 calls)
+      (completed 2026-09-18 00:24)
 - [ ] **P2-T3** — Write `plugin/skills/adversarial-review/prompts.md`: verbatim prompts for the
       lens agents and the low-tier stance agent (enclosing function, deleted invariants, blast
       radius), each carrying the evidence contract — a finding without a concrete failure scenario

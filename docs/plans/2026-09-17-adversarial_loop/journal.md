@@ -51,6 +51,19 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-18 00:23 — P2-T2 (closed)
+
+- **Task/phase**: P2-T2 — write plugin/skills/adversarial-review/lenses.md
+- **Landed**: plugin/skills/adversarial-review/lenses.md — ten lens rows stated as behaviour
+  rather than framework, four mandatory triggers that raise the tier, signal-ranked category
+  recognition, the six-lens guard, and user-named lenses used verbatim
+- **Commits**: 868981a
+- **Learned**: the hard part of generalising was not removing framework names but replacing them
+  with something that still discriminates — "persistence, data models, background jobs" carries
+  the same selection power as the original's "models, commands, jobs" without naming a stack.
+  Path conventions had to be ranked last as a signal; they are what mislead across ecosystems.
+- **Started at**: 15e7dec
+
 ## 2026-09-18 00:14 — silent-check root cause (closed)
 
 - **Task/phase**: out-of-plan, user-requested — fix the cause of the recurring
