@@ -51,6 +51,39 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-18 18:52 — Phase 6, all 21 tasks (closed)
+
+- **Task/phase**: P6-T1 through P6-T21 — close the findings the dogfood review raised.
+- **Landed**: 21 tasks, three commits. Phase 6 added to `tasks.md` before any fix, with the
+  three pending decisions recorded and resolved. Counters 25 → 46 of 50.
+- **Learned**:
+  - **The base-ref fix is verified in both directions.** In a scratch repo with no
+    `origin/main` and a hostile `REVIEW.md` staged: the old one-liner printed the malicious
+    text and exited 0; the new form prints `REVIEW.md NOT READ` and never reads it.
+  - **`check-guards` had a fifth hole nobody had found — its guard test.** `|| echo` was
+    matched anywhere on the line, so `$([[ $(… | grep -c .) -le 2 ]] && echo 1 || echo 0)`
+    read as guarded. That is why `test-quiet`'s two captures survived every prior run. The
+    guard is now anchored to the capture itself, which also cleared a false positive the
+    first tightening introduced on `wb-prime.sh:177`.
+  - **Fixing the checker surfaced more than it closed, which is the expected direction.**
+    Widening the detectors immediately flagged `test-count:66` — the "control" assertion that
+    asserted the opposite of its own label. It had been passing since it was written.
+  - **`test-guards` now exists because none of this was catchable.** 19 planted cases, both
+    directions. `check-guards` has been an instance of its own defect class three times in
+    this plan; a contract test is the only thing that changes that.
+  - **A regression probe, not just a pass.** Reverting `count`'s `status -ge 2` to `-gt 2`
+    now fails `test-count` (exit 1). Before P6-T15 it passed 13/13.
+  - **The release's own vocabulary gate could never have passed.** Unanchored, it matched
+    `rspec` inside "perspective" and `redis` inside "rediscovering". Now word-anchored, and
+    the shipped plugin no longer names an employer anywhere — including the `daily-digest`
+    PHI guardrail, which now applies to any covered organization without naming one.
+  - **I did not measure my own regression probe correctly the first time**: I read the exit
+    status through a `| tail -3` pipe and got `tail`'s. Re-measured directly. Worth recording
+    because it is the exact class this phase is about, made by the session fixing it.
+- **Commits**: `46b90f4`, `410c908`, and this one.
+- **Blocked by**: nothing. P5-T2 through P5-T5 are next and are deliberately unstarted — the
+  user gated the re-review on explicit approval, and the release follows the re-review.
+
 ## 2026-09-18 18:24 — P5-T1 + dogfood adversarial review (closed)
 
 - **Task/phase**: P5-T1 — the `## [2.2.0]` CHANGELOG entry; plus a full `adversarial-review`

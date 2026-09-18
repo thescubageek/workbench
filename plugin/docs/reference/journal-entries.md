@@ -95,8 +95,17 @@ open entries does not catch it — the common case leaves exactly one.
 
 ```bash
 # Stale open entries: any (open) heading that is not the newest. Must print nothing.
-grep -E '^## ' journal.md | grep -vE '\[YYYY|<YYYY|YYYY-MM-DD' | tail -n +2 | grep '(open)'
+# Lowercased and right-stripped first, because that is what the hook does — a bare
+# grep '(open)' is stricter than the reader it models, so `(OPEN)` or one trailing
+# space passes this check while the hook reports the entry as interrupted.
+grep -E '^## ' journal.md | grep -vE '\[YYYY|<YYYY|YYYY-MM-DD' | tail -n +2 \
+  | tr 'A-Z' 'a-z' | sed 's/[[:space:]]*$//' | grep '(open)$'
 ```
+
+**Match the reader, not the convention.** `wb-prime.sh` lowercases and right-strips a heading
+before testing its suffix, and anchors the test to the end of the line. Any check written here
+that is stricter than that will pass on a file the hook reads differently — which is a check
+that cannot fail in the direction that matters.
 
 Correcting one after the fact: change its state and say what happened, rather than deleting it —
 the record of the mistake is worth keeping.

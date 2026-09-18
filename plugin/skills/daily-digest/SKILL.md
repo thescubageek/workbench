@@ -228,14 +228,21 @@ exhausting the rolling **5-hour usage window** or ignoring your calendar.
 
 ## PHI guardrail
 
-**Brightline is a HIPAA-covered behavioral-health org.** Gmail, Jira, Sentry, and
-Notion routinely contain Protected Health Information. This skill reads those sources
-to *plan work*, and MUST NOT surface or persist PHI.
+**Applies whenever you work in a HIPAA-covered organization** — or anywhere the sources
+below carry regulated personal data. Gmail, Jira, Sentry and Notion routinely contain
+Protected Health Information. This skill reads those sources to *plan work*, and MUST NOT
+surface or persist PHI.
+
+If your organization is not covered, this section costs you nothing: it only ever removes
+identifiers from a planning artifact that never needed them.
 
 - **Never write PHI** into the digest, `.context/` files, `bd` issues, commit
   messages, or clipboard. Refer to work by ticket key / PR number / issue title —
-  never by patient name, DOB, address, contact info, or **Member ID**
-  (`(?:BM|BC|BA)-[A-Z]{2}-\d{8}` and obvious variants).
+  never by patient name, DOB, address, contact info, or **Member ID** — your organization's
+  canonical member/patient identifier format, and obvious variants of it (lowercase, missing
+  or extra separators). A format of the shape `(?:AA|AB|AC)-[A-Z]{2}-\d{8}` is typical; if
+  your repository has its own, state it in the repository's `CLAUDE.md` so this rule has
+  something concrete to match.
 - **Collectors scrub at the source.** Instruct each collector to return
   identifiers/subjects and *categories* of content, not PHI values. If a Jira summary
   or email subject embeds a patient identifier, replace it with a placeholder

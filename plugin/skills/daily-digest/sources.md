@@ -23,14 +23,14 @@ Conventions:
 `git config user.email` are frequently three different strings (e.g. GitHub
 `thescubageek`, Jira/email `you@company.com`, git a personal address). `@me` in `gh`
 resolves to the **GitHub login**, which is correct for `gh` queries — but when you
-reconcile a reef PR (authored under the GitHub login) against a Jira ticket (owned
+reconcile a work-repo PR (authored under the GitHub login) against a Jira ticket (owned
 under the SSO identity) in Phase 2, match on **ticket key in the PR title/branch**, not
 on author handle. Capture `ME` and prefer the literal login over `@me` in searches so
 the identity in play is explicit.
 
 **Run against the work repo, not necessarily `cwd`.** `gh pr list` defaults to the
 current repo; if the digest is invoked from a tooling/plan repo, add
-`-R <owner>/<work-repo>` (e.g. `-R hellobrightline/reef`) or the PR queries silently
+`-R <owner>/<work-repo>` (e.g. `-R acme/widgets`) or the PR queries silently
 return empty. An empty result from the wrong repo is a false "nothing in flight" — a
 gap, not a clean slate.
 
@@ -86,7 +86,12 @@ grep -nE '^- \[x\] .*\(completed '"$SINCE" docs/plans/*/tasks.md
 for J in docs/plans/*/journal.md; do
   [ -e "$J" ] || continue
   newest=$(grep -E '^## ' "$J" 2>/dev/null | grep -vE '\[YYYY|<YYYY|YYYY-MM-DD' | head -1)
-  case "$newest" in *'(open)') echo "$J: $newest" ;; esac
+  # Normalize the way wb-prime.sh does before testing the suffix. A bare case match is
+  # case-sensitive and whitespace-strict, so `(OPEN)` or one trailing space reads as closed
+  # here while the hook reports it open — two surfaces disagreeing on the same file.
+  case "$(printf '%s' "$newest" | tr 'A-Z' 'a-z' | sed 's/[[:space:]]*$//')" in
+    *'(open)') echo "$J: $newest" ;;
+  esac
 done
 
 # Blocked: the plan says so itself
@@ -99,8 +104,8 @@ Resolve identity once: `atlassianUserInfo`. **Resolve `cloudId` properly — the
 site-hostname shortcut is unreliable.** Passing a bare hostname often resolves to a
 cloudId that "isn't explicitly granted by the user" and every query fails. Call
 `getAccessibleAtlassianResources` first and use the returned `id` (a UUID) as `cloudId`;
-cache it. Note the granted host may be prefixed (e.g. `hellobrightline.atlassian.net`,
-not `brightline.atlassian.net`) — don't guess it. Use
+cache it. Note the granted host may carry a prefix the shorter name does not (e.g.
+`acmecorp.atlassian.net`, not `acme.atlassian.net`) — don't guess it. Use
 `responseContentFormat: "markdown"`, `fields: ["summary","status","priority","updated","assignee","issuetype"]`.
 
 **Cap every query.** Set `maxResults` (≤50) and keep `fields` minimal — an unbounded

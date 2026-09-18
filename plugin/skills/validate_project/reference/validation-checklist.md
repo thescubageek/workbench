@@ -12,8 +12,15 @@ The skill validates the following aspects.
   suffix is the only thing the session-start hook, `forge`, `daily-digest`, `resume_handoff` and
   `create_handoff` match on. A heading ending any other way is invisible to all of them, and the
   failure is silent — the next session is told "closed" over work that was interrupted
-- ❌ More than one `(open)` entry. Entries open at the start of work and close at its end, so two
-  open at once means a session never closed out; the tail no longer describes the present
+- ❌ A `journal.md` heading that does not start at column zero. Every reader anchors on that —
+  the session-start hook greps `^##`, and this validator's own filters use the same anchor — so
+  an indented heading is invisible to **both**, and the validator reports clean on a file the
+  hook silently misreads. This is the one journal defect that hides from its own checker
+- ❌ An `(open)` entry that is **not the newest**. Only the most recent entry may be open. A
+  stale one below it is what closing by writing a second heading leaves behind, and **a count of
+  open entries never catches it** — the common case leaves exactly one. Check position, not
+  quantity
+- 📄 Both rules, with the mechanism behind each: `plugin/docs/reference/journal-entries.md`
 - ⚠️ Optional: handoff.md exists (if session transfer occurred)
 - ⚠️ Optional: mockup-log.md in mockups/ (if mockup workflow used)
 
