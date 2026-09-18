@@ -51,6 +51,13 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-18 17:47 — P4-T5 (closed)
+
+- **Task/phase**: P4-T5 — re-sync help and README now that all three skills exist
+- **Landed**: both skills added to help and README; coverage check clean
+- **Commits**: d0564c1
+- **Started at**: d6c35eb
+
 ## 2026-09-18 17:46 — P4-T3 (closed)
 
 - **Task/phase**: P4-T3 — repoint model-help's calibration anchor and add gate-mode rows

@@ -564,12 +564,12 @@ dangling-reference sweep has to be the last thing in the phase or it will not co
 documentation change that precedes it. The IDs are left as filed rather than renumbered, since
 P4-T5 is already cited by commit.*
 
-- [ ] **P4-T5** — Re-sync `plugin/skills/help/SKILL.md` and `README.md` so both cover
+- [x] **P4-T5** — Re-sync `plugin/skills/help/SKILL.md` and `README.md` so both cover
       `adversarial-loop` and `reply-to-claude` once Phase 3 has created them. The audit and the
       backfill for everything *else* was done 2026-09-18 — help was missing nine user-invocable
       skills, eight of them predating this work, and neither file mentioned the shipped reference
       docs. Run the same coverage check that found it: every user-invocable skill appears in help,
-      every skill appears in README, and **nothing names a skill that does not exist**. (~12 calls)
+      every skill appears in README, and **nothing names a skill that does not exist**. (~12 calls) (completed 2026-09-18 17:47)
 - [ ] **P4-T4** — Run a dangling-reference sweep across the whole plugin and fix anything it
       finds: no shipped file may name a skill directory that does not exist. (~12 calls)
 

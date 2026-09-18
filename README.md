@@ -124,6 +124,8 @@ Specialized agents for codebase analysis:
 Background capabilities that Claude automatically invokes:
 
 - **`adversarial-review`** - Assumes a change is broken and hunts for how: sizes its fan-out from what the diff touches, wraps the built-in `/code-review`, injects domain-expert lenses it lacks, and verifies every finding before reporting
+- **`adversarial-loop`** - Drives a change to reviewable: review, adjudicate, fix, re-verify until clean; if a PR exists, also flips to ready, waits on CI and `claude[bot]`, and replies until resolved
+- **`reply-to-claude`** - Answers a `claude[bot]` review with a comment mapping one-to-one to its findings, stating what was fixed and what was rejected and why
 - **`doc-adherence`** - Requires a claim about a plan document to come from a read in the current context, not from memory or a summary
 - **`project-structure`** - Enforces document separation (research.md, design.md, tasks.md)
 - **`mockup-iteration`** - Iterate on UI mockups with KEEP/REMOVE/CHANGE tracking

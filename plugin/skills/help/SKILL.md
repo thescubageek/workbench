@@ -187,6 +187,8 @@ Not pipeline stages — invoke them directly when you want them.
 | Skill | What it does |
 | ----- | ------------ |
 | `/wb:adversarial-review [<pr#>\|<branch>\|<path>] [--effort=<level>]` | Assumes the change is broken and hunts for how. Sizes its own fan-out from what the diff touches, wraps the built-in `/code-review`, injects domain-expert lenses, and verifies every finding before reporting |
+| `/wb:adversarial-loop [<pr#>\|<branch>] [--effort=<level>]` | Drives a change to reviewable: review, adjudicate, fix, re-verify until a pass is clean. Runs anywhere there is a diff; if a pull request exists it also flips to ready, waits on CI and `claude[bot]`, and replies until resolved |
+| `/wb:reply-to-claude [<pr#>]` | Answers a `claude[bot]` review with a comment mapping one-to-one to its findings — what was fixed, what was rejected and why |
 | `/wb:review-prep [target]` | Interactive diff walkthrough in tmux and nvim — paced for a human, where `adversarial-review` is a batch hunt |
 | `/wb:research-validation [directory]` | Re-checks a research document against the code: do the paths exist, do the snippets match, are the behavioural claims still true |
 | `/wb:jira-context <TICKET>` | Loads a ticket's Agents section and the files it points at. Runs standalone, or as `create_research`'s Step 0 |
