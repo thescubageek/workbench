@@ -6,7 +6,7 @@ status: in-progress
 last_updated: 2026-09-18
 assignee: scraig
 current_phase: 5
-total_tasks: 80
+total_tasks: 85
 completed_tasks: 71
 task_tracking: markdown-checkboxes
 depends_on: [research.md, design.md]
@@ -1228,8 +1228,8 @@ Three mechanisms, each independently sufficient to produce this:
 | -- | -------- | ------------------------------------------- |
 | **Q8-1** | Does a remediation plan live as a new phase in the existing plan directory, or in its own? | **Resolved 2026-09-18**: under the plan, not in it — `docs/plans/<plan>/reviews/<date>-round-N/tasks.md`, ledger at `review-log.md`. Decided on evidence: the single surface was already reporting `current_phase: 5, 68/80` while work ran in Phase 8, with 51 of 80 tasks being review bookkeeping. Nested rather than a sibling directory because `wb-prime.sh:81` globs one level, so a sibling would silently become the active plan. See design.md. |
 | **Q8-2** | What is the verification step for a finding with no runnable test? | **Resolved 2026-09-18**: a six-shape taxonomy — fenced command, shell-script test case, dual grep for a contradiction, presence grep with a negative control, resolver script, and attestation where no mechanical criterion exists. Governed by FALSIFY applied to the criterion itself. All 11 open round-3 findings land in shapes 1–5. See design.md. |
-| **Q8-3** | Is the circuit breaker advisory or blocking? The plugin's model-advisory precedent is non-blocking; this one arguably should not be. | Open — blocks P8-T4 |
-| **Q8-4** | Do the thresholds hold outside this repository, where a round may revisit a file for unrelated reasons? | Open — blocks P8-T4 |
+| **Q8-3** | Is the circuit breaker advisory or blocking? | **Resolved 2026-09-18**: blocking on mirror-image regression and on a non-falling introduced-rate; advisory on same-file recurrence. Blocking means stop-and-surface, not refuse. The non-blocking precedent covers cost advisories; this guards against shipping defects while believing you are fixing them, and a human had to notice. |
+| **Q8-4** | Do the thresholds hold outside this repository? | **Resolved 2026-09-18**: the relation generalises, the numbers do not. Make it a **trend** test — *did the rate fall from N−1 to N* — which is scale-free and needs no threshold, with a minimum-N floor of 3 findings. Any number ships with its provenance: derived from this plan, rounds 1–3, n=1. |
 | **Q8-5** | Is `check-guards`' shape-1 rule even well-formed? `shellcheck` does not flag `n=$(grep -c f x)` and is arguably right: a bare assignment does not mask the status, so `$?` works. The real defect is "nobody checks it" — a dataflow property, not a syntax pattern. | **Partly resolved 2026-09-18**: well-formed only as *"captured and the status never tested"*, which needs lookahead. Neither implementation does it — candidate C's single false positive is exactly that case, and `shellcheck` declines to flag a bare assignment at all, correctly. The corpus encodes a prior on the disputed case; the label is the thing to argue with. |
 
 ### Tasks
@@ -1254,7 +1254,15 @@ Three mechanisms, each independently sufficient to produce this:
       a class stay separate, and whichever task touches the file re-verifies every finding
       against it. State the RED rule explicitly: **run the criterion before the fix**.
       (~18 calls) · Depends on: P8-T2
-- [ ] **P8-T4** — Specify and ship the **findings ledger** (`docs/plans/<plan>/review-log.md`)
+- [ ] **P8-T4** — Ship the **findings ledger** and the **circuit breaker** per the Q8-3/Q8-4
+      decisions now in `design.md`. Ledger at `docs/plans/<plan>/review-log.md`, one row per
+      finding per round: round, `file:line`, class, verdict, disposition, the evidence that
+      settled it, and `introduced_by` — **derived** from
+      `git diff <previous-round-base>..HEAD --name-only`, never judged. Breaker: **blocking** on
+      a mirror-image regression and on the introduced-rate failing to fall between consecutive
+      rounds (minimum three findings, or do not evaluate); **advisory** on the same file
+      recurring three rounds running. Blocking means stop and surface. Record any number with its
+      provenance — *this plan, rounds 1–3, n=1*. Also: **Specify and ship the findings ledger** (`docs/plans/<plan>/review-log.md`)
       and the **circuit breaker**. One row per finding per round: round, `file:line`, class,
       verdict, disposition, the evidence that settled it, and `introduced_by` — derived, not
       judged, by intersecting the finding's path with
@@ -1345,6 +1353,120 @@ shortened one.
 - [ ] **(attestation)** The spike's verdict has been **decided by the user**, not adopted by the
       session. The whole point of escalating out of the fix loop is that a design decision gets
       made deliberately
+- [ ] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
+      only writer of those fields, so do not edit `current_phase` or `completed_tasks` by hand
+
+**Do not proceed without human confirmation of manual tests** — unless the phase is being run
+under `/wb:implement --auto`, which buys the wait and not the attestation. In that case the
+attestation stays `[ ]`, the checkpoint records that the phase closed unattended and names the
+manual steps nobody performed, and the confirmation is **deferred, not obtained.**
+
+---
+
+## Phase 9: Rebuild `check-guards` on the probed approach
+
+### Objective
+
+Replace the line-oriented bash scanner with the approach the spike established — real CommonMark
+fence parsing plus substitution-span analysis — using the 38-case corpus and the mutation runner
+as acceptance criteria rather than as an afterthought.
+
+**This phase closes the six open round-3 findings inside `check-guards` by replacement**, not by
+fixing them. They are listed here so the closure is explicit rather than assumed.
+
+### What the spike established, and what it did not
+
+| | Corpus | Mutation survivability |
+| - | ------ | ---------------------- |
+| A — the shipped bash scanner | 89% | **50%** |
+| B — `shellcheck -o all` | 71% (10 false positives on 15 correct files) | not scored; rejected as engine |
+| C — fence parse + substitution spans | **97%** | **87%** |
+
+**It did not establish that candidate C is shippable.** C is a ~130-line probe with no tests of
+its own, one known false positive, and one uncovered mutation. This phase builds the tool; the
+spike only chose the approach.
+
+### Prerequisites
+
+- [x] The spike run and written up, verdict recorded in `design.md`
+- [x] The user has taken the adoption decision
+
+### Findings closed by replacement, not by fix
+
+Each is a round-3 finding in `check-guards`. The corpus case that covers it is named, so the
+closure is checkable rather than asserted.
+
+| Round-3 finding | Corpus case |
+| --------------- | ----------- |
+| `#` inside a string truncates the detector's input | `s1-hash-in-string` |
+| guard on an earlier capture excuses a later one | `s1-guard-on-earlier` |
+| a guarded capture with a trailing comment fails the gate | `ok-ortrue-comment` |
+| the fence closer ignores the opener's indent; `ind` is dead | `ok-fence-same-indent`, plus the new closer case owed by P9-T2 |
+| `scanned` counts `find` output rather than files scanned | P9-T4's mutation, `stop scanning extensionless scripts` |
+| a symlinked or content-free target hard-fails | P9-T3 |
+
+### Tasks
+
+- [ ] **P9-T1** — Promote the corpus to a shipped fixture at
+      `plugin/scripts/fixtures/guard-corpus.json`, with each case keeping its `provenance` field.
+      The corpus is the asset three review rounds bought; it must not live in `thoughts/`.
+      (~9 calls)
+- [ ] **P9-T2** — Close the two gaps the spike itself found in the corpus **before** building
+      against it: a case where a fence must close correctly for the outcome to differ (the one
+      mutation candidate C survived), and a case pinning the `$?`-on-the-next-line behaviour that
+      is C's single false positive. A corpus with a known hole is a corpus that certifies the
+      hole. (~11 calls) · Depends on: P9-T1
+- [ ] **P9-T3** — Build `plugin/scripts/check-guards` on the probed approach. Carry over what the
+      current implementation got right: the missing-target check, the find-stderr refusal, the
+      scanned-count refusal, and the two by-name exemptions. **Resolve C's false positive** with
+      next-line lookahead for `$?`, per Q8-5 — the rule is *"captured and the status never
+      tested"*. **Fix the scanned-count** so it counts files actually fed to the scanner, not
+      `find` output. Handle a symlinked target and a content-free directory without hard-failing.
+      (~30 calls) · Depends on: P9-T2
+- [ ] **P9-T4** — Rewrite `plugin/scripts/test-guards` to run the corpus **and** the mutation
+      suite, reporting both numbers. The mutation runner is what round 3 proved was missing — a
+      corpus alone certified four deletable guards. Pre-register the acceptance bar: **100% of
+      the corpus, and every planted mutation caught.** (~22 calls) · Depends on: P9-T3
+- [ ] **P9-T5** — Delete nothing until P9-T4 is green, then remove the superseded implementation
+      and update `plugin/scripts/README.md` and the root `README.md` in the same task — the
+      release that documents a tool it no longer ships is the drift this plan has hit twice.
+      (~11 calls) · Depends on: P9-T4
+
+### Success Criteria
+
+#### Automated Verification
+
+- [ ] `./plugin/scripts/test-guards` reports **corpus 38/38** and **mutations: all caught**
+- [ ] `./plugin/scripts/check-guards` exits 0 on the shipped tree, and 2 on a missing path
+- [ ] `./plugin/scripts/check` passes
+- [ ] The six round-3 `check-guards` findings each have a passing corpus case naming them
+
+#### Manual Verification
+
+- [ ] A human has read the new implementation and agrees it is simpler than what it replaces —
+      if it is not, the approach did not pay for itself and that should be said
+
+### ⛔ CHECKPOINT: Phase 9 Complete
+
+These are the conditions to meet before the next phase — **not a record of having met them.**
+Tick each one as it is actually satisfied.
+
+Each box below is labelled **(derivable)** or **(attestation)**. A derivable condition is one a
+tool can establish, and `/wb:implement` ticks those at its Step 8 checkpoint. An attestation
+records that a *person* looked, so only a person ticks it, and an unticked attestation beside
+finished work means *"done, sign-off pending"* rather than a contradiction.
+
+**Go by the label, never by position** — a positional reading of these boxes has been wrong
+before, and following it ticks the human sign-off box. **This block, labels and this sentence
+included, is repeated in full at every phase's checkpoint**; a later phase never gets a
+shortened one.
+
+- [ ] **(derivable)** Every Phase 9 checkbox is `[x]`
+- [ ] **(derivable)** All automated verification passing
+- [ ] **(attestation)** Manual verification confirmed by human
+- [ ] **(attestation)** Whether to re-run the adversarial review has been **decided by the user**.
+      Three rounds established that a fix phase is the highest-defect-density surface in the
+      plan; this phase is a rewrite, which is more of it
 - [ ] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
       only writer of those fields, so do not edit `current_phase` or `completed_tasks` by hand
 

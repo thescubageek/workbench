@@ -515,6 +515,71 @@ There is no database here; the "data" is the record shapes this design commits t
     the majority.
   - Source: tasks.md Q8-2 · Decided 2026-09-18
 
+- **`check-guards` is rebuilt on candidate C's approach — real CommonMark fence parsing plus
+  substitution-span analysis — rather than patched a fourth time.**
+  - Decided on the spike's two scores, read against a pre-registration written before any
+    candidate existed: corpus 97% vs A's 89%, mutation survivability 87% vs A's 50%.
+  - **The cross-check is what makes it decisive**: A's four surviving mutations are exactly the
+    four round 3 found by hand. An independent method reproduced that finding, so the second
+    score is measuring something real rather than flattering the new implementation.
+  - **`shellcheck` was rejected as the engine**, and not because it is bad: `SC2312` flags every
+    masked return value, so it fires on `n=$(count foo f) || exit 2` and on `[ -e "$x" ] ||
+    continue` alike — 10 false positives against 15 correct files — and missed the unquoted
+    `--include` glob entirely. Filtering it to these three shapes means re-implementing the
+    policy layer, which is the part that keeps breaking.
+  - **What the spike did not decide, and this decision inherits**: candidate C is a ~130-line
+    probe with no tests of its own, one known false positive (`ok-status-next-line`, which needs
+    next-line lookahead for `$?`) and one uncovered mutation (the fence closer — a corpus gap,
+    not an implementation gap). The rebuild is a phase with the corpus as its acceptance
+    criteria, not a copy of the spike.
+  - **Consequence for remediation**: the six open round-3 findings inside `check-guards` are
+    closed **by replacement**, not fixed. Only the non-`check-guards` findings are planned.
+  - Source: thoughts/2026-09-18-check-guards-implementation-probe.md · Decided 2026-09-18
+
+- **`shellcheck` is adopted as an independent linter for the plugin's own shell scripts**, a
+  separate question from the engine decision above and answered differently.
+  - Default severity only — `-o all` is what produces the noise, and the noise is what gets a
+    gate switched off.
+  - Scoped to actual scripts. The naive `plugin/scripts/*` glob feeds `README.md` to the parser
+    and produces seven spurious errors; the scope must exclude `.md`.
+  - It already earns its place: a default run found `cd` without `|| exit` in
+    `plugin/scripts/check:17` and `check-guards:35` — a failed `cd` scans the wrong tree — and
+    two dead assignments at `test-count:68-69` left behind by the P7-T15 rewrite.
+  - **Those findings are not fixed ad hoc.** They enter the remediation plan like any others,
+    which is this phase's own discipline applied to its own output.
+  - Source: tasks.md P8-T5 · Decided 2026-09-18
+
+- **The circuit breaker is a trend test, blocking on its two narrow triggers and advisory on the
+  wide one, computed from the ledger rather than judged by the session.**
+  - **Blocking**: a **mirror-image regression** (a new finding that is the inverse of one already
+    fixed), and the **introduced-rate failing to fall** between two consecutive rounds.
+    **Advisory**: the **same file** appearing in three consecutive rounds — that has legitimate
+    causes (a large file, a file under active development, the file the work is *about*).
+  - **Blocking here, despite the plugin's non-blocking advisory precedent, because the failure
+    mode is different.** A model advisory is a cost optimisation — getting it wrong wastes
+    tokens. This guards against continuing to ship defects while believing you are fixing them.
+    The decisive evidence is that a human had to notice: with an advisory the session would have
+    printed a line and carried on, because every individual fix looked reasonable.
+  - **Blocking means stop and surface, not refuse.** The user says proceed and it proceeds. The
+    asymmetry that matters is that a block requires an answer while an advisory can be stepped
+    past silently.
+  - **Computed, not judged.** `introduced_by` is derived from
+    `git diff <previous-round-base>..HEAD --name-only`. A breaker the session evaluates for
+    itself is the loop marking its own homework — the failure this plugin already names as
+    *"'Checked and clear' is a set of claims, not coverage"*.
+  - **A trend test, not a threshold.** Fire on *"the rate did not fall from round N−1 to N"*, not
+    on *"the rate exceeds X%"*. Scale-free, needs no magic number, and it transplants. This
+    plan's own data — `—, 64%, 67%` — trips a direction test without anyone having guessed 60%.
+    It is also the correct shape: the original diagnosis was that *the gate is a level test and
+    so cannot see oscillation*, and fixing that with another level test would repeat the mistake.
+  - **Minimum-N floor.** Below three findings in a round the rate is meaningless — 1 of 2 is 50%
+    and says nothing. Below the floor, do not evaluate the trend.
+  - **Provenance ships with the numbers.** Any threshold is recorded as *"derived from this plan,
+    rounds 1–3, n=1"*. One repository, one plan, prose-heavy, with the same model reviewing and
+    fixing. The **relation** generalises — a mirror-image regression is a semantic relation, not
+    a rate. The **numbers** do not: a repository with real tests would start far below 64%.
+  - Source: tasks.md Q8-3, Q8-4 · Decided 2026-09-18
+
 ## Scope Definition
 
 ### In Scope
