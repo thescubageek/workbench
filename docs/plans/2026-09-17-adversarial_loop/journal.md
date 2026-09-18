@@ -51,6 +51,39 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-18 20:14 — PHI fix + Phase 7, all 22 tasks (closed)
+
+- **Task/phase**: the PHI regression, then P7-T1 through P7-T22 — close round 2.
+- **Landed**: two commits. `1e818ea` restores the Member-ID matcher; `1990b40` closes the
+  remaining 21 findings. Counters 46 → 68 of 72.
+- **Learned**:
+  - **Round 2 found 22 findings and four were created by Phase 6's fixes.** That is the
+    plan's most durable result: a fix phase is new unreviewed surface and needs the same
+    review as the code it fixed. It is now written into Phase 7's checkpoint as an
+    attestation rather than left as a lesson in a journal.
+  - **The PHI regression is the shape to remember.** Genericizing an employer name out of a
+    de-identification rule also removed the rule's matcher, and the scrub then reported clean
+    on a real `BM-CA-12345678`. The edit had a non-safety motive and still needed a safety
+    review. The restored rule now *fails closed*: an undeclared repository format widens it
+    and can no longer disable it.
+  - **`test-guards` earned itself within one commit.** Rewritten to assert *which* finding
+    fired rather than just the exit code, it immediately caught a bug the old form could not
+    see — the guard-segment walk cut at the first literal `grep`, so `echo "grep || true";
+    n=$(grep -c x f)` read as guarded. Verified the new form fails when the fence scanner is
+    broken: exit 1, where the old suite stayed 19/19 green.
+  - **`check-guards` reported clean on a path that does not exist.** Its own defect class,
+    in the script written to catch it, for the fourth time in this plan. It now exits 2 on a
+    missing target and refuses to report clean having scanned zero files.
+  - **I made the pipe-status mistake twice in this session**, once measuring a regression
+    probe through `| tail` and once assuming `$c` word-splits in a `for` loop under zsh. Both
+    produced a confident wrong reading in the session that is fixing that exact class.
+  - **CI was pinned to a version the tree is not linted with** (0.45.0 against a local
+    0.49.0) until I compared them. A pin that differs from the maintainer's version just
+    relocates the disagreement into CI.
+- **Commits**: `1e818ea`, `1990b40`, and this one.
+- **Blocked by**: nothing. Round 3 is gated on explicit user approval — Phase 7 is exactly the
+  kind of surface round 2 proved needs reviewing, and P5-T2 onward follow the review.
+
 ## 2026-09-18 18:52 — Phase 6, all 21 tasks (closed)
 
 - **Task/phase**: P6-T1 through P6-T21 — close the findings the dogfood review raised.
