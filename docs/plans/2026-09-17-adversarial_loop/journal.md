@@ -51,6 +51,16 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-18 17:46 — P4-T3 (closed)
+
+- **Task/phase**: P4-T3 — repoint model-help's calibration anchor and add gate-mode rows
+- **Landed**: anchor repointed at adversarial-review; two gate-mode rows added, four columns each
+- **Commits**: d48956b
+- **Learned**: the right session tier for both new skills is Sonnet/medium, which reads as low
+  until the fourth column explains it — the cost lives in forked agents, and paying Opus for a
+  session that mostly waits is exactly the over-powering the rubric warns about.
+- **Started at**: 40e906b
+
 ## 2026-09-18 17:46 — P4-T2 (closed)
 
 - **Task/phase**: P4-T2 — repoint daily-digest's two review-family references

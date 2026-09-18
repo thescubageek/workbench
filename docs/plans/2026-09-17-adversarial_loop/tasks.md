@@ -555,10 +555,10 @@ that give a review phase a model baseline.
       `pr-feedback` / `review` / `review-reef` / `review-strict` to the skills that now exist.
       *The B1 grep defect originally bundled here was pulled forward and fixed on 2026-09-17; this
       task is now the repointing only.* (~11 calls) (completed 2026-09-18 17:46)
-- [ ] **P4-T3** — Repoint `plugin/skills/model-help/SKILL.md:160`'s calibration anchor off
+- [x] **P4-T3** — Repoint `plugin/skills/model-help/SKILL.md:160`'s calibration anchor off
       `review-reef`, and add gate-mode rows for the review and PR-loop phases to the table at
       `:94-103`, matching its four columns exactly (`wb phase`, `Main-session baseline`, `Why`,
-      `Cheap work → sub-agents`). (~17 calls)
+      `Cheap work → sub-agents`). (~17 calls) (completed 2026-09-18 17:47)
 *Order note: P4-T5 sits before P4-T4 deliberately. Tasks run in document order, and the
 dangling-reference sweep has to be the last thing in the phase or it will not cover the
 documentation change that precedes it. The IDs are left as filed rather than renumbered, since
