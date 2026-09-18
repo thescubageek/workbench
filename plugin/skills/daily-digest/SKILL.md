@@ -100,7 +100,9 @@ judgement (email triage, Sentry severity, Notion relevance).
 
 Each collector pulls the **since-window** slice for its source and returns
 **PHI-scrubbed, structured notes** — never raw dumps. The exact per-source query
-recipes (with env vars and fallbacks) live in [sources.md](sources.md); point each
+recipes (with env vars and fallbacks) live in [sources.md](sources.md) — which also carries
+the canonical PHI patterns, so a collector given that file can actually scrub rather than
+being told that scrubbing exists; point each
 collector at it. Sources and what each contributes:
 
 | Source | Tool | Progress (done) | Needs review | Today / incoming |
@@ -240,17 +242,15 @@ identifiers from a planning artifact that never needed them.
   messages, or clipboard. Refer to work by ticket key / PR number / issue title —
   never by patient name, DOB, address, contact info, or **Member ID**.
 
-  **Member IDs are matched, not described.** Scrub anything matching either of these, plus
-  obvious variants — lowercase, missing or extra separators, surrounding punctuation:
+  **Member IDs are matched, not described.** The patterns are canonical in
+  [sources.md](sources.md) under *PHI patterns* — they live there because that is the file
+  each collector is handed, and a collector is the surface that touches the raw payload. Read
+  them from there; do not restate them here, and do not paraphrase them into a collector
+  prompt.
 
-  - `(?:BM|BC|BA)-[A-Z]{2}-\d{8}` — the canonical form this rule was written against.
-  - `\b[A-Z]{2}-[A-Z]{2}-\d{6,10}\b` — the general shape, which catches member-ID formats
-    this rule has not been told about.
-
-  If your repository uses a different format, add it in the repository's `CLAUDE.md`. That is
-  **additive**: a repository may widen this rule and may never narrow it. An undeclared format
-  does not disable the two patterns above — a de-identification rule that goes quiet when it
-  is unconfigured is worse than no rule, because it still reports clean.
+  A repository may **add** its own format in its `CLAUDE.md`. It may not narrow or disable
+  them: a de-identification rule that goes quiet when it is unconfigured still reports clean,
+  which is worse than having no rule at all.
 - **Collectors scrub at the source.** Instruct each collector to return
   identifiers/subjects and *categories* of content, not PHI values. If a Jira summary
   or email subject embeds a patient identifier, replace it with a placeholder

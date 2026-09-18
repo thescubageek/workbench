@@ -11,9 +11,8 @@ Conventions:
   previous Friday.
 - **Scrub PHI before returning.** Return keys, numbers, titles, and *categories* —
   replace any patient identifier or Member ID with a placeholder (`[PATIENT]`,
-  `[MEMBER_ID]`, `[DOB]`). **The patterns live in SKILL.md's PHI guardrail and only
-  there** — a second copy here drifted from it once already, and two scrub rules that
-  disagree means the narrower one silently wins on whichever surface reads it.
+  `[MEMBER_ID]`, `[DOB]`). The patterns are in *PHI patterns* at the bottom of this file;
+  match them, do not paraphrase them.
 - Return **structured notes**, not raw tool output.
 
 ---
@@ -209,3 +208,29 @@ Compute **free focus blocks** = gaps between events during working hours → fee
 Phase 4 window budget. Flag events needing prep (interviews, design reviews, demos)
 as their own Today items. Event titles/attendees are generally not PHI, but
 **don't reproduce patient-appointment details** if any surface.
+
+## PHI patterns — canonical
+
+**These live here, in the file the collectors are handed.** A collector is the surface that
+touches a raw payload, so a pattern it cannot see is a pattern that does not run. This block was
+briefly moved to `SKILL.md` to stop two copies drifting; that removed it from the only surface
+that needed it, which is the more dangerous of the two failures — the digest was still written,
+still reported clean, and carried whatever the collector had no pattern to catch.
+
+`SKILL.md`'s PHI guardrail states the *rules* and points here for the *patterns*. One copy, in
+the place both readers reach: the orchestrator reads this file too.
+
+Scrub anything matching either pattern, plus obvious variants — lowercase, missing or extra
+separators, surrounding punctuation:
+
+```text
+(?:BM|BC|BA)-[A-Z]{2}-\d{8}        # the canonical form this rule was written against
+\b[A-Z]{2}-[A-Z]{2}-\d{6,10}\b     # the general shape, for formats not enumerated above
+```
+
+A repository may **add** its own format in its `CLAUDE.md`. It may not narrow or disable these:
+a de-identification rule that goes quiet when it is unconfigured still reports clean, which is
+worse than having no rule at all.
+
+Checked against realistic digest content, the general pattern does **not** match `TB-2421`,
+`PR-42`, ISO dates, or git SHAs — so it does not over-redact the fields a digest is made of.
