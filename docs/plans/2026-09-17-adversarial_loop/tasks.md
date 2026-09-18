@@ -3,14 +3,14 @@ project: adversarial_loop
 ticket: null
 created: 2026-09-17
 status: in-progress
-last_updated: 2026-09-17
+last_updated: 2026-09-18
 assignee: scraig
-current_phase: 2
-total_tasks: 27
-completed_tasks: 8
+current_phase: 3
+total_tasks: 29
+completed_tasks: 15
 task_tracking: markdown-checkboxes
 depends_on: [research.md, design.md]
-git_commit: ada76bf
+git_commit: 02e23bd
 git_branch: adversarial-loop-skill-research
 repository: thescubageek/workbench
 tags: [tasks, tracking, adversarial_loop]
@@ -106,8 +106,8 @@ tasks, not greps.
 |-------|--------|-------|----------|
 | Phase 0: Planning | ✅ Complete | 4/4 | 100% |
 | Phase 1: Tracer bullet — prove the wrapper shape | ✅ Complete | 4/4 | 100% |
-| Phase 2: Reference doc and `wb:adversarial-review` | 🔄 In Progress | 0/7 | 0% |
-| Phase 3: `wb:reply-to-claude` and `wb:adversarial-loop` | ⏸️ Not Started | 0/3 | 0% |
+| Phase 2: Reference doc and `wb:adversarial-review` | ✅ Complete | 7/7 | 100% |
+| Phase 3: `wb:reply-to-claude` and `wb:adversarial-loop` | 🔄 In Progress | 0/3 | 0% |
 | Phase 4: Repoint the ecosystem | ⏸️ Not Started | 0/5 | 0% |
 | Phase 5: Release | ⏸️ Not Started | 0/6 | 0% |
 
@@ -368,9 +368,9 @@ print('\n'.join('MISS '+x for x in bad))"
 
 #### Manual Verification
 
-- [ ] A human has read `code-review-integration.md` and agrees it states only what wb may rely on
-- [ ] The lens table reads as stack-agnostic — a Python or Go repo would select sensibly from it
-- [ ] `/wb:adversarial-review` loads in a `--plugin-dir plugin` session and its supporting files
+- [x] A human has read `code-review-integration.md` and agrees it states only what wb may rely on
+- [x] The lens table reads as stack-agnostic — a Python or Go repo would select sensibly from it
+- [x] `/wb:adversarial-review` loads in a `--plugin-dir plugin` session and its supporting files
       read without error
 
 ### Modified Files
@@ -405,10 +405,10 @@ before, and following it ticks the human sign-off box. **This block, labels and 
 included, is repeated in full at every phase's checkpoint**; a later phase never gets a
 shortened one.
 
-- [ ] **(derivable)** Every Phase 2 checkbox is `[x]`
-- [ ] **(derivable)** All automated verification passing
-- [ ] **(attestation)** Manual verification confirmed by human
-- [ ] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
+- [x] **(derivable)** Every Phase 2 checkbox is `[x]`
+- [x] **(derivable)** All automated verification passing
+- [x] **(attestation)** Manual verification confirmed by human — confirmed 2026-09-18
+- [x] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
       only writer of those fields, so do not edit `current_phase` or `completed_tasks` by hand
 
 **Do not proceed without human confirmation of manual tests** — unless the phase is being run
@@ -427,9 +427,9 @@ both `adversarial-review` (Phase 2) and `reply-to-claude`, so both must exist fi
 
 ### Prerequisites
 
-- [ ] Phase 2 complete and verified
-- [ ] Phase 2 manual testing confirmed — *attestation; see the checkpoint block.*
-- [ ] `wb:adversarial-review` loads and is invocable by name
+- [x] Phase 2 complete and verified
+- [x] Phase 2 manual testing confirmed — *attestation; see the checkpoint block.*
+- [x] `wb:adversarial-review` loads and is invocable by name
 
 ### Changes Required
 
