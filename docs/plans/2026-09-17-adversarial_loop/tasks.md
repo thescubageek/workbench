@@ -345,14 +345,14 @@ unrunnable rather than failing.
 - [x] Guard check clean: `./plugin/scripts/check-guards` → exit 0
 - [x] Every link in the skill resolves — prints `MISS` per broken link, nothing when clean:
 
-      ```bash
-      python3 -c "
-      import re,os,sys
-      b='plugin/skills/adversarial-review'
-      ls=sorted(set(re.findall(r'\]\(([^)]+\.md)\)', open(b+'/SKILL.md').read())))
-      bad=[l for l in ls if not os.path.exists(os.path.normpath(os.path.join(b,l)))]
-      print('\n'.join('MISS '+x for x in bad))"
-      ```
+```bash
+python3 -c "
+import re,os,sys
+b='plugin/skills/adversarial-review'
+ls=sorted(set(re.findall(r'\]\(([^)]+\.md)\)', open(b+'/SKILL.md').read())))
+bad=[l for l in ls if not os.path.exists(os.path.normpath(os.path.join(b,l)))]
+print('\n'.join('MISS '+x for x in bad))"
+```
 
 - [x] No stack or employer vocabulary — prints the offending lines, nothing when clean:
       `grep -rniE 'ruby|rails|rspec|turbo|stimulus|postgres|redis|docker|rubocop|bundle exec|hellobrightline|reef|rbenv|staffer' plugin/skills/adversarial-review/ plugin/docs/reference/code-review-integration.md`
@@ -585,18 +585,18 @@ P4-T5 is already cited by commit.*
 - [ ] Lint clean: `./plugin/scripts/lint plugin/skills/review-prep plugin/skills/daily-digest plugin/skills/model-help`
 - [ ] Docs cover every shipped skill and name no absent one — prints the gaps, nothing when clean:
 
-      ```bash
-      python3 -c "
-      import os,glob
-      h=open('plugin/skills/help/SKILL.md').read(); r=open('README.md').read()
-      for f in sorted(glob.glob('plugin/skills/*/SKILL.md')):
-          n=os.path.basename(os.path.dirname(f)); fm=open(f).read().split('---')[1]
-          if 'disable-model-invocation: true' in fm: continue
-          if 'user-invocable: false' not in fm and n not in h: print('MISSING from help:',n)
-          if n not in r: print('MISSING from README:',n)
-      for ghost in ('review-reef','review-strict','pr-feedback'):
-          if ghost in h or ghost in r: print('NAMES ABSENT SKILL:',ghost)"
-      ```
+```bash
+python3 -c "
+import os,glob
+h=open('plugin/skills/help/SKILL.md').read(); r=open('README.md').read()
+for f in sorted(glob.glob('plugin/skills/*/SKILL.md')):
+    n=os.path.basename(os.path.dirname(f)); fm=open(f).read().split('---')[1]
+    if 'disable-model-invocation: true' in fm: continue
+    if 'user-invocable: false' not in fm and n not in h: print('MISSING from help:',n)
+    if n not in r: print('MISSING from README:',n)
+for ghost in ('review-reef','review-strict','pr-feedback'):
+    if ghost in h or ghost in r: print('NAMES ABSENT SKILL:',ghost)"
+```
 
 #### Manual Verification
 
@@ -698,17 +698,18 @@ personal copies the port was made from.
 - [ ] Every reference link in every skill resolves — same shell-agnostic form P2-T7 settled on,
       generalised across `plugin/skills/`; prints `MISS` per broken link:
 
-      ```bash
-      python3 -c "
-      import re,os,glob
-      bad=[]
-      for f in glob.glob('plugin/skills/*/SKILL.md'):
-          b=os.path.dirname(f)
-          for l in re.findall(r'\]\(([^)]+\.md)\)', open(f).read()):
-              t=os.path.normpath(os.path.join(b,l))
-              if not os.path.exists(t): bad.append(f+' -> '+l)
-      print('\n'.join('MISS '+x for x in bad))"
-      ```
+```bash
+python3 -c "
+import re,os,glob
+bad=[]
+for f in glob.glob('plugin/skills/*/SKILL.md'):
+    b=os.path.dirname(f)
+    for l in re.findall(r'\]\(([^)]+\.md)\)', open(f).read()):
+        t=os.path.normpath(os.path.join(b,l))
+        if not os.path.exists(t): bad.append(f+' -> '+l)
+print('\n'.join('MISS '+x for x in bad))"
+```
+
 - [ ] `CHANGELOG.md` has a `## [2.2.0]` heading
 - [ ] Guard check clean: `./plugin/scripts/check-guards` → exit 0
 - [ ] `./plugin/scripts/test-count` passes, and `scripts/count` distinguishes a zero count from a
@@ -797,6 +798,13 @@ Note: Update this section with findings as you implement.
 Recorded here with the task ID they block and the date raised. Remove a blocker when it is
 resolved, leaving a dated line saying how.
 
+- **[2026-09-18] Process hazard: the lint hook fixes files after you check them.** The
+  PostToolUse hook runs `lint --fix` on every markdown write, so the sequence write → check →
+  commit can capture the *pre-fix* state while the fix lands in the working tree afterwards. That
+  happened once here: `lint --all` reported FAIL, the commit went in, and the hook's correction
+  was left uncommitted. Verify the **committed** content, not the working tree —
+  `git show HEAD:<path> > /tmp/x && ./plugin/scripts/lint /tmp/x` — which is the same
+  confirm-the-measurement discipline applied to what git actually holds.
 - **[2026-09-18] P2-T6 declared `Skill` in `allowed-tools`, with no precedent.** Ten shipped
   skills declare `Task`; none had ever declared `Skill`, and this skill invokes a built-in through
   it. Measured rather than assumed: `claude --plugin-dir plugin plugin details wb` loads clean and
