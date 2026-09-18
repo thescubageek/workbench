@@ -7,10 +7,10 @@ last_updated: 2026-09-18
 assignee: scraig
 current_phase: 5
 total_tasks: 29
-completed_tasks: 23
+completed_tasks: 25
 task_tracking: markdown-checkboxes
 depends_on: [research.md, design.md]
-git_commit: be7568f
+git_commit: d9ff922
 git_branch: adversarial-loop-skill-research
 repository: thescubageek/workbench
 tags: [tasks, tracking, adversarial_loop]
@@ -652,12 +652,12 @@ personal copies the port was made from.
 
 ### Tasks
 
-- [ ] **P5-T1** — Write the `## [2.2.0]` entry in `CHANGELOG.md`: `### Added` for the three skills
+- [x] **P5-T1** — Write the `## [2.2.0]` entry in `CHANGELOG.md`: `### Added` for the three skills
       and the reference doc, `### Fixed` for the journal-ordering contract and the two malformed
       frontmatter declarations and the two consumer bugs (`validate_project`'s placeholder-counting
       `openCount`, `daily-digest`'s `grep -l 'OPEN'`), `### Changed` for the repointed references,
       and `### Migration` naming the `claude plugin update` step. Match the existing entries'
-      bolded-lead-sentence bullet style. (~22 calls)
+      bolded-lead-sentence bullet style. (~22 calls) (completed 2026-09-18 11:38)
 - [ ] **P5-T2** — Bump `version` to `2.2.0` in **both** `plugin/.claude-plugin/plugin.json` and
       `.claude-plugin/marketplace.json`; they must match. Commit — the release check runs after
       this commit, not before. (~9 calls)

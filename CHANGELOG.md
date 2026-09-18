@@ -5,6 +5,103 @@ All notable changes to the `wb` plugin are recorded here.
 Versioning follows semver as it applies to a prompt library: **patch** for prompt bugfixes,
 **minor** for additive skills/agents/hooks, **major** for removed or renamed stages.
 
+## [2.2.0] — 2026-09-18
+
+Three review skills, added by **wrapping** Claude Code's built-in review machinery rather than
+re-implementing it. Research corrected the premise twice: `review-strict` is not a shipped
+artifact anywhere, and `/code-review` is not a thin reviewer — it fans out finder angles and
+already speaks `CONFIRMED / PLAUSIBLE / REFUTED`. What it lacks is named domain-expert lenses
+and a verification pass, and those two gaps are what `wb` supplies.
+
+The release also closes a defect class the work kept meeting: a measurement whose failure is
+indistinguishable from a clean result.
+
+### Added
+
+- **`wb:adversarial-review` — adversarial code review that sizes its own fan-out before paying
+  for it.** Reconnaissance rates the diff on six axes — path roles, behavioural delta, measured
+  blast radius, coupling breadth, reversibility, test evidence — and the tier is the **maximum**
+  of the six, never the mean and never line count. Four lenses are mandatory on content and
+  raise the tier with them: security, AI-systems, data, cross-file tracer. Both the built-in leg
+  and the lens leg produce *candidates*; provenance is metadata, not standing, so everything is
+  deduped once and verified once. Supporting files carry the lens table, the verbatim agent
+  prompts, the output shapes and the adjudication rules.
+- **`wb:adversarial-loop` — a sequencer that drives a change to reviewable.** It owns ordering
+  and the gates between rounds and contains no review logic of its own. The local core needs
+  only a reviewable diff — no `gh`, no pull request, no network. Where a pull-request phase
+  engages, its dependencies are hard: if one is missing it stops and says which, rather than
+  running a narrower loop and reporting it as the same thing.
+- **`wb:reply-to-claude` — composes a reply that maps one-to-one to a bot review's findings.**
+  Every finding gets a line saying what actually happened to it, with the `file:line` that
+  disproves the ones that were rejected. "Addressed feedback" carries none of that.
+- **`plugin/docs/reference/code-review-integration.md` — the single authority on what the
+  built-in review machinery provides**, and which parts of it may be relied on. Each claim
+  states how strongly it is held; the one observation that did not predict live behaviour is
+  kept and explicitly demoted rather than deleted.
+- **`plugin/docs/reference/journal-entries.md` — the single authority on journal entry
+  placement**, the `(open)`/`(closed)` heading contract, and when an entry opens and closes.
+- **`plugin/scripts/check-guards` — mechanical enforcement for the silent-measurement class.**
+  It scans shipped shell scripts and the fenced `bash` blocks inside shipped markdown for three
+  shapes whose failure reads as a clean result.
+- **`plugin/scripts/count` — a match count whose failure is distinguishable from zero.** `grep
+  -c` prints `0` and exits 1 on no match, and exits 2 on error while printing nothing; captured
+  in a command substitution both collapse into something that reads as "zero matches". `count`
+  separates them on the exit code, with a contract test in `plugin/scripts/test-count`.
+
+### Fixed
+
+- **Journal ordering was contradictory in eight shipped skills.** `journal.md` is documented
+  reverse-chronological, but every skill that wrote to it said "append" — which means the
+  bottom. The session-start hook reads `grep -E '^## ' | head -1`, so a bottom-appended entry is
+  invisible and the failure **inverts**: the hook reports the *oldest* entry as current. A
+  resuming session was told a plan was mid-research when design had finished, or that an entry
+  was `(open)` when its own `(closed)` entry sat further down the file. Two more skills said
+  "the journal tail" meaning the end of the file.
+- **An indented journal heading hid from its own checker.** Both readers anchor on column zero —
+  the hook greps `^##`, the validator uses `startsWith('## ')` — so an indented heading is
+  invisible to *both*, and the validator reported clean on a file the hook silently misread.
+  `validate_project` now errors on it explicitly.
+- **`validate_project`'s stale-open check could not catch the case it was written for.**
+  `openCount > 1` never fires on a journal closed by writing a second heading, because that
+  leaves exactly one stale `(open)` entry. The check is now positional — only the newest entry
+  may be open — and it discards the template's placeholder headings the way the hook does, so a
+  fresh plan no longer warns forever.
+- **`daily-digest`'s `grep -l 'OPEN'` never matched what it was looking for.** Case-sensitive and
+  substring-based, it missed the lowercase `(open)` suffix entirely and false-positived on a
+  closed entry whose title contained "REOPENED".
+- **Two skills carried `allowed-tools` twice.** `research-validation` and `review-prep` each
+  declared it in flow style plus an orphaned block list. Collapsed to one declaration each;
+  `research-validation` gains `Edit`, which its Step 4 has always needed to write
+  `validation_status` back and never had.
+- **`touch-grass` named `wb:loop` as though it were a `wb` skill.** It is a built-in, `/loop`.
+- **`plugin/scripts/quiet` captured `grep -c` without a status guard**, so a missing log printed
+  `( lines suppressed)` instead of a count.
+
+### Changed
+
+- **Every shipped reference to a review-skill family this plugin never had is repointed.**
+  `review-reef`, `review-strict` and `pr-feedback` named personal-machine skills that no
+  installer ever received; `grep -rn "review-reef\|review-strict\|pr-feedback" plugin/` now
+  returns nothing.
+- **`verification-before-completion` gains a `FALSIFY` step**, between identifying the command
+  and running it: *what would this print if the claim were false?* If you cannot answer, you do
+  not have a check — you have a ritual. The documented idiom is **show the evidence, don't count
+  it**; every observed instance of this failure was a count, because a count destroys the
+  information that would have caught it.
+- **`help` and `README` are re-synced with the shipped skill set**, which had drifted eight
+  user-invocable skills behind because nothing checked it and no task owned it.
+
+### Migration
+
+Update the plugin and restart:
+
+```bash
+claude plugin update wb@thescubageek-workbench
+```
+
+The three new skills are new *files*, and the plugin cache is keyed by version — they will not
+appear until the update runs, regardless of what has been pushed.
+
 ## [2.0.1] — 2026-09-16
 
 Two prompt bugfixes in the shipped skill bodies, found by running `/wb:validate_execution`

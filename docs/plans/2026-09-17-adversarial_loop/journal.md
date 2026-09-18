@@ -51,6 +51,36 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-18 18:24 — P5-T1 + dogfood adversarial review (closed)
+
+- **Task/phase**: P5-T1 — the `## [2.2.0]` CHANGELOG entry; plus a full `adversarial-review`
+  run against PR #25, which is the PR that ships the skill.
+- **Landed**: `CHANGELOG.md` gains `## [2.2.0]` (Added / Fixed / Changed / Migration) in the
+  existing bolded-lead-sentence style. P5-T1 ticked; counters reconciled 23 → 25.
+- **Learned**: the dogfood run returned **22 findings, 18 CONFIRMED**, against the artifacts
+  this release ships. Four of the five deliberately-unproven items resolved on their own:
+  the built-in leg really does run forked; all five supporting files were read; every
+  relative link in the three new skill directories resolves; the shipped model-tier table
+  matches the harness enum. The load-bearing ones:
+  - `adversarial-review/SKILL.md:71` — `git show "$(git merge-base HEAD origin/main)":REVIEW.md`
+    collapses to `git show :REVIEW.md` when `origin/main` does not resolve. `:path` is git's
+    **index** syntax, so it reads the staged file and exits 0. The declared security boundary
+    inverts into a read of the least trustworthy copy, and the documented absent-tell never
+    fires. Reproduced in a scratch repo.
+  - `check-guards` has four holes, and the repo it certifies contains the defect it hunts:
+    `test-quiet:33` and `:39` carry unguarded `grep -c` captures and the script still prints
+    `✅`. It also misses the last line of any file (`flush_pending` is a no-op whose comment
+    claims otherwise), never scans the 17 indented ```bash fences, and scans prose in any
+    `.md` under `scripts/`.
+  - `$REPO` and `$PR` are used by every `gh` command in `reply-to-claude` and
+    `adversarial-loop` and assigned by nothing.
+  - `git diff --stat <pr#>` is fatal; no step converts a PR number to a range.
+  - P5-T3's own vocabulary grep cannot pass: two real `hellobrightline` hits in
+    `daily-digest/sources.md`, plus substring false positives (`rspec` inside "perspective",
+    `redis` inside "rediscovering").
+- **Blocked by**: P5-T2 and P5-T3 should not run until the CONFIRMED findings are
+  dispositioned — the release would ship the defects the release exists to prevent.
+
 ## 2026-09-18 17:59 — P5-T6 (closed)
 
 - **Task/phase**: P5-T6 — ship plugin/scripts/count with a contract test
