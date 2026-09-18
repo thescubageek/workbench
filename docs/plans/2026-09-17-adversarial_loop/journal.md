@@ -51,6 +51,17 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-18 17:18 — P2-T6 (closed)
+
+- **Task/phase**: P2-T6 — write plugin/skills/adversarial-review/SKILL.md, the skill body
+- **Landed**: SKILL.md — seven steps plus verify-only mode; all five supporting links resolve;
+  plugin loads with 37 skills at ~180 always-on / ~3.3k on-invoke
+- **Commits**: 815955e
+- **Learned**: declaring `Skill` in `allowed-tools` is untested territory — no shipped skill had
+  done it. Loading is unaffected, so the value is at worst inert; whether it actually pre-approves
+  the call is still unproven and only P5-T4's smoke session can settle it.
+- **Started at**: 1105065
+
 ## 2026-09-18 00:54 — P2-T5 (closed)
 
 - **Task/phase**: P2-T5 — write plugin/skills/adversarial-review/reference.md

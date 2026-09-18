@@ -317,13 +317,13 @@ does-not-apply list, then exact one-line report shapes.
 
 #### Then the skill body
 
-- [ ] **P2-T6** — Write `plugin/skills/adversarial-review/SKILL.md`: frontmatter with the PD5
+- [x] **P2-T6** — Write `plugin/skills/adversarial-review/SKILL.md`: frontmatter with the PD5
       argument surface and narrow adversarial triggers; the supporting-file manifest including the
       link to `code-review-integration.md`; the hard-stop paragraph; the reconnaissance step over
       the six axes taking the max; the `REVIEW.md` precedence chain read from the base ref with
       add-never-suppress; the two-leg spawn in one message; the barrier that governs waiting; the
       pooled dedupe using the built-in's own predicate; the three-state verify over the pooled set;
-      and the model-help gate line. (~42 calls)
+      and the model-help gate line. (~42 calls) (completed 2026-09-18 17:20)
 
 #### Static checks for this phase's invariants
 
@@ -738,6 +738,12 @@ Note: Update this section with findings as you implement.
 Recorded here with the task ID they block and the date raised. Remove a blocker when it is
 resolved, leaving a dated line saying how.
 
+- **[2026-09-18] P2-T6 declared `Skill` in `allowed-tools`, with no precedent.** Ten shipped
+  skills declare `Task`; none had ever declared `Skill`, and this skill invokes a built-in through
+  it. Measured rather than assumed: `claude --plugin-dir plugin plugin details wb` loads clean and
+  enumerates 37 skills including `adversarial-review`, so the value is at worst inert. Cost is
+  ~180 always-on / ~3.3k on-invoke — below `create_research` (~5.3k) and `implement` (~8.1k),
+  which is the right order for a skill that pushes its work to forked agents.
 - **[2026-09-18] Silent-measurement class: three responses, two shipped.** The prose rule
   (FALSIFY) demonstrably did not prevent recurrence — instance four happened inside the
   verification of the fix for instance three. So the response moved from stating the rule to
