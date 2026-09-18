@@ -546,10 +546,10 @@ that give a review phase a model baseline.
 
 ### Tasks
 
-- [ ] **P4-T1** — Add the hand-off line to `plugin/skills/review-prep/SKILL.md`: it keeps its
+- [x] **P4-T1** — Add the hand-off line to `plugin/skills/review-prep/SKILL.md`: it keeps its
       interactive triggers and gains one line pointing at `adversarial-review` for batch
       bug-hunting. The file has no integration section, so this is a new line rather than an edit
-      to an existing bucket. (~9 calls)
+      to an existing bucket. (~9 calls) (completed 2026-09-18 17:45)
 - [ ] **P4-T2** — Repoint `plugin/skills/daily-digest/SKILL.md:204` (the Today-item entry-point
       bullet) and `:278` (the review-skills bullet in "Integration with the wb ecosystem") from
       `pr-feedback` / `review` / `review-reef` / `review-strict` to the skills that now exist.

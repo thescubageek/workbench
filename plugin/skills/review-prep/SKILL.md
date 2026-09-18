@@ -8,6 +8,11 @@ allowed-tools: Read, Glob, Grep, Bash
 
 Interactive walkthrough of changes as pair programming. Opens files in nvim pane, waits for questions.
 
+**Wanting a batch hunt instead?** This skill is human-paced: it opens files and waits for your
+questions. If what you want is an adversarial pass that reads the diff, fans out domain-expert
+lenses, verifies each finding and hands you a report, that is `adversarial-review` — same subject,
+opposite shape.
+
 ## Supporting Script
 
 This skill includes `nvim-helper.sh` for tmux/nvim operations. Add to your permissions to avoid repeated approvals:

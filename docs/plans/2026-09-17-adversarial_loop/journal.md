@@ -51,6 +51,13 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-18 17:45 — P4-T1 (closed)
+
+- **Task/phase**: P4-T1 — add the hand-off line to review-prep
+- **Landed**: hand-off line near the top of review-prep, framed as same-subject-opposite-shape
+- **Commits**: 331924c
+- **Started at**: 273e6aa
+
 ## 2026-09-18 17:42 — P3-T2 + P3-T3 (closed)
 
 - **Task/phase**: P3-T2 — write plugin/skills/adversarial-loop/SKILL.md
