@@ -56,7 +56,7 @@ this template, silently, from the moment of creation.
 - **Task/phase**: out-of-plan — close L1, the last unfixed defect from the P1-T3 probe
 - **Landed**: indented-heading ERROR in validation-rules.md (before the extraction) and a
   Check it in journal-entries.md, both falsified; limitation recorded rather than engineered around
-- **Commits**: fa53f1e
+- **Commits**: c835266
 - **Learned**: the silent-measurement class caught me a fourth time, inside the verification of
   the fix for the third — `grep -c` printing 0 and exiting 1 made `|| echo 0` emit a second
   zero, producing a bogus "WOULD FLAG". `wb-prime.sh:55-63` documents exactly this. Knowing a

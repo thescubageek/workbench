@@ -725,6 +725,27 @@ Note: Update this section with findings as you implement.
 Recorded here with the task ID they block and the date raised. Remove a blocker when it is
 resolved, leaving a dated line saying how.
 
+- **[2026-09-18] L1 closed — the last unfixed defect from the P1-T3 probe.** An indented `##`
+  heading is invisible to *both* readers: `wb-prime.sh` greps `^##` and `validate_project`
+  filters `startsWith('## ')`, so the hook silently misreads the file and the validator reports it
+  clean. The defect hid from its own checker. Fixed with an indented-heading ERROR in
+  `validation-rules.md` placed *before* the extraction, and a `Check it` in `journal-entries.md`;
+  both falsified against a planted indented entry and a clean file. The known false-positive case
+  — an indented fenced example — is recorded in the rule rather than solved, since a fence-aware
+  check would be more precise and more able to be wrong.
+  An audit of every defect raised this session confirmed the rest were already fixed. B3
+  (`research-validation` gaining `Edit`) stands as a decision, not a defect: reverting it would
+  restore a skill that cannot perform its own documented Step 4.
+- **[2026-09-18] P2-T3 placed the verifier prompt in `prompts.md`, which the task did not assign.**
+  The task names the lens and stance prompts; P2-T6 assigns SKILL.md the verify *step*. The prompt
+  itself had no assigned home, and a verbatim agent prompt inline in SKILL.md would break the
+  pattern every other fan-out skill follows. Placed in `prompts.md` with a note in the file saying
+  why.
+- **[2026-09-18] Process note: three Implementation Notes were lost to a shared failure.** A
+  multi-step edit script whose early `assert` fails kills every later step in the same script, and
+  the surrounding shell still commits. Twice the work landed while its record did not. The fix is
+  to verify each write landed rather than trusting the script ran — the same "confirm the
+  measurement ran" rule this session keeps rediscovering, applied to editing rather than checking.
 - **[2026-09-18] Root cause of the recurring silent-check class, fixed at the user's request.**
   Three instances this session (probe blast-radius grep, `daily-digest`'s collector, this plan's
   own reference doc) were all patched individually before anyone asked why they kept happening.
