@@ -63,18 +63,31 @@ gh pr list $R --author "$ME" --state open \
 # Plan state comes from the plan documents; there is no tracker to query.
 # Scope counts to lines carrying a task ID — criteria and prerequisites are
 # checkboxes too, and counting them inflates progress.
+# `grep -c` prints 0 AND exits 1 on no match, and an unmatched glob leaves $T as the
+# literal pattern, so an unguarded count yields an EMPTY string and the -gt test then
+# errors instead of reporting. A measurement that failed must not read as a clean zero.
 for T in docs/plans/*/tasks.md; do
-  done=$(grep -cE '^- \[x\] \*\*[A-Z0-9-]*[0-9][A-Z0-9-]*\*\*' "$T")
-  left=$(grep -cE '^- \[ \] \*\*[A-Z0-9-]*[0-9][A-Z0-9-]*\*\*' "$T")
-  [ "$left" -gt 0 ] && echo "$T: $done done, $left left"
+  [ -e "$T" ] || continue
+  done=$(grep -cE '^- \[x\] \*\*[A-Z0-9-]*[0-9][A-Z0-9-]*\*\*' "$T" 2>/dev/null) || true
+  left=$(grep -cE '^- \[ \] \*\*[A-Z0-9-]*[0-9][A-Z0-9-]*\*\*' "$T" 2>/dev/null) || true
+  [ "${left:-0}" -gt 0 ] && echo "$T: ${done:-0} done, ${left:-0} left"
 done
 
 # Today: the first unchecked task in the active plan's current phase
 # Progress: tasks whose (completed YYYY-MM-DD ...) stamp falls inside the window
 grep -nE '^- \[x\] .*\(completed '"$SINCE" docs/plans/*/tasks.md
 
-# In flight: an OPEN journal entry means work was interrupted mid-task
-grep -lE '^## .*\(open\)[[:space:]]*$' docs/plans/*/journal.md 2>/dev/null
+# In flight: the NEWEST journal entry being open means work was interrupted mid-task.
+# Two things this must get right, both learned from getting them wrong:
+#   - discard the template's placeholder headings, or every untouched plan reports
+#     interrupted work forever (the hook discards them the same way);
+#   - read the NEWEST entry, not any entry — a stale open entry further down is a
+#     bookkeeping error, not work in flight.
+for J in docs/plans/*/journal.md; do
+  [ -e "$J" ] || continue
+  newest=$(grep -E '^## ' "$J" 2>/dev/null | grep -vE '\[YYYY|<YYYY|YYYY-MM-DD' | head -1)
+  case "$newest" in *'(open)') echo "$J: $newest" ;; esac
+done
 
 # Blocked: the plan says so itself
 sed -n '/^### Current Blockers/,/^###/p' docs/plans/*/tasks.md

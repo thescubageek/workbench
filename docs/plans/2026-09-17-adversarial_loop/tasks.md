@@ -529,7 +529,8 @@ that give a review phase a model baseline.
 - [ ] **P4-T2** — Repoint `plugin/skills/daily-digest/SKILL.md:204` (the Today-item entry-point
       bullet) and `:278` (the review-skills bullet in "Integration with the wb ecosystem") from
       `pr-feedback` / `review` / `review-reef` / `review-strict` to the skills that now exist.
-      (~13 calls)
+      *The B1 grep defect originally bundled here was pulled forward and fixed on 2026-09-17; this
+      task is now the repointing only.* (~11 calls)
 - [ ] **P4-T3** — Repoint `plugin/skills/model-help/SKILL.md:160`'s calibration anchor off
       `review-reef`, and add gate-mode rows for the review and PR-loop phases to the table at
       `:94-103`, matching its four columns exactly (`wb phase`, `Main-session baseline`, `Why`,
@@ -723,6 +724,16 @@ Note: Update this section with findings as you implement.
 Recorded here with the task ID they block and the date raised. Remove a blocker when it is
 resolved, leaving a dated line saying how.
 
+- **[2026-09-17] Out-of-plan fix, at the user's request: B1 and the silent-measurement class.**
+  Both in `daily-digest/sources.md`. B1 is described in Blockers above. The second is the class
+  the P1-T3 probe found in itself: `grep -cE` on a possibly-absent file, with an unguarded glob,
+  so an unmatched glob produced an empty count and `[ "$left" -gt 0 ]` errored instead of
+  reporting — exit 2 with two grep errors. `wb-prime.sh:55-63` already documents this exact trap
+  and guards against it; this collector did not. Now guarded the same way, verified under bash
+  semantics against an unmatched glob (old: exit 2 with errors; new: exit 0) and against a plan
+  with zero completed tasks (still reports `0 done, 1 left` — no regression).
+  An audit for the probe's *own* variant — an unquoted `--include` glob — found no instances in
+  shipped code.
 - **[2026-09-17] Out-of-plan fix, at the user's request: the two causes behind the journal lint
   failure.** Symptom was MD022/MD032 on every entry this session added. Cause 1 —
   `journal-entries.md` gave the entry shape but never said an entry ends with a blank line before
@@ -734,12 +745,13 @@ resolved, leaving a dated line saying how.
   position check (only the newest entry may be `(open)`), verified against a planted failure and
   against a legitimate single open entry. B2 from the probe was fixed in the same block, since
   the rewrite covered those lines.
-- **[2026-09-17] B1 — live defect in committed shipped code, blocks nothing but must not ship.**
-  `plugin/skills/daily-digest/sources.md:77`'s open-entry grep has no placeholder filter, so it
-  matches the journal template's fenced example heading and reports every untouched plan as having
-  interrupted work. Found by the built-in leg during P1-T3 and CONFIRMED empirically (3 matches
-  against a real journal). **Attaches to P4-T2**, which already edits that file. Fix: add the same
-  `grep -vE '\[YYYY|<YYYY|YYYY-MM-DD'` filter the hook uses.
+- **[2026-09-17] B1 — RESOLVED, pulled forward from P4-T2 at the user's request.**
+  `plugin/skills/daily-digest/sources.md` reported every untouched plan as having interrupted
+  work, because its open-entry grep had no placeholder filter. Fixed by reading the *newest* real
+  entry per journal rather than matching any `(open)` line anywhere — which also stops a stale
+  open entry (a bookkeeping error) being reported as work in flight. Verified against three
+  planted journals: only the genuinely interrupted one now reports, where the old code reported
+  all three.
 
 ### Implementation Notes
 
