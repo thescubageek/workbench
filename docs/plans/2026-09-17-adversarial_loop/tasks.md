@@ -2,15 +2,15 @@
 project: adversarial_loop
 ticket: null
 created: 2026-09-17
-status: not-started
+status: in-progress
 last_updated: 2026-09-17
 assignee: scraig
-current_phase: 1
+current_phase: 2
 total_tasks: 27
-completed_tasks: 4
+completed_tasks: 8
 task_tracking: markdown-checkboxes
 depends_on: [research.md, design.md]
-git_commit: a1793aa
+git_commit: ada76bf
 git_branch: adversarial-loop-skill-research
 repository: thescubageek/workbench
 tags: [tasks, tracking, adversarial_loop]
@@ -105,8 +105,8 @@ tasks, not greps.
 | Phase | Status | Tasks | Progress |
 |-------|--------|-------|----------|
 | Phase 0: Planning | ✅ Complete | 4/4 | 100% |
-| Phase 1: Tracer bullet — prove the wrapper shape | ⏸️ Not Started | 0/4 | 0% |
-| Phase 2: Reference doc and `wb:adversarial-review` | ⏸️ Not Started | 0/7 | 0% |
+| Phase 1: Tracer bullet — prove the wrapper shape | ✅ Complete | 4/4 | 100% |
+| Phase 2: Reference doc and `wb:adversarial-review` | 🔄 In Progress | 0/7 | 0% |
 | Phase 3: `wb:reply-to-claude` and `wb:adversarial-loop` | ⏸️ Not Started | 0/3 | 0% |
 | Phase 4: Repoint the ecosystem | ⏸️ Not Started | 0/4 | 0% |
 | Phase 5: Release | ⏸️ Not Started | 0/5 | 0% |
@@ -154,9 +154,9 @@ is deleted at the end of the phase.
 
 ### Prerequisites
 
-- [ ] Research complete (`research.md` status `complete`)
-- [ ] Design approved (`design.md` status `approved`)
-- [ ] `git`, and a `claude` binary whose `Skill` tool can reach `code-review`
+- [x] Research complete (`research.md` status `complete`)
+- [x] Design approved (`design.md` status `approved`)
+- [x] `git`, and a `claude` binary whose `Skill` tool can reach `code-review`
 
 ### Tasks
 
@@ -191,18 +191,18 @@ is deleted at the end of the phase.
 
 #### Automated Verification
 
-- [ ] The fixture's two branches differ as intended: `git -C /tmp/wb-adv-probe diff --stat main trivial`
+- [x] The fixture's two branches differ as intended: `git -C /tmp/wb-adv-probe diff --stat main trivial`
       and `... main risky` both return a diff, and `risky` is ≤20 changed lines
-- [ ] `thoughts/2026-09-17-wrapper-shape-probe.md` exists, contains a `cwd:` line, and its
+- [x] `thoughts/2026-09-17-wrapper-shape-probe.md` exists, contains a `cwd:` line, and its
       pre-registration section is dated earlier than its results section
-- [ ] `test ! -e /tmp/wb-adv-probe` after P1-T4
+- [x] `test ! -e /tmp/wb-adv-probe` after P1-T4
 
 #### Manual Verification
 
-- [ ] A human has read the probe document and agrees the shape holds
-- [ ] The tier chosen for `risky` is higher than for `trivial`, and the axis that drove it is named
-- [ ] The security lens fired on `risky` and did not fire on `trivial`
-- [ ] Findings from both legs appear in one deduped, verified report
+- [x] A human has read the probe document and agrees the shape holds
+- [x] The tier chosen for `risky` is higher than for `trivial`, and the axis that drove it is named
+- [x] The security lens fired on `risky` and did not fire on `trivial`
+- [x] Findings from both legs appear in one deduped, verified report
 
 ### Modified Files
 
@@ -225,10 +225,10 @@ before, and following it ticks the human sign-off box. **This block, labels and 
 included, is repeated in full at every phase's checkpoint**; a later phase never gets a
 shortened one.
 
-- [ ] **(derivable)** Every Phase 1 checkbox is `[x]`
-- [ ] **(derivable)** All automated verification passing
-- [ ] **(attestation)** Manual verification confirmed by human
-- [ ] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
+- [x] **(derivable)** Every Phase 1 checkbox is `[x]`
+- [x] **(derivable)** All automated verification passing
+- [x] **(attestation)** Manual verification confirmed by human — confirmed 2026-09-17
+- [x] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
       only writer of those fields, so do not edit `current_phase` or `completed_tasks` by hand
 
 **Do not proceed without human confirmation of manual tests** — unless the phase is being run
@@ -250,10 +250,10 @@ before the `SKILL.md` that directs reads into them.
 
 ### Prerequisites
 
-- [ ] Phase 1 complete and verified
-- [ ] Phase 1 manual testing confirmed — *an attestation, like the checkpoint's. Under
+- [x] Phase 1 complete and verified
+- [x] Phase 1 manual testing confirmed — *an attestation, like the checkpoint's. Under
       `/wb:implement --auto` it stays `[ ]` and the phase proceeds anyway.*
-- [ ] The probe verdict says the wrapper shape holds
+- [x] The probe verdict says the wrapper shape holds
 
 ### Changes Required
 
