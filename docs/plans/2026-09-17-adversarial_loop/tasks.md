@@ -6,7 +6,7 @@ status: in-progress
 last_updated: 2026-09-18
 assignee: scraig
 current_phase: 5
-total_tasks: 72
+total_tasks: 80
 completed_tasks: 68
 task_tracking: markdown-checkboxes
 depends_on: [research.md, design.md]
@@ -1170,6 +1170,159 @@ shortened one.
 - [ ] **(attestation)** A round 3 review has been **explicitly approved by the user**. Round 2
       found that a third of its findings were created by round 1's fixes; this phase is the same
       kind of surface, and assuming it is clean is the mistake the plan exists to prevent
+- [ ] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
+      only writer of those fields, so do not edit `current_phase` or `completed_tasks` by hand
+
+**Do not proceed without human confirmation of manual tests** — unless the phase is being run
+under `/wb:implement --auto`, which buys the wait and not the attestation. In that case the
+attestation stays `[ ]`, the checkpoint records that the phase closed unattended and names the
+manual steps nobody performed, and the confirmation is **deferred, not obtained.**
+
+---
+
+## Phase 8: Stop the thrash — remediation as a plan, not a patch
+
+### Objective
+
+Three review rounds removed defects at roughly the rate the fixes introduced them. Close that
+loop: make a review round emit a **plan** that `implement` executes one verified task at a time,
+give the loop a memory across rounds so thrashing is measurable, and settle whether
+`check-guards` should be patched a fourth time or replaced.
+
+**This phase gates the `check-guards` spike.** The spike is the first instance of the escalation
+path this phase defines, not a one-off — so the path is defined first.
+
+### What round 3 established
+
+Full analysis: [thoughts/2026-09-18-thrashing-and-remediation-planning.md](thoughts/2026-09-18-thrashing-and-remediation-planning.md).
+
+| Round | Findings | In the previous fix's surface | Scope |
+| ----- | -------- | ----------------------------- | ----- |
+| 1 | 22 | — | full diff, 6 legs |
+| 2 | 22 | 14 (64%) | full diff, 6 legs |
+| 3 | 12 | ~8 (67%) | scoped — ~12% of the surface, 2 legs |
+
+Three mechanisms, each independently sufficient to produce this:
+
+1. **The gate is a level test, not a trend test.** Nothing compares round N to round N−1, and
+   there is no record to compare against — the same gap round 3 found as "the gate is
+   self-certified and unauditable".
+2. **Batch-fix, batch-verify.** Phase 6 was 22 tasks in 3 commits; Phase 7 was 22 tasks in **one**
+   commit, with the gates run once at the end. An aggregate green is compatible with any number
+   of offsetting individual failures, and both rounds contained some. Worse, **every verified
+   finding already carries its own acceptance test** — the `failure_scenario` field — and
+   batch-fixing discards it.
+3. **A fix phase is design work wearing execution clothes.** Every `check-guards` fix patched a
+   regex; none asked whether the shape was right. A review loop reviews diffs, and a design
+   defect is not in the diff, so the loop cannot fix one by construction.
+
+### Prerequisites
+
+- [x] Round 3 complete, findings recorded
+- [x] The live PHI regression fixed ahead of this phase — `3ce6af9`
+- [x] The exploration document written
+
+### Open questions
+
+| ID | Question | Blocks |
+| -- | -------- | ------ |
+| **Q8-1** | Does a remediation plan live as a new phase in the existing plan directory, or in its own? One status surface versus not inflating the original plan's counters with review bookkeeping. | P8-T3 |
+| **Q8-2** | What is the verification step for a **prose** finding? A misleading instruction has a failure scenario but no runnable test. Candidate: the acceptance criterion is that the instruction's own fenced command, run as written, produces the stated outcome. | P8-T3 |
+| **Q8-3** | Is the circuit breaker advisory or blocking? The plugin's model-advisory precedent is non-blocking; this one arguably should not be. | P8-T4 |
+| **Q8-4** | Do the thresholds hold outside this repository, where a round may revisit a file for unrelated reasons? | P8-T4 |
+| **Q8-5** | Is `check-guards`' shape-1 rule even well-formed? `shellcheck` does not flag `n=$(grep -c f x)` and is arguably right: a bare assignment does not mask the status, so `$?` works. The real defect is "nobody checks it" — a dataflow property, not a syntax pattern. | P8-T6 |
+
+### Tasks
+
+#### Research and design
+
+- [ ] **P8-T1** — Record the thrash evidence in `research.md` as facts: the per-round table, the
+      two mirror-image regressions, the same-file recurrence across three rounds, and the commit
+      shapes of Phases 6 and 7. Facts only — no remedy, that is design's job. (~10 calls)
+- [ ] **P8-T2** — Resolve Q8-1 and Q8-2 with the user, and record both in `design.md`'s decision
+      log with rationale. These shape the artifact, so they precede writing it. (~9 calls)
+- [ ] **P8-T3** — Design decision: **a review round emits a remediation plan.** Findings become a
+      `tasks.md` with real IDs, ordered, with dependencies; findings sharing a file and a class
+      group into one task, and the task that touches a file re-verifies every finding against it.
+      **Each task carries its finding's `failure_scenario` as its acceptance criterion**, so the
+      verification is written before the fix and is specific to that finding. `implement` executes
+      it — one worker, fresh context, `task-verifier`, one commit each. Record in `design.md`.
+      (~14 calls) · Depends on: P8-T2
+- [ ] **P8-T4** — Design decision: the **findings ledger** (`review-log.md`) and the **circuit
+      breaker**. The ledger records every finding across rounds — file, class, verdict,
+      disposition, evidence, and whether it lands in surface the previous fix touched (derivable
+      by intersecting finding paths with `git diff <last-fix-base>..HEAD --name-only`). Settle the
+      thresholds and Q8-3/Q8-4. The ledger also closes round 3's "no durable disposition record"
+      finding — one artifact, two problems. (~14 calls) · Depends on: P8-T2
+
+#### The escalation path's first instance
+
+- [ ] **P8-T5** — Declare `shellcheck` as a dependency **correctly**: `plugin/scripts/check` fails
+      loudly and names the install command when it is absent — never skips, because a gate that
+      silently drops a check when a binary is missing is the exact class `check-guards` exists to
+      catch; a pinned version floor, since `-o all` behaviour moves between releases; and all
+      three declaration sites (`plugin/scripts/README.md`, root `README.md`,
+      `.github/workflows/checks.yml`) updated together. (~12 calls)
+- [ ] **P8-T6** — **The `check-guards` tracer bullet.** Build the labelled corpus from what three
+      rounds bought — every MUST-FIRE and MUST-NOT-FIRE case in `test-guards` plus the six round-3
+      shapes — and score three implementations against it: (A) current `check-guards`,
+      (B) `shellcheck -o all` plus a fence extractor, (C) a throwaway ~50-line implementation
+      using a real CommonMark fence parse and shell tokenization. **Two scores**: corpus
+      pass-rate, and **mutation survivability** — plant single-line breaks and count how many the
+      corpus catches, because round 3 showed all four of Phase 7's new guards were deletable with
+      the suite green. Pre-register the outcomes before running it. Also answer Q8-5.
+      **Stop when the two scores are in** — do not build the winner inside the spike.
+      (~26 calls) · Depends on: P8-T5
+- [ ] **P8-T7** — Record the spike's verdict in
+      `thoughts/2026-09-18-check-guards-implementation-probe.md`, state what it **culled**, and
+      raise the surviving option as a decision for the user. Do not implement it in this phase —
+      the point of the escalation path is that a design decision gets decided, not absorbed into
+      a fix round. (~10 calls) · Depends on: P8-T6
+
+#### Only after the above
+
+- [ ] **P8-T8** — Re-plan the 11 open round-3 findings as a remediation `tasks.md` in the shape
+      P8-T3 defines, rather than fixing them ad hoc. This is the mechanism's own first use, and if
+      it is awkward here it will be awkward everywhere. Findings whose component the spike says to
+      replace are **not** fixed — they are closed by the replacement. (~16 calls) ·
+      Depends on: P8-T3, P8-T7
+
+### Success Criteria
+
+#### Automated Verification
+
+- [ ] `./plugin/scripts/check` passes, and fails loudly when `shellcheck` is absent
+- [ ] The corpus is a data file, runnable against any candidate implementation
+- [ ] Mutation survivability is reported as a number for each candidate, not an impression
+- [ ] The remediation `tasks.md` from P8-T8 passes `validate_project`'s task-ID and counter checks
+
+#### Manual Verification
+
+- [ ] A human has agreed the circuit-breaker thresholds are ones they want the loop to stop on
+- [ ] The spike's pre-registered outcomes were written **before** it ran, and the verdict is read
+      against them rather than around them
+
+### ⛔ CHECKPOINT: Phase 8 Complete
+
+These are the conditions to meet before the next phase — **not a record of having met them.**
+Tick each one as it is actually satisfied.
+
+Each box below is labelled **(derivable)** or **(attestation)**. A derivable condition is one a
+tool can establish, and `/wb:implement` ticks those at its Step 8 checkpoint. An attestation
+records that a *person* looked, so only a person ticks it, and an unticked attestation beside
+finished work means *"done, sign-off pending"* rather than a contradiction.
+
+**Go by the label, never by position** — a positional reading of these boxes has been wrong
+before, and following it ticks the human sign-off box. **This block, labels and this sentence
+included, is repeated in full at every phase's checkpoint**; a later phase never gets a
+shortened one.
+
+- [ ] **(derivable)** Every Phase 8 checkbox is `[x]`
+- [ ] **(derivable)** All automated verification passing
+- [ ] **(attestation)** Manual verification confirmed by human
+- [ ] **(attestation)** The spike's verdict has been **decided by the user**, not adopted by the
+      session. The whole point of escalating out of the fix loop is that a design decision gets
+      made deliberately
 - [ ] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
       only writer of those fields, so do not edit `current_phase` or `completed_tasks` by hand
 

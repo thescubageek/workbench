@@ -51,6 +51,37 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-18 20:30 — round 3, the PHI fix, and Phase 8 (closed)
+
+- **Task/phase**: scoped round-3 review; the PHI fix; Phase 8 opened for the thrash problem.
+- **Landed**: `3ce6af9` puts the PHI patterns back where the collectors read them.
+  `thoughts/2026-09-18-thrashing-and-remediation-planning.md` records the analysis. Phase 8
+  adds 8 tasks and 5 open questions; total 80, 68 done.
+- **Learned**:
+  - **The loop was thrashing and could not see it.** Introduced-rate by round: — / 64% / 67%,
+    with round 3 scoped to ~12% of the surface and a third of the lenses. Normalised, it rose.
+    The gate is a *level* test; nothing compares round N to N−1, and there is no record to
+    compare against.
+  - **Two mirror-image regressions** — the `mktemp` fix for "a fixed path gets reused" shipped
+    a literal fixed path; the guard-walk fix for "a later guard excuses an earlier capture"
+    shipped its exact inverse. A mirror-image twin is near-proof the fix was pattern-matched
+    rather than understood.
+  - **Batch-fix, batch-verify is the larger mechanism.** Phase 7 was 22 tasks in **one**
+    commit with the gates run once at the end. An aggregate green is compatible with any
+    number of offsetting individual failures, and both fix phases contained some.
+  - **Every verified finding already carries its own acceptance test** — the
+    `failure_scenario` field is a pre-written test case, authored by the reviewer, and
+    batch-fixing discards it. That single observation is the design.
+  - **The plugin already ships every piece of machinery the fix loop bypassed**:
+    `create_tasks`, `implement`, `tdd-discipline`, `verification-before-completion`,
+    `task-verifier`. Treating findings as a to-do list instead of a plan skipped all five.
+  - **shellcheck does not flag `n=$(grep -c f x)`, and is arguably right** — a bare assignment
+    does not mask the status, so `$?` works. That makes `check-guards`' shape-1 rule possibly
+    ill-formed rather than merely badly implemented, which is now Q8-5 and is exactly the kind
+    of question the spike exists to answer before a fourth patch.
+- **Commits**: `3ce6af9`, and this one.
+- **Blocked by**: Q8-1 and Q8-2 need the user before P8-T3 can be written.
+
 ## 2026-09-18 19:56 — PHI fix + Phase 7, all 22 tasks (closed)
 
 - **Task/phase**: the PHI regression, then P7-T1 through P7-T22 — close round 2.
