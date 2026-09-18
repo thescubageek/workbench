@@ -51,6 +51,19 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-18 00:14 — silent-check root cause (closed)
+
+- **Task/phase**: out-of-plan, user-requested — fix the cause of the recurring
+  "measurement fails and reads as success" class rather than more instances
+- **Landed**: FALSIFY added as step 2 of verification-before-completion's gate, with the
+  mechanism table and authoring red flags; pointers added in create_tasks' template and
+  validate_execution Step 3. Stated once, referenced twice.
+- **Commits**: 375d5c2
+- **Learned**: the old gate could not catch this class by construction — all three failures
+  passed IDENTIFY/RUN/READ/VERIFY. Also that the glob defect is shell-dependent: zsh reports 0
+  where bash reports the truth, so "it worked when I ran it" is weaker evidence than it reads as.
+- **Started at**: 4a01988
+
 ## 2026-09-18 00:08 — P2-T1 (closed)
 
 - **Task/phase**: P2-T1 — write plugin/docs/reference/code-review-integration.md

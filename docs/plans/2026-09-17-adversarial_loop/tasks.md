@@ -724,6 +724,20 @@ Note: Update this section with findings as you implement.
 Recorded here with the task ID they block and the date raised. Remove a blocker when it is
 resolved, leaving a dated line saying how.
 
+- **[2026-09-18] Root cause of the recurring silent-check class, fixed at the user's request.**
+  Three instances this session (probe blast-radius grep, `daily-digest`'s collector, this plan's
+  own reference doc) were all patched individually before anyone asked why they kept happening.
+  The cause: the principle — *a check that cannot fail is not evidence* — existed in four places,
+  none of them shipped and runtime-read (`.claude/wb/knowledge.md`, the maintainer-only skills
+  guide, and two plans' prose). The one shipped skill whose whole job is evidence-before-claims,
+  `verification-before-completion`, did not contain it, and its gate (IDENTIFY → RUN → READ →
+  VERIFY) **passed all three failures**: a command was identified, run, its output read, and the
+  output said clean. Fixed by adding a **FALSIFY** step to that gate, with the mechanism table,
+  the see-it-fail-once instruction, and the authoring red flags; pointed at from the two places
+  checks are written and run (`create_tasks`' template, `validate_execution` Step 3). Stated once,
+  referenced twice, no fourth copy. Verified retrospectively against all three instances, and the
+  first was reproduced precisely — under zsh it reports 0 callers where 1 exists, while bash hides
+  the defect entirely, which is now recorded as its own red flag.
 - **[2026-09-18] P2-T1 — the reference doc's own `Check it` command failed on first write.**
   It matched `Phase 2 . (Verify|Dedup)`, but `strings` emits the em-dash as the literal
   seven-character sequence `\u2014`, so `.` matched nothing and the check silently returned
