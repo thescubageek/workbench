@@ -51,6 +51,14 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-18 17:55 — handoff written (closed)
+
+- **Task/phase**: session transfer at Phase 5, before the release is cut
+- **Landed**: `handoff-2026-09-18-17-55.md`; draft PR #25 opened; 4 knowledge entries added
+- **Next action**: a fresh session runs `/wb:adversarial-review 25` against this PR, then
+  Phase 5 — P5-T1 CHANGELOG onward, with P5-T6 (`scripts/count`) required before completion
+- **Commits**: fd7089d
+
 ## 2026-09-18 17:47 — P4-T4 (closed)
 
 - **Task/phase**: P4-T4 — dangling-reference sweep across the whole plugin, run last so it covers
