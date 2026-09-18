@@ -51,6 +51,21 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-18 00:45 — silent-measurement checks (closed)
+
+- **Task/phase**: out-of-plan — ship a mechanical guard check (1) and change the documented
+  measurement idiom to show-don't-count (2); file scripts/count (3) against Phase 5
+- **Landed**: plugin/scripts/check-guards (three patterns, each falsified), scripts/quiet
+  guarded, verification-before-completion now prefers listing to counting, scripts/count filed
+  as P5-T6
+- **Commits**: d291042
+- **Learned**: the check I wrote to catch silent failures reported clean while holding a real
+  finding — `FOUND=1` inside a pipeline subshell. Third occurrence of that trap in this repo,
+  and `scripts/lint` already documents it. The pattern across all of this: the assurance
+  machinery fails the same way as the thing it assures, so it needs the same scrutiny rather
+  than more trust.
+- **Started at**: 40d041e
+
 ## 2026-09-18 00:31 — L1 fix (closed)
 
 - **Task/phase**: out-of-plan — close L1, the last unfixed defect from the P1-T3 probe

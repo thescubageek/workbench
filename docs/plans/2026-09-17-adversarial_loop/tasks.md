@@ -109,7 +109,7 @@ tasks, not greps.
 | Phase 2: Reference doc and `wb:adversarial-review` | 🔄 In Progress | 0/7 | 0% |
 | Phase 3: `wb:reply-to-claude` and `wb:adversarial-loop` | ⏸️ Not Started | 0/3 | 0% |
 | Phase 4: Repoint the ecosystem | ⏸️ Not Started | 0/4 | 0% |
-| Phase 5: Release | ⏸️ Not Started | 0/5 | 0% |
+| Phase 5: Release | ⏸️ Not Started | 0/6 | 0% |
 
 Counts come from the checkboxes below and are reconciled by `/wb:update_status`.
 
@@ -628,6 +628,15 @@ personal copies the port was made from.
       last and is contingent on the smoke session. Confirm with the user before running the
       deletion. (~9 calls) · Depends on: P5-T4
 
+- [ ] **P5-T6** — Ship `plugin/scripts/count` with a contract test, and repoint the counting
+      idioms that remain in shipped skills at it. The wrapper returns a count on success and a
+      *distinguishable* failure otherwise, so the correct path is shorter than the unguarded one —
+      the same reason `scripts/quiet` exists. Contract test follows `scripts/test-quiet`: a real
+      count, a zero-match count, a missing file, and an unreadable file must each be
+      distinguishable. **This is the third of three responses to the silent-measurement class;
+      items 1 and 2 shipped 2026-09-18 and this one must land before the effort is called
+      complete.** (~20 calls)
+
 ### Success Criteria
 
 #### Automated Verification
@@ -641,6 +650,9 @@ personal copies the port was made from.
 - [ ] Every reference link in every skill resolves:
       `grep -rhoE '\.\./\.\./docs/reference/[a-z-]*\.md' plugin/skills/ | sort -u | while read p; do [ -e "plugin/${p#../../}" ] || echo "MISS $p"; done` → no output
 - [ ] `CHANGELOG.md` has a `## [2.2.0]` heading
+- [ ] Guard check clean: `./plugin/scripts/check-guards` → exit 0
+- [ ] `./plugin/scripts/test-count` passes, and `scripts/count` distinguishes a zero count from a
+      failed one
 
 #### Manual Verification
 
@@ -725,6 +737,21 @@ Note: Update this section with findings as you implement.
 Recorded here with the task ID they block and the date raised. Remove a blocker when it is
 resolved, leaving a dated line saying how.
 
+- **[2026-09-18] Silent-measurement class: three responses, two shipped.** The prose rule
+  (FALSIFY) demonstrably did not prevent recurrence — instance four happened inside the
+  verification of the fix for instance three. So the response moved from stating the rule to
+  removing the need to remember it. **(1) `plugin/scripts/check-guards`** greps shipped shell and
+  fenced `bash` blocks for the three shapes whose failure reads as clean, and found two real
+  instances on its first run — `scripts/quiet:34`, in the script whose whole job is honest
+  reporting. **(2) `verification-before-completion` now prefers listing to counting**, because all
+  four instances were counts and a count destroys the signal that would have caught it.
+  **(3) `scripts/count` is P5-T6**, still owed.
+  The check itself had the same bug it hunts: `FOUND=1` set inside a pipeline subshell never
+  reached the parent, so it found a defect and reported clean. `plugin/scripts/lint` already
+  carries a comment about that exact trap. Third occurrence in this repository.
+  A deliberate counter-example in a `bash` fence also tripped it; resolved by a convention —
+  counter-examples go in a `text` fence — rather than a suppression marker, since a marker can
+  silence a real finding and a fence language cannot.
 - **[2026-09-18] L1 closed — the last unfixed defect from the P1-T3 probe.** An indented `##`
   heading is invisible to *both* readers: `wb-prime.sh` greps `^##` and `validate_project`
   filters `startsWith('## ')`, so the hook silently misreads the file and the validator reports it

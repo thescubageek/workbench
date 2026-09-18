@@ -1,0 +1,82 @@
+#!/usr/bin/env bash
+# check-guards — find shell measurements whose failure reads as a clean result.
+#
+# Three shapes produce a number that is indistinguishable from "nothing matched":
+#
+#   1. `grep -c` captured without a status guard. grep exits 1 on no match and 2 on
+#      error, so a missing file and a clean file both yield a usable-looking value.
+#   2. An unquoted `--include=` glob. Shell-dependent: bash passes it through, zsh
+#      errors and the count comes back zero.
+#   3. A `for` over a glob with no existence test. An unmatched glob runs the body
+#      once with the literal pattern as the filename.
+#
+# Scans shipped shell scripts and the fenced `bash` blocks inside shipped markdown —
+# those blocks are instructions a model executes, so they carry the same risk.
+# Prose and tables are deliberately not scanned, so a document may describe a bad
+# pattern without tripping this. A deliberate counter-example inside a fence belongs
+# in a ```text block rather than a ```bash one — that is the convention instead of a
+# suppression marker, because a marker can be used to silence a real finding and a
+# fence language cannot.
+#
+# Usage: plugin/scripts/check-guards [path ...]   (default: plugin/)
+# Exit 0 clean, 1 if any unguarded measurement is found.
+
+set -uo pipefail
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+cd "$ROOT"
+TARGETS=("${@:-plugin}")
+
+# Findings go to a file, not a variable. `scan_stream` runs on the right-hand side of a
+# pipe, so it executes in a subshell and any variable it sets is lost when that subshell
+# exits — the check would find defects and still report clean. plugin/scripts/lint carries
+# the same warning for the same reason; this is the third time this repo has met it.
+HITS="$(mktemp)"
+trap 'rm -f "$HITS"' EXIT
+
+report() {  # file line pattern line-text fix
+  printf '%s:%s\n  %s\n  found: %s\n  fix:   %s\n\n' "$1" "$2" "$3" "$4" "$5" >> "$HITS"
+}
+
+scan_stream() {  # filename ; reads "lineno<TAB>text" on stdin
+  local file="$1" prev_glob_line="" prev_glob_no=""
+  while IFS=$'\t' read -r no text; do
+    case "$text" in
+      *'--include='[!\'\"]*)
+        report "$file" "$no" "unquoted --include glob" "$(echo "$text" | sed 's/^[[:space:]]*//')" \
+               "quote it: --include='*.py'" ;;
+    esac
+    if [[ "$text" == *'$(grep -c'* || "$text" == *'$(grep -rc'* ]]; then
+      if [[ "$text" != *'|| true'* && "$text" != *'|| echo'* && "$text" != *'2>/dev/null)'*'||'* ]]; then
+        report "$file" "$no" "grep -c captured without a status guard" \
+               "$(echo "$text" | sed 's/^[[:space:]]*//')" \
+               'append `|| true` and default the value: ${n:-0}'
+      fi
+    fi
+    if [[ -n "$prev_glob_line" ]]; then
+      if [[ "$text" != *'-e '* && "$text" != *'-f '* && "$text" != *'continue'* ]]; then
+        report "$file" "$prev_glob_no" "for over a glob with no existence test" \
+               "$prev_glob_line" '[ -e "$x" ] || continue   # as the body'"'"'s first line'
+      fi
+      prev_glob_line=""; prev_glob_no=""
+    fi
+    if [[ "$text" =~ ^[[:space:]]*for[[:space:]]+[A-Za-z_]+[[:space:]]+in[[:space:]].*\*.*\;[[:space:]]*do ]]; then
+      prev_glob_line="$(echo "$text" | sed 's/^[[:space:]]*//')"; prev_glob_no="$no"
+    fi
+  done
+}
+
+while IFS= read -r f; do
+  case "$f" in
+    *.sh|*/scripts/*) grep -n '' "$f" | sed 's/:/\t/' | scan_stream "$f" ;;
+    *.md) awk 'BEGIN{inb=0} /^```bash$/{inb=1;next} /^```$/{inb=0;next} inb{print NR"\t"$0}' "$f" | scan_stream "$f" ;;
+  esac
+done < <(find "${TARGETS[@]}" -type f \( -name '*.sh' -o -name '*.md' -o -path '*/scripts/*' \) \
+           -not -name 'check-guards' -not -path '*/node_modules/*' 2>/dev/null | sort)
+
+if [ -s "$HITS" ]; then
+  cat "$HITS"
+  echo "❌ check-guards: unguarded measurements above — each one's failure reads as a clean result"
+  exit 1
+fi
+echo "✅ check-guards: no unguarded measurements"
+exit 0

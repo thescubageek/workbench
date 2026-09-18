@@ -51,11 +51,38 @@ remove the plant. A check verified only against a passing case is a check you ha
 
 | Mechanism | Why the silence lies | Guard |
 | --------- | -------------------- | ----- |
+| Counting instead of listing | `0` and "the command failed" are the same output; a listing makes the difference visible | Print the matches; count only what you have already seen |
 | `grep` exit status discarded | `0` matched, `1` no match, `2` **error**. `$( )` and pipes throw it away, so a missing file and a clean file look identical | Test the status, or `[ -e "$f" ] \|\| continue` first |
 | Unquoted glob in an argument | **Shell-dependent**: `bash` passes an unmatched glob through literally and the command works; `zsh` errors and the result is silently zero. A check that passed in one shell can be broken in another | Quote it: `--include='*.py'` |
 | Unmatched glob in a `for` | The body runs once with the literal pattern as the filename | `[ -e "$x" ] \|\| continue` as the body's first line |
 | Pattern cannot match the real encoding | Non-ASCII arrives escaped — `strings` emits an em-dash as the literal `\u2014` — so a pattern written with the character matches nothing | Match an ASCII-only substring, and run the check once before trusting it |
 | A probe whose environment cannot trigger the condition | The thing under test was never reachable from where it ran | Record the working directory and environment alongside the result |
+
+### Prefer showing the evidence to counting it
+
+Every instance of this failure observed so far was a **count**. That is not a coincidence:
+a count destroys the information that would have caught it.
+
+`grep -c` returning `0` is indistinguishable from a command that never ran. The same search
+printing its matches is not — an empty list *where you expected two file paths* is visibly wrong,
+because you already know what should be there.
+
+```text
+# Fragile: 0 and "broken" look identical
+n=$(grep -c "$sym" --include='*.py' -r .)
+```
+
+```bash
+# Better: you see what was found, and notice when it is nothing
+grep -rn "$sym" --include='*.py' . | sed 's/^/  /'
+```
+
+So: **say what you expect the command to print, then run it.** "This should list two call sites"
+turns a zero into an obvious error instead of a clean result. That is the FALSIFY step moved from
+claim-time to command-time, which is where the mistake is actually made.
+
+Use a count only when you have already seen the listing, or when the count is guarded and its
+failure is distinguishable from zero.
 
 ### Red flags when *writing* a check
 
@@ -66,6 +93,7 @@ remove the plant. A check verified only against a passing case is a check you ha
 - It checks for the **absence** of a string — absence passes for every reason, including wrong
   path, wrong pattern, and wrong encoding.
 - Its result is a count, and nothing distinguishes "counted zero" from "could not count".
+- It is a count at all, when a listing would have shown you what was found.
 
 ## What Requires Verification
 
