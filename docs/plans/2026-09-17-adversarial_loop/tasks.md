@@ -1268,7 +1268,17 @@ Three mechanisms, each independently sufficient to produce this:
 
 #### The escalation path's first instance
 
-- [ ] **P8-T5** — Declare `shellcheck` as a dependency **correctly**: `plugin/scripts/check` fails
+- [ ] **P8-T5** — *Sequencing corrected 2026-09-18: this now runs **after** P8-T6, not before.
+      Declaring shellcheck a hard gate dependency before the spike decides whether it is used is
+      the "commit to an approach on an untested assumption" this phase exists to stop. The spike
+      needs it installed, which it is; the gate decision waits on the verdict.*
+      **Two uses, decided separately.** (a) shellcheck as a linter for the plugin's own shell
+      scripts — independently valuable regardless of the spike: a default-severity run found
+      `cd` without `|| exit` in `check:17` and `check-guards:35` (a failed `cd` scans the wrong
+      tree) and two dead assignments in `test-count:68-69`. It also needs scoping, since the
+      naive `plugin/scripts/*` glob parses `README.md` as shell. (b) shellcheck as the engine for
+      shape detection — P8-T6 decides.
+      Then declare it **correctly**: (~14 calls) · Depends on: P8-T6 `plugin/scripts/check` fails
       loudly and names the install command when it is absent — never skips, because a gate that
       silently drops a check when a binary is missing is the exact class `check-guards` exists to
       catch; a pinned version floor, since `-o all` behaviour moves between releases; and all
@@ -1283,7 +1293,7 @@ Three mechanisms, each independently sufficient to produce this:
       corpus catches, because round 3 showed all four of Phase 7's new guards were deletable with
       the suite green. Pre-register the outcomes before running it. Also answer Q8-5.
       **Stop when the two scores are in** — do not build the winner inside the spike.
-      (~26 calls) · Depends on: P8-T5
+      (~26 calls)
 - [ ] **P8-T7** — Record the spike's verdict in
       `thoughts/2026-09-18-check-guards-implementation-probe.md`, state what it **culled**, and
       raise the surviving option as a decision for the user. Do not implement it in this phase —
