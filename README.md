@@ -268,8 +268,16 @@ The plugin cannot (and does not) write to your personal config — this rule is 
 ./plugin/scripts/lint --all     # Lint every markdown file
 
 ./plugin/scripts/check-guards   # Find measurements whose failure reads as a clean result
+./plugin/scripts/count          # A match count whose failure is distinguishable from zero
 ./plugin/scripts/test-quiet     # Contract test for scripts/quiet
+./plugin/scripts/test-count     # Contract test for scripts/count
 ```
+
+`scripts/count <regex> <file>` exists because `grep -c` prints `0` and exits 1 on no match, and
+exits 2 while printing nothing on error — so captured in a command substitution, "nothing matched"
+and "the command failed" are the same value. `count` puts the difference on the exit code: 0 means
+the number on stdout is trustworthy including zero, 2 means it could not be taken. That makes
+`n=$(count ... ) || handle` safe in a way the raw grep is not.
 
 `lint-hook` is not run by hand — it is the PostToolUse hook body, wired in `plugin.json`, which
 runs `lint --fix` on any markdown a Write or Edit touches.

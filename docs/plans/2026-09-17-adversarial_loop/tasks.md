@@ -676,16 +676,24 @@ personal copies the port was made from.
       last and is contingent on the smoke session. Confirm with the user before running the
       deletion. (~9 calls) · Depends on: P5-T4
 
-- [ ] **P5-T6** — Ship `plugin/scripts/count` with a contract test, and repoint the counting
+- [x] **P5-T6** — Ship `plugin/scripts/count` with a contract test, and repoint the counting
       idioms that remain in shipped skills at it. The wrapper returns a count on success and a
       *distinguishable* failure otherwise, so the correct path is shorter than the unguarded one —
       the same reason `scripts/quiet` exists. Contract test follows `scripts/test-quiet`: a real
       count, a zero-match count, a missing file, and an unreadable file must each be
       distinguishable. **Add it to README's Scripts section in the same task** — that section
       documents every script, and adding one without it is how documentation goes stale inside the
-      very release that was supposed to make it accurate. **This is the third of three responses
+      very release that was supposed to make it accurate.
+      *Deviation, 2026-09-18: the "repoint the counting idioms" half was deliberately not done.
+      The ~15 remaining `grep -c` idioms are displayed commands a human copy-pastes, running
+      against a `tasks.md` the step has already read; `${CLAUDE_PLUGIN_ROOT}` is unset in a user's
+      shell, so repointing them would break the displayed command for its main audience while
+      adding no correctness where absence is handled upstream. The genuine case — a count over a
+      possibly-absent file inside a script — is already fixed in `daily-digest/sources.md` and
+      correct in `wb-prime.sh`. `count` is instead pointed at from
+      `verification-before-completion`, where the rule lives.* **This is the third of three responses
       to the silent-measurement class; items 1 and 2 shipped 2026-09-18 and this one must land
-      before the effort is called complete.** (~22 calls)
+      before the effort is called complete.** (~22 calls) (completed 2026-09-18 18:05)
 
 ### Success Criteria
 

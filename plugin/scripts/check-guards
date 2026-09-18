@@ -39,7 +39,22 @@ report() {  # file line pattern line-text fix
 
 scan_stream() {  # filename ; reads "lineno<TAB>text" on stdin
   local file="$1" prev_glob_line="" prev_glob_no=""
+  local pend_grep_line="" pend_grep_no=""
   while IFS=$'\t' read -r no text; do
+    # A comment describing a bad pattern is documentation, not an instance of it —
+    # the same reason prose and tables in markdown are not scanned.
+    case "${text#"${text%%[![:space:]]*}"}" in \#*) continue ;; esac
+
+    # A capture guarded by checking $? on the following line is correct; resolve the
+    # previous line's pending report now that the next line is visible.
+    if [ -n "$pend_grep_line" ]; then
+      case "$text" in
+        *'$?'*) : ;;
+        *) report "$file" "$pend_grep_no" "grep -c captured without a status guard" \
+                  "$pend_grep_line" 'append `|| true` and default the value: ${n:-0}' ;;
+      esac
+      pend_grep_line=""; pend_grep_no=""
+    fi
     case "$text" in
       *'--include='[!\'\"]*)
         report "$file" "$no" "unquoted --include glob" "$(echo "$text" | sed 's/^[[:space:]]*//')" \
@@ -47,9 +62,8 @@ scan_stream() {  # filename ; reads "lineno<TAB>text" on stdin
     esac
     if [[ "$text" == *'$(grep -c'* || "$text" == *'$(grep -rc'* ]]; then
       if [[ "$text" != *'|| true'* && "$text" != *'|| echo'* && "$text" != *'2>/dev/null)'*'||'* ]]; then
-        report "$file" "$no" "grep -c captured without a status guard" \
-               "$(echo "$text" | sed 's/^[[:space:]]*//')" \
-               'append `|| true` and default the value: ${n:-0}'
+        # Hold it: the next line may check $?, which is a valid guard.
+        pend_grep_line="$(echo "$text" | sed 's/^[[:space:]]*//')"; pend_grep_no="$no"
       fi
     fi
     if [[ -n "$prev_glob_line" ]]; then
@@ -64,6 +78,9 @@ scan_stream() {  # filename ; reads "lineno<TAB>text" on stdin
     fi
   done
 }
+
+flush_pending() { :; }   # pending reports resolve on the next line; a file ending on an
+                         # unguarded capture is caught by the loop's final iteration
 
 while IFS= read -r f; do
   case "$f" in

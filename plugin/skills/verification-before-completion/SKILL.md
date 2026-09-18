@@ -52,7 +52,7 @@ remove the plant. A check verified only against a passing case is a check you ha
 | Mechanism | Why the silence lies | Guard |
 | --------- | -------------------- | ----- |
 | Counting instead of listing | `0` and "the command failed" are the same output; a listing makes the difference visible | Print the matches; count only what you have already seen |
-| `grep` exit status discarded | `0` matched, `1` no match, `2` **error**. `$( )` and pipes throw it away, so a missing file and a clean file look identical | Test the status, or `[ -e "$f" ] \|\| continue` first |
+| `grep` exit status discarded | `0` matched, `1` no match, `2` **error**. `$( )` and pipes throw it away, so a missing file and a clean file look identical | Test the status, or `[ -e "$f" ] \|\| continue` first. In this repository, `plugin/scripts/count` does it for you and fails loudly |
 | Unquoted glob in an argument | **Shell-dependent**: `bash` passes an unmatched glob through literally and the command works; `zsh` errors and the result is silently zero. A check that passed in one shell can be broken in another | Quote it: `--include='*.py'` |
 | Unmatched glob in a `for` | The body runs once with the literal pattern as the filename | `[ -e "$x" ] \|\| continue` as the body's first line |
 | Pattern cannot match the real encoding | Non-ASCII arrives escaped — `strings` emits an em-dash as the literal `\u2014` — so a pattern written with the character matches nothing | Match an ASCII-only substring, and run the check once before trusting it |

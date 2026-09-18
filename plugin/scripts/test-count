@@ -1,0 +1,77 @@
+#!/usr/bin/env bash
+
+# Contract tests for scripts/count.
+# The contract is one thing: a count of zero and a failure to count must be
+# distinguishable. Everything below exists to hold that line, because the whole
+# reason this script exists is that `grep -c` does not hold it.
+
+set -uo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+COUNT="$SCRIPT_DIR/count"
+TMP="$(mktemp -d)"
+trap 'chmod -R u+rwx "$TMP" 2>/dev/null; rm -rf "$TMP"' EXIT
+
+PASS=0
+FAIL=0
+
+check() {
+    local desc="$1" cond="$2"
+    if [[ "$cond" == "1" ]]; then
+        echo "  ✓ $desc"; PASS=$((PASS + 1))
+    else
+        echo "  ✗ $desc"; FAIL=$((FAIL + 1))
+    fi
+}
+
+printf 'alpha\nbeta\nalpha\n\ngamma\n' > "$TMP/f.txt"
+
+# 1. A real count
+out="$("$COUNT" 'alpha' "$TMP/f.txt")"; code=$?
+check "a real count returns the number" "$([[ "$out" == "2" ]] && echo 1 || echo 0)"
+check "a real count exits 0"            "$([[ $code -eq 0 ]] && echo 1 || echo 0)"
+
+# 2. Zero matches is a real answer, not an error
+out="$("$COUNT" 'nothing-here' "$TMP/f.txt")"; code=$?
+check "zero matches returns 0"          "$([[ "$out" == "0" ]] && echo 1 || echo 0)"
+check "zero matches exits 0"            "$([[ $code -eq 0 ]] && echo 1 || echo 0)"
+
+# 3. A missing file is NOT zero — this is the contract
+out="$("$COUNT" 'alpha' "$TMP/absent.txt" 2>/dev/null)"; code=$?
+check "missing file exits non-zero"     "$([[ $code -ne 0 ]] && echo 1 || echo 0)"
+check "missing file prints no count"    "$([[ -z "$out" ]] && echo 1 || echo 0)"
+
+# 4. An unreadable file is NOT zero either
+printf 'alpha\n' > "$TMP/locked.txt"; chmod 000 "$TMP/locked.txt"
+out="$("$COUNT" 'alpha' "$TMP/locked.txt" 2>/dev/null)"; code=$?
+if [[ -r "$TMP/locked.txt" ]]; then
+    check "unreadable file (skipped: running with override privileges)" "1"
+    check "unreadable file prints no count (skipped)" "1"
+else
+    check "unreadable file exits non-zero"  "$([[ $code -ne 0 ]] && echo 1 || echo 0)"
+    check "unreadable file prints no count" "$([[ -z "$out" ]] && echo 1 || echo 0)"
+fi
+chmod 644 "$TMP/locked.txt"
+
+# 5. A directory is not a file
+out="$("$COUNT" 'alpha' "$TMP" 2>/dev/null)"; code=$?
+check "a directory exits non-zero"      "$([[ $code -ne 0 ]] && echo 1 || echo 0)"
+
+# 6. The distinction the whole script exists for
+zero_out="$("$COUNT" 'nothing-here' "$TMP/f.txt")"; zero_code=$?
+fail_out="$("$COUNT" 'nothing-here' "$TMP/absent.txt" 2>/dev/null)"; fail_code=$?
+check "zero and failure are distinguishable" \
+      "$([[ "$zero_code" -ne "$fail_code" ]] && echo 1 || echo 0)"
+check "the same call against grep -c is NOT distinguishable (control)" \
+      "$(a=$(grep -c 'nothing-here' "$TMP/f.txt" 2>/dev/null); b=$(grep -c 'nothing-here' "$TMP/absent.txt" 2>/dev/null); [[ "$a" == "0" && -z "$b" ]] && echo 1 || echo 0)"
+
+# 7. --lines counts non-empty lines
+out="$("$COUNT" --lines "$TMP/f.txt")"
+check "--lines counts non-empty lines"  "$([[ "$out" == "4" ]] && echo 1 || echo 0)"
+
+# 8. Bad usage fails rather than guessing
+"$COUNT" 'only-one-arg' >/dev/null 2>&1; code=$?
+check "wrong argument count exits non-zero" "$([[ $code -ne 0 ]] && echo 1 || echo 0)"
+
+echo "test-count: $PASS passed, $FAIL failed"
+[[ $FAIL -eq 0 ]]

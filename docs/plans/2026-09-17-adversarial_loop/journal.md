@@ -51,6 +51,17 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-18 17:59 — P5-T6 (closed)
+
+- **Task/phase**: P5-T6 — ship plugin/scripts/count with a contract test
+- **Landed**: scripts/count + test-count (13 assertions, incl. a control proving grep -c does not
+  distinguish), README entry, and a pointer from verification-before-completion
+- **Commits**: 042f7af
+- **Learned**: writing count exposed two false positives in check-guards — a comment describing
+  the bad pattern, and a capture guarded by \$? on the next line. Both were real checker bugs.
+  Three responses to this class have now each found a defect in the previous one.
+- **Started at**: 3971331
+
 ## 2026-09-18 17:55 — handoff written (closed)
 
 - **Task/phase**: session transfer at Phase 5, before the release is cut
