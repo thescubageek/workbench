@@ -459,6 +459,62 @@ There is no database here; the "data" is the record shapes this design commits t
     the lens leg — which fires regardless of *why* it was thin.
   - Source: design.md A4 · Validated 2026-09-17
 
+- **A review round's remediation lives under the plan it reviews, not inside it**:
+  `docs/plans/<plan>/reviews/<date>-round-N/tasks.md`, with a findings ledger at
+  `docs/plans/<plan>/review-log.md`.
+  - **Decided against the single-surface arrangement because it demonstrably broke**, not on
+    preference. At the time of deciding, this plan's own frontmatter read `current_phase: 5,
+    68/80` while work was happening in Phase 8 — the "first unchecked task" rule pointed at the
+    release tasks that had been deliberately blocked, and the session-start hook reported that
+    to every new session. The plan began at 29 tasks and reached 80; **51 of the 80 were review
+    remediation**, so `68/80` no longer answered the question the plan exists to answer.
+  - **Nested, not a sibling plan directory.** Verified mechanically: `wb-prime.sh:81` globs
+    `docs/plans/*/` at exactly one level, so `reviews/<round>/tasks.md` is invisible to it. A
+    sibling `docs/plans/<date>-review/` would sort newer and silently *become* the active plan,
+    hiding the original — a worse defect than the one being fixed.
+  - **A remediation plan is not a project.** It has no research or design stage: the review is
+    the research and the findings are the design input. Routing it through `create_project`
+    would produce a `research.md` and `design.md` that exist only to be empty.
+  - **Per-round directories make the circuit breaker mechanical** — round N's ledger reads round
+    N−1's as a sibling, so "has the introduced-rate decayed?" is a computation rather than a
+    judgement.
+  - **Cost, accepted rather than hidden**: two status surfaces, in a repository whose stated rule
+    is that status lives in the plan. Mitigated by one *one-directional* link — the parent plan's
+    Implementation Notes gains a line per round — because two-directional links drift.
+    `validate_project` must also tolerate a `tasks.md` with no `research.md`/`design.md` beside
+    it; that is a real change, not free.
+  - Source: tasks.md Q8-1 · Decided 2026-09-18
+
+- **A finding's acceptance criterion is mechanical wherever one can be written, and an
+  attestation wherever one cannot — never a check that cannot fail.**
+  - The governing rule is `verification-before-completion`'s FALSIFY step applied to the
+    criterion itself: **what would this print if the fix were absent?** If that has no answer,
+    there is no criterion, and the finding is category 6 below rather than a fabricated check.
+  - Six shapes:
+
+    | | Finding shape | Acceptance criterion |
+    | - | ------------- | -------------------- |
+    | 1 | Has a fenced command | Execute the block **as written**; assert the stated outcome |
+    | 2 | Defect in a shell script | A case in `test-guards` / `test-count` that fails before and passes after |
+    | 3 | Two files contradict | **Dual grep** — the wrong phrasing absent *and* the right phrasing present at a named `file:line` |
+    | 4 | Something missing | Grep for presence at the expected location, plus a negative control proving the grep can fail |
+    | 5 | Reference integrity | A resolver script — dangling links, undefined identifiers, nonexistent skill names |
+    | 6 | Genuine judgement | **No mechanical criterion.** Label `(attestation)`, name who must look |
+
+  - **Run the criterion before the fix, not only after.** For shape 1 that is the RED step, and
+    it is what three review rounds never did: `$target` is read seventeen times and assigned
+    nowhere, and the three-`range=` block overwrote itself — both would have fallen out the first
+    time anyone executed those blocks as written.
+  - **Absence is not a check on its own** (shapes 3 and 4): a grep returning nothing passes for
+    wrong path, wrong pattern and wrong encoding as readily as for success. Hence the dual
+    assertion and the negative control.
+  - **Evidence the escape hatch is rare, not a loophole**: all 11 open round-3 findings were
+    classified against this and **every one lands in shapes 1–5** — five test cases, two
+    executable blocks, two dual-greps, one resolver, one mixed. Zero required attestation.
+    Rounds 1–2 carried more prose-judgement findings, so it will not always be zero; it was never
+    the majority.
+  - Source: tasks.md Q8-2 · Decided 2026-09-18
+
 ## Scope Definition
 
 ### In Scope

@@ -7,7 +7,7 @@ last_updated: 2026-09-18
 assignee: scraig
 current_phase: 5
 total_tasks: 80
-completed_tasks: 68
+completed_tasks: 69
 task_tracking: markdown-checkboxes
 depends_on: [research.md, design.md]
 git_commit: 1990b40
@@ -1224,13 +1224,13 @@ Three mechanisms, each independently sufficient to produce this:
 
 ### Open questions
 
-| ID | Question | Blocks |
-| -- | -------- | ------ |
-| **Q8-1** | Does a remediation plan live as a new phase in the existing plan directory, or in its own? One status surface versus not inflating the original plan's counters with review bookkeeping. | P8-T3 |
-| **Q8-2** | What is the verification step for a **prose** finding? A misleading instruction has a failure scenario but no runnable test. Candidate: the acceptance criterion is that the instruction's own fenced command, run as written, produces the stated outcome. | P8-T3 |
-| **Q8-3** | Is the circuit breaker advisory or blocking? The plugin's model-advisory precedent is non-blocking; this one arguably should not be. | P8-T4 |
-| **Q8-4** | Do the thresholds hold outside this repository, where a round may revisit a file for unrelated reasons? | P8-T4 |
-| **Q8-5** | Is `check-guards`' shape-1 rule even well-formed? `shellcheck` does not flag `n=$(grep -c f x)` and is arguably right: a bare assignment does not mask the status, so `$?` works. The real defect is "nobody checks it" — a dataflow property, not a syntax pattern. | P8-T6 |
+| ID | Question | Status — what it blocks, or how it resolved |
+| -- | -------- | ------------------------------------------- |
+| **Q8-1** | Does a remediation plan live as a new phase in the existing plan directory, or in its own? | **Resolved 2026-09-18**: under the plan, not in it — `docs/plans/<plan>/reviews/<date>-round-N/tasks.md`, ledger at `review-log.md`. Decided on evidence: the single surface was already reporting `current_phase: 5, 68/80` while work ran in Phase 8, with 51 of 80 tasks being review bookkeeping. Nested rather than a sibling directory because `wb-prime.sh:81` globs one level, so a sibling would silently become the active plan. See design.md. |
+| **Q8-2** | What is the verification step for a finding with no runnable test? | **Resolved 2026-09-18**: a six-shape taxonomy — fenced command, shell-script test case, dual grep for a contradiction, presence grep with a negative control, resolver script, and attestation where no mechanical criterion exists. Governed by FALSIFY applied to the criterion itself. All 11 open round-3 findings land in shapes 1–5. See design.md. |
+| **Q8-3** | Is the circuit breaker advisory or blocking? The plugin's model-advisory precedent is non-blocking; this one arguably should not be. | Open — blocks P8-T4 |
+| **Q8-4** | Do the thresholds hold outside this repository, where a round may revisit a file for unrelated reasons? | Open — blocks P8-T4 |
+| **Q8-5** | Is `check-guards`' shape-1 rule even well-formed? `shellcheck` does not flag `n=$(grep -c f x)` and is arguably right: a bare assignment does not mask the status, so `$?` works. The real defect is "nobody checks it" — a dataflow property, not a syntax pattern. | Open — blocks P8-T6 |
 
 ### Tasks
 
@@ -1239,21 +1239,32 @@ Three mechanisms, each independently sufficient to produce this:
 - [ ] **P8-T1** — Record the thrash evidence in `research.md` as facts: the per-round table, the
       two mirror-image regressions, the same-file recurrence across three rounds, and the commit
       shapes of Phases 6 and 7. Facts only — no remedy, that is design's job. (~10 calls)
-- [ ] **P8-T2** — Resolve Q8-1 and Q8-2 with the user, and record both in `design.md`'s decision
+- [x] **P8-T2** — Resolve Q8-1 and Q8-2 with the user, and record both in `design.md`'s decision
       log with rationale. These shape the artifact, so they precede writing it. (~9 calls)
-- [ ] **P8-T3** — Design decision: **a review round emits a remediation plan.** Findings become a
-      `tasks.md` with real IDs, ordered, with dependencies; findings sharing a file and a class
-      group into one task, and the task that touches a file re-verifies every finding against it.
-      **Each task carries its finding's `failure_scenario` as its acceptance criterion**, so the
-      verification is written before the fix and is specific to that finding. `implement` executes
-      it — one worker, fresh context, `task-verifier`, one commit each. Record in `design.md`.
-      (~14 calls) · Depends on: P8-T2
-- [ ] **P8-T4** — Design decision: the **findings ledger** (`review-log.md`) and the **circuit
-      breaker**. The ledger records every finding across rounds — file, class, verdict,
-      disposition, evidence, and whether it lands in surface the previous fix touched (derivable
-      by intersecting finding paths with `git diff <last-fix-base>..HEAD --name-only`). Settle the
-      thresholds and Q8-3/Q8-4. The ledger also closes round 3's "no durable disposition record"
-      finding — one artifact, two problems. (~14 calls) · Depends on: P8-T2
+      (completed 2026-09-18 20:42)
+- [ ] **P8-T3** — Write the remediation-plan mechanism into the shipped skills, per the Q8-1 and
+      Q8-2 decisions now in `design.md`. Concretely:
+      `adversarial-review` gains a closing step that writes
+      `docs/plans/<plan>/reviews/<date>-round-N/tasks.md` instead of leaving findings as a list;
+      `adversarial-loop` Phase 1 step 3 stops meaning "fix them" and starts meaning "run
+      `implement` against that plan". Each task carries **one finding**, its `file:line`, its
+      `failure_scenario` verbatim, and an acceptance criterion drawn from the six-shape
+      taxonomy — **shape 6 tasks are labelled `(attestation)` and never given a fabricated
+      check**. Findings sharing a file *and* a class group into one task; sharing a file but not
+      a class stay separate, and whichever task touches the file re-verifies every finding
+      against it. State the RED rule explicitly: **run the criterion before the fix**.
+      (~18 calls) · Depends on: P8-T2
+- [ ] **P8-T4** — Specify and ship the **findings ledger** (`docs/plans/<plan>/review-log.md`)
+      and the **circuit breaker**. One row per finding per round: round, `file:line`, class,
+      verdict, disposition, the evidence that settled it, and `introduced_by` — derived, not
+      judged, by intersecting the finding's path with
+      `git diff <previous-round-base>..HEAD --name-only`. The ledger is what makes the gate
+      auditable, which closes round 3's *"'Record the disposition' names no destination"* finding
+      with the same artifact. Then the breaker: trip on a **mirror-image regression**, on the
+      introduced-rate **failing to decay** across two consecutive rounds, or on the **same file**
+      appearing in three consecutive rounds — resolving Q8-3 (advisory or blocking) and Q8-4
+      (do the thresholds generalise) first, since both change what gets written.
+      (~16 calls) · Depends on: P8-T2
 
 #### The escalation path's first instance
 
@@ -1281,7 +1292,8 @@ Three mechanisms, each independently sufficient to produce this:
 
 #### Only after the above
 
-- [ ] **P8-T8** — Re-plan the 11 open round-3 findings as a remediation `tasks.md` in the shape
+- [ ] **P8-T8** — Re-plan the 11 open round-3 findings as
+      `docs/plans/2026-09-17-adversarial_loop/reviews/2026-09-18-round-3/tasks.md`, in the shape
       P8-T3 defines, rather than fixing them ad hoc. This is the mechanism's own first use, and if
       it is awkward here it will be awkward everywhere. Findings whose component the spike says to
       replace are **not** fixed — they are closed by the replacement. (~16 calls) ·
