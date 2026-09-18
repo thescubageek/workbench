@@ -570,20 +570,20 @@ P4-T5 is already cited by commit.*
       skills, eight of them predating this work, and neither file mentioned the shipped reference
       docs. Run the same coverage check that found it: every user-invocable skill appears in help,
       every skill appears in README, and **nothing names a skill that does not exist**. (~12 calls) (completed 2026-09-18 17:47)
-- [ ] **P4-T4** — Run a dangling-reference sweep across the whole plugin and fix anything it
-      finds: no shipped file may name a skill directory that does not exist. (~12 calls)
+- [x] **P4-T4** — Run a dangling-reference sweep across the whole plugin and fix anything it
+      finds: no shipped file may name a skill directory that does not exist. (~12 calls) (completed 2026-09-18 17:48)
 
 ### Success Criteria
 
 #### Automated Verification
 
-- [ ] No shipped file references a non-existent review skill:
+- [x] No shipped file references a non-existent review skill:
       `grep -rnoE '\b(review-reef|review-strict|review-terse|review-security|pr-feedback)\b' plugin/` → no output
-- [ ] Every backticked `wb:`-style skill name in the edited files resolves to a directory:
+- [x] Every backticked `wb:`-style skill name in the edited files resolves to a directory:
       `grep -rhoE '`(adversarial-review|adversarial-loop|reply-to-claude)`' plugin/skills/daily-digest plugin/skills/model-help plugin/skills/review-prep | tr -d '`' | sort -u | while read s; do test -d "plugin/skills/$s" || echo "MISS $s"; done` → no output
-- [ ] `model-help`'s gate table gained rows: `grep -c '^|`adversarial' plugin/skills/model-help/SKILL.md` → ≥1
-- [ ] Lint clean: `./plugin/scripts/lint plugin/skills/review-prep plugin/skills/daily-digest plugin/skills/model-help`
-- [ ] Docs cover every shipped skill and name no absent one — prints the gaps, nothing when clean:
+- [x] `model-help`'s gate table gained rows: `grep -c '^|`adversarial' plugin/skills/model-help/SKILL.md` → ≥1
+- [x] Lint clean: `./plugin/scripts/lint plugin/skills/review-prep plugin/skills/daily-digest plugin/skills/model-help`
+- [x] Docs cover every shipped skill and name no absent one — prints the gaps, nothing when clean:
 
 ```bash
 python3 -c "
@@ -600,8 +600,8 @@ for ghost in ('review-reef','review-strict','pr-feedback'):
 
 #### Manual Verification
 
-- [ ] `daily-digest`'s Needs-review bucket now routes somewhere that exists
-- [ ] The new `model-help` rows read consistently with the existing six
+- [x] `daily-digest`'s Needs-review bucket now routes somewhere that exists
+- [x] The new `model-help` rows read consistently with the existing six
 
 ### Modified Files
 

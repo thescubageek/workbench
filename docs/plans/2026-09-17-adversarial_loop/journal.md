@@ -51,6 +51,18 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-18 17:47 — P4-T4 (closed)
+
+- **Task/phase**: P4-T4 — dangling-reference sweep across the whole plugin, run last so it covers
+  the documentation change
+- **Landed**: sweep narrowed to skill-meaning contexts; found and fixed `wb:loop` in
+  touch-grass, a pre-existing dangling reference to a built-in mistaken for a wb skill
+- **Commits**: 376173b
+- **Learned**: the first sweep matched every backticked token and produced 39 hits, none real —
+  a check too broad is as useless as one that cannot fire, just louder. Narrowing to contexts that
+  *mean* "a skill" turned 39 false positives into one true one.
+- **Started at**: b41834a
+
 ## 2026-09-18 17:47 — P4-T5 (closed)
 
 - **Task/phase**: P4-T5 — re-sync help and README now that all three skills exist
