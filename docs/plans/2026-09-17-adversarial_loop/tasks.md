@@ -305,11 +305,11 @@ does-not-apply list, then exact one-line report shapes.
       radius), each carrying the evidence contract — a finding without a concrete failure scenario
       is dropped. Model per lens from the four-value enum only (`haiku`/`sonnet`/`opus`/`fable`),
       per A6. (~26 calls) (completed 2026-09-18 00:27)
-- [ ] **P2-T4** — Write `plugin/skills/adversarial-review/templates.md`: the `ReportFindings` call
+- [x] **P2-T4** — Write `plugin/skills/adversarial-review/templates.md`: the `ReportFindings` call
       shape; the one-line-per-finding restatement; the markdown fallback for sessions without the
       tool; the "Checked and clear" coverage list and why carrying it in the restatement does not
       violate the tool's do-not-duplicate rule; the reconnaissance summary shape so the sizing can
-      be argued with. (~22 calls)
+      be argued with. (~22 calls) (completed 2026-09-18 00:51)
 - [ ] **P2-T5** — Write `plugin/skills/adversarial-review/reference.md`: verify-only mode for
       adjudicating another session's findings; the five reviewer dispositions (valid / wrong /
       over-fitted / real-but-disproportionate / pre-existing); the proportionality gate; the

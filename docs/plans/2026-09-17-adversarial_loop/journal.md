@@ -51,6 +51,17 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-18 00:51 — P2-T4 (closed)
+
+- **Task/phase**: P2-T4 — write plugin/skills/adversarial-review/templates.md
+- **Landed**: templates.md — six output shapes, with the reconnaissance summary emitted before
+  any spawn so the cost is arguable before it is paid
+- **Commits**: 4f347ea
+- **Learned**: writing the Checked-and-clear shape was where the probe's correction actually bit.
+  The natural framing is "here is what we covered"; the true framing is "here are claims we are
+  making", and only the second one implies each line needs a file:line behind it.
+- **Started at**: 6d6e92f
+
 ## 2026-09-18 00:45 — silent-measurement checks (closed)
 
 - **Task/phase**: out-of-plan — ship a mechanical guard check (1) and change the documented
