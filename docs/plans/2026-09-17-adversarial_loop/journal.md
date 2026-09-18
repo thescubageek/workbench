@@ -51,6 +51,18 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-18 17:42 — P3-T2 + P3-T3 (closed)
+
+- **Task/phase**: P3-T2 — write plugin/skills/adversarial-loop/SKILL.md
+- **Landed**: adversarial-loop/SKILL.md and reference.md, in one commit — see below. Plugin
+  enumerates 39 skills; no broken links anywhere
+- **Commits**: 68a12f9
+- **Learned**: writing the SKILL.md created a dangling link to a file the next task would produce,
+  and the link check caught it before commit. One task one commit had to yield to not shipping a
+  broken directed read. Also: the five CI/bot mechanics are all the same failure shape as the
+  silent-measurement class — an absence that means "not yet" versus one that means "broken".
+- **Started at**: 86e8c76
+
 ## 2026-09-18 17:39 — P3-T1 (closed)
 
 - **Task/phase**: P3-T1 — write plugin/skills/reply-to-claude/SKILL.md

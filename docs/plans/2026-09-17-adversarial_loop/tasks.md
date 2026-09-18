@@ -460,19 +460,19 @@ to the built-in `/verify`. Creating a PR stays out of scope.
       stating explicitly which were rejected, why, and what was verified against real source;
       post with `gh pr comment --body-file` to avoid heredoc mangling. No reef-specific content.
       (~22 calls) (completed 2026-09-18 17:39)
-- [ ] **P3-T2** — Write `plugin/skills/adversarial-loop/SKILL.md`: the local core (review →
+- [x] **P3-T2** — Write `plugin/skills/adversarial-loop/SKILL.md`: the local core (review →
       adjudicate → fix → `/verify` → re-review until clean) with a reviewable diff as its only
       universal precondition; the PR phases gated on a PR already existing, with `gh`, `Monitor`
       and `claude[bot]` as hard dependencies *where those phases engage*; the stated stop when one
       is missing; "'clean' describes a tree state, not the branch" as the re-review trigger; and
-      the explicit non-goal of creating a PR. (~42 calls)
-- [ ] **P3-T3** — Write `plugin/skills/adversarial-loop/reference.md`: **link** to
+      the explicit non-goal of creating a PR. (~42 calls) (completed 2026-09-18 17:43)
+- [x] **P3-T3** — Write `plugin/skills/adversarial-loop/reference.md`: **link** to
       `adversarial-review/reference.md` for the adjudication pass rather than restating it —
       P2-T5 wrote it as the authority, and two statements of the five dispositions would drift; the coverage question ("what did nothing look at?") with its standing
       candidates generalised off reef; the `claude[bot]` mechanics that are harness facts rather
       than repo facts — the login is `claude[bot]` not `claude`, the bot edits its comment in
       place so watch `updated_at`, and the check rollup must be read against the head SHA.
-      (~26 calls)
+      (~26 calls) (completed 2026-09-18 17:43)
 
 ### Success Criteria
 
@@ -798,6 +798,12 @@ Note: Update this section with findings as you implement.
 Recorded here with the task ID they block and the date raised. Remove a blocker when it is
 resolved, leaving a dated line saying how.
 
+- **[2026-09-18] P3-T2 and P3-T3 landed in one commit, deliberately.** P3-T2's manifest links
+  `reference.md`, which P3-T3 creates — so committing P3-T2 alone would have published a broken
+  directed read, and every skill carries "if a directed read fails, stop". The link check fired on
+  it three times. One task, one commit is an audit-trail convention; a commit that halts any
+  session that checks it out is a correctness failure, and correctness wins. Both checkboxes
+  flipped, both described in the commit.
 - **[2026-09-18] Process hazard: the lint hook fixes files after you check them.** The
   PostToolUse hook runs `lint --fix` on every markdown write, so the sequence write → check →
   commit can capture the *pre-fix* state while the fix lands in the working tree afterwards. That
