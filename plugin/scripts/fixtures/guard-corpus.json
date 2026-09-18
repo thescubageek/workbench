@@ -515,5 +515,134 @@
     "fence"
    ]
   ]
+ },
+ {
+  "id": "r4-paren-in-string",
+  "shape": "capture",
+  "expect": 1,
+  "path": "scripts/qa.sh",
+  "content": "#!/usr/bin/env bash\nn=$(sed 's/)//' f.txt | grep -c foo)\necho \"$n\"\n",
+  "provenance": "R4 \u2014 substitutions() counts parens without tracking quotes; the span is cut at the quoted ) and COUNTING never sees the grep",
+  "expect_at": [
+   [
+    2,
+    "capture"
+   ]
+  ]
+ },
+ {
+  "id": "r4-ok-paren-pattern",
+  "shape": "none",
+  "expect": 0,
+  "path": "scripts/qb.sh",
+  "content": "#!/usr/bin/env bash\nn=$(grep -c \")\" f.txt || true)\necho \"${n:-0}\"\n",
+  "provenance": "R4 \u2014 mirror of the above: a guarded capture whose PATTERN contains ), falsely reported",
+  "expect_at": []
+ },
+ {
+  "id": "r4-stray-backtick",
+  "shape": "capture",
+  "expect": 1,
+  "path": "scripts/qc.sh",
+  "content": "#!/usr/bin/env bash\necho \"100`\" ; n=$(grep -c foo f.txt)\necho hi\n",
+  "provenance": "R4 \u2014 an unpaired backtick broke the span scan and discarded every later substitution on the line",
+  "expect_at": [
+   [
+    2,
+    "capture"
+   ]
+  ]
+ },
+ {
+  "id": "r4-cross-fence-lookahead",
+  "shape": "capture",
+  "expect": 1,
+  "path": "doc13.md",
+  "content": "text\n\n```bash\nn=$(grep -c foo f.txt)\n```\n\nProse between.\n\n```bash\necho $? >/dev/null\n```\n",
+  "provenance": "R4 \u2014 in markdown the lookahead indexes the FENCED-line list, so a $? in a later unrelated fence 'guarded' this capture",
+  "expect_at": [
+   [
+    4,
+    "capture"
+   ]
+  ]
+ },
+ {
+  "id": "r4-wrong-command-status",
+  "shape": "capture",
+  "expect": 1,
+  "path": "scripts/qd.sh",
+  "content": "#!/usr/bin/env bash\nn=$(grep -c foo f.txt)\nmkdir -p /tmp/out; rc=$?\necho \"$rc\"\n",
+  "provenance": "R4 \u2014 the next line's $? is mkdir's status, not grep's; the checker accepted it",
+  "expect_at": [
+   [
+    2,
+    "capture"
+   ]
+  ]
+ },
+ {
+  "id": "r4-ok-blank-then-test",
+  "shape": "none",
+  "expect": 0,
+  "path": "scripts/qe.sh",
+  "content": "#!/usr/bin/env bash\nn=$(grep -c foo f.txt)\n\nif [ $? -ne 0 ]; then echo bad; fi\n",
+  "provenance": "R4 \u2014 $? survives a blank line in bash, so this is correct code and was falsely reported",
+  "expect_at": []
+ },
+ {
+  "id": "r4-ok-or-colon",
+  "shape": "none",
+  "expect": 0,
+  "path": "scripts/qf.sh",
+  "content": "#!/usr/bin/env bash\nn=$(grep -c foo f.txt) || :\necho \"${n:-0}\"\n",
+  "provenance": "R4 \u2014 GUARD's trailing \\b after the : alternative can never match, so the documented minimum-bar guard was reported",
+  "expect_at": []
+ },
+ {
+  "id": "r4-ok-oneline-glob",
+  "shape": "none",
+  "expect": 0,
+  "path": "scripts/qg.sh",
+  "content": "#!/usr/bin/env bash\nfor f in docs/*.md; do [ -e \"$f\" ] || continue; echo \"$f\"; done\n",
+  "provenance": "R4 \u2014 a correctly guarded one-liner was reported, with a fix suggestion already present on the line",
+  "expect_at": []
+ },
+ {
+  "id": "r4-oneline-glob-unguarded",
+  "shape": "glob",
+  "expect": 1,
+  "path": "scripts/qh.sh",
+  "content": "#!/usr/bin/env bash\nfor f in docs/*.md; do echo \"$f\"; done\n",
+  "provenance": "R4 \u2014 paired with the above so the fix cannot simply be 'stop checking one-liners'",
+  "expect_at": [
+   [
+    2,
+    "glob"
+   ]
+  ]
+ },
+ {
+  "id": "r4-ok-nested-fence",
+  "shape": "none",
+  "expect": 0,
+  "path": "doc14.md",
+  "content": "Do not write this:\n\n````text\n```bash\nn=$(grep -c foo f.txt)\n```\n````\n\nDone.\n",
+  "provenance": "R4 \u2014 a bash fence nested in a text fence is the README's prescribed way to show a counter-example; it was entered as live shell",
+  "expect_at": []
+ },
+ {
+  "id": "r4-cross-fence-real-test",
+  "shape": "capture",
+  "expect": 1,
+  "path": "doc15.md",
+  "content": "text\n\n```bash\nn=$(grep -c foo f.txt)\n```\n\nProse between.\n\n```bash\nif [ $? -ne 0 ]; then echo bad; fi\n```\n",
+  "provenance": "R4 \u2014 the fence-gap check is the ONLY guard here: the next fenced line is a real status test, so without the contiguity check it would falsely clear across the fence boundary",
+  "expect_at": [
+   [
+    4,
+    "capture"
+   ]
+  ]
  }
 ]

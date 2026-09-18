@@ -39,7 +39,9 @@ import sys
 FENCE = re.compile(r'^(?P<ind>[ ]{0,3})(?P<f>`{3,}|~{3,})[ \t]*(?P<info>\S*)')
 SHELL_INFO = {'bash', 'sh', 'shell'}
 COUNTING = re.compile(r'\bgrep\b[^|;)`]*?\s(?:-[A-Za-z]*c|--count)\b')
-GUARD = re.compile(r'\|\|\s*(?:true|:|echo)\b')
+# `:` is not a word character, so a trailing \b after it can never match — the
+# documented minimum-bar guard `|| :` was reported as unguarded. Anchor per-alternative.
+GUARD = re.compile(r'\|\|\s*(?:true\b|:(?!\w)|echo\b)')
 STATUS_TEST = re.compile(r'\$\?')
 GLOB_WINDOW = 4
 
@@ -55,17 +57,23 @@ def md_shell_lines(text):
     treating it as unclosed leaks the scanner into prose.
     """
     out, inb, ch, ln = [], False, '', 0
-    unclosed_at = None
+    shell, unclosed_at = False, None
     for i, line in enumerate(text.splitlines(), 1):
         m = FENCE.match(line)
         if not inb:
-            if m and m.group('info').lower() in SHELL_INFO:
-                inb, ch, ln, unclosed_at = True, m.group('f')[0], len(m.group('f')), i
+            if m:
+                # EVERY fence is tracked, not only shell ones. Tracking shell fences alone
+                # meant a ```bash nested inside a ````text wrapper — the README's own
+                # prescribed way to show a counter-example — was entered as live shell.
+                inb, ch, ln = True, m.group('f')[0], len(m.group('f'))
+                shell = m.group('info').lower() in SHELL_INFO
+                unclosed_at = i if shell else None
             continue
         if m and m.group('f')[0] == ch and len(m.group('f')) >= ln and not m.group('info'):
-            inb, unclosed_at = False, None
+            inb, shell, unclosed_at = False, False, None
             continue
-        out.append((i, line))
+        if shell:
+            out.append((i, line))
     return out, unclosed_at
 
 
@@ -92,31 +100,82 @@ def strip_comment(line):
     return ''.join(out)
 
 
+def _quote_spans(text):
+    """Index -> True when that index sits inside a quoted string."""
+    inq, quote, out = False, '', []
+    for ch in text:
+        if inq:
+            out.append(True)
+            if ch == quote:
+                inq = False
+        elif ch in '"\'':
+            inq, quote = True, ch
+            out.append(True)
+        else:
+            out.append(False)
+    return out
+
+
 def substitutions(line):
-    """(inner_start, close_index) for every $( ) and backtick span, outermost first."""
+    """(inner_start, close_index) for every $( ) and backtick span, outermost first.
+
+    Quote-aware. Counting parens blind to quotes cut the span at the `)` inside
+    `$(sed 's/)//' f | grep -c foo)`, so COUNTING never saw the grep and a genuinely
+    unguarded capture reported clean; the mirror falsely reported `$(grep -c ")" f || true)`.
+    """
+    q = _quote_spans(line)
     res, i = [], 0
     while i < len(line):
-        if line.startswith('$(', i):
+        if line.startswith('$(', i) and not q[i]:
             depth, j = 1, i + 2
             while j < len(line) and depth:
-                if line.startswith('$(', j):
+                if line.startswith('$(', j) and not q[j]:
                     depth += 1
                     j += 2
                     continue
-                if line[j] == ')':
+                if line[j] == ')' and not q[j]:
                     depth -= 1
                 j += 1
             res.append((i + 2, j - 1))
             i = j
-        elif line[i] == '`':
+        elif line[i] == '`' and not q[i]:
             j = line.find('`', i + 1)
             if j == -1:
-                break
+                # A stray backtick — a line-continued capture, or one inside a string the
+                # quote scanner did not pair. Skip it and keep scanning: `break` here
+                # discarded every later substitution on the line.
+                i += 1
+                continue
             res.append((i + 1, j))
             i = j + 1
         else:
             i += 1
     return res
+
+
+# A line that actually tests the PRECEDING command's status: a conditional, or an
+# assignment whose entire right-hand side is $?. A line that merely contains $? does not
+# qualify — by then another command has usually run and replaced it.
+STATUS_LINE = re.compile(r'^\s*(?:if\s|\[\[?|test\s|[A-Za-z_]\w*=\$\?\s*$)')
+
+
+def _status_tested(lines, idx, texts, order):
+    """Is the capture on lines[idx] followed by a genuine test of its exit status?"""
+    j = idx + 1
+    while j < len(order):
+        if order[j] != order[j - 1] + 1:
+            return False          # a gap means a different fence
+        nxt = strip_comment(texts[order[j]])
+        if nxt.strip():
+            return bool(STATUS_LINE.match(nxt)) and bool(STATUS_TEST.search(nxt))
+        j += 1                    # blank line: $? survives it
+    return False
+
+
+def _is_guard(text):
+    """Does this text establish that an unmatched glob is handled?"""
+    return bool(re.search(r'(?:\[\[?|test)\s+!?\s*-[efsr]\s', text)
+                or re.search(r'(?:^|;|&&|\|\|)\s*continue\b', text))
 
 
 def analyse(lines):
@@ -138,13 +197,19 @@ def analyse(lines):
             # excuse an unguarded one after it. Both directions of this have shipped as
             # bugs in this repository — the corpus case `s1-guard-on-earlier` is the one
             # that caught it here, on the first run of the new implementation.
-            if GUARD.search(inner) or re.match(r'^[`)]?\s*\|\|\s*(?:true|:|echo)\b', after):
+            if GUARD.search(inner) or GUARD.match(after.lstrip('`)').lstrip()):
                 continue
             # The rule is "captured and the status never tested", not "captured".
-            # A bare assignment does not mask $? — shellcheck is right about that — so
-            # look ahead for a test before calling it unguarded.
-            nxt = order[idx + 1] if idx + 1 < len(order) else None
-            if nxt is not None and STATUS_TEST.search(strip_comment(texts[nxt])):
+            # A bare assignment does not mask $? — shellcheck is right about that — so look
+            # ahead for a test. Three constraints, each bought by a defect:
+            #   contiguous  — in markdown `order` holds only fenced lines, so indexing it
+            #                 blindly hopped across fences and a $? in an unrelated later
+            #                 block "guarded" this capture;
+            #   skip blanks — $? survives a blank line in bash, so a blank before a genuine
+            #                 test was a false positive;
+            #   a real test — `mkdir -p /tmp/out; rc=$?` contains $? but it is mkdir's
+            #                 status, not the capture's.
+            if _status_tested(lines, idx, texts, order):
                 continue
             found.append((no, 'grep -c captured without a status guard', raw))
             break
@@ -157,9 +222,7 @@ def analyse(lines):
 
         # --- shape 3 ---------------------------------------------------------
         if pending_glob is not None:
-            guarded = re.search(r'(?:\[\[?|test)\s+!?\s*-[efsr]\s', line) or \
-                      re.search(r'(?:^|;|&&|\|\|)\s*continue\b', line)
-            if guarded:
+            if _is_guard(line):
                 pending_glob = None
             else:
                 pending_glob = (pending_glob[0], pending_glob[1] + 1, pending_glob[2])
@@ -167,9 +230,16 @@ def analyse(lines):
                     found.append((pending_glob[0], 'for over a glob with no existence test',
                                   pending_glob[2]))
                     pending_glob = None
-        m = re.match(r'^\s*for\s+[A-Za-z_]\w*\s+in\s+(.*?)(?:;\s*do)?\s*$', line)
+        m = re.match(r'^\s*for\s+[A-Za-z_]\w*\s+in\s+(.*?)(?:;\s*do\b(?P<body>.*))?\s*$', line)
         if m and '*' in m.group(1) and not re.search(r'\[[@*]\]', m.group(1)):
-            pending_glob = (no, 0, raw)
+            # A one-liner carries its own body. Seeding the window without looking at it
+            # reported `for f in *.md; do [ -e "$f" ] || continue; ...; done` as unguarded,
+            # with a fix suggestion the line already contained.
+            body = (m.group('body') or '').strip()
+            if body and _is_guard(body):
+                pending_glob = None
+            else:
+                pending_glob = (no, 0, raw)
 
     if pending_glob is not None:
         found.append((pending_glob[0], 'for over a glob with no existence test', pending_glob[2]))

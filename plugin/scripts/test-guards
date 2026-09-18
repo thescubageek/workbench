@@ -26,6 +26,16 @@ CORPUS = os.path.join(HERE, 'fixtures', 'guard-corpus.json')
 
 # Each is a single-line edit a maintainer could plausibly make. If the corpus does not
 # notice, the corpus is certifying whatever that line does.
+# WAIVED — equivalent mutants, kept here with their reason rather than silently dropped.
+# A generated sweep will produce more of these; they are the known cost of mutation testing
+# and the waiver must carry an argument, not just an entry.
+#
+#   'abandon the line on a stray backtick' (break vs continue in substitutions()):
+#     unreachable from valid shell. An unquoted, unpaired backtick is a syntax error, and a
+#     backtick inside quotes is already handled by the quote scanner — so no corpus case can
+#     distinguish the two behaviours. The `continue` form is kept because it is more
+#     defensible, not because a test demands it.
+
 MUTATIONS = [
     ('disable the capture detector',
      "if not COUNTING.search(inner):", "if True or not COUNTING.search(inner):"),
@@ -34,7 +44,8 @@ MUTATIONS = [
     ('disable the glob detector',
      "if m and '*' in m.group(1)", "if False and m and '*' in m.group(1)"),
     ('treat every capture as guarded',
-     "if GUARD.search(inner) or re.match(", "if True or GUARD.search(inner) or re.match("),
+     "            if GUARD.search(inner) or GUARD.match(",
+     "            if True or GUARD.search(inner) or GUARD.match("),
     ('break the quote-aware comment strip',
      "    out, quote = [], None", "    return line.split('#')[0]\n    out, quote = [], None"),
     ('stop scanning sh/shell fences',
@@ -65,9 +76,23 @@ MUTATIONS = [
     ('resolve targets after the chdir',
      "    targets = [os.path.abspath(a) for a in argv] if argv else [os.path.join(root, 'plugin')]\n    os.chdir(root)",
      "    os.chdir(root)\n    targets = argv or ['plugin']"),
-    ('lose the status-test lookahead',
-     "            if nxt is not None and STATUS_TEST.search(strip_comment(texts[nxt])):",
-     "            if False:"),
+    # One per R4 fix — a fix without a mutation is a fix that can silently revert.
+    ('make the span finder quote-blind again',
+     "                if line[j] == ')' and not q[j]:", "                if line[j] == ')':"),
+    ('restore the unmatchable \\b after the : guard',
+     "GUARD = re.compile(r'\\|\\|\\s*(?:true\\b|:(?!\\w)|echo\\b)')",
+     "GUARD = re.compile(r'\\|\\|\\s*(?:true|:|echo)\\b')"),
+    ('drop the fence-gap check in the lookahead',
+     "        if order[j] != order[j - 1] + 1:\n            return False",
+     "        if False:\n            return False"),
+    ('accept any line containing $? as a test',
+     "            return bool(STATUS_LINE.match(nxt)) and bool(STATUS_TEST.search(nxt))",
+     "            return bool(STATUS_TEST.search(nxt))"),
+    ('ignore a one-liner glob body',
+     "            if body and _is_guard(body):", "            if False:"),
+    ('enter nested non-shell fences as shell',
+     "                shell = m.group('info').lower() in SHELL_INFO",
+     "                shell = True"),
 ]
 
 

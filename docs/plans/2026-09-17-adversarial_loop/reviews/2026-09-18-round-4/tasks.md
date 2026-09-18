@@ -3,12 +3,12 @@ project: adversarial_loop
 reviews: docs/plans/2026-09-17-adversarial_loop
 round: 4
 created: 2026-09-18
-status: in-progress
+status: complete
 last_updated: 2026-09-18
 assignee: scraig
 current_phase: 1
 total_tasks: 8
-completed_tasks: 2
+completed_tasks: 8
 task_tracking: markdown-checkboxes
 git_branch: adversarial-loop-skill-research
 repository: thescubageek/workbench
@@ -50,15 +50,15 @@ finding cannot be expressed as a corpus case, the task says which shape it uses 
       having never opened `/tmp/victim/plugin/scripts/bad.sh`. The scanned-count guard is
       satisfied by the wrong tree. **Acceptance (shape 1)**: resolve targets to absolute paths
       *before* any chdir; a relative target from another cwd scans that cwd's tree. (~10 calls)
-- [ ] **R4-T3** — `check-guards:106` — `substitutions()` counts parens without tracking quotes.
+- [x] **R4-T3** — `check-guards:106` — `substitutions()` counts parens without tracking quotes.
       **Fails when:** `n=$(sed 's/)//' f.txt | grep -c foo)` reports clean; and
       `n=$(grep -c ")" f.txt || true)` is falsely reported. **Acceptance (shape 2)**: both as
       corpus cases, one must-fire and one must-not-fire. (~12 calls)
-- [ ] **R4-T4** — `check-guards:111` — an unpaired backtick `break`s the span scan, discarding
+- [x] **R4-T4** — `check-guards:111` — an unpaired backtick `break`s the span scan, discarding
       every later substitution on the line.
       **Fails when:** `echo "100\`" ; n=$(grep -c foo f.txt)` reports clean.
       **Acceptance (shape 2)**: corpus case. (~8 calls)
-- [ ] **R4-T5** — `check-guards:146` — the `$?` lookahead is unsound in both directions: in
+- [x] **R4-T5** — `check-guards:146` — the `$?` lookahead is unsound in both directions: in
       markdown it indexes the fenced-line list and so hops across fences; in shell it accepts
       any following `$?` regardless of which command it belongs to; and a blank line before a
       genuine test produces a false positive.
@@ -66,16 +66,16 @@ finding cannot be expressed as a corpus case, the task says which shape it uses 
       unrelated fence; `n=$(grep -c foo f)` then `mkdir -p /tmp/out; rc=$?` is accepted.
       **Acceptance (shape 2)**: three corpus cases — cross-fence, wrong-command, blank-line.
       (~14 calls)
-- [ ] **R4-T6** — `check-guards:42` — `GUARD`'s trailing `\b` after the `:` alternative can never
+- [x] **R4-T6** — `check-guards:42` — `GUARD`'s trailing `\b` after the `:` alternative can never
       match, so the documented minimum-bar guard is reported.
       **Fails when:** `n=$(grep -c x f) || :` is reported unguarded, blocking CI on correct code.
       **Acceptance (shape 2)**: must-not-fire corpus case. (~7 calls)
-- [ ] **R4-T7** — `check-guards:159` — a correctly guarded one-line `for` glob is reported, with
+- [x] **R4-T7** — `check-guards:159` — a correctly guarded one-line `for` glob is reported, with
       a fix suggestion already present on the line.
       **Fails when:** `for f in docs/*.md; do [ -e "$f" ] || continue; echo "$f"; done` exits 1.
       **Acceptance (shape 2)**: must-not-fire corpus case, plus a must-fire one-liner *without*
       a guard so the fix is not simply "stop checking one-liners". (~11 calls)
-- [ ] **R4-T8** — `check-guards:62` — a `bash` fence nested inside a `markdown`/`text` fence is
+- [x] **R4-T8** — `check-guards:62` — a `bash` fence nested inside a `markdown`/`text` fence is
       entered as live shell, defeating the documented escape hatch.
       **Fails when:** the README's own prescribed way to show a counter-example is scanned.
       **Acceptance (shape 2)**: must-not-fire corpus case. Verdict was PLAUSIBLE; confirm or
