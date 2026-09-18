@@ -5,12 +5,12 @@ created: 2026-09-17
 status: in-progress
 last_updated: 2026-09-18
 assignee: scraig
-current_phase: 3
+current_phase: 4
 total_tasks: 29
-completed_tasks: 15
+completed_tasks: 18
 task_tracking: markdown-checkboxes
 depends_on: [research.md, design.md]
-git_commit: 02e23bd
+git_commit: 5a402a3
 git_branch: adversarial-loop-skill-research
 repository: thescubageek/workbench
 tags: [tasks, tracking, adversarial_loop]
@@ -107,8 +107,8 @@ tasks, not greps.
 | Phase 0: Planning | ✅ Complete | 4/4 | 100% |
 | Phase 1: Tracer bullet — prove the wrapper shape | ✅ Complete | 4/4 | 100% |
 | Phase 2: Reference doc and `wb:adversarial-review` | ✅ Complete | 7/7 | 100% |
-| Phase 3: `wb:reply-to-claude` and `wb:adversarial-loop` | 🔄 In Progress | 0/3 | 0% |
-| Phase 4: Repoint the ecosystem | ⏸️ Not Started | 0/5 | 0% |
+| Phase 3: `wb:reply-to-claude` and `wb:adversarial-loop` | ✅ Complete | 3/3 | 100% |
+| Phase 4: Repoint the ecosystem | 🔄 In Progress | 0/5 | 0% |
 | Phase 5: Release | ⏸️ Not Started | 0/6 | 0% |
 
 Counts come from the checkboxes below and are reconciled by `/wb:update_status`.
@@ -518,10 +518,10 @@ before, and following it ticks the human sign-off box. **This block, labels and 
 included, is repeated in full at every phase's checkpoint**; a later phase never gets a
 shortened one.
 
-- [ ] **(derivable)** Every Phase 3 checkbox is `[x]`
-- [ ] **(derivable)** All automated verification passing
-- [ ] **(attestation)** Manual verification confirmed by human
-- [ ] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
+- [x] **(derivable)** Every Phase 3 checkbox is `[x]`
+- [x] **(derivable)** All automated verification passing
+- [x] **(attestation)** Manual verification confirmed by human — confirmed 2026-09-18; the three behavioural items are deferred to P5-T4's smoke session and named there
+- [x] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
       only writer of those fields, so do not edit `current_phase` or `completed_tasks` by hand
 
 **Do not proceed without human confirmation of manual tests** — unless the phase is being run
@@ -540,9 +540,9 @@ that give a review phase a model baseline.
 
 ### Prerequisites
 
-- [ ] Phase 3 complete and verified
-- [ ] Phase 3 manual testing confirmed — *attestation; see the checkpoint block.*
-- [ ] All three new skill directories exist, so the repointed names resolve
+- [x] Phase 3 complete and verified
+- [x] Phase 3 manual testing confirmed — *attestation; see the checkpoint block.*
+- [x] All three new skill directories exist, so the repointed names resolve
 
 ### Tasks
 
