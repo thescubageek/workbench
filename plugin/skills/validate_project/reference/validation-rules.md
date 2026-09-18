@@ -89,18 +89,28 @@ if (tasksFrontmatter.completed_tasks !== done || tasksFrontmatter.total_tasks !=
 // matches on that suffix, so a heading without it reads as closed — which is the dangerous
 // direction: interrupted work reported as finished.
 const journalHeadings = readLines(`${projectDir}/journal.md`).filter(l => l.startsWith('## '));
-const malformed = journalHeadings.filter(h => !/\((open|closed)\)\s*$/i.test(h));
+
+// Placeholder headings from the template are not entries — the session-start hook discards them
+// the same way, so this filter must match it or a fresh plan reports forever. Everything below
+// works on realHeadings, in file order, newest first.
+const realHeadings = journalHeadings.filter(h => !/\[YYYY|<YYYY|YYYY-MM-DD/.test(h));
+
+const malformed = realHeadings.filter(h => !/\((open|closed)\)\s*$/i.test(h));
 if (malformed.length) {
   ERROR(`journal.md heading(s) missing a trailing (open) or (closed): ` +
         malformed.join(', ') +
         ` — invisible to the session-start hook and every other reader`);
 }
-// Placeholder headings from the template are not entries — the session-start hook discards
-// them the same way, so this filter must match it or a fresh plan warns forever.
-const realHeadings = journalHeadings.filter(h => !/\[YYYY|<YYYY|YYYY-MM-DD/.test(h));
-const openCount = realHeadings.filter(h => /\(open\)\s*$/i.test(h)).length;
-if (openCount > 1) {
-  WARN(`journal.md has ${openCount} open entries; only the most recent should be open`);
+
+// Only the NEWEST entry may be open. A stale (open) heading further down is what a
+// second-heading close leaves behind, and the common case leaves exactly one — so a bare
+// count never fires on it. Check position, not quantity.
+const staleOpen = realHeadings.slice(1).filter(h => /\(open\)\s*$/i.test(h));
+if (staleOpen.length) {
+  ERROR(`journal.md has ${staleOpen.length} stale open entr(y|ies) below the newest: ` +
+        staleOpen.join(', ') +
+        ` — closed by writing a second heading instead of editing in place. ` +
+        `See plugin/docs/reference/journal-entries.md`);
 }
 
 // IDs must be present and unique — they are cited from commits, journals and handoffs.

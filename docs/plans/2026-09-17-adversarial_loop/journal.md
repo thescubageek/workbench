@@ -59,6 +59,7 @@ this template, silently, from the moment of creation.
 - **Commits**: 83ff352
 - **Learned**: nothing new beyond P1-T3's findings; this task was bookkeeping and cleanup.
 - **Started at**: 9f3caf1
+
 ## 2026-09-17 23:42 — P1-T3 (closed)
 
 - **Task/phase**: P1-T3 — run both halves of the probe and append verbatim results
@@ -70,6 +71,7 @@ this template, silently, from the moment of creation.
   bug. Also: the recon step's own measurement can fail silently and read as clean.
 - **Blocked by**: nothing — B1 is recorded against P4-T2, not blocking.
 - **Started at**: ef24356
+
 ## 2026-09-17 23:42 — P1-T2 (closed)
 
 - **Task/phase**: P1-T2 — pre-register the wrapper-shape probe before running it
@@ -80,6 +82,7 @@ this template, silently, from the moment of creation.
   repository, so the fixture answers the sizing question and this repository answers the merge
   question. Skill-file loading is not probed here at all; P5-T4 covers it.
 - **Started at**: d994b1f
+
 ## 2026-09-17 23:35 — P1-T1 (closed)
 
 - **Task/phase**: P1-T1 — build the throwaway fixture repo for the wrapper-shape probe
@@ -115,6 +118,9 @@ this template, silently, from the moment of creation.
   `high` on our own tree found six real defects, three of them incomplete applications of my own
   journal fix.
 - **Started at**: 46ef587
+- **Superseded**: this entry was closed by writing a *second* heading (the 18:00 entry) rather
+  than editing this one in place — the failure `journal-entries.md` names. Left in place with its
+  state corrected rather than deleted, so the record of the mistake survives.
 
 ## 2026-09-17 19:15 — explore_design + resolve_questions (closed)
 
@@ -136,7 +142,7 @@ this template, silently, from the moment of creation.
 - **Commits**: none yet (plan directory is gitignored until promoted)
 - **Learned**: `review-reef`, `review-security`, `review-strict`, `review-terse` are dangling symlinks into a missing `/Users/scraig/projects/prompts/` tree — adversarial-review's stated rule-catalogue dependency is unreadable. `plugin/skills/daily-digest/SKILL.md:204,278` and `plugin/skills/model-help/SKILL.md:160` already route to that non-existent review-skill family.
 
-## 2026-09-17 17:53 — create_research (open)
+## 2026-09-17 17:53 — create_research (superseded, closed)
 
 - **Task/phase**: P0-T2 — research for 2026-09-17-adversarial_loop
 - **Next action**: spawn the Step 4 agents, then synthesize into research.md

@@ -21,6 +21,12 @@ link here rather than restating it.
 **Do not append to the end of the file.** The word "append" is wrong for this file and any
 instruction that used it was wrong; entries are reverse-chronological.
 
+**An entry ends with a blank line before the next heading.** Insert the new entry *and* a blank
+line, or the heading below it fails `MD022/blanks-around-headings` and its own first bullet fails
+`MD032/blanks-around-lists`. This matters more than a lint nit usually would: the PostToolUse
+hook runs `lint --fix` on any markdown you write, so a missing blank line means the file gets
+rewritten underneath you between one step and the next.
+
 **Why it is not a style preference**: the session-start hook picks the most recent entry with
 
 ```bash
@@ -66,9 +72,22 @@ written only at completion is silent in exactly those cases, and worse than sile
 entry would still describe the last *finished* phase, so the next session reads a confident,
 stale record and never learns that work stopped mid-task.
 
-**Close in place; never write a second heading for the same unit of work.** An `(open)` entry and
-a `(closed)` entry for the same task both matching `^##` means one of them is what the hook
-reports, and which one depends on ordering rather than on truth.
+**Close in place; never write a second heading for the same unit of work.** Change the existing
+heading's `(open)` to `(closed)` and fill in the closing fields. Writing a second heading leaves a
+stale `(open)` entry below the fold that permanently misrepresents that task's history, and which
+of the two the hook reports depends on ordering rather than on truth.
+
+The checkable form of that rule: **only the newest entry may be `(open)`.** Any `(open)` entry
+that is not the first real heading is a stale one left by a second-heading close. A bare count of
+open entries does not catch it — the common case leaves exactly one.
+
+```bash
+# Stale open entries: any (open) heading that is not the newest. Must print nothing.
+grep -E '^## ' journal.md | grep -vE '\[YYYY|<YYYY|YYYY-MM-DD' | tail -n +2 | grep '(open)'
+```
+
+Correcting one after the fact: change its state and say what happened, rather than deleting it —
+the record of the mistake is worth keeping.
 
 ## The two entry shapes
 

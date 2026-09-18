@@ -228,7 +228,7 @@ to verification as one that raises it.
 | B2 | asserted defect | **PLAUSIBLE** | Mechanism real (`malformed` is unfiltered) but no triggering input exists: the template's fenced headings end in `(open)`/`(closed)`, so they never reach `malformed` |
 | B3 | asserted defect | **finding accepted, remedy rejected** | The widening is real, but `research-validation`'s own Step 4 writes `validation_status` back, so it needed `Edit` to do its documented job. Reverting would restore a skill that cannot perform its stated behaviour |
 | L1 | CONFIRMED-mechanism / PLAUSIBLE-impact | **PLAUSIBLE, likely by design** | `validate_project` matches `wb-prime.sh:154` exactly; the gap is coverage, not inconsistency |
-| L2 | PLAUSIBLE | **PLAUSIBLE** | No live instance; unchanged |
+| L2 | PLAUSIBLE | **CONFIRMED (after the fact)** | A live instance was found during P1-T4 *in this plan's own journal*: `create_research` was closed by writing a second heading at 18:00 rather than editing the 17:53 `(open)` one in place, leaving a stale open entry `openCount > 1` never sees. The lens leg's "no live instance" was true only because it did not look here |
 
 Against the pre-registered conditions: (1) the built-in's output decomposed into per-finding
 records with file, line and claim, without inventing structure — yes. (2) the predicate ran and
@@ -254,6 +254,12 @@ Three things the probe established that the design had assumed:
 One correction to the design's framing: the verify pass must also verify **clearances**, not only
 findings. "Checked and clear" is a claim. The design's Data Model treats that list as coverage
 information; it is also an assertion that can be wrong, and was.
+
+A second correction, found after the verdict was written: **L2 was downgraded on the absence of a
+live instance, and the instance existed in this plan's own journal.** "I could not find one" is
+weaker evidence than it reads as — it is a statement about where the reviewer looked. The lens
+searched the repository's journals; the offending file was the one the probe was being written
+into. Where a finding turns on absence, the verify pass should say what was searched.
 
 ### Follow-up raised, not fixed here
 

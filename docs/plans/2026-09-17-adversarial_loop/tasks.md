@@ -723,6 +723,17 @@ Note: Update this section with findings as you implement.
 Recorded here with the task ID they block and the date raised. Remove a blocker when it is
 resolved, leaving a dated line saying how.
 
+- **[2026-09-17] Out-of-plan fix, at the user's request: the two causes behind the journal lint
+  failure.** Symptom was MD022/MD032 on every entry this session added. Cause 1 —
+  `journal-entries.md` gave the entry shape but never said an entry ends with a blank line before
+  the next heading, so following the contract exactly produced lint failures, and the PostToolUse
+  hook then rewrote the file underneath the session. Cause 2 — "close in place" was stated but
+  unenforceable: `validate_project`'s `openCount > 1` cannot catch a *single* stale open entry,
+  which is what a second-heading close leaves, and this plan's own journal contained one.
+  Both fixed: the blank-line rule is now in the contract, and the count check is replaced by a
+  position check (only the newest entry may be `(open)`), verified against a planted failure and
+  against a legitimate single open entry. B2 from the probe was fixed in the same block, since
+  the rewrite covered those lines.
 - **[2026-09-17] B1 — live defect in committed shipped code, blocks nothing but must not ship.**
   `plugin/skills/daily-digest/sources.md:77`'s open-entry grep has no placeholder filter, so it
   matches the journal template's fenced example heading and reports every untouched plan as having
