@@ -1,0 +1,24 @@
+name: checks
+
+# Runs the repository's own gates. This workflow is maintainer infrastructure and is never
+# shipped: marketplace.json sets "source": "./plugin", so nothing outside plugin/ reaches an
+# installer. Installing the plugin does not install this.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install markdownlint-cli
+        run: npm install -g markdownlint-cli
+
+      - name: Run every gate
+        run: ./plugin/scripts/check

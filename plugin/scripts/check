@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+
+# check — every gate this repository has, in one command.
+#
+# The guards existed before this script and nothing invoked them, which is its own
+# instance of the class they hunt: a check that never runs and a check that always
+# passes are indistinguishable from the outside. This is what CI runs, and it is what
+# a maintainer runs before a release.
+#
+# Usage: plugin/scripts/check
+# Exit 0 if every gate passes, 1 otherwise. Every gate runs — a failure does not
+# short-circuit the rest, because knowing one thing is broken is less useful than
+# knowing which things are.
+
+set -uo pipefail
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+cd "$ROOT"
+
+FAILED=()
+
+gate() {  # name command...
+  local name="$1"; shift
+  printf '\n\033[0;34m▶ %s\033[0m\n' "$name"
+  if "$@"; then
+    printf '\033[0;32m✓ %s\033[0m\n' "$name"
+  else
+    printf '\033[0;31m✗ %s\033[0m\n' "$name"
+    FAILED+=("$name")
+  fi
+}
+
+gate "markdown lint"            ./plugin/scripts/lint --all
+gate "unguarded measurements"   ./plugin/scripts/check-guards
+gate "check-guards contract"    ./plugin/scripts/test-guards
+gate "count contract"           ./plugin/scripts/test-count
+gate "quiet contract"           ./plugin/scripts/test-quiet
+
+echo
+if [ ${#FAILED[@]} -eq 0 ]; then
+  echo "✅ check: all gates passed"
+  exit 0
+fi
+printf '❌ check: %d gate(s) failed:\n' "${#FAILED[@]}"
+printf '   - %s\n' "${FAILED[@]}"
+exit 1

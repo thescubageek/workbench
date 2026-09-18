@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+
+# Contract tests for scripts/check-guards.
+# The contract is one thing: the checker must be able to FAIL. Every case below plants a
+# defect and asserts it fires, or plants the correct form and asserts it does not — because
+# a check observed only passing is a check nobody has tested, and this script has been an
+# instance of the class it hunts three separate times in this repository's history.
+#
+# Usage: plugin/scripts/test-guards [path-to-check-guards]
+
+set -uo pipefail
+CG="${1:-$(cd "$(dirname "$0")" && pwd)/check-guards}"
+pass=0; fail=0
+case_run() {  # name expect_exit file_rel content
+  local name="$1" expect="$2" rel="$3" content="$4"
+  local d; d=$(mktemp -d)
+  mkdir -p "$d/$(dirname "$rel")"
+  printf '%b' "$content" > "$d/$rel"
+  local out; out=$("$CG" "$d" 2>&1); local code=$?
+  if [ "$code" -eq "$expect" ]; then
+    echo "  ✓ $name (exit $code)"; pass=$((pass+1))
+  else
+    echo "  ✗ $name — expected exit $expect, got $code"; echo "$out" | sed 's/^/      /'; fail=$((fail+1))
+  fi
+  rm -rf "$d"
+}
+
+echo "== MUST FIRE (exit 1) =="
+case_run "capture on the file's LAST line"      1 scripts/a.sh '#!/usr/bin/env bash\necho hi\nn=$(grep -c foo /etc/hosts)\n'
+case_run "piped grep -c"                        1 scripts/b.sh '#!/usr/bin/env bash\nn=$(cat f.txt | grep -c foo)\necho "$n"\n'
+case_run "backticked capture"                   1 scripts/c.sh '#!/usr/bin/env bash\nn=`grep -c foo f.txt`\necho "$n"\n'
+case_run "spaced \$( grep -c"                   1 scripts/d.sh '#!/usr/bin/env bash\nn=$( grep -c foo f.txt )\necho "$n"\n'
+case_run "--count long form"                    1 scripts/e.sh '#!/usr/bin/env bash\nn=$(grep --count foo f.txt)\necho "$n"\n'
+case_run "INDENTED bash fence"                  1 doc.md       'text\n\n   ```bash\n   n=$(grep -c foo f.txt)\n   echo "$n"\n   ```\n'
+case_run "fence whose LAST line is the capture" 1 doc2.md      'text\n\n```bash\necho hi\nn=$(grep -c foo f.txt)\n```\n'
+case_run "unquoted --include glob"              1 scripts/g.sh '#!/usr/bin/env bash\ngrep -r --include=*.py foo .\n'
+case_run "for over a glob, unguarded"           1 scripts/h.sh '#!/usr/bin/env bash\nfor x in *.txt; do\n  echo "$x"\ndone\n'
+case_run "for over a glob, guard 3 lines down"  1 scripts/i.sh '#!/usr/bin/env bash\nfor x in *.txt; do\n  a=1\n  b=2\n  c=3\n  echo "$x"\ndone\n'
+
+echo "== MUST NOT FIRE (exit 0) =="
+case_run "guarded with plugin/scripts/count"    0 scripts/j.sh '#!/usr/bin/env bash\nn=$(count foo f.txt) || exit 2\necho "$n"\n'
+case_run "capture with || true"                 0 scripts/k.sh '#!/usr/bin/env bash\nn=$(grep -c foo f.txt) || true\necho "${n:-0}"\n'
+case_run "status checked on the next line"      0 scripts/l.sh '#!/usr/bin/env bash\nn=$(grep -c foo f.txt)\nif [ $? -ge 2 ]; then exit 2; fi\n'
+case_run "quoted --include glob"                0 scripts/m.sh '#!/usr/bin/env bash\ngrep -r --include="*.py" foo .\n'
+case_run "for over a glob WITH a guard"         0 scripts/n.sh '#!/usr/bin/env bash\nfor x in *.txt; do\n  [ -e "$x" ] || continue\n  echo "$x"\ndone\n'
+case_run "guard after a comment line"           0 scripts/o.sh '#!/usr/bin/env bash\nfor x in *.txt; do\n  # the guard is below\n  [ -e "$x" ] || continue\n  echo "$x"\ndone\n'
+case_run "array expansion, not a glob"          0 scripts/p.sh '#!/usr/bin/env bash\narr=(a b)\nfor x in ${arr[*]}; do echo "$x"; done\n'
+case_run "prose in a scripts/*.md file"         0 scripts/README.md 'Never write `grep -r --include=*.py foo .` — quote the glob.\n'
+case_run "deliberate example in a text fence"   0 doc3.md      'Bad:\n\n```text\nn=$(grep -c foo f.txt)\n```\n'
+
+echo
+echo "falsify: $pass passed, $fail failed"
+[ "$fail" -eq 0 ]

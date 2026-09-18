@@ -88,6 +88,95 @@ lost. The wrapped command's exit code is always passed through unchanged.
 
 Contract tests for `quiet` (success collapse, failure dump, exit-code pass-through). Run after changing `quiet`.
 
+### `check`
+
+**Every gate this repository has, in one command.** This is what CI runs and what a maintainer
+runs before cutting a release.
+
+```bash
+./plugin/scripts/check
+```
+
+Runs, in order: `lint --all`, `check-guards`, `test-guards`, `test-count`, `test-quiet`. **Every
+gate runs even after one fails** — knowing that something is broken is less useful than knowing
+which things are. Exits 0 only if all of them pass.
+
+It exists because the guards below shipped with nothing invoking them, which is its own instance
+of the class they hunt: a check that never runs and a check that always passes look the same from
+outside. CI runs this on push to `main` and on every pull request
+(`.github/workflows/checks.yml`). That workflow is maintainer infrastructure and is **never
+shipped** — `marketplace.json` sets `"source": "./plugin"`, so nothing outside `plugin/` reaches
+an installer.
+
+### `check-guards`
+
+Finds shell measurements whose failure reads as a clean result — the defect class where a broken
+command and a genuinely empty result produce the same output, and the error always points toward
+believing things are fine. Three shapes:
+
+1. A `grep -c` capture with no status guard, in `$( )` or backticks, piped or not. grep exits 1 on
+   no match and 2 on **error**, so a missing file and a clean file both yield a usable-looking
+   value.
+2. An unquoted `--include=` glob. Shell-dependent: `bash` passes it through, `zsh` errors and the
+   count silently comes back zero.
+3. A `for` over a glob with no existence test. An unmatched glob runs the body once with the
+   literal pattern as the filename.
+
+```bash
+./plugin/scripts/check-guards            # defaults to plugin/
+./plugin/scripts/check-guards some/dir
+```
+
+It scans shipped shell scripts and the fenced `bash` blocks inside shipped markdown, including
+**indented** fences — a block nested in a numbered step is still an instruction a model executes.
+Prose and tables are deliberately not scanned, so a document may describe a bad pattern without
+tripping it. **A deliberate counter-example belongs in a `text` fence rather than a `bash` one**;
+that is the convention instead of a suppression marker, because a marker can silence a real
+finding and a fence language cannot. Two files are exempt by name — `check-guards` and
+`test-guards` — because their content *is* the fixtures.
+
+The remedy it recommends is `count`, never `|| true` with `${n:-0}`: that pairing is the collapse
+written out longhand, not a fix for it.
+
+### `test-guards`
+
+Contract tests for `check-guards`. Nineteen planted cases in **both** directions — each shape must
+fire, and each correct form must not. It exists because a check observed only passing is a check
+nobody has tested, and `check-guards` has been an instance of the class it hunts three separate
+times in this repository's history.
+
+```bash
+./plugin/scripts/test-guards
+```
+
+### `count`
+
+A match count whose failure is distinguishable from zero.
+
+```bash
+n=$(count 'pattern' file.txt) || handle_failure
+n=$(count --lines file.txt)   || handle_failure
+```
+
+- **exit 0** — the count is on stdout and is trustworthy, including `0`
+- **exit 2** — the count could not be taken; stdout is empty, reason on stderr
+
+Because the failure is loud, `n=$(count ...) || handle` is safe in a way that
+`n=$(grep -c ...)` is not.
+
+### `test-count`
+
+Contract tests for `count`. The contract is one thing: **a count of zero and a failure to count
+must be distinguishable.** Covers a real count, zero matches, a missing file, an unreadable file,
+a directory, a grep error on a readable file, `--lines`, and bad usage — plus a control showing
+that `grep -c` collapses the two once defaulted the way a careful author would default them.
+
+```bash
+./plugin/scripts/test-count
+```
+
+A skip is reported as a skip, never as a pass.
+
 ## Configuration
 
 The project uses `.markdownlintrc` for markdownlint configuration. Current settings:

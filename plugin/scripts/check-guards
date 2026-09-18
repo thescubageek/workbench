@@ -3,8 +3,10 @@
 #
 # Three shapes produce a number that is indistinguishable from "nothing matched":
 #
-#   1. `grep -c` captured without a status guard. grep exits 1 on no match and 2 on
-#      error, so a missing file and a clean file both yield a usable-looking value.
+#   1. `grep -c` captured without a status guard — in $( ) or backticks, piped or not.
+#      grep exits 1 on no match and 2 on error, so a missing file and a clean file both
+#      yield a usable-looking value. Remediation is plugin/scripts/count, which fails
+#      loudly; `|| true` with ${n:-0} is NOT a fix, it is the collapse written out.
 #   2. An unquoted `--include=` glob. Shell-dependent: bash passes it through, zsh
 #      errors and the count comes back zero.
 #   3. A `for` over a glob with no existence test. An unmatched glob runs the body
@@ -17,6 +19,11 @@
 # in a ```text block rather than a ```bash one — that is the convention instead of a
 # suppression marker, because a marker can be used to silence a real finding and a
 # fence language cannot.
+#
+# Two files are skipped: this one, and scripts/test-guards, whose entire content is
+# planted counter-examples. Both are exempt for the same reason — their defects are the
+# fixtures — and the exemption is by filename here rather than by a marker in the file,
+# so it cannot be applied to anything else.
 #
 # Usage: plugin/scripts/check-guards [path ...]   (default: plugin/)
 # Exit 0 clean, 1 if any unguarded measurement is found.
@@ -37,8 +44,10 @@ report() {  # file line pattern line-text fix
   printf '%s:%s\n  %s\n  found: %s\n  fix:   %s\n\n' "$1" "$2" "$3" "$4" "$5" >> "$HITS"
 }
 
+GLOB_WINDOW=3
+
 scan_stream() {  # filename ; reads "lineno<TAB>text" on stdin
-  local file="$1" prev_glob_line="" prev_glob_no=""
+  local file="$1" prev_glob_line="" prev_glob_no="" glob_seen=0
   local pend_grep_line="" pend_grep_no=""
   while IFS=$'\t' read -r no text; do
     # A comment describing a bad pattern is documentation, not an instance of it —
@@ -51,7 +60,7 @@ scan_stream() {  # filename ; reads "lineno<TAB>text" on stdin
       case "$text" in
         *'$?'*) : ;;
         *) report "$file" "$pend_grep_no" "grep -c captured without a status guard" \
-                  "$pend_grep_line" 'append `|| true` and default the value: ${n:-0}' ;;
+                  "$pend_grep_line" 'use plugin/scripts/count, which fails loudly instead of printing 0' ;;
       esac
       pend_grep_line=""; pend_grep_no=""
     fi
@@ -60,35 +69,96 @@ scan_stream() {  # filename ; reads "lineno<TAB>text" on stdin
         report "$file" "$no" "unquoted --include glob" "$(echo "$text" | sed 's/^[[:space:]]*//')" \
                "quote it: --include='*.py'" ;;
     esac
-    if [[ "$text" == *'$(grep -c'* || "$text" == *'$(grep -rc'* ]]; then
-      if [[ "$text" != *'|| true'* && "$text" != *'|| echo'* && "$text" != *'2>/dev/null)'*'||'* ]]; then
+    # A capture is any grep -c inside $( ) or backticks. Matching the literal `$(grep -c`
+    # missed `$(cat f | grep -c x)`, `` `grep -c x f` `` and `$( grep -c x f)` — three ordinary
+    # spellings of the same defect. Detect the capture and the counting flag separately.
+    if [[ "$text" =~ (\$\(|\`) ]] && [[ "$text" =~ grep[[:space:]]+(-[A-Za-z]*c|--count) ]]; then
+      # The guard has to guard THIS capture, so it must trail the statement — not merely appear
+      # somewhere on the line. `check "..." "$([[ $(... | grep -c .) -le 2 ]] && echo 1 || echo 0)"`
+      # contains `|| echo` inside a *different* substitution, and a substring test read that as
+      # guarded. That false negative is how two unguarded captures sat in this repo's own
+      # scripts/test-quiet while this checker reported clean.
+      guarded=0
+      # (a) the guard trails the whole statement:  n=$(grep -c x f) || true
+      [[ "$text" =~ \|\|[[:space:]]+(true|:)[[:space:]]*$ ]] && guarded=1
+      [[ "$text" =~ \|\|[[:space:]]+echo[^\)]*$ ]] && guarded=1
+      # (b) the guard sits inside the substitution, before it closes:
+      #     dirty=$(git status | grep -c . || true)
+      #     Segment from `grep` to the first `)` — that bounds it to THIS capture. A plain
+      #     substring test does not: `$([[ $(… | grep -c .) -le 2 ]] && echo 1 || echo 0)`
+      #     has `|| echo` in a different substitution entirely, and reading that as a guard
+      #     is what let two unguarded captures sit in this repo's own scripts/test-quiet.
+      after_grep="${text#*grep}"; capture_seg="${after_grep%%)*}"
+      [[ "$capture_seg" =~ \|\|[[:space:]]+(true|:|echo) ]] && guarded=1
+      if [ "$guarded" -eq 0 ]; then
         # Hold it: the next line may check $?, which is a valid guard.
         pend_grep_line="$(echo "$text" | sed 's/^[[:space:]]*//')"; pend_grep_no="$no"
       fi
     fi
+    # Scan a small window of the body, not only its first line: a guard placed after a comment
+    # or a local assignment is still a guard, and reporting it fails a release gate on correct
+    # code. GLOB_WINDOW lines is enough for every real form and short enough to stay decidable.
     if [[ -n "$prev_glob_line" ]]; then
-      if [[ "$text" != *'-e '* && "$text" != *'-f '* && "$text" != *'continue'* ]]; then
-        report "$file" "$prev_glob_no" "for over a glob with no existence test" \
-               "$prev_glob_line" '[ -e "$x" ] || continue   # as the body'"'"'s first line'
+      if [[ "$text" == *'-e '* || "$text" == *'-f '* || "$text" == *'continue'* ]]; then
+        prev_glob_line=""; prev_glob_no=""; glob_seen=0
+      else
+        glob_seen=$((glob_seen + 1))
+        if [ "$glob_seen" -ge "$GLOB_WINDOW" ]; then
+          report "$file" "$prev_glob_no" "for over a glob with no existence test" \
+                 "$prev_glob_line" '[ -e "$x" ] || continue   # as the body'"'"'s first line'
+          prev_glob_line=""; prev_glob_no=""; glob_seen=0
+        fi
       fi
-      prev_glob_line=""; prev_glob_no=""
     fi
-    if [[ "$text" =~ ^[[:space:]]*for[[:space:]]+[A-Za-z_]+[[:space:]]+in[[:space:]].*\*.*\;[[:space:]]*do ]]; then
-      prev_glob_line="$(echo "$text" | sed 's/^[[:space:]]*//')"; prev_glob_no="$no"
+    # `for x in ${arr[*]}` and `"${arr[@]}"` are array expansion, not globbing — the `*` there
+    # never reaches the filesystem, so an unmatched-glob guard has nothing to guard.
+    if [[ "$text" =~ ^[[:space:]]*for[[:space:]]+[A-Za-z_]+[[:space:]]+in[[:space:]].*\*.*\;[[:space:]]*do ]] \
+       && [[ ! "$text" =~ \[[@*]\] ]]; then
+      prev_glob_line="$(echo "$text" | sed 's/^[[:space:]]*//')"; prev_glob_no="$no"; glob_seen=0
     fi
   done
-}
 
-flush_pending() { :; }   # pending reports resolve on the next line; a file ending on an
-                         # unguarded capture is caught by the loop's final iteration
+  # Drain at end of input. A pending report is only resolved when the NEXT line is read, so
+  # without this the defect on a file's last line — or a fenced block's last line, which is the
+  # common documentation shape, since a snippet usually ends on its measurement — is discarded
+  # and the file reports clean. This function existed as a no-op whose comment claimed the loop's
+  # final iteration handled it. It did not, and that made this checker an instance of the class
+  # it was written to catch.
+  if [ -n "$pend_grep_line" ]; then
+    report "$file" "$pend_grep_no" "grep -c captured without a status guard" \
+           "$pend_grep_line" 'use plugin/scripts/count, which fails loudly instead of printing 0'
+  fi
+  if [ -n "$prev_glob_line" ]; then
+    report "$file" "$prev_glob_no" "for over a glob with no existence test" \
+           "$prev_glob_line" '[ -e "$x" ] || continue   # as the body'"'"'s first line'
+  fi
+}
 
 while IFS= read -r f; do
   case "$f" in
+    # *.md is tested FIRST. With */scripts/* ahead of it, markdown under a scripts directory took
+    # the shell branch and had its prose scanned, so the documented `text`-fence escape hatch did
+    # not exist for exactly the file that documents these scripts.
+    *.md)
+      # Fences may be indented — inside a numbered step or a list item. Anchoring the match to
+      # column zero skipped 17 shipped blocks, which is the same column-zero blindness this repo
+      # already fixed once for journal headings. Track the opening fence's indent so the closing
+      # fence is matched at the same depth.
+      awk '
+        BEGIN { inb = 0 }
+        !inb && /^[[:space:]]*```bash[[:space:]]*$/ {
+          inb = 1; match($0, /^[[:space:]]*/); ind = RLENGTH; next
+        }
+        inb && /^[[:space:]]*```[[:space:]]*$/ {
+          match($0, /^[[:space:]]*/); if (RLENGTH == ind) { inb = 0; next }
+        }
+        inb { print NR "\t" $0 }
+      ' "$f" | scan_stream "$f" ;;
     *.sh|*/scripts/*) grep -n '' "$f" | sed 's/:/\t/' | scan_stream "$f" ;;
-    *.md) awk 'BEGIN{inb=0} /^```bash$/{inb=1;next} /^```$/{inb=0;next} inb{print NR"\t"$0}' "$f" | scan_stream "$f" ;;
   esac
 done < <(find "${TARGETS[@]}" -type f \( -name '*.sh' -o -name '*.md' -o -path '*/scripts/*' \) \
-           -not -name 'check-guards' -not -path '*/node_modules/*' 2>/dev/null | sort)
+           -not -name 'check-guards' -not -name 'test-guards' \
+           -not -path '*/node_modules/*' 2>/dev/null | sort)
 
 if [ -s "$HITS" ]; then
   cat "$HITS"

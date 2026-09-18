@@ -15,6 +15,8 @@ trap 'chmod -R u+rwx "$TMP" 2>/dev/null; rm -rf "$TMP"' EXIT
 PASS=0
 FAIL=0
 
+SKIP=0
+
 check() {
     local desc="$1" cond="$2"
     if [[ "$cond" == "1" ]]; then
@@ -23,6 +25,11 @@ check() {
         echo "  ✗ $desc"; FAIL=$((FAIL + 1))
     fi
 }
+
+# A skip is not a pass. Recording it as one made the tally say "13 passed" whether the
+# assertion ran or not, which is the same class of defect this whole script exists for:
+# an outcome that reads as success without having been established.
+skip() { echo "  ⊘ $1 (skipped: $2)"; SKIP=$((SKIP + 1)); }
 
 printf 'alpha\nbeta\nalpha\n\ngamma\n' > "$TMP/f.txt"
 
@@ -45,8 +52,8 @@ check "missing file prints no count"    "$([[ -z "$out" ]] && echo 1 || echo 0)"
 printf 'alpha\n' > "$TMP/locked.txt"; chmod 000 "$TMP/locked.txt"
 out="$("$COUNT" 'alpha' "$TMP/locked.txt" 2>/dev/null)"; code=$?
 if [[ -r "$TMP/locked.txt" ]]; then
-    check "unreadable file (skipped: running with override privileges)" "1"
-    check "unreadable file prints no count (skipped)" "1"
+    skip "unreadable file exits non-zero"  "chmod 000 is not honoured for this user (root or ACL)"
+    skip "unreadable file prints no count" "chmod 000 is not honoured for this user (root or ACL)"
 else
     check "unreadable file exits non-zero"  "$([[ $code -ne 0 ]] && echo 1 || echo 0)"
     check "unreadable file prints no count" "$([[ -z "$out" ]] && echo 1 || echo 0)"
@@ -62,8 +69,25 @@ zero_out="$("$COUNT" 'nothing-here' "$TMP/f.txt")"; zero_code=$?
 fail_out="$("$COUNT" 'nothing-here' "$TMP/absent.txt" 2>/dev/null)"; fail_code=$?
 check "zero and failure are distinguishable" \
       "$([[ "$zero_code" -ne "$fail_code" ]] && echo 1 || echo 0)"
-check "the same call against grep -c is NOT distinguishable (control)" \
-      "$(a=$(grep -c 'nothing-here' "$TMP/f.txt" 2>/dev/null); b=$(grep -c 'nothing-here' "$TMP/absent.txt" 2>/dev/null); [[ "$a" == "0" && -z "$b" ]] && echo 1 || echo 0)"
+# Control: the same two calls through `grep -c`, written the way a careful author writes
+# them — captured, status-guarded with `|| true`, empty-defaulted. Both still yield "0", so
+# the consumer cannot tell a clean file from a missing one. The previous version of this
+# assertion compared the two RAW strings ("0" vs "") and so asserted they were
+# distinguishable — the opposite of the collapse its own label named, and it passed on every
+# POSIX grep regardless of whether the collapse existed.
+a=$(grep -c 'nothing-here' "$TMP/f.txt" 2>/dev/null) || true
+b=$(grep -c 'nothing-here' "$TMP/absent.txt" 2>/dev/null) || true
+check "grep -c collapses zero and failure once defaulted (control)" \
+      "$([[ "${a:-0}" == "${b:-0}" ]] && echo 1 || echo 0)"
+
+# 6b. A grep ERROR on a readable, existing file must fail loudly.
+# This is the only assertion that reaches count's `status -ge 2` branch. Without it, changing
+# that comparison to `-gt 2` reintroduces the exact silent collapse count exists to prevent
+# and every other test still passes. An unbalanced bracket is an invalid ERE, so grep exits 2
+# while the file itself is perfectly readable.
+out="$("$COUNT" 'unbalanced[' "$TMP/f.txt" 2>/dev/null)"; code=$?
+check "a grep error exits non-zero"     "$([[ $code -ne 0 ]] && echo 1 || echo 0)"
+check "a grep error prints no count"    "$([[ -z "$out" ]] && echo 1 || echo 0)"
 
 # 7. --lines counts non-empty lines
 out="$("$COUNT" --lines "$TMP/f.txt")"
@@ -73,5 +97,5 @@ check "--lines counts non-empty lines"  "$([[ "$out" == "4" ]] && echo 1 || echo
 "$COUNT" 'only-one-arg' >/dev/null 2>&1; code=$?
 check "wrong argument count exits non-zero" "$([[ $code -ne 0 ]] && echo 1 || echo 0)"
 
-echo "test-count: $PASS passed, $FAIL failed"
+echo "test-count: $PASS passed, $FAIL failed, $SKIP skipped"
 [[ $FAIL -eq 0 ]]
