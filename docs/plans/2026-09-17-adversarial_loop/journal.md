@@ -51,6 +51,19 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-18 00:31 — L1 fix (closed)
+
+- **Task/phase**: out-of-plan — close L1, the last unfixed defect from the P1-T3 probe
+- **Landed**: indented-heading ERROR in validation-rules.md (before the extraction) and a
+  Check it in journal-entries.md, both falsified; limitation recorded rather than engineered around
+- **Commits**: fa53f1e
+- **Learned**: the silent-measurement class caught me a fourth time, inside the verification of
+  the fix for the third — `grep -c` printing 0 and exiting 1 made `|| echo 0` emit a second
+  zero, producing a bogus "WOULD FLAG". `wb-prime.sh:55-63` documents exactly this. Knowing a
+  trap and not reaching for the guard are different things, which is an argument for the guard
+  being in the prompt rather than in anyone's memory.
+- **Started at**: 90a05c0
+
 ## 2026-09-18 00:26 — P2-T3 (closed)
 
 - **Task/phase**: P2-T3 — write plugin/skills/adversarial-review/prompts.md

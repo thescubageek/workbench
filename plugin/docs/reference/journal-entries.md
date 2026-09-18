@@ -55,7 +55,19 @@ of reading the journal's tail, it means the newest entry, which is at the top.
   `daily-digest`, `resume_handoff` and `create_handoff` all match on that literal suffix. A
   heading ending any other way is invisible to all of them, and the failure is silent: the next
   session is told "closed" over work that was interrupted.
-- Headings start at column zero. A heading indented or fenced is not found.
+- Headings start at column zero. A heading indented or fenced is not found — **by every reader,
+  including the checks meant to catch a malformed one**, so this failure hides from its own
+  checker. Confirm it with:
+
+  ```bash
+  # Indented headings. Must print nothing.
+  grep -nE '^[[:space:]]+#{2,}[[:space:]]' journal.md
+  ```
+
+  Known limitation: this also fires on a `##` line inside a fenced block that is itself indented
+  — inside a list item, say. The generated template keeps its fences at column zero so the case
+  does not arise, and a hit is worth a human look either way. A fence-aware check would be more
+  precise and more able to be wrong.
 
 ## When an entry opens and closes
 

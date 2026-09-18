@@ -88,7 +88,21 @@ if (tasksFrontmatter.completed_tasks !== done || tasksFrontmatter.total_tasks !=
 // Journal entry headings carry the open/closed state in a trailing marker. Every consumer
 // matches on that suffix, so a heading without it reads as closed — which is the dangerous
 // direction: interrupted work reported as finished.
-const journalHeadings = readLines(`${projectDir}/journal.md`).filter(l => l.startsWith('## '));
+const journalLines = readLines(`${projectDir}/journal.md`);
+
+// A heading must start at column zero. Both readers anchor on that — the session-start hook
+// greps `^## ` and the filter below uses startsWith — so an indented heading is invisible to
+// BOTH, and the validator would otherwise report clean on a file the hook silently misreads.
+// This is the one journal defect that hides from its own checker.
+const indentedHeadings = journalLines.filter(l => /^[ \t]+#{2,}\s/.test(l));
+if (indentedHeadings.length) {
+  ERROR(`journal.md has ${indentedHeadings.length} indented heading(s): ` +
+        indentedHeadings.map(h => h.trim()).join(', ') +
+        ` — invisible to the session-start hook and to every check below. ` +
+        `Headings start at column zero; see plugin/docs/reference/journal-entries.md`);
+}
+
+const journalHeadings = journalLines.filter(l => l.startsWith('## '));
 
 // Placeholder headings from the template are not entries — the session-start hook discards them
 // the same way, so this filter must match it or a fresh plan reports forever. Everything below
