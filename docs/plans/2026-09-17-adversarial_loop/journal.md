@@ -51,7 +51,7 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
-## 2026-09-18 20:14 — PHI fix + Phase 7, all 22 tasks (closed)
+## 2026-09-18 19:56 — PHI fix + Phase 7, all 22 tasks (closed)
 
 - **Task/phase**: the PHI regression, then P7-T1 through P7-T22 — close round 2.
 - **Landed**: two commits. `1e818ea` restores the Member-ID matcher; `1990b40` closes the
@@ -81,6 +81,10 @@ this template, silently, from the moment of creation.
     0.49.0) until I compared them. A pin that differs from the maintainer's version just
     relocates the disagreement into CI.
 - **Commits**: `1e818ea`, `1990b40`, and this one.
+- **Correction**: this heading first carried an estimated time (20:14) ahead of the
+  actual clock. `journal-entries.md` says to read the clock and never estimate — the
+  rule this plan ships, broken by the session shipping it. Kept as a record rather
+  than quietly rewritten.
 - **Blocked by**: nothing. Round 3 is gated on explicit user approval — Phase 7 is exactly the
   kind of surface round 2 proved needs reviewing, and P5-T2 onward follow the review.
 
