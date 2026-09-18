@@ -550,11 +550,11 @@ that give a review phase a model baseline.
       interactive triggers and gains one line pointing at `adversarial-review` for batch
       bug-hunting. The file has no integration section, so this is a new line rather than an edit
       to an existing bucket. (~9 calls) (completed 2026-09-18 17:45)
-- [ ] **P4-T2** — Repoint `plugin/skills/daily-digest/SKILL.md:204` (the Today-item entry-point
+- [x] **P4-T2** — Repoint `plugin/skills/daily-digest/SKILL.md:204` (the Today-item entry-point
       bullet) and `:278` (the review-skills bullet in "Integration with the wb ecosystem") from
       `pr-feedback` / `review` / `review-reef` / `review-strict` to the skills that now exist.
       *The B1 grep defect originally bundled here was pulled forward and fixed on 2026-09-17; this
-      task is now the repointing only.* (~11 calls)
+      task is now the repointing only.* (~11 calls) (completed 2026-09-18 17:46)
 - [ ] **P4-T3** — Repoint `plugin/skills/model-help/SKILL.md:160`'s calibration anchor off
       `review-reef`, and add gate-mode rows for the review and PR-loop phases to the table at
       `:94-103`, matching its four columns exactly (`wb phase`, `Main-session baseline`, `Why`,

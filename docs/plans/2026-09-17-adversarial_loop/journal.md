@@ -51,6 +51,13 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-18 17:46 — P4-T2 (closed)
+
+- **Task/phase**: P4-T2 — repoint daily-digest's two review-family references
+- **Landed**: both daily-digest references repointed; no ghost names remain in the file
+- **Commits**: fa52b8a
+- **Started at**: 1cc7222
+
 ## 2026-09-18 17:45 — P4-T1 (closed)
 
 - **Task/phase**: P4-T1 — add the hand-off line to review-prep

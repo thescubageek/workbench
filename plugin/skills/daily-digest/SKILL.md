@@ -201,7 +201,7 @@ exhausting the rolling **5-hour usage window** or ignoring your calendar.
 4. **Wire each Today item to its entry point:**
    - Plannable ticket → `/wb:forge <ticket>` (research → design → execution).
    - A ticket you'll pick up → `/wb:jira-context <KEY>` first to hivemind off it.
-   - PR review you owe → `pr-feedback` / `review` / `review-reef` per its size.
+   - PR review you owe → `adversarial-review` for the hunt, `reply-to-claude` to answer a bot review.
    - GitHub backlog to knock out → `fetch-issues`.
    - Long analysis/audit → `touch-grass`.
 
@@ -275,7 +275,8 @@ to *plan work*, and MUST NOT surface or persist PHI.
   the plan, touch-grass sustains it across breaks/window-resets.
 - **`tracer-bullet`** — fire before committing to a Complex/Critical item whose tier
   is uncertain.
-- **review skills** (`pr-feedback`, `review`, `review-reef`, `review-strict`) — the
-  entry points for the Needs-review bucket.
+- **review skills** (`adversarial-review`, `adversarial-loop`, `reply-to-claude`) — the
+  entry points for the Needs-review bucket. `adversarial-review` hunts a diff; `adversarial-loop`
+  drives one to reviewable; `reply-to-claude` answers a bot review.
 - **`status-sync`** — end-of-day counterpart; daily-digest opens the session,
   status-sync helps close it clean.
