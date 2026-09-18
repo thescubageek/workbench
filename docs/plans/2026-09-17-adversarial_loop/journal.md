@@ -51,6 +51,18 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-18 17:24 — P2-T7 (closed)
+
+- **Task/phase**: P2-T7 — make Phase 2's invariant checks runnable, and run them
+- **Landed**: eight Phase 2 criteria rewritten as listing-based, shell-agnostic checks; all run
+  and ticked; P5-T3's duplicate link check replaced with the working form rather than left fragile
+- **Commits**: 0f40336
+- **Learned**: the criteria I wrote at create_tasks time contained the very defects this session
+  then spent hours finding — a pipeline form that parse-errors under zsh, and two counts where a
+  zero is indistinguishable from a broken command. Writing checks before having been burned by
+  them produces checks that look right.
+- **Started at**: c8aeaa6
+
 ## 2026-09-18 17:18 — P2-T6 (closed)
 
 - **Task/phase**: P2-T6 — write plugin/skills/adversarial-review/SKILL.md, the skill body

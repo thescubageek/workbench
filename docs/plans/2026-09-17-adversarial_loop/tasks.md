@@ -327,22 +327,44 @@ does-not-apply list, then exact one-line report shapes.
 
 #### Static checks for this phase's invariants
 
-- [ ] **P2-T7** — Add the phase's invariant checks to this plan's Success Criteria as runnable
+- [x] **P2-T7** — Add the phase's invariant checks to this plan's Success Criteria as runnable
       commands, and run them: every `../../docs/reference/*.md` link in the new skill resolves; no
       Ruby/Rails/RSpec/Docker/Postgres/Redis vocabulary in any new file; the skill body says
-      `git show` for the `REVIEW.md` read rather than `cat`. (~16 calls)
+      `git show` for the `REVIEW.md` read rather than `cat`. (~16 calls) (completed 2026-09-18 17:25)
 
 ### Success Criteria
 
 #### Automated Verification
 
-- [ ] Lint clean: `./plugin/scripts/lint plugin/docs/reference/code-review-integration.md plugin/skills/adversarial-review/*.md`
-- [ ] Every reference link resolves:
-      `grep -o '\.\./\.\./docs/reference/[a-z-]*\.md' plugin/skills/adversarial-review/SKILL.md | sort -u | while read p; do [ -e "plugin/${p#../../}" ] || echo "MISS $p"; done` → no output
-- [ ] No stack vocabulary ships: `grep -rniE 'ruby|rails|rspec|postgres|redis|docker|rubocop|bundle exec' plugin/skills/adversarial-review/ plugin/docs/reference/code-review-integration.md` → no output
-- [ ] Base-ref read is the stated mechanism: `grep -c 'git show' plugin/skills/adversarial-review/SKILL.md` → ≥1
-- [ ] Mandatory lenses are stated as non-optional: `grep -ci 'mandatory' plugin/skills/adversarial-review/lenses.md` → ≥4
-- [ ] Frontmatter is well formed and singular: `awk '/^---$/{c++} c==1 && /^(name|description|argument-hint|allowed-tools):/' plugin/skills/adversarial-review/SKILL.md` → one line per key, no orphaned block list
+Each check below prints what it found rather than counting it, and each absence check was run
+against a planted failure so it is known to fire. Commands are shell-agnostic — the earlier
+`while read ... [ -e ]` form parse-errors under zsh, which would have made the link check silently
+unrunnable rather than failing.
+
+- [x] Lint clean: `./plugin/scripts/lint plugin/docs/reference/code-review-integration.md plugin/skills/adversarial-review/*.md`
+- [x] Guard check clean: `./plugin/scripts/check-guards` → exit 0
+- [x] Every link in the skill resolves — prints `MISS` per broken link, nothing when clean:
+
+      ```bash
+      python3 -c "
+      import re,os,sys
+      b='plugin/skills/adversarial-review'
+      ls=sorted(set(re.findall(r'\]\(([^)]+\.md)\)', open(b+'/SKILL.md').read())))
+      bad=[l for l in ls if not os.path.exists(os.path.normpath(os.path.join(b,l)))]
+      print('\n'.join('MISS '+x for x in bad))"
+      ```
+
+- [x] No stack or employer vocabulary — prints the offending lines, nothing when clean:
+      `grep -rniE 'ruby|rails|rspec|turbo|stimulus|postgres|redis|docker|rubocop|bundle exec|hellobrightline|reef|rbenv|staffer' plugin/skills/adversarial-review/ plugin/docs/reference/code-review-integration.md`
+- [x] The base-ref read is the stated mechanism — prints the `git show` line, not a count:
+      `grep -n 'git show' plugin/skills/adversarial-review/SKILL.md`
+- [x] Mandatory lenses are marked in the table — prints one row per mandatory lens:
+      `grep -n 'see \*Mandatory\*' plugin/skills/adversarial-review/lenses.md`
+- [x] Frontmatter is well formed and singular — prints one line per key, and zero orphaned
+      block-list entries:
+      `awk '/^---$/{c++; next} c==1{print} c==2{exit}' plugin/skills/adversarial-review/SKILL.md`
+- [x] The plugin loads and enumerates the new skill:
+      `claude --plugin-dir plugin plugin details wb` → `adversarial-review` appears in the skill inventory
 
 #### Manual Verification
 
@@ -648,8 +670,20 @@ personal copies the port was made from.
 - [ ] Release check clean: `claude plugin tag --dry-run plugin/`
 - [ ] No stack or employer vocabulary anywhere in shipped files:
       `grep -rniE 'ruby|rails|rspec|postgres|redis|docker|rubocop|bundle exec|hellobrightline' plugin/` → no output
-- [ ] Every reference link in every skill resolves:
-      `grep -rhoE '\.\./\.\./docs/reference/[a-z-]*\.md' plugin/skills/ | sort -u | while read p; do [ -e "plugin/${p#../../}" ] || echo "MISS $p"; done` → no output
+- [ ] Every reference link in every skill resolves — same shell-agnostic form P2-T7 settled on,
+      generalised across `plugin/skills/`; prints `MISS` per broken link:
+
+      ```bash
+      python3 -c "
+      import re,os,glob
+      bad=[]
+      for f in glob.glob('plugin/skills/*/SKILL.md'):
+          b=os.path.dirname(f)
+          for l in re.findall(r'\]\(([^)]+\.md)\)', open(f).read()):
+              t=os.path.normpath(os.path.join(b,l))
+              if not os.path.exists(t): bad.append(f+' -> '+l)
+      print('\n'.join('MISS '+x for x in bad))"
+      ```
 - [ ] `CHANGELOG.md` has a `## [2.2.0]` heading
 - [ ] Guard check clean: `./plugin/scripts/check-guards` → exit 0
 - [ ] `./plugin/scripts/test-count` passes, and `scripts/count` distinguishes a zero count from a
