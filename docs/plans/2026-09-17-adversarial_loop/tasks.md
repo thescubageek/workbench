@@ -7,7 +7,7 @@ last_updated: 2026-09-18
 assignee: scraig
 current_phase: 5
 total_tasks: 80
-completed_tasks: 69
+completed_tasks: 71
 task_tracking: markdown-checkboxes
 depends_on: [research.md, design.md]
 git_commit: 1990b40
@@ -1230,7 +1230,7 @@ Three mechanisms, each independently sufficient to produce this:
 | **Q8-2** | What is the verification step for a finding with no runnable test? | **Resolved 2026-09-18**: a six-shape taxonomy — fenced command, shell-script test case, dual grep for a contradiction, presence grep with a negative control, resolver script, and attestation where no mechanical criterion exists. Governed by FALSIFY applied to the criterion itself. All 11 open round-3 findings land in shapes 1–5. See design.md. |
 | **Q8-3** | Is the circuit breaker advisory or blocking? The plugin's model-advisory precedent is non-blocking; this one arguably should not be. | Open — blocks P8-T4 |
 | **Q8-4** | Do the thresholds hold outside this repository, where a round may revisit a file for unrelated reasons? | Open — blocks P8-T4 |
-| **Q8-5** | Is `check-guards`' shape-1 rule even well-formed? `shellcheck` does not flag `n=$(grep -c f x)` and is arguably right: a bare assignment does not mask the status, so `$?` works. The real defect is "nobody checks it" — a dataflow property, not a syntax pattern. | Open — blocks P8-T6 |
+| **Q8-5** | Is `check-guards`' shape-1 rule even well-formed? `shellcheck` does not flag `n=$(grep -c f x)` and is arguably right: a bare assignment does not mask the status, so `$?` works. The real defect is "nobody checks it" — a dataflow property, not a syntax pattern. | **Partly resolved 2026-09-18**: well-formed only as *"captured and the status never tested"*, which needs lookahead. Neither implementation does it — candidate C's single false positive is exactly that case, and `shellcheck` declines to flag a bare assignment at all, correctly. The corpus encodes a prior on the disputed case; the label is the thing to argue with. |
 
 ### Tasks
 
@@ -1284,7 +1284,7 @@ Three mechanisms, each independently sufficient to produce this:
       catch; a pinned version floor, since `-o all` behaviour moves between releases; and all
       three declaration sites (`plugin/scripts/README.md`, root `README.md`,
       `.github/workflows/checks.yml`) updated together. (~12 calls)
-- [ ] **P8-T6** — **The `check-guards` tracer bullet.** Build the labelled corpus from what three
+- [x] **P8-T6** — **The `check-guards` tracer bullet.** Build the labelled corpus from what three
       rounds bought — every MUST-FIRE and MUST-NOT-FIRE case in `test-guards` plus the six round-3
       shapes — and score three implementations against it: (A) current `check-guards`,
       (B) `shellcheck -o all` plus a fence extractor, (C) a throwaway ~50-line implementation
@@ -1293,8 +1293,8 @@ Three mechanisms, each independently sufficient to produce this:
       corpus catches, because round 3 showed all four of Phase 7's new guards were deletable with
       the suite green. Pre-register the outcomes before running it. Also answer Q8-5.
       **Stop when the two scores are in** — do not build the winner inside the spike.
-      (~26 calls)
-- [ ] **P8-T7** — Record the spike's verdict in
+      (~26 calls) (completed 2026-09-18 20:58)
+- [x] **P8-T7** — Record the spike's verdict in
       `thoughts/2026-09-18-check-guards-implementation-probe.md`, state what it **culled**, and
       raise the surviving option as a decision for the user. Do not implement it in this phase —
       the point of the escalation path is that a design decision gets decided, not absorbed into

@@ -51,6 +51,34 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-18 20:51 — P8-T2, P8-T6, P8-T7: the check-guards spike (closed)
+
+- **Task/phase**: Q8-1/Q8-2 decided and recorded; the spike pre-registered, run, and written up.
+- **Landed**: `4ed63e6` (decisions), `6153221` (pre-registration), and this one. Spike artifacts
+  under `thoughts/spike/`: a 38-case labelled corpus, a driver, a mutation runner, candidate C.
+- **Learned**:
+  - **Corpus**: A 89%, shellcheck 71%, C 97%. **Mutation**: A 50%, C 87%. Pre-registered
+    outcome "C clearly beats A on both" → rewrite. Read against the pre-registration, not
+    around it.
+  - **A's four surviving mutations are exactly the four round 3 found by hand.** An independent
+    method reproduced that result — the best evidence in the spike that the second score earns
+    its cost.
+  - **shellcheck is not wrong, it is answering a different question.** SC2312 flags every
+    masked return, so it fires on `n=$(count foo f) || exit 2` and on `[ -e "$x" ] || continue`
+    alike: 10 false positives on 15 correct files. Filtering it down to our three shapes means
+    re-implementing the policy layer, which is the part that keeps breaking. It also missed the
+    unquoted `--include` glob entirely.
+  - **Q8-5 has an uncomfortable answer.** Shape 1 is well-formed only as "captured and the
+    status never tested", which needs lookahead. Neither implementation does it; C's one false
+    positive IS that case. And I labelled the disputed case MUST-FIRE, which encodes my own
+    prior into the corpus — the label is what a reviewer should argue with, not the numbers.
+  - **Stopped at the bound.** C was not built into the shipped tool. The spike establishes the
+    approach is better; adopting it is a separate decision and it is the user's.
+  - **Sequencing corrected mid-phase**: P8-T5 originally ran before the spike, which would have
+    declared shellcheck a hard gate dependency before knowing whether it is used — the
+    commit-on-an-untested-assumption this phase exists to stop.
+- **Blocked by**: the adoption decision on candidate C, and Q8-3/Q8-4 before P8-T4.
+
 ## 2026-09-18 20:30 — round 3, the PHI fix, and Phase 8 (closed)
 
 - **Task/phase**: scoped round-3 review; the PHI fix; Phase 8 opened for the thrash problem.
