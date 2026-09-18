@@ -1039,10 +1039,16 @@ introduced.
 
 ### What round 2 established
 
-**A third of round 2's findings were created by round 1's fixes.** That is the
-`clean-certifies-a-commit-not-a-branch` rule earning its place, and it is the single most
-important thing this plan has produced: a fix phase is new unreviewed surface, and it needs the
-same review as the code it fixed. The PHI regression in particular — genericizing an employer
+**14 of round 2's 22 findings — 64% — were in surface Phase 6 created or rewrote.** (An earlier
+draft of this section said "a third". That was an unverified estimate and it understated the
+effect by half; the count is itemised in the journal entry for this phase.) The remaining 8 were
+pre-existing defects found only because round 2 was pointed where round 1 had not looked.
+
+That is the `clean-certifies-a-commit-not-a-branch` rule earning its place, and it is the single
+most important thing this plan has produced: a fix phase is new unreviewed surface, and it needs
+the same review as the code it fixed. **The corollary is the uncomfortable one** — a fix phase
+has a *higher* defect density than the code it repairs, because it is written fast, under the
+impression that the thinking is already done. The PHI regression in particular — genericizing an employer
 name out of a de-identification rule also removed the rule's matcher — is the shape to remember:
 **a safety rule that is edited for a non-safety reason still needs a safety review.**
 

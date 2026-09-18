@@ -57,10 +57,18 @@ this template, silently, from the moment of creation.
 - **Landed**: two commits. `1e818ea` restores the Member-ID matcher; `1990b40` closes the
   remaining 21 findings. Counters 46 → 68 of 72.
 - **Learned**:
-  - **Round 2 found 22 findings and four were created by Phase 6's fixes.** That is the
-    plan's most durable result: a fix phase is new unreviewed surface and needs the same
-    review as the code it fixed. It is now written into Phase 7's checkpoint as an
-    attestation rather than left as a lesson in a journal.
+  - **Round 2 found 22 findings and 14 of them — 64% — were in surface Phase 6 created or
+    rewrote.** I first wrote "four", then "a third"; both were estimates I did not count, and
+    both understated it. The itemisation: PHI regression, mktemp, Step 1's three `range=`,
+    Step 2 ignoring `$target`, the ungated `gh pr comment`, push/ready unchained, the
+    `capture_seg` walk, the GLOB_WINDOW cancel keywords, fence indent tracking, the
+    trailing-comment false positive, the `|| true` header/code mismatch, test-guards'
+    exit-code-only assertions, STYLE being unemittable, and the CI workflow's missing
+    permissions floor. The other 8 were pre-existing, found because round 2 was pointed
+    where round 1 had not looked.
+    **A fix phase has a higher defect density than the code it repairs** — written fast,
+    under the impression the thinking is already done. That is now an attestation in the
+    Phase 7 checkpoint rather than a lesson in a journal.
   - **The PHI regression is the shape to remember.** Genericizing an employer name out of a
     de-identification rule also removed the rule's matcher, and the scrub then reported clean
     on a real `BM-CA-12345678`. The edit had a non-safety motive and still needed a safety
