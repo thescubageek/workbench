@@ -51,6 +51,18 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-18 17:27 — help/README accuracy (closed)
+
+- **Task/phase**: out-of-plan, user-requested — bring wb:help and README.md up to date
+- **Landed**: help and README now cover every shipped skill and the three reference docs; P4-T5
+  filed to re-sync after Phase 3, with a runnable coverage check as a Phase 4 criterion
+- **Commits**: bce0774
+- **Learned**: help had drifted eight user-invocable skills behind, none of it caused by this
+  work. The plan had no task to update it, which is the mechanism: documentation that nothing
+  checks and no task owns falls behind silently, exactly like the review-skill references this
+  whole effort is fixing.
+- **Started at**: c2d8700
+
 ## 2026-09-18 17:24 — P2-T7 (closed)
 
 - **Task/phase**: P2-T7 — make Phase 2's invariant checks runnable, and run them

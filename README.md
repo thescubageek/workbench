@@ -123,6 +123,8 @@ Specialized agents for codebase analysis:
 
 Background capabilities that Claude automatically invokes:
 
+- **`adversarial-review`** - Assumes a change is broken and hunts for how: sizes its fan-out from what the diff touches, wraps the built-in `/code-review`, injects domain-expert lenses it lacks, and verifies every finding before reporting
+- **`doc-adherence`** - Requires a claim about a plan document to come from a read in the current context, not from memory or a summary
 - **`project-structure`** - Enforces document separation (research.md, design.md, tasks.md)
 - **`mockup-iteration`** - Iterate on UI mockups with KEEP/REMOVE/CHANGE tracking
 - **`tdd-discipline`** - Enforces RED-GREEN-REFACTOR cycle before writing production code
@@ -138,6 +140,15 @@ Background capabilities that Claude automatically invokes:
 - **`daily-digest`** - Morning "catch me up + plan my day" orchestrator across Jira, wb plans, git, and more
 - **`clip`** - Runs an instruction, then copies the result to the clipboard (cross-platform) instead of printing it
 - **`eli5-clip`** - Summarizes recent work as a warm, plain-language message for a non-technical reader and copies it to the clipboard, tailored to a named recipient
+
+### Reference docs (`plugin/docs/reference/`)
+
+Shipped, read at runtime, each the single authority for one rule. Skills link to them rather than
+restating, so a rule changes in one place instead of drifting across copies.
+
+- **`branch-naming.md`** - What the working branch is called, and when to rename it
+- **`journal-entries.md`** - Where a journal entry goes (newest at the top, never appended), its `(open)`/`(closed)` contract, and when it opens and closes
+- **`code-review-integration.md`** - What Claude Code's built-in review commands provide, and which parts of that a skill may rely on
 
 ### Hooks
 
@@ -247,13 +258,25 @@ The plugin cannot (and does not) write to your personal config — this rule is 
 
 ## Development
 
-### Linting
+### Scripts
 
 ```bash
-./plugin/scripts/lint           # Lint changed files
+./plugin/scripts/lint           # Lint changed markdown
 ./plugin/scripts/lint --fix     # Auto-fix issues
-./plugin/scripts/lint --all     # Lint all markdown files
+./plugin/scripts/lint --all     # Lint every markdown file
+
+./plugin/scripts/check-guards   # Find measurements whose failure reads as a clean result
+./plugin/scripts/test-quiet     # Contract test for scripts/quiet
 ```
+
+`check-guards` scans shipped shell and fenced `bash` blocks for three shapes whose failure is
+indistinguishable from "nothing matched": a `grep -c` captured without a status guard, an unquoted
+`--include` glob, and a `for` over a glob with no existence test. Prose and tables are not scanned,
+so a document may describe a bad pattern freely — a deliberate counter-example belongs in a `text`
+fence rather than a `bash` one.
+
+`scripts/quiet <command>` wraps any command so a green run collapses to a checkmark plus the
+runner's own summary line, while a failure dumps the full log. Exit codes pass through unchanged.
 
 ### Testing Changes
 

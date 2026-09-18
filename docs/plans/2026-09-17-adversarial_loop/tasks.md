@@ -108,7 +108,7 @@ tasks, not greps.
 | Phase 1: Tracer bullet — prove the wrapper shape | ✅ Complete | 4/4 | 100% |
 | Phase 2: Reference doc and `wb:adversarial-review` | 🔄 In Progress | 0/7 | 0% |
 | Phase 3: `wb:reply-to-claude` and `wb:adversarial-loop` | ⏸️ Not Started | 0/3 | 0% |
-| Phase 4: Repoint the ecosystem | ⏸️ Not Started | 0/4 | 0% |
+| Phase 4: Repoint the ecosystem | ⏸️ Not Started | 0/5 | 0% |
 | Phase 5: Release | ⏸️ Not Started | 0/6 | 0% |
 
 Counts come from the checkboxes below and are reconciled by `/wb:update_status`.
@@ -559,6 +559,17 @@ that give a review phase a model baseline.
       `review-reef`, and add gate-mode rows for the review and PR-loop phases to the table at
       `:94-103`, matching its four columns exactly (`wb phase`, `Main-session baseline`, `Why`,
       `Cheap work → sub-agents`). (~17 calls)
+*Order note: P4-T5 sits before P4-T4 deliberately. Tasks run in document order, and the
+dangling-reference sweep has to be the last thing in the phase or it will not cover the
+documentation change that precedes it. The IDs are left as filed rather than renumbered, since
+P4-T5 is already cited by commit.*
+
+- [ ] **P4-T5** — Re-sync `plugin/skills/help/SKILL.md` and `README.md` so both cover
+      `adversarial-loop` and `reply-to-claude` once Phase 3 has created them. The audit and the
+      backfill for everything *else* was done 2026-09-18 — help was missing nine user-invocable
+      skills, eight of them predating this work, and neither file mentioned the shipped reference
+      docs. Run the same coverage check that found it: every user-invocable skill appears in help,
+      every skill appears in README, and **nothing names a skill that does not exist**. (~12 calls)
 - [ ] **P4-T4** — Run a dangling-reference sweep across the whole plugin and fix anything it
       finds: no shipped file may name a skill directory that does not exist. (~12 calls)
 
@@ -572,6 +583,20 @@ that give a review phase a model baseline.
       `grep -rhoE '`(adversarial-review|adversarial-loop|reply-to-claude)`' plugin/skills/daily-digest plugin/skills/model-help plugin/skills/review-prep | tr -d '`' | sort -u | while read s; do test -d "plugin/skills/$s" || echo "MISS $s"; done` → no output
 - [ ] `model-help`'s gate table gained rows: `grep -c '^|`adversarial' plugin/skills/model-help/SKILL.md` → ≥1
 - [ ] Lint clean: `./plugin/scripts/lint plugin/skills/review-prep plugin/skills/daily-digest plugin/skills/model-help`
+- [ ] Docs cover every shipped skill and name no absent one — prints the gaps, nothing when clean:
+
+      ```bash
+      python3 -c "
+      import os,glob
+      h=open('plugin/skills/help/SKILL.md').read(); r=open('README.md').read()
+      for f in sorted(glob.glob('plugin/skills/*/SKILL.md')):
+          n=os.path.basename(os.path.dirname(f)); fm=open(f).read().split('---')[1]
+          if 'disable-model-invocation: true' in fm: continue
+          if 'user-invocable: false' not in fm and n not in h: print('MISSING from help:',n)
+          if n not in r: print('MISSING from README:',n)
+      for ghost in ('review-reef','review-strict','pr-feedback'):
+          if ghost in h or ghost in r: print('NAMES ABSENT SKILL:',ghost)"
+      ```
 
 #### Manual Verification
 
