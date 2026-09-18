@@ -284,12 +284,12 @@ does-not-apply list, then exact one-line report shapes.
 
 #### Reference doc first — the skill links it, and a missing directed read halts rather than degrades
 
-- [ ] **P2-T1** — Write `plugin/docs/reference/code-review-integration.md`: published effort
+- [x] **P2-T1** — Write `plugin/docs/reference/code-review-integration.md`: published effort
       semantics; the `ReportFindings` field contract including `verdict` and the
       `fixed`/`skipped`/`no_change_needed` lifecycle; the `/verify` chaining relationship and its
       pre-ship exemptions; the model-family observation demoted to prompt-cell selection with its
       `Check it` command and the note that it did not predict observed breadth. Follow
-      `branch-naming.md`'s skeleton. (~26 calls)
+      `branch-naming.md`'s skeleton. (~26 calls) (completed 2026-09-18 00:09)
 
 #### Supporting files before the SKILL.md that directs reads into them
 
@@ -724,6 +724,12 @@ Note: Update this section with findings as you implement.
 Recorded here with the task ID they block and the date raised. Remove a blocker when it is
 resolved, leaving a dated line saying how.
 
+- **[2026-09-18] P2-T1 — the reference doc's own `Check it` command failed on first write.**
+  It matched `Phase 2 . (Verify|Dedup)`, but `strings` emits the em-dash as the literal
+  seven-character sequence `\u2014`, so `.` matched nothing and the check silently returned
+  clean. Rewritten to match on the distinctive headings' tails, which is encoding-independent,
+  and verified to both return the expected four lines and go silent when the trigger line is
+  absent. The failure is recorded in the doc itself so the next person does not rediscover it.
 - **[2026-09-17] Out-of-plan fix, at the user's request: B1 and the silent-measurement class.**
   Both in `daily-digest/sources.md`. B1 is described in Blockers above. The second is the class
   the P1-T3 probe found in itself: `grep -cE` on a possibly-absent file, with an unguarded glob,

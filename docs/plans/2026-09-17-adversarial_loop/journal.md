@@ -51,6 +51,18 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-18 00:08 — P2-T1 (closed)
+
+- **Task/phase**: P2-T1 — write plugin/docs/reference/code-review-integration.md
+- **Landed**: plugin/docs/reference/code-review-integration.md — rely-on/do-not-rely-on split,
+  ReportFindings contract, /verify chaining, and the model-family table demoted to a dated
+  observation with a working `Check it`
+- **Commits**: bd654e7
+- **Learned**: my own `Check it` command was unfirable on first write — `strings` emits the
+  em-dash as the literal `\u2014`, so matching it with `.` returned nothing and read as clean.
+  Every check in a reference doc needs running before the doc is committed.
+- **Started at**: 17e3fba
+
 ## 2026-09-17 23:57 — P1-T4 (closed)
 
 - **Task/phase**: P1-T4 — close out the probe document and delete the fixture
