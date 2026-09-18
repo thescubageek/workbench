@@ -62,6 +62,14 @@ checks are about whether the file can actually carry that role.
 - ✅ tasks.md status agrees with its own checkboxes: `not-started` with any `[x]`, or `complete` with any `[ ]`, is a contradiction
 - ✅ All files have same `last_updated` date (or close)
 
+**Not mechanised, by design.** These are read by a human or by the model running the skill, and
+are marked here so a reader does not mistake the absence of a rule for the absence of a check:
+"tasks.md has a section stating where status lives", "every task line is a checkbox rather than
+prose" (the rules derive task lines *from* the checkbox shape, so prose tasks are structurally
+invisible to them), the `(completed …)` stamp, the checkpoint-label block, and the `A1` /
+`Validated?` columns in design.md. Everything else in this document has a counterpart in
+`validation-rules.md`.
+
 ## 5. Content Completeness
 
 - ✅ No placeholder text like `[To be added]`, `[TBD]`, `[TODO]`

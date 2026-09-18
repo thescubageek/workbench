@@ -81,22 +81,45 @@ finding that is wrong is common enough that applying them unexamined introduces 
 
 ## Step 4: Write the reply to a file, then post it
 
+**Three steps, three separate tool calls.** They cannot be one block: the Write happens between
+the first and the third, and a Bash call does not inherit variables from the previous one.
+
+**4a — mint the path and print it.**
+
 ```bash
-REPO=$(gh repo view --json nameWithOwner --jq .nameWithOwner) || exit 1
 PR=$(gh pr view --json number --jq .number) || exit 1
-body=$(mktemp "${TMPDIR:-/tmp}/reply-pr${PR}.XXXXXX.md")
-echo "$body"          # compose into THIS path, then:
-gh pr comment "$PR" --body-file "$body"
+body=$(mktemp "${TMPDIR:-/tmp}/reply-pr${PR}-XXXXXX") || exit 1
+mv "$body" "$body.md" && body="$body.md"
+echo "$body"
 ```
+
+**4b — compose into exactly that path**, with the Write tool, using the path 4a printed.
+
+**4c — post it**, passing the same literal path (not a variable — the shell from 4a is gone):
+
+```bash
+PR=$(gh pr view --json number --jq .number) || exit 1
+gh pr comment "$PR" --body-file "<the path 4a printed>"
+```
+
+⛔ **The `X`s must be trailing.** `mktemp "…/reply-pr25.XXXXXX.md"` looks right and is not:
+BSD `mktemp` only substitutes a trailing run of `X`, so a suffix after them makes the whole
+template **literal**. It returns `reply-pr25.XXXXXX.md` — a fixed path with zero entropy, which
+is the hazard below — and on the second call fails with `mkstemp failed … File exists`. That is
+why the `.md` is appended by `mv` rather than written into the template, and why the assignment
+is guarded.
 
 Compose the body with the Write tool rather than a shell heredoc — backticks, `$`, and quotes in
 a code-heavy reply get mangled by the shell, and the mangling is silent.
 
-**Use the path `mktemp` just returned, never a fixed one.** A fixed `/tmp/reply.md` survives
-between runs: if the compose step is declined or errors, `gh pr comment` happily posts the file a
-*previous* run left there — another pull request's rejected-finding writeups, published under your
-identity and prefixed `@claude` so it re-summons the bot. The failure is that the command
-succeeds.
+**Use the path 4a returned, never a fixed one.** A fixed `/tmp/reply.md` survives between runs:
+if the compose step is declined or errors, `gh pr comment` happily posts the file a *previous* run
+left there — another pull request's rejected-finding writeups, published under your identity and
+prefixed `@claude` so it re-summons the bot. The failure is that the command succeeds.
+
+**Posting is an outward-facing state change. Confirm it with the user before 4c**, the same way
+`adversarial-loop` gates its push and its label — a public comment under your identity is the same
+kind of act.
 
 The body:
 
@@ -112,6 +135,10 @@ The body:
 **Rejected remedy, finding accepted**
 - <finding> — real, but <why the suggested fix was wrong>; did <what> instead
 
+**Noted, not built** — the *Over-fitted* disposition
+- <finding> — the mechanism holds, but <the state that would trigger it> is unreachable
+  <because …>; noted rather than defended against
+
 **Deferred**
 - <finding> — <why it is out of scope here, and where it is tracked>
 ```
@@ -120,6 +147,11 @@ Three rules for the body:
 
 - **The leading `@claude` re-summons the bot.** Omit it and the reply is a comment nobody reads.
 - **Every finding it raised gets a line.** A finding you silently skip reads as one you missed.
+  There is a bucket for each of the five dispositions, so no finding has to be forced into the
+  wrong one: *Valid*→Fixed, *Wrong*→Rejected, *Real but disproportionate*→Rejected remedy,
+  *Over-fitted*→Noted not built, *Pre-existing*→Deferred. **Do not file an Over-fitted finding
+  under Rejected** — Rejected owes a `file:line` that disproves the mechanism, and for this
+  disposition the mechanism holds, so the only way to fill that field is to invent one.
 - **State the pushback plainly.** "This does not hold because `parser.py:88` already rejects that
   input" is useful to a reader; "not applicable" is not. If a suggested fix would have broken
   something, say what, and say how you confirmed it.

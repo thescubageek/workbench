@@ -170,7 +170,7 @@ workbench/
 │   ├── skills/             # workflow stages (/wb:*) and background skills
 │   ├── agents/             # specialized subagents
 │   ├── hooks/              # event handlers
-│   ├── scripts/            # utility scripts (lint)
+│   ├── scripts/            # lint, the guards, and `check` which runs them all
 │   └── docs/reference/     # shipped, runtime-referenced docs
 └── docs/                   # maintainer-facing; never shipped
 ```
@@ -263,15 +263,23 @@ The plugin cannot (and does not) write to your personal config — this rule is 
 ### Scripts
 
 ```bash
+./plugin/scripts/check          # Every gate, in one command — this is what CI runs
+
 ./plugin/scripts/lint           # Lint changed markdown
 ./plugin/scripts/lint --fix     # Auto-fix issues
 ./plugin/scripts/lint --all     # Lint every markdown file
 
 ./plugin/scripts/check-guards   # Find measurements whose failure reads as a clean result
 ./plugin/scripts/count          # A match count whose failure is distinguishable from zero
+./plugin/scripts/test-guards    # Contract test for scripts/check-guards
 ./plugin/scripts/test-quiet     # Contract test for scripts/quiet
 ./plugin/scripts/test-count     # Contract test for scripts/count
 ```
+
+**Run `check` before a release.** It runs every gate above, does not stop at the first failure,
+and is what `.github/workflows/checks.yml` invokes on push and on every pull request. The guards
+shipped once with nothing invoking them, which is the same defect one level up: a check that never
+runs and a check that always passes look identical from outside.
 
 `scripts/count <regex> <file>` exists because `grep -c` prints `0` and exits 1 on no match, and
 exits 2 while printing nothing on error — so captured in a command substitution, "nothing matched"
@@ -287,6 +295,10 @@ indistinguishable from "nothing matched": a `grep -c` captured without a status 
 `--include` glob, and a `for` over a glob with no existence test. Prose and tables are not scanned,
 so a document may describe a bad pattern freely — a deliberate counter-example belongs in a `text`
 fence rather than a `bash` one.
+
+`scripts/test-guards` is the contract test for that checker, in both directions — each shape must
+fire, each correct form must not. It exists because `check-guards` has been an instance of the
+class it hunts more than once, and a check observed only passing is a check nobody has tested.
 
 `scripts/quiet <command>` wraps any command so a green run collapses to a checkmark plus the
 runner's own summary line, while a failure dumps the full log. Exit codes pass through unchanged.

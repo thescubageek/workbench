@@ -75,6 +75,7 @@ each time, and a confirmation for one is not a confirmation for the next:
 | ------ | ----- | ------------ |
 | `git push` | Phase 2, Phase 4 | It puts unreviewed commits somewhere other people read |
 | `gh pr ready` | Phase 2 | Un-drafting is publishing. It summons `claude[bot]`, fires every `ready_for_review` workflow in the repository, and Phase 2 itself says not to undo it |
+| `gh pr comment` | Phase 4, via `reply-to-claude` | A public comment under your identity, prefixed `@claude` so it re-summons the bot and consumes review CI. Its body is composed from bot-relayed diff and pull-request text |
 | `gh pr edit --add-label` | Phase 5 | A label is an assertion about the change, and in some repositories it is an input to automation |
 | any force-update of a remote ref | anywhere | It destroys history someone else may hold |
 
@@ -122,7 +123,22 @@ candidates.
 
 ### The gate, and what "clean" certifies
 
-Stop when a pass returns **no CONFIRMED findings in the diff**.
+Stop when a pass returns **no finding you have adjudicated `Valid`, in the diff**.
+
+**Read that carefully — the gate is about dispositions, not verdicts.** `CONFIRMED` is the
+*reviewer's* label and step 2 above exists precisely to test it; gating on it would mean the
+loop never clears a finding it has correctly refuted (the finding returns every round, still
+labelled CONFIRMED), and would let a `PLAUSIBLE` finding you adjudicated `Valid` through unfixed.
+The mapping, once:
+
+| Reviewer verdict | What you do with it | Does it hold the gate? |
+| ---------------- | ------------------- | ---------------------- |
+| `CONFIRMED` / `PLAUSIBLE` | adjudicate it — one of the five dispositions | only if you adjudicate it **Valid** |
+| `REFUTED` | already dropped by the review | no |
+
+A finding adjudicated `Wrong`, `Over-fitted`, `Real but disproportionate` (once the smaller change
+lands) or `Pre-existing` does not hold the gate. **Record the disposition and its evidence**, so
+the same finding next round is resolved from the record rather than re-argued.
 
 **"Clean" describes a tree state, not the branch.** A clean pass certifies the commit it read. If
 you then change anything — including acting on that same pass's non-blocking notes — the branch is
@@ -142,9 +158,17 @@ not inherit variables from the previous one:
 
 ```bash
 PR=$(gh pr view --json number --jq .number) || { echo "no PR for this branch" >&2; exit 1; }
-git push
-gh pr ready "$PR"
+git push && gh pr ready "$PR"
 ```
+
+⛔ **Chained, not sequential.** Written as two statements, a failed push still un-drafts — and
+un-drafting against a stale head summons `claude[bot]` to review code without the round's fixes,
+fires every `ready_for_review` workflow, and cannot be undone because this phase forbids
+re-drafting. A fix round that amends or rebases makes a non-fast-forward push the likely failure,
+which is exactly the case the prohibitions above say to surface rather than force.
+
+**If the push fails, stop and surface it.** Do not force, do not re-run with a flag; say what the
+remote state is and let the user decide.
 
 Un-drafting is what summons `claude[bot]`. Do not re-draft afterwards.
 
@@ -161,8 +185,10 @@ not an authority.
 1. **Verify each finding against real source**, not memory. When one turns on a library's
    behaviour, read the installed version of that library.
 2. Fix what holds. **Confirm, then push.**
-3. Invoke `reply-to-claude`. The reply maps one-to-one to the findings and states the pushback
-   explicitly — which were rejected, why, and what was verified. A leading `@claude` re-summons it.
+3. **Confirm, then** invoke `reply-to-claude`. The reply maps one-to-one to the findings and
+   states the pushback explicitly — which were rejected, why, and what was verified. A leading
+   `@claude` re-summons it. Posting is publishing: it is in the table above, and each round is a
+   separate confirmation.
 4. Repeat until it reports nothing outstanding.
 
 **Reply for findings, not for every push.** A green-CI fix the bot never raised does not need its

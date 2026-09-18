@@ -10,19 +10,19 @@ Lints markdown files using markdownlint.
 
 ```bash
 # Lint only changed markdown files (default)
-./scripts/lint
+./plugin/scripts/lint
 
 # Auto-fix issues in changed files
-./scripts/lint --fix
+./plugin/scripts/lint --fix
 
 # Lint all markdown files in the project
-./scripts/lint --all
+./plugin/scripts/lint --all
 
 # Auto-fix all markdown files
-./scripts/lint --all --fix
+./plugin/scripts/lint --all --fix
 
 # Show help
-./scripts/lint --help
+./plugin/scripts/lint --help
 ```
 
 **Features:**
@@ -63,11 +63,11 @@ lost. The wrapped command's exit code is always passed through unchanged.
 
 ```bash
 # Green run -> one checkmark + summary line; full output suppressed to a tmpfile
-./scripts/quiet pytest -q
-./scripts/quiet make test
+./plugin/scripts/quiet pytest -q
+./plugin/scripts/quiet make test
 
 # Red run -> full output is printed verbatim, original exit code preserved
-./scripts/quiet go test ./...
+./plugin/scripts/quiet go test ./...
 ```
 
 **Features:**
@@ -81,7 +81,7 @@ lost. The wrapped command's exit code is always passed through unchanged.
 **Verify the contract:**
 
 ```bash
-./scripts/test-quiet
+./plugin/scripts/test-quiet
 ```
 
 ### `test-quiet`
@@ -154,9 +154,14 @@ times in this repository's history.
 A match count whose failure is distinguishable from zero.
 
 ```bash
-n=$(count 'pattern' file.txt) || handle_failure
-n=$(count --lines file.txt)   || handle_failure
+n=$(./plugin/scripts/count 'pattern' file.txt) || handle_failure
+n=$(./plugin/scripts/count --lines file.txt)   || handle_failure
 ```
+
+Inside a shipped skill, reference it as `${CLAUDE_PLUGIN_ROOT}/scripts/count`. It is not on
+`PATH`: written as a bare `count`, the command is not found, the substitution fails, and the
+`|| handle_failure` branch is taken every time — which would make the one script whose purpose
+is a trustworthy count always report failure.
 
 - **exit 0** — the count is on stdout and is trustworthy, including `0`
 - **exit 2** — the count could not be taken; stdout is empty, reason on stderr

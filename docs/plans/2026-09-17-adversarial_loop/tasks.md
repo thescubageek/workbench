@@ -1030,6 +1030,150 @@ manual steps nobody performed, and the confirmation is **deferred, not obtained.
 
 ---
 
+## Phase 7: Close round 2
+
+### Objective
+
+Close the findings the second dogfood review raised, including the four that Phase 6's own fixes
+introduced.
+
+### What round 2 established
+
+**A third of round 2's findings were created by round 1's fixes.** That is the
+`clean-certifies-a-commit-not-a-branch` rule earning its place, and it is the single most
+important thing this plan has produced: a fix phase is new unreviewed surface, and it needs the
+same review as the code it fixed. The PHI regression in particular — genericizing an employer
+name out of a de-identification rule also removed the rule's matcher — is the shape to remember:
+**a safety rule that is edited for a non-safety reason still needs a safety review.**
+
+Landed already, ahead of this phase, because it was a live safety defect:
+`1e818ea` restores the Member-ID matcher.
+
+### Prerequisites
+
+- [x] Phase 6 complete
+- [x] Round 2 review run and its findings recorded
+- [x] PHI regression fixed and verified — `1e818ea`
+
+### Tasks
+
+- [ ] **P7-T1** — `reply-to-claude`: `mktemp` must use a **trailing** `X` template. Non-trailing
+      X's make the template literal on BSD, so the fix for the fixed-path hazard reproduced the
+      hazard and then failed on the second call with `$body` empty and unguarded. Guard the
+      assignment, and make the compose step a separate, clearly-marked step so the path survives
+      it. (~10 calls)
+- [ ] **P7-T2** — `adversarial-review` Step 1: make target resolution a real branch, not three
+      sequential assignments distinguished only by comments. Fenced `bash` is executed here by
+      this repository's own doctrine. (~9 calls)
+- [ ] **P7-T3** — `adversarial-loop` Phase 2: chain `git push` and `gh pr ready` so a failed push
+      cannot un-draft against a stale head, and say what to do when the push fails. (~7 calls)
+- [ ] **P7-T4** — Add `gh pr comment` to the *What stops for the user* table and gate it where
+      `reply-to-claude` is invoked. Publishing a comment is an outward-facing state change by the
+      table's own definition. (~8 calls)
+- [ ] **P7-T5** — `adversarial-review` Step 2: resolve the base ref from `$target`, not from the
+      current branch and `HEAD`. Add the missing fourth outcome — *read from the wrong branch* —
+      and record that a stacked PR's base is author-controlled, which bounds what the `REVIEW.md`
+      carve-out can claim. (~12 calls)
+- [ ] **P7-T6** — `check-guards`: fail loudly when a target path does not exist or `find` errors.
+      Scanning zero files currently prints the success line and exits 0. (~8 calls)
+- [ ] **P7-T7** — `check-guards`: fix the guard-segment extraction. `${text#*grep}` cuts at the
+      first literal `grep`, which may be inside a string, and the segment is unbounded when no
+      `)` follows — so a guarded capture elsewhere on the line excuses an unguarded one.
+      (~11 calls)
+- [ ] **P7-T8** — `check-guards`: anchor the glob-window cancel keywords. They are substrings
+      matched anywhere on a body line, so `echo -e` silences the check on a genuinely unguarded
+      loop. (~9 calls)
+- [ ] **P7-T9** — `check-guards`: handle real CommonMark fences — an info string after the
+      language, a closing fence at a different indent from its opener, an unclosed fence, and
+      `sh`/`shell` as well as `bash`. All latent today; none prevented by anything. (~13 calls)
+- [ ] **P7-T10** — `check-guards`: stop reporting a trailing comment that mentions `grep -c`
+      beside a correct `count` call. The gate currently fires on the documentation of its own
+      remediation. (~8 calls)
+- [ ] **P7-T11** — `check-guards`: reconcile the header with the code. The header calls
+      `|| true` with `${n:-0}` "NOT a fix" while the guard arms accept it, and two instances ship.
+      Decide which is true and make both say it. (~8 calls)
+- [ ] **P7-T12** — `test-guards`: assert **what fired**, not just the exit code. Breaking the
+      fence scanner currently leaves the suite 19/19 green while the checker flags English prose.
+      Add a fence-termination fixture, which nothing covers. (~13 calls)
+- [ ] **P7-T13** — `validate_project` rules: scope the counter regex to task IDs. It counts every
+      checkbox, so on this repo's own plan it computes 114/149 against the correct 46/50 and
+      instructs the user to overwrite accurate counters. (~9 calls)
+- [ ] **P7-T14** — `validate_project` rules: iterate `requiredFields.tasks` (declared, never
+      used), and guard the `journal.md` read, which is documented optional and called
+      unconditionally. (~9 calls)
+- [ ] **P7-T15** — Reconcile the two `validate_project` authority files in the *other* direction:
+      implement the cheap unimplemented checklist items, and mark honestly any that are
+      deliberately not mechanised. A checklist item with no rule is a check nobody runs.
+      (~12 calls)
+- [ ] **P7-T16** — State the verdict→disposition mapping. The loop's gate keys on `CONFIRMED`
+      while the step above it assigns dispositions, so a refuted finding can loop forever and a
+      PLAUSIBLE-but-Valid finding passes unfixed. (~10 calls)
+- [ ] **P7-T17** — Give `reply-to-claude` a bucket for `Over-fitted`. Four buckets for five
+      dispositions, in a skill whose rule is that every finding gets a line. (~7 calls)
+- [ ] **P7-T18** — Give `STYLE` an emission channel or remove it. It is currently defined and
+      unemittable: not in the `ReportFindings` enum, no restatement glyph, not named by the drop
+      rule. (~9 calls)
+- [ ] **P7-T19** — Root `README.md`: add `check` and `test-guards`. The aggregate gate that is
+      this release's headline is undiscoverable from the repo's front door. (~7 calls)
+- [ ] **P7-T20** — `plugin/scripts/README.md`: fix the four pre-existing sections that document a
+      `./scripts/` path which does not exist, and `count`'s invocation, which as written always
+      takes the failure branch. (~8 calls)
+- [ ] **P7-T21** — `.github/workflows/checks.yml`: add a `permissions: contents: read` floor and
+      pin `markdownlint-cli`. The floor is one line and removes the repo's dependence on an
+      org-level setting; the pin stops an upstream rule addition turning CI red on a PR that
+      changed nothing. (~8 calls)
+- [ ] **P7-T22** — Add `ReportFindings` to `adversarial-review`'s `allowed-tools`, since Step 7
+      requires emitting it. Harmless if the field is advisory; necessary if it is enforced.
+      (~5 calls)
+
+### Success Criteria
+
+#### Automated Verification
+
+- [ ] `./plugin/scripts/check` passes
+- [ ] `check-guards` exits non-zero on a nonexistent path
+- [ ] `test-guards` asserts the reported pattern, and fails when the fence scanner is broken
+- [ ] `validate_project`'s counter rule agrees with the ID-scoped count on this plan
+- [ ] Every `bash` block in the three review skills is executable as written — one command path,
+      no assignment that a later line silently overwrites
+- [ ] `mktemp` in `reply-to-claude` returns a unique path on this platform, twice running
+
+#### Manual Verification
+
+- [ ] The PHI guardrail has been re-read by a human, against the pre-Phase-6 version
+- [ ] A human agrees the verdict→disposition mapping is stated where both readers will find it
+
+### ⛔ CHECKPOINT: Phase 7 Complete
+
+These are the conditions to meet before the next phase — **not a record of having met them.**
+Tick each one as it is actually satisfied.
+
+Each box below is labelled **(derivable)** or **(attestation)**. A derivable condition is one a
+tool can establish, and `/wb:implement` ticks those at its Step 8 checkpoint. An attestation
+records that a *person* looked, so only a person ticks it, and an unticked attestation beside
+finished work means *"done, sign-off pending"* rather than a contradiction.
+
+**Go by the label, never by position** — a positional reading of these boxes has been wrong
+before, and following it ticks the human sign-off box. **This block, labels and this sentence
+included, is repeated in full at every phase's checkpoint**; a later phase never gets a
+shortened one.
+
+- [ ] **(derivable)** Every Phase 7 checkbox is `[x]`
+- [ ] **(derivable)** All automated verification passing
+- [ ] **(attestation)** Manual verification confirmed by human
+- [ ] **(attestation)** A round 3 review has been **explicitly approved by the user**. Round 2
+      found that a third of its findings were created by round 1's fixes; this phase is the same
+      kind of surface, and assuming it is clean is the mistake the plan exists to prevent
+- [ ] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
+      only writer of those fields, so do not edit `current_phase` or `completed_tasks` by hand
+
+**Do not proceed without human confirmation of manual tests** — unless the phase is being run
+under `/wb:implement --auto`, which buys the wait and not the attestation. In that case the
+attestation stays `[ ]`, the checkpoint records that the phase closed unattended and names the
+manual steps nobody performed, and the confirmation is **deferred, not obtained.**
+
+---
+
 ## Implementation Discoveries
 
 Things to determine during implementation:

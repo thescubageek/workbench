@@ -68,7 +68,8 @@ not render tool output:
 🟡 app/items.py:7 — widened allowlist admits owner_id, reachable only via the bulk path
 ```
 
-`🔴` for CONFIRMED, `🟡` for PLAUSIBLE.
+`🔴` for CONFIRMED, `🟡` for PLAUSIBLE. There is no third glyph: `REFUTED` is dropped and
+`STYLE` goes in *Checked and clear*, per [reference.md](reference.md).
 
 **This is a documented deviation, not a reading of the rule.** `ReportFindings` says plainly: call
 it once and *do not also print the findings as text*. wb prints one line per finding anyway,

@@ -20,6 +20,11 @@ Run each pasted finding through the verifier and return a verdict per finding:
   disproves it.
 - **STYLE** — real, but not worth the change.
 
+**`STYLE` has no `ReportFindings` channel, and that is deliberate.** The tool's `verdict` enum is
+`CONFIRMED | PLAUSIBLE` only. A finding adjudicated `STYLE` is therefore **not emitted as a
+finding**: report it as one line under *Checked and clear*, phrased as what holds and what the
+nit is. Emitting it with a lowered verdict would misrepresent it as a defect that was verified.
+
 **One vocabulary, everywhere.** The verifier in `prompts.md` returns exactly the first three, and
 `SKILL.md` Step 6 keeps the first two and drops `REFUTED`. `STYLE` is the one addition, and it is
 **reporting-only** — a verifier never returns it, because "not worth the change" is a judgement
