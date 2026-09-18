@@ -50,6 +50,17 @@ MUTATIONS = [
      "    if pending_glob is not None:\n        found.append", "    if False:\n        found.append"),
     ('delete the missing-target refusal',
      "        if not os.path.exists(t):", "        if False:"),
+    # These four target the integrity layer rather than a detector. Each was a KNOWN
+    # survivor before the layer existed — `scanned += 2` reported 284 files with every
+    # other check green, and `EXEMPT = set()` deleted the self-exemption unnoticed.
+    ('inflate the scanned-file count',
+     "            scanned += 1", "            scanned += 2"),
+    ('delete the by-name exemptions',
+     "EXEMPT = {'check-guards', 'test-guards'}", "EXEMPT = set()"),
+    ('stop following nested symlinks',
+     "os.walk(t, followlinks=True)", "os.walk(t, followlinks=False)"),
+    ('silently skip an unreadable file',
+     "                raise SystemExit(2)", "                continue"),
     ('lose the status-test lookahead',
      "            if nxt is not None and STATUS_TEST.search(strip_comment(texts[nxt])):",
      "            if False:"),
@@ -116,41 +127,98 @@ def run_corpus(impl):
 
 
 def run_integrity(impl):
-    """Properties the corpus structurally cannot test, because every corpus case
-    materialises a real directory with real content. Without these, a mutation deleting
-    the missing-target refusal survives — and a check that silently scans nothing is the
-    exact defect class this tool exists to catch."""
+    """Properties the corpus structurally cannot test.
+
+    Derived from the tool's own output rather than reactively from what happened to be
+    found: **every string check-guards prints that is not a finding is a claim about
+    itself, and each claim needs an assertion that can fail.** Enumerating them once is
+    what stops this list growing one entry per discovered gap.
+    """
     checks = []
 
-    r = subprocess.run([sys.executable, impl, '/tmp/no-such-path-for-test-guards'],
-                       capture_output=True, text=True)
-    checks.append(('a missing target exits 2', r.returncode == 2))
+    def run(*args):
+        return subprocess.run([sys.executable, impl, *args], capture_output=True, text=True)
 
+    # CLAIM: "no such path" -> exit 2
+    checks.append(('a missing target exits 2',
+                   run('/tmp/no-such-path-for-test-guards').returncode == 2))
+
+    # CLAIM: nothing to scan is not a failure
     d = tempfile.mkdtemp()
     try:
-        r = subprocess.run([sys.executable, impl, d], capture_output=True, text=True)
-        checks.append(('an empty directory exits 0, not a hard fail', r.returncode == 0))
+        checks.append(('an empty directory exits 0, not a hard fail', run(d).returncode == 0))
     finally:
         shutil.rmtree(d, ignore_errors=True)
 
     d = tempfile.mkdtemp()
     try:
         open(os.path.join(d, 'notes.txt'), 'w').write('nothing scannable here\n')
-        r = subprocess.run([sys.executable, impl, d], capture_output=True, text=True)
-        checks.append(('a directory with no shell or markdown exits 0', r.returncode == 0))
+        checks.append(('a directory with no shell or markdown exits 0', run(d).returncode == 0))
     finally:
         shutil.rmtree(d, ignore_errors=True)
 
+    # CLAIM: "N files scanned". Unasserted, the number can be anything — a mutation
+    # doubling it reported 284 with every other check green.
     d = tempfile.mkdtemp()
     try:
-        real = os.path.join(d, 'real')
-        os.makedirs(os.path.join(real, 'scripts'))
-        open(os.path.join(real, 'scripts', 'a.sh'), 'w').write(
+        os.makedirs(os.path.join(d, 'scripts'))
+        for name in ('a.sh', 'b.sh'):
+            open(os.path.join(d, name), 'w').write('#!/usr/bin/env bash\necho ok\n')
+        open(os.path.join(d, 'doc.md'), 'w').write('prose only\n')
+        open(os.path.join(d, 'scripts', 'tool'), 'w').write('#!/usr/bin/env bash\necho ok\n')
+        open(os.path.join(d, 'data.json'), 'w').write('{}\n')       # not scannable
+        open(os.path.join(d, 'notes.txt'), 'w').write('text\n')      # not scannable
+        r = run(d)
+        m = re.search(r'\((\d+) files scanned\)', r.stdout)
+        checks.append(('the reported file count is the real one (4)',
+                       bool(m) and int(m.group(1)) == 4))
+    finally:
+        shutil.rmtree(d, ignore_errors=True)
+
+    # CLAIM: the by-name exemptions hold. PAIRED — asserting only that the exempt file is
+    # silent passes when the tool reports nothing at all, which is the failure being guarded.
+    d = tempfile.mkdtemp()
+    try:
+        os.makedirs(os.path.join(d, 'scripts'))
+        defect = '#!/usr/bin/env bash\nn=$(grep -c foo f.txt)\necho "$n"\n'
+        open(os.path.join(d, 'scripts', 'check-guards'), 'w').write(defect)
+        r_exempt = run(d)
+        open(os.path.join(d, 'scripts', 'other.sh'), 'w').write(defect)
+        r_both = run(d)
+        checks.append(('an exempt file with a defect is not reported', r_exempt.returncode == 0))
+        checks.append(('...but the same content elsewhere IS', r_both.returncode == 1))
+    finally:
+        shutil.rmtree(d, ignore_errors=True)
+
+    # CLAIM: a symlinked directory is followed. The previous form symlinked the top-level
+    # walk argument, which os.walk follows regardless of followlinks — so it asserted
+    # nothing. The symlink has to be INSIDE the tree.
+    d = tempfile.mkdtemp()
+    try:
+        real = os.path.join(d, 'real', 'scripts')
+        os.makedirs(real)
+        open(os.path.join(real, 'a.sh'), 'w').write(
             '#!/usr/bin/env bash\nn=$(grep -c foo f.txt)\necho "$n"\n')
-        link = os.path.join(d, 'link')
-        os.symlink(real, link)
-        r = subprocess.run([sys.executable, impl, link], capture_output=True, text=True)
-        checks.append(('a symlinked directory is followed, not refused', r.returncode == 1))
+        top = os.path.join(d, 'top')
+        os.makedirs(top)
+        os.symlink(os.path.join(d, 'real'), os.path.join(top, 'linked'))
+        checks.append(('a symlink nested in the tree is followed', run(top).returncode == 1))
+    finally:
+        shutil.rmtree(d, ignore_errors=True)
+
+    # CLAIM: an unreadable file is not silently skipped.
+    d = tempfile.mkdtemp()
+    try:
+        os.makedirs(os.path.join(d, 'scripts'))
+        locked = os.path.join(d, 'scripts', 'locked.sh')
+        open(locked, 'w').write('#!/usr/bin/env bash\necho ok\n')
+        os.chmod(locked, 0o000)
+        if os.access(locked, os.R_OK):
+            print('  ⊘ an unreadable file exits 2 (skipped: chmod 000 not honoured here)')
+        else:
+            checks.append(('an unreadable file exits 2, not silently skipped',
+                           run(d).returncode == 2))
+        os.chmod(locked, 0o644)
     finally:
         shutil.rmtree(d, ignore_errors=True)
 
