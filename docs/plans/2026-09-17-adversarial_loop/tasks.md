@@ -455,11 +455,11 @@ to the built-in `/verify`. Creating a PR stays out of scope.
 
 ### Tasks
 
-- [ ] **P3-T1** — Write `plugin/skills/reply-to-claude/SKILL.md`: derive the repository from
+- [x] **P3-T1** — Write `plugin/skills/reply-to-claude/SKILL.md`: derive the repository from
       `gh repo view`; compose an `@claude`-prefixed comment mapping 1:1 to the bot's findings,
       stating explicitly which were rejected, why, and what was verified against real source;
       post with `gh pr comment --body-file` to avoid heredoc mangling. No reef-specific content.
-      (~22 calls)
+      (~22 calls) (completed 2026-09-18 17:39)
 - [ ] **P3-T2** — Write `plugin/skills/adversarial-loop/SKILL.md`: the local core (review →
       adjudicate → fix → `/verify` → re-review until clean) with a reviewable diff as its only
       universal precondition; the PR phases gated on a PR already existing, with `gh`, `Monitor`

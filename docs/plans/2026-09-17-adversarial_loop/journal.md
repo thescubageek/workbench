@@ -51,6 +51,17 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-18 17:39 — P3-T1 (closed)
+
+- **Task/phase**: P3-T1 — write plugin/skills/reply-to-claude/SKILL.md
+- **Landed**: reply-to-claude/SKILL.md; plugin enumerates 38 skills; dispositions linked to
+  adversarial-review/reference.md rather than restated
+- **Commits**: 888c0d5
+- **Learned**: the `claude[bot]` login gotcha is the silent-measurement class wearing an API
+  filter — a filter on `claude` matches nothing and returns success, so it reads as "no
+  findings". Same failure shape as a grep that errors and reports zero.
+- **Started at**: 84a096e
+
 ## 2026-09-18 17:27 — help/README accuracy (closed)
 
 - **Task/phase**: out-of-plan, user-requested — bring wb:help and README.md up to date
