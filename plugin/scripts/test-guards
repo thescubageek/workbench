@@ -11,6 +11,7 @@ Acceptance bar, pre-registered: 100% of the corpus, and every planted mutation c
 
 Usage: plugin/scripts/test-guards [path-to-check-guards]
 """
+import hashlib
 import json
 import os
 import re
@@ -244,30 +245,43 @@ def main():
 
     print('\n== mutation survivability ==')
     orig = open(CG).read()
+    sha_before = hashlib.sha256(orig.encode()).hexdigest()
     caught = 0
-    for label, old, new in MUTATIONS:
-        if old not in orig:
-            print(f'  ?? {label}: anchor not found — MUTATION DID NOT APPLY')
-            continue
-        open(CG, 'w').write(orig.replace(old, new, 1))
-        os.chmod(CG, 0o755)
-        try:
-            s = run_corpus(CG)
-            si = sum(1 for _, ok in run_integrity(CG) if ok)
-        finally:
-            open(CG, 'w').write(orig)
-            os.chmod(CG, 0o755)
+    # Mutations are applied to a TEMP COPY, never to CG. Writing the mutant over the
+    # tracked file meant a signal — a CI cancel, a tool timeout, a closed laptop — left a
+    # disarmed checker on disk, and the next run read that mutant as its restore baseline
+    # and made it permanent. `finally` does not run on SIGTERM.
+    mutdir = tempfile.mkdtemp(prefix='test-guards-mut-')
+    try:
+        for label, old, new_src in MUTATIONS:
+            if old not in orig:
+                print(f'  ?? {label}: anchor not found — MUTATION DID NOT APPLY')
+                continue
+            mutant = os.path.join(mutdir, 'check-guards')
+            open(mutant, 'w').write(orig.replace(old, new_src, 1))
+            os.chmod(mutant, 0o755)
+            s = run_corpus(mutant)
+            si = sum(1 for _, ok in run_integrity(mutant) if ok)
         # Scored against corpus AND integrity together. Scoring on the corpus alone left
         # the integrity guards deletable, which is the same hole one level up.
-        if (s['correct'] + si) < (base['correct'] + integ_ok):
-            caught += 1
-            print(f"  ✓ {label}: caught ({s['correct']}/{s['total']} + {si}/{len(integ)})")
-        else:
-            print(f"  ✗ {label}: SURVIVED ({s['correct']}/{s['total']} + {si}/{len(integ)})")
+            if (s['correct'] + si) < (base['correct'] + integ_ok):
+                caught += 1
+                print(f"  ✓ {label}: caught ({s['correct']}/{s['total']} + {si}/{len(integ)})")
+            else:
+                print(f"  ✗ {label}: SURVIVED ({s['correct']}/{s['total']} + {si}/{len(integ)})")
+    finally:
+        shutil.rmtree(mutdir, ignore_errors=True)
     print(f'\n  {caught}/{len(MUTATIONS)} mutations caught')
 
+    # The tool under test must be byte-identical to what we started with. Without this the
+    # suite cannot tell "mutations restored correctly" from "a mutant is now the baseline".
+    sha_after = hashlib.sha256(open(CG, 'rb').read()).hexdigest()
+    intact = sha_after == sha_before
+    print(f"  {'✓' if intact else '✗'} the tool under test is unmodified "
+          f"({'sha matches' if intact else 'SHA CHANGED — a mutant may have been left on disk'})")
+
     ok = (base['correct'] == base['total'] and caught == len(MUTATIONS)
-          and integ_ok == len(integ))
+          and integ_ok == len(integ) and intact)
     print(f"\ntest-guards: corpus {base['correct']}/{base['total']}, "
           f"integrity {integ_ok}/{len(integ)}, "
           f"mutations {caught}/{len(MUTATIONS)} — {'PASS' if ok else 'FAIL'}")
