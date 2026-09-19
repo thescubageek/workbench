@@ -7,7 +7,7 @@ last_updated: 2026-09-18
 assignee: scraig
 current_phase: 5
 total_tasks: 85
-completed_tasks: 79
+completed_tasks: 81
 task_tracking: markdown-checkboxes
 depends_on: [research.md, design.md]
 git_commit: 1990b40
@@ -1236,9 +1236,9 @@ Three mechanisms, each independently sufficient to produce this:
 
 #### Research and design
 
-- [ ] **P8-T1** — Record the thrash evidence in `research.md` as facts: the per-round table, the
+- [x] **P8-T1** — Record the thrash evidence in `research.md` as facts: the per-round table, the
       two mirror-image regressions, the same-file recurrence across three rounds, and the commit
-      shapes of Phases 6 and 7. Facts only — no remedy, that is design's job. (~10 calls)
+      shapes of Phases 6 and 7. Facts only — no remedy, that is design's job. (~10 calls) (completed 2026-09-18 22:40)
 - [x] **P8-T2** — Resolve Q8-1 and Q8-2 with the user, and record both in `design.md`'s decision
       log with rationale. These shape the artifact, so they precede writing it. (~9 calls)
       (completed 2026-09-18 20:42)
@@ -1310,12 +1310,18 @@ Three mechanisms, each independently sufficient to produce this:
 
 #### Only after the above
 
-- [ ] **P8-T8** — Re-plan the 11 open round-3 findings as
-      `docs/plans/2026-09-17-adversarial_loop/reviews/2026-09-18-round-3/tasks.md`, in the shape
-      P8-T3 defines, rather than fixing them ad hoc. This is the mechanism's own first use, and if
-      it is awkward here it will be awkward everywhere. Findings whose component the spike says to
-      replace are **not** fixed — they are closed by the replacement. (~16 calls) ·
-      Depends on: P8-T3, P8-T7
+- [x] **P8-T8** — Re-plan the open findings in the shape P8-T3 defines, rather than fixing them
+      ad hoc. This is the mechanism's own first use, and if it is awkward here it will be awkward
+      everywhere. Findings whose component the spike says to replace are **not** fixed — they are
+      closed by the replacement. (~16 calls) · Depends on: P8-T3, P8-T7
+      *Deviation, 2026-09-18: the task named the **round-3** findings, and by the time P8-T3
+      existed they were closed — six by Phase 9's replacement of `check-guards`, the rest by
+      Phase 7. Round 4 re-raised none of them. Writing a retroactive plan for closed findings
+      would have produced a document describing work already done, which is bookkeeping, not
+      remediation. **The mechanism's first use was round 4** —
+      `reviews/2026-09-18-round-4/tasks.md`, 18 tasks, and it ran before P8-T3 was written, so
+      P8-T3 documents an observed process rather than an imagined one. What that use taught is
+      recorded in `design.md` beside the decision it refines.* (completed 2026-09-18 22:40)
 
 ### Success Criteria
 

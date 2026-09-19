@@ -51,6 +51,33 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-19 05:37 — P8-T1 and P8-T8 (closed)
+
+- **Task/phase**: the thrash evidence into `research.md`; P8-T8 assessed and superseded.
+- **Landed**: `research.md` gains a facts-only section — the per-round table, the commit
+  shapes re-derived from `git show --name-only`, both mirror-image regressions, the three
+  files recurring across rounds, and the measurements of the verification apparatus.
+  Parent plan 81 of 85.
+- **Learned**:
+  - **P8-T8's target no longer existed.** It said "re-plan the 11 open round-3 findings"; by
+    the time P8-T3 was written they were closed — six by Phase 9's replacement of
+    `check-guards`, the rest by Phase 7 — and round 4 re-raised none of them. Writing a
+    retroactive plan for closed findings would have produced a document describing work
+    already done. Recorded as a deviation with that reasoning rather than ticked.
+  - **The mechanism's first use was round 4, and it ran before the mechanism was written.**
+    That ordering is why P8-T3 documents an observed process. What it taught is in `design.md`:
+    the per-finding criterion caught four fixes that passed the aggregate gate and failed their
+    own finding's scenario, and shape 6 — "no mechanical criterion" — was never needed across
+    31 findings.
+  - **Every figure in the research section was re-derived rather than recalled**, which
+    mattered: the 64% was published as "four of 22" and then "a third" before anyone counted
+    it. Both earlier figures are recorded alongside the real one.
+  - **The PostToolUse hook rewrote the file between the write and the check** — lint reported
+    issues, then reported clean on the next run with no edit from me. The session warning about
+    verifying committed content rather than working-tree content is a live effect, not a
+    theoretical one.
+- **Blocked by**: nothing. P5-T2..T5 (release) remain, plus the 94-mutant backlog.
+
 ## 2026-09-19 05:31 — renumber: this release is 3.0.0, aliases move to 4.0.0 (closed)
 
 - **Task/phase**: version decision recorded; forward-looking references renumbered.

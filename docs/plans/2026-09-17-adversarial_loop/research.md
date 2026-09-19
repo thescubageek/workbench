@@ -758,3 +758,80 @@ bootstrap fallback — the same shape as the `REVIEW.md` chain recorded for Q1.
 | Q9 | Does the wb skill adopt `REVIEW.md` as the repo-supplied review-instruction convention (official precedent) instead of, or alongside, discovering a repo-local review skill? | The discovery mechanism | **Resolved 2026-09-17** → design.md (## Technical Decisions), collapsed into Q1 |
 | Q10 | The built-in's behavior varies by **main-session model family** — under `claude-opus-5`, `medium` and `high` collapse to one minimal prompt and Opus 4.8 never spawns subagents. Does the wb wrapper account for that, and does `model-help`'s advice change because of it? | Whether the wrapper pins effort, model, or both | **Resolved 2026-09-17** → design.md (## Technical Decisions) |
 | Q11 | Does the wb skill emit `ReportFindings` (host-UI rendering, `verdict`/`outcome` lifecycle) or its own markdown, given the tool's "use this only when the active code-review instructions tell you to" gate? | The output-format section | **Resolved 2026-09-17** → design.md (## Technical Decisions) |
+
+## Follow-up Research 2026-09-18 — the fix-phase defect rate
+
+**Facts only.** What the remedy should be is `design.md`'s question; this section records what
+four adversarial review rounds against this branch measured. Every figure below is derived from
+the plan documents and `git`, not from recollection.
+
+### Findings per round, and where they sat
+
+| Round | Findings | In surface the previous fix phase created or rewrote | Scope reviewed |
+| ----- | -------- | --------------------------------------------------- | -------------- |
+| 1 | 22 | — (first pass) | full diff, 6 legs |
+| 2 | 22 | 14 (64%) | full diff, 6 legs |
+| 3 | 12 | ~8 (67%) | scoped — ~12% of the surface, 2 legs |
+| 4 | 20 | ~9 | scoped — Phase 9's rewrite, 4 legs |
+
+Round 3 examined roughly an eighth of round 2's surface with a third of the lenses and returned
+two thirds of its findings in code the previous round's fixes had written.
+
+The round-2 figure was published twice before it was counted. An early note said "four of 22";
+a later one said "a third". The itemised count is 14, recorded in the journal entry for
+2026-09-18 and in `tasks.md` Phase 7. Both earlier figures understated it.
+
+### Commit shapes of the two fix phases
+
+Derived from `git show --name-only`:
+
+| Commit | Files | Phase |
+| ------ | ----- | ----- |
+| `46b90f4` | 9 | Phase 6, tasks 1–9 |
+| `410c908` | 7 | Phase 6, tasks 10–16 |
+| `3e350e8` | 7 | Phase 6, tasks 17–21 |
+| `1990b40` | 13 | **Phase 7, all 22 tasks** |
+
+Phase 6 closed 21 tasks in three commits; Phase 7 closed 22 in one. In both phases the
+repository's gates were run once, after the last change.
+
+### Mirror-image regressions
+
+Two findings were the inverse of a defect the same fix phase had just closed:
+
+- Round 3 raised *"a fixed `/tmp/reply.md` is reused across runs"*. The Phase 7 fix used a
+  `mktemp` template whose `X`s were not trailing, which on BSD returns a literal fixed path.
+  Round 4 raised the same defect at the same `file:line`.
+- Round 3 raised *"a guard on a later capture excuses an earlier unguarded one"*. The Phase 7
+  fix produced *"a guard on an earlier capture excuses a later one"*. Round 4 raised it.
+
+A third instance occurred inside Phase 9 and was caught before commit: the first draft of the
+rewritten `check-guards` used `break` where `continue` belonged, reproducing the second item
+above. The corpus case `s1-guard-on-earlier`, written before the implementation, failed.
+
+### Files recurring across rounds
+
+Three appeared in rounds 1, 2 and 3:
+
+- `plugin/scripts/check-guards`
+- `plugin/skills/adversarial-review/SKILL.md`
+- `plugin/skills/reply-to-claude/SKILL.md`
+
+`check-guards` also appeared in round 4, in six findings, after being rewritten.
+
+### What the loop recorded between rounds
+
+Nothing. At the time of measurement `adversarial-loop` instructed *"Record the disposition and
+its evidence"* and named no destination; no step wrote one, and `adversarial-review` was
+stateless per pass. There was no artifact from which round N−1's findings could be compared to
+round N's.
+
+### Measurements of the verification apparatus
+
+- `test-guards` at the close of Phase 9 reported 12/12 mutations caught. An independent
+  reviewer, given the implementation and not the corpus, wrote 24 mutations; 20 survived.
+- Four of Phase 7's guard additions — the zero-file refusal, the `find`-stderr refusal, the
+  missing-target check, and the `*/scripts/*` case arm — could each be deleted by a one-line
+  edit with the suite still reporting green.
+- Scored against mechanically generated mutations rather than author-written ones, the rebuilt
+  `check-guards` killed 198 of 293.

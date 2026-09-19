@@ -609,6 +609,29 @@ There is no database here; the "data" is the record shapes this design commits t
     a rate. The **numbers** do not: a repository with real tests would start far below 64%.
   - Source: tasks.md Q8-3, Q8-4 · Decided 2026-09-18
 
+- **What the remediation mechanism's first use taught** — round 4, 18 tasks, run by hand
+  *before* P8-T3 was written, which is why P8-T3 documents an observed process rather than a
+  designed one.
+  - **The per-finding criterion caught what a batch gate could not, four times.** Each was a
+    fix that passed the aggregate gate and failed its own finding's scenario: the escaped
+    option-shaped test pattern (twice — escaping is exactly what stops `grep` treating it as an
+    option, so the test passed while verifying nothing), a fixture using `-x` that made the
+    mutant *hang* rather than fail, and a PHI falsification that passed because a second
+    pattern compensated for the one being broken.
+  - **RED before GREEN is the part that does the work**, not the plan document. Eleven corpus
+    cases written first scored 44/53 before any fix; the four misses and five false positives
+    were the specification. Writing them after would have encoded the implementation's bugs.
+  - **"Shape 6 — no mechanical criterion" was never needed.** All 20 round-4 findings, and all
+    11 round-3 ones, landed in shapes 1–5. The escape hatch is real but rare; it did not become
+    the default the way a discretionary category usually does.
+  - **One task per finding was wrong for two of them.** Findings sharing a file *and* a class
+    genuinely group — the six `check-guards` parser defects were one rewrite, not six edits.
+    The rule as written already says this; the first use confirmed it rather than amending it.
+  - **The nested location held.** `wb-prime.sh` globs `docs/plans/*/` at one level, verified,
+    so the review's 18 tasks never touched the parent plan's counters or competed to be the
+    active plan.
+  - Source: round-4 remediation · Recorded 2026-09-18
+
 ## Scope Definition
 
 ### In Scope
