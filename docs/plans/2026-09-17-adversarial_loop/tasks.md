@@ -678,7 +678,7 @@ ships exactly what the release exists to prevent.
 - [x] **P5-T2** — Bump `version` to `3.0.0` in **both** `plugin/.claude-plugin/plugin.json` and
       `.claude-plugin/marketplace.json`; they must match. Commit — the release check runs after
       this commit, not before. (~9 calls) (completed 2026-09-19 16:20)
-- [ ] **P5-T3** — Run the release checks on the clean tree: `./plugin/scripts/lint --all`,
+- [x] **P5-T3** — Run the release checks on the clean tree: `./plugin/scripts/lint --all`,
       `claude plugin tag --dry-run plugin/`, the manifest-version agreement check, the repo-wide
       vocabulary grep, and the reference-link resolver across every skill. Record the output.
       (~17 calls)
@@ -716,16 +716,16 @@ ships exactly what the release exists to prevent.
 
 #### Automated Verification
 
-- [ ] Manifest versions agree:
+- [x] Manifest versions agree:
       `diff <(grep -o '"version": "[^"]*"' plugin/.claude-plugin/plugin.json | head -1) <(grep -o '"version": "[^"]*"' .claude-plugin/marketplace.json | head -1)` → empty
-- [ ] Lint clean repo-wide: `./plugin/scripts/lint --all`
-- [ ] Release check clean: `claude plugin tag --dry-run plugin/`
-- [ ] No stack or employer vocabulary anywhere in shipped files — **word-anchored**, because
+- [x] Lint clean repo-wide: `./plugin/scripts/lint --all`
+- [x] Release check clean: `claude plugin tag --dry-run plugin/` → `wb--v3.0.0`, exit 0
+- [x] No stack or employer vocabulary anywhere in shipped files — **word-anchored**, because
       the unanchored form matched `rspec` inside "perspective" and `redis` inside
       "rediscovering" and so could never pass, and a gate that cries wolf is a gate somebody
       switches off:
       `grep -rniE '\b(ruby|rails|rspec|postgres|postgresql|redis|docker|rubocop|hellobrightline|brightline)\b|bundle exec' plugin/` → no output
-- [ ] Every reference link in every skill resolves — same shell-agnostic form P2-T7 settled on,
+- [x] Every reference link in every skill resolves — same shell-agnostic form P2-T7 settled on,
       generalised across `plugin/skills/`; prints `MISS` per broken link:
 
 ```bash
@@ -740,8 +740,9 @@ for f in glob.glob('plugin/skills/*/SKILL.md'):
 print('\n'.join('MISS '+x for x in bad))"
 ```
 
-- [ ] `CHANGELOG.md` has a `## [3.0.0]` heading
-- [ ] Docs are accurate **at release**, not merely accurate when written — every user-invocable
+- [x] `CHANGELOG.md` has a `## [3.0.0]` heading — *its date still reads 2026-09-18, the day it
+      was written. Set it when the tag is actually cut, after P5-T4 and P5-T5.*
+- [x] Docs are accurate **at release**, not merely accurate when written — every user-invocable
       skill in help, every skill in README, every script in README's Scripts section, and no
       absent skill named anywhere:
 
@@ -763,8 +764,8 @@ for ghost in ('review-reef','review-strict','pr-feedback'):
 print('\n'.join(gaps))"
 ```
 
-- [ ] Guard check clean: `./plugin/scripts/check-guards` → exit 0
-- [ ] `./plugin/scripts/test-count` passes, and `scripts/count` distinguishes a zero count from a
+- [x] Guard check clean: `./plugin/scripts/check-guards` → exit 0, 145 files scanned
+- [x] `./plugin/scripts/test-count` passes, and `scripts/count` distinguishes a zero count from a
       failed one
 
 #### Manual Verification
