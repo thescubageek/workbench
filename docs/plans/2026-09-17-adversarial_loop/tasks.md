@@ -478,13 +478,26 @@ to the built-in `/verify`. Creating a PR stays out of scope.
 
 #### Automated Verification
 
-- [ ] Lint clean: `./plugin/scripts/lint plugin/skills/reply-to-claude plugin/skills/adversarial-loop`
-- [ ] No stack or employer vocabulary:
+*Two of these were repaired on 2026-09-19, having been ticked at the Phase 3 checkpoint while
+one of them could not fail and the other failed. Both are recorded rather than quietly
+rewritten, because the pair is a better worked example than either alone.*
+
+- [x] Lint clean — **globs, not directories**. `lint` given a directory answers
+      `Not a markdown file` and then `No markdown files to lint`, and exits 0: the original
+      form of this check linted nothing and reported clean, which is the class this plan
+      exists to catch, inside this plan's own criteria.
+      `./plugin/scripts/lint plugin/skills/reply-to-claude/*.md plugin/skills/adversarial-loop/*.md`
+- [x] No stack or employer vocabulary:
       `grep -rniE 'ruby|rails|rspec|postgres|redis|docker|rubocop|bundle exec|hellobrightline|reef' plugin/skills/reply-to-claude plugin/skills/adversarial-loop` → no output
-- [ ] Cross-skill references resolve:
+- [x] Cross-skill references resolve:
       `for s in adversarial-review reply-to-claude; do grep -q "$s" plugin/skills/adversarial-loop/SKILL.md && test -d plugin/skills/$s || echo "MISS $s"; done` → no output
-- [ ] The loop states its non-goal: `grep -ci 'does not create' plugin/skills/adversarial-loop/SKILL.md` → ≥1
-- [ ] `/verify` is the fix-verification path, and no stack probe ships:
+- [x] The loop states its non-goal — **prints the line, and matches the words the skill
+      actually uses**. The original grep counted occurrences of the literal `does not create`
+      and returned 0, while `adversarial-loop/SKILL.md:60` says *"This skill **never creates
+      one**"*. The tempting repair was to reword the skill so the grep passed; the criterion
+      was the thing that was wrong.
+      `grep -niE 'never creates|does not create' plugin/skills/adversarial-loop/SKILL.md`
+- [x] `/verify` is the fix-verification path, and no stack probe ships:
       `grep -c '/verify' plugin/skills/adversarial-loop/SKILL.md` → ≥1 and
       `grep -cE 'pg_isready|redis-cli|docker info' plugin/skills/adversarial-loop/SKILL.md` → 0
 
@@ -1327,10 +1340,18 @@ Three mechanisms, each independently sufficient to produce this:
 
 #### Automated Verification
 
-- [ ] `./plugin/scripts/check` passes, and fails loudly when `shellcheck` is absent
-- [ ] The corpus is a data file, runnable against any candidate implementation
-- [ ] Mutation survivability is reported as a number for each candidate, not an impression
-- [ ] The remediation `tasks.md` from P8-T8 passes `validate_project`'s task-ID and counter checks
+- [x] `./plugin/scripts/check` passes, and fails loudly when `shellcheck` is absent — both
+      directions run 2026-09-19: clean on this tree, and on a PATH without the binary it
+      prints `✗ shellcheck is not installed` with the install command and fails the gate
+- [x] The corpus is a data file, runnable against any candidate implementation —
+      `fixtures/guard-corpus.json`, and `test-guards <path-to-implementation>` scores it;
+      run against a copy at `/tmp/candidate-x`, reported corpus 73/73
+- [x] Mutation survivability is reported as a number for each candidate, not an impression —
+      22/22 curated, and 244/292 (83%) generated, both printed by `test-guards`
+- [x] The remediation `tasks.md` passes `validate_project`'s task-ID and counter checks — 18
+      task lines, all 18 matching the ID contract, `total_tasks`/`completed_tasks` both 18.
+      *Read against `reviews/2026-09-18-round-4/tasks.md`, not P8-T8: that task was superseded
+      and the mechanism's first use was round 4. See P8-T8's deviation note.*
 
 #### Manual Verification
 
@@ -1354,7 +1375,7 @@ included, is repeated in full at every phase's checkpoint**; a later phase never
 shortened one.
 
 - [ ] **(derivable)** Every Phase 8 checkbox is `[x]`
-- [ ] **(derivable)** All automated verification passing
+- [x] **(derivable)** All automated verification passing — re-run 2026-09-19
 - [ ] **(attestation)** Manual verification confirmed by human
 - [ ] **(attestation)** The spike's verdict has been **decided by the user**, not adopted by the
       session. The whole point of escalating out of the fix loop is that a design decision gets

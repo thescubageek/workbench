@@ -273,9 +273,14 @@ The plugin cannot (and does not) write to your personal config — this rule is 
 ./plugin/scripts/check-guards   # Find measurements whose failure reads as a clean result
 ./plugin/scripts/count          # A match count whose failure is distinguishable from zero
 ./plugin/scripts/test-guards    # Contract test for scripts/check-guards
+./plugin/scripts/test-guards --generated  # ...plus the machine-generated mutation sweep
 ./plugin/scripts/test-quiet     # Contract test for scripts/quiet
 ./plugin/scripts/test-count     # Contract test for scripts/count
+./plugin/scripts/test-phi-patterns  # Contract test for the PHI scrub patterns in daily-digest
 ```
+
+`plugin/scripts/lib_mutate.py` is a library rather than a command: `test-guards --generated`
+imports it to build the mutants. It is the only non-executable file in the directory.
 
 **Requirements**: `markdownlint-cli`, `shellcheck` and `python3`. `check` fails loudly and
 names the install command when one is missing — a gate that silently skips is indistinguishable
@@ -301,16 +306,30 @@ indistinguishable from "nothing matched": a `grep -c` captured without a status 
 so a document may describe a bad pattern freely — a deliberate counter-example belongs in a `text`
 fence rather than a `bash` one.
 
-`scripts/test-guards` is its contract test, in three parts: a 43-case labelled corpus, scan-integrity
-checks the corpus structurally cannot cover, and **mutation survivability** — twelve single-line
-breaks planted in the checker, each of which must be caught. The third part exists because an
-earlier suite reported 31/31 while four of the checker's guards were each deletable with a one-line
-edit. A corpus proves the detectors fire on what you thought of; mutation proves the corpus would
-notice if one stopped firing at all.
+`scripts/test-guards` is its contract test, in three parts: a **73-case labelled corpus**,
+**15 scan-integrity checks** the corpus structurally cannot cover, and **mutation survivability**
+— 22 single-line breaks planted in the checker, each of which must be caught. The third part
+exists because an earlier suite reported 31/31 while four of the checker's guards were each
+deletable with a one-line edit. A corpus proves the detectors fire on what you thought of;
+mutation proves the corpus would notice if one stopped firing at all.
+
+`test-guards --generated` is the fourth part and runs separately, because it is slow and because
+it is a **ratchet rather than a pass/fail bar**. `lib_mutate.py` walks the syntax tree and changes
+one thing — a comparison, a boolean, an integer constant, a regex, a deleted statement — which
+gives it no blind spot correlated with the author's. It currently kills **244 of 292**; the count
+may not fall, so a newly surviving mutant has to be killed with a corpus case or waived in
+`fixtures/mutation-waivers.json` **with an argument**. The 48 waived ones are genuinely equivalent
+— deleted docstrings, a `^` on a pattern used with `re.match`, a branch unreachable from valid
+shell — and each entry says why. Waivers are addressed by a key that carries no line number, so an
+edit elsewhere in the file cannot silently unhook one; the sweep fails if a waiver ever stops
+matching.
+
+The author-written suite is worth exactly what an author's imagination is worth, which is the
+point: it once reported 12/12 while an independent reviewer's 24 mutations produced 20 survivors.
 
 `check-guards` and `test-guards` require **`python3`**. They were bash through three review rounds,
 each of which patched real holes and opened comparable ones; measured on one corpus, the bash
-version scored 89% with 50% mutation survivability against the rewrite's 100% and 100%.
+version scored 89% with 50% mutation survivability against the rewrite's 97% and 87%.
 
 `scripts/quiet <command>` wraps any command so a green run collapses to a checkmark plus the
 runner's own summary line, while a failure dumps the full log. Exit codes pass through unchanged.
