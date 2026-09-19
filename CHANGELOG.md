@@ -3,9 +3,15 @@
 All notable changes to the `wb` plugin are recorded here.
 
 Versioning follows semver as it applies to a prompt library: **patch** for prompt bugfixes,
-**minor** for additive skills/agents/hooks, **major** for removed or renamed stages.
+**minor** for additive skills/agents/hooks, **major** for removed or renamed stages **and for
+any change to what the plugin requires of the environment it runs in**.
 
-## [2.2.0] — 2026-09-18
+That last clause was added at 3.0.0, which is also the first release to need it: `check` now
+requires `shellcheck` and `python3` and fails loudly without them. A contributor who could run
+the checks at 2.1.0 cannot at 3.0.0 without installing two tools, and no reading of "removed or
+renamed stages" would have warned them.
+
+## [3.0.0] — 2026-09-18
 
 Three review skills, added by **wrapping** Claude Code's built-in review machinery rather than
 re-implementing it. Research corrected the premise twice: `review-strict` is not a shipped
@@ -169,7 +175,7 @@ appear until the update runs, regardless of what has been pushed.
 ## [2.1.0] — 2026-09-17
 
 *Reconstructed 2026-09-18 from the `wb--v2.0.1..wb--v2.1.0` tag range and PR #24. This release
-shipped without a changelog entry; the gap was found by the adversarial review of 2.2.0, and the
+shipped without a changelog entry; the gap was found by the adversarial review of 3.0.0 (then numbered 2.2.0), and the
 entry is written after the fact rather than left as a hole in the release record.*
 
 ### Added
@@ -281,7 +287,7 @@ under `plugin/`, and every workflow stage becomes a skill with progressive discl
   `/beads:*` reference, no "Beads Required" principle, no fast-fail gates. Six stages previously
   reached a stop-and-prompt gate on a dependency that had to be installed; none do now.
 - **Three stages renamed**, each keeping a deprecated alias that announces the rename once and
-  then runs the canonical skill. **All three aliases are removed at 3.0.0.**
+  then runs the canonical skill. **All three aliases are removed at 4.0.0.**
 
   | Old | New | Why |
   | --- | --- | --- |

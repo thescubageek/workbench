@@ -388,11 +388,40 @@ There is no database here; the "data" is the record shapes this design commits t
     versions live in git.
   - Source: design.md PD1 (settles A3) · Decided 2026-09-17
 
-- **One release: `2.2.0`, carrying the adversarial skills and the separate fixes together.**
+- **One release: `3.0.0`, carrying the adversarial skills and the separate fixes together.**
+  - **Renumbered from `2.2.0` on 2026-09-18**, after four review rounds turned a feature
+    addition into something larger. The repository's own policy is *"major for removed or
+    renamed stages"*; nothing was renamed, so the letter of it says minor. The substance says
+    otherwise, and two changes are **breaking for an installer**:
+    - **`shellcheck` and `python3` are now required.** `plugin/scripts/check` fails when either
+      is missing — deliberately, because a gate that silently skips is indistinguishable from
+      one that passed. A contributor who could run the checks at 2.1.0 cannot at this release
+      without installing two tools. That is a dependency break, and semver's job is to warn
+      about it.
+    - **`check-guards` was rebuilt from bash to Python** with different detection semantics: it
+      now reports shapes the old one missed and stops reporting two it flagged wrongly. A
+      repository pinning its behaviour would see different output on unchanged files.
+  - The policy line is also amended, in the same release, to say what it should have said:
+    major covers removed or renamed stages **and any change to what the plugin requires of the
+    environment it runs in.**
+  - **The alias-removal promises move with it**: `create_execution`, `implement_coordinated`
+    and `implement_tasks` promised removal at `3.0.0` in eleven places across three stubs,
+    `CHANGELOG.md` and `docs/commands-reference.md`. Those now say `4.0.0`, and the
+    "remains through 2.x" wording becomes "through 3.x". **Honouring the old number would have
+    forced an unrelated deprecation into this release** — exactly the reason the original
+    decision avoided `3.0.0`, and the reason the promise moves rather than the release.
+  - **Upstream's `v3.0.0` is a different project's version** and is untouched. The fork-merge
+    plan's ~20 references to it are about `gvarela/workbench`, and renumbering them would have
+    corrupted a research record.
+  - Source: user decision 2026-09-18 · Recorded during Phase 8
   - `plugin/.claude-plugin/plugin.json` and `.claude-plugin/marketplace.json` both move
-    `2.1.0 → 2.2.0`; they must match.
-  - Minor rather than patch because `CLAUDE.md` maps adding skills to the features case.
-  - **Not `3.0.0`**: `CLAUDE.md` and all three deprecated alias stubs promise those aliases are
+    `2.1.0 → 3.0.0`; they must match.
+  - *Was: "minor rather than patch because `CLAUDE.md` maps adding skills to the features
+    case." Still true of the skills; superseded by the dependency break above, which the
+    features case does not cover.*
+  - **Superseded 2026-09-18** — the concern below was real and is resolved by moving the
+    promise rather than the release; kept because it is why `4.0.0` is now the alias release.
+    **Not `3.0.0`**: `CLAUDE.md` and all three deprecated alias stubs promise those aliases are
     removed at 3.0.0. Bumping there would either force that removal into this change or break a
     published promise.
   - Trade-off: the journal-ordering fix waits for the feature rather than shipping on its own.

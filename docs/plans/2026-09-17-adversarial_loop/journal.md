@@ -51,6 +51,31 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-19 05:31 — renumber: this release is 3.0.0, aliases move to 4.0.0 (closed)
+
+- **Task/phase**: version decision recorded; forward-looking references renumbered.
+- **Landed**: `CHANGELOG.md` heading `[2.2.0]` → `[3.0.0]`; the versioning policy gains the
+  clause that justifies it; eleven alias-removal promises across three stubs,
+  `CHANGELOG.md` and `docs/commands-reference.md` move `3.0.0` → `4.0.0`, with "through 2.x"
+  becoming "through 3.x"; the active plan's forward-looking references follow.
+- **Learned**:
+  - **The policy did not cover the actual breaking change.** "Major for removed or renamed
+    stages" — nothing was renamed, so the letter said minor. But `check` now requires
+    `shellcheck` and `python3` and fails without them: a contributor who could run the checks
+    at 2.1.0 cannot at this release. The policy is amended to cover *any change to what the
+    plugin requires of the environment it runs in*, in the same release that needed it.
+  - **Moving the promise, not the release.** The alias stubs promised removal at 3.0.0 in
+    eleven places. Honouring that number would have forced an unrelated deprecation into this
+    release — the exact concern the original decision raised when it avoided 3.0.0. Moving the
+    promise to 4.0.0 resolves it; the superseded reasoning is kept beside the new decision.
+  - **Upstream's v3.0.0 is a different project's version.** Twenty references in the
+    fork-merge plan are about `gvarela/workbench`; a blanket substitution would have corrupted
+    a research record. Renumbering had to be surgical, not textual.
+  - **History was left alone deliberately.** The journal, the handoff and the round-4 finding
+    record still say 2.2.0, because they describe what was true when written. Rewriting them
+    would falsify the record for the sake of tidiness.
+- **Blocked by**: nothing. P5-T2 now bumps to 3.0.0.
+
 ## 2026-09-19 05:28 — P8-T3, P8-T4, P8-T5 (closed)
 
 - **Task/phase**: the remediation-plan mechanism, the ledger and breaker, and shellcheck.

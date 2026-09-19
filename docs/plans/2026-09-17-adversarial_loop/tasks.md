@@ -641,7 +641,7 @@ manual steps nobody performed, and the confirmation is **deferred, not obtained.
 
 ### Objective
 
-Ship `2.2.0`, verify it behaves in a session that is not this one, and only then remove the
+Ship `3.0.0`, verify it behaves in a session that is not this one, and only then remove the
 personal copies the port was made from.
 
 ### Prerequisites
@@ -652,7 +652,7 @@ personal copies the port was made from.
 
 ### Tasks
 
-- [x] **P5-T1** — Write the `## [2.2.0]` entry in `CHANGELOG.md`: `### Added` for the three skills
+- [x] **P5-T1** — Write the `## [3.0.0]` entry in `CHANGELOG.md`: `### Added` for the three skills
       and the reference doc, `### Fixed` for the journal-ordering contract and the two malformed
       frontmatter declarations and the two consumer bugs (`validate_project`'s placeholder-counting
       `openCount`, `daily-digest`'s `grep -l 'OPEN'`), `### Changed` for the repointed references,
@@ -662,7 +662,7 @@ personal copies the port was made from.
 defects in the artifacts this phase releases; cutting the version before they are closed
 ships exactly what the release exists to prevent.
 
-- [ ] **P5-T2** — Bump `version` to `2.2.0` in **both** `plugin/.claude-plugin/plugin.json` and
+- [ ] **P5-T2** — Bump `version` to `3.0.0` in **both** `plugin/.claude-plugin/plugin.json` and
       `.claude-plugin/marketplace.json`; they must match. Commit — the release check runs after
       this commit, not before. (~9 calls)
 - [ ] **P5-T3** — Run the release checks on the clean tree: `./plugin/scripts/lint --all`,
@@ -727,7 +727,7 @@ for f in glob.glob('plugin/skills/*/SKILL.md'):
 print('\n'.join('MISS '+x for x in bad))"
 ```
 
-- [ ] `CHANGELOG.md` has a `## [2.2.0]` heading
+- [ ] `CHANGELOG.md` has a `## [3.0.0]` heading
 - [ ] Docs are accurate **at release**, not merely accurate when written — every user-invocable
       skill in help, every skill in README, every script in README's Scripts section, and no
       absent skill named anywhere:
@@ -769,7 +769,7 @@ print('\n'.join(gaps))"
 
 ### Modified Files
 
-- `CHANGELOG.md` — the `[2.2.0]` entry
+- `CHANGELOG.md` — the `[3.0.0]` entry
 - `plugin/.claude-plugin/plugin.json` — version
 - `.claude-plugin/marketplace.json` — version
 - `~/.claude/skills/adversarial-review`, `adversarial-loop`, `reply-to-claude` — deleted (outside
@@ -808,7 +808,7 @@ manual steps nobody performed, and the confirmation is **deferred, not obtained.
 ### Objective
 
 Disposition and close the findings the dogfood `adversarial-review` run raised against the
-artifacts this release ships, so `2.2.0` is cut on a tree the review actually clears rather than
+artifacts this release ships, so `3.0.0` is cut on a tree the review actually clears rather than
 on one that was never re-read after the review that cleared it.
 
 **Phase 5's remaining tasks are blocked on this phase.** P5-T2 (version bump), P5-T3 (release
@@ -836,7 +836,7 @@ phase:
 
 ### Prerequisites
 
-- [x] P5-T1 complete — the `## [2.2.0]` entry exists and will be amended by P6-T21
+- [x] P5-T1 complete — the `## [3.0.0]` entry exists and will be amended by P6-T21
 - [x] The review's findings are recorded — `journal.md`, entry `2026-09-18 18:24`
 
 ### Pending decisions
@@ -960,7 +960,7 @@ phase:
       somebody switches off. (~11 calls) · Depends on: PD6-2
 - [x] **P6-T20** — Resolve the `2.1.0` hole in `CHANGELOG.md` per PD6-3. (~9 calls) ·
       Depends on: PD6-3
-- [x] **P6-T21** — Amend the `## [2.2.0]` entry to record what Phase 6 changed, and add the
+- [x] **P6-T21** — Amend the `## [3.0.0]` entry to record what Phase 6 changed, and add the
       dogfood run itself to the entry's opening — a release whose own review found 18 confirmed
       defects in it should say so, because that is the evidence the skills work. (~10 calls) ·
       Depends on: every task above
@@ -1619,7 +1619,7 @@ resolved, leaving a dated line saying how.
 
 - **The journal-ordering fix and the two frontmatter fixes already landed** in commit `bd9cfd0`,
   before this plan was written. They are not tasks here, but P5-T1 records them in the changelog
-  because PD2 ships them in the same `2.2.0` release.
+  because PD2 ships them in the same `3.0.0` release.
 - **`design.md`'s Out of Scope was corrected** on 2026-09-17 to match PD1: removing the personal
   copies is *in* scope, strictly ordered last. The original line predated the decision.
 - **[2026-09-17] P1-T1 — fixture built.** `/tmp/wb-adv-probe` (working tree) with
@@ -1678,4 +1678,4 @@ grep -cE '^- \[x\] \*\*[A-Z0-9-]*[0-9][A-Z0-9-]*\*\*' tasks.md
 - **`REVIEW.md` from the base ref**, add-never-suppress — a security boundary, not a preference
 - **Pool, dedupe once, verify once** — provenance is metadata, not standing
 - **`/verify` owns fix-verification**; nothing stack-specific ships
-- **One release, `2.2.0`**; `3.0.0` is reserved for the alias removals
+- **One release, `3.0.0`** (renumbered from 2.2.0); `4.0.0` is reserved for the alias removals
