@@ -69,7 +69,19 @@ def generate(src):
     tree = ast.parse(src)
     out = []
 
+    main_guard_ids = {
+        id(n.test) for n in ast.walk(tree)
+        if isinstance(n, ast.If) and isinstance(n.test, ast.Compare)
+        and isinstance(n.test.left, ast.Name) and n.test.left.id == '__name__'
+    }
+
     for i, node in enumerate(ast.walk(tree)):
+        # The `if __name__ == '__main__'` guard is dispatch, not logic. Inverting it makes
+        # the mutant call main() the moment it is imported — with the sweep's own argv —
+        # which is counted as caught but prints the tool's error to the sweep's stderr.
+        if id(node) in main_guard_ids:
+            continue
+
         # --- comparison operators
         if isinstance(node, ast.Compare):
             for k, op in enumerate(node.ops):

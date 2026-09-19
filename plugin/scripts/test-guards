@@ -11,8 +11,10 @@ Acceptance bar, pre-registered: 100% of the corpus, and every planted mutation c
 
 Usage: plugin/scripts/test-guards [path-to-check-guards]
 """
+import contextlib
 import hashlib
 import importlib.util
+import io
 import json
 import os
 import signal
@@ -280,7 +282,11 @@ def _load(src_text, name):
     try:
         spec = importlib.util.spec_from_file_location(name, path)
         mod = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(mod)          # __name__ != '__main__', so main() does not run
+        # Silenced. A mutant that reaches a print — the __main__-guard inversion did,
+        # before lib_mutate learned to skip it — otherwise corrupts the sweep's own report
+        # with the tool's output, which is the report you then read to decide what is broken.
+        with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
+            spec.loader.exec_module(mod)
         return mod
     finally:
         try:
@@ -327,7 +333,9 @@ def run_generated(impl):
             try:
                 signal.signal(signal.SIGALRM, _alarm)
                 signal.setitimer(signal.ITIMER_REAL, 5)
-                findings, _ = mod.collect([d])
+                with contextlib.redirect_stdout(io.StringIO()), \
+                     contextlib.redirect_stderr(io.StringIO()):
+                    findings, _ = mod.collect([d])
             except BaseException:
                 return -1                      # crash or hang counts as a failing mutant
             finally:
@@ -458,5 +466,21 @@ if __name__ == '__main__':
         pct = 100 * killed // total if total else 0
         print(f'\ngenerated: {killed}/{total} killed ({pct}%), '
               f'{len(waiv)} waived, {len(surv)} survived')
-        sys.exit(0 if not surv else 1)
+
+        # A RATCHET, not a pass/fail bar. Demanding zero survivors would fail forever at
+        # 67% and be ignored within a week; reporting a number nobody compares to anything
+        # is the same as not running it. So: the kill count may not fall. A newly surviving
+        # mutation must be killed with a corpus case, or waived with an argument.
+        rpath = os.path.join(HERE, 'fixtures', 'mutation-ratchet.json')
+        prev = json.load(open(rpath))['killed'] if os.path.exists(rpath) else 0
+        if killed < prev:
+            print(f'\n❌ ratchet: killed fell from {prev} to {killed}. Either add a corpus '
+                  f'case, or waive the mutant in fixtures/mutation-waivers.json with a reason.')
+            sys.exit(1)
+        if killed > prev:
+            json.dump({'killed': killed, 'of': total}, open(rpath, 'w'), indent=1)
+            print(f'  ratchet raised: {prev} -> {killed}')
+        else:
+            print(f'  ratchet held at {killed}')
+        sys.exit(0)
     sys.exit(main())

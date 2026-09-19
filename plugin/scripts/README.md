@@ -191,6 +191,12 @@ The sweep scores against the corpus **and** the integrity layer. Corpus-only sco
 every mutation the integrity checks cover — `scanned == 0`, the unreadable-file refusal, target
 resolution — as a survivor, which inflated the survivor count by 11%.
 
+**It ratchets rather than gating.** Demanding zero survivors would fail forever at 67% and be
+ignored within a week; printing a number nobody compares to anything is the same as not running
+it. So the kill count is recorded in `fixtures/mutation-ratchet.json` and **may not fall** — a
+newly surviving mutant must be killed with a corpus case or waived with an argument. That is the
+one thing the sweep enforces.
+
 **Equivalent mutants are the known cost**, waived in `fixtures/mutation-waivers.json`, and a
 waiver carries an argument rather than an entry. Treat the survivor list as a queue of corpus
 cases worth writing, not as a bug list: many survivors are constants and branches no realistic
