@@ -51,6 +51,24 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-19 05:39 — handoff written for the mutation backlog (closed)
+
+- **Task/phase**: a scoped handoff for the 94 surviving generated mutants.
+- **Landed**: [handoff-2026-09-19-05-39.md](handoff-2026-09-19-05-39.md) — the task, why the apparatus
+  exists, a triage of the 94 by operator, the four groups worth opening first, and the five
+  rules that keep the exercise honest.
+- **Learned**:
+  - **The handoff leads with triage, not the list.** 94 raw entries is a number; 57 source
+    lines grouped by operator — 41 `int`, 31 `del` (9 of them deleting docstrings), 14 `regex`
+    — is a starting point. The regex group is smallest and highest-value, because this tool's
+    decisions live in its patterns.
+  - **The rule most worth carrying across** is that the survivor list is not a bug list.
+    Raising the kill rate with contrived cases would be fitting the corpus to the tool, which
+    is the failure the whole apparatus exists to prevent.
+  - **The branch is 26 commits ahead of `origin` and unpushed**, so the handoff says to push
+    first if it is picked up on another machine. The plan is promoted into git but only locally.
+- **Blocked by**: nothing. P5-T2..T5 remain and are independent of the backlog.
+
 ## 2026-09-19 05:37 — P8-T1 and P8-T8 (closed)
 
 - **Task/phase**: the thrash evidence into `research.md`; P8-T8 assessed and superseded.
