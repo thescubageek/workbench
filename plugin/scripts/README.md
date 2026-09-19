@@ -108,6 +108,33 @@ outside. CI runs this on push to `main` and on every pull request
 shipped** — `marketplace.json` sets `"source": "./plugin"`, so nothing outside `plugin/` reaches
 an installer.
 
+### `shellcheck-gate`
+
+Runs `shellcheck` over the plugin's own shell scripts, at **default severity only** — `-o all`
+is what produces the noise, and noise is what gets a gate switched off. Scoped by shebang, not
+by glob: `plugin/scripts/*` would feed `README.md` to the parser and produce seven spurious
+errors.
+
+```bash
+./plugin/scripts/shellcheck-gate
+```
+
+It earned its place on the first run — `cd` without `|| exit` in two scripts (a failed `cd`
+scans the wrong tree), two dead assignments in `test-count`, and an error in its own source,
+because a comment beginning `# shellcheck` is parsed as a *directive*.
+
+Deliberate exceptions carry `# shellcheck disable=<code>` **with the reason beside them**, never
+a bare suppression.
+
+**It is not the engine for `check-guards`.** That was probed and rejected: `SC2312` flags every
+masked return value, so it fires on `n=$(count foo f) || exit 2` and on `[ -e "$x" ] || continue`
+alike — 10 false positives against 15 correct files — and it misses the unquoted `--include`
+glob entirely.
+
+**`shellcheck` is required, not optional.** `check` fails loudly and prints the install command
+when it is missing, because a gate that silently skips is indistinguishable from one that
+passed — the defect class this whole directory exists to catch, one level up.
+
 ### `check-guards`
 
 Finds measurements whose failure is indistinguishable from a clean result — the class where a

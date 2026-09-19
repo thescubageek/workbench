@@ -106,6 +106,56 @@ reviewer explicitly cleared a finding that another raised, and the clearance was
 Carrying this list alongside `ReportFindings` does not violate the do-not-duplicate rule: these
 are not findings, and there is no field for them.
 
+## The remediation plan
+
+Written at `docs/plans/<plan>/reviews/<date>-round-N/tasks.md` — **under** the plan it reviews,
+not inside it. Nested one level deeper than `docs/plans/*/`, which is what the session-start
+hook globs, so a review's bookkeeping never competes to be the active plan or distorts the
+parent's counters. A sibling plan directory would sort newer and silently become the active
+plan: a worse defect than the one being fixed.
+
+```text
+---
+project: <parent plan's project>
+reviews: docs/plans/<plan>
+round: <N>
+created: <date>
+status: in-progress
+total_tasks: <N>
+completed_tasks: 0
+task_tracking: markdown-checkboxes
+---
+
+# Remediation — adversarial review round <N>
+
+## How each task is verified
+
+Every task carries its finding's `failure_scenario` as its acceptance criterion, and **the
+criterion is run before the fix**. A criterion that passes before the change is not a criterion.
+
+## Tasks
+
+- [ ] **R<N>-T1** — `<file>:<line>` — <the finding, one line>.
+      **Fails when:** <the failure_scenario, verbatim>.
+      **Acceptance (shape <n>)**: <the check, from the taxonomy below>. (~N calls)
+```
+
+**The acceptance criterion comes from the shape of the finding**, and where none can be written
+the task says so rather than inventing one:
+
+| | Finding shape | Criterion |
+| - | ------------- | --------- |
+| 1 | Has a fenced command | Execute the block **as written**; assert the stated outcome |
+| 2 | Defect in a script | A test case that fails before and passes after |
+| 3 | Two files contradict | **Dual grep** — the wrong phrasing absent *and* the right one present at a named `file:line` |
+| 4 | Something missing | Grep for presence, plus a negative control proving the grep can fail |
+| 5 | Reference integrity | A resolver — dangling links, undefined identifiers, nonexistent skill names |
+| 6 | Genuine judgement | **No mechanical criterion.** Label `(attestation)`, name who must look |
+
+**FALSIFY the criterion itself**: *what would this print if the fix were absent?* No answer means
+shape 6, not a fabricated check. **Absence is never a check on its own** — a grep returning
+nothing passes for wrong path, wrong pattern and wrong encoding as readily as for success.
+
 ## When `ReportFindings` is unavailable
 
 Fall back to markdown, and **say that the fallback was used** — a report that looks different for

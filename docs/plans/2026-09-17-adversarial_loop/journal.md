@@ -51,6 +51,28 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-19 05:28 — P8-T3, P8-T4, P8-T5 (closed)
+
+- **Task/phase**: the remediation-plan mechanism, the ledger and breaker, and shellcheck.
+- **Landed**: `adversarial-review` Step 8 writes the plan; `adversarial-loop` Phase 1 step 3
+  runs `implement` against it instead of fixing inline; `plugin/docs/reference/review-ledger.md`
+  is the single authority for the ledger and the breaker; `shellcheck` is a required
+  dependency with its own scoped gate. 79 of 85.
+- **Learned**:
+  - **The mechanism was written from something that worked.** Round 4's remediation used the
+    shape by hand first, so Step 8 documents an observed process rather than an imagined one.
+  - **`shellcheck-gate` failed its own gate on the first run**: a comment beginning
+    `# shellcheck` is parsed as a *directive*, and an unparseable directive is an error. It
+    also found `cd` without `|| exit` in two scripts — a failed `cd` scans the wrong tree —
+    and the two dead assignments in `test-count` that round 4 flagged.
+  - **Required, not optional.** `check` fails loudly with the install command when shellcheck
+    is missing. Falsified on a PATH without it. A gate that silently skips is indistinguishable
+    from one that passed, which is the class this directory exists to catch.
+  - **Deliberate suppressions carry their reason.** Three `# shellcheck disable=` entries, each
+    with the argument beside it: `ls` in wb-prime is deliberate because the sort key is the
+    directory NAME, which survives a fresh clone where mtime does not.
+- **Blocked by**: nothing. P5-T2..T5 (release) and P8-T1/P8-T8 remain.
+
 ## 2026-09-19 05:14 — round-4 remediation complete, 18/18 (closed)
 
 - **Task/phase**: the generated mutator, the 94-survivor backlog, and R4-T9..T18.

@@ -65,8 +65,8 @@ out="$("$COUNT" 'alpha' "$TMP" 2>/dev/null)"; code=$?
 check "a directory exits non-zero"      "$([[ $code -ne 0 ]] && echo 1 || echo 0)"
 
 # 6. The distinction the whole script exists for
-zero_out="$("$COUNT" 'nothing-here' "$TMP/f.txt")"; zero_code=$?
-fail_out="$("$COUNT" 'nothing-here' "$TMP/absent.txt" 2>/dev/null)"; fail_code=$?
+"$COUNT" 'nothing-here' "$TMP/f.txt" >/dev/null 2>&1; zero_code=$?
+"$COUNT" 'nothing-here' "$TMP/absent.txt" >/dev/null 2>&1; fail_code=$?
 check "zero and failure are distinguishable" \
       "$([[ "$zero_code" -ne "$fail_code" ]] && echo 1 || echo 0)"
 # Control: the same two calls through `grep -c`, written the way a careful author writes

@@ -264,6 +264,7 @@ The plugin cannot (and does not) write to your personal config — this rule is 
 
 ```bash
 ./plugin/scripts/check          # Every gate, in one command — this is what CI runs
+./plugin/scripts/shellcheck-gate # shellcheck over the plugin's own shell scripts
 
 ./plugin/scripts/lint           # Lint changed markdown
 ./plugin/scripts/lint --fix     # Auto-fix issues
@@ -275,6 +276,10 @@ The plugin cannot (and does not) write to your personal config — this rule is 
 ./plugin/scripts/test-quiet     # Contract test for scripts/quiet
 ./plugin/scripts/test-count     # Contract test for scripts/count
 ```
+
+**Requirements**: `markdownlint-cli`, `shellcheck` and `python3`. `check` fails loudly and
+names the install command when one is missing — a gate that silently skips is indistinguishable
+from a gate that passed.
 
 **Run `check` before a release.** It runs every gate above, does not stop at the first failure,
 and is what `.github/workflows/checks.yml` invokes on push and on every pull request. The guards

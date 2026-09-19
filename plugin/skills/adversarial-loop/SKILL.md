@@ -10,6 +10,7 @@ allowed-tools: Read, Write, Edit, Glob, Grep, Bash, Task, Skill
 Supporting files in this directory (read each when its step directs you to — never paraphrase from memory):
 
 - [reference.md](reference.md) — the `claude[bot]` and CI mechanics, and the coverage question between rounds
+- [../../docs/reference/review-ledger.md](../../docs/reference/review-ledger.md) — the findings ledger and the thrash breaker
 
 It also reads, from the skills it sequences:
 
@@ -109,12 +110,27 @@ Two standing prohibitions:
    reviewer has been *asserted*; the label is the claim you are checking. Reviewers are wrong
    often enough that applying findings unexamined introduces defects, and a suggested fix is
    frequently worse than the finding it addresses.
-3. **Fix what survives**, sized by the proportionality gate. Prefer removing a trap to documenting
-   one.
+3. **Run `implement` against the remediation plan the review wrote.** Do not fix findings
+   inline. `adversarial-review` Step 8 emits
+   `docs/plans/<plan>/reviews/<date>-round-N/tasks.md`; `implement` executes it one task at a
+   time, in fresh context, each verified against its own acceptance criterion and committed
+   separately. Size each fix by the proportionality gate, and prefer removing a trap to
+   documenting one.
+
+   **Why not inline.** An aggregate gate run after twenty-two changes says the tree passes; it
+   says nothing about whether any individual change did what it should, or broke another. On
+   this plugin that produced a round where 64% of findings sat in surface the previous round's
+   fixes had written. The finding already carries its acceptance test — `failure_scenario`,
+   written by the reviewer before the fix existed — and batch-fixing discards it.
+
+   If there is no plan directory, fix inline and say so: the discipline is the per-finding
+   criterion run before the fix, not the file it is written in.
 4. **Verify the fixes actually work.** Invoke `/verify` — it drives the affected flow end to end
    and discovers this repository's own commands, so nothing stack-specific belongs here. Skip it
    only when the diff has no runtime surface, which is its own documented exemption.
-5. **Commit**, with a message saying what the round found and what changed.
+5. **Record each finding's disposition in the ledger** — see [reference.md](reference.md). The
+   gate below is otherwise self-certified: without a written record, "no finding adjudicated
+   Valid" is a claim the session makes about itself and nobody can audit.
 6. **Re-review**, scoped to the reworked areas plus a fresh sweep. Expect two to four rounds.
 
 **Between rounds, ask what nothing looked at.** A clean round means "the lenses that ran found

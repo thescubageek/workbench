@@ -7,7 +7,7 @@ last_updated: 2026-09-18
 assignee: scraig
 current_phase: 5
 total_tasks: 85
-completed_tasks: 76
+completed_tasks: 79
 task_tracking: markdown-checkboxes
 depends_on: [research.md, design.md]
 git_commit: 1990b40
@@ -1242,7 +1242,7 @@ Three mechanisms, each independently sufficient to produce this:
 - [x] **P8-T2** — Resolve Q8-1 and Q8-2 with the user, and record both in `design.md`'s decision
       log with rationale. These shape the artifact, so they precede writing it. (~9 calls)
       (completed 2026-09-18 20:42)
-- [ ] **P8-T3** — Write the remediation-plan mechanism into the shipped skills, per the Q8-1 and
+- [x] **P8-T3** — Write the remediation-plan mechanism into the shipped skills, per the Q8-1 and
       Q8-2 decisions now in `design.md`. Concretely:
       `adversarial-review` gains a closing step that writes
       `docs/plans/<plan>/reviews/<date>-round-N/tasks.md` instead of leaving findings as a list;
@@ -1254,7 +1254,7 @@ Three mechanisms, each independently sufficient to produce this:
       a class stay separate, and whichever task touches the file re-verifies every finding
       against it. State the RED rule explicitly: **run the criterion before the fix**.
       (~18 calls) · Depends on: P8-T2
-- [ ] **P8-T4** — Ship the **findings ledger** and the **circuit breaker** per the Q8-3/Q8-4
+- [x] **P8-T4** — Ship the **findings ledger** and the **circuit breaker** per the Q8-3/Q8-4
       decisions now in `design.md`. Ledger at `docs/plans/<plan>/review-log.md`, one row per
       finding per round: round, `file:line`, class, verdict, disposition, the evidence that
       settled it, and `introduced_by` — **derived** from
@@ -1276,7 +1276,7 @@ Three mechanisms, each independently sufficient to produce this:
 
 #### The escalation path's first instance
 
-- [ ] **P8-T5** — *Sequencing corrected 2026-09-18: this now runs **after** P8-T6, not before.
+- [x] **P8-T5** — *Sequencing corrected 2026-09-18: this now runs **after** P8-T6, not before.
       Declaring shellcheck a hard gate dependency before the spike decides whether it is used is
       the "commit to an approach on an untested assumption" this phase exists to stop. The spike
       needs it installed, which it is; the gate decision waits on the verdict.*

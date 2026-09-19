@@ -11,9 +11,10 @@ Supporting files in this directory (read each when its step directs you to — n
 
 - [lenses.md](lenses.md) — the lens table, the four mandatory triggers, and the cap
 - [prompts.md](prompts.md) — verbatim prompts for the stance agent, the lens agents, and the verifier
-- [templates.md](templates.md) — the reconnaissance summary, the `ReportFindings` call, the restatement, and the fallbacks
+- [templates.md](templates.md) — the reconnaissance summary, the `ReportFindings` call, the restatement, the remediation plan, and the fallbacks
 - [reference.md](reference.md) — verify-only mode, the five dispositions, the proportionality gate, the coverage check
 - [../../docs/reference/code-review-integration.md](../../docs/reference/code-review-integration.md) — what the built-in review machinery provides and which parts of it may be relied on
+- [../../docs/reference/review-ledger.md](../../docs/reference/review-ledger.md) — the findings ledger a round appends to
 
 **If a directed read fails, stop — do not continue from memory.** These files live outside your
 project, so a read can be refused. Say which file was refused, that reads outside the working
@@ -271,6 +272,33 @@ the one-line restatement, then "Checked and clear" if there is anything factual 
 
 **Every reported finding carries a concrete failure scenario.** A candidate that reached this step
 without one was never verified — drop it rather than reporting it with a lower verdict.
+
+## Step 8: Emit the remediation plan
+
+**A review round's output is a plan, not a patch.** Write the surviving findings to
+`docs/plans/<plan>/reviews/<date>-round-N/tasks.md` using the shape in
+[templates.md](templates.md), then stop. This skill does not fix anything; `adversarial-loop`
+runs `implement` against what you wrote.
+
+Skip this only when there is no plan directory — then the findings are the output and the
+caller decides what to do with them.
+
+**Why a plan and not a list.** Across four rounds on this plugin, fixing findings ad hoc
+introduced defects at roughly the rate the reviews removed them: 64% of one round's findings
+were in surface the previous round's fixes had written. Two mechanisms, both structural:
+
+- **Batch-fix, batch-verify.** An aggregate gate run after twenty-two changes establishes that
+  the tree passes. It establishes nothing about whether change #14 did what it should, and
+  nothing about whether it broke change #9. Both happened.
+- **The finding already contains its acceptance test.** `failure_scenario` is *concrete inputs
+  → the specific wrong outcome*, written by the reviewer before any fix exists. Treating
+  findings as a to-do list throws that away, and "fixed" degrades to "I edited the thing the
+  finding pointed at".
+
+One task per finding, its `failure_scenario` carried verbatim as the acceptance criterion, and
+**the criterion is run before the fix** — the RED step. Findings sharing a file *and* a class
+group into one task; sharing a file but not a class stay separate, and whichever task touches a
+file re-verifies every finding against it.
 
 ## Verify-only mode
 

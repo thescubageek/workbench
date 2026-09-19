@@ -30,6 +30,15 @@ jobs:
       - name: Assert python3
         run: python3 --version
 
+      # Pinned like markdownlint: shellcheck's findings move between releases, and a gate
+      # whose output depends on whichever version the runner happened to ship is a gate that
+      # goes red on a pull request that changed nothing.
+      - name: Install shellcheck
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y shellcheck
+          shellcheck --version
+
       - name: Install markdownlint-cli
         # Pinned. Unpinned against a .markdownlintrc carrying "default": true, the next
         # upstream release that adds a rule turns CI red on a pull request that changed

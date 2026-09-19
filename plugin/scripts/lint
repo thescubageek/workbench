@@ -187,6 +187,8 @@ ISSUES_FOUND=false
 # would always exit 0 even on lint failures.
 while read -r file; do
     if [ -f "$file" ]; then
+        # shellcheck disable=SC2086  # deliberate word-splitting: each may be empty, or
+        # carry a flag and its value. Quoting would pass an empty argument to markdownlint.
         if markdownlint $AUTO_FIX $CONFIG_ARG "$file" 2>&1; then
             if [ -n "$AUTO_FIX" ]; then
                 echo -e "${GREEN}✓${NC} Fixed: $file"
