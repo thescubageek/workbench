@@ -51,6 +51,40 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-19 16:22 — P5-T2, P5-T3, and two criteria that never ran (closed)
+
+- **Task/phase**: Phase 5 — everything up to the manual steps.
+- **Landed**: `3.0.0` in both manifests (`7ed03e5`); all nine release checks green on that
+  commit with the output recorded verbatim (`02e43d2`,
+  [thoughts/2026-09-19-release-checks.md](thoughts/2026-09-19-release-checks.md)); two Phase 3
+  criteria repaired and README's Scripts section re-synced (`ef411c5`); counters reconciled
+  81 → 83 of 85. P5-T4 and P5-T5 remain and are both manual.
+- **Learned**:
+  - **Phase 3's checkpoint ticked "All automated verification passing" over a check that could
+    not fail and one that did.** `lint <directory>` answers *"No markdown files to lint"* and
+    exits 0, so that criterion linted nothing and reported clean — this plan's own defect class,
+    inside this plan's own criteria, found only because someone re-ran the boxes instead of
+    reading them. The other counted the literal string `does not create`, returned 0, while the
+    skill says *"This skill **never creates one**"* at line 60. **The tempting repair was to
+    reword the skill until the grep passed.** Both greps now print what they found, and the
+    non-goal pattern was falsified against a file that lacks it.
+  - **The docs-accuracy criterion earned its place on its first real run.** It failed:
+    `test-phi-patterns` and `lib_mutate.py` were missing from README's Scripts section, both
+    added during round 4. The README also still described a 43-case corpus and twelve planted
+    mutations against the real 73, 15 and 22 — and claimed 100%/100% for the rewrite where the
+    measured figures are 97%/87%. A release that documents a tool it no longer ships is the
+    drift this plan has now hit three times.
+  - **Re-running a checkbox is not the same as reading it**, and the difference was four real
+    defects this morning. The unticked boxes in Phases 3 and 8 looked like bookkeeping; two of
+    them were failures and two were checks that could not fire.
+  - **The CHANGELOG date is left wrong on purpose.** `## [3.0.0] — 2026-09-18` is the day the
+    entry was written, and the release is not cut until P5-T4 and P5-T5 pass. Guessing the date
+    now would make it wrong in the direction nobody checks; it gets set when the tag is created.
+- **Commits**: `ef411c5`, `7ed03e5`, `02e43d2`, and this one.
+- **Blocked by**: P5-T4 needs an interactive session from a recorded cwd outside the plugin
+  directory — it cannot be evidenced headless, because auto mode bypasses the read conventions
+  the smoke session exists to exercise. P5-T5 waits on P5-T4 and on the user's confirmation.
+
 ## 2026-09-19 15:56 — waiver keys and the vestigial chdir (closed)
 
 - **Task/phase**: out-of-plan follow-up to the mutation backlog — the two items the previous

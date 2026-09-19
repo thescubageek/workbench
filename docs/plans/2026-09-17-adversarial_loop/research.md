@@ -4,10 +4,10 @@ ticket: null
 created: 2026-09-17
 created_timestamp: 2026-09-17T17:51:46Z
 status: complete
-last_updated: 2026-09-17
+last_updated: 2026-09-19
 last_updated_note: "Added research on Claude Code built-in review skills, the official marketplace review plugins, and published adversarial-review patterns"
 researcher: scraig
-git_commit: 46ef587b084ea4d84a8a9b4e5b0770778903ba9b
+git_commit: 02e43d2513b9f6ed76006a8d5a30078b22dc1708
 git_branch: adversarial-loop-skill-research
 repository: thescubageek/workbench
 tags: [research, codebase, adversarial_loop]

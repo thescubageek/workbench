@@ -3,14 +3,14 @@ project: adversarial_loop
 ticket: null
 created: 2026-09-17
 status: in-progress
-last_updated: 2026-09-18
+last_updated: 2026-09-19
 assignee: scraig
 current_phase: 5
 total_tasks: 85
-completed_tasks: 81
+completed_tasks: 83
 task_tracking: markdown-checkboxes
 depends_on: [research.md, design.md]
-git_commit: 1990b40
+git_commit: 02e43d2
 git_branch: adversarial-loop-skill-research
 repository: thescubageek/workbench
 tags: [tasks, tracking, adversarial_loop]
@@ -805,10 +805,14 @@ included, is repeated in full at every phase's checkpoint**; a later phase never
 shortened one.
 
 - [ ] **(derivable)** Every Phase 5 checkbox is `[x]`
-- [ ] **(derivable)** All automated verification passing
+- [x] **(derivable)** All automated verification passing — all nine re-run 2026-09-19 on the
+      3.0.0 commit; output in [thoughts/2026-09-19-release-checks.md](thoughts/2026-09-19-release-checks.md)
 - [ ] **(attestation)** Manual verification confirmed by human
-- [ ] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
-      only writer of those fields, so do not edit `current_phase` or `completed_tasks` by hand
+- [x] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
+      only writer of those fields, so do not edit `current_phase` or `completed_tasks` by hand.
+      *Reconciled 2026-09-19 across every phase at once, not at this checkpoint: 81 → 83 of 85.
+      Drift between checkpoints is expected; letting it sit unreconciled for four phases was
+      not.*
 
 **Do not proceed without human confirmation of manual tests** — unless the phase is being run
 under `/wb:implement --auto`, which buys the wait and not the attestation. In that case the
@@ -1034,8 +1038,11 @@ shortened one.
 - [x] **(attestation)** A fresh adversarial review has been **explicitly approved by the user**
       before it is run — the user asked to gate it, and a re-review run unasked is the same
       unrequested outward step this phase exists to close
-- [ ] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
-      only writer of those fields, so do not edit `current_phase` or `completed_tasks` by hand
+- [x] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
+      only writer of those fields, so do not edit `current_phase` or `completed_tasks` by hand.
+      *Reconciled 2026-09-19 across every phase at once, not at this checkpoint: 81 → 83 of 85.
+      Drift between checkpoints is expected; letting it sit unreconciled for four phases was
+      not.*
 
 **Do not proceed without human confirmation of manual tests** — unless the phase is being run
 under `/wb:implement --auto`, which buys the wait and not the attestation. In that case the
@@ -1184,8 +1191,11 @@ shortened one.
 - [ ] **(attestation)** A round 3 review has been **explicitly approved by the user**. Round 2
       found that a third of its findings were created by round 1's fixes; this phase is the same
       kind of surface, and assuming it is clean is the mistake the plan exists to prevent
-- [ ] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
-      only writer of those fields, so do not edit `current_phase` or `completed_tasks` by hand
+- [x] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
+      only writer of those fields, so do not edit `current_phase` or `completed_tasks` by hand.
+      *Reconciled 2026-09-19 across every phase at once, not at this checkpoint: 81 → 83 of 85.
+      Drift between checkpoints is expected; letting it sit unreconciled for four phases was
+      not.*
 
 **Do not proceed without human confirmation of manual tests** — unless the phase is being run
 under `/wb:implement --auto`, which buys the wait and not the attestation. In that case the
@@ -1381,8 +1391,11 @@ shortened one.
 - [ ] **(attestation)** The spike's verdict has been **decided by the user**, not adopted by the
       session. The whole point of escalating out of the fix loop is that a design decision gets
       made deliberately
-- [ ] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
-      only writer of those fields, so do not edit `current_phase` or `completed_tasks` by hand
+- [x] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
+      only writer of those fields, so do not edit `current_phase` or `completed_tasks` by hand.
+      *Reconciled 2026-09-19 across every phase at once, not at this checkpoint: 81 → 83 of 85.
+      Drift between checkpoints is expected; letting it sit unreconciled for four phases was
+      not.*
 
 **Do not proceed without human confirmation of manual tests** — unless the phase is being run
 under `/wb:implement --auto`, which buys the wait and not the attestation. In that case the
@@ -1495,8 +1508,11 @@ shortened one.
 - [ ] **(attestation)** Whether to re-run the adversarial review has been **decided by the user**.
       Three rounds established that a fix phase is the highest-defect-density surface in the
       plan; this phase is a rewrite, which is more of it
-- [ ] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
-      only writer of those fields, so do not edit `current_phase` or `completed_tasks` by hand
+- [x] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
+      only writer of those fields, so do not edit `current_phase` or `completed_tasks` by hand.
+      *Reconciled 2026-09-19 across every phase at once, not at this checkpoint: 81 → 83 of 85.
+      Drift between checkpoints is expected; letting it sit unreconciled for four phases was
+      not.*
 
 **Do not proceed without human confirmation of manual tests** — unless the phase is being run
 under `/wb:implement --auto`, which buys the wait and not the attestation. In that case the
