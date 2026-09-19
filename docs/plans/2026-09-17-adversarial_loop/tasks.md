@@ -1623,20 +1623,24 @@ resolved, leaving a dated line saying how.
 
 ### Implementation Notes
 
-- **[2026-09-19] The generated-mutant backlog is closed: 244/293 killed, 49 waived, 0
+- **[2026-09-19] The generated-mutant backlog is closed: 244/292 killed, 48 waived, 0
   surviving** (was 198/293 with 94 surviving). 19 corpus cases, 6 integrity claims, 48
-  waivers. Two findings came out of it that are **not** fixed here, because the task was to
-  kill or waive each mutant and neither is a corpus case:
-  - **`check-guards:318`'s `os.chdir(root)` is vestigial.** Targets are made absolute on the
-    line above it and nothing after it reads the working directory, so deleting the call is
-    unobservable — which is exactly why its mutant is waived rather than killed. Removing it
-    is the honest fix and is a change to the tool; it also moves the anchor of every waiver
-    below line 318, so it wants doing deliberately and followed by a re-anchoring sweep.
-  - **Waivers are anchored on source line numbers.** Any edit to `check-guards` unhooks the
-    waivers below it, and the ratchet cannot see it because moving a mutant from `waived` to
-    `survivors` leaves the kill count unchanged. Mitigated, not solved: the sweep now exits 1
-    on a waiver matching no generated mutant. Anchoring on the mutated source text instead
-    would solve it and is a larger change.
+  waivers. Two findings it raised are now also closed, in a second pass:
+  - **`os.chdir(root)` in `main` is gone.** It was vestigial: every path is absolute by the
+    time it ran and nothing downstream read the working directory, which is exactly why its
+    mutant could not be killed. The generated sweep is what established that — the deletion
+    changed no corpus case and no integrity claim. The curated mutation that inverted it
+    (`resolve targets after the chdir`) now mutates the resolution itself
+    (`take the targets raw instead of resolving them`), which the no-target integrity claim
+    catches.
+  - **Waivers no longer carry line numbers.** A mutant is addressed by a key —
+    `<scope> | <enclosing block> | <statement> | <operator>`, with `#n` only where two
+    identical statements share a block — so an edit elsewhere in the file leaves every waiver
+    bound. Falsified by shifting every line in `check-guards` down by two: all 48 still
+    matched and the sweep reported 0 survivors, where the old scheme would have gone 48-ways
+    stale in silence. The sweep still exits 1 on a waiver matching no mutant, and reports
+    without failing one a corpus case has since made redundant; both branches falsified
+    against planted waivers.
 - **[2026-09-19] Two `.pyc` files were tracked under `plugin/scripts/__pycache__/`** and so
   shipped to installers, churning on every sweep run — `test-guards` imports `lib_mutate`, so
   running the suite writes bytecode into the plugin directory. Untracked and added to

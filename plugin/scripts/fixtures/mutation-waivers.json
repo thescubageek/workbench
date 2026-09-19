@@ -1,198 +1,194 @@
 [
  {
-  "match": "L41 regex drop word boundaries",
+  "match": "<module> | \"\"\"check-guards \u2014 find measurements whose failure is indistingui... | del Expr",
+  "reason": "EQUIVALENT. Deletes a docstring. A docstring is a string expression nothing evaluates: `collect()` returns the same findings and the CLI prints the same output, so no corpus case and no integrity claim can observe it. The generator walks the syntax tree and cannot tell a docstring from a statement \u2014 that is the price of it having no blind spot correlated with the author's, and it is worth paying."
+ },
+ {
+  "match": "<module> | FENCE = re.compile(r'^(?P<ind>[ ]{0,3})(?P<f>`{3,}|~{3,})[ \\t]*(... | regex drop the leading anchor: ^(?P<ind>[ ]{0,3})(?P<f>`{3,}|~{3,})",
+  "reason": "EQUIVALENT, provably. The pattern is applied with `re.match`, which anchors at position 0 by definition; it is not compiled with `re.MULTILINE` and is never applied to text containing a newline. The `^` cannot change a decision. It stays because the pattern should read as anchored, and a later change to `.search` would need it."
+ },
+ {
+  "match": "<module> | COUNTING = re.compile(r'\\bgrep\\b[^|;)`]*?\\s(?:-[A-Za-z]*c|--coun... | regex drop word boundaries: \\bgrep\\b[^|;)`]*?\\s(?:-[A-Za-z]*c|--",
   "reason": "EQUIVALENT. COUNTING's \\b around `grep` is redundant against this corpus: every fixture spells the command as a standalone word, so removing the boundaries changes no decision. The boundaries are still right \u2014 `egrep`/`zgrep` must not match \u2014 but no case distinguishes it, and inventing one to satisfy the mutant would be fitting the corpus to the tool."
  },
  {
-  "match": "L2 del Expr",
-  "reason": "EQUIVALENT. Deletes the docstring of the module docstring. A docstring is a string expression nothing evaluates: `collect()` returns the same findings and the CLI prints the same output, so no corpus case and no integrity claim can observe it. The generator walks the syntax tree and cannot tell a docstring from a statement \u2014 that is the price of it having no blind spot correlated with the author's, and it is worth paying."
- },
- {
-  "match": "L52 del Expr",
-  "reason": "EQUIVALENT. Deletes the docstring of md_shell_lines. A docstring is a string expression nothing evaluates: `collect()` returns the same findings and the CLI prints the same output, so no corpus case and no integrity claim can observe it. The generator walks the syntax tree and cannot tell a docstring from a statement \u2014 that is the price of it having no blind spot correlated with the author's, and it is worth paying."
- },
- {
-  "match": "L81 del Expr",
-  "reason": "EQUIVALENT. Deletes the docstring of strip_comment. A docstring is a string expression nothing evaluates: `collect()` returns the same findings and the CLI prints the same output, so no corpus case and no integrity claim can observe it. The generator walks the syntax tree and cannot tell a docstring from a statement \u2014 that is the price of it having no blind spot correlated with the author's, and it is worth paying."
- },
- {
-  "match": "L104 del Expr",
-  "reason": "EQUIVALENT. Deletes the docstring of _quote_spans. A docstring is a string expression nothing evaluates: `collect()` returns the same findings and the CLI prints the same output, so no corpus case and no integrity claim can observe it. The generator walks the syntax tree and cannot tell a docstring from a statement \u2014 that is the price of it having no blind spot correlated with the author's, and it is worth paying."
- },
- {
-  "match": "L120 del Expr",
-  "reason": "EQUIVALENT. Deletes the docstring of substitutions. A docstring is a string expression nothing evaluates: `collect()` returns the same findings and the CLI prints the same output, so no corpus case and no integrity claim can observe it. The generator walks the syntax tree and cannot tell a docstring from a statement \u2014 that is the price of it having no blind spot correlated with the author's, and it is worth paying."
- },
- {
-  "match": "L163 del Expr",
-  "reason": "EQUIVALENT. Deletes the docstring of _status_tested. A docstring is a string expression nothing evaluates: `collect()` returns the same findings and the CLI prints the same output, so no corpus case and no integrity claim can observe it. The generator walks the syntax tree and cannot tell a docstring from a statement \u2014 that is the price of it having no blind spot correlated with the author's, and it is worth paying."
- },
- {
-  "match": "L176 del Expr",
-  "reason": "EQUIVALENT. Deletes the docstring of _is_guard. A docstring is a string expression nothing evaluates: `collect()` returns the same findings and the CLI prints the same output, so no corpus case and no integrity claim can observe it. The generator walks the syntax tree and cannot tell a docstring from a statement \u2014 that is the price of it having no blind spot correlated with the author's, and it is worth paying."
- },
- {
-  "match": "L182 del Expr",
-  "reason": "EQUIVALENT. Deletes the docstring of analyse. A docstring is a string expression nothing evaluates: `collect()` returns the same findings and the CLI prints the same output, so no corpus case and no integrity claim can observe it. The generator walks the syntax tree and cannot tell a docstring from a statement \u2014 that is the price of it having no blind spot correlated with the author's, and it is worth paying."
- },
- {
-  "match": "L261 del Expr",
-  "reason": "EQUIVALENT. Deletes the docstring of collect. A docstring is a string expression nothing evaluates: `collect()` returns the same findings and the CLI prints the same output, so no corpus case and no integrity claim can observe it. The generator walks the syntax tree and cannot tell a docstring from a statement \u2014 that is the price of it having no blind spot correlated with the author's, and it is worth paying."
- },
- {
-  "match": "L39 regex drop the leading anchor",
-  "reason": "EQUIVALENT, provably. FENCE is applied with `re.match`, which anchors at position 0 by definition; it is not compiled with `re.MULTILINE` and is never applied to text containing a newline. The `^` cannot change a decision. It stays because the pattern should read as anchored, and a later change to `.search` would need it."
- },
- {
-  "match": "L159 regex drop the leading anchor",
-  "reason": "EQUIVALENT, provably. STATUS_LINE is applied with `re.match`, which anchors at position 0 by definition; it is not compiled with `re.MULTILINE` and is never applied to text containing a newline. The `^` cannot change a decision. It stays because the pattern should read as anchored, and a later change to `.search` would need it."
- },
- {
-  "match": "L233 regex drop the leading anchor",
-  "reason": "EQUIVALENT, provably. the `for` matcher is applied with `re.match`, which anchors at position 0 by definition; it is not compiled with `re.MULTILINE` and is never applied to text containing a newline. The `^` cannot change a decision. It stays because the pattern should read as anchored, and a later change to `.search` would need it."
- },
- {
-  "match": "L44 regex drop word boundaries",
+  "match": "<module> | GUARD = re.compile(r'\\|\\|\\s*(?:true\\b|:(?!\\w)|echo\\b)') | regex drop word boundaries: \\|\\|\\s*(?:true\\b|:(?!\\w)|echo\\b)",
   "reason": "WAIVED, and the label is disputed rather than clear-cut \u2014 which is why there is no corpus case. The boundaries stop `|| truncate` and `|| echoes` reading as the whitelisted no-ops `true` and `echo`. But `||` guards the exit status whatever follows it, and the exit status is the whole subject of shape 1, so the line the boundary makes the tool fire on \u2014 `n=$(grep -c f g) || echo_warn 'none'` \u2014 is arguably a false positive and not a catch. Pinning it MUST-FIRE would encode that disputed prior into the corpus, which is the mistake Q8-5 already recorded once. The boundaries stay because a whitelist should mean the words it lists."
  },
  {
-  "match": "L177 regex make + lazy-optional",
-  "reason": "EQUIVALENT in shell. Relaxing `\\s+` to `\\s*` accepts `[-e ` and `test-f `. `[` and `test` are commands and need an argument separator, so neither is valid shell. The only other distinguishing input is a word ENDING in `test` immediately followed by `-e ` inside a glob-loop body \u2014 `cp \"$f\" releases/latest-e` \u2014 which is a fixture composed to satisfy the mutant, not to describe a script anyone writes."
+  "match": "md_shell_lines | \"\"\"(lineno, line) for lines inside bash/sh/shell fences. | del Expr",
+  "reason": "EQUIVALENT. Deletes a docstring. A docstring is a string expression nothing evaluates: `collect()` returns the same findings and the CLI prints the same output, so no corpus case and no integrity claim can observe it. The generator walks the syntax tree and cannot tell a docstring from a statement \u2014 that is the price of it having no blind spot correlated with the author's, and it is worth paying."
  },
  {
-  "match": "L218 regex make + lazy-optional",
-  "reason": "EQUIVALENT for any working command. `--include=(\\S+)` and `(\\S*)` differ only when `--include=` is followed immediately by whitespace or end of line: the flag with no value, which matches nothing and is a broken invocation. Prose mentioning the flag with its value separated by a space would distinguish them, and prose is deliberately not scanned."
- },
- {
-  "match": "L233 regex drop word boundaries",
-  "reason": "EQUIVALENT in shell. The boundary separates `; do` from `; do<word>`. `do` is a reserved word: `for f in *.md; done` and `for f in *.log; download x` are both syntax errors, so no valid one-liner loop distinguishes the two patterns."
- },
- {
-  "match": "L233 regex make + lazy-optional",
-  "reason": "EQUIVALENT in shell. Relaxing `for\\s+` to `for\\s*` makes `forx in *.md; do` parse as a loop over `x`. `for` is a reserved word and must be followed by whitespace; the mutant differs only on input that is not a `for` loop at all."
- },
- {
-  "match": "L59 int 0+1",
+  "match": "md_shell_lines | out, inb, ch, ln = [], False, '', 0 | int 0+1",
   "reason": "EQUIVALENT, provably. `ln` is read only by the fence-closer test, which runs only when `inb` is true, and `inb` becomes true only on the line that assigns `ln` from the opener's own run length. The initialiser is never read."
  },
  {
-  "match": "L59 int 0-1",
+  "match": "md_shell_lines | out, inb, ch, ln = [], False, '', 0 | int 0-1",
   "reason": "EQUIVALENT, provably. `ln` is read only by the fence-closer test, which runs only when `inb` is true, and `inb` becomes true only on the line that assigns `ln` from the opener's own run length. The initialiser is never read."
  },
  {
-  "match": "L68 int 0+1",
+  "match": "md_shell_lines | if m: | inb, ch, ln = True, m.group('f')[0], len(m.group('f')) | int 0+1",
   "reason": "EQUIVALENT, provably. The subscript indexes `m.group('f')`, which FENCE constrains to `` `{3,} `` or `~{3,}` \u2014 three or more of ONE character. `[0]`, `[1]` and `[-1]` are therefore the same character for every string the pattern can match."
  },
  {
-  "match": "L68 int 0-1",
+  "match": "md_shell_lines | if m: | inb, ch, ln = True, m.group('f')[0], len(m.group('f')) | int 0-1",
   "reason": "EQUIVALENT, provably. The subscript indexes `m.group('f')`, which FENCE constrains to `` `{3,} `` or `~{3,}` \u2014 three or more of ONE character. `[0]`, `[1]` and `[-1]` are therefore the same character for every string the pattern can match."
  },
  {
-  "match": "L72 int 0+1",
-  "reason": "EQUIVALENT, provably. The subscript indexes `m.group('f')`, which FENCE constrains to `` `{3,} `` or `~{3,}` \u2014 three or more of ONE character. `[0]`, `[1]` and `[-1]` are therefore the same character for every string the pattern can match."
- },
- {
-  "match": "L72 int 0-1",
-  "reason": "EQUIVALENT, provably. The subscript indexes `m.group('f')`, which FENCE constrains to `` `{3,} `` or `~{3,}` \u2014 three or more of ONE character. `[0]`, `[1]` and `[-1]` are therefore the same character for every string the pattern can match."
- },
- {
-  "match": "L127 int 0+1",
-  "reason": "EQUIVALENT in practice. Starting the span scan at index 1 loses only a substitution that begins at column 0. A `$(...)` or backtick at column 0 is a command substitution being run AS a command; shape 1 is about a captured count, which always has an assignment, a test or a pipeline to its left. No line this detector is about starts with the substitution."
- },
- {
-  "match": "L130 int 2-1",
-  "reason": "EQUIVALENT, provably. The branch is entered only when `line.startswith('$(', i)`, so `line[i + 1]` is always `(` \u2014 it does not start `$(` and it is not `)`. The extra iteration changes nothing before `j` reaches `i + 2`."
- },
- {
-  "match": "L130 int 2+1",
-  "reason": "EQUIVALENT in practice. Starting at `i + 3` skips the first character of the substitution's body, which changes a decision only when that character is `)` (an empty `$()`) or opens an immediately nested `$($(...))`. Neither is a shape a counting capture takes."
- },
- {
-  "match": "L134 int 2+1",
-  "reason": "EQUIVALENT in practice. All three change how the scanner steps past a nested `$(` it has just counted. Stepping by 1 lands on the `(`, which is neither `$(` nor `)`, so the next iteration recovers; stepping by 3, or falling through instead of continuing, differ only when the character immediately after a nested `$(` is `)` or begins another `$(` \u2014 `$($())` and `$($(...))`. No counting capture is written that way. (Deleting the step entirely is NOT waived: it spins, and s1-nested-substitution catches it.)"
- },
- {
-  "match": "L134 int 2-1",
-  "reason": "EQUIVALENT in practice. All three change how the scanner steps past a nested `$(` it has just counted. Stepping by 1 lands on the `(`, which is neither `$(` nor `)`, so the next iteration recovers; stepping by 3, or falling through instead of continuing, differ only when the character immediately after a nested `$(` is `)` or begins another `$(` \u2014 `$($())` and `$($(...))`. No counting capture is written that way. (Deleting the step entirely is NOT waived: it spins, and s1-nested-substitution catches it.)"
- },
- {
-  "match": "L135 del Continue",
-  "reason": "EQUIVALENT in practice. All three change how the scanner steps past a nested `$(` it has just counted. Stepping by 1 lands on the `(`, which is neither `$(` nor `)`, so the next iteration recovers; stepping by 3, or falling through instead of continuing, differ only when the character immediately after a nested `$(` is `)` or begins another `$(` \u2014 `$($())` and `$($(...))`. No counting capture is written that way. (Deleting the step entirely is NOT waived: it spins, and s1-nested-substitution catches it.)"
- },
- {
-  "match": "L139 int 2-1",
-  "reason": "EQUIVALENT, provably. The span's inner text gains one leading character, and that character is always the `(` of the `$(` that opened it. COUNTING starts matching at `\\bgrep\\b` and `(` is a non-word character, so the boundary still holds; GUARD requires `||`. Neither detector can read differently for it."
- },
- {
-  "match": "L139 int 1-1",
-  "reason": "EQUIVALENT for any closed substitution. The span's end moves from the `)` to one past it, so the inner text gains exactly that `)`. COUNTING's negated class excludes `)` so it cannot match across it, GUARD requires `||`, and `after.lstrip('`)')` strips the same character back off the other side. The two forms can differ only on an UNCLOSED `$(`, where there is no `)` \u2014 and an unclosed substitution is a shell syntax error."
- },
- {
-  "match": "L142 int 1+1",
-  "reason": "EQUIVALENT in practice. `find('`', i + 1)` and `find('`', i + 2)` differ only when the closing backtick sits at `i + 1`, i.e. an empty capture ``` `` ```. Anything with content puts the closer at `i + 2` or later."
- },
- {
-  "match": "L149 int 1-1",
-  "reason": "EQUIVALENT, provably. The backtick span's inner text gains one leading character, always the opening backtick itself. COUNTING anchors on `\\bgrep\\b` and a backtick is a non-word character, so the boundary holds; GUARD requires `||`."
- },
- {
-  "match": "L150 int 1+1",
-  "reason": "EQUIVALENT in practice. `j + 0` re-uses the closing backtick as the next opener, which recovers every real pair and additionally spans the text BETWEEN pairs \u2014 ordinary shell on the same line, so any finding it produces is already reported at that line and the set is unchanged. `j + 2` skips the single character after a closing backtick, which distinguishes only a substitution opening flush against it."
- },
- {
-  "match": "L150 int 1-1",
-  "reason": "EQUIVALENT in practice. `j + 0` re-uses the closing backtick as the next opener, which recovers every real pair and additionally spans the text BETWEEN pairs \u2014 ordinary shell on the same line, so any finding it produces is already reported at that line and the set is unchanged. `j + 2` skips the single character after a closing backtick, which distinguishes only a substitution opening flush against it."
- },
- {
-  "match": "L143 int 1+1",
-  "reason": "EQUIVALENT because the branch is unreachable from valid shell \u2014 the same argument as the curated `abandon the line on a stray backtick` waiver, which this extends. The branch runs only when an unquoted backtick has no pair on the line: an unquoted, unpaired backtick is a syntax error, and a backtick inside quotes never enters the branch because the quote scanner masks it. Several of these mutants would spin forever if the branch ever ran, which is an argument for keeping the branch defensive and none at all for writing an invalid fixture to reach it."
- },
- {
-  "match": "L143 int 1-1",
-  "reason": "EQUIVALENT because the branch is unreachable from valid shell \u2014 the same argument as the curated `abandon the line on a stray backtick` waiver, which this extends. The branch runs only when an unquoted backtick has no pair on the line: an unquoted, unpaired backtick is a syntax error, and a backtick inside quotes never enters the branch because the quote scanner masks it. Several of these mutants would spin forever if the branch ever ran, which is an argument for keeping the branch defensive and none at all for writing an invalid fixture to reach it."
- },
- {
-  "match": "L143 del If",
-  "reason": "EQUIVALENT because the branch is unreachable from valid shell \u2014 the same argument as the curated `abandon the line on a stray backtick` waiver, which this extends. The branch runs only when an unquoted backtick has no pair on the line: an unquoted, unpaired backtick is a syntax error, and a backtick inside quotes never enters the branch because the quote scanner masks it. Several of these mutants would spin forever if the branch ever ran, which is an argument for keeping the branch defensive and none at all for writing an invalid fixture to reach it."
- },
- {
-  "match": "L147 int 1+1",
-  "reason": "EQUIVALENT because the branch is unreachable from valid shell \u2014 the same argument as the curated `abandon the line on a stray backtick` waiver, which this extends. The branch runs only when an unquoted backtick has no pair on the line: an unquoted, unpaired backtick is a syntax error, and a backtick inside quotes never enters the branch because the quote scanner masks it. Several of these mutants would spin forever if the branch ever ran, which is an argument for keeping the branch defensive and none at all for writing an invalid fixture to reach it."
- },
- {
-  "match": "L147 int 1-1",
-  "reason": "EQUIVALENT because the branch is unreachable from valid shell \u2014 the same argument as the curated `abandon the line on a stray backtick` waiver, which this extends. The branch runs only when an unquoted backtick has no pair on the line: an unquoted, unpaired backtick is a syntax error, and a backtick inside quotes never enters the branch because the quote scanner masks it. Several of these mutants would spin forever if the branch ever ran, which is an argument for keeping the branch defensive and none at all for writing an invalid fixture to reach it."
- },
- {
-  "match": "L147 del AugAssign",
-  "reason": "EQUIVALENT because the branch is unreachable from valid shell \u2014 the same argument as the curated `abandon the line on a stray backtick` waiver, which this extends. The branch runs only when an unquoted backtick has no pair on the line: an unquoted, unpaired backtick is a syntax error, and a backtick inside quotes never enters the branch because the quote scanner masks it. Several of these mutants would spin forever if the branch ever ran, which is an argument for keeping the branch defensive and none at all for writing an invalid fixture to reach it."
- },
- {
-  "match": "L148 del Continue",
-  "reason": "EQUIVALENT because the branch is unreachable from valid shell \u2014 the same argument as the curated `abandon the line on a stray backtick` waiver, which this extends. The branch runs only when an unquoted backtick has no pair on the line: an unquoted, unpaired backtick is a syntax error, and a backtick inside quotes never enters the branch because the quote scanner masks it. Several of these mutants would spin forever if the branch ever ran, which is an argument for keeping the branch defensive and none at all for writing an invalid fixture to reach it."
- },
- {
-  "match": "L215 del Break",
-  "reason": "EQUIVALENT under the comparison this suite makes. shape 1's `break` after a finding stops the same finding being appended more than once for one line. Findings are compared as a set of `(line, shape)`, so repetition is invisible to every case. Recorded honestly: a MULTISET comparison would kill all three, and duplicate output IS a real defect \u2014 this is a gap in the scoring, not a property of the code, and the scoring is the cheaper thing to change if it ever matters."
- },
- {
-  "match": "L221 del Break",
-  "reason": "EQUIVALENT under the comparison this suite makes. shape 2's `break` after a finding stops the same finding being appended more than once for one line. Findings are compared as a set of `(line, shape)`, so repetition is invisible to every case. Recorded honestly: a MULTISET comparison would kill all three, and duplicate output IS a real defect \u2014 this is a gap in the scoring, not a property of the code, and the scoring is the cheaper thing to change if it ever matters."
- },
- {
-  "match": "L232 del Assign",
-  "reason": "EQUIVALENT under the comparison this suite makes. clearing `pending_glob` after a window report stops the same finding being appended more than once for one line. Findings are compared as a set of `(line, shape)`, so repetition is invisible to every case. Recorded honestly: a MULTISET comparison would kill all three, and duplicate output IS a real defect \u2014 this is a gap in the scoring, not a property of the code, and the scoring is the cheaper thing to change if it ever matters."
- },
- {
-  "match": "L71 del Continue",
+  "match": "md_shell_lines | if not inb: | continue | del Continue",
   "reason": "EQUIVALENT in practice. Without it a shell fence's OPENER line is appended to the scanned lines. The opener is ```` ```bash ```` or `~~~sh`: no detector matches it, and the status lookahead only scans forward, so an extra contiguous predecessor cannot change a decision. The one distinguishing shape is a `for` loop whose body is split across two fences, so that the second fence's opener pushes the glob window over its limit. That is a markdown file nobody writes."
  },
  {
-  "match": "L74 del Continue",
+  "match": "md_shell_lines | for i, line in enumerate(text.splitlines(), 1): | if m and m.group('f')[0] == ch and len(m.group('f')) >= ln and n... | int 0+1",
+  "reason": "EQUIVALENT, provably. The subscript indexes `m.group('f')`, which FENCE constrains to `` `{3,} `` or `~{3,}` \u2014 three or more of ONE character. `[0]`, `[1]` and `[-1]` are therefore the same character for every string the pattern can match."
+ },
+ {
+  "match": "md_shell_lines | for i, line in enumerate(text.splitlines(), 1): | if m and m.group('f')[0] == ch and len(m.group('f')) >= ln and n... | int 0-1",
+  "reason": "EQUIVALENT, provably. The subscript indexes `m.group('f')`, which FENCE constrains to `` `{3,} `` or `~{3,}` \u2014 three or more of ONE character. `[0]`, `[1]` and `[-1]` are therefore the same character for every string the pattern can match."
+ },
+ {
+  "match": "md_shell_lines | if m and m.group('f')[0] == ch and len(m.group('f')) >= ln and n... | continue | del Continue",
   "reason": "EQUIVALENT, provably. The only statement after the fence-closer branch is `if shell: out.append(...)`, and the branch has just assigned `shell = False`."
  },
  {
-  "match": "L318 del Expr",
-  "reason": "EQUIVALENT \u2014 and the argument doubles as a finding. `os.chdir(root)` has no observable effect: the targets are made absolute on the line above it, `os.walk`, `open` and `os.path.relpath(path, root)` are all given absolute paths, and nothing after it reads the working directory. No test can distinguish the two behaviours because there is no difference. The call is vestigial and removing it is the honest fix, but that is a change to the tool rather than a corpus case, so it is recorded here and raised separately."
+  "match": "strip_comment | \"\"\"Drop a trailing comment, respecting quotes. | del Expr",
+  "reason": "EQUIVALENT. Deletes a docstring. A docstring is a string expression nothing evaluates: `collect()` returns the same findings and the CLI prints the same output, so no corpus case and no integrity claim can observe it. The generator walks the syntax tree and cannot tell a docstring from a statement \u2014 that is the price of it having no blind spot correlated with the author's, and it is worth paying."
+ },
+ {
+  "match": "_quote_spans | \"\"\"Index -> True when that index sits inside a quoted string.\"\"\" | del Expr",
+  "reason": "EQUIVALENT. Deletes a docstring. A docstring is a string expression nothing evaluates: `collect()` returns the same findings and the CLI prints the same output, so no corpus case and no integrity claim can observe it. The generator walks the syntax tree and cannot tell a docstring from a statement \u2014 that is the price of it having no blind spot correlated with the author's, and it is worth paying."
+ },
+ {
+  "match": "substitutions | \"\"\"(inner_start, close_index) for every $( ) and backtick span, ... | del Expr",
+  "reason": "EQUIVALENT. Deletes a docstring. A docstring is a string expression nothing evaluates: `collect()` returns the same findings and the CLI prints the same output, so no corpus case and no integrity claim can observe it. The generator walks the syntax tree and cannot tell a docstring from a statement \u2014 that is the price of it having no blind spot correlated with the author's, and it is worth paying."
+ },
+ {
+  "match": "substitutions | res, i = [], 0 | int 0+1",
+  "reason": "EQUIVALENT in practice. Starting the span scan at index 1 loses only a substitution that begins at column 0. A `$(...)` or backtick at column 0 is a command substitution being run AS a command; shape 1 is about a captured count, which always has an assignment, a test or a pipeline to its left. No line this detector is about starts with the substitution."
+ },
+ {
+  "match": "substitutions | if line.startswith('$(', i) and not q[i]: | depth, j = 1, i + 2 | int 2+1",
+  "reason": "EQUIVALENT in practice. Starting at `i + 3` skips the first character of the substitution's body, which changes a decision only when that character is `)` (an empty `$()`) or opens an immediately nested `$($(...))`. Neither is a shape a counting capture takes."
+ },
+ {
+  "match": "substitutions | if line.startswith('$(', i) and not q[i]: | depth, j = 1, i + 2 | int 2-1",
+  "reason": "EQUIVALENT, provably. The branch is entered only when `line.startswith('$(', i)`, so `line[i + 1]` is always `(` \u2014 it does not start `$(` and it is not `)`. The extra iteration changes nothing before `j` reaches `i + 2`."
+ },
+ {
+  "match": "substitutions | if line.startswith('$(', j) and not q[j]: | j += 2 | int 2+1",
+  "reason": "EQUIVALENT in practice. These change how the scanner steps past a nested `$(` it has just counted. Stepping by 1 lands on the `(`, which is neither `$(` nor `)`, so the next iteration recovers; stepping by 3, or falling through instead of continuing, differ only when the character immediately after a nested `$(` is `)` or begins another `$(` \u2014 `$($())` and `$($(...))`. No counting capture is written that way. Deleting the step entirely is NOT waived: it spins, and s1-nested-substitution catches it."
+ },
+ {
+  "match": "substitutions | if line.startswith('$(', j) and not q[j]: | j += 2 | int 2-1",
+  "reason": "EQUIVALENT in practice. These change how the scanner steps past a nested `$(` it has just counted. Stepping by 1 lands on the `(`, which is neither `$(` nor `)`, so the next iteration recovers; stepping by 3, or falling through instead of continuing, differ only when the character immediately after a nested `$(` is `)` or begins another `$(` \u2014 `$($())` and `$($(...))`. No counting capture is written that way. Deleting the step entirely is NOT waived: it spins, and s1-nested-substitution catches it."
+ },
+ {
+  "match": "substitutions | if line.startswith('$(', j) and not q[j]: | continue | del Continue",
+  "reason": "EQUIVALENT in practice. These change how the scanner steps past a nested `$(` it has just counted. Stepping by 1 lands on the `(`, which is neither `$(` nor `)`, so the next iteration recovers; stepping by 3, or falling through instead of continuing, differ only when the character immediately after a nested `$(` is `)` or begins another `$(` \u2014 `$($())` and `$($(...))`. No counting capture is written that way. Deleting the step entirely is NOT waived: it spins, and s1-nested-substitution catches it."
+ },
+ {
+  "match": "substitutions | if line.startswith('$(', i) and not q[i]: | res.append((i + 2, j - 1)) | int 2-1",
+  "reason": "EQUIVALENT, provably. The span's inner text gains one leading character, and that character is always the `(` of the `$(` that opened it. COUNTING starts matching at `\\bgrep\\b` and `(` is a non-word character, so the boundary still holds; GUARD requires `||`. Neither detector can read differently for it."
+ },
+ {
+  "match": "substitutions | if line.startswith('$(', i) and not q[i]: | res.append((i + 2, j - 1)) | int 1-1",
+  "reason": "EQUIVALENT for any closed substitution. The span's end moves from the `)` to one past it, so the inner text gains exactly that `)`. COUNTING's negated class excludes `)` so it cannot match across it, GUARD requires `||`, and ``after.lstrip('`)')`` strips the same character back off the other side. The two forms can differ only on an UNCLOSED `$(`, where there is no `)` \u2014 and an unclosed substitution is a shell syntax error."
+ },
+ {
+  "match": "substitutions | elif line[i] == '`' and not q[i]: | j = line.find('`', i + 1) | int 1+1",
+  "reason": "EQUIVALENT in practice. ``find('`', i + 1)`` and ``find('`', i + 2)`` differ only when the closing backtick sits at `i + 1`, i.e. an empty capture ``` `` ```. Anything with content puts the closer at `i + 2` or later."
+ },
+ {
+  "match": "substitutions | elif line[i] == '`' and not q[i]: | if j == -1: | int 1+1",
+  "reason": "EQUIVALENT because the branch is unreachable from valid shell \u2014 the same argument as the curated `abandon the line on a stray backtick` waiver, which this extends. The branch runs only when an unquoted backtick has no pair on the line: an unquoted, unpaired backtick is a syntax error, and a backtick inside quotes never enters the branch because the quote scanner masks it. Several of these mutants would spin forever if the branch ever ran, which is an argument for keeping the branch defensive and none at all for writing an invalid fixture to reach it."
+ },
+ {
+  "match": "substitutions | elif line[i] == '`' and not q[i]: | if j == -1: | int 1-1",
+  "reason": "EQUIVALENT because the branch is unreachable from valid shell \u2014 the same argument as the curated `abandon the line on a stray backtick` waiver, which this extends. The branch runs only when an unquoted backtick has no pair on the line: an unquoted, unpaired backtick is a syntax error, and a backtick inside quotes never enters the branch because the quote scanner masks it. Several of these mutants would spin forever if the branch ever ran, which is an argument for keeping the branch defensive and none at all for writing an invalid fixture to reach it."
+ },
+ {
+  "match": "substitutions | elif line[i] == '`' and not q[i]: | if j == -1: | del If",
+  "reason": "EQUIVALENT because the branch is unreachable from valid shell \u2014 the same argument as the curated `abandon the line on a stray backtick` waiver, which this extends. The branch runs only when an unquoted backtick has no pair on the line: an unquoted, unpaired backtick is a syntax error, and a backtick inside quotes never enters the branch because the quote scanner masks it. Several of these mutants would spin forever if the branch ever ran, which is an argument for keeping the branch defensive and none at all for writing an invalid fixture to reach it."
+ },
+ {
+  "match": "substitutions | if j == -1: | i += 1 | int 1+1",
+  "reason": "EQUIVALENT because the branch is unreachable from valid shell \u2014 the same argument as the curated `abandon the line on a stray backtick` waiver, which this extends. The branch runs only when an unquoted backtick has no pair on the line: an unquoted, unpaired backtick is a syntax error, and a backtick inside quotes never enters the branch because the quote scanner masks it. Several of these mutants would spin forever if the branch ever ran, which is an argument for keeping the branch defensive and none at all for writing an invalid fixture to reach it."
+ },
+ {
+  "match": "substitutions | if j == -1: | i += 1 | int 1-1",
+  "reason": "EQUIVALENT because the branch is unreachable from valid shell \u2014 the same argument as the curated `abandon the line on a stray backtick` waiver, which this extends. The branch runs only when an unquoted backtick has no pair on the line: an unquoted, unpaired backtick is a syntax error, and a backtick inside quotes never enters the branch because the quote scanner masks it. Several of these mutants would spin forever if the branch ever ran, which is an argument for keeping the branch defensive and none at all for writing an invalid fixture to reach it."
+ },
+ {
+  "match": "substitutions | if j == -1: | i += 1 | del AugAssign",
+  "reason": "EQUIVALENT because the branch is unreachable from valid shell \u2014 the same argument as the curated `abandon the line on a stray backtick` waiver, which this extends. The branch runs only when an unquoted backtick has no pair on the line: an unquoted, unpaired backtick is a syntax error, and a backtick inside quotes never enters the branch because the quote scanner masks it. Several of these mutants would spin forever if the branch ever ran, which is an argument for keeping the branch defensive and none at all for writing an invalid fixture to reach it."
+ },
+ {
+  "match": "substitutions | if j == -1: | continue | del Continue",
+  "reason": "EQUIVALENT because the branch is unreachable from valid shell \u2014 the same argument as the curated `abandon the line on a stray backtick` waiver, which this extends. The branch runs only when an unquoted backtick has no pair on the line: an unquoted, unpaired backtick is a syntax error, and a backtick inside quotes never enters the branch because the quote scanner masks it. Several of these mutants would spin forever if the branch ever ran, which is an argument for keeping the branch defensive and none at all for writing an invalid fixture to reach it."
+ },
+ {
+  "match": "substitutions | elif line[i] == '`' and not q[i]: | res.append((i + 1, j)) | int 1-1",
+  "reason": "EQUIVALENT, provably. The backtick span's inner text gains one leading character, always the opening backtick itself. COUNTING anchors on `\\bgrep\\b` and a backtick is a non-word character, so the boundary holds; GUARD requires `||`."
+ },
+ {
+  "match": "substitutions | elif line[i] == '`' and not q[i]: | i = j + 1 | int 1+1",
+  "reason": "EQUIVALENT in practice. `j + 2` skips the single character after a closing backtick, which distinguishes only a substitution opening flush against it."
+ },
+ {
+  "match": "substitutions | elif line[i] == '`' and not q[i]: | i = j + 1 | int 1-1",
+  "reason": "EQUIVALENT in practice. `j + 0` re-uses the closing backtick as the next opener, which recovers every real pair and additionally spans the text BETWEEN pairs \u2014 ordinary shell on the same line, so any finding it produces is already reported at that line and the set is unchanged."
+ },
+ {
+  "match": "<module> | STATUS_LINE = re.compile(r'^\\s*(?:if\\s|\\[\\[?|test\\s|[A-Za-z_]\\w*... | regex drop the leading anchor: ^\\s*(?:if\\s|\\[\\[?|test\\s|[A-Za-z_]\\w",
+  "reason": "EQUIVALENT, provably. The pattern is applied with `re.match`, which anchors at position 0 by definition; it is not compiled with `re.MULTILINE` and is never applied to text containing a newline. The `^` cannot change a decision. It stays because the pattern should read as anchored, and a later change to `.search` would need it."
+ },
+ {
+  "match": "_status_tested | \"\"\"Is the capture on lines[idx] followed by a genuine test of it... | del Expr",
+  "reason": "EQUIVALENT. Deletes a docstring. A docstring is a string expression nothing evaluates: `collect()` returns the same findings and the CLI prints the same output, so no corpus case and no integrity claim can observe it. The generator walks the syntax tree and cannot tell a docstring from a statement \u2014 that is the price of it having no blind spot correlated with the author's, and it is worth paying."
+ },
+ {
+  "match": "_is_guard | \"\"\"Does this text establish that an unmatched glob is handled?\"\"... | del Expr",
+  "reason": "EQUIVALENT. Deletes a docstring. A docstring is a string expression nothing evaluates: `collect()` returns the same findings and the CLI prints the same output, so no corpus case and no integrity claim can observe it. The generator walks the syntax tree and cannot tell a docstring from a statement \u2014 that is the price of it having no blind spot correlated with the author's, and it is worth paying."
+ },
+ {
+  "match": "_is_guard | return bool(re.search(r'(?:\\[\\[?|test)\\s+!?\\s*-[efsr]\\s', text) | regex make + lazy-optional: (?:\\[\\[?|test)\\s+!?\\s*-[efsr]\\s",
+  "reason": "EQUIVALENT in shell. Relaxing `\\s+` to `\\s*` accepts `[-e ` and `test-f `. `[` and `test` are commands and need an argument separator, so neither is valid shell. The only other distinguishing input is a word ENDING in `test` immediately followed by `-e ` inside a glob-loop body \u2014 `cp \"$f\" releases/latest-e` \u2014 which is a fixture composed to satisfy the mutant, not to describe a script anyone writes."
+ },
+ {
+  "match": "analyse | \"\"\"lines: [(lineno, text)] -> [(lineno, shape, text)].\"\"\" | del Expr",
+  "reason": "EQUIVALENT. Deletes a docstring. A docstring is a string expression nothing evaluates: `collect()` returns the same findings and the CLI prints the same output, so no corpus case and no integrity claim can observe it. The generator walks the syntax tree and cannot tell a docstring from a statement \u2014 that is the price of it having no blind spot correlated with the author's, and it is worth paying."
+ },
+ {
+  "match": "analyse | for a, b in substitutions(line): | break | del Break",
+  "reason": "EQUIVALENT under the comparison this suite makes. The statement stops the same finding being appended more than once for one line, and findings are compared as a set of `(line, shape)`, so repetition is invisible to every case. Recorded honestly: a MULTISET comparison would kill all three of these, and duplicate output IS a real defect \u2014 this is a gap in the scoring, not a property of the code, and the scoring is the cheaper thing to change if it ever matters."
+ },
+ {
+  "match": "analyse | for idx, (no, raw) in enumerate(lines): | for m in re.finditer(r'--include=(\\S+)', line): | regex make + lazy-optional: --include=(\\S+)",
+  "reason": "EQUIVALENT for any working command. `--include=(\\S+)` and `(\\S*)` differ only when `--include=` is followed immediately by whitespace or end of line: the flag with no value, which matches nothing and is a broken invocation. Prose mentioning the flag with its value separated by a space would distinguish them, and prose is deliberately not scanned."
+ },
+ {
+  "match": "analyse | if not m.group(1).startswith(('\"', \"'\")): | break | del Break",
+  "reason": "EQUIVALENT under the comparison this suite makes. The statement stops the same finding being appended more than once for one line, and findings are compared as a set of `(line, shape)`, so repetition is invisible to every case. Recorded honestly: a MULTISET comparison would kill all three of these, and duplicate output IS a real defect \u2014 this is a gap in the scoring, not a property of the code, and the scoring is the cheaper thing to change if it ever matters."
+ },
+ {
+  "match": "analyse | if pending_glob[1] >= GLOB_WINDOW: | pending_glob = None | del Assign",
+  "reason": "EQUIVALENT under the comparison this suite makes. The statement stops the same finding being appended more than once for one line, and findings are compared as a set of `(line, shape)`, so repetition is invisible to every case. Recorded honestly: a MULTISET comparison would kill all three of these, and duplicate output IS a real defect \u2014 this is a gap in the scoring, not a property of the code, and the scoring is the cheaper thing to change if it ever matters."
+ },
+ {
+  "match": "analyse | for idx, (no, raw) in enumerate(lines): | m = re.match(r'^\\s*for\\s+[A-Za-z_]\\w*\\s+in\\s+(.*?)(?:;\\s*do\\b(?P... | regex drop the leading anchor: ^\\s*for\\s+[A-Za-z_]\\w*\\s+in\\s+(.*?)(",
+  "reason": "EQUIVALENT, provably. The pattern is applied with `re.match`, which anchors at position 0 by definition; it is not compiled with `re.MULTILINE` and is never applied to text containing a newline. The `^` cannot change a decision. It stays because the pattern should read as anchored, and a later change to `.search` would need it."
+ },
+ {
+  "match": "analyse | for idx, (no, raw) in enumerate(lines): | m = re.match(r'^\\s*for\\s+[A-Za-z_]\\w*\\s+in\\s+(.*?)(?:;\\s*do\\b(?P... | regex drop word boundaries: ^\\s*for\\s+[A-Za-z_]\\w*\\s+in\\s+(.*?)(",
+  "reason": "EQUIVALENT in shell. The boundary separates `; do` from `; do<word>`. `do` is a reserved word: `for f in *.md; done` and `for f in *.log; download x` are both syntax errors, so no valid one-liner loop distinguishes the two patterns."
+ },
+ {
+  "match": "analyse | for idx, (no, raw) in enumerate(lines): | m = re.match(r'^\\s*for\\s+[A-Za-z_]\\w*\\s+in\\s+(.*?)(?:;\\s*do\\b(?P... | regex make + lazy-optional: ^\\s*for\\s+[A-Za-z_]\\w*\\s+in\\s+(.*?)(",
+  "reason": "EQUIVALENT in shell. Relaxing `for\\s+` to `for\\s*` makes `forx in *.md; do` parse as a loop over `x`. `for` is a reserved word and must be followed by whitespace; the mutant differs only on input that is not a `for` loop at all."
+ },
+ {
+  "match": "collect | \"\"\"-> (findings, scanned_count). Raises SystemExit(2) when the s... | del Expr",
+  "reason": "EQUIVALENT. Deletes a docstring. A docstring is a string expression nothing evaluates: `collect()` returns the same findings and the CLI prints the same output, so no corpus case and no integrity claim can observe it. The generator walks the syntax tree and cannot tell a docstring from a statement \u2014 that is the price of it having no blind spot correlated with the author's, and it is worth paying."
  }
 ]

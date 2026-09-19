@@ -43,10 +43,77 @@ REGEX_WEAKENINGS = [
 # Nodes whose deletion is meaningless or fatal rather than informative.
 SKIP_DELETE = (ast.Import, ast.ImportFrom, ast.FunctionDef, ast.ClassDef, ast.Return)
 
+# Compound statements whose header line names the block a statement sits in.
+COMPOUND = (ast.If, ast.For, ast.AsyncFor, ast.While, ast.With, ast.AsyncWith, ast.Try)
 
-def _positions(tree):
-    """Stable identity for a node: its position in a deterministic walk."""
-    return {id(n): i for i, n in enumerate(ast.walk(tree))}
+KEY_WIDTH = 64
+
+
+def _head(src, node):
+    """The first source line of `node`, stripped and bounded.
+
+    The first line is enough because a compound statement leads with its header and a simple
+    one usually fits on a line. Bounding it keeps a key readable in the waivers file, which a
+    person has to review; two keys that collide after truncation are caught by the uniqueness
+    pass below rather than by hoping.
+    """
+    seg = ast.get_source_segment(src, node)
+    if not seg:
+        return ''
+    line = ' '.join(seg.splitlines()[0].split())
+    return line if len(line) <= KEY_WIDTH else line[:KEY_WIDTH] + '...'
+
+
+def _places(tree, src):
+    """node id -> (scope, enclosing-block header, own statement header).
+
+    This is what makes a mutant addressable by something other than a line number. A line
+    number moves when anything above it changes, so every waiver keyed on one is unhooked by
+    an unrelated edit — silently, because a waiver that matches nothing and a mutant that is
+    genuinely caught look identical from the outside.
+    """
+    out = {id(tree): ('<module>', '', '')}
+
+    def walk(node, scope, block, stmt):
+        for child in ast.iter_child_nodes(node):
+            c_scope, c_block, c_stmt = scope, block, stmt
+            if isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+                c_scope, c_block, c_stmt = child.name, '', ''
+            elif isinstance(child, ast.stmt):
+                c_block = _head(src, node) if isinstance(node, COMPOUND) else block
+                c_stmt = _head(src, child)
+            out[id(child)] = (c_scope, c_block, c_stmt)
+            walk(child, c_scope, c_block, c_stmt)
+
+    walk(tree, '<module>', '', '')
+    return out
+
+
+def _key(places, node, op):
+    scope, block, stmt = places.get(id(node), ('<module>', '', ''))
+    return ' | '.join(x for x in (scope, block, stmt, op) if x)
+
+
+def _disambiguate(out):
+    """Append `#n` to keys that repeat, so a waiver can only ever address one mutant.
+
+    Two identical statements in one block — `continue` in both arms of an if/else, the same
+    `i += 1` twice — produce the same key, and a waiver matching two mutants would silently
+    excuse one nobody argued about. The index is positional and so is the one fragile part
+    left, but it orders only the collisions inside a single block rather than every line in
+    the file.
+    """
+    seen = {}
+    for e in out:
+        seen[e[1]] = seen.get(e[1], 0) + 1
+    run = {}
+    fixed = []
+    for label, key, src in out:
+        if seen[key] > 1:
+            run[key] = run.get(key, 0) + 1
+            key = f'{key} #{run[key]}'
+        fixed.append((label, key, src))
+    return fixed
 
 
 def _rebuild(tree, target_index, mutate):
@@ -65,8 +132,13 @@ def _rebuild(tree, target_index, mutate):
 
 
 def generate(src):
-    """-> [(label, mutated_source)]. Deterministic and ordered."""
+    """-> [(label, key, mutated_source)]. Deterministic and ordered.
+
+    `label` is for reading — it leads with the line number, which is what a person wants when
+    they go and look. `key` is for waivers, and carries no line number at all.
+    """
     tree = ast.parse(src)
+    places = _places(tree, src)
     out = []
 
     main_guard_ids = {
@@ -92,7 +164,8 @@ def generate(src):
                     n.ops[k] = swap()
                 s = _rebuild(tree, i, m)
                 if s:
-                    out.append((f'L{node.lineno} cmp {type(op).__name__}->{swap.__name__}', s))
+                    o = f'cmp {type(op).__name__}->{swap.__name__}'
+                    out.append((f'L{node.lineno} {o}', _key(places, node, o), s))
 
         # --- boolean operators
         elif isinstance(node, ast.BoolOp):
@@ -100,7 +173,8 @@ def generate(src):
                 n.op = ast.Or() if isinstance(n.op, ast.And) else ast.And()
             s = _rebuild(tree, i, m)
             if s:
-                out.append((f'L{node.lineno} bool and<->or', s))
+                out.append((f'L{node.lineno} bool and<->or',
+                            _key(places, node, 'bool and<->or'), s))
 
         # --- integer constants
         elif isinstance(node, ast.Constant) and isinstance(node.value, int) \
@@ -110,7 +184,8 @@ def generate(src):
                     n.value = n.value + delta
                 s = _rebuild(tree, i, m)
                 if s:
-                    out.append((f'L{node.lineno} int {node.value}{name}', s))
+                    o = f'int {node.value}{name}'
+                    out.append((f'L{node.lineno} {o}', _key(places, node, o), s))
 
         # --- regex literals
         elif isinstance(node, ast.Constant) and isinstance(node.value, str):
@@ -133,7 +208,8 @@ def generate(src):
                     n.value = new
                 s = _rebuild(tree, i, m)
                 if s:
-                    out.append((f'L{node.lineno} regex {label}: {pat[:36]}', s))
+                    o = f'regex {label}: {pat[:36]}'
+                    out.append((f'L{node.lineno} {o}', _key(places, node, o), s))
 
     # --- statement deletion, done on the parent body so indices stay meaningful
     for i, node in enumerate(ast.walk(tree)):
@@ -148,7 +224,10 @@ def generate(src):
                     getattr(n, field).pop(k)
                 s = _rebuild(tree, i, m)
                 if s:
-                    kind = type(stmt).__name__
-                    out.append((f'L{getattr(stmt, "lineno", 0)} del {kind}', s))
+                    o = f'del {type(stmt).__name__}'
+                    if field != 'body':
+                        o += f' ({field})'
+                    out.append((f'L{getattr(stmt, "lineno", 0)} {o}',
+                                _key(places, stmt, o), s))
 
-    return out
+    return _disambiguate(out)

@@ -51,6 +51,39 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-19 15:56 — waiver keys and the vestigial chdir (closed)
+
+- **Task/phase**: out-of-plan follow-up to the mutation backlog — the two items the previous
+  entry left open, at the user's request.
+- **Landed**: `os.chdir(root)` removed from `check-guards`; generated mutants now carry a
+  **key** instead of a line number, and waivers match on it. 244/292 killed, 48 waived,
+  0 surviving; ratchet holds at 244.
+- **Learned**:
+  - **The key that works is `scope | enclosing block | statement | operator`.** Statement
+    text alone is not unique — `continue` appears in both arms of the same `if` in
+    `md_shell_lines`, and `i += 1` twice in `substitutions` — but the enclosing block's
+    header separates them and reads better than an index would. Only the `strip_comment`
+    comment test needed `#1`/`#2`, because it holds two `BoolOp`s and two `Compare`s in one
+    expression; that index orders the collisions inside one statement rather than every line
+    in the file.
+  - **Uniqueness is enforced, not hoped for.** All 292 keys are distinct after
+    disambiguation, and the generator appends `#n` itself — so a waiver can never address
+    two mutants and silently excuse one nobody argued about.
+  - **The falsification is the whole point and it is cheap**: shift every line in
+    `check-guards` down by two and re-run. All 48 waivers still bind. Under the old scheme
+    every one of them would have gone stale at once, and the ratchet would not have noticed,
+    because moving a mutant from `waived` to `survivors` leaves the kill count unchanged.
+  - **Removing the chdir cost one curated mutation its anchor.** `resolve targets after the
+    chdir` inverted two lines, one of which no longer exists — it would have reported
+    `MUTATION DID NOT APPLY`, which the suite prints but does not fail on. Re-pointed at the
+    property that is still real: take the targets raw, which the no-target integrity claim
+    catches.
+  - **The sweep is what licensed the deletion.** "This call does nothing" was an argument
+    until the generated mutant deleting it survived 73 corpus cases and 15 integrity claims.
+    That is the same evidence a waiver rests on, used the other way round.
+- **Commits**: this one.
+- **Blocked by**: nothing. P5-T2..T5 (the release) remain.
+
 ## 2026-09-19 06:51 — the 94 surviving generated mutants (closed)
 
 - **Task/phase**: out-of-plan backlog, carried by

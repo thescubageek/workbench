@@ -308,14 +308,15 @@ def collect(targets):
 
 def main(argv):
     root = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..'))
-    # Resolve the user's targets against the CALLER's cwd, before any chdir. Resolving
-    # after meant a relative path was reinterpreted against the repo root: run from
-    # /tmp/victim, `check-guards plugin` scanned the workbench's 142 files, reported them
-    # confidently, and never opened the victim's tree. The scanned-count guard — the one
-    # defence against reporting clean having scanned nothing — was satisfied by the wrong
-    # tree, which is this tool's own defect class inside the tool.
+    # Resolve the user's targets against the CALLER's cwd. This used to be followed by a
+    # `os.chdir(root)`, and resolving after that chdir reinterpreted a relative path against
+    # the repo root: run from /tmp/victim, `check-guards plugin` scanned the workbench's 142
+    # files, reported them confidently, and never opened the victim's tree. The scanned-count
+    # guard — the one defence against reporting clean having scanned nothing — was satisfied
+    # by the wrong tree, which is this tool's own defect class inside the tool. The chdir is
+    # gone: with every path absolute from here on, nothing downstream read the working
+    # directory, so the call was doing nothing at all.
     targets = [os.path.abspath(a) for a in argv] if argv else [os.path.join(root, 'plugin')]
-    os.chdir(root)
 
     findings, scanned = collect(targets)
 
