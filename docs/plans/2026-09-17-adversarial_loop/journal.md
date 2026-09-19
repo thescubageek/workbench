@@ -51,6 +51,32 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-19 05:14 — round-4 remediation complete, 18/18 (closed)
+
+- **Task/phase**: the generated mutator, the 94-survivor backlog, and R4-T9..T18.
+- **Landed**: `350478f`, `9c59791`, `732e6e3`, `dc79479`. All 20 round-4 findings closed.
+- **Learned**:
+  - **The generated sweep found two defects in itself within an hour.** A `cmp Eq->NotEq`
+    mutant inverted `if __name__ == '__main__'`, so that mutant ran `main()` at import with
+    the sweep's own argv. Correctly counted as caught; its stderr leaked into the report.
+    Diagnosis was slowed by stdout being block-buffered through a pipe while stderr is not,
+    so the error appeared first and read as a startup failure.
+  - **A sweep that always exits 1 is not a signal.** 94 survivors meant permanent red, so it
+    ratchets instead: the kill count is recorded and may not fall.
+  - **I escaped the option-shaped test pattern twice**, which is exactly what stops grep
+    treating it as an option — the test passed both times while verifying nothing. Only the
+    third, unescaped form discriminates. The first fixture also used `-x`, a real grep
+    option, so the mutant HUNG rather than failed and stalled a two-minute command.
+  - **The first PHI falsification passed for the wrong reason** — dropping `(?i)` from one
+    pattern of two still matched via the other. Falsifying a falsification is not paranoia.
+  - **Over-redaction is now pinned, not accidental.** The general member-ID shape cannot tell
+    a member ID from any `AA-BB-nnnnnn`, so locale ids are redacted too. That is the safe
+    direction for a PHI control and it costs a digest item its reference, so both the
+    over-matches and the digit floor are test cases.
+  - **Three of the curated 22 mutations are caught only via false positives.** Invisible
+    while the score was one total; now reported separately.
+- **Blocked by**: nothing. The parent plan's Phase 5 release tasks and P8-T3/T4/T5/T8 remain.
+
 ## 2026-09-18 21:06 — Phase 9: check-guards rebuilt (closed)
 
 - **Task/phase**: Q8-3/Q8-4 recorded; Phase 9 added and executed, P9-T1 through P9-T5.
