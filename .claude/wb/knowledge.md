@@ -223,3 +223,47 @@ we have the in-repo cautionary example for that.
 - **Verified**: 2026-09-15 · `docs/plans/2026-09-08-upstream-fable-merge/`
 - **Check it**: install from a local marketplace, run a stage with the read boundary forced on,
   and read the refused path in its output — it names the marketplace source directory.
+
+## A plugin skill can invoke a built-in Claude Code skill, and it runs forked
+
+- **Why it matters**: `Skill(code-review, "low")` from inside a wb skill returns
+  `Skill "code-review" completed (forked execution)` with findings. Forked means it does **not**
+  consume the calling session's context, which is what makes wrapping a built-in affordable
+  rather than ruinous. Before this was measured, no shipped skill had ever invoked a built-in and
+  the whole `adversarial-review` design rested on the assumption that it was possible.
+- **Also**: declaring `Skill` in a skill's `allowed-tools` does not break loading — the plugin
+  enumerates normally. Whether it actually *pre-approves* the call is still unproven; loading
+  cleanly only establishes that the value is at worst inert.
+- **Verified**: 2026-09-18 · `docs/plans/2026-09-17-adversarial_loop/`
+- **Check it**: invoke `Skill(code-review, "low")` from a session with a diff; the result line
+  says `(forked execution)`.
+
+## The PostToolUse lint hook rewrites markdown *after* you check it
+
+- **Why it matters**: the hook runs `lint --fix` on every markdown Write/Edit, so the sequence
+  write → check → commit can capture the **pre-fix** state while the fix lands in the working tree
+  afterwards. That happened once: `lint --all` reported FAIL, the commit went in, and the hook's
+  correction was left uncommitted. Verify the **committed** content, not the working tree.
+- **Verified**: 2026-09-18 · `docs/plans/2026-09-17-adversarial_loop/`
+- **Check it**: `git show HEAD:<path> > /tmp/x && ./plugin/scripts/lint /tmp/x` — if that fails
+  while the working copy passes, the hook fixed it after the commit.
+
+## `strings` emits non-ASCII as literal escape sequences
+
+- **Why it matters**: an em-dash in the Claude binary arrives from `strings` as the seven
+  characters `—`, not as `—`. A grep written with the real character — or with `.` standing
+  in for one — matches nothing and the check silently passes. This produced an unfirable
+  verification command that read as clean.
+- **Verified**: 2026-09-18 · `docs/plans/2026-09-17-adversarial_loop/`
+- **Check it**: `strings "$(readlink -f "$(command -v claude)")" | grep -c 'Dedup only'` returns
+  a non-zero count while a pattern written with a literal em-dash returns none.
+
+## markdownlint reads a fence indented under a list item as an indented code block
+
+- **Why it matters**: a ```` ``` ```` block indented to sit inside a `- [ ]` item fails MD046
+  (`Expected: fenced; Actual: indented`) and `lint --all` fails. Multi-line commands in a plan's
+  success criteria hit this. Dedent the fence to column zero; the list resumes after it and every
+  checkbox counter anchors on `^- \[`, so counting is unaffected.
+- **Verified**: 2026-09-18 · `docs/plans/2026-09-17-adversarial_loop/`
+- **Check it**: indent a fenced block six spaces under a list item and run
+  `./plugin/scripts/lint <file>` — it reports MD046.

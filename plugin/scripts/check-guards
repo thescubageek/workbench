@@ -1,0 +1,341 @@
+#!/usr/bin/env python3
+"""check-guards — find measurements whose failure is indistinguishable from a clean result.
+
+Three shapes produce a number, or a silence, that reads the same whether the command
+worked or not:
+
+  1. A counting `grep` captured in a substitution whose exit status is never tested.
+     grep exits 1 on no match and 2 on ERROR, so a missing file and a clean file both
+     yield something that looks like a usable count. Preferred remedy is
+     `plugin/scripts/count`, which fails loudly. A trailing `|| true` with an explicit
+     `${n:-0}` is accepted as the minimum bar — it guards the status, which is what this
+     check is about — but it still cannot tell an error from a real zero.
+  2. An unquoted `--include=` glob. Shell-dependent: bash passes an unmatched glob
+     through, zsh errors and the count silently comes back zero.
+  3. A `for` over a glob with no existence test. An unmatched glob runs the body once
+     with the literal pattern as the filename.
+
+Scans shipped shell scripts and the fenced shell blocks inside shipped markdown — those
+blocks are instructions a model executes, so they carry the same risk. Prose and tables
+are deliberately not scanned, so a document may describe a bad pattern without tripping
+this. A deliberate counter-example belongs in a ```text block rather than a ```bash one:
+that is the convention instead of a suppression marker, because a marker can silence a
+real finding and a fence language cannot.
+
+Two files are exempt by name — this one and `test-guards`, whose content IS the fixtures.
+
+This replaced a line-oriented bash regex scanner that three review rounds patched and
+which scored 50% on mutation survivability against 87% for this approach. The difference
+is that fences are parsed rather than pattern-matched, and a capture is located by
+finding the substitution that contains it rather than by cutting the line at a delimiter.
+
+Usage: plugin/scripts/check-guards [path ...]   (default: plugin)
+Exit 0 clean, 1 findings, 2 the scan could not be trusted.
+"""
+import os
+import re
+import sys
+
+FENCE = re.compile(r'^(?P<ind>[ ]{0,3})(?P<f>`{3,}|~{3,})[ \t]*(?P<info>\S*)')
+SHELL_INFO = {'bash', 'sh', 'shell'}
+COUNTING = re.compile(r'\bgrep\b[^|;)`]*?\s(?:-[A-Za-z]*c|--count)\b')
+# `:` is not a word character, so a trailing \b after it can never match — the
+# documented minimum-bar guard `|| :` was reported as unguarded. Anchor per-alternative.
+GUARD = re.compile(r'\|\|\s*(?:true\b|:(?!\w)|echo\b)')
+STATUS_TEST = re.compile(r'\$\?')
+GLOB_WINDOW = 4
+
+EXEMPT = {'check-guards', 'test-guards'}
+
+
+def md_shell_lines(text):
+    """(lineno, line) for lines inside bash/sh/shell fences.
+
+    The closer must be the same character, at least as long as the opener, and carry no
+    info string — CommonMark's rule. Matching the opener's indent instead was wrong: a
+    fence opened in a list item and closed at column zero is valid and common, and
+    treating it as unclosed leaks the scanner into prose.
+    """
+    out, inb, ch, ln = [], False, '', 0
+    shell, unclosed_at = False, None
+    for i, line in enumerate(text.splitlines(), 1):
+        m = FENCE.match(line)
+        if not inb:
+            if m:
+                # EVERY fence is tracked, not only shell ones. Tracking shell fences alone
+                # meant a ```bash nested inside a ````text wrapper — the README's own
+                # prescribed way to show a counter-example — was entered as live shell.
+                inb, ch, ln = True, m.group('f')[0], len(m.group('f'))
+                shell = m.group('info').lower() in SHELL_INFO
+                unclosed_at = i if shell else None
+            continue
+        if m and m.group('f')[0] == ch and len(m.group('f')) >= ln and not m.group('info'):
+            inb, shell, unclosed_at = False, False, None
+            continue
+        if shell:
+            out.append((i, line))
+    return out, unclosed_at
+
+
+def strip_comment(line):
+    """Drop a trailing comment, respecting quotes.
+
+    A `#` inside a string is not a comment. Cutting at the first `#` unconditionally
+    deleted the detector's own input on `grep -v "^#" f | grep -c foo` — the most
+    idiomatic count-non-comment-lines spelling there is — and reported it clean.
+    """
+    out, quote = [], None
+    for i, ch in enumerate(line):
+        if quote:
+            out.append(ch)
+            if ch == quote:
+                quote = None
+        elif ch in '"\'':
+            quote = ch
+            out.append(ch)
+        elif ch == '#' and (i == 0 or line[i - 1].isspace()):
+            break
+        else:
+            out.append(ch)
+    return ''.join(out)
+
+
+def _quote_spans(text):
+    """Index -> True when that index sits inside a quoted string."""
+    inq, quote, out = False, '', []
+    for ch in text:
+        if inq:
+            out.append(True)
+            if ch == quote:
+                inq = False
+        elif ch in '"\'':
+            inq, quote = True, ch
+            out.append(True)
+        else:
+            out.append(False)
+    return out
+
+
+def substitutions(line):
+    """(inner_start, close_index) for every $( ) and backtick span, outermost first.
+
+    Quote-aware. Counting parens blind to quotes cut the span at the `)` inside
+    `$(sed 's/)//' f | grep -c foo)`, so COUNTING never saw the grep and a genuinely
+    unguarded capture reported clean; the mirror falsely reported `$(grep -c ")" f || true)`.
+    """
+    q = _quote_spans(line)
+    res, i = [], 0
+    while i < len(line):
+        if line.startswith('$(', i) and not q[i]:
+            depth, j = 1, i + 2
+            while j < len(line) and depth:
+                if line.startswith('$(', j) and not q[j]:
+                    depth += 1
+                    j += 2
+                    continue
+                if line[j] == ')' and not q[j]:
+                    depth -= 1
+                j += 1
+            res.append((i + 2, j - 1))
+            i = j
+        elif line[i] == '`' and not q[i]:
+            j = line.find('`', i + 1)
+            if j == -1:
+                # A stray backtick — a line-continued capture, or one inside a string the
+                # quote scanner did not pair. Skip it and keep scanning: `break` here
+                # discarded every later substitution on the line.
+                i += 1
+                continue
+            res.append((i + 1, j))
+            i = j + 1
+        else:
+            i += 1
+    return res
+
+
+# A line that actually tests the PRECEDING command's status: a conditional, or an
+# assignment whose entire right-hand side is $?. A line that merely contains $? does not
+# qualify — by then another command has usually run and replaced it.
+STATUS_LINE = re.compile(r'^\s*(?:if\s|\[\[?|test\s|[A-Za-z_]\w*=\$\?\s*$)')
+
+
+def _status_tested(lines, idx, texts, order):
+    """Is the capture on lines[idx] followed by a genuine test of its exit status?"""
+    j = idx + 1
+    while j < len(order):
+        if order[j] != order[j - 1] + 1:
+            return False          # a gap means a different fence
+        nxt = strip_comment(texts[order[j]])
+        if nxt.strip():
+            return bool(STATUS_LINE.match(nxt)) and bool(STATUS_TEST.search(nxt))
+        j += 1                    # blank line: $? survives it
+    return False
+
+
+def _is_guard(text):
+    """Does this text establish that an unmatched glob is handled?"""
+    return bool(re.search(r'(?:\[\[?|test)\s+!?\s*-[efsr]\s', text)
+                or re.search(r'(?:^|;|&&|\|\|)\s*continue\b', text))
+
+
+def analyse(lines):
+    """lines: [(lineno, text)] -> [(lineno, shape, text)]."""
+    found, pending_glob = [], None
+    texts = {no: t for no, t in lines}
+    order = [no for no, _ in lines]
+
+    for idx, (no, raw) in enumerate(lines):
+        line = strip_comment(raw)
+
+        # --- shape 1 ---------------------------------------------------------
+        for a, b in substitutions(line):
+            inner = line[a:b]
+            if not COUNTING.search(inner):
+                continue
+            after = line[b:]
+            # `continue`, not `break`: a guarded capture earlier on the line must not
+            # excuse an unguarded one after it. Both directions of this have shipped as
+            # bugs in this repository — the corpus case `s1-guard-on-earlier` is the one
+            # that caught it here, on the first run of the new implementation.
+            if GUARD.search(inner) or GUARD.match(after.lstrip('`)').lstrip()):
+                continue
+            # The rule is "captured and the status never tested", not "captured".
+            # A bare assignment does not mask $? — shellcheck is right about that — so look
+            # ahead for a test. Three constraints, each bought by a defect:
+            #   contiguous  — in markdown `order` holds only fenced lines, so indexing it
+            #                 blindly hopped across fences and a $? in an unrelated later
+            #                 block "guarded" this capture;
+            #   skip blanks — $? survives a blank line in bash, so a blank before a genuine
+            #                 test was a false positive;
+            #   a real test — `mkdir -p /tmp/out; rc=$?` contains $? but it is mkdir's
+            #                 status, not the capture's.
+            if _status_tested(lines, idx, texts, order):
+                continue
+            found.append((no, 'grep -c captured without a status guard', raw))
+            break
+
+        # --- shape 2 ---------------------------------------------------------
+        for m in re.finditer(r'--include=(\S+)', line):
+            if not m.group(1).startswith(('"', "'")):
+                found.append((no, 'unquoted --include glob', raw))
+                break
+
+        # --- shape 3 ---------------------------------------------------------
+        if pending_glob is not None:
+            if _is_guard(line):
+                pending_glob = None
+            else:
+                pending_glob = (pending_glob[0], pending_glob[1] + 1, pending_glob[2])
+                if pending_glob[1] >= GLOB_WINDOW:
+                    found.append((pending_glob[0], 'for over a glob with no existence test',
+                                  pending_glob[2]))
+                    pending_glob = None
+        m = re.match(r'^\s*for\s+[A-Za-z_]\w*\s+in\s+(.*?)(?:;\s*do\b(?P<body>.*))?\s*$', line)
+        if m and '*' in m.group(1) and not re.search(r'\[[@*]\]', m.group(1)):
+            # A one-liner carries its own body. Seeding the window without looking at it
+            # reported `for f in *.md; do [ -e "$f" ] || continue; ...; done` as unguarded,
+            # with a fix suggestion the line already contained.
+            body = (m.group('body') or '').strip()
+            if body and _is_guard(body):
+                pending_glob = None
+            else:
+                pending_glob = (no, 0, raw)
+
+    if pending_glob is not None:
+        found.append((pending_glob[0], 'for over a glob with no existence test', pending_glob[2]))
+    return found
+
+
+FIXES = {
+    'grep -c captured without a status guard':
+        'use plugin/scripts/count, which fails loudly instead of printing 0',
+    'unquoted --include glob': "quote it: --include='*.py'",
+    'for over a glob with no existence test':
+        '[ -e "$x" ] || continue   # as the body\'s first line',
+    'unclosed shell fence':
+        'close the fence; everything after it would otherwise read as prose',
+}
+
+
+def collect(targets):
+    """-> (findings, scanned_count). Raises SystemExit(2) when the scan cannot be trusted."""
+    for t in targets:
+        if not os.path.exists(t):
+            print(f'❌ check-guards: no such path: {t}', file=sys.stderr)
+            raise SystemExit(2)
+
+    findings, scanned = [], 0
+    for t in targets:
+        if os.path.isfile(t):
+            walk = [t]
+        else:
+            walk = []
+            for root, _, files in os.walk(t, followlinks=True):
+                walk.extend(os.path.join(root, f) for f in sorted(files))
+        for path in sorted(walk):
+            base = os.path.basename(path)
+            if base in EXEMPT or '/node_modules/' in path:
+                continue
+            # Dispatch on what the file IS, not on where it sits. `'/scripts/' in path`
+            # swept up every .json and .md under a scripts directory and fed them to the
+            # shell analyser — which reported this tool's own corpus fixture as 24
+            # findings, and parsed the scripts README's prose as code.
+            ext = os.path.splitext(base)[1]
+            is_md = ext == '.md'
+            is_sh = ext == '.sh' or (ext == '' and f'{os.sep}scripts{os.sep}' in path)
+            if not (is_md or is_sh):
+                continue
+            try:
+                text = open(path, errors='replace').read()
+            except OSError as exc:
+                print(f'❌ check-guards: cannot read {path}: {exc}', file=sys.stderr)
+                raise SystemExit(2)
+            if is_md:
+                lines, unclosed = md_shell_lines(text)
+                if unclosed:
+                    findings.append((path, unclosed, 'unclosed shell fence',
+                                     f'fence opened at line {unclosed}'))
+            else:
+                lines, unclosed = list(enumerate(text.splitlines(), 1)), None
+            # Counted here — after the file is actually fed to the scanner, not from the
+            # walk. Counting the walk meant a file the dispatch skipped still incremented
+            # the number the "scanned 0 files" guard reports.
+            scanned += 1
+            for no, shape, raw in analyse(lines):
+                findings.append((path, no, shape, raw.strip()))
+    return findings, scanned
+
+
+def main(argv):
+    root = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..'))
+    # Resolve the user's targets against the CALLER's cwd. This used to be followed by a
+    # `os.chdir(root)`, and resolving after that chdir reinterpreted a relative path against
+    # the repo root: run from /tmp/victim, `check-guards plugin` scanned the workbench's 142
+    # files, reported them confidently, and never opened the victim's tree. The scanned-count
+    # guard — the one defence against reporting clean having scanned nothing — was satisfied
+    # by the wrong tree, which is this tool's own defect class inside the tool. The chdir is
+    # gone: with every path absolute from here on, nothing downstream read the working
+    # directory, so the call was doing nothing at all.
+    targets = [os.path.abspath(a) for a in argv] if argv else [os.path.join(root, 'plugin')]
+
+    findings, scanned = collect(targets)
+
+    if scanned == 0:
+        print(f'⚠️  check-guards: no shell or markdown files under {" ".join(targets)} — '
+              f'nothing to check', file=sys.stderr)
+        return 0
+
+    if findings:
+        for path, no, shape, raw in findings:
+            shown = os.path.relpath(path, root) if path.startswith(root + os.sep) else path
+            print(f'{shown}:{no}\n  {shape}\n  found: {raw}\n  fix:   {FIXES[shape]}\n')
+        print('❌ check-guards: unguarded measurements above — '
+              "each one's failure reads as a clean result", file=sys.stderr)
+        return 1
+
+    print(f'✅ check-guards: no unguarded measurements ({scanned} files scanned)')
+    return 0
+
+
+if __name__ == '__main__':
+    sys.exit(main(sys.argv[1:]))

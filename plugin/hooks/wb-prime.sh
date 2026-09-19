@@ -78,6 +78,8 @@ payload=$(cat 2>/dev/null || true)
 # answer to "which plan", so an arbitrary winner is a wrong answer, not just an odd sort.
 candidates=""
 if [ -d docs/plans ]; then
+    # shellcheck disable=SC2012  # ls is deliberate: the sort key is the directory NAME, which
+  # survives a fresh clone where mtime does not. find would reorder.
   for f in $(ls -d docs/plans/*/ 2>/dev/null | sort -r | sed 's|$|tasks.md|'); do
     [ -f "$f" ] || continue
     status=$(sed -n '1,30p' "$f" | grep -m1 '^status:' | sed 's/^status:[[:space:]]*//')
@@ -160,6 +162,8 @@ if [ -f "$journal" ]; then
     # entry whose title contains "reopened". The shape is stated at every site that writes an
     # entry — create_project's template, implement, implement_inline, create_handoff,
     # resume_handoff — and checked by validate_project.
+    # shellcheck disable=SC2018,SC2019  # ASCII ranges are correct here: the state suffix is
+    # a literal (open)/(closed), never localised.
     case "$(printf '%s' "$last" | tr 'A-Z' 'a-z' | sed 's/[[:space:]]*$//')" in
       *'(open)') entry_open=yes ;;
     esac

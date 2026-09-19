@@ -26,9 +26,17 @@ const requiredFields = {
 // Parse YAML frontmatter
 const frontmatter = parseYAML(fileContent);
 
-// Check required fields
-for (const field of requiredFields.all) {
-  if (!frontmatter[field]) {
+// Check required fields. BOTH lists — `tasks` was declared and never iterated, so a
+// tasks.md missing `total_tasks` was not reported as a missing field at all; it fell through
+// to the counter-drift check and surfaced as "frontmatter says undefined/undefined", which
+// points the reader at /wb:update_status instead of at the absent field.
+// Note `!frontmatter[field]` is deliberate rather than a presence test: `completed_tasks: 0`
+// is legitimately falsy, so check the key's existence, not its truthiness.
+const fieldsFor = (file) =>
+  file === 'tasks.md' ? [...requiredFields.all, ...requiredFields.tasks] : requiredFields.all;
+
+for (const field of fieldsFor(currentFile)) {
+  if (!(field in frontmatter)) {
     ERROR(`Missing required field: ${field}`);
   }
 }
@@ -68,7 +76,12 @@ if (tasks.status === 'in-progress' && design.status === 'draft') {
 // The checkboxes are the record. These checks ask whether the record is well-formed
 // and whether the derived counters agree with it — never whether some other system agrees.
 
-const taskLines = tasksContent.match(/^- \[[ x]\] .*$/gm) || [];
+// Scoped to the ID shape. An unscoped /^- \[[ x]\] / also matches success criteria,
+// prerequisites and checkpoint boxes — on this repository's own plan that is 149 lines
+// against 50 real tasks — and the drift check below would then report correct counters as
+// wrong and tell the user to overwrite them. validation-checklist.md states the same rule,
+// and SKILL.md calls the unscoped form "the mistake that makes every counter look drifted".
+const taskLines = tasksContent.match(/^- \[[ x]\] \*\*[A-Z0-9-]*[0-9][A-Z0-9-]*\*\*/gm) || [];
 const done = taskLines.filter(l => l.startsWith('- [x]')).length;
 const total = taskLines.length;
 
@@ -88,22 +101,127 @@ if (tasksFrontmatter.completed_tasks !== done || tasksFrontmatter.total_tasks !=
 // Journal entry headings carry the open/closed state in a trailing marker. Every consumer
 // matches on that suffix, so a heading without it reads as closed — which is the dangerous
 // direction: interrupted work reported as finished.
-const journalHeadings = readLines(`${projectDir}/journal.md`).filter(l => l.startsWith('## '));
-const malformed = journalHeadings.filter(h => !/\((open|closed)\)\s*$/i.test(h));
+// journal.md is OPTIONAL — the checklist marks it so, and plans predating journals have none.
+// Reading it unconditionally threw before any journal check could run, and took the rest of
+// the validation with it.
+const journalPath = `${projectDir}/journal.md`;
+if (!exists(journalPath)) {
+  INFO('journal.md absent — journal checks skipped (optional; plans predating it have none)');
+} else {
+const journalLines = readLines(journalPath);
+
+// A heading must start at column zero. Both readers anchor on that — the session-start hook
+// greps `^## ` and the filter below uses startsWith — so an indented heading is invisible to
+// BOTH, and the validator would otherwise report clean on a file the hook silently misreads.
+// This is the one journal defect that hides from its own checker.
+const indentedHeadings = journalLines.filter(l => /^[ \t]+#{2,}\s/.test(l));
+if (indentedHeadings.length) {
+  ERROR(`journal.md has ${indentedHeadings.length} indented heading(s): ` +
+        indentedHeadings.map(h => h.trim()).join(', ') +
+        ` — invisible to the session-start hook and to every check below. ` +
+        `Headings start at column zero; see plugin/docs/reference/journal-entries.md`);
+}
+
+const journalHeadings = journalLines.filter(l => l.startsWith('## '));
+
+// Placeholder headings from the template are not entries — the session-start hook discards them
+// the same way, so this filter must match it or a fresh plan reports forever. Everything below
+// works on realHeadings, in file order, newest first.
+const realHeadings = journalHeadings.filter(h => !/\[YYYY|<YYYY|YYYY-MM-DD/.test(h));
+
+const malformed = realHeadings.filter(h => !/\((open|closed)\)\s*$/i.test(h));
 if (malformed.length) {
   ERROR(`journal.md heading(s) missing a trailing (open) or (closed): ` +
         malformed.join(', ') +
         ` — invisible to the session-start hook and every other reader`);
 }
-const openCount = journalHeadings.filter(h => /\(open\)\s*$/i.test(h)).length;
-if (openCount > 1) {
-  WARN(`journal.md has ${openCount} open entries; only the most recent should be open`);
+
+// Only the NEWEST entry may be open. A stale (open) heading further down is what a
+// second-heading close leaves behind, and the common case leaves exactly one — so a bare
+// count never fires on it. Check position, not quantity.
+const staleOpen = realHeadings.slice(1).filter(h => /\(open\)\s*$/i.test(h));
+if (staleOpen.length) {
+  ERROR(`journal.md has ${staleOpen.length} stale open entr(y|ies) below the newest: ` +
+        staleOpen.join(', ') +
+        ` — closed by writing a second heading instead of editing in place. ` +
+        `See plugin/docs/reference/journal-entries.md`);
+}
+}  // end: journal.md present
+
+// ---------------------------------------------------------------------------
+// Checklist §7 — Dependencies. Declared in validation-checklist.md and previously
+// unimplemented, so the chain it describes was never actually checked.
+// ---------------------------------------------------------------------------
+// A YAML scalar is legitimate here and is what BOTH shipped design templates emit
+// (`depends_on: research.md`); only the tasks template uses flow-sequence syntax. Requiring
+// an array made this rule ERROR on every plan the plugin itself generates. Normalise instead
+// of rejecting — the rule's job is the dependency chain, not the spelling.
+const dependsOn = (fm) => {
+  const d = fm.depends_on;
+  if (Array.isArray(d)) return d;
+  if (typeof d === 'string') return d.split(',').map(x => x.trim()).filter(Boolean);
+  return [];
+};
+
+if (!dependsOn(designFrontmatter).includes('research.md')) {
+  ERROR('design.md does not list research.md in depends_on — the chain research → design → tasks is what tells a resuming session which document is upstream');
+}
+for (const dep of ['research.md', 'design.md']) {
+  if (!dependsOn(tasksFrontmatter).includes(dep)) {
+    ERROR(`tasks.md does not list ${dep} in depends_on`);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Checklist §8 — Cross-file consistency. Same: declared, never implemented.
+// Git metadata is compared for PRESENCE and branch agreement only. git_commit
+// legitimately differs between files — each records the commit current when that
+// file was last written — so comparing those would fire on every healthy plan.
+// ---------------------------------------------------------------------------
+const allFm = { 'research.md': researchFrontmatter, 'design.md': designFrontmatter, 'tasks.md': tasksFrontmatter };
+
+const projects = new Set(Object.values(allFm).map(f => f.project));
+if (projects.size > 1) {
+  ERROR(`project name differs across files: ${[...projects].join(' / ')}`);
+}
+
+const tickets = new Set(Object.values(allFm).map(f => f.ticket).filter(t => t != null && t !== 'null'));
+if (tickets.size > 1) {
+  ERROR(`ticket differs across files: ${[...tickets].join(' / ')}`);
+}
+
+const branches = new Set(Object.values(allFm).map(f => f.git_branch).filter(Boolean));
+if (branches.size > 1) {
+  WARN(`git_branch differs across files (${[...branches].join(' / ')}) — expected when a plan spans branches, worth a look when it does not`);
+}
+
+// §4's last_updated agreement. A WARNING, not an error: files are legitimately written at
+// different times within a session, and "or close" is what the checklist says.
+const updated = new Set(Object.values(allFm).map(f => f.last_updated).filter(Boolean));
+if (updated.size > 2) {
+  WARN(`last_updated spans ${updated.size} dates (${[...updated].sort().join(', ')}) — the plan may have been partially updated`);
+}
+
+// Current phase must name a phase that exists.
+const phaseHeadings = tasksContent.match(/^## Phase (\d+)/gm) || [];
+const phaseNumbers = phaseHeadings.map(h => parseInt(h.match(/(\d+)/)[1], 10));
+if (phaseNumbers.length && tasksFrontmatter.current_phase != null &&
+    !phaseNumbers.includes(Number(tasksFrontmatter.current_phase))) {
+  ERROR(`current_phase is ${tasksFrontmatter.current_phase}, but tasks.md defines phases ${phaseNumbers.join(', ')}`);
 }
 
 // IDs must be present and unique — they are cited from commits, journals and handoffs.
-const ids = [...tasksContent.matchAll(/^- \[[ x]\] \*\*([A-Z0-9-]+)\*\*/gm)].map(m => m[1]);
-if (ids.length !== taskLines.length) {
-  WARNING(`${taskLines.length - ids.length} task(s) have no local ID`);
+// Every bold-prefixed checkbox line is a candidate task; `taskLines` is the subset whose ID
+// carries a digit. Narrowing taskLines without narrowing this made it a SUBSET of ids, so the
+// subtraction went negative — `-1 task(s) have no local ID` — and the check became
+// structurally dead: taskLines only ever contains lines that already have a conforming ID, so
+// a task without one could never be counted. Compare against the candidates, not the survivors.
+const candidates = [...tasksContent.matchAll(/^- \[[ x]\] \*\*([A-Z0-9-]+)\*\*/gm)].map(m => m[1]);
+const ids = candidates.filter(id => /[0-9]/.test(id));
+const idless = candidates.filter(id => !/[0-9]/.test(id));
+if (idless.length) {
+  WARNING(`${idless.length} task(s) have an ID with no digit — invisible to every counter: ` +
+          idless.join(', '));
 }
 const dupes = ids.filter((id, i) => ids.indexOf(id) !== i);
 if (dupes.length) {

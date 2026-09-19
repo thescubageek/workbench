@@ -1,0 +1,597 @@
+#!/usr/bin/env python3
+"""Contract tests for scripts/check-guards — corpus AND mutation survivability.
+
+Two scores, because round 3 of this repository's own review established that one is not
+enough: the previous suite scored 31/31 while four of the checker's guards could each be
+deleted with a single-line edit and the suite stayed green. A corpus proves the detectors
+fire on what you thought of. Mutation proves the corpus would notice if a detector stopped
+firing at all.
+
+Acceptance bar, pre-registered: 100% of the corpus, and every planted mutation caught.
+
+Usage: plugin/scripts/test-guards [path-to-check-guards]
+"""
+import contextlib
+import hashlib
+import importlib.util
+import io
+import json
+import os
+import signal
+import re
+import shutil
+import subprocess
+import sys
+import tempfile
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+_args = [a for a in sys.argv[1:] if not a.startswith('--')]
+CG = _args[0] if _args else os.path.join(HERE, 'check-guards')
+CORPUS = os.path.join(HERE, 'fixtures', 'guard-corpus.json')
+
+# Each is a single-line edit a maintainer could plausibly make. If the corpus does not
+# notice, the corpus is certifying whatever that line does.
+# WAIVED — equivalent mutants, kept here with their reason rather than silently dropped.
+# A generated sweep will produce more of these; they are the known cost of mutation testing
+# and the waiver must carry an argument, not just an entry.
+#
+# A generated waiver is addressed by a KEY, not a line number:
+#   <scope> | <enclosing block> | <statement> | <operator>
+# Line numbers were the first design and they were wrong: any edit to check-guards moved
+# every anchor below it, unhooking those waivers silently — the mutant reappears as an
+# unexplained survivor while the ratchet, which watches only the kill count, stays green.
+# Each survivor in fixtures/mutation-survivors.txt prints its own key to copy.
+#
+#   'abandon the line on a stray backtick' (break vs continue in substitutions()):
+#     unreachable from valid shell. An unquoted, unpaired backtick is a syntax error, and a
+#     backtick inside quotes is already handled by the quote scanner — so no corpus case can
+#     distinguish the two behaviours. The `continue` form is kept because it is more
+#     defensible, not because a test demands it.
+
+MUTATIONS = [
+    ('disable the capture detector',
+     "if not COUNTING.search(inner):", "if True or not COUNTING.search(inner):"),
+    ('disable the --include detector',
+     "for m in re.finditer(r'--include=(\\S+)', line):", "for m in re.finditer(r'__NEVER__', line):"),
+    ('disable the glob detector',
+     "if m and '*' in m.group(1)", "if False and m and '*' in m.group(1)"),
+    ('treat every capture as guarded',
+     "            if GUARD.search(inner) or GUARD.match(",
+     "            if True or GUARD.search(inner) or GUARD.match("),
+    ('break the quote-aware comment strip',
+     "    out, quote = [], None", "    return line.split('#')[0]\n    out, quote = [], None"),
+    ('stop scanning sh/shell fences',
+     "SHELL_INFO = {'bash', 'sh', 'shell'}", "SHELL_INFO = {'bash'}"),
+    ('break the fence closer',
+     "if m and m.group('f')[0] == ch and len(m.group('f')) >= ln and not m.group('info'):",
+     "if False:"),
+    ('stop scanning extensionless scripts',
+     "is_sh = ext == '.sh' or (ext == '' and f'{os.sep}scripts{os.sep}' in path)",
+     "is_sh = ext == '.sh'"),
+    ('drop the unclosed-fence report',
+     "                if unclosed:", "                if False:"),
+    ('drop the trailing glob flush',
+     "    if pending_glob is not None:\n        found.append", "    if False:\n        found.append"),
+    ('delete the missing-target refusal',
+     "        if not os.path.exists(t):", "        if False:"),
+    # These four target the integrity layer rather than a detector. Each was a KNOWN
+    # survivor before the layer existed — `scanned += 2` reported 284 files with every
+    # other check green, and `EXEMPT = set()` deleted the self-exemption unnoticed.
+    ('inflate the scanned-file count',
+     "            scanned += 1", "            scanned += 2"),
+    ('delete the by-name exemptions',
+     "EXEMPT = {'check-guards', 'test-guards'}", "EXEMPT = set()"),
+    ('stop following nested symlinks',
+     "os.walk(t, followlinks=True)", "os.walk(t, followlinks=False)"),
+    ('silently skip an unreadable file',
+     "                raise SystemExit(2)", "                continue"),
+    # Was 'resolve targets after the chdir'. The chdir it inverted is gone -- it was dead,
+    # and the generated sweep is what established that: its deletion changed no corpus case
+    # and no integrity claim. The property still worth a mutation is the resolution itself.
+    ('take the targets raw instead of resolving them',
+     "    targets = [os.path.abspath(a) for a in argv] if argv else [os.path.join(root, 'plugin')]",
+     "    targets = argv or ['plugin']"),
+    # One per R4 fix — a fix without a mutation is a fix that can silently revert.
+    ('make the span finder quote-blind again',
+     "                if line[j] == ')' and not q[j]:", "                if line[j] == ')':"),
+    ('restore the unmatchable \\b after the : guard',
+     "GUARD = re.compile(r'\\|\\|\\s*(?:true\\b|:(?!\\w)|echo\\b)')",
+     "GUARD = re.compile(r'\\|\\|\\s*(?:true|:|echo)\\b')"),
+    ('drop the fence-gap check in the lookahead',
+     "        if order[j] != order[j - 1] + 1:\n            return False",
+     "        if False:\n            return False"),
+    ('accept any line containing $? as a test',
+     "            return bool(STATUS_LINE.match(nxt)) and bool(STATUS_TEST.search(nxt))",
+     "            return bool(STATUS_TEST.search(nxt))"),
+    ('ignore a one-liner glob body',
+     "            if body and _is_guard(body):", "            if False:"),
+    ('enter nested non-shell fences as shell',
+     "                shell = m.group('info').lower() in SHELL_INFO",
+     "                shell = True"),
+]
+
+
+SHAPE_OF = {
+    'grep -c captured without a status guard': 'capture',
+    'unquoted --include glob': 'include',
+    'for over a glob with no existence test': 'glob',
+    'unclosed shell fence': 'fence',
+}
+
+
+def parse_findings(stdout, root):
+    """-> {(lineno, shape)} from check-guards' report."""
+    out, pending = set(), None
+    for line in stdout.splitlines():
+        m = re.match(r'^(.*):(\d+)$', line.strip())
+        if m and (m.group(1).startswith(root) or os.sep in m.group(1)):
+            pending = int(m.group(2))
+            continue
+        key = line.strip()
+        if pending is not None and key in SHAPE_OF:
+            out.add((pending, SHAPE_OF[key]))
+            pending = None
+    return out
+
+
+def run_corpus(impl):
+    cases = json.load(open(CORPUS))
+    tp = fn = fp = tn = 0
+    misses, falses = [], []
+    for case in cases:
+        d = tempfile.mkdtemp()
+        try:
+            p = os.path.join(d, case['path'])
+            os.makedirs(os.path.dirname(p), exist_ok=True)
+            open(p, 'w').write(case['content'])
+            if p.endswith('.sh'):
+                os.chmod(p, 0o755)
+            r = subprocess.run([sys.executable, impl, d], capture_output=True, text=True)
+            got = parse_findings(r.stdout, d)
+            want = {(ln, sh) for ln, sh in case.get('expect_at', [])}
+            if case['expect'] == 1:
+                # Assert WHAT was reported, not merely that something was. Asserting the
+                # exit code alone let mutations that report every finding at line 1, or
+                # under the wrong shape, or truncated to the first one, all score clean.
+                if got == want:
+                    tp += 1
+                else:
+                    fn += 1
+                    misses.append(f"{case['id']} (want {sorted(want)}, got {sorted(got)})")
+            else:
+                if got:
+                    fp += 1
+                    falses.append(f"{case['id']} (got {sorted(got)})")
+                else:
+                    tn += 1
+        finally:
+            shutil.rmtree(d, ignore_errors=True)
+    return dict(total=len(cases), correct=tp + tn, tp=tp, fn=fn, fp=fp, tn=tn,
+                misses=misses, falses=falses)
+
+
+def run_integrity(impl):
+    """Properties the corpus structurally cannot test.
+
+    Derived from the tool's own output rather than reactively from what happened to be
+    found: **every string check-guards prints that is not a finding is a claim about
+    itself, and each claim needs an assertion that can fail.** Enumerating them once is
+    what stops this list growing one entry per discovered gap.
+    """
+    checks = []
+
+    def run(*args):
+        return subprocess.run([sys.executable, impl, *args], capture_output=True, text=True)
+
+    # CLAIM: "no such path" -> exit 2, naming the path. Every string this tool prints that
+    # is not a finding is a claim about itself, and the exit code is only half of this one:
+    # asserting the code alone leaves the message deletable, and an operator who is told
+    # "exit 2" without being told WHICH target was wrong has not been told anything.
+    r = run('/tmp/no-such-path-for-test-guards')
+    checks.append(('a missing target exits 2', r.returncode == 2))
+    checks.append(('...and names the path it could not find',
+                   '/tmp/no-such-path-for-test-guards' in r.stderr))
+
+    # CLAIM: nothing to scan is not a failure
+    d = tempfile.mkdtemp()
+    try:
+        checks.append(('an empty directory exits 0, not a hard fail', run(d).returncode == 0))
+    finally:
+        shutil.rmtree(d, ignore_errors=True)
+
+    d = tempfile.mkdtemp()
+    try:
+        open(os.path.join(d, 'notes.txt'), 'w').write('nothing scannable here\n')
+        r = run(d)
+        checks.append(('a directory with no shell or markdown exits 0', r.returncode == 0))
+        # A zero-file scan must SAY it scanned nothing. Exit 0 on its own is the same answer
+        # the tool gives for a clean tree, so without this the two are indistinguishable --
+        # which is this script's own defect class, one level up.
+        checks.append(('...and says nothing was checked rather than reporting clean',
+                       'nothing to check' in r.stderr
+                       and 'no unguarded measurements' not in r.stdout))
+    finally:
+        shutil.rmtree(d, ignore_errors=True)
+
+    # CLAIM: "N files scanned". Unasserted, the number can be anything — a mutation
+    # doubling it reported 284 with every other check green.
+    d = tempfile.mkdtemp()
+    try:
+        os.makedirs(os.path.join(d, 'scripts'))
+        for name in ('a.sh', 'b.sh'):
+            open(os.path.join(d, name), 'w').write('#!/usr/bin/env bash\necho ok\n')
+        open(os.path.join(d, 'doc.md'), 'w').write('prose only\n')
+        open(os.path.join(d, 'scripts', 'tool'), 'w').write('#!/usr/bin/env bash\necho ok\n')
+        open(os.path.join(d, 'data.json'), 'w').write('{}\n')       # not scannable
+        open(os.path.join(d, 'notes.txt'), 'w').write('text\n')      # not scannable
+        r = run(d)
+        m = re.search(r'\((\d+) files scanned\)', r.stdout)
+        checks.append(('the reported file count is the real one (4)',
+                       bool(m) and int(m.group(1)) == 4))
+        # CLAIM: a clean tree that actually had files in it exits 0. The empty-directory
+        # checks above return from a different branch, so nothing asserted this one and the
+        # success return could be changed to anything.
+        checks.append(('a clean tree with files in it exits 0', r.returncode == 0))
+    finally:
+        shutil.rmtree(d, ignore_errors=True)
+
+    # CLAIM: a target means what the CALLER meant. Run from another cwd, a relative
+    # target must scan THAT tree — it scanned the repo root and reported its file count.
+    d = tempfile.mkdtemp()
+    try:
+        os.makedirs(os.path.join(d, 'plugin', 'scripts'))
+        open(os.path.join(d, 'plugin', 'scripts', 'bad.sh'), 'w').write(
+            '#!/usr/bin/env bash\nn=$(grep -c foo f.txt)\necho "$n"\n')
+        r = subprocess.run([sys.executable, impl, 'plugin'], capture_output=True,
+                           text=True, cwd=d)
+        checks.append(('a relative target resolves against the caller cwd',
+                       r.returncode == 1 and 'bad.sh' in r.stdout))
+        # CLAIM: a run WITH findings says on stderr why it failed. stdout carries the
+        # findings; the one line that says the run failed, and why, is on stderr and was
+        # asserted nowhere.
+        checks.append(('...and a run with findings says why it failed, on stderr',
+                       'unguarded measurements' in r.stderr))
+    finally:
+        shutil.rmtree(d, ignore_errors=True)
+
+    # CLAIM: the by-name exemptions hold. PAIRED — asserting only that the exempt file is
+    # silent passes when the tool reports nothing at all, which is the failure being guarded.
+    d = tempfile.mkdtemp()
+    try:
+        os.makedirs(os.path.join(d, 'scripts'))
+        defect = '#!/usr/bin/env bash\nn=$(grep -c foo f.txt)\necho "$n"\n'
+        open(os.path.join(d, 'scripts', 'check-guards'), 'w').write(defect)
+        r_exempt = run(d)
+        open(os.path.join(d, 'scripts', 'other.sh'), 'w').write(defect)
+        r_both = run(d)
+        checks.append(('an exempt file with a defect is not reported', r_exempt.returncode == 0))
+        checks.append(('...but the same content elsewhere IS', r_both.returncode == 1))
+    finally:
+        shutil.rmtree(d, ignore_errors=True)
+
+    # CLAIM: a symlinked directory is followed. The previous form symlinked the top-level
+    # walk argument, which os.walk follows regardless of followlinks — so it asserted
+    # nothing. The symlink has to be INSIDE the tree.
+    d = tempfile.mkdtemp()
+    try:
+        real = os.path.join(d, 'real', 'scripts')
+        os.makedirs(real)
+        open(os.path.join(real, 'a.sh'), 'w').write(
+            '#!/usr/bin/env bash\nn=$(grep -c foo f.txt)\necho "$n"\n')
+        top = os.path.join(d, 'top')
+        os.makedirs(top)
+        os.symlink(os.path.join(d, 'real'), os.path.join(top, 'linked'))
+        checks.append(('a symlink nested in the tree is followed', run(top).returncode == 1))
+    finally:
+        shutil.rmtree(d, ignore_errors=True)
+
+    # CLAIM: an unreadable file is not silently skipped.
+    d = tempfile.mkdtemp()
+    try:
+        os.makedirs(os.path.join(d, 'scripts'))
+        locked = os.path.join(d, 'scripts', 'locked.sh')
+        open(locked, 'w').write('#!/usr/bin/env bash\necho ok\n')
+        os.chmod(locked, 0o000)
+        if os.access(locked, os.R_OK):
+            print('  ⊘ an unreadable file exits 2 (skipped: chmod 000 not honoured here)')
+        else:
+            r = run(d)
+            checks.append(('an unreadable file exits 2, not silently skipped',
+                           r.returncode == 2))
+            checks.append(('...and names the file it could not read', locked in r.stderr))
+        os.chmod(locked, 0o644)
+    finally:
+        shutil.rmtree(d, ignore_errors=True)
+
+    # CLAIM: with no arguments the target is the plugin tree beside the script. Nothing
+    # asserted it, so `sys.argv[1:]` could become `sys.argv[0:]` -- which passes the script's
+    # own path as the target, hits the by-name exemption, and reports a clean scan of
+    # nothing. Every other check passes a target explicitly and so never exercises this.
+    d = tempfile.mkdtemp()
+    try:
+        sd = os.path.join(d, 'plugin', 'scripts')
+        os.makedirs(sd)
+        here = os.path.join(sd, 'check-guards')
+        shutil.copyfile(impl, here)
+        os.chmod(here, 0o755)
+        open(os.path.join(sd, 'bad.sh'), 'w').write(
+            '#!/usr/bin/env bash\nn=$(grep -c foo f.txt)\necho "$n"\n')
+        r = subprocess.run([sys.executable, here], capture_output=True, text=True,
+                           cwd=tempfile.gettempdir())
+        checks.append(('with no target it scans the plugin tree beside it',
+                       r.returncode == 1 and 'bad.sh' in r.stdout))
+    finally:
+        shutil.rmtree(d, ignore_errors=True)
+
+    return checks
+
+
+def _load(src_text, name):
+    """Import a mutant in-process. 294 mutants x 54 cases is ~16k runs; at ~30ms of
+    process spawn each that is nine minutes of fork() and nothing else. Importing the
+    module instead keeps the sweep in the tens of seconds."""
+    path = os.path.join(tempfile.gettempdir(), f'{name}.py')
+    open(path, 'w').write(src_text)
+    try:
+        spec = importlib.util.spec_from_file_location(name, path)
+        mod = importlib.util.module_from_spec(spec)
+        # Silenced. A mutant that reaches a print — the __main__-guard inversion did,
+        # before lib_mutate learned to skip it — otherwise corrupts the sweep's own report
+        # with the tool's output, which is the report you then read to decide what is broken.
+        with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
+            spec.loader.exec_module(mod)
+        return mod
+    finally:
+        try:
+            os.unlink(path)
+        except OSError:
+            pass
+
+
+class _Timeout(Exception):
+    pass
+
+
+def _alarm(_sig, _frm):
+    raise _Timeout()
+
+
+def run_generated(impl):
+    """Score every generated mutant against the corpus, in-process.
+
+    Corpus only — the integrity checks drive the CLI and stay with the curated suite.
+    Stated rather than implied: a generated sweep does not cover integrity regressions.
+    """
+    import lib_mutate
+
+    cases = json.load(open(CORPUS))
+    waivers = []
+    wpath = os.path.join(HERE, 'fixtures', 'mutation-waivers.json')
+    if os.path.exists(wpath):
+        waivers = json.load(open(wpath))
+
+    # Materialise every case ONCE, not once per mutant.
+    root = tempfile.mkdtemp(prefix='guard-corpus-')
+    dirs = []
+    for i, case in enumerate(cases):
+        d = os.path.join(root, f'c{i}')
+        p = os.path.join(d, case['path'])
+        os.makedirs(os.path.dirname(p), exist_ok=True)
+        open(p, 'w').write(case['content'])
+        dirs.append((d, case))
+
+    def score(mod):
+        correct = 0
+        for d, case in dirs:
+            try:
+                signal.signal(signal.SIGALRM, _alarm)
+                signal.setitimer(signal.ITIMER_REAL, 5)
+                with contextlib.redirect_stdout(io.StringIO()), \
+                     contextlib.redirect_stderr(io.StringIO()):
+                    findings, _ = mod.collect([d])
+            except BaseException:
+                return -1                      # crash or hang counts as a failing mutant
+            finally:
+                signal.setitimer(signal.ITIMER_REAL, 0)
+            got = {(no, SHAPE_OF[shape]) for _, no, shape, _ in findings if shape in SHAPE_OF}
+            want = {(ln, sh) for ln, sh in case.get('expect_at', [])}
+            if (got == want) if case['expect'] == 1 else (not got):
+                correct += 1
+        return correct
+
+    src = open(impl).read()
+    base_mod = _load(src, 'guard_base')
+    base = score(base_mod)
+    integ_base = sum(1 for _, ok in run_integrity(impl) if ok)
+    print(f'  baseline {base}/{len(cases)} corpus, {integ_base} integrity')
+
+    mutants = lib_mutate.generate(src)
+    print(f'  {len(mutants)} generated mutants\n')
+
+    survivors, waived, used = [], [], set()
+    for n, (label, key, msrc) in enumerate(mutants):
+        try:
+            mod = _load(msrc, f'guard_mut_{n}')
+        except BaseException:
+            continue                            # will not even import: caught
+        if score(mod) < base:
+            continue                            # caught by the corpus
+        # A corpus-only sweep mis-reports every mutation the INTEGRITY layer covers as a
+        # survivor — `scanned == 0`, the unreadable-file refusal, target resolution. Those
+        # are not gaps, they are checks this scoring did not run. Re-score the corpus
+        # survivors against integrity, via the CLI, before calling anything a survivor.
+        mpath = os.path.join(root, f'mut_{n}')
+        open(mpath, 'w').write(msrc)
+        os.chmod(mpath, 0o755)
+        if sum(1 for _, ok in run_integrity(mpath) if ok) < integ_base:
+            continue                            # caught by integrity
+        w = next((x for x in waivers if x['match'] == key), None)
+        if w:
+            used.add(w['match'])
+        (waived if w else survivors).append((label, key, w['reason'] if w else None))
+
+    shutil.rmtree(root, ignore_errors=True)
+
+    # A waiver is addressed by the mutant's KEY -- scope, enclosing block, statement,
+    # operator -- which survives any edit that does not touch the statement it names. It can
+    # still stop matching: the statement gets rewritten, or a corpus case starts killing the
+    # mutant. Neither is visible in the kill count, because moving one mutant from `waived`
+    # to `survivors` leaves it exactly where it was. So both are reported, and the one that
+    # leaves a mutant unexplained is fatal.
+    all_keys = {k for _, k, _ in mutants}
+    idle = {x['match'] for x in waivers} - used
+    stale = sorted(m for m in idle if m not in all_keys)
+    redundant = sorted(idle - set(stale))
+    if redundant:
+        print('  ℹ️  waivers no longer needed — a corpus case now kills the mutant:')
+        for m in redundant:
+            print(f'      {m}')
+
+    killed = len(mutants) - len(survivors) - len(waived)
+    print(f'  killed   {killed}/{len(mutants)}')
+    print(f'  waived   {len(waived)} (equivalent mutants, reasons in fixtures/mutation-waivers.json)')
+    print(f'  SURVIVED {len(survivors)}\n')
+    # The full list, written every run. A survivor set that exists only in terminal
+    # scrollback is not a backlog — it is a number you read once. Grouped by source line,
+    # because that is the unit someone fixes.
+    from collections import Counter, defaultdict
+    grouped = defaultdict(list)
+    for lb, key, _ in survivors:
+        grouped[lb.split(' ')[0]].append((lb.split(' ', 1)[1], key))
+    spath = os.path.join(HERE, 'fixtures', 'mutation-survivors.txt')
+    with open(spath, 'w') as fh:
+        fh.write(f'# {len(survivors)} surviving mutants of {len(mutants)} — '
+                 f'{killed} killed, {len(waived)} waived.\n'
+                 f'# Regenerated by `test-guards --generated`. A survivor is a corpus case\n'
+                 f'# worth writing, OR an equivalent mutant worth waiving with a reason.\n'
+                 f'# Not a bug list: many are constants no realistic input distinguishes.\n'
+                 f'# To waive one, copy its `waive as:` key into fixtures/mutation-waivers.json\n'
+                 f'# with an argument. The key carries no line number, so it survives edits\n'
+                 f'# elsewhere in the file; the sweep fails if it ever stops matching.\n\n')
+        for ln in sorted(grouped, key=lambda x: int(x[1:])):
+            src = open(impl).read().splitlines()
+            i = int(ln[1:])
+            code = src[i - 1].strip() if 0 < i <= len(src) else '?'
+            fh.write(f'{ln}  ({len(grouped[ln])})  {code[:96]}\n')
+            for m, key in grouped[ln]:
+                # The key, not the line number, is what a waiver is written against. It is
+                # printed here so waiving one is a copy rather than a reconstruction.
+                fh.write(f'        {m}\n          waive as: {key}\n')
+    print(f'  full list -> {os.path.relpath(spath)}')
+
+    by_line = Counter(lb.split(' ')[0] for lb, _, _ in survivors)
+    print('  survivors by source line (most first):')
+    for ln, cnt in by_line.most_common(18):
+        sample = next(lb for lb, _, _ in survivors if lb.startswith(ln + ' '))
+        print(f'    {cnt:>3} x {ln:<6} e.g. {sample.split(" ", 1)[1][:62]}')
+    return survivors, waived, killed, len(mutants), stale
+
+
+def main():
+    print(f'corpus: {CORPUS}')
+    base = run_corpus(CG)
+    print(f"\n== corpus ==\n  {base['correct']}/{base['total']} "
+          f"({base['tp']} of {base['tp'] + base['fn']} must-fire caught, "
+          f"{base['fp']} false positives)")
+    for m in base['misses']:
+        print(f'  ✗ MISSED  {m}')
+    for f in base['falses']:
+        print(f'  ✗ FALSE+  {f}')
+
+    integ = run_integrity(CG)
+    print('\n== scan integrity (outside the corpus) ==')
+    for label, ok in integ:
+        print(f"  {'✓' if ok else '✗'} {label}")
+    integ_ok = sum(1 for _, ok in integ if ok)
+
+    print('\n== mutation survivability ==')
+    orig = open(CG).read()
+    sha_before = hashlib.sha256(orig.encode()).hexdigest()
+    caught = 0
+    # Mutations are applied to a TEMP COPY, never to CG. Writing the mutant over the
+    # tracked file meant a signal — a CI cancel, a tool timeout, a closed laptop — left a
+    # disarmed checker on disk, and the next run read that mutant as its restore baseline
+    # and made it permanent. `finally` does not run on SIGTERM.
+    mutdir = tempfile.mkdtemp(prefix='test-guards-mut-')
+    try:
+        for label, old, new_src in MUTATIONS:
+            if old not in orig:
+                print(f'  ?? {label}: anchor not found — MUTATION DID NOT APPLY')
+                continue
+            mutant = os.path.join(mutdir, 'check-guards')
+            open(mutant, 'w').write(orig.replace(old, new_src, 1))
+            os.chmod(mutant, 0o755)
+            s = run_corpus(mutant)
+            si = sum(1 for _, ok in run_integrity(mutant) if ok)
+        # Scored against corpus AND integrity together. Scoring on the corpus alone left
+        # the integrity guards deletable, which is the same hole one level up.
+            # A mutation counts as caught only when it breaks a DETECTOR or an integrity
+            # claim — more misses, or fewer integrity checks passing. A mutation that merely
+            # adds false positives also lowers the total, and scoring on the total alone
+            # rendered "relaxed a guard" and "deleted a detector" as the same one-line ✓.
+            broke_detector = s['fn'] > base['fn'] or si < integ_ok
+            noisier = s['fp'] > base['fp']
+            if broke_detector:
+                caught += 1
+                print(f"  ✓ {label}: caught ({s['fn']} misses vs {base['fn']}, "
+                      f"integrity {si}/{len(integ)})")
+            elif noisier:
+                caught += 1
+                print(f"  ✓ {label}: caught via false positives only "
+                      f"({s['fp']} vs {base['fp']}) — no detector broke")
+            else:
+                print(f"  ✗ {label}: SURVIVED ({s['correct']}/{s['total']} + {si}/{len(integ)})")
+    finally:
+        shutil.rmtree(mutdir, ignore_errors=True)
+    print(f'\n  {caught}/{len(MUTATIONS)} mutations caught')
+
+    # The tool under test must be byte-identical to what we started with. Without this the
+    # suite cannot tell "mutations restored correctly" from "a mutant is now the baseline".
+    sha_after = hashlib.sha256(open(CG, 'rb').read()).hexdigest()
+    intact = sha_after == sha_before
+    print(f"  {'✓' if intact else '✗'} the tool under test is unmodified "
+          f"({'sha matches' if intact else 'SHA CHANGED — a mutant may have been left on disk'})")
+
+    ok = (base['correct'] == base['total'] and caught == len(MUTATIONS)
+          and integ_ok == len(integ) and intact)
+    print(f"\ntest-guards: corpus {base['correct']}/{base['total']}, "
+          f"integrity {integ_ok}/{len(integ)}, "
+          f"mutations {caught}/{len(MUTATIONS)} — {'PASS' if ok else 'FAIL'}")
+    return 0 if ok else 1
+
+
+if __name__ == '__main__':
+    if '--generated' in sys.argv:
+        sys.path.insert(0, HERE)
+        print('== generated mutation sweep ==')
+        surv, waiv, killed, total, stale = run_generated(CG)
+        pct = 100 * killed // total if total else 0
+        print(f'\ngenerated: {killed}/{total} killed ({pct}%), '
+              f'{len(waiv)} waived, {len(surv)} survived')
+
+        # A RATCHET, not a pass/fail bar. Demanding zero survivors would fail forever at
+        # 67% and be ignored within a week; reporting a number nobody compares to anything
+        # is the same as not running it. So: the kill count may not fall. A newly surviving
+        # mutation must be killed with a corpus case, or waived with an argument.
+        if stale:
+            print(f'\n❌ {len(stale)} waiver(s) match no generated mutant. The statement each\n'
+                  f'   one names has been rewritten or removed, so it is now waiving nothing\n'
+                  f'   while its mutant survives unexplained. Re-key them from the `waive as:`\n'
+                  f'   lines in fixtures/mutation-survivors.txt, or delete them:')
+            for m in stale:
+                print(f'      {m}')
+            sys.exit(1)
+
+        rpath = os.path.join(HERE, 'fixtures', 'mutation-ratchet.json')
+        prev = json.load(open(rpath))['killed'] if os.path.exists(rpath) else 0
+        if killed < prev:
+            print(f'\n❌ ratchet: killed fell from {prev} to {killed}. Either add a corpus '
+                  f'case, or waive the mutant in fixtures/mutation-waivers.json with a reason.')
+            sys.exit(1)
+        if killed > prev:
+            json.dump({'killed': killed, 'of': total}, open(rpath, 'w'), indent=1)
+            print(f'  ratchet raised: {prev} -> {killed}')
+        else:
+            print(f'  ratchet held at {killed}')
+        sys.exit(0)
+    sys.exit(main())

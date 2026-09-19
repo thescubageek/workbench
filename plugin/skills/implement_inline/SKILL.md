@@ -15,6 +15,7 @@ Supporting files in this directory (read each when its step directs you to — n
 
 - `templates/` — [modified-files-fragment.md](templates/modified-files-fragment.md) (Step 5) · [manual-verification-request.md](templates/manual-verification-request.md) and [phase-completion-report.md](templates/phase-completion-report.md) (Step 6)
 - [reference.md](reference.md) — handling mismatches, resume logic, TDD best practices, special considerations, error handling, the DO/DON'T lists, configuration
+- [../../docs/reference/journal-entries.md](../../docs/reference/journal-entries.md) — where a journal entry goes (newest first, never appended), its heading contract, and when it opens and closes
 
 **If a directed read fails, stop — do not continue from memory.** These files live outside your
 project, so a read can be refused. Say which file was refused, that reads outside the working
@@ -188,9 +189,10 @@ yet, and `/wb:create_tasks` is what writes it.
 
 **A. Open a journal entry**
 
-Before touching code, append an entry to `journal.md` naming the task ID, what you are about
-to do, and the exact next action — written **at the start**, not the end, because a session does
-not get to choose how it ends.
+Before touching code, add an entry at the **top** of `journal.md` — never appended to the end —
+naming the task ID, what you are about to do, and the exact next action, written **at the start**
+of the work, not the end, because a session does not get to choose how it ends. Read
+[../../docs/reference/journal-entries.md](../../docs/reference/journal-entries.md) NOW and follow it.
 
 The heading shape is a contract — the session-start hook, `forge`, `daily-digest`, `resume_handoff` and `create_handoff` all match on the trailing `(open)` / `(closed)`, and an entry ending any other way is invisible to them. Timestamp from `date -u +"%Y-%m-%d %H:%M"`, never estimated:
 

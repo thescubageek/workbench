@@ -19,6 +19,7 @@ Supporting files in this directory (read each when its step directs you to — n
 - `templates/` — [incomplete-worker-message.md](templates/incomplete-worker-message.md) (Step 6) · [modified-files-fragment.md](templates/modified-files-fragment.md) (Step 7) · [manual-verification-request.md](templates/manual-verification-request.md) and [phase-completion-report.md](templates/phase-completion-report.md) (Step 8)
 - [reference.md](reference.md) — evolution, resume logic, why the coordinator pattern exists, migration, the DO/DON'T lists, configuration
 - [../../docs/reference/branch-naming.md](../../docs/reference/branch-naming.md) — the branch-name rule Step 2 applies as a backstop, shared with `create_project`, `jira-context` and `forge`
+- [../../docs/reference/journal-entries.md](../../docs/reference/journal-entries.md) — where a journal entry goes (newest first, never appended), its heading contract, and when it opens and closes
 
 **If a directed read fails, stop — do not continue from memory.** These files live outside your
 project, so a read can be refused. Say which file was refused, that reads outside the working
@@ -235,9 +236,11 @@ A task carrying a `Depends on:` field is the exception — check its named depen
 
 ### Step 5: Spawn a Worker
 
-**Open a journal entry first.** Append to `journal.md` naming the task ID, what the worker is
-about to attempt, and the exact next action. Written at the start, not the end — an abrupt
-kill then leaves a correct open entry rather than silence.
+**Open a journal entry first**, naming the task ID, what the worker is about to attempt, and the
+exact next action. Written at the start, not the end — an abrupt kill then leaves a correct open
+entry rather than silence. It goes at the **top** of `journal.md`, never appended to the end:
+read [../../docs/reference/journal-entries.md](../../docs/reference/journal-entries.md) NOW and
+follow it.
 
 The heading shape is a contract — the session-start hook, `forge`, `daily-digest`, `resume_handoff` and `create_handoff` all match on the trailing `(open)` / `(closed)`, and an entry ending any other way is invisible to them. Timestamp from `date -u +"%Y-%m-%d %H:%M"`, never estimated:
 

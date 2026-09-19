@@ -123,6 +123,10 @@ Specialized agents for codebase analysis:
 
 Background capabilities that Claude automatically invokes:
 
+- **`adversarial-review`** - Assumes a change is broken and hunts for how: sizes its fan-out from what the diff touches, wraps the built-in `/code-review`, injects domain-expert lenses it lacks, and verifies every finding before reporting
+- **`adversarial-loop`** - Drives a change to reviewable: review, adjudicate, fix, re-verify until clean; if a PR exists, also flips to ready, waits on CI and `claude[bot]`, and replies until resolved
+- **`reply-to-claude`** - Answers a `claude[bot]` review with a comment mapping one-to-one to its findings, stating what was fixed and what was rejected and why
+- **`doc-adherence`** - Requires a claim about a plan document to come from a read in the current context, not from memory or a summary
 - **`project-structure`** - Enforces document separation (research.md, design.md, tasks.md)
 - **`mockup-iteration`** - Iterate on UI mockups with KEEP/REMOVE/CHANGE tracking
 - **`tdd-discipline`** - Enforces RED-GREEN-REFACTOR cycle before writing production code
@@ -138,6 +142,15 @@ Background capabilities that Claude automatically invokes:
 - **`daily-digest`** - Morning "catch me up + plan my day" orchestrator across Jira, wb plans, git, and more
 - **`clip`** - Runs an instruction, then copies the result to the clipboard (cross-platform) instead of printing it
 - **`eli5-clip`** - Summarizes recent work as a warm, plain-language message for a non-technical reader and copies it to the clipboard, tailored to a named recipient
+
+### Reference docs (`plugin/docs/reference/`)
+
+Shipped, read at runtime, each the single authority for one rule. Skills link to them rather than
+restating, so a rule changes in one place instead of drifting across copies.
+
+- **`branch-naming.md`** - What the working branch is called, and when to rename it
+- **`journal-entries.md`** - Where a journal entry goes (newest at the top, never appended), its `(open)`/`(closed)` contract, and when it opens and closes
+- **`code-review-integration.md`** - What Claude Code's built-in review commands provide, and which parts of that a skill may rely on
 
 ### Hooks
 
@@ -157,7 +170,7 @@ workbench/
 │   ├── skills/             # workflow stages (/wb:*) and background skills
 │   ├── agents/             # specialized subagents
 │   ├── hooks/              # event handlers
-│   ├── scripts/            # utility scripts (lint)
+│   ├── scripts/            # lint, the guards, and `check` which runs them all
 │   └── docs/reference/     # shipped, runtime-referenced docs
 └── docs/                   # maintainer-facing; never shipped
 ```
@@ -247,13 +260,79 @@ The plugin cannot (and does not) write to your personal config — this rule is 
 
 ## Development
 
-### Linting
+### Scripts
 
 ```bash
-./plugin/scripts/lint           # Lint changed files
+./plugin/scripts/check          # Every gate, in one command — this is what CI runs
+./plugin/scripts/shellcheck-gate # shellcheck over the plugin's own shell scripts
+
+./plugin/scripts/lint           # Lint changed markdown
 ./plugin/scripts/lint --fix     # Auto-fix issues
-./plugin/scripts/lint --all     # Lint all markdown files
+./plugin/scripts/lint --all     # Lint every markdown file
+
+./plugin/scripts/check-guards   # Find measurements whose failure reads as a clean result
+./plugin/scripts/count          # A match count whose failure is distinguishable from zero
+./plugin/scripts/test-guards    # Contract test for scripts/check-guards
+./plugin/scripts/test-guards --generated  # ...plus the machine-generated mutation sweep
+./plugin/scripts/test-quiet     # Contract test for scripts/quiet
+./plugin/scripts/test-count     # Contract test for scripts/count
+./plugin/scripts/test-phi-patterns  # Contract test for the PHI scrub patterns in daily-digest
 ```
+
+`plugin/scripts/lib_mutate.py` is a library rather than a command: `test-guards --generated`
+imports it to build the mutants. It is the only non-executable file in the directory.
+
+**Requirements**: `markdownlint-cli`, `shellcheck` and `python3`. `check` fails loudly and
+names the install command when one is missing — a gate that silently skips is indistinguishable
+from a gate that passed.
+
+**Run `check` before a release.** It runs every gate above, does not stop at the first failure,
+and is what `.github/workflows/checks.yml` invokes on push and on every pull request. The guards
+shipped once with nothing invoking them, which is the same defect one level up: a check that never
+runs and a check that always passes look identical from outside.
+
+`scripts/count <regex> <file>` exists because `grep -c` prints `0` and exits 1 on no match, and
+exits 2 while printing nothing on error — so captured in a command substitution, "nothing matched"
+and "the command failed" are the same value. `count` puts the difference on the exit code: 0 means
+the number on stdout is trustworthy including zero, 2 means it could not be taken. That makes
+`n=$(count ... ) || handle` safe in a way the raw grep is not.
+
+`lint-hook` is not run by hand — it is the PostToolUse hook body, wired in `plugin.json`, which
+runs `lint --fix` on any markdown a Write or Edit touches.
+
+`check-guards` scans shipped shell and fenced `bash` blocks for three shapes whose failure is
+indistinguishable from "nothing matched": a `grep -c` captured without a status guard, an unquoted
+`--include` glob, and a `for` over a glob with no existence test. Prose and tables are not scanned,
+so a document may describe a bad pattern freely — a deliberate counter-example belongs in a `text`
+fence rather than a `bash` one.
+
+`scripts/test-guards` is its contract test, in three parts: a **73-case labelled corpus**,
+**15 scan-integrity checks** the corpus structurally cannot cover, and **mutation survivability**
+— 22 single-line breaks planted in the checker, each of which must be caught. The third part
+exists because an earlier suite reported 31/31 while four of the checker's guards were each
+deletable with a one-line edit. A corpus proves the detectors fire on what you thought of;
+mutation proves the corpus would notice if one stopped firing at all.
+
+`test-guards --generated` is the fourth part and runs separately, because it is slow and because
+it is a **ratchet rather than a pass/fail bar**. `lib_mutate.py` walks the syntax tree and changes
+one thing — a comparison, a boolean, an integer constant, a regex, a deleted statement — which
+gives it no blind spot correlated with the author's. It currently kills **244 of 292**; the count
+may not fall, so a newly surviving mutant has to be killed with a corpus case or waived in
+`fixtures/mutation-waivers.json` **with an argument**. The 48 waived ones are genuinely equivalent
+— deleted docstrings, a `^` on a pattern used with `re.match`, a branch unreachable from valid
+shell — and each entry says why. Waivers are addressed by a key that carries no line number, so an
+edit elsewhere in the file cannot silently unhook one; the sweep fails if a waiver ever stops
+matching.
+
+The author-written suite is worth exactly what an author's imagination is worth, which is the
+point: it once reported 12/12 while an independent reviewer's 24 mutations produced 20 survivors.
+
+`check-guards` and `test-guards` require **`python3`**. They were bash through three review rounds,
+each of which patched real holes and opened comparable ones; measured on one corpus, the bash
+version scored 89% with 50% mutation survivability against the rewrite's 97% and 87%.
+
+`scripts/quiet <command>` wraps any command so a green run collapses to a checkmark plus the
+runner's own summary line, while a failure dumps the full log. Exit codes pass through unchanged.
 
 ### Testing Changes
 

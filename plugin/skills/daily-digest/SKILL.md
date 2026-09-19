@@ -39,9 +39,9 @@ RECONCILE BEFORE YOU RANK. NEVER WRITE PHI. ALWAYS LEAVE A CONCRETE FIRST MOVE.
 - **Reconcile before you rank** — one work item may appear as a Jira ticket, its PR,
   its plan task, and a Sentry error. Group them into ONE item before prioritizing,
   or the day plan double-counts and misleads.
-- **Never write PHI** — see [PHI guardrail](#phi-guardrail). This is a HIPAA-covered
-  org; the sources this skill reads (email, Jira, Sentry, Notion) can carry patient
-  data. The digest and every `.context/` file it writes must be PHI-free.
+- **Never write PHI** — see [PHI guardrail](#phi-guardrail). The sources this skill reads
+  (email, Jira, Sentry, Notion) can carry patient data in any HIPAA-covered organization.
+  The digest and every `.context/` file it writes must be PHI-free.
 - **A digest with no first move failed.** The deliverable is not a status report; it's
   a plan. Every "Today" item ends in a concrete next action and its effort tier.
 
@@ -100,7 +100,9 @@ judgement (email triage, Sentry severity, Notion relevance).
 
 Each collector pulls the **since-window** slice for its source and returns
 **PHI-scrubbed, structured notes** — never raw dumps. The exact per-source query
-recipes (with env vars and fallbacks) live in [sources.md](sources.md); point each
+recipes (with env vars and fallbacks) live in [sources.md](sources.md) — which also carries
+the canonical PHI patterns, so a collector given that file can actually scrub rather than
+being told that scrubbing exists; point each
 collector at it. Sources and what each contributes:
 
 | Source | Tool | Progress (done) | Needs review | Today / incoming |
@@ -201,7 +203,7 @@ exhausting the rolling **5-hour usage window** or ignoring your calendar.
 4. **Wire each Today item to its entry point:**
    - Plannable ticket → `/wb:forge <ticket>` (research → design → execution).
    - A ticket you'll pick up → `/wb:jira-context <KEY>` first to hivemind off it.
-   - PR review you owe → `pr-feedback` / `review` / `review-reef` per its size.
+   - PR review you owe → `adversarial-review` for the hunt, `reply-to-claude` to answer a bot review.
    - GitHub backlog to knock out → `fetch-issues`.
    - Long analysis/audit → `touch-grass`.
 
@@ -228,14 +230,32 @@ exhausting the rolling **5-hour usage window** or ignoring your calendar.
 
 ## PHI guardrail
 
-**Brightline is a HIPAA-covered behavioral-health org.** Gmail, Jira, Sentry, and
-Notion routinely contain Protected Health Information. This skill reads those sources
-to *plan work*, and MUST NOT surface or persist PHI.
+**Applies whenever you work in a HIPAA-covered organization** — or anywhere the sources
+below carry regulated personal data. Gmail, Jira, Sentry and Notion routinely contain
+Protected Health Information. This skill reads those sources to *plan work*, and MUST NOT
+surface or persist PHI.
+
+If your organization is not covered, this section costs you nothing: it only ever removes
+identifiers from a planning artifact that never needed them.
+
+**Read [sources.md](sources.md)'s *PHI patterns* section NOW**, before assembling anything.
+You own the digest write and the red flag below, and both need the patterns — pointing
+collectors at that file hands it to them, not to you. A rule whose matcher is in a file you
+were never told to open is a rule with nothing to apply.
 
 - **Never write PHI** into the digest, `.context/` files, `bd` issues, commit
   messages, or clipboard. Refer to work by ticket key / PR number / issue title —
-  never by patient name, DOB, address, contact info, or **Member ID**
-  (`(?:BM|BC|BA)-[A-Z]{2}-\d{8}` and obvious variants).
+  never by patient name, DOB, address, contact info, or **Member ID**.
+
+  **Member IDs are matched, not described.** The patterns are canonical in
+  [sources.md](sources.md) under *PHI patterns* — they live there because that is the file
+  each collector is handed, and a collector is the surface that touches the raw payload. Read
+  them from there; do not restate them here, and do not paraphrase them into a collector
+  prompt.
+
+  A repository may **add** its own format in its `CLAUDE.md`. It may not narrow or disable
+  them: a de-identification rule that goes quiet when it is unconfigured still reports clean,
+  which is worse than having no rule at all.
 - **Collectors scrub at the source.** Instruct each collector to return
   identifiers/subjects and *categories* of content, not PHI values. If a Jira summary
   or email subject embeds a patient identifier, replace it with a placeholder
@@ -275,7 +295,8 @@ to *plan work*, and MUST NOT surface or persist PHI.
   the plan, touch-grass sustains it across breaks/window-resets.
 - **`tracer-bullet`** — fire before committing to a Complex/Critical item whose tier
   is uncertain.
-- **review skills** (`pr-feedback`, `review`, `review-reef`, `review-strict`) — the
-  entry points for the Needs-review bucket.
+- **review skills** (`adversarial-review`, `adversarial-loop`, `reply-to-claude`) — the
+  entry points for the Needs-review bucket. `adversarial-review` hunts a diff; `adversarial-loop`
+  drives one to reviewable; `reply-to-claude` answers a bot review.
 - **`status-sync`** — end-of-day counterpart; daily-digest opens the session,
   status-sync helps close it clean.
