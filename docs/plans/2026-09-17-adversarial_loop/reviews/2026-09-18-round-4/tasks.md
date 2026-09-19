@@ -3,11 +3,11 @@ project: adversarial_loop
 reviews: docs/plans/2026-09-17-adversarial_loop
 round: 4
 created: 2026-09-18
-status: complete
+status: in-progress
 last_updated: 2026-09-18
 assignee: scraig
 current_phase: 1
-total_tasks: 8
+total_tasks: 18
 completed_tasks: 8
 task_tracking: markdown-checkboxes
 git_branch: adversarial-loop-skill-research
@@ -80,6 +80,52 @@ finding cannot be expressed as a corpus case, the task says which shape it uses 
       **Fails when:** the README's own prescribed way to show a counter-example is scanned.
       **Acceptance (shape 2)**: must-not-fire corpus case. Verdict was PLAUSIBLE; confirm or
       refute it first and record which. (~10 calls)
+
+## Tasks — the rest of round 4 (outside `check-guards`)
+
+Ten findings remained after R4-T1..T8. They were deferred, not dropped: the `check-guards`
+set was pulled forward because the generated mutation sweep must not run against a tool with
+known live defects.
+
+- [ ] **R4-T9** — `daily-digest/sources.md:223` — the shipped patterns match none of the
+      variants the same paragraph orders the collector to catch, while `sources.md:15` says
+      "match them, do not paraphrase them". **Fails when:** a hand-typed `bm-ca-12345678` —
+      the most common form — matches neither regex and reaches the digest.
+      **Acceptance (shape 1)**: a probe that extracts the patterns *from the shipped file* and
+      runs them against lowercase, no-separator and spaced variants. (~12 calls)
+- [ ] **R4-T10** — `adversarial-review/SKILL.md:59` — `$target` is read seventeen times and
+      assigned nowhere, so the `if/elif` chain always takes its first branch.
+      **Fails when:** executing the Step 1 block verbatim prints `range: origin/main...HEAD`
+      for any argument. **Acceptance (shape 1)**: run the block as written with a PR number
+      and see it resolve to that PR. (~12 calls)
+- [ ] **R4-T11** — `validation-rules.md:155` — the `depends_on` check requires an array; both
+      shipped design templates emit a scalar, so it errors on every generated plan.
+      **Acceptance (shape 1)**: evaluate the rule against the shipped templates. (~9 calls)
+- [ ] **R4-T12** — `validation-rules.md:205` — narrowing `taskLines` made it a subset of `ids`,
+      so the missing-ID check computes a negative and is structurally dead.
+      **Acceptance (shape 1)**: evaluate both regexes against a plan with an ID-less task.
+      (~9 calls)
+- [ ] **R4-T13** — `test-guards:158` — a mutation counts as caught whenever the score drops, so
+      new false positives are indistinguishable from a broken detector.
+      **Acceptance (shape 2)**: require `fn` to rise, and prove it by a mutation that is caught
+      only via false positives. (~11 calls)
+- [ ] **R4-T14** — `test-count:64` / `test-quiet` — seven of eight planted regressions survived,
+      including dropping `--` from `grep -cE --`, which silently returns a wrong count.
+      **Acceptance (shape 2)**: a case per regression, each failing before. (~16 calls)
+- [ ] **R4-T15** — `reply-to-claude/SKILL.md:100` — the confirm-before-publishing instruction
+      sits seventeen lines *after* the `gh pr comment` block it gates.
+      **Acceptance (shape 3)**: dual grep — the gate appears before the command, and the
+      command is not reachable without passing it. (~8 calls)
+- [ ] **R4-T16** — `adversarial-loop/SKILL.md:41` — the flow diagram still states the CONFIRMED
+      gate the prose 85 lines below explains is wrong.
+      **Acceptance (shape 3)**: the old wording is absent AND the new wording is present.
+      (~7 calls)
+- [ ] **R4-T17** — `daily-digest/SKILL.md:103` — the orchestrator is told to point collectors at
+      `sources.md` but never directed to read it, so the red flag it owns has no matcher.
+      **Acceptance (shape 3)**: a directed read exists for the orchestrator. (~8 calls)
+- [ ] **R4-T18** — `CHANGELOG.md:147` — the 2.2.0 entry claims the plugin names no employer and
+      defers the member-ID format to a repository `CLAUDE.md`; commit `3ce6af9` falsified both.
+      **Acceptance (shape 3)**: every claim in the entry is checkable and checks out. (~9 calls)
 
 ## Success Criteria
 
