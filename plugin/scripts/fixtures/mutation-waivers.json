@@ -1,0 +1,6 @@
+[
+ {
+  "match": "L41 regex drop word boundaries",
+  "reason": "EQUIVALENT. COUNTING's \\b around `grep` is redundant against this corpus: every fixture spells the command as a standalone word, so removing the boundaries changes no decision. The boundaries are still right \u2014 `egrep`/`zgrep` must not match \u2014 but no case distinguishes it, and inventing one to satisfy the mutant would be fitting the corpus to the tool."
+ }
+]

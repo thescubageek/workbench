@@ -12,8 +12,10 @@ Acceptance bar, pre-registered: 100% of the corpus, and every planted mutation c
 Usage: plugin/scripts/test-guards [path-to-check-guards]
 """
 import hashlib
+import importlib.util
 import json
 import os
+import signal
 import re
 import shutil
 import subprocess
@@ -21,7 +23,8 @@ import sys
 import tempfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-CG = sys.argv[1] if len(sys.argv) > 1 else os.path.join(HERE, 'check-guards')
+_args = [a for a in sys.argv[1:] if not a.startswith('--')]
+CG = _args[0] if _args else os.path.join(HERE, 'check-guards')
 CORPUS = os.path.join(HERE, 'fixtures', 'guard-corpus.json')
 
 # Each is a single-line edit a maintainer could plausibly make. If the corpus does not
@@ -268,6 +271,123 @@ def run_integrity(impl):
     return checks
 
 
+def _load(src_text, name):
+    """Import a mutant in-process. 294 mutants x 54 cases is ~16k runs; at ~30ms of
+    process spawn each that is nine minutes of fork() and nothing else. Importing the
+    module instead keeps the sweep in the tens of seconds."""
+    path = os.path.join(tempfile.gettempdir(), f'{name}.py')
+    open(path, 'w').write(src_text)
+    try:
+        spec = importlib.util.spec_from_file_location(name, path)
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)          # __name__ != '__main__', so main() does not run
+        return mod
+    finally:
+        try:
+            os.unlink(path)
+        except OSError:
+            pass
+
+
+class _Timeout(Exception):
+    pass
+
+
+def _alarm(_sig, _frm):
+    raise _Timeout()
+
+
+def run_generated(impl):
+    """Score every generated mutant against the corpus, in-process.
+
+    Corpus only — the integrity checks drive the CLI and stay with the curated suite.
+    Stated rather than implied: a generated sweep does not cover integrity regressions.
+    """
+    import lib_mutate
+
+    cases = json.load(open(CORPUS))
+    waivers = []
+    wpath = os.path.join(HERE, 'fixtures', 'mutation-waivers.json')
+    if os.path.exists(wpath):
+        waivers = json.load(open(wpath))
+
+    # Materialise every case ONCE, not once per mutant.
+    root = tempfile.mkdtemp(prefix='guard-corpus-')
+    dirs = []
+    for i, case in enumerate(cases):
+        d = os.path.join(root, f'c{i}')
+        p = os.path.join(d, case['path'])
+        os.makedirs(os.path.dirname(p), exist_ok=True)
+        open(p, 'w').write(case['content'])
+        dirs.append((d, case))
+
+    def score(mod):
+        correct = 0
+        for d, case in dirs:
+            try:
+                signal.signal(signal.SIGALRM, _alarm)
+                signal.setitimer(signal.ITIMER_REAL, 5)
+                findings, _ = mod.collect([d])
+            except BaseException:
+                return -1                      # crash or hang counts as a failing mutant
+            finally:
+                signal.setitimer(signal.ITIMER_REAL, 0)
+            got = {(no, SHAPE_OF[shape]) for _, no, shape, _ in findings if shape in SHAPE_OF}
+            want = {(ln, sh) for ln, sh in case.get('expect_at', [])}
+            if (got == want) if case['expect'] == 1 else (not got):
+                correct += 1
+        return correct
+
+    src = open(impl).read()
+    base_mod = _load(src, 'guard_base')
+    base = score(base_mod)
+    integ_base = sum(1 for _, ok in run_integrity(impl) if ok)
+    print(f'  baseline {base}/{len(cases)} corpus, {integ_base} integrity')
+
+    mutants = lib_mutate.generate(src)
+    print(f'  {len(mutants)} generated mutants\n')
+
+    survivors, waived = [], []
+    for n, (label, msrc) in enumerate(mutants):
+        try:
+            mod = _load(msrc, f'guard_mut_{n}')
+        except BaseException:
+            continue                            # will not even import: caught
+        if score(mod) < base:
+            continue                            # caught by the corpus
+        # A corpus-only sweep mis-reports every mutation the INTEGRITY layer covers as a
+        # survivor — `scanned == 0`, the unreadable-file refusal, target resolution. Those
+        # are not gaps, they are checks this scoring did not run. Re-score the corpus
+        # survivors against integrity, via the CLI, before calling anything a survivor.
+        mpath = os.path.join(root, f'mut_{n}')
+        open(mpath, 'w').write(msrc)
+        os.chmod(mpath, 0o755)
+        if sum(1 for _, ok in run_integrity(mpath) if ok) < integ_base:
+            continue                            # caught by integrity
+        w = next((x for x in waivers if _waiver_matches(x['match'], label)), None)
+        (waived if w else survivors).append((label, w['reason'] if w else None))
+
+    shutil.rmtree(root, ignore_errors=True)
+
+    killed = len(mutants) - len(survivors) - len(waived)
+    print(f'  killed   {killed}/{len(mutants)}')
+    print(f'  waived   {len(waived)} (equivalent mutants, reasons in fixtures/mutation-waivers.json)')
+    print(f'  SURVIVED {len(survivors)}\n')
+    from collections import Counter
+    by_line = Counter(lb.split(' ')[0] for lb, _ in survivors)
+    print('  survivors by source line (most first):')
+    for ln, cnt in by_line.most_common(18):
+        sample = next(lb for lb, _ in survivors if lb.startswith(ln + ' '))
+        print(f'    {cnt:>3} x {ln:<6} e.g. {sample.split(" ", 1)[1][:62]}')
+    return survivors, waived, killed, len(mutants)
+
+
+def _waiver_matches(pattern, label):
+    """`[*]` in a waiver matches any node index, so a waiver survives renumbering."""
+    rx = re.escape(pattern).replace(r'\[\*\]', r'\[\d+\]')
+    return re.match(rx, label) is not None
+
+
 def main():
     print(f'corpus: {CORPUS}')
     base = run_corpus(CG)
@@ -331,4 +451,12 @@ def main():
 
 
 if __name__ == '__main__':
+    if '--generated' in sys.argv:
+        sys.path.insert(0, HERE)
+        print('== generated mutation sweep ==')
+        surv, waiv, killed, total = run_generated(CG)
+        pct = 100 * killed // total if total else 0
+        print(f'\ngenerated: {killed}/{total} killed ({pct}%), '
+              f'{len(waiv)} waived, {len(surv)} survived')
+        sys.exit(0 if not surv else 1)
     sys.exit(main())

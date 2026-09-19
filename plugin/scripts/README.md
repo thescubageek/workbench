@@ -171,6 +171,35 @@ Contract tests for `check-guards`, in **three** parts — and the third is the o
 
 Acceptance bar: 100% of the corpus, all integrity checks, every mutation caught.
 
+```bash
+./plugin/scripts/test-guards --generated
+```
+
+**The generated sweep** is a separate mode and deliberately not part of `check` — it takes ~80
+seconds against `check`'s ~20. It parses `check-guards` and mutates it mechanically: every
+comparison operator, boolean operator and integer constant, every statement deletion, and a set
+of regex weakenings (drop anchors, drop word boundaries, collapse alternations, widen
+quantifiers). ~294 mutants.
+
+**Why both.** The curated list is author-written, and round 4 of this repository's own review
+established what that is worth: the same session wrote the tool, the corpus *and* the mutations,
+and an independent reviewer's 24 mutations found 20 survivors behind a green 12/12. **A generator
+has no blind spot correlated with the author's**, because it is not reasoning about the problem —
+it walks the syntax tree and changes one thing.
+
+The sweep scores against the corpus **and** the integrity layer. Corpus-only scoring mis-reports
+every mutation the integrity checks cover — `scanned == 0`, the unreadable-file refusal, target
+resolution — as a survivor, which inflated the survivor count by 11%.
+
+**Equivalent mutants are the known cost**, waived in `fixtures/mutation-waivers.json`, and a
+waiver carries an argument rather than an entry. Treat the survivor list as a queue of corpus
+cases worth writing, not as a bug list: many survivors are constants and branches no realistic
+input distinguishes.
+
+### `lib_mutate.py`
+
+The mutation operators used by `test-guards --generated`. Not a script — imported, not run.
+
 ### `fixtures/guard-corpus.json`
 
 The labelled corpus. Not a test on its own — it is the asset three adversarial review rounds
