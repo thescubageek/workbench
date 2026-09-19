@@ -33,6 +33,7 @@ gate "markdown lint"            ./plugin/scripts/lint --all
 gate "unguarded measurements"   ./plugin/scripts/check-guards
 gate "check-guards contract"    ./plugin/scripts/test-guards
 gate "count contract"           ./plugin/scripts/test-count
+gate "PHI scrub patterns"       ./plugin/scripts/test-phi-patterns
 gate "quiet contract"           ./plugin/scripts/test-quiet
 
 echo

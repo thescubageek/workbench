@@ -224,9 +224,27 @@ Scrub anything matching either pattern, plus obvious variants — lowercase, mis
 separators, surrounding punctuation:
 
 ```text
-(?:BM|BC|BA)-[A-Z]{2}-\d{8}        # the canonical form this rule was written against
-\b[A-Z]{2}-[A-Z]{2}-\d{6,10}\b     # the general shape, for formats not enumerated above
+(?i)\b(?:BM|BC|BA)[-_ ]?[A-Z]{2}[-_ ]?\d{8}\b      # canonical, plus the variants below
+(?i)\b[A-Z]{2}[-_ ][A-Z]{2}[-_ ]\d{6,10}\b          # the general shape, separators required
 ```
+
+**The variants are in the patterns, not in the prose.** An earlier version described them —
+"lowercase, missing or extra separators" — while the regexes matched only the canonical form,
+and the line above tells you to match rather than paraphrase. A collector obeying that
+instruction literally could not produce the coverage the instruction demanded, and
+`bm-ca-12345678` — the most common hand-typed form — went through unscrubbed.
+
+`(?i)` covers case. `[-_ ]?` on the first pattern covers absent, hyphen, underscore and space
+separators; the second requires a separator, because without one `\b[A-Z]{2}[A-Z]{2}\d{6,10}\b`
+would swallow ordinary alphanumeric tokens. Verified against `TB-2421`, `PR-42`, ISO dates and
+git SHAs — none match.
+
+**Known cost, accepted deliberately**: the general shape cannot distinguish a member ID from
+any other two-segment `AA-BB-nnnnnn` identifier, so a locale-scoped job id (`EN-US-10023456`)
+or a purchase order is redacted too. Over-redaction is the safe direction for a
+de-identification rule — but it costs a digest item its actionable reference, so the cases are
+pinned in `plugin/scripts/test-phi-patterns` rather than left to drift. Narrowing the digit
+floor below six would start eating ordinary references; that is tested too.
 
 A repository may **add** its own format in its `CLAUDE.md`. It may not narrow or disable these:
 a de-identification rule that goes quiet when it is unconfigured still reports clean, which is

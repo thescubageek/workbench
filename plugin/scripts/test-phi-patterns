@@ -1,0 +1,58 @@
+#!/usr/bin/env python3
+"""Contract test for the PHI scrub patterns in daily-digest/sources.md.
+
+The patterns are extracted FROM THE SHIPPED FILE, never restated here — a second copy is
+how the previous version drifted, and a test that carries its own copy of the thing under
+test verifies nothing. sources.md is the file each collector is handed, so it is the file
+that must carry a matchable pattern.
+
+Both directions: the variants the prose demands must match, and the identifiers a digest is
+made of must not. Over-redaction that eats Jira keys destroys the artifact.
+"""
+import os
+import re
+import sys
+ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..'))
+src = open(os.path.join(ROOT, 'plugin/skills/daily-digest/sources.md')).read()
+# extract the patterns FROM THE SHIPPED FILE — never from what I think they are
+block = re.search(r'```text\n(.*?)```', src, re.S)
+pats = []
+for line in (block.group(1).splitlines() if block else []):
+    p = line.split('#')[0].strip()
+    if p:
+        pats.append(p)
+if len(pats) < 2:
+    print("  ✗ fewer than 2 patterns found in sources.md — has the block moved?")
+    sys.exit(1)
+print(f"  patterns extracted from sources.md: {len(pats)}")
+for p in pats: print(f"    {p}")
+cases = [
+    ("BM-CA-12345678",  True,  "canonical"),
+    ("bm-ca-12345678",  True,  "lowercase — the most common hand-typed form"),
+    ("BMCA12345678",    True,  "no separators"),
+    ("BM CA 12345678",  True,  "spaces for separators"),
+    ("BM_CA_12345678",  True,  "underscores"),
+    ("TB-2421",         False, "Jira key"),
+    ("PR-42",           False, "PR ref"),
+    ("2026-09-18",      False, "ISO date"),
+    ("a1b2c3d4e5f6",    False, "git sha"),
+    ("Fix login bug",   False, "prose"),
+    # Known, accepted over-matches. Pinned so the trade-off is visible and cannot drift
+    # silently: the general two-segment shape cannot tell a member ID from any other
+    # AA-BB-nnnnnn identifier. Over-redaction is the safe direction for a PHI control, but
+    # it costs a digest item its actionable reference, so it is recorded rather than shrugged off.
+    ("EN-US-10023456",  True,  "locale-scoped job id — ACCEPTED over-match"),
+    ("PO-US-00123456",  True,  "purchase order — ACCEPTED over-match"),
+    # These must NOT match: too few digits to be a member ID, so the general shape must not
+    # widen to swallow them.
+    ("AB-CD-1234",      False, "4 digits — below the member-ID floor"),
+    ("US-EN-123",       False, "3 digits"),
+]
+bad = 0
+for s, want, why in cases:
+    hit = any(re.search(p, s) for p in pats)
+    ok = hit == want
+    if not ok: bad += 1
+    print(f"  {'✓' if ok else '✗'} {s:18} scrubbed={str(hit):5} want={str(want):5}  {why}")
+print(f"\ntest-phi-patterns: {len(cases) - bad}/{len(cases)} — {'PASS' if not bad else 'FAIL'}")
+sys.exit(1 if bad else 0)

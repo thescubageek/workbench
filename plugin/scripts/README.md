@@ -202,6 +202,21 @@ waiver carries an argument rather than an entry. Treat the survivor list as a qu
 cases worth writing, not as a bug list: many survivors are constants and branches no realistic
 input distinguishes.
 
+### `test-phi-patterns`
+
+Contract test for the PHI scrub patterns in `daily-digest/sources.md`. The patterns are
+extracted **from the shipped file**, never restated here — a second copy is how the previous
+version drifted, and a test carrying its own copy of the thing under test verifies nothing.
+
+Both directions: the variants the prose demands must match (lowercase, missing or extra
+separators), and the identifiers a digest is made of must not (Jira keys, PR refs, ISO dates,
+SHAs). Known over-matches are pinned as expected, so the trade-off is visible rather than
+accidental.
+
+```bash
+./plugin/scripts/test-phi-patterns
+```
+
 ### `lib_mutate.py`
 
 The mutation operators used by `test-guards --generated`. Not a script — imported, not run.

@@ -8,7 +8,7 @@ last_updated: 2026-09-18
 assignee: scraig
 current_phase: 1
 total_tasks: 18
-completed_tasks: 8
+completed_tasks: 9
 task_tracking: markdown-checkboxes
 git_branch: adversarial-loop-skill-research
 repository: thescubageek/workbench
@@ -87,7 +87,7 @@ Ten findings remained after R4-T1..T8. They were deferred, not dropped: the `che
 set was pulled forward because the generated mutation sweep must not run against a tool with
 known live defects.
 
-- [ ] **R4-T9** — `daily-digest/sources.md:223` — the shipped patterns match none of the
+- [x] **R4-T9** — `daily-digest/sources.md:223` — the shipped patterns match none of the
       variants the same paragraph orders the collector to catch, while `sources.md:15` says
       "match them, do not paraphrase them". **Fails when:** a hand-typed `bm-ca-12345678` —
       the most common form — matches neither regex and reaches the digest.
