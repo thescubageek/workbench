@@ -38,7 +38,7 @@ dispositions, `/verify` says whether a fix actually works.
 a reviewable diff
    ↓
 adversarial-review → adjudicate → fix → /verify → re-review     (repeat)
-   ↓ ⛔ gate: a pass returns no CONFIRMED findings in the diff
+   ↓ ⛔ gate: no finding you ADJUDICATED Valid remains (not: no CONFIRMED findings)
    ├── no pull request → stop here. The branch is reviewed; pushing is the user's call
    └── a pull request exists ↓
        gh pr ready  (this is what summons claude[bot])

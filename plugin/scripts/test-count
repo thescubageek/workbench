@@ -89,6 +89,27 @@ out="$("$COUNT" 'unbalanced[' "$TMP/f.txt" 2>/dev/null)"; code=$?
 check "a grep error exits non-zero"     "$([[ $code -ne 0 ]] && echo 1 || echo 0)"
 check "a grep error prints no count"    "$([[ -z "$out" ]] && echo 1 || echo 0)"
 
+# 6c. A pattern that looks like an option must be counted, not consumed.
+# Dropping the `--` from `grep -cE -- "$pattern"` makes this return 0 with exit 0 where the
+# true count is 1 — verbatim the collapse count exists to eliminate — and every assertion
+# above still passed. This is the one regression that produces a WRONG NUMBER rather than an
+# error, so it is the one most worth pinning.
+# `-x` is a REAL grep option (--line-regexp), so without `--` grep consumes the filename as
+# its pattern and waits on stdin — the test hangs instead of failing. Use a pattern grep
+# rejects outright, so the regression is a fast error rather than a stall.
+printf 'alpha\n--alpha beta\n' > "$TMP/opt.txt"
+out="$("$COUNT" '--alpha' "$TMP/opt.txt" 2>/dev/null)"; code=$?
+check "an option-shaped pattern is counted, not consumed" \
+      "$([[ "$out" == "1" && $code -eq 0 ]] && echo 1 || echo 0)"
+
+# 6d. The documented failure code is 2, not merely non-zero. The header promises
+# "exit 2 — the count could not be taken", and callers branch on it; every other assertion
+# here is `-ne 0`, so changing 2 to 1 was invisible.
+"$COUNT" 'alpha' "$TMP/absent.txt" >/dev/null 2>&1; code=$?
+check "a missing file exits exactly 2"  "$([[ $code -eq 2 ]] && echo 1 || echo 0)"
+"$COUNT" 'only-one-arg' >/dev/null 2>&1; code=$?
+check "bad usage exits exactly 2"       "$([[ $code -eq 2 ]] && echo 1 || echo 0)"
+
 # 7. --lines counts non-empty lines
 out="$("$COUNT" --lines "$TMP/f.txt")"
 check "--lines counts non-empty lines"  "$([[ "$out" == "4" ]] && echo 1 || echo 0)"

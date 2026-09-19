@@ -95,7 +95,11 @@ echo "$body"
 
 **4b — compose into exactly that path**, with the Write tool, using the path 4a printed.
 
-**4c — post it**, passing the same literal path (not a variable — the shell from 4a is gone):
+**4c — post it.** ⛔ **Confirm with the user first.** Posting is an outward-facing state
+change: a public comment under your identity, prefixed `@claude` so it re-summons the bot and
+consumes review CI. `adversarial-loop` lists it in *What stops for the user*, and each round is
+a separate confirmation. Then, passing the same literal path (not a variable — the shell from
+4a is gone):
 
 ```bash
 PR=$(gh pr view --json number --jq .number) || exit 1
@@ -117,9 +121,9 @@ if the compose step is declined or errors, `gh pr comment` happily posts the fil
 left there — another pull request's rejected-finding writeups, published under your identity and
 prefixed `@claude` so it re-summons the bot. The failure is that the command succeeds.
 
-**Posting is an outward-facing state change. Confirm it with the user before 4c**, the same way
-`adversarial-loop` gates its push and its label — a public comment under your identity is the same
-kind of act.
+The confirmation requirement is stated at 4c itself, above — not here. A gate that appears
+after the command it gates is not a gate: a model executing Step 4 top-down would have posted
+before reaching it.
 
 The body:
 

@@ -238,6 +238,11 @@ surface or persist PHI.
 If your organization is not covered, this section costs you nothing: it only ever removes
 identifiers from a planning artifact that never needed them.
 
+**Read [sources.md](sources.md)'s *PHI patterns* section NOW**, before assembling anything.
+You own the digest write and the red flag below, and both need the patterns — pointing
+collectors at that file hands it to them, not to you. A rule whose matcher is in a file you
+were never told to open is a rule with nothing to apply.
+
 - **Never write PHI** into the digest, `.context/` files, `bd` issues, commit
   messages, or clipboard. Refer to work by ticket key / PR number / issue title —
   never by patient name, DOB, address, contact info, or **Member ID**.

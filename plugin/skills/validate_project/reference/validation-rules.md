@@ -152,7 +152,16 @@ if (staleOpen.length) {
 // Checklist §7 — Dependencies. Declared in validation-checklist.md and previously
 // unimplemented, so the chain it describes was never actually checked.
 // ---------------------------------------------------------------------------
-const dependsOn = (fm) => Array.isArray(fm.depends_on) ? fm.depends_on : [];
+// A YAML scalar is legitimate here and is what BOTH shipped design templates emit
+// (`depends_on: research.md`); only the tasks template uses flow-sequence syntax. Requiring
+// an array made this rule ERROR on every plan the plugin itself generates. Normalise instead
+// of rejecting — the rule's job is the dependency chain, not the spelling.
+const dependsOn = (fm) => {
+  const d = fm.depends_on;
+  if (Array.isArray(d)) return d;
+  if (typeof d === 'string') return d.split(',').map(x => x.trim()).filter(Boolean);
+  return [];
+};
 
 if (!dependsOn(designFrontmatter).includes('research.md')) {
   ERROR('design.md does not list research.md in depends_on — the chain research → design → tasks is what tells a resuming session which document is upstream');
@@ -202,9 +211,17 @@ if (phaseNumbers.length && tasksFrontmatter.current_phase != null &&
 }
 
 // IDs must be present and unique — they are cited from commits, journals and handoffs.
-const ids = [...tasksContent.matchAll(/^- \[[ x]\] \*\*([A-Z0-9-]+)\*\*/gm)].map(m => m[1]);
-if (ids.length !== taskLines.length) {
-  WARNING(`${taskLines.length - ids.length} task(s) have no local ID`);
+// Every bold-prefixed checkbox line is a candidate task; `taskLines` is the subset whose ID
+// carries a digit. Narrowing taskLines without narrowing this made it a SUBSET of ids, so the
+// subtraction went negative — `-1 task(s) have no local ID` — and the check became
+// structurally dead: taskLines only ever contains lines that already have a conforming ID, so
+// a task without one could never be counted. Compare against the candidates, not the survivors.
+const candidates = [...tasksContent.matchAll(/^- \[[ x]\] \*\*([A-Z0-9-]+)\*\*/gm)].map(m => m[1]);
+const ids = candidates.filter(id => /[0-9]/.test(id));
+const idless = candidates.filter(id => !/[0-9]/.test(id));
+if (idless.length) {
+  WARNING(`${idless.length} task(s) have an ID with no digit — invisible to every counter: ` +
+          idless.join(', '));
 }
 const dupes = ids.filter((id, i) => ids.indexOf(id) !== i);
 if (dupes.length) {

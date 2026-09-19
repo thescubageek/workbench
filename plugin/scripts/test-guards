@@ -456,9 +456,20 @@ def main():
             si = sum(1 for _, ok in run_integrity(mutant) if ok)
         # Scored against corpus AND integrity together. Scoring on the corpus alone left
         # the integrity guards deletable, which is the same hole one level up.
-            if (s['correct'] + si) < (base['correct'] + integ_ok):
+            # A mutation counts as caught only when it breaks a DETECTOR or an integrity
+            # claim — more misses, or fewer integrity checks passing. A mutation that merely
+            # adds false positives also lowers the total, and scoring on the total alone
+            # rendered "relaxed a guard" and "deleted a detector" as the same one-line ✓.
+            broke_detector = s['fn'] > base['fn'] or si < integ_ok
+            noisier = s['fp'] > base['fp']
+            if broke_detector:
                 caught += 1
-                print(f"  ✓ {label}: caught ({s['correct']}/{s['total']} + {si}/{len(integ)})")
+                print(f"  ✓ {label}: caught ({s['fn']} misses vs {base['fn']}, "
+                      f"integrity {si}/{len(integ)})")
+            elif noisier:
+                caught += 1
+                print(f"  ✓ {label}: caught via false positives only "
+                      f"({s['fp']} vs {base['fp']}) — no detector broke")
             else:
                 print(f"  ✗ {label}: SURVIVED ({s['correct']}/{s['total']} + {si}/{len(integ)})")
     finally:

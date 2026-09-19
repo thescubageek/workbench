@@ -144,9 +144,16 @@ been the thing worth distrusting.
 - **One verdict vocabulary across the review skills** — `CONFIRMED` / `PLAUSIBLE` / `REFUTED`,
   with `STYLE` as a reporting-only outcome. Two files previously disagreed, so a disproven
   finding in verify-only mode matched no rule and could survive into the report.
-- **`plugin/skills/daily-digest` no longer names a specific employer.** Its PHI guardrail applies
-  to any HIPAA-covered organization, its examples use placeholders, and the member-ID rule points
-  at a repository's own `CLAUDE.md` for the concrete format.
+- **`plugin/skills/daily-digest`'s PHI guardrail applies to any HIPAA-covered organization**
+  rather than naming one, and its examples use placeholders. **The member-ID patterns ship
+  concretely** in `sources.md` — the file each collector is handed — because a collector is the
+  surface that touches a raw payload, and a pattern it cannot see is a pattern that does not run.
+  A repository may widen them in its own `CLAUDE.md`; it may not narrow or disable them, since a
+  de-identification rule that goes quiet when unconfigured still reports clean.
+  - *Corrected after the fact*: an earlier draft of this entry claimed the format was deferred
+    to a repository `CLAUDE.md`. Commit `3ce6af9` had already falsified that, and the entry was
+    describing a state the tree was not in — the exact drift `adversarial-review/reference.md`
+    names as a standing candidate between rounds.
 
 ### Migration
 

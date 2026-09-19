@@ -52,6 +52,19 @@ mandatory ones.
 
 ## Step 1: Resolve the target
 
+⛔ **Bind `target` first, as your own first action.** Every block below reads `$target`, and
+nothing assigns it — so with it unset the chain takes its first branch and reviews the current
+branch while the report names whatever was asked for. Export it in the same shell you run the
+block in:
+
+- an argument was given → `target=<that argument>`
+- no argument → leave it unset; the first branch is then correct rather than accidental
+
+**Do not write `target=$1` in a fenced block.** The harness substitutes positional parameters
+before this text reaches you, so the block would arrive with the value already spliced in — the
+defect this repository fixed across eight stages in 2.0.1, and the reason argument slots are
+described in prose here rather than as shell.
+
 **Resolve the target into a range before running any `git diff`.** The three argument forms do
 not share a spelling, and the one that fails is fatal rather than empty:
 
