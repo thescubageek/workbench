@@ -51,6 +51,55 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-19 06:51 — the 94 surviving generated mutants (closed)
+
+- **Task/phase**: out-of-plan backlog, carried by
+  [handoff-2026-09-19-05-39.md](handoff-2026-09-19-05-39.md) — kill or waive each of the 94
+  survivors of `test-guards --generated`.
+- **Landed**: **244 of 293 killed (was 198), 49 waived, 0 surviving.** 19 new corpus cases
+  (54 → 73), 6 new integrity claims (9 → 15), 48 new waivers, and a stale-waiver guard on the
+  sweep. Ratchet raised 198 → 244.
+- **Learned**:
+  - **The largest single cause was pairs of cases that satisfy two rules at once.** Every
+    `ok-glob-*` case guarded with `[ -e "$f" ] || continue`, which matches *both* of
+    `_is_guard`'s alternatives — so collapsing the alternation and turning the `or` into an
+    `and` both changed nothing. Same shape in the status-test cases: all of them used `if`,
+    so three of `STATUS_LINE`'s four alternatives were never exercised. A corpus written from
+    idiomatic code tests the idiom, not the rule.
+  - **`s3-guard-past-window` had no guard in it.** The name describes the case the corpus
+    needed; the fixture is an unguarded loop like `s3-bare`, so the end-of-input flush
+    reported it either way and `GLOB_WINDOW` was untested at any value. Two cases now pin the
+    boundary from both sides. A fixture whose name and content disagree is worse than a
+    missing one, because the gap reads as covered.
+  - **Every string the tool prints that is not a finding is a claim, and six were unasserted.**
+    Deleting the "no such path", "cannot read", "nothing to check" and "unguarded measurements"
+    messages left every exit code intact — and so did changing the clean-exit `return 0`, and
+    swapping `sys.argv[1:]` for `sys.argv[0:]`, which makes the tool scan *itself* and report
+    clean. None of them is reachable from the corpus, which only ever looks at findings.
+  - **49 of the 94 were genuinely equivalent, and saying so took longer than killing them.**
+    Nine delete a docstring; three drop a `^` from a pattern used with `re.match`; seven sit
+    in a branch unreachable from valid shell; four index a fence run of identical characters.
+    The waiver is the deliverable for those, and the rule that a waiver carries an argument is
+    what stopped the list becoming a shrug.
+  - **Three are equivalent only because the scoring compares sets.** The two `break`s and the
+    `pending_glob = None` after a window report exist to stop one finding being emitted twice,
+    and duplicate output *is* a defect — it is invisible because findings are compared as a
+    set of `(line, shape)`. Recorded in the waivers as a gap in the scoring rather than a
+    property of the code.
+  - **Waivers are anchored on line numbers, so any edit to `check-guards` silently unhooks the
+    ones below it** — the mutant reappears as an unexplained survivor and the ratchet cannot
+    see it, because moving a mutant from `waived` to `survivors` leaves the kill count
+    unchanged. The sweep now fails on a waiver that matches no generated mutant and reports
+    (without failing) one that a corpus case has since made redundant. Both branches
+    falsified against planted waivers.
+  - **`L44` is waived as *disputed*, not as equivalent.** Dropping the word boundaries lets
+    `|| echo_warn` count as the whitelisted `|| echo`. But `||` guards the exit status
+    whatever follows it, and the exit status is the whole subject of shape 1 — so pinning
+    that line MUST-FIRE would encode a contested prior into the corpus, which is the mistake
+    the Q8-5 label already recorded once.
+- **Commits**: this one.
+- **Blocked by**: nothing. P5-T2..T5 (the release) remain and are untouched by this work.
+
 ## 2026-09-19 05:39 — handoff written for the mutation backlog (closed)
 
 - **Task/phase**: a scoped handoff for the 94 surviving generated mutants.

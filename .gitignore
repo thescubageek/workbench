@@ -8,3 +8,8 @@ docs/plans/
 
 # Claude Code local, per-developer config (permission allowlist etc.) — not shipped.
 .claude/settings.local.json
+
+# Python bytecode. `test-guards` imports lib_mutate, so a sweep writes these into the
+# shipped plugin directory; two were tracked and churned on every run.
+__pycache__/
+*.pyc

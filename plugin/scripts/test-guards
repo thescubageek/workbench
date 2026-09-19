@@ -173,9 +173,14 @@ def run_integrity(impl):
     def run(*args):
         return subprocess.run([sys.executable, impl, *args], capture_output=True, text=True)
 
-    # CLAIM: "no such path" -> exit 2
-    checks.append(('a missing target exits 2',
-                   run('/tmp/no-such-path-for-test-guards').returncode == 2))
+    # CLAIM: "no such path" -> exit 2, naming the path. Every string this tool prints that
+    # is not a finding is a claim about itself, and the exit code is only half of this one:
+    # asserting the code alone leaves the message deletable, and an operator who is told
+    # "exit 2" without being told WHICH target was wrong has not been told anything.
+    r = run('/tmp/no-such-path-for-test-guards')
+    checks.append(('a missing target exits 2', r.returncode == 2))
+    checks.append(('...and names the path it could not find',
+                   '/tmp/no-such-path-for-test-guards' in r.stderr))
 
     # CLAIM: nothing to scan is not a failure
     d = tempfile.mkdtemp()
@@ -187,7 +192,14 @@ def run_integrity(impl):
     d = tempfile.mkdtemp()
     try:
         open(os.path.join(d, 'notes.txt'), 'w').write('nothing scannable here\n')
-        checks.append(('a directory with no shell or markdown exits 0', run(d).returncode == 0))
+        r = run(d)
+        checks.append(('a directory with no shell or markdown exits 0', r.returncode == 0))
+        # A zero-file scan must SAY it scanned nothing. Exit 0 on its own is the same answer
+        # the tool gives for a clean tree, so without this the two are indistinguishable --
+        # which is this script's own defect class, one level up.
+        checks.append(('...and says nothing was checked rather than reporting clean',
+                       'nothing to check' in r.stderr
+                       and 'no unguarded measurements' not in r.stdout))
     finally:
         shutil.rmtree(d, ignore_errors=True)
 
@@ -206,6 +218,10 @@ def run_integrity(impl):
         m = re.search(r'\((\d+) files scanned\)', r.stdout)
         checks.append(('the reported file count is the real one (4)',
                        bool(m) and int(m.group(1)) == 4))
+        # CLAIM: a clean tree that actually had files in it exits 0. The empty-directory
+        # checks above return from a different branch, so nothing asserted this one and the
+        # success return could be changed to anything.
+        checks.append(('a clean tree with files in it exits 0', r.returncode == 0))
     finally:
         shutil.rmtree(d, ignore_errors=True)
 
@@ -220,6 +236,11 @@ def run_integrity(impl):
                            text=True, cwd=d)
         checks.append(('a relative target resolves against the caller cwd',
                        r.returncode == 1 and 'bad.sh' in r.stdout))
+        # CLAIM: a run WITH findings says on stderr why it failed. stdout carries the
+        # findings; the one line that says the run failed, and why, is on stderr and was
+        # asserted nowhere.
+        checks.append(('...and a run with findings says why it failed, on stderr',
+                       'unguarded measurements' in r.stderr))
     finally:
         shutil.rmtree(d, ignore_errors=True)
 
@@ -264,9 +285,31 @@ def run_integrity(impl):
         if os.access(locked, os.R_OK):
             print('  ⊘ an unreadable file exits 2 (skipped: chmod 000 not honoured here)')
         else:
+            r = run(d)
             checks.append(('an unreadable file exits 2, not silently skipped',
-                           run(d).returncode == 2))
+                           r.returncode == 2))
+            checks.append(('...and names the file it could not read', locked in r.stderr))
         os.chmod(locked, 0o644)
+    finally:
+        shutil.rmtree(d, ignore_errors=True)
+
+    # CLAIM: with no arguments the target is the plugin tree beside the script. Nothing
+    # asserted it, so `sys.argv[1:]` could become `sys.argv[0:]` -- which passes the script's
+    # own path as the target, hits the by-name exemption, and reports a clean scan of
+    # nothing. Every other check passes a target explicitly and so never exercises this.
+    d = tempfile.mkdtemp()
+    try:
+        sd = os.path.join(d, 'plugin', 'scripts')
+        os.makedirs(sd)
+        here = os.path.join(sd, 'check-guards')
+        shutil.copyfile(impl, here)
+        os.chmod(here, 0o755)
+        open(os.path.join(sd, 'bad.sh'), 'w').write(
+            '#!/usr/bin/env bash\nn=$(grep -c foo f.txt)\necho "$n"\n')
+        r = subprocess.run([sys.executable, here], capture_output=True, text=True,
+                           cwd=tempfile.gettempdir())
+        checks.append(('with no target it scans the plugin tree beside it',
+                       r.returncode == 1 and 'bad.sh' in r.stdout))
     finally:
         shutil.rmtree(d, ignore_errors=True)
 
@@ -355,7 +398,7 @@ def run_generated(impl):
     mutants = lib_mutate.generate(src)
     print(f'  {len(mutants)} generated mutants\n')
 
-    survivors, waived = [], []
+    survivors, waived, used = [], [], set()
     for n, (label, msrc) in enumerate(mutants):
         try:
             mod = _load(msrc, f'guard_mut_{n}')
@@ -373,9 +416,25 @@ def run_generated(impl):
         if sum(1 for _, ok in run_integrity(mpath) if ok) < integ_base:
             continue                            # caught by integrity
         w = next((x for x in waivers if _waiver_matches(x['match'], label)), None)
+        if w:
+            used.add(w['match'])
         (waived if w else survivors).append((label, w['reason'] if w else None))
 
     shutil.rmtree(root, ignore_errors=True)
+
+    # A waiver is anchored on a SOURCE LINE NUMBER, so editing check-guards silently unhooks
+    # every waiver below the edit. The mutant reappears as an unexplained survivor and the
+    # ratchet cannot see it: moving one mutant from `waived` to `survivors` leaves the kill
+    # count exactly where it was. So the two ways a waiver can stop doing anything are
+    # reported separately, and the lying one is fatal.
+    all_labels = [lb for lb, _ in mutants]
+    idle = {x['match'] for x in waivers} - used
+    stale = sorted(m for m in idle if not any(_waiver_matches(m, lb) for lb in all_labels))
+    redundant = sorted(idle - set(stale))
+    if redundant:
+        print('  ℹ️  waivers no longer needed — a corpus case now kills the mutant:')
+        for m in redundant:
+            print(f'      {m}')
 
     killed = len(mutants) - len(survivors) - len(waived)
     print(f'  killed   {killed}/{len(mutants)}')
@@ -409,7 +468,7 @@ def run_generated(impl):
     for ln, cnt in by_line.most_common(18):
         sample = next(lb for lb, _ in survivors if lb.startswith(ln + ' '))
         print(f'    {cnt:>3} x {ln:<6} e.g. {sample.split(" ", 1)[1][:62]}')
-    return survivors, waived, killed, len(mutants)
+    return survivors, waived, killed, len(mutants), stale
 
 
 def _waiver_matches(pattern, label):
@@ -495,7 +554,7 @@ if __name__ == '__main__':
     if '--generated' in sys.argv:
         sys.path.insert(0, HERE)
         print('== generated mutation sweep ==')
-        surv, waiv, killed, total = run_generated(CG)
+        surv, waiv, killed, total, stale = run_generated(CG)
         pct = 100 * killed // total if total else 0
         print(f'\ngenerated: {killed}/{total} killed ({pct}%), '
               f'{len(waiv)} waived, {len(surv)} survived')
@@ -504,6 +563,15 @@ if __name__ == '__main__':
         # 67% and be ignored within a week; reporting a number nobody compares to anything
         # is the same as not running it. So: the kill count may not fall. A newly surviving
         # mutation must be killed with a corpus case, or waived with an argument.
+        if stale:
+            print(f'\n❌ {len(stale)} waiver(s) match no generated mutant. check-guards has been\n'
+                  f'   edited and their line anchors moved, so each is now silently waiving\n'
+                  f'   nothing while its mutant survives unexplained. Re-anchor them against the\n'
+                  f'   labels in fixtures/mutation-survivors.txt:')
+            for m in stale:
+                print(f'      {m}')
+            sys.exit(1)
+
         rpath = os.path.join(HERE, 'fixtures', 'mutation-ratchet.json')
         prev = json.load(open(rpath))['killed'] if os.path.exists(rpath) else 0
         if killed < prev:

@@ -1623,6 +1623,24 @@ resolved, leaving a dated line saying how.
 
 ### Implementation Notes
 
+- **[2026-09-19] The generated-mutant backlog is closed: 244/293 killed, 49 waived, 0
+  surviving** (was 198/293 with 94 surviving). 19 corpus cases, 6 integrity claims, 48
+  waivers. Two findings came out of it that are **not** fixed here, because the task was to
+  kill or waive each mutant and neither is a corpus case:
+  - **`check-guards:318`'s `os.chdir(root)` is vestigial.** Targets are made absolute on the
+    line above it and nothing after it reads the working directory, so deleting the call is
+    unobservable — which is exactly why its mutant is waived rather than killed. Removing it
+    is the honest fix and is a change to the tool; it also moves the anchor of every waiver
+    below line 318, so it wants doing deliberately and followed by a re-anchoring sweep.
+  - **Waivers are anchored on source line numbers.** Any edit to `check-guards` unhooks the
+    waivers below it, and the ratchet cannot see it because moving a mutant from `waived` to
+    `survivors` leaves the kill count unchanged. Mitigated, not solved: the sweep now exits 1
+    on a waiver matching no generated mutant. Anchoring on the mutated source text instead
+    would solve it and is a larger change.
+- **[2026-09-19] Two `.pyc` files were tracked under `plugin/scripts/__pycache__/`** and so
+  shipped to installers, churning on every sweep run — `test-guards` imports `lib_mutate`, so
+  running the suite writes bytecode into the plugin directory. Untracked and added to
+  `.gitignore` in the same commit.
 - **The journal-ordering fix and the two frontmatter fixes already landed** in commit `bd9cfd0`,
   before this plan was written. They are not tasks here, but P5-T1 records them in the changelog
   because PD2 ships them in the same `3.0.0` release.
