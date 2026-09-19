@@ -675,9 +675,9 @@ personal copies the port was made from.
 defects in the artifacts this phase releases; cutting the version before they are closed
 ships exactly what the release exists to prevent.
 
-- [ ] **P5-T2** — Bump `version` to `3.0.0` in **both** `plugin/.claude-plugin/plugin.json` and
+- [x] **P5-T2** — Bump `version` to `3.0.0` in **both** `plugin/.claude-plugin/plugin.json` and
       `.claude-plugin/marketplace.json`; they must match. Commit — the release check runs after
-      this commit, not before. (~9 calls)
+      this commit, not before. (~9 calls) (completed 2026-09-19 16:20)
 - [ ] **P5-T3** — Run the release checks on the clean tree: `./plugin/scripts/lint --all`,
       `claude plugin tag --dry-run plugin/`, the manifest-version agreement check, the repo-wide
       vocabulary grep, and the reference-link resolver across every skill. Record the output.

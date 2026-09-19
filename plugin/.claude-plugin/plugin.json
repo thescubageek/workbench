@@ -1,6 +1,6 @@
 {
   "name": "wb",
-  "version": "2.1.0",
+  "version": "3.0.0",
   "description": "Workbench for structured software development: TDD, project planning, and phased execution with status tracked in the plan documents.",
   "author": {
     "name": "Steve Craig"
