@@ -50,7 +50,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       **Acceptance (shape 4)**: grep for an `isDraft` branch in Phase 2, plus a negative control
       — the same grep against the pre-fix file must return nothing. (~2 calls)
 
-- [ ] **R5-T4** — `plugin/skills/adversarial-loop/SKILL.md:216` — the Phase 5 gate binds "on the
+- [x] **R5-T4** — `plugin/skills/adversarial-loop/SKILL.md:216` — the Phase 5 gate binds "on the
       current head SHA" to the CI rollup only; the bot's clearance carries no SHA qualifier.
       **Fails when:** bot clears SHA A; a CI-only fix is pushed as SHA B with no `@claude` reply
       per `:210-212`; the review check goes `skipped` (non-blocking) per `reference.md:54`; both

@@ -276,8 +276,22 @@ Say that you made that call.
 
 ## Phase 5: mark it reviewable
 
-Only when **both** hold: the bot reports nothing outstanding, and the check rollup is green **on
-the current head SHA** — not on the latest run, which may have settled on a previous commit.
+Only when **both** hold **on the current head SHA**: the bot reports nothing outstanding, and the
+check rollup is green — not on the latest run, which may have settled on a previous commit.
+
+⛔ **The head SHA qualifies the bot too, not just the rollup.** A bot review certifies the commit
+it read, exactly as a local pass does — `SKILL.md:191`, *"a clean pass certifies the commit it
+read"*, and the reviewer is a reviewer either way. So if anything has been pushed since the
+comment the bot last updated, its clearance is about a commit that is no longer the head, and
+nothing will tell you: `reference.md:54` records that the review check reports **skipped** on
+later pushes, which is non-blocking and leaves a green rollup. The CI-only fix that Phase 4
+deliberately does not reply to (*"a green-CI fix the bot never raised does not need its own
+`@claude` comment"*) is precisely how a head the bot never saw gets here.
+
+**So compare, don't assume.** Read the SHA the bot's newest comment was written against and
+confirm it matches `git rev-parse HEAD`. If it does not, the branch is not cleared: fold the
+unreplied commits into an `@claude` reply and take another Phase 4 round, or say that the label
+covers a range the bot did not read. Do not label on the strength of a rollup alone.
 
 **Name the label to the user and confirm it before adding it** — you cannot tell from here
 whether it drives automation.
