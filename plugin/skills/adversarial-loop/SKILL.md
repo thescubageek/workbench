@@ -163,6 +163,18 @@ Checking the target out yourself is a state change nobody asked for.
 5. **Record each finding's disposition in the ledger** — see [reference.md](reference.md). The
    gate below is otherwise self-certified: without a written record, "no finding adjudicated
    Valid" is a claim the session makes about itself and nobody can audit.
+
+   **The ledger needs a location even where `docs/plans/` does not exist** — the same no-plan
+   case step 3 already handles. `docs/plans/<plan>/review-log.md` when there is a plan;
+   otherwise pick one file, **name it in the round report**, and reuse it for every round of this
+   run. If you cannot write one at all, stop and say so rather than running on.
+
+   **A breaker that cannot fire is worse than none**, because its presence is what licenses
+   proceeding. Both Blocking triggers in
+   [../../docs/reference/review-ledger.md](../../docs/reference/review-ledger.md) read this file,
+   and against a file that was never created they read clean: rounds 2 and 3 oscillate in exactly
+   the mirror-image shape that document describes, round 4 reports no trend, and the loop pushes,
+   un-drafts and labels on the strength of a check that never had data.
 6. **Re-review**, scoped to the reworked areas plus a fresh sweep. Expect two to four rounds.
 
 **Between rounds, ask what nothing looked at.** A clean round means "the lenses that ran found

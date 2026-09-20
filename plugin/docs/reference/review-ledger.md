@@ -18,7 +18,13 @@ because there was no record of previous rounds to compare against. A human had t
 
 ## The ledger
 
-`docs/plans/<plan>/review-log.md`. One row per finding per round:
+`docs/plans/<plan>/review-log.md` where the work has a plan directory. **Where it does not, the
+ledger still has to exist somewhere the next round can read it** — pick one location, name it in
+the round report, and use that one for every round of the run. There is no version of this loop
+that runs without a ledger: both Blocking triggers below read it, and a file that was never
+created reads exactly like a clean one.
+
+One row per finding per round:
 
 | Field | Meaning |
 | ----- | ------- |

@@ -67,7 +67,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       `../adversarial-review/reference.md` in Phase 4 before its push step, with a negative
       control against the pre-fix file. (~2 calls)
 
-- [ ] **R5-T6** — `plugin/skills/adversarial-loop/SKILL.md:131` — the ledger path has no fallback,
+- [x] **R5-T6** — `plugin/skills/adversarial-loop/SKILL.md:131` — the ledger path has no fallback,
       so with no plan directory the blocking thrash breaker has no data.
       **Fails when:** the loop runs where `docs/plans/` does not exist. Rounds 2 and 3 oscillate
       in the mirror-image shape `review-ledger.md` documents; both Blocking triggers read a file
