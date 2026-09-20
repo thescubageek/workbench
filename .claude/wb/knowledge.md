@@ -120,7 +120,18 @@ we have the in-repo cautionary example for that.
   boundary setting, no persisted grant). Only a `--plugin-dir` **checkout** run from another
   cwd is gated for a running stage. The release blocker this entry was written for does not
   exist for installed copies.
-- **Verified**: 2026-09-09, narrowed 2026-09-15 · `docs/plans/2026-09-08-upstream-fable-merge/`
+- **Also — the rule was finally exercised, 2026-09-20, and it holds.** In the one configuration
+  where the gate can fire for a running stage (a `--plugin-dir` checkout, boundary forced on, cwd
+  a git repo that is *not* a parent of the plugin), `adversarial-review`'s Step 3 read of
+  `lenses.md` was refused, and the session **stopped at the first directed read**: it used `Read`,
+  did not route around with `cat`, named the file, and gave the `--add-dir` remedy. Note what this
+  cost to discover — two interactive smoke runs measured nothing here, because in both the plugin
+  sat *inside* the working directory, so the boundary could not fire in either permission mode.
+  **It is a one-command headless probe, not an interactive session**: build a scratch repo in
+  `/tmp` with an `origin/main` and a one-line diff, then
+  `claude -p --plugin-dir <repo>/plugin --settings '{"permissions":{"blockReadsOutsideWorkingDirectories":true}}' --allowedTools=Skill,Read,Bash "<instruction>"`.
+- **Verified**: 2026-09-09, narrowed 2026-09-15, rule exercised 2026-09-20 ·
+  `docs/plans/2026-09-08-upstream-fable-merge/`,
 - **Check it**: from a cwd that is not a parent of the plugin —
   `claude --plugin-dir <repo>/plugin -p "Use the Read tool to read <repo>/plugin/skills/help/SKILL.md. Reply DENIED or the first line."`
   → `DENIED`; adding `--add-dir <repo>/plugin` → the first line.

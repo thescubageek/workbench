@@ -723,6 +723,18 @@ ships exactly what the release exists to prevent.
       *Both runs were blocked at the precondition first: a session started believing auto mode was
       off arrived with it on, twice. Environmental, not a plugin defect, and now in
       `.claude/wb/knowledge.md`.*
+      *Run 3 — 2026-09-20, **headless, one command, no interactive session**, and it closes item
+      2 properly. Runs 1 and 2 both measured nothing here: the plugin sat **inside** the working
+      directory in each, so the read boundary could not fire in either permission mode, and
+      auto-off bought only "the model chose `Read`" rather than "the rule fired". Re-run from a
+      scratch repo in `/tmp` with the boundary forced on and `--plugin-dir` pointing at this
+      checkout, the gate fires and **the hard-stop rule holds**: Step 3's read of `lenses.md` was
+      refused, the session used `Read`, did **not** route around with `cat`, stopped at the first
+      directed read rather than continuing from memory, named the file and gave the `--add-dir`
+      remedy. First time that rule has ever been exercised. Fixture deleted; the probe is
+      recorded in `.claude/wb/knowledge.md`. Incidental: with the boundary on, the permission
+      classifier also refuses Step 1's block, flagging the `${target:-}` expansion as
+      unanalyzable.*
 - [ ] **P5-T5** — Only after P5-T4 passes: delete `~/.claude/skills/adversarial-review`,
       `~/.claude/skills/adversarial-loop` and `~/.claude/skills/reply-to-claude`. These are the
       port's source material and are not reproduced in full in this repository, so this task is
