@@ -23,7 +23,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
 
 ## Tasks
 
-- [ ] **R5-T1** — `plugin/skills/adversarial-loop/SKILL.md:4` — the advertised `[<pr#>|<branch>]`
+- [x] **R5-T1** — `plugin/skills/adversarial-loop/SKILL.md:4` — the advertised `[<pr#>|<branch>]`
       positional target is never bound, so Phases 2/4/5 resolve the PR from the current branch.
       **Fails when:** on feature-B (draft PR #57), `/wb:adversarial-loop 42` reviews PR 42 but
       Phase 2 binds `PR=57`, pushes feature-B and un-drafts #57; Phase 5 labels #57.

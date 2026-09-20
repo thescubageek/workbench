@@ -101,6 +101,31 @@ Two standing prohibitions:
   them confirm it.** Marking something reviewable is not the same as deciding to merge it, and the
   second is the user's.
 
+## Phase 0: bind the target
+
+⛔ **Bind `target` first, as your own first action.** The argument hint advertises `<pr#>` and
+`<branch>`, and every pull-request phase below reads `$target`. With it unbound, Phases 2, 4 and
+5 resolve the pull request from the *current branch* while the report names the one that was
+asked for: on feature-B with draft PR #57, `/wb:adversarial-loop 42` reviews PR 42 and then
+pushes, un-drafts and labels **#57**.
+
+- an argument was given → `target=<that argument>`
+- no argument → leave it unset; resolving from the current branch is then correct rather than
+  accidental
+
+**Do not write `target=$1` in a fenced block.** The harness substitutes positional parameters
+before this text reaches you, so the block would arrive with the value already spliced in — see
+[../adversarial-review/SKILL.md](../adversarial-review/SKILL.md) Step 1, which is the same
+binding and carries the history of the defect.
+
+Pass the same `target` through to `adversarial-review` in Phase 1, so the review and the
+publishing phases cannot end up pointed at different changes.
+
+**If `target` does not name the current checkout, the pull-request phases do not run.** Phases 2
+and 4 push the branch you are on; they cannot push a different one. Review the target, report,
+and stop at the end of Phase 1 — saying that the publishing phases were skipped and why.
+Checking the target out yourself is a state change nobody asked for.
+
 ## Phase 1: review until clean
 
 1. **Review.** Invoke `adversarial-review` against the target. Pass `--effort` through if given;
@@ -180,7 +205,8 @@ stops for the user*. Resolve the pull request in the same shell that acts on it;
 not inherit variables from the previous one:
 
 ```bash
-PR=$(gh pr view --json number --jq .number) || { echo "no PR for this branch" >&2; exit 1; }
+PR=$(gh pr view ${target:+"$target"} --json number --jq .number) \
+  || { echo "no PR for ${target:-the current branch}" >&2; exit 1; }
 git push && gh pr ready "$PR"
 ```
 
@@ -227,7 +253,8 @@ the current head SHA** — not on the latest run, which may have settled on a pr
 whether it drives automation.
 
 ```bash
-PR=$(gh pr view --json number --jq .number) || { echo "no PR for this branch" >&2; exit 1; }
+PR=$(gh pr view ${target:+"$target"} --json number --jq .number) \
+  || { echo "no PR for ${target:-the current branch}" >&2; exit 1; }
 gh pr edit "$PR" --add-label "<the repository's ready-for-review label>"
 gh pr view "$PR" --json labels
 ```
