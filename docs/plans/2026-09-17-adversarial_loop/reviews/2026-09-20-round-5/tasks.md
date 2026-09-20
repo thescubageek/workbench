@@ -96,7 +96,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       escalation rule — plus a negative control proving the grep fails on the pre-fix file.
       (~2 calls)
 
-- [ ] **R5-T9** — `plugin/skills/adversarial-loop/SKILL.md:222` — the Phase 5 label block is
+- [x] **R5-T9** — `plugin/skills/adversarial-loop/SKILL.md:222` — the Phase 5 label block is
       sequential, the shape `:180` forbids, so a failed `--add-label` is masked.
       **Fails when:** the repository has no label by that name; `gh pr edit --add-label` exits
       non-zero with "not found"; the unchained `gh pr view` succeeds and prints a labels array

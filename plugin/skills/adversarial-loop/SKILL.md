@@ -349,13 +349,22 @@ whether it drives automation.
 ```bash
 PR=$(gh pr view ${target:+"$target"} --json number --jq .number) \
   || { echo "no PR for ${target:-the current branch}" >&2; exit 1; }
-gh pr edit "$PR" --add-label "<the repository's ready-for-review label>"
-gh pr view "$PR" --json labels
+gh pr edit "$PR" --add-label "<the repository's ready-for-review label>" \
+  && gh pr view "$PR" --json labels
 ```
 
-Confirm the label landed — and note that the check above is only meaningful because `$PR` is bound
-in the same shell. An unbound `$PR` makes both commands fail identically, so "the label landed"
-and "the command never ran" become indistinguishable. Stop there.
+⛔ **Chained, not sequential — the same shape `SKILL.md:242` requires of Phase 2.** Written as
+two statements, a failed `--add-label` is masked: the edit exits non-zero with *"not found"*
+where the repository has no label by that name, the unchained `gh pr view` succeeds anyway, and
+what it prints is a labels array **without** the label — which is exactly what the confirmation
+below then reads as success. Executed both ways: sequential leaves the block at exit 0 with an
+array on stdout; chained stops at exit 1 and prints nothing.
+
+**Confirm the label is in the array, not that an array appeared.** An empty result and a result
+missing one entry look the same at a glance, and this is the last gate before the change is
+called reviewable. The check is also only meaningful because `$PR` is bound in the same shell: an
+unbound `$PR` makes both commands fail identically, so "the label landed" and "the command never
+ran" become indistinguishable. Stop there.
 
 ## Reporting
 
