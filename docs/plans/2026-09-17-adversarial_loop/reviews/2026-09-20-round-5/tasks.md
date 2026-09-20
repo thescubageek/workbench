@@ -86,7 +86,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       through `implement`'s Step 1 and Step 2 checks; must fail before the fix and pass after.
       (~6 calls)
 
-- [ ] **R5-T8** — `plugin/skills/adversarial-loop/SKILL.md:191` — Phase 3 supplies no wait
+- [x] **R5-T8** — `plugin/skills/adversarial-loop/SKILL.md:191` — Phase 3 supplies no wait
       procedure, timeout, poll interval or escalation.
       **Fails when:** claude[bot] is installed but errors out, or the review workflow is disabled.
       Nothing is ever posted; every row of `reference.md:50-56` is a remedy for a signal that

@@ -268,6 +268,32 @@ Un-drafting is what summons `claude[bot]`. Do not re-draft afterwards.
 Read [reference.md](reference.md) NOW — the mechanics here have several ways to fail silently, and
 each one leaves the loop waiting forever on a signal that already arrived.
 
+**Every row of that table is a remedy for a signal that arrived and was misread. This phase also
+has to handle the signal that never arrives at all** — the bot installed but erroring out, or the
+review workflow disabled on this repository. Nothing else in the loop will end that wait: the
+thrash breaker needs three findings before it evaluates
+([../../docs/reference/review-ledger.md](../../docs/reference/review-ledger.md)), and no findings
+is not three.
+
+**So the wait is bounded, and reaching the bound is a result rather than a failure to retry
+harder:**
+
+1. **Poll, do not block.** Read the check rollup and the newest `claude[bot]` comment together,
+   on an interval of about **2 minutes** — a review takes minutes, and a tighter poll buys
+   nothing but rate limit.
+2. **Bound it at 30 minutes, or 15 polls, whichever comes first.**
+3. **Confirm each poll could have seen something.** Per `reference.md`, a filter on `claude`
+   rather than `claude[bot]` matches nothing and returns success, and the bot **edits its comment
+   in place** — so compare `updated_at` or the newest comment id, never "is there a new comment".
+   A poll that cannot distinguish "no findings" from "no filter match" has not polled.
+4. **At the bound, stop and surface.** Say what did arrive — the rollup state, whether any
+   `claude[bot]` comment exists at all, and its `updated_at` — and name the two ordinary causes
+   above. Then let the user decide.
+
+⛔ **Do not enter Phase 5 from a timed-out wait.** Its gate requires the bot to report nothing
+outstanding, and *nothing arrived* is not that. This is the same absence-means-broken confusion
+the table exists to prevent, one level up.
+
 ## Phase 4: adjudicate the bot, fix, reply
 
 Each round of bot findings goes through the **same** dispositions as Phase 1 — it is a reviewer,
