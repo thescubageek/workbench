@@ -139,7 +139,7 @@ passed — the defect class this whole directory exists to catch, one level up.
 
 Finds measurements whose failure is indistinguishable from a clean result — the class where a
 broken command and a genuinely empty result produce the same output, and the error always points
-toward believing things are fine. Three shapes:
+toward believing things are fine. Four shapes:
 
 1. A counting `grep` captured in a substitution **whose exit status is never tested**. grep exits
    1 on no match and 2 on **error**, so a missing file and a clean file both yield something that
@@ -148,6 +148,12 @@ toward believing things are fine. Three shapes:
    errors and the result is silently zero.
 3. A `for` over a glob with no existence test. An unmatched glob runs the body once with the
    literal pattern as the filename.
+4. An outward-facing action left as a separate statement after the one it depends on.
+   `git push; gh pr ready` un-drafts at a head the push never delivered; an unchained
+   `gh pr view --json labels` after a failed `gh pr edit --add-label` prints an array without
+   the label, which reads exactly like the label landing. `&&` is the whole remedy, and
+   de-chaining is a one-character edit nothing else here can see — `shellcheck-gate` skips
+   `*.md`, and `lint` is markdownlint.
 
 ```bash
 ./plugin/scripts/check-guards            # defaults to plugin/

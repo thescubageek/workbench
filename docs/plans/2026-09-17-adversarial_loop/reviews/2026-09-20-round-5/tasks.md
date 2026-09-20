@@ -105,7 +105,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       against a scratch PR; assert the second command still prints a labels array and exit status
       does not surface the failure. Re-run after chaining; assert it does. (~4 calls)
 
-- [ ] **R5-T10** — `plugin/skills/adversarial-loop/SKILL.md:175` and `:222` — no gate in
+- [x] **R5-T10** — `plugin/skills/adversarial-loop/SKILL.md:175` and `:222` — no gate in
       `plugin/scripts/check` covers the two publish blocks.
       **Fails when:** an edit de-chains `git push && gh pr ready` to `git push; gh pr ready`.
       `shellcheck-gate:23` excludes `*.md`; `check-guards` matches only three shapes and returned

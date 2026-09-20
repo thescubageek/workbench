@@ -51,7 +51,11 @@ CORPUS = os.path.join(HERE, 'fixtures', 'guard-corpus.json')
 MUTATIONS = [
     ('disable the capture detector',
      "if not COUNTING.search(inner):", "if True or not COUNTING.search(inner):"),
-    ('disable the --include detector',
+    ('disable the publish-chaining detector',
+ "        if _is_publish(a[1]) and _is_publish(b[1]):",
+ "        if False and _is_publish(a[1]) and _is_publish(b[1]):"),
+
+('disable the --include detector',
      "for m in re.finditer(r'--include=(\\S+)', line):", "for m in re.finditer(r'__NEVER__', line):"),
     ('disable the glob detector',
      "if m and '*' in m.group(1)", "if False and m and '*' in m.group(1)"),
@@ -116,6 +120,7 @@ SHAPE_OF = {
     'unquoted --include glob': 'include',
     'for over a glob with no existence test': 'glob',
     'unclosed shell fence': 'fence',
+    'publish action not chained to the one before it': 'chain',
 }
 
 

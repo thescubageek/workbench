@@ -14,6 +14,11 @@ worked or not:
      through, zsh errors and the count silently comes back zero.
   3. A `for` over a glob with no existence test. An unmatched glob runs the body once
      with the literal pattern as the filename.
+  4. An outward-facing action left as a separate statement after the one it depends on.
+     `git push; gh pr ready` un-drafts at a head the push never delivered, and an
+     unchained `gh pr view --json labels` after a failed `gh pr edit --add-label` prints
+     an array without the label — which reads exactly like the label landing. `&&` is the
+     whole remedy, and de-chaining is a one-character edit no other gate here can see.
 
 Scans shipped shell scripts and the fenced shell blocks inside shipped markdown — those
 blocks are instructions a model executes, so they carry the same risk. Prose and tables
@@ -44,6 +49,12 @@ COUNTING = re.compile(r'\bgrep\b[^|;)`]*?\s(?:-[A-Za-z]*c|--count)\b')
 GUARD = re.compile(r'\|\|\s*(?:true\b|:(?!\w)|echo\b)')
 STATUS_TEST = re.compile(r'\$\?')
 GLOB_WINDOW = 4
+# An action that reaches outside this machine, or a read whose whole purpose is to confirm
+# one. `git status` and `git diff` are deliberately absent: the shape is "its failure
+# matters to what follows", not "it is a git command".
+PUBLISH = re.compile(r'^\s*(?:git\s+push|gh\s+pr\s+'
+                     r'(?:ready|edit|comment|merge|view|close|reopen))\b')
+ASSIGN = re.compile(r'^\s*[A-Za-z_]\w*=')
 
 EXEMPT = {'check-guards', 'test-guards'}
 
@@ -178,6 +189,71 @@ def _is_guard(text):
                 or re.search(r'(?:^|;|&&|\|\|)\s*continue\b', text))
 
 
+def logical_lines(lines):
+    """[(start_no, end_no, text)] with backslash continuations joined.
+
+    A continuation is one statement, so `gh pr edit ... \\` / `  && gh pr view ...` must
+    not read as two adjacent actions. Only a contiguous run is joined — in markdown
+    `lines` holds fenced lines only, so a gap means a different fence.
+    """
+    out, buf, start, prev = [], '', None, None
+    for no, raw in lines:
+        if buf and prev is not None and no != prev + 1:
+            out.append((start, prev, buf))
+            buf, start = '', None
+        text = strip_comment(raw)
+        text = (buf + ' ' + text.strip()) if buf else text
+        if start is None:
+            start = no
+        if text.rstrip().endswith('\\'):
+            buf = text.rstrip()[:-1]
+        else:
+            out.append((start, no, text))
+            buf, start = '', None
+        prev = no
+    if buf:
+        out.append((start, prev, buf))
+    return out
+
+
+def statements(text):
+    """Split on `;` outside quotes. `&&` and `||` are joins, not separators — that is the
+    distinction this whole shape turns on."""
+    q = _quote_spans(text)
+    parts, cur = [], ''
+    for i, ch in enumerate(text):
+        if ch == ';' and not q[i]:
+            parts.append(cur)
+            cur = ''
+        else:
+            cur += ch
+    parts.append(cur)
+    return [p.strip() for p in parts if p.strip()]
+
+
+def _is_publish(stmt):
+    return bool(PUBLISH.match(stmt)) and not ASSIGN.match(stmt)
+
+
+def unchained_publishes(lines):
+    """[(lineno, text)] for an outward-facing action immediately following another."""
+    seq, prev_end = [], None
+    for start, end, text in logical_lines(lines):
+        if prev_end is not None and start != prev_end + 1:
+            seq.append(None)                      # a gap: a different fence
+        for st in statements(text):
+            seq.append((start, st))
+        prev_end = end
+    out = []
+    for i in range(1, len(seq)):
+        a, b = seq[i - 1], seq[i]
+        if a is None or b is None:
+            continue
+        if _is_publish(a[1]) and _is_publish(b[1]):
+            out.append((b[0], b[1]))
+    return out
+
+
 def analyse(lines):
     """lines: [(lineno, text)] -> [(lineno, shape, text)]."""
     found, pending_glob = [], None
@@ -243,6 +319,11 @@ def analyse(lines):
 
     if pending_glob is not None:
         found.append((pending_glob[0], 'for over a glob with no existence test', pending_glob[2]))
+
+    # --- shape 4 -------------------------------------------------------------
+    for no, stmt in unchained_publishes(lines):
+        found.append((no, 'publish action not chained to the one before it', stmt))
+
     return found
 
 
@@ -252,6 +333,8 @@ FIXES = {
     'unquoted --include glob': "quote it: --include='*.py'",
     'for over a glob with no existence test':
         '[ -e "$x" ] || continue   # as the body\'s first line',
+    'publish action not chained to the one before it':
+        'join them with && — a failed first command must stop the second',
     'unclosed shell fence':
         'close the fence; everything after it would otherwise read as prose',
 }
