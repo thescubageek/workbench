@@ -1717,12 +1717,17 @@ resolved, leaving a dated line saying how.
 ### Implementation Notes
 
 - **[2026-09-20] Review round 5** — [reviews/2026-09-20-round-5/tasks.md](reviews/2026-09-20-round-5/tasks.md),
-  10 tasks, 0 done. Raised by P5-T4 run 2 against `plugin/skills/adversarial-loop`: 5 legs, 23
+  10 tasks, **10 done**. Raised by P5-T4 run 2 against `plugin/skills/adversarial-loop`: 5 legs, 23
   candidates, 18 after dedupe, **10 CONFIRMED and 2 PLAUSIBLE surviving verification, 6 REFUTED**.
   The verify pass earned its cost twice in one round — a Monitor finding that *three* independent
   legs raised came back REFUTED against `docs/claude-code-skills-guide.md:302`, and a contested
   clearance was overturned when the tiebreak found the two reviewers were describing opposite
   failure directions. Second use of the mechanism, first from a clean start.
+  *Remediated 2026-09-20: all ten, one task one commit, each acceptance criterion run before its
+  fix. R5-T7 landed a contract already recorded in `design.md:504-506` — `implement` now accepts a
+  remediation plan, so the loop can execute its own output. R5-T10 added a fourth shape to
+  `check-guards`; the two PLAUSIBLE findings remain open with their cheapest closes, and PD5-1 is
+  still the user's call.*
 - **[2026-09-20] Two defects in `adversarial-review` itself, found by running it, fixed here.**
   Neither belongs in round 5's plan: both are in the reviewer, not the reviewed.
   - **Step 3's guard could not fire.** `search=${PIPESTATUS[0]}` is a bash array; the Bash tool

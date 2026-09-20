@@ -5,8 +5,11 @@ round: 5
 created: 2026-09-20
 status: in-progress
 total_tasks: 10
-completed_tasks: 0
+completed_tasks: 10
 task_tracking: markdown-checkboxes
+last_updated: 2026-09-20
+git_commit: 85e423e
+git_branch: adversarial-loop-skill-research
 ---
 
 # Remediation — adversarial review round 5
