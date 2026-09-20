@@ -318,10 +318,16 @@ we have the in-repo cautionary example for that.
   - **zsh does not word-split unquoted expansions.** `range="origin/main...HEAD -- some/path";
     git diff --stat $range` reaches git as one argument and dies with `fatal: ambiguous
     argument`. Keep a pathspec in its own variable and quote both.
+  - **The one place that non-splitting helps**: an optional argument spells as
+    `cmd ${var:+"$var"}` — unset contributes *no* word at all (zsh drops an unquoted null
+    word), set contributes exactly one, and a value containing a space stays one word.
+    Identical in bash, so a block using it is safe under either. `adversarial-loop`'s
+    `gh pr view ${target:+"$target"} --json number` is the shipped use.
 - **Why it went four review rounds undetected**: only the *path*-target form put a space in the
   variable, and no round had ever run that form. A block is not exercised by being read.
 - **Verified**: 2026-09-20 · `docs/plans/2026-09-17-adversarial_loop/` — P5-T4 run 2,
-  `thoughts/2026-09-20-smoke-session-run2.md`
+  `thoughts/2026-09-20-smoke-session-run2.md`; the `${var:+"$var"}` half added in round-5
+  remediation, executed in both shells
 - **Check it**: `echo "$0 ${ZSH_VERSION:-no-zsh} ${BASH_VERSION:-no-bash}"` through the Bash
   tool reports `/bin/zsh 5.9 no-bash`; and
   `x=$(grep -rnF -- q /no/such/path 2>/dev/null); echo "dollar-question=$? pipestatus=${PIPESTATUS[0]:-<empty>}"`
