@@ -31,7 +31,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       *or* a target-binding step exists; and no bare `gh pr view --json number` remains
       unqualified by `$target` at `:176` and `:223`. (~3 calls)
 
-- [ ] **R5-T2** — `plugin/skills/adversarial-loop/SKILL.md:177` — `git push && gh pr ready` guards
+- [x] **R5-T2** — `plugin/skills/adversarial-loop/SKILL.md:177` — `git push && gh pr ready` guards
       the failure direction only; a no-op push exits 0 and un-drafts at a head missing the round's
       work.
       **Fails when:** with no plan directory Phase 1 fixes inline and never commits; `git push`

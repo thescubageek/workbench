@@ -207,8 +207,20 @@ not inherit variables from the previous one:
 ```bash
 PR=$(gh pr view ${target:+"$target"} --json number --jq .number) \
   || { echo "no PR for ${target:-the current branch}" >&2; exit 1; }
+[ -z "$(git status --porcelain)" ] || {
+  echo "uncommitted changes — the round's work is not in the head being published" >&2
+  git status --short >&2; exit 1; }
 git push && gh pr ready "$PR"
 ```
+
+⛔ **A clean worktree is a precondition, not a courtesy.** The chain below guards the *failure*
+direction only, and this is the no-op direction, which is indistinguishable from success at the
+exit status: with the round's fixes still uncommitted, `git push` prints `Everything up-to-date`
+and **exits 0** (executed, not assumed), so `&&` passes and `gh pr ready` un-drafts a head that
+does not contain them. Two paths reach that state without anyone deciding to. Phase 1's
+inline-fix branch — *"if there is no plan directory, fix inline"* — never commits. And
+`plugin/scripts/lint-hook:26` runs `lint --fix` after Write, Edit and Bash, so a hook can dirty
+the tree after the last commit you made.
 
 ⛔ **Chained, not sequential.** Written as two statements, a failed push still un-drafts — and
 un-drafting against a stale head summons `claude[bot]` to review code without the round's fixes,
