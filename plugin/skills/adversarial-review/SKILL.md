@@ -70,12 +70,17 @@ described in prose here rather than as shell.
 not share a spelling, and the one that fails is fatal rather than empty:
 
 ```bash
+# Revisions and pathspec are held apart, because they cannot survive one variable: quoted,
+# "origin/main...HEAD -- some/path" reaches git as a single argument; unquoted, it depends on
+# the shell splitting it. See the shell note below — that dependency is what broke here.
+pathspec=""
 if [ -z "${target:-}" ]; then
   # This branch's own range. NOT a bare `git diff`, which shows only uncommitted work and is
   # empty in the loop's normal state, between a fix commit and the next round.
   range="origin/main...HEAD"
 elif [ -e "$target" ]; then
-  range="origin/main...HEAD -- $target"
+  range="origin/main...HEAD"
+  pathspec="$target"
 elif printf '%s' "$target" | grep -qE '^[0-9]+$'; then
   # A PR number. `git diff --stat 25` is `fatal: ambiguous argument`, so convert it first.
   range=$(gh pr view "$target" --json baseRefName,headRefName \
@@ -86,9 +91,21 @@ else
   range="origin/main...$target"
 fi
 
-echo "range: $range"
-git diff --stat $range
+if [ -n "$pathspec" ]; then
+  echo "range: $range -- $pathspec"
+  git diff --stat "$range" -- "$pathspec"
+else
+  echo "range: $range"
+  git diff --stat "$range"
+fi
 ```
+
+⛔ **These blocks run under zsh, not bash.** The Bash tool's shell is `/bin/zsh`, so a fenced
+`bash` block here is executed by a shell that does **not** word-split unquoted expansions and
+does **not** define `PIPESTATUS`. Both bit this file: `git diff --stat $range` died with
+`fatal: ambiguous argument` the first time anyone passed a path target, and the blast-radius
+guard in Step 3 could never fire. Quote every expansion, keep a pathspec in its own variable,
+and take an exit status from `$?` on the line after the command rather than from a pipeline.
 
 ⛔ **One branch runs, and the branch is real.** An earlier version of this step listed the three
 forms as three consecutive `range=` assignments separated only by comments. A fenced `bash` block
@@ -201,9 +218,10 @@ and confirm it ran — a search that errored returns the same emptiness as a gen
 change, and that error direction is toward believing the change is safe.
 
 ```bash
-grep -rnF -- "<changed symbol>" . | grep -vE "^(\./)?<the changed file>:" | sed 's/^/  /'
-search=${PIPESTATUS[0]}
+hits=$(grep -rnF -- "<changed symbol>" .)
+search=$?
 [ "$search" -le 1 ] || echo "SEARCH FAILED (grep exit $search) — NOT an isolated change" >&2
+[ -n "$hits" ] && printf '%s\n' "$hits" | grep -vE "^(\./)?<the changed file>:" | sed 's/^/  /'
 ```
 
 Four details in that command are the difference between a measurement and a guess:
@@ -212,9 +230,15 @@ Four details in that command are the difference between a measurement and a gues
   invalid pattern, grep exits 2 printing nothing, and the empty output reads as "no callers".
 - **`--`** terminates the options. Without it a symbol beginning with `-` is consumed as a flag,
   which fails in the other direction and returns a flood.
-- **`${PIPESTATUS[0]}`** is grep's own status, not `sed`'s. Do not send grep's stderr to
-  `/dev/null`: the diagnostic is the only thing that distinguishes a broken search from a clean
-  one, and this measurement's errors all point toward believing the change is safe.
+- **The status is captured from grep directly, not from a pipeline.** `search=$?` on the line
+  after the assignment is grep's own exit code. This used to read `${PIPESTATUS[0]}`, which is a
+  **bash** array — and the Bash tool runs zsh, where it expands to nothing, `[ "" -le 1 ]` is
+  true, and a grep that exited 2 passed the guard in silence. Measured: with the old line, a
+  search against a nonexistent path printed no diagnostic at all. Do not send grep's stderr to
+  `/dev/null` either: the diagnostic is the only thing distinguishing a broken search from a
+  clean one, and this measurement's errors all point toward believing the change is safe.
+- **The guard runs before the output is printed**, so a failed search is announced ahead of the
+  emptiness that would otherwise read as "no callers".
 - **The exclusion is anchored on the path field**, `^(\./)?<file>:`, and not on the filename
   appearing anywhere in the line. An unanchored `grep -v "<file>"` drops every line whose *text*
   mentions that path — which, for a script invoked by path, is exactly its callers. Measured on

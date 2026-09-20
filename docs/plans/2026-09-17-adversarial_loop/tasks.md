@@ -709,6 +709,20 @@ ships exactly what the release exists to prevent.
       came from the prompt. Recorded as **PD5-1** below. One CONFIRMED finding came out of
       reconnaissance and is fixed in this commit. **A rerun needs auto mode OFF and a scoped
       target — one subsystem, not the release.***
+      *Run 2 — 2026-09-20, **still not a pass**, but it reached everything run 1 could not.
+      Transcript: [thoughts/2026-09-20-smoke-session-run2.md](thoughts/2026-09-20-smoke-session-run2.md).
+      Scoped to `plugin/skills/adversarial-loop` (2 files, +312), and the scope stop correctly did
+      not fire. **Skill loads PASS · all 7 directed reads via `Read`, no `cat` — PASS · recon
+      names tier `high` set by Behaviour — PASS · built-in leg ran, forked — PASS · Steps 5–8 all
+      ran, for the first time ever — PASS · 12 findings, each with a concrete failure scenario —
+      PASS.** 5 legs → 23 candidates → 18 after dedupe → 10 CONFIRMED, 2 PLAUSIBLE, 6 REFUTED;
+      Step 8 wrote [reviews/2026-09-20-round-5/tasks.md](reviews/2026-09-20-round-5/tasks.md).
+      **Two defects in `adversarial-review` itself, both fixed in this commit** — see the
+      Implementation Notes. **P5-T4 still needs `wb:adversarial-loop` reaching clean without
+      `gh`**, the half that has never run.*
+      *Both runs were blocked at the precondition first: a session started believing auto mode was
+      off arrived with it on, twice. Environmental, not a plugin defect, and now in
+      `.claude/wb/knowledge.md`.*
 - [ ] **P5-T5** — Only after P5-T4 passes: delete `~/.claude/skills/adversarial-review`,
       `~/.claude/skills/adversarial-loop` and `~/.claude/skills/reply-to-claude`. These are the
       port's source material and are not reproduced in full in this repository, so this task is
@@ -795,10 +809,10 @@ print('\n'.join(gaps))"
 - [x] The smoke session's cwd is recorded and is **not** inside the plugin directory — recorded
       in **both** spellings, because the Conductor workspace path is a symlink and `pwd` and
       `pwd -P` disagree; neither is inside `plugin/`
-- [ ] `wb:adversarial-review` produced a report with a reconnaissance summary naming the tier and
-      the deciding axis — *half met on run 1: the summary named MAX and named Reversibility as
-      the axis that set it, unprompted. No report followed, because the run stopped at scope.
-      Left unticked rather than rounded up: the criterion says report, and there was none.*
+- [x] `wb:adversarial-review` produced a report with a reconnaissance summary naming the tier and
+      the deciding axis — *met on run 2: tier `high`, axis Behaviour, named unprompted, followed
+      by a full report of 12 verified findings. Run 1 produced the summary but no report, and was
+      left unticked for exactly that reason.*
 - [ ] `wb:adversarial-loop` reached clean with no `gh` available and said so
 - [ ] The user has confirmed the deletion of the three personal skills
 - [ ] **Evaluate the P1-T2 substitution** — *now partly answerable: run 1 establishes that the
@@ -1689,6 +1703,34 @@ resolved, leaving a dated line saying how.
   all three.
 
 ### Implementation Notes
+
+- **[2026-09-20] Review round 5** — [reviews/2026-09-20-round-5/tasks.md](reviews/2026-09-20-round-5/tasks.md),
+  10 tasks, 0 done. Raised by P5-T4 run 2 against `plugin/skills/adversarial-loop`: 5 legs, 23
+  candidates, 18 after dedupe, **10 CONFIRMED and 2 PLAUSIBLE surviving verification, 6 REFUTED**.
+  The verify pass earned its cost twice in one round — a Monitor finding that *three* independent
+  legs raised came back REFUTED against `docs/claude-code-skills-guide.md:302`, and a contested
+  clearance was overturned when the tiebreak found the two reviewers were describing opposite
+  failure directions. Second use of the mechanism, first from a clean start.
+- **[2026-09-20] Two defects in `adversarial-review` itself, found by running it, fixed here.**
+  Neither belongs in round 5's plan: both are in the reviewer, not the reviewed.
+  - **Step 3's guard could not fire.** `search=${PIPESTATUS[0]}` is a bash array; the Bash tool
+    runs zsh, where it expands to nothing, `[ "" -le 1 ]` is true, and a `grep` that exited 2
+    passed in silence — the exact failure the block's own prose says it exists to catch. Now
+    `search=$?` taken from grep directly, with the guard moved ahead of the output so a broken
+    search is announced before the emptiness that would otherwise read as "no callers".
+  - **Step 1 died on a path target.** `git diff --stat $range` relied on word-splitting an
+    unquoted expansion, which zsh does not do, so `origin/main...HEAD -- some/path` arrived as one
+    argument. Revisions and pathspec are separate variables now, both quoted. **Four review rounds
+    missed it because only the path form puts a space in that variable, and no round had run the
+    path form** — a block is not exercised by being read.
+  - Both are now a `knowledge.md` entry, because the class is wider than these two lines: every
+    fenced `bash` block in every shipped skill is executed by zsh.
+- **[2026-09-20] Two corrections to `code-review-integration.md`, from observation.** The
+  built-in's result line has a second spelling — `launched (forked execution, running in the
+  background)` on a long review, not the `completed (forked execution)` the doc predicted, so a
+  wrapper matching on `completed` waits forever. And `ReportFindings` was **unavailable inside the
+  fork** while available in the calling session, so the built-in leg fell back to prose: a wrapper
+  cannot require the structured channel from a leg it did not itself emit.
 
 - **[2026-09-19] The generated-mutant backlog is closed: 244/292 killed, 48 waived, 0
   surviving** (was 198/293 with 94 surviving). 19 corpus cases, 6 integrity claims, 48

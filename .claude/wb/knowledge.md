@@ -156,9 +156,17 @@ we have the in-repo cautionary example for that.
   arrives. Every permission dialog advertises "Tip: auto mode handles these prompts for you" at
   the top, so this is the path of least resistance, not an unusual setting. Any test of read
   behaviour must confirm auto mode is **off** first, or it measures nothing.
-- **Verified**: 2026-09-09 · `docs/plans/2026-09-08-upstream-fable-merge/`
+- **Also (2026-09-20)**: **a new session can start with auto mode already on.** Two consecutive
+  P5-T4 runs were launched believing it was off and both arrived carrying the
+  `While auto mode is active` instruction; only an explicit toggle mid-session cleared it. So
+  "I started a fresh session" is not evidence the mode is off. Have the session state, as its
+  own first act, whether that instruction is present, and stop if it is — a run that proceeds
+  under it cannot measure read behaviour in either direction.
+- **Verified**: 2026-09-09, extended 2026-09-20 · `docs/plans/2026-09-08-upstream-fable-merge/`,
+  `docs/plans/2026-09-17-adversarial_loop/`
 - **Check it**: ask a session mid-run which tool it used to read a skill's supporting file —
-  `cat` means auto mode, `Read` means not.
+  `cat` means auto mode, `Read` means not. Or have it report whether a
+  `While auto mode is active` block is present in its context before it runs anything.
 
 ## Pre-2.0.0 `wb-*` skills in `~/.claude/skills/` shadow the plugin
 
@@ -284,3 +292,26 @@ we have the in-repo cautionary example for that.
 - **Verified**: 2026-09-18 · `docs/plans/2026-09-17-adversarial_loop/`
 - **Check it**: indent a fenced block six spaces under a list item and run
   `./plugin/scripts/lint <file>` — it reports MD046.
+
+## A fenced `bash` block in a shipped skill is executed by **zsh**, not bash
+
+- **Why it matters**: this repository's doctrine is that a fenced `bash` block in a skill is
+  *run*, not illustrated — `plugin/scripts/check-guards` exists for that reason. But the Bash
+  tool's shell is `/bin/zsh` (5.9 here), and two bash behaviours those blocks were written
+  against are absent. Both shipped, both failed silently, both in `adversarial-review`:
+  - **`PIPESTATUS` is a bash array.** In zsh it expands to nothing, so `search=${PIPESTATUS[0]}`
+    left `search` empty, `[ "" -le 1 ]` was true, and a `grep` that exited 2 passed its guard
+    without a word. The guard's own prose said it existed to catch exactly that. zsh's array is
+    `$pipestatus` and is 1-indexed; there is no portable spelling, so take the status from `$?`
+    on the line after the command instead of from a pipeline.
+  - **zsh does not word-split unquoted expansions.** `range="origin/main...HEAD -- some/path";
+    git diff --stat $range` reaches git as one argument and dies with `fatal: ambiguous
+    argument`. Keep a pathspec in its own variable and quote both.
+- **Why it went four review rounds undetected**: only the *path*-target form put a space in the
+  variable, and no round had ever run that form. A block is not exercised by being read.
+- **Verified**: 2026-09-20 · `docs/plans/2026-09-17-adversarial_loop/` — P5-T4 run 2,
+  `thoughts/2026-09-20-smoke-session-run2.md`
+- **Check it**: `echo "$0 ${ZSH_VERSION:-no-zsh} ${BASH_VERSION:-no-bash}"` through the Bash
+  tool reports `/bin/zsh 5.9 no-bash`; and
+  `x=$(grep -rnF -- q /no/such/path 2>/dev/null); echo "dollar-question=$? pipestatus=${PIPESTATUS[0]:-<empty>}"`
+  prints a real status beside an empty `PIPESTATUS`.

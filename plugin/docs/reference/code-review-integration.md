@@ -18,9 +18,22 @@ exactly like any plugin skill:
 | `/verify` | Exercises a change end to end and observes behaviour — "drive the affected flow, not just tests or typecheck". Bootstraps a repo's own verify skill if none exists. | Prose |
 | `/security-review` | A security-only pass over the current branch, with its own severity and confidence scales. | Markdown only |
 
-**They run forked.** A `Skill` call to `/code-review` returns `completed (forked execution)`, so
-the review does not consume the calling session's context. This is what makes wrapping one
-affordable rather than ruinous.
+**They run forked.** A `Skill` call to `/code-review` does not consume the calling session's
+context, which is what makes wrapping one affordable rather than ruinous.
+
+**The result line has two spellings, and only one of them was written down here.** A short
+review returns `completed (forked execution)`. A long one returns
+`launched (forked execution, running in the background)` and the caller waits on it as a
+background agent — observed 2026-09-20 on `/code-review high` over a 312-line diff, which took
+3m54s. A wrapper that waits for the word `completed` will wait forever on the second shape.
+Treat "forked" as the thing to match on; treat the rest as unstable.
+
+**`ReportFindings` was not available inside the fork.** Same run: the built-in leg reported the
+tool unavailable and fell back to prose, while the tool was available in the calling session
+that spawned it. So a wrapper must be able to read the built-in leg's findings as **text**, and
+cannot require the structured channel from a leg it did not itself emit. One observation, one
+build; it is recorded because the failure is silent — prose findings still arrive, just without
+the fields.
 
 ## The argument surface
 

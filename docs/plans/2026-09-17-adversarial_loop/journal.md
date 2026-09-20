@@ -51,6 +51,49 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-20 22:05 — P5-T4 run 2: the wrapper works, and running it broke the wrapper (closed)
+
+- **Task/phase**: P5-T4 run 2, scoped to `plugin/skills/adversarial-loop`. Run elsewhere; results
+  brought back, verified here, and acted on.
+- **Landed**: two zsh defects in `adversarial-review` fixed and verified under zsh; two
+  corrections to `code-review-integration.md`; round 5 linked from Implementation Notes;
+  `knowledge.md` gains the shell entry and an auto-mode amendment. **P5-T4 stays unchecked** —
+  `wb:adversarial-loop` without `gh` has still never run.
+- **Learned**:
+  - **Steps 5 through 8 ran for the first time.** 5 legs → 23 candidates → 18 after dedupe → 10
+    CONFIRMED, 2 PLAUSIBLE, 6 REFUTED, then a remediation plan written. Everything past Step 4 had
+    been shipped untested through four review rounds and a release cut.
+  - **The verify pass paid for itself twice in one round.** A Monitor finding raised independently
+    by *three* legs came back REFUTED against `docs/claude-code-skills-guide.md:302` — agreement
+    between reviewers is not evidence, and without the verifier three votes would have carried it.
+    And a contested clearance was overturned: security had cleared the `&&` against a *failed*
+    push while AI-systems raised a *successful no-op* push, so the clearance answered a claim the
+    finding never made. Both are arguments for keeping Step 6 that no amount of prose would have
+    produced.
+  - **Running the reviewer is what found the reviewer's own defects, and both were silent.**
+    `${PIPESTATUS[0]}` is a bash array and the Bash tool runs zsh, so the blast-radius guard
+    expanded to nothing and a `grep` exiting 2 passed it without a word — the precise failure the
+    block's own prose claims to exist for. And `git diff --stat $range` relied on word-splitting,
+    which zsh does not do, so a path target died with `fatal: ambiguous argument`.
+  - **Four rounds missed the second one for a reason worth keeping**: only the *path* target form
+    puts a space in `$range`, and no round had ever run that form. Reading a fenced block is not
+    exercising it. This is the same lesson as the corpus cases that satisfied two rules at once,
+    arriving from the other direction.
+  - **My predecessor's fix for run 1 was almost wrong the same way.** It proposed
+    `grep -v "^\./<file>:"`; this grep emits no leading `./`, so that anchor would have filtered
+    nothing. Shipped as `^(\./)?<file>:`, and run 2 confirmed the `(\./)?` is load-bearing.
+  - **Two things about the built-in that the integration doc got wrong.** Its result line reads
+    `launched (forked execution, running in the background)` on a long review, not
+    `completed (forked execution)` — a wrapper matching on `completed` waits forever. And
+    `ReportFindings` was unavailable *inside* the fork while available in the calling session, so
+    the built-in leg fell back to prose. Both now recorded where the coupling is confined.
+  - **Auto mode arrived on in a session started believing it was off — twice.** Both runs stopped
+    at the precondition before anything else, which is the prompt working as intended. "Fresh
+    session" is not evidence the mode is off.
+- **Commits**: this one.
+- **Blocked by**: **PD5-1** is still the user's decision. P5-T4 needs the `adversarial-loop`
+  half. Round 5's ten tasks are queued and not started.
+
 ## 2026-09-20 21:21 — P5-T4 run 1: did not pass, and found the thing it was written to find (closed)
 
 - **Task/phase**: P5-T4, the behavioural smoke session. Run in a separate session; results
