@@ -76,7 +76,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       present at `:131`, and `docs/plans/<plan>/review-log.md` is no longer the sole stated path.
       (~3 calls)
 
-- [ ] **R5-T7** — `plugin/skills/adversarial-loop/SKILL.md:113` — `implement` is routed at the
+- [x] **R5-T7** — `plugin/skills/adversarial-loop/SKILL.md:113` — `implement` is routed at the
       review round directory, whose shape it is specified to refuse.
       **Fails when:** the round directory holds only `tasks.md`, with no `current_phase` and no
       `## Phase N` headings. `implement/SKILL.md:119-120` fails the presence check and `:157`

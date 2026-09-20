@@ -117,6 +117,13 @@ Two standing prohibitions:
    separately. Size each fix by the proportionality gate, and prefer removing a trap to
    documenting one.
 
+   **Point it at the round directory, never at the parent plan.** The parent holds the original
+   plan and `implement` would re-run it. A remediation plan is `tasks.md` alone — no
+   `research.md`, no `design.md`, no `current_phase`, no `## Phase N` headings — and
+   `implement` Step 1 names that shape and accepts it. If it instead stops on a missing file or
+   on "no phases", the two skills have drifted apart: say so and stop, rather than fixing the
+   round inline and reporting it as the same thing.
+
    **Why not inline.** An aggregate gate run after twenty-two changes says the tree passes; it
    says nothing about whether any individual change did what it should, or broke another. On
    this plugin that produced a round where 64% of findings sat in surface the previous round's

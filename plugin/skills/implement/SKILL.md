@@ -115,17 +115,25 @@ Take the project directory and the phase from the arguments, prompting for eithe
 missing. Then read `research.md`, `design.md` and `tasks.md` from that directory — **fully**, no
 `limit` or `offset`.
 
+**A remediation plan has only `tasks.md`, and that is correct.** `adversarial-review` Step 8
+writes `docs/plans/<plan>/reviews/<date>-round-N/tasks.md`; a review is not a project, so it has
+no research or design stage — the review *is* the research and the findings are the design input.
+Recognise one by a `reviews:` key in its frontmatter or a `reviews/<date>-round-N/` path, and take
+`tasks.md` alone as the whole plan. Do not stop, and do not route the user to
+`/wb:create_project` to manufacture two files that exist only to be empty.
+
 1. **Read project structure**:
    - Check that specified directory exists
-   - Verify presence of research.md, design.md, tasks.md
+   - Verify presence of research.md, design.md, tasks.md — for a remediation plan, `tasks.md`
+     alone satisfies this
 
-2. **Read research.md FULLY**:
+2. **Read research.md FULLY** (a remediation plan has none — skip to step 4):
    - Understand what currently exists in the codebase
    - Note patterns and conventions to follow
    - Identify key file:line references
    - Extract testing framework, file structure, naming conventions
 
-3. **Read design.md FULLY**:
+3. **Read design.md FULLY** (likewise absent from a remediation plan):
    - Understand the desired end state
    - Review success criteria for the phase
    - Note automated and manual verification requirements
@@ -153,9 +161,13 @@ After reading all documentation, prepare to spawn workers sequentially.
 There is no external tracker to verify or configure. `tasks.md` is both the plan and the
 status surface.
 
-1. **Find the phase**: `current_phase` in frontmatter, or the phase given as `$2`.
+1. **Find the phase**: `current_phase` in frontmatter, or the phase given as `$2`. A remediation
+   plan carries neither: its `## Tasks` section is the single phase, and Step 8's checkpoint falls
+   at the end of the round.
 2. **Confirm the phase has tasks.** If `tasks.md` has no phases or no task lines, stop and say
-   so — the plan has not been decomposed, and `/wb:create_tasks` is what writes it.
+   so — the plan has not been decomposed, and `/wb:create_tasks` is what writes it. **A
+   remediation plan is exempt from the phase half of this check, never from the task half**: no
+   task lines is still a stop, and there the fix is to re-run the review, not `/wb:create_tasks`.
 3. **Check the counters against the checkboxes.** If they disagree, the checkboxes are right;
    note it and let `/wb:update_status` reconcile at the checkpoint.
 4. **Inspect the working tree.**
@@ -181,7 +193,10 @@ status surface.
 
 **Build a minimal context package for workers.**
 
-From the documentation you've read, extract ONLY what workers need:
+From the documentation you've read, extract ONLY what workers need. For a remediation plan there
+is no `design.md` or `research.md` to extract from: each task carries its own `**Fails when:**`
+scenario and acceptance criterion, and those *are* the worker's context — pass the task line
+verbatim and fill `design`/`patterns` from the reviewed code itself.
 
 ```javascript
 const contextPackage = {
