@@ -51,6 +51,57 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-20 21:21 — P5-T4 run 1: did not pass, and found the thing it was written to find (closed)
+
+- **Task/phase**: P5-T4, the behavioural smoke session. Run in a separate session; results
+  brought back here and acted on.
+- **Landed**: transcript promoted and linted
+  ([thoughts/2026-09-19-smoke-session.md](thoughts/2026-09-19-smoke-session.md)); the one
+  CONFIRMED finding fixed in `adversarial-review/SKILL.md`; **PD5-1** raised as an open decision;
+  two `knowledge.md` entries extended. **P5-T4 stays unchecked** — 2 of 5 PASS, 1 FAIL, 2 NOT RUN.
+- **Learned**:
+  - **The skill has no gate on diff size against fleet size, and would not have disclosed it.**
+    On the release branch — 81 files, +11,655 — it sized to tier MAX and five lenses, which over
+    ~5,000 lines of runtime surface is sampling, not reviewing. Its only cap is on lenses; its
+    disclosure machinery covers a missing built-in leg and dropped lenses, and size overrun routes
+    to neither. The stop came from the prompt, not the skill. **That is the answer to the question
+    P5-T4 exists to ask**, and it is why a smoke session is not a formality.
+  - **The blast-radius measurement was wrong in the safe-looking direction.** Step 3 prescribed
+    `grep -rnF -- "<sym>" . | grep -v "<the changed file>"`, which filters by line *content*, so it
+    drops every line whose text mentions that path — for a script invoked by path, exactly its
+    callers. On `shellcheck-gate`: one hit, a README heading, reading as isolated. Anchored on the
+    path field: four, including `plugin/scripts/check:52`, the line that puts it in the release
+    gate. Ten lines below prose warning that the error direction is toward believing the change is
+    safe. Its three documented safeguards all defend against grep failing *loudly*; none defends
+    against grep succeeding while the filter removes the answer.
+  - **The proposed fix was itself wrong here, and only running it showed that.** The session
+    suggested `grep -v "^\./<file>:"`. On this machine the path field arrives *without* the `./`
+    under one invocation and *with* it under another, so that anchor filtered nothing — failing
+    safe, but failing. The shipped form is `^(\./)?<file>:`, and the prose now states what was
+    measured rather than a GNU-versus-BSD mechanism nobody checked.
+  - **My own verification of the fix was unfirable on the first attempt.** I ran the `bash` fence
+    under zsh, where `${PIPESTATUS[0]}` is empty — so `search` was blank, the guard could not fire,
+    and the negative control printed nothing and looked like a pass. Re-run under `bash -c` it
+    behaves: status 0 on the real search, `SEARCH FAILED (grep exit 2)` on a broken one. Fourth
+    instance of this class in this plan, first one I caused.
+  - **Auto mode was on, so item 2 fails and cannot be rescued by rerunning in the same mode.**
+    All four supporting files arrived via `cat`. The manifest's hard-stop rule is addressed to a
+    gating behaviour only the Read tool has, so under auto mode it cannot fire in either direction
+    — the manifest and the harness conflict and the harness wins silently. Honest mitigation,
+    recorded rather than buried: the plugin path was inside the working directory, so `Read` would
+    not have been gated either. Exercising that rule needs auto mode off *and* a marketplace
+    install.
+  - **A cwd recorded once at the top of a session is not a durable fact.** A `cd`-prefixed Bash
+    call moved the session's primary working directory mid-run, and the workspace path is a
+    symlink, so `pwd` and `pwd -P` disagree and will never compare equal. Both now in
+    `knowledge.md`, attached to the entry that already says to state the cwd.
+  - **The transcript failed `lint --all` and the hook could not fix it.** MD024 and MD025 are not
+    auto-fixable, and MD025 counts a frontmatter `title:` as the document's title. A bulk-generated
+    document can pass the PostToolUse hook, look clean, and break the `check` gate later.
+- **Commits**: this one.
+- **Blocked by**: **PD5-1** is the user's decision and P5-T5 is downstream of a P5-T4 that has not
+  passed. A rerun needs auto mode **off** and a **scoped** target — one subsystem, not the release.
+
 ## 2026-09-19 16:22 — P5-T2, P5-T3, and two criteria that never ran (closed)
 
 - **Task/phase**: Phase 5 — everything up to the manual steps.

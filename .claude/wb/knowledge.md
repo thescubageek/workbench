@@ -133,9 +133,19 @@ we have the in-repo cautionary example for that.
   the environment field was missing — a real defect measured clean for a day. Generalise it: a
   probe that cannot fail is not evidence, and the way this one could not fail was invisible
   until someone asked where it ran.
-- **Verified**: 2026-09-09 · `docs/plans/2026-09-08-upstream-fable-merge/`
+- **Also, and this is what makes recording it harder than it sounds (2026-09-20)**: the cwd is
+  not a durable fact for the length of a session, and it has two spellings. A Bash call prefixed
+  with `cd` **moves the session's primary working directory** — the harness announces it with an
+  `Environment update` block and it persists into later calls. And a Conductor workspace path can
+  be a symlink: `pwd` reported `.../workbench/adversarial-loop-skill-research` where `pwd -P`
+  resolved to `.../workbench/ankara`, the same tree under two names that no automated comparison
+  will ever call equal. Record **both** spellings, and re-record the cwd at the point of each
+  measurement rather than once at the top.
+- **Verified**: 2026-09-09, extended 2026-09-20 · `docs/plans/2026-09-08-upstream-fable-merge/`,
+  `docs/plans/2026-09-17-adversarial_loop/thoughts/2026-09-19-smoke-session.md`
 - **Check it**: `grep -A12 'A4 re-probed' docs/plans/2026-09-08-upstream-fable-merge/thoughts/2026-09-08-baseline-measurements.md`
-  — the probe table carries a `cwd` column.
+  — the probe table carries a `cwd` column. For the symlink half: `pwd; pwd -P` in a Conductor
+  workspace, and `git worktree list` to confirm it is one tree rather than two.
 
 ## Auto mode bypasses the plugin's read conventions
 
@@ -244,9 +254,16 @@ we have the in-repo cautionary example for that.
   write → check → commit can capture the **pre-fix** state while the fix lands in the working tree
   afterwards. That happened once: `lint --all` reported FAIL, the commit went in, and the hook's
   correction was left uncommitted. Verify the **committed** content, not the working tree.
-- **Verified**: 2026-09-18 · `docs/plans/2026-09-17-adversarial_loop/`
+- **Also (2026-09-20)**: the hook runs `lint --fix`, and **MD024 and MD025 are not auto-fixable**
+  — duplicate sibling headings and a second top-level heading survive it. So a document generated
+  in bulk can pass the hook, look clean, and fail `lint --all` later, which fails the `markdown
+  lint` gate inside `./plugin/scripts/check` with nothing in the generating session having warned.
+  MD025 also counts a frontmatter `title:` key as the document's title, so a file carrying both
+  `title:` and an `# H1` trips it; the convention in this repository is the H1 and no `title:`.
+- **Verified**: 2026-09-18, extended 2026-09-20 · `docs/plans/2026-09-17-adversarial_loop/`
 - **Check it**: `git show HEAD:<path> > /tmp/x && ./plugin/scripts/lint /tmp/x` — if that fails
-  while the working copy passes, the hook fixed it after the commit.
+  while the working copy passes, the hook fixed it after the commit. For the un-fixable half:
+  write a file with two `# H1`s, watch the hook leave it, then run `./plugin/scripts/lint --all`.
 
 ## `strings` emits non-ASCII as literal escape sequences
 

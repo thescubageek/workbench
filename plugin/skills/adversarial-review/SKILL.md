@@ -201,12 +201,12 @@ and confirm it ran — a search that errored returns the same emptiness as a gen
 change, and that error direction is toward believing the change is safe.
 
 ```bash
-grep -rnF -- "<changed symbol>" . | grep -v "<the changed file>" | sed 's/^/  /'
+grep -rnF -- "<changed symbol>" . | grep -vE "^(\./)?<the changed file>:" | sed 's/^/  /'
 search=${PIPESTATUS[0]}
 [ "$search" -le 1 ] || echo "SEARCH FAILED (grep exit $search) — NOT an isolated change" >&2
 ```
 
-Three details in that command are the difference between a measurement and a guess:
+Four details in that command are the difference between a measurement and a guess:
 
 - **`-F`** treats the symbol as a literal. Without it a name containing `[`, `(` or `\` is an
   invalid pattern, grep exits 2 printing nothing, and the empty output reads as "no callers".
@@ -215,6 +215,18 @@ Three details in that command are the difference between a measurement and a gue
 - **`${PIPESTATUS[0]}`** is grep's own status, not `sed`'s. Do not send grep's stderr to
   `/dev/null`: the diagnostic is the only thing that distinguishes a broken search from a clean
   one, and this measurement's errors all point toward believing the change is safe.
+- **The exclusion is anchored on the path field**, `^(\./)?<file>:`, and not on the filename
+  appearing anywhere in the line. An unanchored `grep -v "<file>"` drops every line whose *text*
+  mentions that path — which, for a script invoked by path, is exactly its callers. Measured on
+  `shellcheck-gate`: unanchored returned one hit, a README heading, and read as an isolated
+  change; anchored it returns four, including `plugin/scripts/check:52`, the line that makes the
+  script part of the release gate. The `(\./)?` is not decoration: whether the path field
+  carries a leading `./` varies with the grep and with how it is invoked, and the same command
+  was observed both ways on one machine while this was being fixed. An anchor written for one
+  spelling silently filters nothing under the other. That failure is in the safe direction — the
+  changed file's own lines survive and the count reads wide — where the unanchored form fails
+  the other way, and the errors this block guards against all point toward believing the change
+  is safe.
 
 Then choose the built-in's effort token. Read
 [../../docs/reference/code-review-integration.md](../../docs/reference/code-review-integration.md)

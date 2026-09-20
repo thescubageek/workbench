@@ -663,6 +663,16 @@ personal copies the port was made from.
 - [x] Phase 4 manual testing confirmed — *attestation; see the checkpoint block.*
 - [x] Working tree clean — `claude plugin tag` refuses a dirty tree without `--force`
 
+### Pending decisions
+
+| ID | Decision | Why it blocks | State |
+| -- | -------- | ------------- | ----- |
+| **PD5-1** | `adversarial-review` has no gate on **diff size versus fleet size**, and no disclosure when the fleet cannot cover the range it just sized. Ship `3.0.0` as-is, or add one first? | Raised by P5-T4 run 1, which is the task that exists to ask exactly this. On `origin/main...HEAD` — 81 files, +11,655 — the skill sized the work to tier MAX and five lenses and would have spawned them over ~5,000 lines of runtime surface. Each lens would have been **sampling, not reviewing**, and the report would have been indistinguishable from a real pass. The stop came from the session prompt, not from the skill. | **Open — the user's call.** The three candidate shapes, cheapest first: (1) **disclose only** — Step 3 states the ratio and the report carries a shortfall line, in the same voice the built-in uses to disclose a single-pass run; (2) **disclose and stop above a threshold**, which needs a number and this plan's own evidence says numbers do not transplant; (3) **split the range** into subsystem passes, which is real design and not a release fix. Note the skill's existing disclosure machinery covers a missing built-in leg and dropped lenses — neither path fires here, so (1) is an extension of something that already exists rather than a new mechanism. |
+
+*The proportionality gate in `adversarial-review/reference.md` does **not** cover this: it governs
+fix-size against defect-size, not fleet-size against diff-size. Step 1 stops only on a range it
+cannot resolve or one that is empty; an enormous range passes it cleanly.*
+
 ### Tasks
 
 - [x] **P5-T1** — Write the `## [3.0.0]` entry in `CHANGELOG.md`: `### Added` for the three skills
@@ -687,6 +697,18 @@ ships exactly what the release exists to prevent.
       supporting files read, a review runs against a real diff, the reconnaissance summary names
       the tier and the axis that set it, and `wb:adversarial-loop` reaches clean without `gh`.
       Record verbatim output — a probe that cannot fail is not evidence. (~18 calls)
+      *Run 1 — 2026-09-20, **did not pass**. Transcript:
+      [thoughts/2026-09-19-smoke-session.md](thoughts/2026-09-19-smoke-session.md). Scorecard:
+      skill loads **PASS**; recon names tier and deciding axis (MAX, set by Reversibility)
+      **PASS**; supporting files read via `Read` **FAIL** — all four via `cat`, because auto
+      mode was on and the harness instruction overrides the manifest silently; the built-in leg
+      and the fan-out **NOT RUN**. The run stopped at scope: `origin/main...HEAD` is 81 files
+      and +11,655, and **the skill has no gate that would have caught that** — its only cap is
+      on lenses, and its disclosure machinery covers a missing built-in leg and dropped lenses,
+      not a fleet that cannot cover the range it just sized. It did not self-disclose; the stop
+      came from the prompt. Recorded as **PD5-1** below. One CONFIRMED finding came out of
+      reconnaissance and is fixed in this commit. **A rerun needs auto mode OFF and a scoped
+      target — one subsystem, not the release.***
 - [ ] **P5-T5** — Only after P5-T4 passes: delete `~/.claude/skills/adversarial-review`,
       `~/.claude/skills/adversarial-loop` and `~/.claude/skills/reply-to-claude`. These are the
       port's source material and are not reproduced in full in this repository, so this task is
@@ -770,12 +792,19 @@ print('\n'.join(gaps))"
 
 #### Manual Verification
 
-- [ ] The smoke session's cwd is recorded and is **not** inside the plugin directory
+- [x] The smoke session's cwd is recorded and is **not** inside the plugin directory — recorded
+      in **both** spellings, because the Conductor workspace path is a symlink and `pwd` and
+      `pwd -P` disagree; neither is inside `plugin/`
 - [ ] `wb:adversarial-review` produced a report with a reconnaissance summary naming the tier and
-      the deciding axis
+      the deciding axis — *half met on run 1: the summary named MAX and named Reversibility as
+      the axis that set it, unprompted. No report followed, because the run stopped at scope.
+      Left unticked rather than rounded up: the criterion says report, and there was none.*
 - [ ] `wb:adversarial-loop` reached clean with no `gh` available and said so
 - [ ] The user has confirmed the deletion of the three personal skills
-- [ ] **Evaluate the P1-T2 substitution**: the probe ran inline rather than as a loadable skill
+- [ ] **Evaluate the P1-T2 substitution** — *now partly answerable: run 1 establishes that the
+      skill loads from a file and that Steps 1–3 execute as written, which is the half the inline
+      probe could not reach. Steps 4–8 are still untested, so the assessment waits on a rerun.*
+      The probe ran inline rather than as a loadable skill
       file, and split across two targets. Did that actually establish what Phase 1 needed, or did
       shipping on a partially-evidenced shape cost something? Record the answer in the probe
       document — this is a deliberate methodological call the user asked to have assessed here,
