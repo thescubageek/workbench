@@ -42,7 +42,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       and assert exit 0 with `Everything up-to-date`; then assert Phase 2 carries a
       `git status --porcelain` precondition before the push. (~4 calls)
 
-- [ ] **R5-T3** — `plugin/skills/adversarial-loop/SKILL.md:189` — Phase 2 never checks `isDraft`,
+- [x] **R5-T3** — `plugin/skills/adversarial-loop/SKILL.md:189` — Phase 2 never checks `isDraft`,
       and `gh pr ready` on a non-draft PR is a no-op that exits 0.
       **Fails when:** the loop runs on an already-open PR (in scope per the skill's own
       description). No `ready_for_review` event fires, Phase 2 reports success, and Phase 3 waits

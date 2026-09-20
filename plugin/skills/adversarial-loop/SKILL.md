@@ -207,10 +207,15 @@ not inherit variables from the previous one:
 ```bash
 PR=$(gh pr view ${target:+"$target"} --json number --jq .number) \
   || { echo "no PR for ${target:-the current branch}" >&2; exit 1; }
+DRAFT=$(gh pr view "$PR" --json isDraft --jq .isDraft)
 [ -z "$(git status --porcelain)" ] || {
   echo "uncommitted changes — the round's work is not in the head being published" >&2
   git status --short >&2; exit 1; }
-git push && gh pr ready "$PR"
+if [ "$DRAFT" = true ]; then
+  git push && gh pr ready "$PR"
+else
+  git push && echo "PR $PR is already open — no ready_for_review transition to fire" >&2
+fi
 ```
 
 ⛔ **A clean worktree is a precondition, not a courtesy.** The chain below guards the *failure*
@@ -230,6 +235,19 @@ which is exactly the case the prohibitions above say to surface rather than forc
 
 **If the push fails, stop and surface it.** Do not force, do not re-run with a flag; say what the
 remote state is and let the user decide.
+
+⛔ **Check `isDraft` before relying on the un-draft.** This skill's own description puts an
+already-open pull request in scope, and `gh pr ready` on one is a **no-op that exits 0**: no
+`ready_for_review` event fires. Without the branch above, Phase 2 reports success and Phase 3
+waits on a bot review that was never triggered — another absence that means "broken" reading as
+one that means "not yet".
+
+**An already-open pull request needs an explicit summons.** Per
+[reference.md](reference.md), the review check runs on the ready-for-review transition, so once
+that transition is spent the only way to summon `claude[bot]` is a leading `@claude` comment.
+That is the same publishing action Phase 4 confirms — it is in the table above, and it is
+confirmed here too. Say plainly which route Phase 3 is waiting on; do not enter Phase 3 without
+one.
 
 Un-drafting is what summons `claude[bot]`. Do not re-draft afterwards.
 
