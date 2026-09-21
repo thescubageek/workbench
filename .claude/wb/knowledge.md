@@ -365,3 +365,27 @@ we have the in-repo cautionary example for that.
   string implies it should not; and
   `x=$(grep -rnF -- q /no/such/path 2>/dev/null); echo "dollar-question=$? pipestatus=${PIPESTATUS[0]:-<empty>}"`
   prints a real status beside an empty `PIPESTATUS`.
+
+## `diff`'s exit status is not trustworthy — the hook rewrites it and it returns 0 on differing files
+
+- **Why it matters**: the RTK hook rewrites a bare `diff a b` into its own summarising wrapper,
+  which prints a readable `+1 added, -1 removed` digest **and exits 0 even when the files
+  differ**. So every idiom that asks git-style "are these the same?" — `diff a b && echo same`,
+  `if diff a b; then …`, `[ $? -eq 0 ]` — silently answers *identical* for files that are not.
+  A round-6 verifier hit this while byte-comparing a template's rendered output against `HEAD`,
+  concluded "Files are identical" for two files whose `grep -c` counts already disagreed, and
+  only caught it by re-running under another spelling. A comparison that cannot report a
+  difference is not a comparison.
+- **Also — it is not consistently wrong, which is worse.** Measured 2026-09-21 in one session:
+  bare `diff d1 d2` and `diff d1 d2 > file 2>&1` both exited **0** on differing files, while an
+  earlier `if diff d1 d2 >/dev/null 2>&1` in the same session took the *differ* branch. Same
+  flavour of invocation-dependence as the `--exclude-dir` entry above. Do not write a rule about
+  when the wrapper is honest; use a spelling that bypasses it.
+- **The two spellings that are reliable**: `command diff --color a b` and `rtk proxy diff a b`
+  both exit 1 on a difference. `cmp a b` exits 1 and names the first differing byte, and is the
+  better choice when the question is "identical or not" rather than "what changed".
+- **Verified**: 2026-09-21 · `docs/plans/2026-09-17-adversarial_loop/reviews/2026-09-21-round-6/`
+  — surfaced by R6-T4's verification, re-derived directly at the round-6 checkpoint
+- **Check it**: `printf 'a\nb\n' > /tmp/d1; printf 'a\nC\n' > /tmp/d2; diff /tmp/d1 /tmp/d2;
+  echo "wrapped=$?"; command diff /tmp/d1 /tmp/d2 >/dev/null; echo "real=$?"` — prints
+  `wrapped=0` beside `real=1`.
