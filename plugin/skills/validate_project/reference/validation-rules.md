@@ -1,10 +1,31 @@
 # Validation Rules
 
+## Which contract to validate against
+
+```javascript
+// A remediation plan has only `tasks.md`, and that is correct. `adversarial-review` Step 8
+// writes `docs/plans/<plan>/reviews/<date>-round-N/tasks.md`; a review is not a project, so it
+// has no research or design stage. Recognise one by a `reviews:` key in its frontmatter or a
+// `reviews/<date>-round-N/` path, and take `tasks.md` alone as the whole plan.
+//
+// This switches the contract; it does not switch validation off. Everything gated on isRound
+// below is a rule that can only be about a second file — asserting it against a round produces
+// a critical error on the exact shape /wb:implement and /wb:update_status now accept, and
+// buries the round's real defects under three that cannot be acted on. What a round IS checked
+// against is `validateRoundStructure` at the end of this section, plus every task-tracking rule
+// unchanged: the checkboxes are the whole plan there, so they matter more, not less.
+const isRound =
+  (tasksFrontmatter && 'reviews' in tasksFrontmatter) ||
+  /(^|\/)reviews\/[^/]+-round-\d+\/?$/.test(projectDir);
+```
+
 ## File Structure Validation
 
 ```javascript
-// Required files
-const requiredFiles = ['research.md', 'design.md', 'tasks.md'];
+// Required files. A round has no research or design stage to require files from.
+const requiredFiles = isRound
+  ? ['tasks.md']
+  : ['research.md', 'design.md', 'tasks.md'];
 
 // Check each exists
 for (const file of requiredFiles) {
@@ -20,7 +41,13 @@ for (const file of requiredFiles) {
 // Required fields per file
 const requiredFields = {
   all: ['project', 'created', 'status', 'last_updated', 'git_commit', 'git_branch'],
-  tasks: ['task_tracking', 'current_phase', 'total_tasks', 'completed_tasks']
+  tasks: ['task_tracking', 'current_phase', 'total_tasks', 'completed_tasks'],
+  // A round's frontmatter is the set `adversarial-review` Step 8 writes, and nothing else.
+  // `last_updated`, `git_commit`, `git_branch` and `current_phase` are absent BY DESIGN —
+  // a round has one implicit phase and is written in one sitting — so demanding them reports
+  // four missing fields on a correctly generated file.
+  round: ['project', 'reviews', 'round', 'created', 'status',
+          'task_tracking', 'total_tasks', 'completed_tasks']
 };
 
 // Parse YAML frontmatter
@@ -33,7 +60,9 @@ const frontmatter = parseYAML(fileContent);
 // Note `!frontmatter[field]` is deliberate rather than a presence test: `completed_tasks: 0`
 // is legitimately falsy, so check the key's existence, not its truthiness.
 const fieldsFor = (file) =>
-  file === 'tasks.md' ? [...requiredFields.all, ...requiredFields.tasks] : requiredFields.all;
+  isRound ? requiredFields.round
+  : file === 'tasks.md' ? [...requiredFields.all, ...requiredFields.tasks]
+  : requiredFields.all;
 
 for (const field of fieldsFor(currentFile)) {
   if (!(field in frontmatter)) {
@@ -56,14 +85,18 @@ if (!validStatuses[fileType].includes(status)) {
   ERROR(`Invalid status: ${status}. Must be one of: ${validStatuses[fileType]}`);
 }
 
-// Check status progression
-if (design.status === 'approved' && research.status !== 'complete') {
-  ERROR('Design cannot be approved while research is not complete');
-}
+// Check status progression. Both rules compare two documents, so neither has anything to say
+// about a round — `design.status` there is undefined, and an unguarded comparison either throws
+// or reports a design that was never supposed to exist.
+if (!isRound) {
+  if (design.status === 'approved' && research.status !== 'complete') {
+    ERROR('Design cannot be approved while research is not complete');
+  }
 
-if (tasks.status === 'in-progress' && design.status === 'draft') {
-  ERROR('Tasks cannot be in-progress while design is still draft — ' +
-        'approve the design at /wb:create_design Step 6, or explain why work started early');
+  if (tasks.status === 'in-progress' && design.status === 'draft') {
+    ERROR('Tasks cannot be in-progress while design is still draft — ' +
+          'approve the design at /wb:create_design Step 6, or explain why work started early');
+  }
 }
 
 // design.md has no 'complete': it is draft or approved, and stays approved once the work
@@ -158,9 +191,16 @@ if (staleOpen.length) {
 }  // end: journal.md present
 
 // ---------------------------------------------------------------------------
+// Checklist §7 and §8 — Dependencies and cross-file consistency. Both are about relationships
+// BETWEEN documents, so both are phased-only: a round has one file, no upstream sibling to
+// point `depends_on` at, and nothing to be consistent with. Its upstream is the parent plan,
+// named by `reviews:` and resolved in validateRoundStructure below.
+// ---------------------------------------------------------------------------
+if (!isRound) {
+
 // Checklist §7 — Dependencies. Declared in validation-checklist.md and previously
 // unimplemented, so the chain it describes was never actually checked.
-// ---------------------------------------------------------------------------
+//
 // A YAML scalar is legitimate here and is what BOTH shipped design templates emit
 // (`depends_on: research.md`); only the tasks template uses flow-sequence syntax. Requiring
 // an array made this rule ERROR on every plan the plugin itself generates. Normalise instead
@@ -181,7 +221,6 @@ for (const dep of ['research.md', 'design.md']) {
   }
 }
 
-// ---------------------------------------------------------------------------
 // Checklist §8 — Cross-file consistency. Same: declared, never implemented.
 // Git metadata is compared for PRESENCE and branch agreement only. git_commit
 // legitimately differs between files — each records the commit current when that
@@ -211,7 +250,42 @@ if (updated.size > 2) {
   WARN(`last_updated spans ${updated.size} dates (${[...updated].sort().join(', ')}) — the plan may have been partially updated`);
 }
 
-// Current phase must name a phase that exists.
+}  // end: phased-project-only (§7, §8)
+
+// ---------------------------------------------------------------------------
+// Checklist §9 — the round's own contract. This is what replaces §2's `all` list, §6, §7 and
+// §8 on a round. It is short on purpose: a round is one file. But a branch that validated
+// nothing would trade a false positive for a blind spot on the only file the plan has, and the
+// task-tracking rules above — which a round needs MORE than a phased plan does, because there
+// is no design.md to fall back on — run unchanged either way.
+// ---------------------------------------------------------------------------
+function validateRoundStructure() {
+  // `reviews` is the round's only link back to the plan under review. A round whose parent
+  // cannot be resolved is unreadable to everyone downstream, and the path is written by hand.
+  const parent = tasksFrontmatter.reviews;
+  if (parent && !exists(parent)) {
+    ERROR(`reviews: points at ${parent}, which does not exist — a round whose parent plan ` +
+          `cannot be resolved has no context for any of its findings`);
+  }
+
+  // `round` and the directory's `-round-N` are cited interchangeably from commits and journals.
+  const dirRound = (projectDir.match(/-round-(\d+)\/?$/) || [])[1];
+  if (dirRound && Number(tasksFrontmatter.round) !== Number(dirRound)) {
+    WARNING(`round: ${tasksFrontmatter.round} but the directory says round ${dirRound}`);
+  }
+
+  // A round has one implicit phase under `## Tasks` — there is no `## Phase N` heading and no
+  // current_phase, by design. Check the section exists; do not check for a phase.
+  if (!/^## Tasks\s*$/m.test(tasksContent)) {
+    ERROR(`tasks.md has no '## Tasks' section — adversarial-review Step 8 writes the round's ` +
+          `task lines under it, and every reader of the round looks for it there`);
+  }
+}
+
+if (isRound) validateRoundStructure();
+
+// Current phase must name a phase that exists. Inert on a round twice over — no `## Phase N`
+// headings and no `current_phase` key — so it needs no guard, and must keep both conditions.
 const phaseHeadings = tasksContent.match(/^## Phase (\d+)/gm) || [];
 const phaseNumbers = phaseHeadings.map(h => parseInt(h.match(/(\d+)/)[1], 10));
 if (phaseNumbers.length && tasksFrontmatter.current_phase != null &&
@@ -293,6 +367,11 @@ for (const claim of findStatusDisclaimers(tasksContent)) {
 ```javascript
 // D6: questions, assumptions and pending decisions are markdown records with local IDs.
 // There are no issue IDs to resolve, so the checks are about shape and staleness.
+//
+// Every rule here parses researchContent or designContent, so the whole section is
+// phased-only. On a round both are undefined: unguarded, this throws and takes the rest of
+// the validation with it — the same failure the journal check had before it was made optional.
+if (!isRound) {
 
 const openQuestions = parseTable(researchContent, '## Open Questions');
 for (const row of openQuestions) {
@@ -314,6 +393,8 @@ for (const row of pending) {
     WARNING(`${row.id} says it blocks execution start, but tasks.md is already in-progress`);
   }
 }
+
+}  // end: phased-project-only (§6)
 ```
 
 ## Content Validation

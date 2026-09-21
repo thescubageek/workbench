@@ -51,6 +51,26 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-21 06:57 — R6-T8 (closed)
+
+- **Task/phase**: R6-T8 — `validate_project` errors on every structural check of a round
+  directory. Last task of round 6.
+- **Landed**: an `isRound` predicate at `validation-rules.md:17-19` (a `reviews:` frontmatter key
+  or a `reviews/<date>-round-N/` path), with three `if (!isRound)` guards fencing the phased-only
+  regions and a `validateRoundStructure()` at `:262-283` giving the round its **own** contract —
+  eight frontmatter keys, `reviews:` resolves (ERROR), `round:` agrees with the directory
+  (WARNING), `## Tasks` present (ERROR). Checklist §9 and the report template follow.
+- **Commits**: the commit carrying this entry (`R6-T8: ...`)
+- **Learned**: the worker found **six more** unexempted assumptions than the finding named, one of
+  which would have *thrown* and taken the rest of validation with it. The verifier traced the
+  brace depth line by line rather than trusting reported line numbers, and confirmed every §3
+  task-tracking check sits at depth 0 outside all guards — so a round still gets checkbox shape,
+  ID shape, counter drift and status-vs-boxes. It also ran the predicate against the live round
+  directory and its parent plan: true and false respectively, so real projects keep their
+  validation. Set-difference of severity calls HEAD vs tree: zero removed, zero changed.
+  **The worker's cited line numbers were pre-edit coordinates against post-edit locations** —
+  corrected here and in the commit from the verifier's independent trace.
+
 ## 2026-09-21 06:46 — R6-T7 (closed)
 
 - **Task/phase**: R6-T7 — `implement_inline` was never widened, so the documented alternative

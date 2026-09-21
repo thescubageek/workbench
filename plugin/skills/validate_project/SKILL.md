@@ -63,9 +63,24 @@ the counts win.
 **⛔ BARRIER 1: Read ALL files FULLY - no shortcuts**
 
 Take the project directory from the arguments, prompting for it if it is missing. Then read
-every document it holds — **fully**, no `limit` or `offset`: `research.md`, `design.md` and
-`tasks.md` are required; `journal.md` and any `handoff*.md` are optional and validated only when
-present.
+every document it holds — **fully**, no `limit` or `offset`. On a **phased project**,
+`research.md`, `design.md` and `tasks.md` are required; `journal.md` and any `handoff*.md` are
+optional and validated only when present.
+
+**A remediation plan has only `tasks.md`, and that is correct.** `adversarial-review` Step 8
+writes `docs/plans/<plan>/reviews/<date>-round-N/tasks.md`; a review is not a project, so it has
+no research or design stage. Recognise one by a `reviews:` key in its frontmatter or a
+`reviews/<date>-round-N/` path, and take `tasks.md` alone as the whole plan. Do not report the
+missing `research.md`, `design.md` or `depends_on` chain — `/wb:implement` and
+`/wb:update_status` both run this shape, so a validator that calls it broken is wrong about the
+workflow rather than right about the plan, and its real findings get buried under three errors
+nobody can act on.
+
+**Switch contract; do not switch off.** A round has its own structure and can get that structure
+wrong, so validate it against §9 of the checklist — the frontmatter keys Step 8 writes, a
+`reviews:` that resolves, a `## Tasks` section — plus every §3 task-tracking check, which applies
+to a round unchanged. Skipping validation on a round would trade a false positive for a blind
+spot on the file that *is* the whole plan.
 
 1. **Check directory exists**:
 
@@ -74,8 +89,8 @@ present.
    ```
 
 2. **Read all required files**:
-   - Read research.md FULLY
-   - Read design.md FULLY
+   - Read research.md FULLY (a remediation plan has none — skip it)
+   - Read design.md FULLY (a remediation plan has none — skip it)
    - Read tasks.md FULLY
    - Read journal.md and handoff.md if they exist
 

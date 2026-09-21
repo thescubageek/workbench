@@ -2,10 +2,22 @@
 
 The skill validates the following aspects.
 
+**Two shapes, two contracts.** A **phased project** has `research.md`, `design.md` and
+`tasks.md`. A **remediation plan** — `docs/plans/<plan>/reviews/<date>-round-N/tasks.md`, written
+by `adversarial-review` Step 8 — has only `tasks.md`, and that is correct: a review is not a
+project, so it has no research or design stage. Recognise one by a `reviews:` key in its
+frontmatter or a `reviews/<date>-round-N/` path, and take `tasks.md` alone as the whole plan.
+
+On a round, the sections marked below as phased-only do not apply — there is no second file for
+them to be about, and reporting each absence as a critical error buries the findings that are
+real. Sections **1 (the tasks.md rows and the journal rows)** and **3** apply unchanged, and
+**§9** is the round's own contract. Nothing here changes what a phased project is checked
+against.
+
 ## 1. File Structure
 
-- ✅ research.md exists
-- ✅ design.md exists
+- ✅ research.md exists — *phased project only*
+- ✅ design.md exists — *phased project only*
 - ✅ tasks.md exists
 - ⚠️ Optional: journal.md exists (created with the plan; absent on plans predating it)
 - ❌ A `journal.md` entry heading that does not end in a literal `(open)` or `(closed)`. That
@@ -27,6 +39,8 @@ The skill validates the following aspects.
 - ⚠️ Optional: mockup-log.md in mockups/ (if mockup workflow used)
 
 ## 2. Frontmatter Completeness
+
+*Phased project only — a round's frontmatter is checked by §9, which lists different keys.*
 
 For each file (research.md, design.md, tasks.md):
 
@@ -54,6 +68,9 @@ checks are about whether the file can actually carry that role.
 
 ## 4. Status Consistency
 
+*The research and design rows and the progression rules are phased-only. A round has one status,
+in tasks.md, and the last two rows are what apply to it.*
+
 - ✅ research.md status is valid: `draft`, `in-progress`, or `complete`
 - ✅ design.md status is valid: `draft` or `approved` — those are the only two. `approved` is
   what `/wb:create_tasks` and `forge` gate on; a design left at `draft` stops the pipeline
@@ -75,12 +92,14 @@ invisible to them), the `(completed …)` stamp, the checkpoint-label block, and
 ## 5. Content Completeness
 
 - ✅ No placeholder text like `[To be added]`, `[TBD]`, `[TODO]`
-- ✅ research.md has findings sections populated
-- ✅ design.md has design decisions documented
-- ✅ tasks.md has phases with tasks defined
+- ✅ research.md has findings sections populated — *phased project only*
+- ✅ design.md has design decisions documented — *phased project only*
+- ✅ tasks.md has phases with tasks defined — on a round, one `## Tasks` section instead
 - ✅ Success criteria are specific, not generic
 
 ## 6. Planning Records
+
+*Phased project only — every row here is about research.md or design.md.*
 
 Questions, assumptions and pending decisions live as markdown records in the document that
 raises them, each with a short local ID and an explicit state.
@@ -94,13 +113,41 @@ raises them, each with a short local ID and an explicit state.
 
 ## 7. Dependencies
 
+*Phased project only.* A remediation plan has no upstream document in its own directory, so it
+carries no `depends_on` — its upstream is the parent plan, named by `reviews:` and checked in §9.
+Requiring the chain of a round reports three critical errors against the shape `/wb:implement`
+treats as valid.
+
 - ✅ design.md references research.md in `depends_on`
 - ✅ tasks.md references both research.md and design.md in `depends_on`
 - ✅ Dependency chain is complete: research → design → tasks
 
 ## 8. Cross-File Consistency
 
+*Phased project only — a round has one file, so there is nothing to compare across.*
+
 - ✅ Project names match across all files
 - ✅ Ticket IDs match (if present)
 - ✅ Git metadata is consistent
 - ✅ Current phase in tasks.md makes sense given progress
+
+## 9. Remediation Plan (Review Round)
+
+Checked **instead of** §2, §6, §7 and §8 on a directory recognised as a round. A round is a small
+document and this contract is deliberately short — but it is a contract. A branch that validated
+nothing would trade a false positive for a blind spot on the only file the round has.
+
+- ✅ Frontmatter carries the keys `adversarial-review` Step 8 writes: `project`, `reviews`,
+  `round`, `created`, `status`, `task_tracking`, `total_tasks`, `completed_tasks`
+- ❌ `reviews` names a directory that does not exist — it is the round's only link back to the
+  plan under review, and a round whose parent cannot be resolved is unreadable to every reader
+  downstream of it
+- ⚠️ `round` disagrees with the `-round-N` in the directory name — the two are cited
+  interchangeably in commits and journals
+- ✅ A `## Tasks` section exists and holds the task lines. A round has one implicit phase and no
+  `## Phase N` heading, so `current_phase` is absent **by design** — do not report it missing
+- ✅ Absent by design, and never reported: `research.md`, `design.md`, `depends_on`,
+  `last_updated`, `git_commit`, `git_branch`
+- ✅ Every §3 task-tracking check, unchanged — checkbox task lines, unique IDs carrying a digit,
+  counters against the counts, declared status not contradicting the boxes. This is where a
+  round's real defects live, and it is why the round is validated at all

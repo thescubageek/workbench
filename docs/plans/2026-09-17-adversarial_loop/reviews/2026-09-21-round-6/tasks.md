@@ -138,7 +138,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       `implement_inline/SKILL.md:123` absent, and the remediation carve-out present at a named
       `file:line`, mirroring `implement/SKILL.md:118-128`. (~2 calls) (completed 2026-09-21 06:51)
 
-- [ ] **R6-T8** — `plugin/skills/validate_project/SKILL.md:66` — `validate_project` errors on
+- [x] **R6-T8** — `plugin/skills/validate_project/SKILL.md:66` — `validate_project` errors on
       every structural check of a round directory.
       **Fails when:** `/wb:validate_project docs/plans/<plan>/reviews/<date>-round-N/` runs.
       `SKILL.md:66-68` states "research.md, design.md and tasks.md are required";
@@ -148,7 +148,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       of those checks reports a critical error against a shape `implement` now treats as valid.
       **Acceptance (shape 3)**: dual grep — the unconditional requirement absent from
       `validate_project/SKILL.md:66` and `validation-checklist.md:7-8,95-96`, and a round-shape
-      branch present at a named `file:line`. (~3 calls)
+      branch present at a named `file:line`. (~3 calls) (completed 2026-09-21 07:03)
 
 ## Implementation notes
 
