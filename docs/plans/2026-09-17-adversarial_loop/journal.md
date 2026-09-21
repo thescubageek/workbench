@@ -51,18 +51,22 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
-## 2026-09-21 05:30 — PD5-1 and the 3.0.0 cut: resumed, awaiting the user's decision (open)
+## 2026-09-21 05:32 — PD5-1 and PD5-2 decided: disclose only, work the full backlog (closed)
 
-- **Task/phase**: Phase 5 close-out. Resumed from `handoff-2026-09-21-04-43.md`; handoff and
-  tree agree at 84/85 with P5-T5 the only unchecked task. The handoff's evidence re-verified:
-  `reviews:` appears once in `implement/SKILL.md` and nowhere in `implement_inline`,
-  `validate_project` or `update_status`; `git revert --no-commit 7314714` applies cleanly
-  (three files, no conflicts) and was aborted; the R7-T1 line is `SKILL.md:224`.
-- **Next action**: the user decides PD5-1 and the cut — accept the recommended cut (revert
-  R5-T7, fix R7-T1, make Step 8 advisory, record the rest as limitations), amend it, or work
-  the 22-finding backlog. Then P5-T5, which deletes the three personal skills and needs the
-  user's explicit confirmation.
-- **Started at**: 4339a8c
+- **Task/phase**: Phase 5 close-out. Resumed from `handoff-2026-09-21-04-43.md` (handoff and
+  tree agreed at 84/85), then `/wb:resolve_questions` over the three open records.
+- **Landed**: **PD5-1 → disclose only** — Step 3 states the range-to-fleet ratio and the report
+  carries a shortfall line. **PD5-2 → work the full backlog** — all 20 round 6 and 7 tasks under
+  `implement`; the handoff's recommended cut (revert R5-T7) is not taken, and R5-T7 is completed
+  across `update_status`, `implement_inline` and `validate_project` instead. Q8-5 left partly
+  resolved at the user's choice. Both decisions in `design.md` → Resolved Decisions; PD5-1's row
+  reconciled and a PD5-2 row added in `tasks.md`.
+- **Commits**: e9812a5 (resume entry); the decision edits are uncommitted at close — stage with
+  `git add -f`.
+- **Learned**: the user's stated priority is fewest defects and limitations, not the smallest
+  cut. Round 8 is the accepted risk, gated by the breaker and explicit approval as before.
+- **Blocked by**: nothing. **Next**: `/wb:implement docs/plans/2026-09-17-adversarial_loop/reviews/2026-09-21-round-6/`
+  then round 7; a PD5-1 disclosure task still needs adding to the plan; P5-T5 last.
 
 ## 2026-09-21 04:43 — handoff written: the cut, not the backlog (closed)
 

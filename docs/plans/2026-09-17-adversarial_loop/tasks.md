@@ -3,7 +3,7 @@ project: adversarial_loop
 ticket: null
 created: 2026-09-17
 status: in-progress
-last_updated: 2026-09-19
+last_updated: 2026-09-20
 assignee: scraig
 current_phase: 5
 total_tasks: 85
@@ -670,7 +670,8 @@ personal copies the port was made from.
 
 | ID | Decision | Why it blocks | State |
 | -- | -------- | ------------- | ----- |
-| **PD5-1** | `adversarial-review` has no gate on **diff size versus fleet size**, and no disclosure when the fleet cannot cover the range it just sized. Ship `3.0.0` as-is, or add one first? | Raised by P5-T4 run 1, which is the task that exists to ask exactly this. On `origin/main...HEAD` — 81 files, +11,655 — the skill sized the work to tier MAX and five lenses and would have spawned them over ~5,000 lines of runtime surface. Each lens would have been **sampling, not reviewing**, and the report would have been indistinguishable from a real pass. The stop came from the session prompt, not from the skill. | **Open — the user's call.** The three candidate shapes, cheapest first: (1) **disclose only** — Step 3 states the ratio and the report carries a shortfall line, in the same voice the built-in uses to disclose a single-pass run; (2) **disclose and stop above a threshold**, which needs a number and this plan's own evidence says numbers do not transplant; (3) **split the range** into subsystem passes, which is real design and not a release fix. Note the skill's existing disclosure machinery covers a missing built-in leg and dropped lenses — neither path fires here, so (1) is an extension of something that already exists rather than a new mechanism. |
+| **PD5-1** | `adversarial-review` has no gate on **diff size versus fleet size**, and no disclosure when the fleet cannot cover the range it just sized. Ship `3.0.0` as-is, or add one first? | Raised by P5-T4 run 1, which is the task that exists to ask exactly this. On `origin/main...HEAD` — 81 files, +11,655 — the skill sized the work to tier MAX and five lenses and would have spawned them over ~5,000 lines of runtime surface. Each lens would have been **sampling, not reviewing**, and the report would have been indistinguishable from a real pass. The stop came from the session prompt, not from the skill. | **Resolved 2026-09-20** → design.md (## Technical Decisions): shape (1), disclose only. |
+| **PD5-2** | What is the minimum cut that ships `3.0.0`, given rounds 6 and 7 raised 22 verified findings and two rounds showed fix-then-review not converging? Raised in `handoff-2026-09-21-04-43.md` with a recommended cut: revert R5-T7, fix R7-T1, make Step 8 advisory, record the rest as limitations. | P5-T5 and the release. R5-T7 widened `implement` alone; three of the five ship-blockers trace to it, and the capability it adds has never run to clean. | **Resolved 2026-09-20** → design.md (## Technical Decisions): work the full backlog — all 20 round 6 and 7 tasks under `implement`; R5-T7 stands and is completed across the sibling stages rather than reverted. |
 
 *The proportionality gate in `adversarial-review/reference.md` does **not** cover this: it governs
 fix-size against defect-size, not fleet-size against diff-size. Step 1 stops only on a range it

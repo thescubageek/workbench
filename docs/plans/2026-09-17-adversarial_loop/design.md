@@ -4,7 +4,7 @@ ticket: null
 created: 2026-09-17
 created_timestamp: 2026-09-17T17:51:46Z
 status: approved
-last_updated: 2026-09-19
+last_updated: 2026-09-20
 designer: scraig
 git_commit: 02e43d2513b9f6ed76006a8d5a30078b22dc1708
 git_branch: adversarial-loop-skill-research
@@ -631,6 +631,40 @@ There is no database here; the "data" is the record shapes this design commits t
     so the review's 18 tasks never touched the parent plan's counters or competed to be the
     active plan.
   - Source: round-4 remediation · Recorded 2026-09-18
+
+- **PD5-1 — the diff-size-versus-fleet-size gap is closed by disclosure, not by a threshold
+  or a split.**
+  - Step 3's reconnaissance summary states the ratio of the range it resolved to the fleet it
+    sized, and the report carries a shortfall line whenever the fleet cannot cover that range —
+    in the same voice the built-in uses to disclose a single-pass run without the Task tool.
+  - Rationale: the failure mode is a review that silently under-covers and is indistinguishable
+    from a full pass. Disclosure turns that defect into a limitation the reader can see. A
+    threshold needs a number, and this plan measured that its own numbers do not transplant
+    between repositories (Q8-4). Splitting the range into subsystem passes is real design and
+    would hold the release for a feature nobody has specified.
+  - Extends existing machinery: Step 3 already discloses a missing built-in leg and dropped
+    lenses; this is one more line in the same mechanism, not a new one.
+  - Trade-off: a large range still runs, disclosed rather than refused. Narrowing the target is
+    the user's act, not the skill's.
+  - Source: tasks.md PD5-1 · Decided 2026-09-20
+
+- **PD5-2 — 3.0.0 ships after the full round 6 and 7 backlog is worked, not after a minimum cut.**
+  - All 20 remediation tasks in `reviews/2026-09-21-round-6/` and `reviews/2026-09-21-round-7/`
+    run under `implement`, one task one commit, each acceptance criterion RED before its fix.
+    The handoff's recommended cut — revert R5-T7, fix R7-T1, make Step 8 advisory, record the
+    rest as limitations — is **not** taken.
+  - Rationale (the user's): ship 3.0.0 with as few defects and limitations as possible. Every
+    finding in both rounds was verified with a concrete failure scenario, and a documented
+    limitation is still a defect the installer meets.
+  - Consequence for R5-T7: it stands rather than reverting. R6-T1, R6-T5, R6-T7 and R6-T8
+    complete the widening across `update_status`, `implement`'s resume path, `implement_inline`
+    and `validate_project` — the "real change, not free" that Q8-1 named. The `implement`-at-a-
+    round-directory path becomes a first-class shape across the core stages.
+  - Risk accepted, named at the time of deciding: rounds 6 and 7 measured 9 of 9 and 6 of 13
+    findings in surface the previous fix created. A round 8 is likely and is gated by the
+    breaker and by the user's explicit approval, as every prior round was. The alternative the
+    user rejected is recorded in `handoff-2026-09-21-04-43.md` under "Recommended cut".
+  - Source: handoff-2026-09-21-04-43.md → tasks.md PD5-2 · Decided 2026-09-20
 
 ## Scope Definition
 
