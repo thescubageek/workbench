@@ -183,7 +183,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       returns nothing today. The by-path rule and the prohibition on `git add -A` / `.` must be
       stated alongside it, as they are in `implement`. (~4 calls) (completed 2026-09-21 15:48)
 
-- [ ] **R6-T11** — `plugin/skills/update_status/templates/` — R6-T1's carve-out tells the skill
+- [x] **R6-T11** — `plugin/skills/update_status/templates/` — R6-T1's carve-out tells the skill
       to omit research and design rows for a round, but all three templates hardcode them, so the
       instruction and the artifact disagree.
       **Fails when:** `update_status` runs on a round and reaches its output.
@@ -197,7 +197,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       plugin/skills/update_status/templates/` returns six unconditioned hits today (the RED);
       after the fix every surviving hit is on the phased branch, and a round branch is present at
       a named `file:line` in each of the three templates. The phased output must be unchanged.
-      (~3 calls)
+      (~3 calls) (completed 2026-09-21 15:54)
 
 ## Implementation notes
 

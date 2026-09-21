@@ -51,6 +51,28 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-21 08:52 — R6-T11 (closed)
+
+- **Task/phase**: R6-T11 — R6-T1's carve-out tells `update_status` to omit research and design
+  rows for a round, but all three templates hardcode them. Last task of round 6.
+- **Landed**: all three templates branched with a lead-in and a substitution table (the
+  R6-T4/R6-T9 shape, `[bracket]` placeholders) — `status-update-plan.md:5-14`,
+  `completion-summary.md:5-13`, `frontmatter-fragments.md:5-13`. Phase-number rows branched too,
+  and an implementation-notes paragraph relocated out of the now-phased-only `design.md` section.
+- **Commits**: the commit carrying this entry (`R6-T11: ...`)
+- **Learned**: the acceptance grep **is no longer a hit-count check** — the fix's own branching
+  prose quotes the literals, so the grep returns hits in both RED and GREEN. The worker mitigated
+  by putting the round instruction on the same physical line as every surviving hit, making the
+  output self-classifying, and the verifier found an independent check immune to the self-match:
+  grep the **emitted fenced blocks** only, which go 2 → 0 in both emitted templates. Record that
+  as the durable check. The verifier also used `/usr/bin/diff` throughout per the `knowledge.md`
+  entry written earlier today, and sanity-checked the tool on a known-different pair first.
+- **Blocked by**: nothing. **`update_status/SKILL.md:174` (Step 5) now directly contradicts
+  `frontmatter-fragments.md:12`** — it says unconditionally to apply the fragments "to
+  research.md, design.md and tasks.md", which on a round means writing frontmatter into two files
+  that do not exist. R6-T1 conditioned `:72` but never Step 5, and R6-T11 has made the
+  contradiction sharper than it was. Awaiting the user's call at the completion report.
+
 ## 2026-09-21 08:46 — R6-T10 (closed)
 
 - **Task/phase**: R6-T10 — `implement_inline` has no `git add` at all, so it inherits the
