@@ -150,6 +150,55 @@ criterion is run before the fix**. A criterion that passes before the change is 
       `validate_project/SKILL.md:66` and `validation-checklist.md:7-8,95-96`, and a round-shape
       branch present at a named `file:line`. (~3 calls) (completed 2026-09-21 07:03)
 
+- [ ] **R6-T9** — `plugin/skills/implement/SKILL.md:543` and
+      `templates/modified-files-fragment.md:6` — R6-T4 branched Step 8 and its two templates for
+      a phaseless round but left two further `Phase ${phase}` interpolations behind, so the round
+      that fixed the defect still emits it twice.
+      **Fails when:** `implement` finishes a round and reaches Step 9. `SKILL.md:543` writes
+      `- [YYYY-MM-DD] Phase ${phase} complete using coordinated workers:` into Implementation
+      Notes, and Step 7 emits `templates/modified-files-fragment.md:6`,
+      `### 📝 Modified Files (Phase ${phase})`. A remediation plan has no phase
+      (`SKILL.md:459`), so both render `Phase undefined`. Observed in this very round: the
+      coordinator substituted `Round 6` by hand in `a66205f` because the template said `Phase`.
+      `${phaseLabel}` already exists and is defined at `SKILL.md:459`; neither site uses it.
+      **Acceptance (shape 3)**: dual grep — `grep -n 'Phase \${phase' plugin/skills/implement/
+      SKILL.md plugin/skills/implement/templates/modified-files-fragment.md` returns both hits
+      today (the RED); after the fix it returns nothing, *and* `${phaseLabel}` is present at both
+      sites with its substitution rule reachable from each. (~3 calls)
+
+- [ ] **R6-T10** — `plugin/skills/implement_inline/SKILL.md` Step 3E — the sibling execution path
+      has no `git add -f`, and no `git add` at all, so it inherits the gitignore refusal
+      wholesale: an inline run drops `tasks.md` and `journal.md` from every commit, silently.
+      **Fails when:** `/wb:implement_inline` reaches its commit step on any plan under
+      `docs/plans/`, which `.gitignore:7` ignores. R6-T2 fixed exactly this on `implement`
+      (`SKILL.md:335-347`): plain `git add <plan-dir>/tasks.md` exits 1 with "The following paths
+      are ignored", the `&&` chain breaks, and the failure **hides**, because `git status
+      --short` does not list untracked ignored files. Confirmed by the reviewer:
+      `grep -rn 'git add' plugin/skills/implement_inline/` returns nothing, so the path has no
+      staging instruction to correct — it has none at all. Status edits are therefore never
+      committed and the plan's record is lost.
+      **Acceptance (shape 1 + shape 3)**: execute `git add --dry-run <a round tasks.md>` and
+      assert exit 1 (the RED), then `git add --dry-run -f` and assert exit 0; *and* grep must
+      find `git add -f` in `plugin/skills/implement_inline/` at a named `file:line`, which
+      returns nothing today. The by-path rule and the prohibition on `git add -A` / `.` must be
+      stated alongside it, as they are in `implement`. (~4 calls)
+
+- [ ] **R6-T11** — `plugin/skills/update_status/templates/` — R6-T1's carve-out tells the skill
+      to omit research and design rows for a round, but all three templates hardcode them, so the
+      instruction and the artifact disagree.
+      **Fails when:** `update_status` runs on a round and reaches its output.
+      `templates/status-update-plan.md:8,13`, `templates/completion-summary.md:11,12` and
+      `templates/frontmatter-fragments.md:5,14` each carry a **research.md** and a **design.md**
+      section with no branch. R6-T1 conditioned the skill's prose at `SKILL.md:72` but left the
+      templates unconditioned, and the round-6 verifier recorded the gap as real and unowned. A
+      round therefore gets a status report listing two files that do not exist, or the "n/a" rows
+      `SKILL.md:72`'s carve-out explicitly says not to write.
+      **Acceptance (shape 3)**: dual grep — `grep -rn 'research\.md\|design\.md'
+      plugin/skills/update_status/templates/` returns six unconditioned hits today (the RED);
+      after the fix every surviving hit is on the phased branch, and a round branch is present at
+      a named `file:line` in each of the three templates. The phased output must be unchanged.
+      (~3 calls)
+
 ## Implementation notes
 
 - **R6-T1 and R6-T4 are the two that fire on every single round**; R6-T2 fires on every round

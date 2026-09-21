@@ -51,6 +51,15 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-21 15:40 — R6-T9 (open)
+
+- **Task/phase**: Round 6 reopened at the user's direction with three tasks folded in from the
+  checkpoint's held list. R6-T9 — R6-T4 left two `Phase ${phase}` interpolations behind, at
+  `implement/SKILL.md:543` and `templates/modified-files-fragment.md:6`.
+- **Next action**: spawn `task-worker` (sonnet — `${phaseLabel}` already exists and is defined;
+  this is a substitution, not a design) on R6-T9.
+- **Started at**: a66205f
+
 ## 2026-09-21 06:57 — R6-T8 (closed)
 
 - **Task/phase**: R6-T8 — `validate_project` errors on every structural check of a round
