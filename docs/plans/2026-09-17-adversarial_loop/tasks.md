@@ -735,11 +735,28 @@ ships exactly what the release exists to prevent.
       recorded in `.claude/wb/knowledge.md`. Incidental: with the boundary on, the permission
       classifier also refuses Step 1's block, flagging the `${target:-}` expansion as
       unanalyzable.*
+      *Run 4 — 2026-09-20, the `adversarial-loop`-without-`gh` half. **Blocked at launch; the
+      skill under test never loaded.** `wb:adversarial-loop` came back `Unknown skill` and the
+      bare name fell through to the personal copy. The session diagnosed `--plugin-dir` as
+      ineffective and the `wb:` namespace as served by the stale installed 2.1.0. **That
+      diagnosis is wrong, and the correction is the useful part**: measured afterwards, with the
+      flag, from `/tmp`, headless, `wb:adversarial-loop` loads from this checkout, and adding
+      `--add-dir` alongside changes nothing; **without** the flag the error is verbatim what run
+      4 saw. The flag was absent from that launch — a launch failure, not a plugin defect, and
+      nothing in 3.0.0 is implicated. The one-line check that settles it is
+      `claude --plugin-dir <p> plugin details wb` printing the version and `Source: wb@inline`;
+      the brief for run 5 opens with it. Fixture untouched and still valid at `c6ff468`.*
 - [ ] **P5-T5** — Only after P5-T4 passes: delete `~/.claude/skills/adversarial-review`,
       `~/.claude/skills/adversarial-loop` and `~/.claude/skills/reply-to-claude`. These are the
       port's source material and are not reproduced in full in this repository, so this task is
       last and is contingent on the smoke session. Confirm with the user before running the
       deletion. (~9 calls) · Depends on: P5-T4
+      *Evidence sharpened 2026-09-20: with the 3.0.0 plugin loaded and enumerating,
+      `Skill('adversarial-loop')` still resolves to `~/.claude/skills/adversarial-loop/SKILL.md`
+      — the 236-line personal copy — while `Skill('wb:adversarial-loop')` gets the 379-line
+      shipped one. The prefix decides, deterministically. Design A3 framed this as
+      non-deterministic enumeration; it is not. A user who types the skill's own name gets the
+      wrong artifact, which is exactly what this task removes.*
 
 - [x] **P5-T6** — Ship `plugin/scripts/count` with a contract test, and repoint the counting
       idioms that remain in shipped skills at it. The wrapper returns a count on success and a

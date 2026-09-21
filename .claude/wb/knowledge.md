@@ -36,10 +36,22 @@ we have the in-repo cautionary example for that.
 - **Why it matters**: after the 2.0.0 relocation the manifest lives in `plugin/`. A session
   started with `--plugin-dir .` does not error — it silently falls back to the **installed**
   marketplace copy, so working-tree changes are invisible and you debug the wrong files.
-- **Verified**: 2026-09-08 · `docs/plans/2026-09-08-upstream-fable-merge/`
+- **Also (2026-09-20) — the flag works from any cwd, and the way it fails when omitted looks
+  like a plugin defect.** A probe launched from `/tmp` reported `wb:adversarial-loop` as
+  `Unknown skill` and concluded `--plugin-dir` "contributed nothing" and that the `wb:`
+  namespace was being served by the stale installed 2.1.0. Measured: with the flag, from `/tmp`,
+  headless, the skill loads from the checkout — and adding `--add-dir` alongside changes
+  nothing. **Without** the flag the error is verbatim
+  `Unknown skill: wb:adversarial-loop (the listed skill is 'adversarial-loop', without the 'wb:'
+  prefix)`, and the session sees the installed copy's skill list. So that error means the flag
+  was **absent**, not ineffective. Check the flag took effect before drawing any conclusion from
+  a session's behaviour.
+- **Verified**: 2026-09-08, extended 2026-09-20 · `docs/plans/2026-09-08-upstream-fable-merge/`,
+  `docs/plans/2026-09-17-adversarial_loop/`
 - **Check it**: `claude --plugin-dir . plugin details wb` reports `Source: wb@<marketplace>` and
   the installed version; `--plugin-dir plugin` reports `Source: wb@inline` and the working-tree
-  version.
+  version. That one line is the whole test — version and `Source:` together — and it is worth
+  running as the first act of any session that is about to measure plugin behaviour.
 
 ## `claude plugin details` can measure the working tree, via the global flag
 
@@ -188,9 +200,19 @@ we have the in-repo cautionary example for that.
   the deprecated-alias stubs never announce. Resolution between `wb:X` and `wb-X` is not
   deterministic: one alias reached the plugin stub and two reached the stale copies in the same
   session.
-- **Verified**: 2026-09-09 · `docs/plans/2026-09-08-upstream-fable-merge/` (13 stale directories
-  found on this machine, ~400 beads references; removed)
-- **Check it**: `ls -d ~/.claude/skills/wb-* 2>/dev/null` → no output.
+- **Also (2026-09-20) — a same-named personal skill wins the BARE name deterministically, even
+  with the plugin loaded.** With `--plugin-dir` in effect and the 3.0.0 plugin enumerating,
+  `Skill('adversarial-loop')` resolved to `~/.claude/skills/adversarial-loop/SKILL.md` — the
+  236-line personal copy — while `Skill('wb:adversarial-loop')` resolved to the 379-line shipped
+  one. Not ambiguous, not a race: the prefix decides. This is the concrete form of design A3, and
+  the reason P5-T5 deletes the three personal copies: a user who types the skill's own name gets
+  the wrong artifact.
+- **Verified**: 2026-09-09, extended 2026-09-20 · `docs/plans/2026-09-08-upstream-fable-merge/`
+  (13 stale directories found on this machine, ~400 beads references; removed),
+  `docs/plans/2026-09-17-adversarial_loop/`
+- **Check it**: `ls -d ~/.claude/skills/wb-* 2>/dev/null` → no output. For the same-name case:
+  `ls -d ~/.claude/skills/adversarial-* ~/.claude/skills/reply-to-claude 2>/dev/null` → no output
+  once P5-T5 has run.
 
 ## The Task tool's `model` is an enum — full model IDs cannot be pinned per spawn
 

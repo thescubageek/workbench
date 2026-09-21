@@ -51,6 +51,35 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-21 02:31 — P5-T4 run 4: blocked at launch, and the diagnosis was wrong (closed)
+
+- **Task/phase**: the `adversarial-loop`-without-`gh` half of P5-T4. Never ran.
+- **Landed**: nothing in `plugin/`. Two `knowledge.md` entries extended, the plan updated,
+  P5-T5's rationale sharpened with a measurement. Fixture intact at `c6ff468`.
+- **Learned**:
+  - **The session reported that `--plugin-dir` "contributed nothing" and that `wb:` was being
+    served by the stale installed 2.1.0. It was not.** With the flag, from `/tmp`, headless,
+    `wb:adversarial-loop` loads from this checkout; `--add-dir` alongside changes nothing.
+    Without the flag, the error is verbatim what the session saw, down to the parenthetical
+    naming the bare alternative. **The flag was absent from that launch.** A launch failure that
+    presents as a plugin defect, and the report was confident and specific about the wrong cause.
+  - **What makes it checkable in one line**: `claude --plugin-dir <p> plugin details wb` printing
+    the version and `Source: wb@inline`. Run 4 never ran it, and neither did my handoff ask for
+    it — that omission is mine, and the next brief opens with it.
+  - **Taking the agent at face value would have cost a day.** "The stale 2.1.0 serves the `wb:`
+    namespace" implies a release blocker in the install story. It is not true, and five minutes
+    of measurement said so.
+  - **One real finding did come out of it, and it sharpens P5-T5.** With the 3.0.0 plugin loaded
+    and enumerating, the *bare* name still resolves to the personal copy — 236 lines against the
+    shipped 379. The prefix decides, deterministically. Design A3 called this non-deterministic;
+    it is not, and a user typing the skill's own name gets the wrong artifact.
+  - **The session stopped rather than improvising**, offered three paths, and refused to modify
+    `~/.claude/skills` without an explicit go-ahead. That is the behaviour the preconditions are
+    for, and it is why the fixture is still clean.
+- **Commits**: this one.
+- **Blocked by**: P5-T4's last half still needs a correctly launched session. **PD5-1** remains
+  the user's decision.
+
 ## 2026-09-21 00:03 — round 5 closed, and the mutation backlog that reopened inside it (closed)
 
 - **Task/phase**: round 5 executed elsewhere (10/10, one commit each); results verified here and
