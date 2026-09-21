@@ -51,6 +51,28 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-21 04:43 — handoff written: the cut, not the backlog (closed)
+
+- **Task/phase**: handoff into a fresh session to decide what ships as `3.0.0`.
+- **Landed**: [handoff-2026-09-21-04-43.md](handoff-2026-09-21-04-43.md), framed as a scoping
+  decision with a recommended cut — revert R5-T7, fix R7-T1, make Step 8 advisory — rather than
+  as the 22-finding backlog rounds 6 and 7 produced.
+- **Learned**:
+  - **The framing is the whole point of this handoff.** Handing a fresh session 22 verified
+    findings produces round 8; two rounds have now shown the fix-then-review loop is not
+    converging on this surface. The handoff opens by saying so and asks for a decision.
+  - **Three of the five ship-blockers trace to one commit.** R5-T7 widened `implement` alone —
+    measured, `grep -c 'reviews:'` is 1 in `implement/SKILL.md` and **0** in both
+    `implement_inline` and `validate_project`, while `update_status` Step 1 hard-requires the two
+    files a round directory lacks. Reverting it is cheaper than completing it across four core
+    stages, and the capability it adds has never worked: run 6 reached clean on the loop's
+    *inline* branch with no plan directory at all.
+  - **`design.md` Q8-1 predicted this and we shipped the cheap half** — *"`validate_project` must
+    also tolerate a `tasks.md` with no `research.md`/`design.md` beside it; that is a real change,
+    not free."* Recorded at the time as a live follow-up, then walked past on the way to a release.
+- **Blocked by**: **PD5-1** and the cut are the user's calls. **P5-T5** waits behind them, because
+  the three personal skills are the port's source material.
+
 ## 2026-09-21 03:51 — P5-T4 run 6: all eight items PASS, and the task is done (closed)
 
 - **Task/phase**: P5-T4, closed. 84 of 85; only P5-T5 remains, and it needs the user.
