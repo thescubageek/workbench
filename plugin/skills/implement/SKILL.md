@@ -457,8 +457,9 @@ Read [templates/modified-files-fragment.md](templates/modified-files-fragment.md
 **⛔ CHECKPOINT: ${phaseLabel} Complete**
 
 `${phaseLabel}` is `Phase <n>` on a phased plan and `Round <N>`, from the round's directory name,
-on a remediation plan — which carries no numbered phase (Step 2). Substitute it here and in both
-Step 8 templates. A checkpoint headed `Phase undefined` reads as a run that lost its place.
+on a remediation plan — which carries no numbered phase (Step 2). Substitute it here, in both
+Step 8 templates, in Step 7's `modified-files-fragment.md`, and in Step 9's Implementation Notes.
+A checkpoint headed `Phase undefined` reads as a run that lost its place.
 
 1. **Verify every ${phaseLabel} checkbox is `[x]`, apart from the two lists that account for a
    `[ ]`.** That is the phase-completion condition — there is nothing else to close. A task on
@@ -540,7 +541,7 @@ After phase completion:
 
    ```markdown
    ## Implementation Notes
-   - [YYYY-MM-DD] Phase ${phase} complete using coordinated workers:
+   - [YYYY-MM-DD] ${phaseLabel} complete using coordinated workers:
      - ${workerCount} workers spawned (sequential execution)
      - ${escalationCount} escalations, ${truncationCount} truncations recovered
      - Main context kept clean, no compaction needed

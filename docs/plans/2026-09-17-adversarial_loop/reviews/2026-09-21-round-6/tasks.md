@@ -150,7 +150,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       `validate_project/SKILL.md:66` and `validation-checklist.md:7-8,95-96`, and a round-shape
       branch present at a named `file:line`. (~3 calls) (completed 2026-09-21 07:03)
 
-- [ ] **R6-T9** — `plugin/skills/implement/SKILL.md:543` and
+- [x] **R6-T9** — `plugin/skills/implement/SKILL.md:543` and
       `templates/modified-files-fragment.md:6` — R6-T4 branched Step 8 and its two templates for
       a phaseless round but left two further `Phase ${phase}` interpolations behind, so the round
       that fixed the defect still emits it twice.
@@ -164,7 +164,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       **Acceptance (shape 3)**: dual grep — `grep -n 'Phase \${phase' plugin/skills/implement/
       SKILL.md plugin/skills/implement/templates/modified-files-fragment.md` returns both hits
       today (the RED); after the fix it returns nothing, *and* `${phaseLabel}` is present at both
-      sites with its substitution rule reachable from each. (~3 calls)
+      sites with its substitution rule reachable from each. (~3 calls) (completed 2026-09-21 15:43)
 
 - [ ] **R6-T10** — `plugin/skills/implement_inline/SKILL.md` Step 3E — the sibling execution path
       has no `git add -f`, and no `git add` at all, so it inherits the gitignore refusal

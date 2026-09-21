@@ -51,14 +51,21 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
-## 2026-09-21 15:40 — R6-T9 (open)
+## 2026-09-21 08:41 — R6-T9 (closed)
 
 - **Task/phase**: Round 6 reopened at the user's direction with three tasks folded in from the
   checkpoint's held list. R6-T9 — R6-T4 left two `Phase ${phase}` interpolations behind, at
   `implement/SKILL.md:543` and `templates/modified-files-fragment.md:6`.
-- **Next action**: spawn `task-worker` (sonnet — `${phaseLabel}` already exists and is defined;
-  this is a substitution, not a design) on R6-T9.
-- **Started at**: a66205f
+- **Landed**: both swapped to `${phaseLabel}`; the definition at `SKILL.md:459` now names all four
+  consumers; `modified-files-fragment.md` gained its own substitution table so a reader who opens
+  only that file (which is what Step 7 directs) can substitute for both plan kinds.
+- **Commits**: the commit carrying this entry (`R6-T9: ...`)
+- **Learned**: the worker's first draft copied the sibling tables verbatim, which would have put
+  the literal `Phase ${phase}` into its **own new prose** — the acceptance grep would then have
+  passed while matching the fix rather than the defect. It caught that itself and reworded to
+  `Phase <n>`. The verifier checked specifically that this was not a contortion to dodge the grep
+  and ruled it clearer here, since the file no longer has a `${phase}` variable to refer to.
+  A criterion that can be satisfied by the fix's own text is a criterion worth re-reading.
 
 ## 2026-09-21 06:57 — R6-T8 (closed)
 
