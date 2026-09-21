@@ -503,7 +503,10 @@ rewritten, because the pair is a better worked example than either alone.*
 
 #### Manual Verification
 
-- [ ] The loop runs its local core to clean in a repository with `gh` unavailable, and says so
+- [x] The loop runs its local core to clean in a repository with `gh` unavailable, and says so —
+      P5-T4 run 6. Reached clean in two rounds and named the terminal branch: *"No pull request
+      exists — `gh` cannot resolve this repository to a GitHub host. Per Phase 1's terminal
+      branch, the loop ends at clean. Phases 2-5 did not engage."*
 - [ ] With a PR present but `claude[bot]` absent, the loop stops with a clear message rather than
       quietly skipping the bot round
 - [ ] `reply-to-claude` composes a correct reply in a repository that is not `reef`
@@ -692,7 +695,7 @@ ships exactly what the release exists to prevent.
       `claude plugin tag --dry-run plugin/`, the manifest-version agreement check, the repo-wide
       vocabulary grep, and the reference-link resolver across every skill. Record the output.
       (~17 calls)
-- [ ] **P5-T4** — Behavioural smoke session, from a **recorded cwd** that is not inside the plugin
+- [x] **P5-T4** — Behavioural smoke session, from a **recorded cwd** that is not inside the plugin
       directory: `claude --plugin-dir plugin` and confirm `wb:adversarial-review` loads, its
       supporting files read, a review runs against a real diff, the reconnaissance summary names
       the tier and the axis that set it, and `wb:adversarial-loop` reaches clean without `gh`.
@@ -765,6 +768,24 @@ ships exactly what the release exists to prevent.
       path-intersection cannot distinguish "in the fix surface" from "caused by the fix" when
       there is one path. **To tick this: a rerun on a fixture of more than one file, with the
       corrected `/verify` step.***
+      *Run 6 — 2026-09-20, **all eight items PASS**, and **P5-T4 is satisfied**. Transcript and
+      ledger promoted:
+      [thoughts/2026-09-20-smoke-session-run6.md](thoughts/2026-09-20-smoke-session-run6.md),
+      [thoughts/2026-09-20-smoke-session-run6-review-log.md](thoughts/2026-09-20-smoke-session-run6-review-log.md).
+      The local core reached clean — round 1: 4 legs, 14 candidates → 5 deduped → 5 verified
+      (3 CONFIRMED, 2 PLAUSIBLE) → 4 Valid, fixed; round 2 scoped: **zero findings**. The
+      corrected `/verify` step asked rather than invoking, the user ran it, and it returned PASS
+      — surfacing four things no static lens produced, one of them a real catch
+      (`require_admin` authorizes on any truthy value). The cross-file tracer triggered on real
+      callers this time. Nothing outward-facing: the bare origin had no `logs/` directory at all,
+      which is stronger than "unchanged".*
+      *The clauses, and which run earned each: cwd recorded and outside the plugin — runs 5 and
+      6; `adversarial-review` loads — run 2; supporting files read, with the hard-stop rule
+      exercised in the one configuration where the gate can fire — run 3; a review against a real
+      diff, and a recon summary naming tier **and** deciding axis — runs 2, 5 and 6;
+      `adversarial-loop` reaches clean without `gh` — run 6. Six runs, four of them blocked
+      before they measured anything: twice on auto mode, once on a launch that dropped
+      `--plugin-dir`, once on a one-file fixture that made the loop's own gate unsatisfiable.*
 - [ ] **P5-T5** — Only after P5-T4 passes: delete `~/.claude/skills/adversarial-review`,
       `~/.claude/skills/adversarial-loop` and `~/.claude/skills/reply-to-claude`. These are the
       port's source material and are not reproduced in full in this repository, so this task is
@@ -861,11 +882,16 @@ print('\n'.join(gaps))"
       the deciding axis — *met on run 2: tier `high`, axis Behaviour, named unprompted, followed
       by a full report of 12 verified findings. Run 1 produced the summary but no report, and was
       left unticked for exactly that reason.*
-- [ ] `wb:adversarial-loop` reached clean with no `gh` available and said so
+- [x] `wb:adversarial-loop` reached clean with no `gh` available and said so — run 6, two rounds
+      to clean, terminal branch quoted in the ledger
 - [ ] The user has confirmed the deletion of the three personal skills
-- [ ] **Evaluate the P1-T2 substitution** — *now partly answerable: run 1 establishes that the
-      skill loads from a file and that Steps 1–3 execute as written, which is the half the inline
-      probe could not reach. Steps 4–8 are still untested, so the assessment waits on a rerun.*
+- [x] **Evaluate the P1-T2 substitution** — *assessed 2026-09-20 and recorded at the foot of
+      [thoughts/2026-09-17-wrapper-shape-probe.md](thoughts/2026-09-17-wrapper-shape-probe.md).
+      Verdict: adequate for what it claimed, and the plan then mispriced what it deferred. The
+      inline probe settled the two-leg shape, which held across six runs; it could not establish
+      that the artifact executes, and that went to P5-T4 sized at "~18 calls". Steps 4–8 first
+      ran on 2026-09-20, after `3.0.0` was cut, and running them found four shipped defects
+      including `/verify` being un-invocable — the foundation of design decision Q5.*
       The probe ran inline rather than as a loadable skill
       file, and split across two targets. Did that actually establish what Phase 1 needed, or did
       shipping on a partially-evidenced shape cost something? Record the answer in the probe
@@ -1751,6 +1777,20 @@ resolved, leaving a dated line saying how.
   all three.
 
 ### Implementation Notes
+
+- **[2026-09-20] Two findings from run 6 that are recorded, not fixed.**
+  - **Three of four lens legs ran `python3 tests/test_profile.py`**, against the shared preamble's
+    explicit *"do not run the test suite"* — which `adversarial-review` Step 6 reserves for
+    `/verify`. It produced correct evidence here, and on a repository with a slow or destructive
+    suite it would not. The tension is real in both directions: the prohibition is inherited from
+    a Rails codebase where specs OOM'd, and a reviewer running one fast test to confirm a finding
+    is genuinely useful. **A decision, not a patch** — either the rule earns a carve-out for cheap
+    verification or the prompts need to make it stick. Left as it stands.
+  - **The circuit breaker has still never been exercised as evidence.** `review-ledger.md` records
+    that a one- or two-file change pins the introduced-rate by construction; run 6's fix surface
+    was two files, so it sits inside that caveat. Round 2 returned zero findings, below the
+    minimum-N floor, so the trend test was correctly *not evaluated* rather than passed. A **3+
+    file** fix surface is needed before the breaker has been tested at all.
 
 - **[2026-09-20] Round 5 closed, 10/10** — every task RED before GREEN, one commit each.
   `implement` now accepts a remediation plan (R5-T7 was a contract decision, and `design.md`

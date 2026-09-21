@@ -265,3 +265,45 @@ into. Where a finding turns on absence, the verify pass should say what was sear
 
 **B1 is a live defect in already-committed shipped code** (`plugin/skills/daily-digest/sources.md:77`).
 It is not P1-T3's task to fix. Recorded against **P4-T2**, which already edits that file.
+
+## Was the P1-T2 substitution adequate? — assessed 2026-09-20, as P5 required
+
+Phase 5's manual verification asks this deliberately, and now that P5-T4 has actually run there
+is evidence rather than an opinion. **The substitution answered the question it was scoped to,
+and the deferral it created was badly under-priced.**
+
+**What it got right.** P1-T2 could not write a loadable `SKILL.md` into the fixture, because a
+skill file is only loadable by a session started in that directory and this session could not
+start one. Running the logic inline instead tested the thing Phase 1 existed to test: does
+reconnaissance discriminate, and do two finding sets merge into one verified report. That verdict
+held. Nothing in six later runs contradicted it — the two-leg shape is real, the dedupe predicate
+works, and the verify pass has repeatedly earned its cost.
+
+**What it deferred, and what the deferral cost.** The probe could not establish that the artifact
+*executes*. That went to P5-T4, which `tasks.md` sized at "~18 calls" — a release formality. It
+was not one. It took **six attempts**, and the first execution of Steps 4–8 happened on
+2026-09-20, *after* `3.0.0` was already cut. Running them found, in order:
+
+| Found by running | Which step had never run |
+| ---------------- | ------------------------ |
+| the blast-radius filter dropped the call sites it was meant to find | Step 3 |
+| `${PIPESTATUS[0]}` empty under zsh — the guard could never fire | Step 3 |
+| `git diff --stat $range` fatal on a path target | Step 1 |
+| `/verify` cannot be invoked by the model at all | loop Phase 1 step 4 |
+| 12 verified findings in `adversarial-loop` | Steps 4–8, first execution |
+
+Four of those had shipped. The sharpest is `/verify`: design decision Q5 rests on delegating
+fix-verification to it, and it is not model-invocable — an assumption the inline probe could
+never have tested, because the inline probe never reached that step.
+
+**So: adequate for what it claimed, and the plan then mispriced what remained.** The error was
+not running the probe inline. It was treating "does it execute" as a checkbox at the end rather
+than as the other half of the tracer bullet. A tracer bullet that cannot fire the actual weapon
+has told you the sights line up, and nothing about whether the gun cycles.
+
+**What would have caught it earlier**, and is cheap: a one-command headless invocation of the
+skill from a throwaway directory — `claude -p --plugin-dir <p> --allowedTools=Skill "<invoke it>"`
+— which is how the read-boundary rule was finally exercised on 2026-09-20 and how the
+`--plugin-dir` question was settled in minutes. That probe was available from Phase 1 onward and
+nobody reached for it, because the plan's mental model of "behavioural test" was an interactive
+session a human sits through.

@@ -51,6 +51,43 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-21 03:51 — P5-T4 run 6: all eight items PASS, and the task is done (closed)
+
+- **Task/phase**: P5-T4, closed. 84 of 85; only P5-T5 remains, and it needs the user.
+- **Landed**: run 6's transcript and ledger promoted into `thoughts/`; P5-T4 ticked with
+  run-by-run attribution; three manual-verification criteria met across Phases 3 and 5; the
+  P1-T2 substitution assessed at the foot of the probe document, as Phase 5 required.
+- **Learned**:
+  - **The loop reached clean.** Round 1: four legs, 14 candidates → 5 deduped → 5 verified
+    (3 CONFIRMED, 2 PLAUSIBLE) → 4 Valid and fixed. Round 2, scoped: zero findings. Gate
+    satisfied. Six runs to get here, four of them blocked before measuring anything — twice on
+    auto mode, once on a launch that dropped `--plugin-dir`, once on a one-file fixture that made
+    the loop's own breaker unsatisfiable.
+  - **The corrected `/verify` step worked, and `/verify` earned its place.** It asked instead of
+    invoking, the user ran it, and it returned PASS having surfaced four things no static lens
+    produced — including `require_admin` authorizing on any truthy value, so `is_admin='no'`
+    passes. That is the argument for Q5's delegation, arriving the same day the delegation was
+    found to be broken.
+  - **The P1-T2 assessment has a real answer now, and it is uncomfortable.** The inline probe was
+    adequate for what it claimed; the plan then mispriced what it deferred. P5-T4 was sized at
+    "~18 calls" and was in fact the first execution of Steps 4–8 — which happened *after* `3.0.0`
+    was cut, and found four shipped defects. A tracer bullet that cannot fire the actual weapon
+    tells you the sights line up and nothing about whether the gun cycles. The cheap probe that
+    would have caught it — a one-command headless `claude -p --plugin-dir … --allowedTools=Skill`
+    — was available from Phase 1 and nobody reached for it, because "behavioural test" was
+    imagined as a session a human sits through.
+  - **Two things recorded rather than fixed.** Three of four legs ran the test suite against an
+    explicit prohibition; that is a decision about whether the rule earns a carve-out, not a
+    patch. And the breaker has still never been exercised as evidence — run 6's two-file fix
+    surface sits inside the caveat's own range, and round 2's zero findings left the trend test
+    correctly unevaluated.
+  - **`grep --version` lies here.** It reports BSD grep while the diagnostics come from ugrep, so
+    version-sniffing to pick safe flags gives the wrong answer — which is how the blast-radius
+    guard got exercised for real, by an ad-hoc `--exclude-dir` that ugrep rejected.
+- **Commits**: this one.
+- **Blocked by**: **P5-T5** needs the user's go-ahead to delete the three personal skills.
+  **PD5-1** remains open.
+
 ## 2026-09-21 03:02 — P5-T4 run 5: the loop works, and `/verify` cannot be called (closed)
 
 - **Task/phase**: the `adversarial-loop`-without-`gh` half of P5-T4. Ran properly for the first

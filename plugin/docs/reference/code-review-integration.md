@@ -42,7 +42,7 @@ Treat "forked" as the thing to match on; treat the rest as unstable.
 **`ReportFindings` was not available inside the fork.** The built-in leg reported the tool
 unavailable and fell back to prose, while the tool was available in the calling session that
 spawned it. So a wrapper must be able to read the built-in leg's findings as **text**, and
-cannot require the structured channel from a leg it did not itself emit. **Observed twice, on
+cannot require the structured channel from a leg it did not itself emit. **Observed three times, on
 two different repositories** (2026-09-20), so it is a property of the fork rather than of one
 run. It is recorded because the failure is silent — prose findings still arrive, just without
 the fields.

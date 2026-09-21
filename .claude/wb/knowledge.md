@@ -350,7 +350,16 @@ we have the in-repo cautionary example for that.
 - **Verified**: 2026-09-20 · `docs/plans/2026-09-17-adversarial_loop/` — P5-T4 run 2,
   `thoughts/2026-09-20-smoke-session-run2.md`; the `${var:+"$var"}` half added in round-5
   remediation, executed in both shells
+- **Also (2026-09-20), two more things about this shell that will mislead you.** `grep --version`
+  reports `BSD grep, GNU compatible 2.6.0-FreeBSD`, but the *diagnostics* come from **ugrep** —
+  so version-sniffing to decide which flags are safe gives the wrong answer. ugrep rejects
+  `--exclude-dir`, which is how `adversarial-review`'s blast-radius guard got exercised for real:
+  the flag produced exit 2 and the guard printed `SEARCH FAILED` instead of reading the empty
+  output as "no callers". And the RTK hook's `find` does not accept compound predicates or
+  actions — `-not`, `-exec` are rejected — so a probe needs plain `ls` per directory or
+  `rtk proxy find`.
 - **Check it**: `echo "$0 ${ZSH_VERSION:-no-zsh} ${BASH_VERSION:-no-bash}"` through the Bash
-  tool reports `/bin/zsh 5.9 no-bash`; and
+  tool reports `/bin/zsh 5.9 no-bash`; `grep --exclude-dir=.git -r x .` errors where the version
+  string implies it should not; and
   `x=$(grep -rnF -- q /no/such/path 2>/dev/null); echo "dollar-question=$? pipestatus=${PIPESTATUS[0]:-<empty>}"`
   prints a real status beside an empty `PIPESTATUS`.
