@@ -210,7 +210,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
   (`46ef587`), and attributed the Step 2 branch-naming backstop to this diff. That is a defect in
   `adversarial-review` Step 4, not in `implement`, and belongs to the target-2 review.
 
-- [ ] **R6-T12** — `plugin/skills/update_status/SKILL.md:174` — Step 5 applies the frontmatter
+- [x] **R6-T12** — `plugin/skills/update_status/SKILL.md:174` — Step 5 applies the frontmatter
       fragments unconditionally to `research.md`, `design.md` and `tasks.md`, so on a round it
       instructs writing frontmatter into two files that do not exist — and R6-T11's templates now
       say the opposite.
@@ -225,7 +225,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       **Acceptance (shape 3)**: dual grep — the unconditional "research.md, design.md and
       tasks.md" phrasing absent from Step 5, and a round branch present at a named `file:line`;
       the `:157-170` triggers conditioned so they cannot name a file a round lacks. The phased
-      path must be unchanged. (~3 calls)
+      path must be unchanged. (~3 calls) (completed 2026-09-21 16:58)
 
 - [ ] **R6-T13** — `plugin/skills/implement/SKILL.md:363-367` and the matching block at
       `implement_inline/SKILL.md:304-308` — the prose says a failed stage "breaks the `&&` chain"

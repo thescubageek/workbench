@@ -161,9 +161,10 @@ NOW, present it, and then:
 "Anything else" is any of:
 
 - a **judgment-bearing** `status:` value would change — `tasks.md` reaching **`complete`**,
-  which claims the work is finished, or any `research.md` or `design.md` transition
+  which claims the work is finished, or, on a phased plan, any `research.md` or `design.md`
+  transition
 - any status would move **backward** — the NO REGRESSION rule
-- `design.md` would reach `approved`, which you never set yourself in any case
+- on a phased plan, `design.md` would reach `approved`, which you never set yourself in any case
 - the count and the checkboxes disagree in a way you cannot account for
 - **both counts are zero while the stored counters are not** — Step 2 already stops here; it is
   repeated because the counters are otherwise on the silent side, and zeroing them is the one
@@ -171,7 +172,18 @@ NOW, present it, and then:
 
 ### Step 5: Apply Updates
 
-In the counters-only case you have already applied them; skip to Step 6. Otherwise, after the user confirms, read the [templates/frontmatter-fragments.md](templates/frontmatter-fragments.md) NOW and apply them to research.md, design.md and tasks.md.
+In the counters-only case you have already applied them; skip to Step 6. Otherwise, after the
+user confirms, read the [templates/frontmatter-fragments.md](templates/frontmatter-fragments.md)
+NOW. **Which fragments you apply branches on the kind of plan** — the template's own table says
+the same, and the two must not diverge:
+
+- **Phased plan** — apply all three: the `research.md` fragment, the `design.md` fragment, and
+  the `tasks.md` fragment.
+- **Remediation plan** — recognise one by a `reviews:` key in its frontmatter or a
+  `reviews/<date>-round-N/` path. Skip both the `research.md` and the `design.md` fragments and
+  apply the `tasks.md` fragment alone, omitting `current_phase`. A round has neither of those
+  documents, so applying their fragments means writing frontmatter into files that do not exist,
+  and it carries no phase number to write.
 
 The counters written are the **counted** values from Step 2 — not the previous values adjusted,
 and not an estimate. If the count and the old counter disagree, the count is what lands.

@@ -51,14 +51,24 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
-## 2026-09-21 16:56 — R6-T12 (open)
+## 2026-09-21 09:55 — R6-T12 (closed)
 
 - **Task/phase**: Round 6 reopened a second time — both findings the round's own verifications
   produced, verified by the user from another session, folded in as R6-T12 and R6-T13.
-  R6-T12 — `update_status` Step 5 contradicts the templates R6-T11 just branched.
-- **Next action**: spawn `task-worker` (opus) on R6-T12; then R6-T13, then Step 9 again, then
-  flip `status:` to `complete` (the user's word), then push — 16 commits ahead of origin.
-- **Started at**: 9236f86
+  R6-T12 — `update_status` Step 5 contradicted the templates R6-T11 had just branched.
+- **Landed**: Step 5 branched two ways at `update_status/SKILL.md:174-186`, round arm at
+  `:182-186` reusing the plugin-wide recognition clause verbatim from `:72`; Step 4's two
+  triggers gained an inline "on a phased plan" at `:164` and `:167`.
+- **Commits**: the commit carrying this entry (`R6-T12: ...`)
+- **Learned**: splitting the brief by severity worked — Step 5 is a mandate and genuinely
+  branched; Step 4's triggers are disjuncts that misdirect nothing, so two inline qualifiers
+  sufficed and BARRIER 2 stayed byte-identical. The verifier confirmed the grep-self-match dodge
+  was honest this time rather than string-avoidant, and judged the phased arm *clearer* than the
+  original, whose "them" had an ambiguous antecedent. It also corrected the brief: the
+  "Anything else" list has five bullets, not six.
+- **Blocked by**: nothing. One low-severity note: the `current_phase` rule now appears in both
+  `templates/frontmatter-fragments.md:13` and `SKILL.md:184`. Judged acceptable — Step 5 is the
+  writing step, and the prose pins the invariant explicitly rather than leaving it implicit.
 
 ## 2026-09-21 08:52 — R6-T11 (closed)
 
