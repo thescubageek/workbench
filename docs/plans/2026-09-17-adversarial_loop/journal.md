@@ -51,6 +51,22 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-21 06:25 — R6-T5 (closed)
+
+- **Task/phase**: R6-T5 — `implement/reference.md:55`'s resume path still requires `research.md`
+  and `design.md` with no exemption, so `continue` on a round contradicts Step 1 of the same
+  skill. The word "remediation" appeared nowhere in `reference.md`.
+- **Landed**: exemption at `reference.md:55-58`, in Resume Logic step 4, reusing the recognition
+  clause verbatim from `implement/SKILL.md:121` and `update_status/SKILL.md:74`. Three sites, one
+  rule. `grep -c remediation` 0 → 1.
+- **Commits**: the commit carrying this entry (`R6-T5: ...`)
+- **Learned**: ran on **sonnet** rather than opus — a bounded mirror of a carve-out already
+  written three times, with the wording fixed by precedent and no design latitude. Worker and
+  verifier both finished in about a minute against ~4 for the opus tasks. This is the shape the
+  Step 5 ladder means by "the deliberate downshift": a mechanical mirror of settled prose.
+  Verifier independently swept all 192 lines and confirmed the file's only other mention of the
+  two plan files (`:125`, migration guidance) is not on the resume path.
+
 ## 2026-09-21 06:15 — R6-T4 (closed)
 
 - **Task/phase**: R6-T4 — Step 8 and both templates source manual-verification content from

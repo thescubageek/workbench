@@ -93,7 +93,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       a replacement source for a round's manual steps must be present at a named`file:line`.
       (~3 calls) (completed 2026-09-21 06:19)
 
-- [ ] **R6-T5** — `plugin/skills/implement/reference.md:55` — the resume path still requires
+- [x] **R6-T5** — `plugin/skills/implement/reference.md:55` — the resume path still requires
       `research.md` and `design.md` with no exemption, so `continue` on a round contradicts Step 1
       of the same skill.
       **Fails when:** a round is interrupted (context limit, a 6c block, a declined confirmation)
@@ -104,7 +104,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       "remediation" appears nowhere in `reference.md`. One skill, two documents, two behaviours.
       **Acceptance (shape 3)**: dual grep — `grep -c remediation plugin/skills/implement/
       reference.md` is 0 today (RED); after the fix it is ≥1 *and* `reference.md:55` carries an
-      "if present" or an explicit round exemption. (~2 calls)
+      "if present" or an explicit round exemption. (~2 calls) (completed 2026-09-21 06:26)
 
 - [ ] **R6-T6** — `plugin/skills/implement/SKILL.md:254-257` — the new top-insert journal rule
       collides with Step 6c's deliberately-open blocked entry, and a round's `journal.md` lands
