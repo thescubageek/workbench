@@ -210,6 +210,40 @@ criterion is run before the fix**. A criterion that passes before the change is 
   (`46ef587`), and attributed the Step 2 branch-naming backstop to this diff. That is a defect in
   `adversarial-review` Step 4, not in `implement`, and belongs to the target-2 review.
 
+- [ ] **R6-T12** — `plugin/skills/update_status/SKILL.md:174` — Step 5 applies the frontmatter
+      fragments unconditionally to `research.md`, `design.md` and `tasks.md`, so on a round it
+      instructs writing frontmatter into two files that do not exist — and R6-T11's templates now
+      say the opposite.
+      **Fails when:** `update_status` runs on a round and a confirmation carries it past Step 4.
+      `SKILL.md:174` reads "apply them to research.md, design.md and tasks.md" with no branch,
+      while `templates/frontmatter-fragments.md:12` — added by R6-T11 minutes earlier — says to
+      skip both fragments for a round. One skill, two instructions, opposite directions; R6-T1
+      conditioned the carve-out at `:72` but never Step 5. Separately, Step 4's trigger list at
+      `:157-170` names "any `research.md` or `design.md` transition" and "`design.md` would reach
+      `approved`" with no round branch. Those are disjunctive conditions that simply never fire
+      on a round, so they misdirect no action — but they read as though the documents exist.
+      **Acceptance (shape 3)**: dual grep — the unconditional "research.md, design.md and
+      tasks.md" phrasing absent from Step 5, and a round branch present at a named `file:line`;
+      the `:157-170` triggers conditioned so they cannot name a file a round lacks. The phased
+      path must be unchanged. (~3 calls)
+
+- [ ] **R6-T13** — `plugin/skills/implement/SKILL.md:363-367` and the matching block at
+      `implement_inline/SKILL.md:304-308` — the prose says a failed stage "breaks the `&&` chain"
+      and the commit never runs, but the fenced block separates the three commands with
+      newlines, so a failed `-f` stage lets `git commit` run anyway and commit **without** the
+      plan files. One task, both files — same class, inherited verbatim from R6-T2.
+      **Fails when:** any run reaches the commit step and the `git add -f` fails for any reason
+      (a path typo, a removed file, a permissions error). Under newline separation the shell
+      runs the next command regardless, so the commit lands carrying the code changes and
+      missing `tasks.md` and `journal.md` — the checkbox flip and the journal entry are left in
+      the working tree while the commit reports success. That is a **quieter** failure than the
+      one the prose describes, and the prose's promise that "the commit never runs" is what
+      stops a reader from checking.
+      **Acceptance (shape 1)**: execute the block **as written** in a scratch repo with an
+      ignored plan path and a stage engineered to fail; assert that today a commit is created
+      without the plan files (the RED), and that after the fix no commit is created at all.
+      (~4 calls)
+
 ### 📝 Modified Files (Round 6)
 
 This round changed prompt documents, not code — there are no test files, and the gate is

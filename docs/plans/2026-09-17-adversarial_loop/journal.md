@@ -51,6 +51,15 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-21 16:56 — R6-T12 (open)
+
+- **Task/phase**: Round 6 reopened a second time — both findings the round's own verifications
+  produced, verified by the user from another session, folded in as R6-T12 and R6-T13.
+  R6-T12 — `update_status` Step 5 contradicts the templates R6-T11 just branched.
+- **Next action**: spawn `task-worker` (opus) on R6-T12; then R6-T13, then Step 9 again, then
+  flip `status:` to `complete` (the user's word), then push — 16 commits ahead of origin.
+- **Started at**: 9236f86
+
 ## 2026-09-21 08:52 — R6-T11 (closed)
 
 - **Task/phase**: R6-T11 — R6-T1's carve-out tells `update_status` to omit research and design
