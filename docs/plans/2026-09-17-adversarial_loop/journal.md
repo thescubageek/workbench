@@ -51,6 +51,49 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-21 03:02 — P5-T4 run 5: the loop works, and `/verify` cannot be called (closed)
+
+- **Task/phase**: the `adversarial-loop`-without-`gh` half of P5-T4. Ran properly for the first
+  time; six of seven report items PASS; **P5-T4 stays unchecked**.
+- **Landed**: `adversarial-loop` Phase 1 step 4 no longer instructs an impossible action;
+  `code-review-integration.md`'s invocability claim corrected and its ReportFindings hedge
+  upgraded to two observations; `review-ledger.md` records the breaker's single-file blind spot.
+- **Learned**:
+  - **`/verify` cannot be invoked by the model.** `Skill('verify')` refuses with
+    `disable-model-invocation`, and the refusal ends *"Do not replicate this skill's workflow by
+    other means."* Phase 1 step 4 said "Invoke `/verify`" — unexecutable since the day it
+    shipped. Worse, `code-review-integration.md:12` asserted all three built-ins were
+    model-invocable, and the skill was written against that assertion. Measured all three:
+    `code-review` loads, `security-review` loads, `verify` refuses. **This is design Q5's
+    foundation** — *"fix-verification delegates to the built-in `/verify`; nothing stack-specific
+    ships"* — resting on something false. The step now stops and asks the user, and an
+    un-run `/verify` must be disclosed rather than papered over with the per-finding criteria,
+    which answer a different question: they check each finding's scenario is closed, `/verify`
+    checks the change still runs.
+  - **The breaker cannot not fire on a single-file change.** `introduced_by` intersects a
+    finding's path with the previous round's fix surface, so with one file every later finding is
+    "introduced" by construction — including two the session verified byte-identical to base and
+    therefore caused by nothing. Rate 0% → 100%, Blocking, at the minimum-N floor. The mechanical
+    derivation is still right; path-intersection is just a poor proxy for causation when there
+    are few paths. Recorded in `review-ledger.md` as *"the breaker cannot tell"*, not as evidence.
+  - **This is also why clean was never reached**, so the honest answer to the item as written is
+    that it did not pass — even though every step behaved correctly. A fixture of one file was my
+    choice, and it made the loop's own gate unsatisfiable.
+  - **Three earlier findings got their second confirmation**, on a different repository:
+    `ReportFindings` unavailable inside the fork, the `launched (… running in the background)`
+    result line, and `PIPESTATUS` empty under zsh. The integration doc hedged the first as "one
+    observation, one build"; it is now two and the hedge is gone.
+  - **The blast-radius guard fired for real, by accident.** An ad-hoc call passed
+    `--exclude-dir=.git`, which this machine's `grep` (ugrep) rejects with exit 2 — and the guard
+    printed `SEARCH FAILED (grep exit 2)` instead of reading the empty output as "no callers".
+    That is the `search=$?` fix earning its place in the wild rather than in a fixture.
+  - **The substantive outcome is the sort a review is for**: remediating the planted defect
+    reverted the commit entirely, because the commit contained nothing but the defect. The branch
+    now delivers nothing and nothing on it says so.
+- **Commits**: this one.
+- **Blocked by**: P5-T4 needs a rerun on a **multi-file** fixture with the corrected `/verify`
+  step. **PD5-1** remains the user's decision.
+
 ## 2026-09-21 02:31 — P5-T4 run 4: blocked at launch, and the diagnosis was wrong (closed)
 
 - **Task/phase**: the `adversarial-loop`-without-`gh` half of P5-T4. Never ran.

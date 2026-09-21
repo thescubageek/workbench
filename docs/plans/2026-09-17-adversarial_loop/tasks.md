@@ -746,6 +746,25 @@ ships exactly what the release exists to prevent.
       nothing in 3.0.0 is implicated. The one-line check that settles it is
       `claude --plugin-dir <p> plugin details wb` printing the version and `Source: wb@inline`;
       the brief for run 5 opens with it. Fixture untouched and still valid at `c6ff468`.*
+      *Run 5 — 2026-09-20, the best run yet and **still not a pass**. Precondition green
+      (`wb 3.0.0`, `Source: wb@inline`, 379-line SKILL.md with `## Phase 0`). Phase 0 bound the
+      target unprompted **PASS** · the PR phases did not engage and it quoted the line saying so,
+      with `gh` measurably unable to resolve the host **PASS** · R5-T6's ledger fallback fired,
+      the session choosing a path outside the worktree because a ledger inside it would dirty the
+      tree Phase 2 needs clean **PASS** · nothing outward-facing **PASS** · Phase 3's bound
+      present and correctly unreached **PASS**. Round 1 found the planted defect on all three
+      legs: 9 candidates → 5 → 4 CONFIRMED + 1 PLAUSIBLE, one structural fix retiring all five,
+      criteria RED before and GREEN after. **Clean was never reached**: the breaker fired
+      Blocking at round 2 and the loop stopped, which is the document working — but the item says
+      "reaches clean", and it did not.
+      **Two things it found by running, both fixed in this commit**: `/verify` **cannot be
+      invoked by the model** (`disable-model-invocation`), so Phase 1 step 4's "Invoke `/verify`"
+      was unexecutable and `code-review-integration.md` claimed all three built-ins were
+      model-invocable — measured, only `code-review` and `security-review` are; and the breaker's
+      introduced-rate is **pinned at 100% from round 2 on any single-file change**, because
+      path-intersection cannot distinguish "in the fix surface" from "caused by the fix" when
+      there is one path. **To tick this: a rerun on a fixture of more than one file, with the
+      corrected `/verify` step.***
 - [ ] **P5-T5** — Only after P5-T4 passes: delete `~/.claude/skills/adversarial-review`,
       `~/.claude/skills/adversarial-loop` and `~/.claude/skills/reply-to-claude`. These are the
       port's source material and are not reproduced in full in this repository, so this task is

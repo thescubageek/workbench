@@ -157,9 +157,16 @@ Checking the target out yourself is a state change nobody asked for.
 
    If there is no plan directory, fix inline and say so: the discipline is the per-finding
    criterion run before the fix, not the file it is written in.
-4. **Verify the fixes actually work.** Invoke `/verify` — it drives the affected flow end to end
-   and discovers this repository's own commands, so nothing stack-specific belongs here. Skip it
-   only when the diff has no runtime surface, which is its own documented exemption.
+4. **Verify the fixes actually work — and this step stops for the user.** `/verify` drives the
+   affected flow end to end and discovers this repository's own commands, which is why nothing
+   stack-specific belongs here. But **the model cannot invoke it**: `Skill('verify')` refuses
+   with `disable-model-invocation`, and the refusal ends *"Do not replicate this skill's workflow
+   by other means."* So ask the user to run `/verify` and wait for the result. If they decline,
+   or it is not run, **say in the report that fix-verification did not happen** — do not
+   substitute a test command of your own, and do not let the per-finding criteria stand in for
+   it. Those criteria are this loop's own discipline and they check that each finding's scenario
+   is closed; `/verify` checks that the change still runs. Skip the step only when the diff has
+   no runtime surface, which is its own documented exemption.
 5. **Record each finding's disposition in the ledger** — see [reference.md](reference.md). The
    gate below is otherwise self-certified: without a written record, "no finding adjudicated
    Valid" is a claim the session makes about itself and nobody can audit.
@@ -373,7 +380,10 @@ human should look at, and any follow-ups worth their own issue.
 
 Two things to state plainly rather than omit:
 
-- **Whether `/verify` actually ran**, and what it exercised. "Fixes verified" without saying how
+- **Whether `/verify` actually ran** — including *"asked, and the user declined"* and *"asked,
+  and never answered"*, both of which mean it did not. It is user-invoked only, so "not run" is
+  a normal outcome and an undisclosed one is a false claim. And what it exercised: "fixes
+  verified" without saying how
   is the claim this skill is supposed to make checkable.
 - **How the reviewers scored.** *"Four of five bot findings did not hold"* is what the human needs
   in order to know what the next round is worth.

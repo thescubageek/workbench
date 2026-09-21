@@ -67,6 +67,16 @@ repository whose numbers look nothing like these. It is also the correct shape: 
 diagnosis was that the gate is a level test and so cannot see oscillation, and fixing that with
 another level test would repeat the mistake.
 
+**A single-file change pins the introduced-rate at 100% from round 2 onward, and the Blocking
+trigger then cannot *not* fire.** `introduced_by` is derived by intersecting a finding's path
+with the previous round's fix surface — so when the change is one file, every later finding is
+in that surface by construction, including findings verified byte-identical to base and
+therefore caused by nothing. Measured 2026-09-20 on a one-file fixture: rate 0% → 100%, breaker
+Blocking, at the minimum-N floor. The derivation is still right to be mechanical rather than
+judged; the limitation is that path-intersection is a poor proxy for causation when there are
+few paths. Read a Blocking trip on a one- or two-file change as *"the breaker cannot tell"*
+rather than as evidence, and say so when surfacing it.
+
 **Minimum-N floor: three findings.** Below that the rate is meaningless — one of two is 50% and
 says nothing — so do not evaluate the trend at all.
 

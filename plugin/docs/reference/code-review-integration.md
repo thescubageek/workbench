@@ -9,8 +9,19 @@ weaker than that, it says so — that distinction is the point of the document.
 
 ## What the built-ins are
 
-Three commands ship with Claude Code and are invocable by the model through the `Skill` tool,
-exactly like any plugin skill:
+Three commands ship with Claude Code. **Two of them are invocable by the model through the
+`Skill` tool; `/verify` is not.** `Skill('verify')` returns
+
+> `Skill verify cannot be used with Skill tool due to disable-model-invocation. Ask the user to
+> run /verify themselves — it cannot be invoked via the Skill tool. Do not replicate this
+> skill's workflow by other means — it is reserved for explicit user invocation.`
+
+Measured 2026-09-20; `code-review` and `security-review` both load. This paragraph previously
+said all three were invocable, and a skill was written against that — `adversarial-loop` Phase 1
+step 4 read "Invoke `/verify`", which the model cannot do. **A step delegating to `/verify` has
+to stop and ask the user**, and note the error's last sentence: substituting your own equivalent
+is explicitly out of bounds, so the honest fallback is to report that fix-verification did not
+run, not to improvise one.
 
 | Command | What it does | Output |
 | ------- | ------------ | ------ |
@@ -28,11 +39,12 @@ background agent — observed 2026-09-20 on `/code-review high` over a 312-line 
 3m54s. A wrapper that waits for the word `completed` will wait forever on the second shape.
 Treat "forked" as the thing to match on; treat the rest as unstable.
 
-**`ReportFindings` was not available inside the fork.** Same run: the built-in leg reported the
-tool unavailable and fell back to prose, while the tool was available in the calling session
-that spawned it. So a wrapper must be able to read the built-in leg's findings as **text**, and
-cannot require the structured channel from a leg it did not itself emit. One observation, one
-build; it is recorded because the failure is silent — prose findings still arrive, just without
+**`ReportFindings` was not available inside the fork.** The built-in leg reported the tool
+unavailable and fell back to prose, while the tool was available in the calling session that
+spawned it. So a wrapper must be able to read the built-in leg's findings as **text**, and
+cannot require the structured channel from a leg it did not itself emit. **Observed twice, on
+two different repositories** (2026-09-20), so it is a property of the fork rather than of one
+run. It is recorded because the failure is silent — prose findings still arrive, just without
 the fields.
 
 ## The argument surface
