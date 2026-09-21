@@ -45,7 +45,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       `error-handling.md` is conditioned so it cannot fire for a round directory. (~3 calls)
       (completed 2026-09-21 05:55)
 
-- [ ] **R6-T2** — `plugin/skills/implement/SKILL.md:328` — Step 6b stages `tasks.md` and
+- [x] **R6-T2** — `plugin/skills/implement/SKILL.md:328` — Step 6b stages `tasks.md` and
       `journal.md` **by path** from a round directory that `.gitignore:7` (`docs/plans/`) ignores
       and nothing promotes, so `git add` exits 1 and the chained commit does not run.
       **Fails when:** measured in this repository — `git add
@@ -57,7 +57,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       8.2's "confirm the tree is clean" all read clean over an uncommitted plan file.
       **Acceptance (shape 1)**: execute the staging command as Step 6b writes it against a round
       directory and assert exit 0 with the file staged. Today it exits 1 — that is the RED.
-      Re-run after the fix. (~4 calls)
+      Re-run after the fix. (~4 calls) (completed 2026-09-21 06:02)
 
 - [ ] **R6-T3** — `plugin/skills/implement/SKILL.md:196` — Step 3 asserts every remediation task
       carries an acceptance criterion that *is* the worker's context; the producer deliberately

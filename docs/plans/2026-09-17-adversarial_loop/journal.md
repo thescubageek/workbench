@@ -51,6 +51,26 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-21 05:58 — R6-T2 (closed)
+
+- **Task/phase**: R6-T2 — `implement` Step 6b stages plan files by path from a gitignored round
+  directory, so `git add` exits 1 and the chained commit never runs. `git add -f` appears nowhere
+  in `implement` or `adversarial-review`.
+- **Landed**: `git add -f` rule and an executable fenced block at `implement/SKILL.md:335-347`;
+  the hiding mechanism named at `:349`; `git add -f` in Step 6c's WIP-commit row at `:388`; and a
+  `git ls-files --others --ignored --exclude-standard` probe beside `git status --short` in Step
+  8.2. RED (`exit 1`) and GREEN (`exit 0`) both re-derived by the verifier against `HEAD`.
+- **Commits**: the commit carrying this entry (`R6-T2: ...`)
+- **Learned**: three measured facts, all of which shaped the fix. A *tracked* plan file is still
+  refused by plain `git add`, so the `-f` rule had to be unconditional. `git restore` does **not**
+  consult `.gitignore`, so Step 6c's restore guidance carried no defect and was left alone. And
+  `git status --short` *does* report modifications to tracked files under an ignored path — it is
+  blind only to *untracked* ones, which is why Step 8.2 needs both probes and not a replacement.
+  The verifier caught the first draft overstating that last point; corrected before commit.
+- **Blocked by**: nothing. Step 6a's discriminator was deliberately left reading `git status
+  --short` alone — adjudicated a defensible boundary, since its second signal (`grep` for the
+  checkbox) reads the disk and is immune to `.gitignore` under any condition.
+
 ## 2026-09-21 05:53 — R6-T1 (closed)
 
 - **Task/phase**: R6-T1 — give `update_status` a remediation carve-out so `implement` Step 9

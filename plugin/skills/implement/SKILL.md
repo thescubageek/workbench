@@ -332,6 +332,26 @@ them unstaged and name the missing `.gitignore` entry at the checkpoint. Close t
 with what landed and the commit hash. Aggregate its modified files and test commands. Return to
 Step 4.
 
+**Stage the plan's own files with `git add -f`, every time.** `docs/plans/` is gitignored, so a
+plain `git add <plan-dir>/tasks.md` exits 1 with "The following paths are ignored", stages
+nothing, and breaks the `&&` chain — the commit never runs, and one task, one commit fails on the
+first passing task of the plan. Git refuses **already-tracked** plan files too, so "this plan was
+promoted once" is not a reason to drop the `-f`. The `-f` overrides gitignore; it never widens the
+pathspec, so the by-path rule above still holds.
+
+```bash
+git add ${workerReportedFiles}                        # code — by path, no -f
+git add -f ${planDir}/tasks.md ${planDir}/journal.md  # plan files — always -f
+git commit -m "${taskId}: ..."
+```
+
+**A failed stage hides.** `git status --short` does not list *untracked* ignored files, so an
+unpromoted plan directory's `tasks.md` is invisible there — 6a's discriminator, 6c's "end clean
+either way" and Step 8.2's clean check all read clean over a plan file that was never committed.
+(A *tracked* plan file that is merely modified does show, so the blindness is specific to a
+directory nothing has promoted.) Confirm what the
+commit actually contains (`git show --stat HEAD`) rather than inferring it from a clean tree.
+
 **Committing here is what makes an unfinished task detectable.** After a passing task the tree
 is clean, so any uncommitted work belongs to something that did not finish.
 
@@ -367,7 +387,7 @@ worker's truncation and fail its verifier. Pick one, and end clean either way:
 
 | The blocked work is | Do this |
 | ------------------- | ------- |
-| Worth keeping | Commit it **as work in progress, not as the task** — `WIP ${taskId}: blocked, verification failed — not a completion`. Git is the durable record; the checkpoint names the commit |
+| Worth keeping | Commit it **as work in progress, not as the task** — `WIP ${taskId}: blocked, verification failed — not a completion`. Stage the plan's files with `git add -f`, as in 6b. Git is the durable record; the checkpoint names the commit |
 | Not worth keeping | `git restore` **the paths the worker reported**, never a blanket `git checkout -- .`, which would also revert earlier committed-but-unstaged work |
 
 Then: checkbox stays `[ ]`, task goes on the phase checkpoint's blocking list with the reason
@@ -394,7 +414,14 @@ Every task in the phase is `[x]` and committed. Read [templates/modified-files-f
    at this checkpoint.
 
 2. **Confirm the tree is clean.** Every task was committed after its verifier passed or resolved
-   under 6c, so leftover uncommitted work means something did not finish.
+   under 6c, so leftover uncommitted work means something did not finish. `git status --short`
+   cannot tell you this alone: `docs/plans/` is gitignored, so an uncommitted plan file never
+   appears there and a phase that lost its `tasks.md` reads clean. Check both.
+
+   ```bash
+   git status --short
+   git ls-files --others --ignored --exclude-standard docs/plans/<this-plan>/
+   ```
 
 3. **Run automated verification.** `update_status` runs at **Step 9**, after this checkpoint —
    do not tick its checkpoint box until it has actually run.
