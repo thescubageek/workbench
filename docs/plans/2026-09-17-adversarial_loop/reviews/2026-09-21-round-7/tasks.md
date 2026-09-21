@@ -192,6 +192,26 @@ criterion is run before the fix**. A criterion that passes before the change is 
       the fix assert Step 8 (or the loop) promotes it with `-f` and the file appears in
       `git status --short`. (~3 calls)
 
+- [ ] **R7-T14** — `plugin/skills/adversarial-review/templates.md:137-139,153` — shape 6 tells the
+      producing model to "Label `(attestation)`, name who must look", but the task-line template
+      reserves no slot for either, so the label is an instruction rather than a template literal
+      and the consumer that now keys off it may never see it.
+      **Fails when:** round 6's R6-T3 taught `implement` to divert a no-criterion task to the Step
+      8 checkpoint instead of deadlocking a TDD worker against it. Its Step 4 recognition
+      (`implement/SKILL.md:252-264`) matches the `(attestation)` label **or** an acceptance line
+      saying outright that no mechanical criterion exists. But `templates.md:139` emits
+      `**Acceptance (shape <n>)**: <the check, from the taxonomy below>`, and `<n>` is a digit —
+      nothing in the emitted line carries the word. A producer may write `**Acceptance (shape
+      6)**: Steve must judge whether …` with the token absent, leaving only the prose key.
+      Shape 6 also says to name who must look, but no field holds the name, so `implement` Step
+      8.4's request can only say "someone must look".
+      **Acceptance (shape 3)**: dual grep — the token `(attestation)` and a named person/role
+      field must be reachable from the **emitted** task line, not only from the taxonomy table
+      prose; today `grep -n 'attestation' plugin/skills/adversarial-review/templates.md` hits
+      only the table row at `:153` and nothing in the template block at `:137-139` (the RED).
+      After the fix the emitted form pins both at a named `file:line`, and `implement`'s Step 4
+      recognition matches it literally. (~3 calls)
+
 ## Implementation notes
 
 - **Blocking set**: R7-T1, R7-T2, R7-T3. The first corrupts the measurement the whole tier
@@ -217,3 +237,21 @@ criterion is run before the fix**. A criterion that passes before the change is 
   `reviews/2026-09-21-round-6/tasks.md` as independent corroboration. It is not — it is round 6's
   own output, written earlier in the same session. Their own re-run reproductions stand; the
   citation does not.
+
+- **R7-T14 is numbered around a reserved slot.** The note below reserves `R7-T13` for the absent
+  `--since` / `--range` control, so the task folded in from round 6's checkpoint takes `R7-T14`
+  rather than colliding with it.
+- **Folded in from round 6's checkpoint (2026-09-21).** R7-T14 above. Round 6's R6-T3 built the
+  consumer side of the attestation contract; the producer side lives in this round's file, so the
+  two halves must land together or the label remains unenforceable.
+- **Recorded for round 7 planning, explicitly NOT to be done in round 6** (user decision,
+  2026-09-21): the remediation-plan recognition rule — "a `reviews:` key in frontmatter or a
+  `reviews/<date>-round-N/` path" — is now restated in **17 shipped files**. The house pattern is
+  one authority under `plugin/docs/reference/` linked from each site. The intent is to write
+  `plugin/docs/reference/remediation-plan.md` before round 7 starts and repoint all 17, which
+  also gives R7-T4's undefined `<plan>`, `<N>` and `<date>` a home.
+- **Noted at round 6's checkpoint, not blocking, no task yet**: the attestation list R6-T3
+  introduced lives only in session memory until Step 8.4. A session that dies mid-phase leaves the
+  diverted task at `[ ]` with nothing recording *why* it was diverted — the checkbox is
+  indistinguishable from a task never reached. Durable placement (the journal, or a line in
+  `tasks.md`) is the obvious fix and belongs to whichever round takes it up.
