@@ -23,6 +23,19 @@ How should I proceed?
 
 Document any deviations in the "Implementation Notes" section of tasks.md.
 
+**If you take option 3 and carry on, mark the journal entry you are leaving behind.** It stays
+`(open)` — the task did not finish — and the next task's entry goes above it, which is exactly the
+shape a forgotten entry leaves. Edit its heading in place to add `[blocked]` immediately before
+the suffix, so the line still ends in `(open)`:
+
+```
+## 2026-09-20 14:02 — P1-T2 [blocked] (open)
+```
+
+The marker is what tells `validate_project`'s stale-open check that this one is deliberate;
+without it, validation ERRORs on a state you created on purpose and blames the wrong cause.
+Remove it when the entry finally closes.
+
 ## Resume Logic
 
 When resuming work (phase = "continue"), the plan document tells you where you are — there is
@@ -45,12 +58,19 @@ no separate tracker to reload.
 2. **Read the journal tail.** `journal.md`'s most recent entry tells you what the previous
    session was attempting. An **open** entry beside uncommitted changes means a task was
    interrupted mid-flight; an open entry beside a clean tree means a session simply moved on.
-   The working tree is the authority, never the journal.
+   The working tree is the authority, never the journal. An entry marked `[blocked]` is open on
+   purpose — read its `Next action` for what it waits on rather than treating it as interrupted.
+   On a remediation plan, read the **parent plan's** `docs/plans/<plan>/journal.md`; a round
+   directory holds no journal of its own.
 
 3. **Review context**:
    - Read tasks.md "Implementation Notes" for discoveries
    - Read research.md and design.md for context
    - Read `.claude/wb/knowledge.md` if it exists
+
+   A remediation plan (recognise one by a `reviews:` key in its frontmatter or a
+   `reviews/<date>-round-N/` path) has no research.md or design.md — tasks.md alone is the whole
+   plan.
 
 4. **Verify previous work** (optional):
 
@@ -113,7 +133,7 @@ scripts/quiet npm test src/feature/*.test.ts tests/integration/feature.test.ts
 
 ```
 1. Read tasks.md; find the first unchecked task in the current phase
-2. Read research.md and design.md for context
+2. Read research.md and design.md for context (a remediation plan has neither)
 3. Open a journal entry naming the task and the next action
 4. Implement with the TDD cycle (Red → Green → Refactor)
 5. Flip the task's checkbox to [x] and append (completed YYYY-MM-DD HH:MM)

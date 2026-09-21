@@ -51,6 +51,30 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-21 06:46 — R6-T7 (closed)
+
+- **Task/phase**: R6-T7 — `implement_inline` was never widened, so the documented alternative
+  execution path refuses the shape `implement` now accepts and names `/wb:create_tasks` as the
+  remedy, which is wrong for a round.
+- **Landed**: carve-out at `implement_inline/SKILL.md:122-131` (byte-identical to `implement`'s),
+  Step 2 companion with the corrected remedy at `:202-205`, Principle 6, Steps 1.1/1.2/1.3 and
+  2.1 widened, plus `reference.md`'s resume path and both templates. Journal handling brought in
+  line with R6-T6: parent-plan rule, `[blocked]` producer and consumer.
+- **Commits**: the commit carrying this entry (`R6-T7: ...`)
+- **Learned**: the worker found a defect nobody had listed — `implement_inline` is a **consumer**
+  of journals `implement` writes, and its Step 2.4 said to "finish or supersede" an open entry. A
+  `[blocked]` entry must be neither. R6-T6's commit one step earlier had therefore left a live
+  cross-skill inconsistency, and this was the only task that could land it. The verifier ruled
+  scope per file rather than blanket, and settled it on a fact the task text does not state:
+  R6-T7 is the **only** task in either round that names `implement_inline`, while R6-T4/T5/T6 all
+  scope themselves to `implement/`, so the round allocated the whole sibling here.
+- **Blocked by**: nothing. Two notes for the checkpoint — the `[blocked]` *producer* block at
+  `implement_inline/reference.md:26-36` is the one edit "follow-ups, not fixes" would arguably
+  have routed to a follow-up (it is not remediation-specific), and `implement_inline` still has
+  **no `git add -f` analogue** for staging plan files, so an inline run would silently drop
+  `tasks.md` and `journal.md` from every commit. That is R6-T2's defect on the sibling, and no
+  task in either round covers it.
+
 ## 2026-09-21 06:29 — R6-T6 (closed)
 
 - **Task/phase**: R6-T6 — two journal-placement findings in one. (a) Step 6c's deliberately-open

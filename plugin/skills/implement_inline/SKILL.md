@@ -60,7 +60,8 @@ When invoked, check for arguments:
 3. **ZERO SCOPE CREEP**: Implement EXACTLY what's in tasks.md - NO additions, NO improvements, NO extras
 4. **Progress Tracking**: checkbox state in `tasks.md` is the source of truth — flipping a task's checkbox **is** the act of recording it done
 5. **Verification Gates**: Respect ⛔ CHECKPOINT markers between phases
-6. **Documentation First**: Read research.md and design.md for context before starting
+6. **Documentation First**: Read research.md and design.md for context before starting — a
+   remediation plan has neither, and Step 1 says what to read instead
 
 ### CRITICAL: NO SCOPE ADDITIONS - NONE
 
@@ -118,16 +119,29 @@ Take the project directory and the phase from the arguments, prompting for eithe
 missing. Then read `research.md`, `design.md` and `tasks.md` from that directory — **fully**, no
 `limit` or `offset`.
 
+**A remediation plan has only `tasks.md`, and that is correct.** `adversarial-review` Step 8
+writes `docs/plans/<plan>/reviews/<date>-round-N/tasks.md`; a review is not a project, so it has
+no research or design stage — the review *is* the research and the findings are the design input.
+Recognise one by a `reviews:` key in its frontmatter or a `reviews/<date>-round-N/` path, and take
+`tasks.md` alone as the whole plan. Do not stop, and do not route the user to
+`/wb:create_project` to manufacture two files that exist only to be empty.
+
+Every later step that reaches for research or design context — the REFACTOR step's patterns, Step
+4's edge cases, Step 5's testing patterns, Step 6's manual checks — then has nothing to reach for.
+On such a plan the task text and its acceptance criterion are the whole specification; do not go
+hunting for the absent file.
+
 1. **Read project structure**:
    - Check that specified directory exists
-   - Verify presence of research.md, design.md, tasks.md
+   - Verify presence of research.md, design.md, tasks.md — for a remediation plan, `tasks.md`
+     alone satisfies this
 
-2. **Read research.md FULLY**:
+2. **Read research.md FULLY** (a remediation plan has none — skip to step 4):
    - Understand what currently exists in the codebase
    - Note patterns and conventions to follow
    - Identify key file:line references
 
-3. **Read design.md FULLY**:
+3. **Read design.md FULLY** (likewise absent from a remediation plan):
    - Understand the desired end state
    - Review success criteria for the phase
    - Note both automated and manual verification requirements
@@ -155,7 +169,9 @@ After reading all documentation, synthesize:
 There is no external tracker. `tasks.md` is both the plan and the status surface, so
 establishing position is a read, not a setup step.
 
-1. **Find the phase**: `current_phase` in frontmatter, or the phase given as `$2`.
+1. **Find the phase**: `current_phase` in frontmatter, or the phase given as `$2`. A remediation
+   plan carries neither: its `## Tasks` section is the single phase, and Step 6's checkpoint
+   falls at the end of the round.
 
 2. **Find the next task**: the first `- [ ]` line in that phase's task list. Tasks run in
    document order; a task carrying a `Depends on:` field is the exception, so check that its
@@ -178,10 +194,15 @@ establishing position is a read, not a setup step.
 
 4. **Read the journal tail**: `journal.md`'s most recent entry. An **open** entry means the
    previous session was interrupted mid-task or simply moved on — an uncommitted working tree
-   tells you which. Finish or supersede that work before starting something new.
+   tells you which. Finish or supersede that work before starting something new. An open entry
+   carrying `[blocked]` is neither — it was left open deliberately and its `Next action` names
+   what it waits on, so read that before deciding. On a remediation plan the journal to read is
+   the **parent plan's** `docs/plans/<plan>/journal.md`; a round directory has none.
 
 **If `tasks.md` has no phases or no tasks**, stop and say so: the plan has not been decomposed
-yet, and `/wb:create_tasks` is what writes it.
+yet, and `/wb:create_tasks` is what writes it. **A remediation plan is exempt from the phase half
+of this check, never from the task half**: no task lines is still a stop, and there the fix is to
+re-run the review, not `/wb:create_tasks`.
 
 ### Step 3: Implement Phase Tasks
 
@@ -199,6 +220,13 @@ The heading shape is a contract — the session-start hook, `forge`, `daily-dige
 ```
 ## YYYY-MM-DD HH:MM — <task-id or short label> (open)
 ```
+
+**On a remediation plan, the entry goes in the parent plan's `journal.md`** —
+`docs/plans/<plan>/journal.md`, not a new file inside
+`docs/plans/<plan>/reviews/<date>-round-N/`. Every reader enumerates plans one level deep under
+`docs/plans/`, so a journal in the round directory is below all of them and nothing would ever
+open it. The round's task IDs already name the round, so the entry stays legible in the parent
+file.
 
 **B. Test First (RED)**
 

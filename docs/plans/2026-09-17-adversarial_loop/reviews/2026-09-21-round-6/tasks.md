@@ -125,7 +125,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       exemption. Separately, the fix must state at a named `file:line` **which** `journal.md` a
       remediation plan writes; grep must find that sentence. (~5 calls) (completed 2026-09-21 06:33)
 
-- [ ] **R6-T7** — `plugin/skills/implement_inline/SKILL.md:123` — the sibling execution path was
+- [x] **R6-T7** — `plugin/skills/implement_inline/SKILL.md:123` — the sibling execution path was
       not widened, so the documented alternative refuses the shape `implement` now accepts and
       names the wrong remedy.
       **Fails when:** `implement_inline/SKILL.md:123` still reads "Verify presence of research.md,
@@ -136,7 +136,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       wrong for a round.
       **Acceptance (shape 3)**: dual grep — the unwidened phrasing at
       `implement_inline/SKILL.md:123` absent, and the remediation carve-out present at a named
-      `file:line`, mirroring `implement/SKILL.md:118-128`. (~2 calls)
+      `file:line`, mirroring `implement/SKILL.md:118-128`. (~2 calls) (completed 2026-09-21 06:51)
 
 - [ ] **R6-T8** — `plugin/skills/validate_project/SKILL.md:66` — `validate_project` errors on
       every structural check of a round directory.
