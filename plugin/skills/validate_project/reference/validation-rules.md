@@ -139,11 +139,20 @@ if (malformed.length) {
 // Only the NEWEST entry may be open. A stale (open) heading further down is what a
 // second-heading close leaves behind, and the common case leaves exactly one — so a bare
 // count never fires on it. Check position, not quantity.
-const staleOpen = realHeadings.slice(1).filter(h => /\(open\)\s*$/i.test(h));
+//
+// Exempt `[blocked]`. A blocked entry is deliberately left open while work continues past it
+// (implement Step 6c), so it sits below a newer entry by design. Without this the check fires
+// on a state the workflow created on purpose AND names the wrong cause, and a check that cries
+// wolf on correct files stops being read. The marker sits before the suffix, so the heading
+// still ends in `(open)` and every reader that anchors on that suffix is undisturbed.
+const staleOpen = realHeadings.slice(1)
+  .filter(h => /\(open\)\s*$/i.test(h) && !/\[blocked\]\s*\(open\)\s*$/i.test(h));
 if (staleOpen.length) {
   ERROR(`journal.md has ${staleOpen.length} stale open entr(y|ies) below the newest: ` +
         staleOpen.join(', ') +
         ` — closed by writing a second heading instead of editing in place. ` +
+        `If the work is genuinely blocked, mark the heading ` +
+        `\`<label> [blocked] (open)\` instead. ` +
         `See plugin/docs/reference/journal-entries.md`);
 }
 }  // end: journal.md present

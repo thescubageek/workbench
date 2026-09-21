@@ -106,7 +106,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       reference.md` is 0 today (RED); after the fix it is ≥1 *and* `reference.md:55` carries an
       "if present" or an explicit round exemption. (~2 calls) (completed 2026-09-21 06:26)
 
-- [ ] **R6-T6** — `plugin/skills/implement/SKILL.md:254-257` — the new top-insert journal rule
+- [x] **R6-T6** — `plugin/skills/implement/SKILL.md:254-257` — the new top-insert journal rule
       collides with Step 6c's deliberately-open blocked entry, and a round's `journal.md` lands
       one level below every reader's glob. Two findings, one file, one class (journal placement).
       **Fails when:** (a) task P1-T2 blocks, Step 6c leaves its entry `(open)` and the coordinator
@@ -123,7 +123,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       an older blocked `(open)` entry and run the `validation-rules.md` check — it must ERROR
       today (RED) and pass after 6c gains a distinct blocked marker or the validator gains the
       exemption. Separately, the fix must state at a named `file:line` **which** `journal.md` a
-      remediation plan writes; grep must find that sentence. (~5 calls)
+      remediation plan writes; grep must find that sentence. (~5 calls) (completed 2026-09-21 06:33)
 
 - [ ] **R6-T7** — `plugin/skills/implement_inline/SKILL.md:123` — the sibling execution path was
       not widened, so the documented alternative refuses the shape `implement` now accepts and

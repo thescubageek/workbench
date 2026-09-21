@@ -43,6 +43,24 @@ same first-heading assumption.
 For the same reason, **"the journal tail" never means the end of the file.** Where a skill speaks
 of reading the journal's tail, it means the newest entry, which is at the top.
 
+### Which file, when the plan directory is nested
+
+**A remediation plan writes to its parent plan's `journal.md`, not to one of its own.** An
+`adversarial-review` round lives at `docs/plans/<plan>/reviews/<date>-round-N/` and holds only
+`tasks.md`; its entries go to `docs/plans/<plan>/journal.md`, one directory above the round's
+`reviews/` parent.
+
+This is not a convenience. `wb-prime.sh` enumerates plans with `ls -d docs/plans/*/` — one level
+deep — and `forge`, `daily-digest`, `resume_handoff` and `create_handoff` all inherit that glob. A
+`journal.md` inside a round directory is below it, so no reader would ever open the file: a round's
+blocked `[blocked] (open)` entry would be invisible while the parent's journal still read
+`(closed)` over it, which is the stale-confident-record failure in its worst form — the parent
+looks finished *because* the round's evidence is unreachable.
+
+Name the round in the entry's label so the parent journal stays readable — the round's task IDs
+already carry it (`R6-T6`), so the heading reads
+`## 2026-09-21 09:14 — R6-T6 (open)` and needs nothing further.
+
 ## The heading
 
 ```
@@ -89,18 +107,46 @@ heading's `(open)` to `(closed)` and fill in the closing fields. Writing a secon
 stale `(open)` entry below the fold that permanently misrepresents that task's history, and which
 of the two the hook reports depends on ordering rather than on truth.
 
-The checkable form of that rule: **only the newest entry may be `(open)`.** Any `(open)` entry
-that is not the first real heading is a stale one left by a second-heading close. A bare count of
-open entries does not catch it — the common case leaves exactly one.
+The checkable form of that rule: **only the newest entry may be `(open)`, unless it is marked
+`[blocked]`.** Any other `(open)` entry that is not the first real heading is a stale one left by
+a second-heading close. A bare count of open entries does not catch it — the common case leaves
+exactly one.
 
 ```bash
-# Stale open entries: any (open) heading that is not the newest. Must print nothing.
+# Stale open entries: any (open) heading that is not the newest and not [blocked].
+# Must print nothing.
 # Lowercased and right-stripped first, because that is what the hook does — a bare
 # grep '(open)' is stricter than the reader it models, so `(OPEN)` or one trailing
 # space passes this check while the hook reports the entry as interrupted.
 grep -E '^## ' journal.md | grep -vE '\[YYYY|<YYYY|YYYY-MM-DD' | tail -n +2 \
-  | tr 'A-Z' 'a-z' | sed 's/[[:space:]]*$//' | grep '(open)$'
+  | tr 'A-Z' 'a-z' | sed 's/[[:space:]]*$//' | grep '(open)$' \
+  | grep -vE '\[blocked\][[:space:]]*\(open\)$'
 ```
+
+### The `[blocked]` marker
+
+A blocked entry is deliberately left open while work continues past it, so it sits below a newer
+entry as a matter of course — and it is indistinguishable, to a heading-only check, from the stale
+entry a second-heading close leaves behind. The two need opposite remedies, so the entry says which
+it is:
+
+```
+## YYYY-MM-DD HH:MM — <task-id or short label> [blocked] (open)
+```
+
+**The marker goes immediately before the trailing suffix, never after it.** The line must still
+end in `(open)` — every reader anchors that test to end-of-line, so a marker placed after the
+suffix makes the entry invisible to all of them, which is the failure this file exists to prevent.
+
+Mark an entry `[blocked]` only when the work it names has stopped on something outside the
+session's control — a human decision, a checkpoint, an external dependency — and its `Next action`
+names what it waits on. **Remove the marker when you close the entry**: `[blocked] (open)` becomes
+`(closed)`, because the block is over. A marker left on a closed entry is harmless to the readers
+but lies to the next person reading the record.
+
+Do not use it to excuse an entry you forgot to close. The exemption is narrow on purpose: without
+it the stale-entry check fires on a state the workflow created intentionally and reports the wrong
+cause, and a check that cries wolf on correct files stops being read.
 
 **Match the reader, not the convention.** `wb-prime.sh` lowercases and right-strips a heading
 before testing its suffix, and anchors the test to the end of the line. Any check written here

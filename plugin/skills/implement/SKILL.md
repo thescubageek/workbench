@@ -277,6 +277,13 @@ The heading shape is a contract — the session-start hook, `forge`, `daily-dige
 ## YYYY-MM-DD HH:MM — <task-id or short label> (open)
 ```
 
+**On a remediation plan, the entry goes in the parent plan's `journal.md`** —
+`docs/plans/<plan>/journal.md`, not a new file inside
+`docs/plans/<plan>/reviews/<date>-round-N/`. Every reader enumerates plans one level deep under
+`docs/plans/`, so a journal in the round directory is below all of them and nothing would ever
+open it. The round's task IDs already name the round, so the entry stays legible in the parent
+file.
+
 **Choose the tier.** This is the one statement of the worker tier rule; every other mention in
 this skill and its supporting files points here rather than restating it.
 
@@ -412,9 +419,23 @@ worker's truncation and fail its verifier. Pick one, and end clean either way:
 
 Then: checkbox stays `[ ]`, task goes on the phase checkpoint's blocking list with the reason
 and the WIP commit hash if there is one, and you continue to the next task. The journal entry
-stays **`(open)`**, marked blocked, with its Next action naming the checkpoint it waits on — an
-open entry beside a clean tree is the journal's blocked-on-a-human state, and closing it would
-report the task finished.
+stays **`(open)`**, with its Next action naming the checkpoint it waits on — an open entry beside
+a clean tree is the journal's blocked-on-a-human state, and closing it would report the task
+finished.
+
+**Edit its heading in place to add `[blocked]`, immediately before the suffix:**
+
+```
+## 2026-09-20 14:02 — P1-T2 [blocked] (open)
+```
+
+The next task's Step 5 writes its entry above this one, which leaves an `(open)` entry below the
+newest — exactly the shape a second-heading close leaves behind. The marker is what tells the
+stale-entry check in
+[../validate_project/reference/validation-rules.md](../validate_project/reference/validation-rules.md)
+that this one is deliberate; without it, validation ERRORs on a state this step created on purpose
+and blames the wrong cause. The line still ends in `(open)`, so the suffix contract every reader
+depends on is untouched. Remove the marker when the entry finally closes.
 
 If the diagnosis is a genuine failure with no usable work at all, read the
 [templates/incomplete-worker-message.md](templates/incomplete-worker-message.md) and ask.

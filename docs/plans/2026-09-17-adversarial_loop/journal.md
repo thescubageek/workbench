@@ -51,6 +51,31 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-21 06:29 — R6-T6 (closed)
+
+- **Task/phase**: R6-T6 — two journal-placement findings in one. (a) Step 6c's deliberately-open
+  blocked entry trips `validate_project`'s stale-open-entry ERROR, with the cause misattributed.
+  (b) A round's `journal.md` would land below the `docs/plans/*/` glob every reader inherits.
+- **Landed**: (a) a `[blocked]` marker in the heading **label**, before the trailing suffix, so
+  the five readers that anchor on `(open)`/`(closed)` are undisturbed; validator exemption at
+  `validation-rules.md:146-147`, the rule and a marker section in `journal-entries.md:110-146`,
+  in-place marking instructions in `implement/SKILL.md` Step 6c. (b) `journal-entries.md:48` —
+  "**A remediation plan writes to its parent plan's `journal.md`, not to one of its own**",
+  restated at `implement/SKILL.md:280`. No reader and no hook changed.
+- **Commits**: the commit carrying this entry (`R6-T6: ...`)
+- **Learned**: **the only FAIL of the round, and the diff could not have shown it.** The shipped
+  grep exempted `[blocked] (open)` with a literal single space while the validator used `\s*`, so
+  `[blocked]  (open)` passed the validator and was flagged by the document describing it — a
+  false alarm on a correct file, in a file whose own rule is "match the reader, not the
+  convention". Caught only by building fixtures and running both mechanisms side by side; the
+  re-verify table now agrees 11/11 across whitespace, case and position variants, with the
+  unmarked-stale control still firing in both. Coordinator applied the one-line fix rather than
+  electing the `fable` rung, which 6c calls "an explicit election, never automatic".
+- **Blocked by**: nothing. Two notes for the checkpoint: `daily-digest/sources.md:85-86` carries a
+  comment that is now slightly incomplete (harmless — it reads only the newest entry), and the
+  checklist's "unless its label carries `[blocked]`" is a summary looser than the validator's
+  positional test, which is why it routes the reader to `journal-entries.md` for the mechanism.
+
 ## 2026-09-21 06:25 — R6-T5 (closed)
 
 - **Task/phase**: R6-T5 — `implement/reference.md:55`'s resume path still requires `research.md`

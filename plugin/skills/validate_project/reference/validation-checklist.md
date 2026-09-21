@@ -16,10 +16,12 @@ The skill validates the following aspects.
   the session-start hook greps `^##`, and this validator's own filters use the same anchor — so
   an indented heading is invisible to **both**, and the validator reports clean on a file the
   hook silently misreads. This is the one journal defect that hides from its own checker
-- ❌ An `(open)` entry that is **not the newest**. Only the most recent entry may be open. A
-  stale one below it is what closing by writing a second heading leaves behind, and **a count of
-  open entries never catches it** — the common case leaves exactly one. Check position, not
-  quantity
+- ❌ An `(open)` entry that is **not the newest**, unless its label carries `[blocked]`. Only
+  the most recent entry may be open. A stale one below it is what closing by writing a second
+  heading leaves behind, and **a count of open entries never catches it** — the common case
+  leaves exactly one. Check position, not quantity. A `[blocked]` entry is the exception because
+  `implement` Step 6c creates it on purpose and continues past it, so it sits below a newer entry
+  by design
 - 📄 Both rules, with the mechanism behind each: `plugin/docs/reference/journal-entries.md`
 - ⚠️ Optional: handoff.md exists (if session transfer occurred)
 - ⚠️ Optional: mockup-log.md in mockups/ (if mockup workflow used)
