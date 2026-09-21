@@ -1716,6 +1716,31 @@ resolved, leaving a dated line saying how.
 
 ### Implementation Notes
 
+- **[2026-09-20] Round 5 closed, 10/10** — every task RED before GREEN, one commit each.
+  `implement` now accepts a remediation plan (R5-T7 was a contract decision, and `design.md`
+  Q8-1 had already taken it: *"a remediation plan is not a project… no research or design
+  stage"*), the loop binds its target, gates its push on a clean worktree, branches on
+  `isDraft`, binds the bot's clearance to the head SHA, reads the provenance rule before it
+  pushes, gives the ledger a fallback, bounds the Phase 3 wait, chains the label block, and
+  `check-guards` gained **shape 4** — an outward-facing action not chained to the one before it.
+  Nothing outward-facing ran: R5-T2 and R5-T9 were verified against a throwaway bare repo and a
+  stubbed `gh`.
+- **[2026-09-20] The generated sweep regrew to 16 survivors, and is back to 0.** Shape 4 is ~60
+  lines of new code, and the mutation backlog reopened inside it — a detector that barely fires
+  being this round's own subject. Three corpus cases closed nine of them (a continuation left
+  dangling at a fence boundary, the same with the pair inside one fence, and the joined
+  `\`-then-`&&` form from `logical_lines`' own docstring); ten are waived with arguments. **305
+  of 363 killed, 58 waived, 0 surviving**, ratchet raised 244 → 305. Worth naming the pattern:
+  the kill count went *up* the whole time, so the ratchet stayed green while the
+  every-mutant-killed-or-argued invariant was broken. A ratchet on one number cannot see that.
+- **[2026-09-20] My own probe was wrong in the under-reporting direction.** `/tmp/probe.py`'s
+  `SHAPE_OF` had not learned shape 4, so it scored the baseline 78/83 and would have called five
+  corpus cases failures. Caught because the number disagreed with `test-guards`. Fifth instance
+  of this class in this plan, and the second I caused.
+- **Live follow-up, untouched**: `validate_project` still needs the same remediation-plan
+  tolerance `implement` just gained — `design.md` names it at the Q8-1 decision as *"a real
+  change, not free"*.
+
 - **[2026-09-20] Review round 5** — [reviews/2026-09-20-round-5/tasks.md](reviews/2026-09-20-round-5/tasks.md),
   10 tasks, **10 done**. Raised by P5-T4 run 2 against `plugin/skills/adversarial-loop`: 5 legs, 23
   candidates, 18 after dedupe, **10 CONFIRMED and 2 PLAUSIBLE surviving verification, 6 REFUTED**.

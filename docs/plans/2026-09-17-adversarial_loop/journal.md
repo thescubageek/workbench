@@ -51,6 +51,44 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-21 00:03 — round 5 closed, and the mutation backlog that reopened inside it (closed)
+
+- **Task/phase**: round 5 executed elsewhere (10/10, one commit each); results verified here and
+  the backlog it reopened closed out.
+- **Landed**: three corpus cases and ten argued waivers for shape 4's mutants. Corpus 54 → 86,
+  waivers 48 → 58, **305 of 363 killed, 0 surviving**, ratchet 244 → 305. Round 5 verified at
+  10/10 with counters reconciled; Implementation Notes record the round and the follow-up.
+- **Learned**:
+  - **A ratchet on one number cannot see the invariant it was protecting.** Shape 4 added ~60
+    lines and the sweep went from 0 survivors to 16 — but `killed` rose the whole time (244 →
+    299) because the mutant *total* rose with it, so the gate stayed green while
+    every-mutant-killed-or-argued quietly stopped being true. The number to watch is survivors;
+    the ratchet watches kills. Recorded rather than fixed — changing the ratchet is a decision.
+  - **The new detector was the least-tested code in the tool**, which is exactly what you would
+    predict and exactly what nobody checks: a guard written this round, reviewed by nothing,
+    carrying 16 of the 16 survivors.
+  - **Nine of the sixteen sat on one decision line** — `logical_lines`' gap check. Same signal
+    the 94-mutant handoff called out for `L96`: a count of survivors per source line points at
+    the under-covered decision better than any reading of the code does.
+  - **My own probe was wrong, in the under-reporting direction.** Its `SHAPE_OF` had not learned
+    shape 4, so the baseline read 78/83 and five corpus cases would have scored as failures.
+    Caught only because the number disagreed with `test-guards`, which is the authority. Fifth
+    instance of this class in this plan and the second I have caused; the instrument needs the
+    same scepticism as the thing it measures.
+  - **R5-T7 was a contract decision and the session did not invent one** — `design.md` Q8-1 had
+    already decided that a remediation plan has no research or design stage. Landing the
+    tolerance on the `implement` side keeps the review's output shape stable, which matters
+    because this round's own `tasks.md` is in that shape. `validate_project` still needs the
+    same tolerance; that is a live follow-up, named in the design as *"a real change, not free"*.
+  - **Nothing outward-facing ran for two tasks that name pushes and labels.** R5-T2 and R5-T9
+    were exercised against a throwaway bare repo and a stubbed `gh`; for R5-T9 the defect is pure
+    shell sequencing, so the stub reproduces it exactly, and the session said plainly that it had
+    not run against a live PR rather than implying it had.
+- **Commits**: the twelve round-5 commits, plus this one.
+- **Blocked by**: **PD5-1** is still the user's decision. P5-T4 still needs `wb:adversarial-loop`
+  reaching clean without `gh`. The round's `status:` is left `in-progress` — `complete` is the
+  judgment-bearing transition `update_status` reserves for a human.
+
 ## 2026-09-20 22:05 — P5-T4 run 2: the wrapper works, and running it broke the wrapper (closed)
 
 - **Task/phase**: P5-T4 run 2, scoped to `plugin/skills/adversarial-loop`. Run elsewhere; results
