@@ -352,10 +352,12 @@ we have the in-repo cautionary example for that.
   remediation, executed in both shells
 - **Also (2026-09-20), two more things about this shell that will mislead you.** `grep --version`
   reports `BSD grep, GNU compatible 2.6.0-FreeBSD`, but the *diagnostics* come from **ugrep** —
-  so version-sniffing to decide which flags are safe gives the wrong answer. ugrep rejects
-  `--exclude-dir`, which is how `adversarial-review`'s blast-radius guard got exercised for real:
-  the flag produced exit 2 and the guard printed `SEARCH FAILED` instead of reading the empty
-  output as "no callers". And the RTK hook's `find` does not accept compound predicates or
+  so version-sniffing to decide which flags are safe gives the wrong answer. `--exclude-dir` and
+  `--include=` have both been seen **accepted (exit 0) and rejected (exit 2 with a warning)** on
+  this machine, depending on the invocation — so do not write a rule about which flags work.
+  Write the guard instead: the one time `--exclude-dir` was rejected,
+  `adversarial-review`'s blast-radius guard printed `SEARCH FAILED (grep exit 2)` rather than
+  reading the empty output as "no callers", which is the whole point of taking the status. And the RTK hook's `find` does not accept compound predicates or
   actions — `-not`, `-exec` are rejected — so a probe needs plain `ls` per directory or
   `rtk proxy find`.
 - **Check it**: `echo "$0 ${ZSH_VERSION:-no-zsh} ${BASH_VERSION:-no-bash}"` through the Bash
