@@ -51,6 +51,19 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-21 05:30 — PD5-1 and the 3.0.0 cut: resumed, awaiting the user's decision (open)
+
+- **Task/phase**: Phase 5 close-out. Resumed from `handoff-2026-09-21-04-43.md`; handoff and
+  tree agree at 84/85 with P5-T5 the only unchecked task. The handoff's evidence re-verified:
+  `reviews:` appears once in `implement/SKILL.md` and nowhere in `implement_inline`,
+  `validate_project` or `update_status`; `git revert --no-commit 7314714` applies cleanly
+  (three files, no conflicts) and was aborted; the R7-T1 line is `SKILL.md:224`.
+- **Next action**: the user decides PD5-1 and the cut — accept the recommended cut (revert
+  R5-T7, fix R7-T1, make Step 8 advisory, record the rest as limitations), amend it, or work
+  the 22-finding backlog. Then P5-T5, which deletes the three personal skills and needs the
+  user's explicit confirmation.
+- **Started at**: 4339a8c
+
 ## 2026-09-21 04:43 — handoff written: the cut, not the backlog (closed)
 
 - **Task/phase**: handoff into a fresh session to decide what ships as `3.0.0`.
