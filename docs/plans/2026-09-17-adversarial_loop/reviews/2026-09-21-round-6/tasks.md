@@ -3,9 +3,9 @@ project: adversarial_loop
 reviews: docs/plans/2026-09-17-adversarial_loop
 round: 6
 created: 2026-09-21
-status: in-progress
-total_tasks: 11
-completed_tasks: 11
+status: complete
+total_tasks: 13
+completed_tasks: 13
 task_tracking: markdown-checkboxes
 ---
 
@@ -243,6 +243,21 @@ criterion is run before the fix**. A criterion that passes before the change is 
       ignored plan path and a stage engineered to fail; assert that today a commit is created
       without the plan files (the RED), and that after the fix no commit is created at all.
       (~4 calls) (completed 2026-09-21 17:04)
+
+- **Closed 2026-09-21 at 13 of 13.** Eight tasks from the review, then three folded in at the
+  phase checkpoint (R6-T9…R6-T11) and two more (R6-T12, R6-T13) found by this round's own verify
+  passes rather than by the review. Every added task was confirmed by the user before being
+  tasked, and each carries a criterion that was RED before its fix.
+- **One FAIL in thirteen**: R6-T6's first attempt left the shipped grep and the validator
+  exempting different heading shapes — a literal single space against `\s*`. Invisible in the
+  diff; caught by executing both against fixtures. Fixed in place rather than escalating a rung,
+  since 6c calls the `fable` rung "an explicit election, never automatic".
+- **Recurring hazard worth carrying forward**: three tasks (R6-T9, R6-T11, R6-T12) hit the same
+  trap — a shape-3 dual grep can be satisfied by the **fix's own prose** if the new branch quotes
+  the literal being searched for. The durable form is to grep only the *emitted* content (the
+  fenced block), which the fix's surrounding prose cannot reach.
+- **Recorded for a later round, uncovered here**: nothing remains from this round's findings. The
+  producer-side attestation gap went to round 7 as R7-T14.
 
 ### 📝 Modified Files (Round 6)
 
