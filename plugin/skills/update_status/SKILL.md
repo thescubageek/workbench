@@ -69,6 +69,20 @@ When invoked, check for arguments:
 
 **IMPORTANT**: Use Read tool WITHOUT limit/offset parameters
 
+**A remediation plan has only `tasks.md`, and that is correct.** `adversarial-review` Step 8
+writes `docs/plans/<plan>/reviews/<date>-round-N/tasks.md`; a review is not a project, so it has
+no research or design stage. Recognise one by a `reviews:` key in its frontmatter or a
+`reviews/<date>-round-N/` path, and take `tasks.md` alone as the whole plan. Do not stop, and do
+not route the user to `/wb:create_project` — this skill is the only writer of the counters, so
+halting here strands a finished round at `completed_tasks: 0` permanently. What follows from it:
+
+- Steps 1–3 judge `tasks.md` only. There is no research or design status to detect, so the
+  design-gated validation rules in Step 3 do not apply.
+- The round's `## Tasks` section is its single phase and it carries no `current_phase`. Count the
+  checkboxes as usual; do not invent a phase number for a plan that has none.
+- Steps 4–7 report on `tasks.md` alone — leave the research and design rows out of the plan and
+  the summary rather than filling them with "n/a".
+
 Record current state as *claimed*: the status of each file, `current_phase`, and the counter
 values. These are the numbers you will test, not the numbers you will trust.
 

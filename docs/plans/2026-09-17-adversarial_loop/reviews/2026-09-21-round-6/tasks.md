@@ -30,7 +30,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
 
 ## Tasks
 
-- [ ] **R6-T1** — `plugin/skills/update_status/SKILL.md:65` — `update_status` has no remediation
+- [x] **R6-T1** — `plugin/skills/update_status/SKILL.md:65` — `update_status` has no remediation
       carve-out, so Step 9 of `implement` closes every round by routing the user to
       `/wb:create_project`, which `implement/SKILL.md:122` forbids.
       **Fails when:** `implement` finishes a round at `docs/plans/<plan>/reviews/<date>-round-N/`
@@ -43,6 +43,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       plugin/skills/update_status/` returns nothing today (exit 1, the RED state); after the fix
       it names a carve-out at a stated `file:line`, *and* the `create_project` routing in
       `error-handling.md` is conditioned so it cannot fire for a round directory. (~3 calls)
+      (completed 2026-09-21 05:55)
 
 - [ ] **R6-T2** — `plugin/skills/implement/SKILL.md:328` — Step 6b stages `tasks.md` and
       `journal.md` **by path** from a round directory that `.gitignore:7` (`docs/plans/`) ignores

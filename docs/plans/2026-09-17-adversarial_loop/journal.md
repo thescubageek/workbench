@@ -51,6 +51,22 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-21 05:53 — R6-T1 (closed)
+
+- **Task/phase**: R6-T1 — give `update_status` a remediation carve-out so `implement` Step 9
+  stops routing a finished review round to `/wb:create_project`.
+- **Landed**: carve-out at `update_status/SKILL.md:72`, directly under `⛔ BARRIER 1`, reusing
+  `implement`'s recognition rule verbatim (`reviews:` key or `reviews/<date>-round-N/` path) and
+  extending it across all seven steps. `reference/error-handling.md:27` now branches on
+  `Otherwise,`, so the `Run /wb:create_project first` message is unreachable for a round
+  directory. Verifier re-derived the RED against `HEAD` rather than trusting the worker: zero
+  hits before, three after.
+- **Commits**: the commit carrying this entry (`R6-T1: ...`)
+- **Learned**: `update_status/templates/status-update-plan.md` and `templates/completion-summary.md`
+  still hardcode research.md and design.md rows. The carve-out handles that in prose only, and no
+  round-6 or round-7 task owns those two files — round 7 is entirely `adversarial-review`. Real
+  unowned gap; recorded for the checkpoint.
+
 ## 2026-09-21 05:32 — PD5-1 and PD5-2 decided: disclose only, work the full backlog (closed)
 
 - **Task/phase**: Phase 5 close-out. Resumed from `handoff-2026-09-21-04-43.md` (handoff and
