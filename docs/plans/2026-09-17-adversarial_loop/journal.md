@@ -51,6 +51,23 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-21 17:11 — Round 6 closed at 13 of 13 (closed)
+
+- **Task/phase**: Round 6 of the adversarial review of `plugin/skills/implement/SKILL.md`,
+  closed. Eight tasks from the review, three folded in at the phase checkpoint, two more found by
+  the round's own verify passes.
+- **Landed**: `status: complete`, counters 13/13, reconciled by `/wb:update_status` and read back.
+  Seventeen shipped documents changed across eight skills, both agent definitions, and the
+  shipped journal reference. Gates green: `lint --all` and `scripts/check`.
+- **Commits**: `41a7190` … `4e594d6`, one task one commit, task ID in each message.
+- **Learned**: the round's root cause — R5-T7 widened `implement`'s *entry* check and nothing
+  downstream — turned out to have a long tail. Five of the thirteen tasks were not in the review:
+  three surfaced at the checkpoint, two by verification of other tasks. The verify passes found
+  what the review could not, because the review reads a diff while a verifier executes the thing.
+- **Blocked by**: nothing. Round 7 is **not** to be launched from here: the remediation-plan
+  reference doc and the repointing of the 17 recognition-clause restatements are being done in
+  another session first, and round 7 launches after that lands.
+
 ## 2026-09-21 10:02 — R6-T13 (closed)
 
 - **Task/phase**: R6-T13 — the `git add -f` block in `implement` and `implement_inline`
