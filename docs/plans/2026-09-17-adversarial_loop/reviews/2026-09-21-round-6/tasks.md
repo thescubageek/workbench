@@ -227,7 +227,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       the `:157-170` triggers conditioned so they cannot name a file a round lacks. The phased
       path must be unchanged. (~3 calls) (completed 2026-09-21 16:58)
 
-- [ ] **R6-T13** — `plugin/skills/implement/SKILL.md:363-367` and the matching block at
+- [x] **R6-T13** — `plugin/skills/implement/SKILL.md:363-367` and the matching block at
       `implement_inline/SKILL.md:304-308` — the prose says a failed stage "breaks the `&&` chain"
       and the commit never runs, but the fenced block separates the three commands with
       newlines, so a failed `-f` stage lets `git commit` run anyway and commit **without** the
@@ -242,7 +242,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       **Acceptance (shape 1)**: execute the block **as written** in a scratch repo with an
       ignored plan path and a stage engineered to fail; assert that today a commit is created
       without the plan files (the RED), and that after the fix no commit is created at all.
-      (~4 calls)
+      (~4 calls) (completed 2026-09-21 17:04)
 
 ### 📝 Modified Files (Round 6)
 

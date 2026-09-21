@@ -51,6 +51,24 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-21 10:02 — R6-T13 (closed)
+
+- **Task/phase**: R6-T13 — the `git add -f` block in `implement` and `implement_inline`
+  separated its three commands with newlines while the prose promised an `&&` chain, so a failed
+  stage committed **without** the plan files. Last task of round 6.
+- **Landed**: two trailing `&&` in each block (`implement/SKILL.md:365-369`,
+  `implement_inline/SKILL.md:306-310`), each file keeping its own placeholder convention, plus
+  one sentence per file making the separator load-bearing so a reflow cannot silently undo it.
+- **Commits**: the commit carrying this entry (`R6-T13: ...`)
+- **Learned**: the shape-1 RED reproduced exactly, in the verifier's own scratch repo as well as
+  the worker's — the commit was created carrying **only** the code file, and the tree read clean
+  afterwards, which independently re-proved the adjacent "a failed stage hides" claim. The
+  **success-path control** was the check that mattered: joining with `&&` could have suppressed
+  the good commit along with the bad one, and only running the passing case distinguishes them.
+  The verifier also swept the whole shipped tree for prose promising short-circuit semantics and
+  found exactly the two sites this task fixed — so the bug class is closed, not merely sampled.
+- **Blocked by**: nothing. Round 6 is 13 of 13.
+
 ## 2026-09-21 09:55 — R6-T12 (closed)
 
 - **Task/phase**: Round 6 reopened a second time — both findings the round's own verifications

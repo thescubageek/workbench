@@ -356,13 +356,15 @@ Step 4.
 **Stage the plan's own files with `git add -f`, every time.** `docs/plans/` is gitignored, so a
 plain `git add <plan-dir>/tasks.md` exits 1 with "The following paths are ignored", stages
 nothing, and breaks the `&&` chain — the commit never runs, and one task, one commit fails on the
-first passing task of the plan. Git refuses **already-tracked** plan files too, so "this plan was
-promoted once" is not a reason to drop the `-f`. The `-f` overrides gitignore; it never widens the
+first passing task of the plan. The `&&` below is what makes that true: separate the three
+commands by newlines and a failed stage lets the commit land **without** the plan files. Git
+refuses **already-tracked** plan files too, so "this plan was promoted once" is not a reason to
+drop the `-f`. The `-f` overrides gitignore; it never widens the
 pathspec, so the by-path rule above still holds.
 
 ```bash
-git add ${workerReportedFiles}                        # code — by path, no -f
-git add -f ${planDir}/tasks.md ${planDir}/journal.md  # plan files — always -f
+git add ${workerReportedFiles} &&                        # code — by path, no -f
+git add -f ${planDir}/tasks.md ${planDir}/journal.md &&  # plan files — always -f
 git commit -m "${taskId}: ..."
 ```
 
