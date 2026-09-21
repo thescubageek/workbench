@@ -51,6 +51,25 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-21 08:46 — R6-T10 (closed)
+
+- **Task/phase**: R6-T10 — `implement_inline` has no `git add` at all, so it inherits the
+  `docs/plans/` gitignore refusal wholesale: an inline run drops `tasks.md` and `journal.md` from
+  every commit, silently.
+- **Landed**: the staging rule at `implement_inline/SKILL.md:293-314` with all four parts of
+  R6-T2's fix, plus a compact four-line form in `reference.md:147-150` because its Daily Progress
+  Pattern is a standalone recipe whose step 5 flips the checkbox and step 6 commits.
+- **Commits**: the commit carrying this entry (`R6-T10: ...`)
+- **Learned**: the verifier tested the already-tracked sharp edge **empirically** rather than
+  taking it from the prose — both probe paths are tracked, and plain `git add` still exits 1 on
+  each. It also confirmed the adaptation improved on its source: `implement`'s version carries a
+  stray mid-sentence line break at `:373-374` that the inline version does not reproduce.
+- **Blocked by**: nothing. One inherited inconsistency recorded for a later round: the prose in
+  **both** files says a failed `git add` "breaks the `&&` chain", but the fenced block separates
+  commands with newlines, so a failing stage would let `git commit` run anyway and commit without
+  the plan files — a quieter failure than the one described. Verbatim from R6-T2, so present in
+  `implement` and `implement_inline` alike; fixing it spans two tasks' scopes.
+
 ## 2026-09-21 08:41 — R6-T9 (closed)
 
 - **Task/phase**: Round 6 reopened at the user's direction with three tasks folded in from the

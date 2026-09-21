@@ -166,7 +166,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       today (the RED); after the fix it returns nothing, *and* `${phaseLabel}` is present at both
       sites with its substitution rule reachable from each. (~3 calls) (completed 2026-09-21 15:43)
 
-- [ ] **R6-T10** — `plugin/skills/implement_inline/SKILL.md` Step 3E — the sibling execution path
+- [x] **R6-T10** — `plugin/skills/implement_inline/SKILL.md` Step 3E — the sibling execution path
       has no `git add -f`, and no `git add` at all, so it inherits the gitignore refusal
       wholesale: an inline run drops `tasks.md` and `journal.md` from every commit, silently.
       **Fails when:** `/wb:implement_inline` reaches its commit step on any plan under
@@ -181,7 +181,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       assert exit 1 (the RED), then `git add --dry-run -f` and assert exit 0; *and* grep must
       find `git add -f` in `plugin/skills/implement_inline/` at a named `file:line`, which
       returns nothing today. The by-path rule and the prohibition on `git add -A` / `.` must be
-      stated alongside it, as they are in `implement`. (~4 calls)
+      stated alongside it, as they are in `implement`. (~4 calls) (completed 2026-09-21 15:48)
 
 - [ ] **R6-T11** — `plugin/skills/update_status/templates/` — R6-T1's carve-out tells the skill
       to omit research and design rows for a round, but all three templates hardcode them, so the

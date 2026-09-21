@@ -281,7 +281,7 @@ In this order:
    is the tracking act — not a note about the tracking act. A finished task with an unflipped
    checkbox is indistinguishable from unfinished work to the next session.
 2. **Commit.** One task, one commit, with the task ID in the message. The commit log is the
-   durable audit trail.
+   durable audit trail. Stage it as **Staging** below describes.
 3. **Close the journal entry** with what landed and its commit.
 4. **Add implementation notes** to tasks.md if there was a discovery or a deviation:
 
@@ -289,6 +289,29 @@ In this order:
    ## Implementation Notes
    - [YYYY-MM-DD] Completed [task-id]: [brief note about discoveries or deviations]
    ```
+
+**Staging.** Stage the files this task changed **by path** — never `git add -A` or `.`, which
+sweeps in generated artifacts (`__pycache__/`, `*.pyc`, build output) that are not the task's
+work.
+
+**Stage the plan's own files with `git add -f`, every time.** `docs/plans/` is gitignored, so a
+plain `git add [plan-dir]/tasks.md` exits 1 with "The following paths are ignored", stages
+nothing, and breaks the `&&` chain — the commit never runs, and the checkbox you just flipped
+stays in the working tree instead of the log. Git refuses **already-tracked** plan files too, so
+"this plan was promoted once" is not a reason to drop the `-f`. The `-f` overrides gitignore; it
+never widens the pathspec, so the by-path rule above still holds.
+
+```bash
+git add [files this task changed]                     # code — by path, no -f
+git add -f [plan-dir]/tasks.md [plan-dir]/journal.md  # plan files — always -f
+git commit -m "[task-id]: ..."
+```
+
+**A failed stage hides.** `git status --short` does not list *untracked* ignored files, so an
+unpromoted plan directory's `tasks.md` is invisible there and the tree reads clean over a status
+edit that was never committed. (A *tracked* plan file that is merely modified does show, so the
+blindness is specific to a directory nothing has promoted.) Confirm what the commit actually
+contains with `git show --stat HEAD` rather than inferring it from a clean tree.
 
 **Do NOT**:
 

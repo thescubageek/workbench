@@ -137,12 +137,17 @@ scripts/quiet npm test src/feature/*.test.ts tests/integration/feature.test.ts
 3. Open a journal entry naming the task and the next action
 4. Implement with the TDD cycle (Red → Green → Refactor)
 5. Flip the task's checkbox to [x] and append (completed YYYY-MM-DD HH:MM)
-6. Commit — one task, one commit
+6. Commit — one task, one commit; stage by path, and the plan's own files with git add -f
 7. Close the journal entry with what landed and its commit
 8. Repeat 1-7 for the next unchecked task
 9. Run verification at phase boundaries
 10. At a phase checkpoint: confirm every phase checkbox is [x], then run /wb:update_status
 ```
+
+Step 6's `-f` is not optional: `docs/plans/` is gitignored, so a plain
+`git add [plan-dir]/tasks.md` exits 1, stages nothing, and takes the commit down with it —
+leaving step 5's checkbox flip uncommitted. Git refuses already-tracked plan files too. The `-f`
+overrides gitignore only; keep staging by path, never `git add -A` or `.`.
 
 ## Error Handling
 
