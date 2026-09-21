@@ -59,7 +59,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       directory and assert exit 0 with the file staged. Today it exits 1 — that is the RED.
       Re-run after the fix. (~4 calls) (completed 2026-09-21 06:02)
 
-- [ ] **R6-T3** — `plugin/skills/implement/SKILL.md:196` — Step 3 asserts every remediation task
+- [x] **R6-T3** — `plugin/skills/implement/SKILL.md:196` — Step 3 asserts every remediation task
       carries an acceptance criterion that *is* the worker's context; the producer deliberately
       emits shape-6 `(attestation)` tasks with no mechanical criterion, which deadlock the
       worker/verifier loop.
@@ -75,7 +75,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       unrelated phase-checkpoint box in `SKILL.md` and **zero** hits in both agent files — that
       is the RED. After the fix, a named `file:line` routes a no-criterion task to the Step 8
       checkpoint instead of a worker. Negative control: the same grep against an unmodified copy
-      must still return the RED result, proving the grep can fail. (~4 calls)
+      must still return the RED result, proving the grep can fail. (~4 calls) (completed 2026-09-21 06:10)
 
 - [ ] **R6-T4** — `plugin/skills/implement/SKILL.md:418` — Step 8 and both templates source
       manual-verification content from `design.md`, which Step 1 of the same change declares

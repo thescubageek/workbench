@@ -51,6 +51,28 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-21 06:07 — R6-T3 (closed)
+
+- **Task/phase**: R6-T3 — shape-6 `(attestation)` findings have no mechanical criterion, so a
+  TDD worker cannot write a failing test for them and the verifier FAILs a clean tree. The task
+  deadlocks, lands on the blocking list, and `adversarial-loop`'s gate never clears.
+- **Landed**: Step 4 diverts a no-criterion task to a new checkpoint **attestation list** at
+  `implement/SKILL.md:252-264`; 6c never escalates one (`:380-384`); BARRIER 4 (`:426-429`) and
+  Step 8.1 (`:437-440`) widened so a legitimately-`[ ]` attestation task does not hold the phase
+  open; Step 8.4 (`:468-472`) lets a human's yes flip it and `:484-486` extends the existing
+  "no run may tick it on its own authority" rule to cover it. Defensive lines in both agents.
+- **Commits**: the commit carrying this entry (`R6-T3: ...`)
+- **Learned**: termination was bought by widening the *barrier*, not by widening who may tick the
+  box — the verifier traced attended, `--auto`, and both degraded paths and found all four
+  terminate, with no path reaching `[x]` except a human at 8.4. Worst case (both Step 4 and the
+  verifier miss the recognition) costs one wasted escalation and lands on the blocking list:
+  bounded, not a hang. Three recognition sites now carry the same two keys — the verifier was
+  keying on the `(attestation)` label alone until the verify pass caught it.
+- **Blocked by**: nothing. Two producer-side gaps belong to round 7 and are recorded for the
+  checkpoint — `adversarial-review/templates.md` never reserves a slot for the `(attestation)`
+  label or for the name of who must look, so the label is an instruction to the producing model
+  rather than a template literal.
+
 ## 2026-09-21 05:58 — R6-T2 (closed)
 
 - **Task/phase**: R6-T2 — `implement` Step 6b stages plan files by path from a gitignored round

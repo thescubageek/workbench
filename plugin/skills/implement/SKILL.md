@@ -249,6 +249,20 @@ and tasks run in order within a phase, so the plan's ordering is the schedule.
 A task carrying a `Depends on:` field is the exception — check its named dependency is already
 `[x]` before taking it. Nothing else encodes dependencies.
 
+**A task with no mechanical acceptance criterion is not worker work — divert it here.** An
+`adversarial-review` remediation plan emits these deliberately: the acceptance line is labelled
+`(attestation)` and names who must look, because the finding is a judgement call with no check
+to run. Recognise one by that label, or by an acceptance line saying outright that no mechanical
+criterion exists, and do **not** spawn a worker for it. There is nothing to implement, so a
+worker under TDD has no failing test to write, and the verifier reads the clean tree it
+correctly leaves behind as a FAIL — two workers and an escalation spent to arrive back at an
+unfinished task.
+
+Instead: leave the checkbox `[ ]`, add the task to the phase checkpoint's **attestation list**
+with its `file:line` and the person or role the task names, and move on to the next task. Step
+8.4 is where a human is asked, and a human's answer there is the only thing that may flip that
+box.
+
 ### Step 5: Spawn a Worker
 
 **Open a journal entry first**, naming the task ID, what the worker is about to attempt, and the
@@ -363,7 +377,13 @@ green — a substituted bar is reported, never silently adopted.
 
 #### 6c. One escalation, then a human
 
-A verified failure gets **exactly one** escalation attempt:
+**A FAIL that names the task as an attestation task is the one failure that is never
+escalated.** No rung of the ladder can produce a diff for a judgement call, so a second attempt
+buys nothing but another clean tree. Reset the checkbox to `[ ]`, restore anything the worker
+touched, and move the task to the checkpoint's attestation list — the diversion Step 4 should
+have made, made late.
+
+Any other verified failure gets **exactly one** escalation attempt:
 
 1. **Reset the checkbox to `[ ]` first.** The worker flips it as its *final* act, before
    anything verifies the work, so a task reaching 6c is usually at `[x]` while unverified. An
@@ -401,17 +421,24 @@ If the diagnosis is a genuine failure with no usable work at all, read the
 
 ### Step 7: Aggregate Results
 
-**⛔ BARRIER 4: All phase tasks complete**
+**⛔ BARRIER 4: All phase tasks complete, or on a list that says why not — waiting on a task no
+worker can close would deadlock the phase**
 
-Every task in the phase is `[x]` and committed. Read [templates/modified-files-fragment.md](templates/modified-files-fragment.md) NOW and update that section of `tasks.md` from the aggregated worker outputs.
+Every task in the phase is `[x]` and committed, except tasks on the blocking list (6c) and tasks
+on the attestation list (Step 4). Those keep their `[ ]` and are named at the checkpoint. Do not
+hold the barrier open for an attestation task: nothing before Step 8.4 is permitted to tick it,
+so waiting for it to go `[x]` is waiting forever.
+
+Read [templates/modified-files-fragment.md](templates/modified-files-fragment.md) NOW and update that section of `tasks.md` from the aggregated worker outputs.
 
 ### Step 8: Phase Checkpoint
 
 **⛔ CHECKPOINT: Phase ${phase} Complete**
 
-1. **Verify every Phase ${phase} checkbox is `[x]`.** That is the phase-completion condition —
-   there is nothing else to close. Any task on the blocking list keeps its `[ ]` and is named
-   at this checkpoint.
+1. **Verify every Phase ${phase} checkbox is `[x]`, apart from the two lists that account for a
+   `[ ]`.** That is the phase-completion condition — there is nothing else to close. A task on
+   the blocking list (6c) or the attestation list (Step 4) keeps its `[ ]` and is named here
+   with its reason; every other task must be `[x]`.
 
 2. **Confirm the tree is clean.** Every task was committed after its verifier passed or resolved
    under 6c, so leftover uncommitted work means something did not finish. `git status --short`
@@ -438,14 +465,25 @@ Every task in the phase is `[x]` and committed. Read [templates/modified-files-f
 
    **Attended (the default).** Read [templates/manual-verification-request.md](templates/manual-verification-request.md) NOW, emit it, and **wait for the user's confirmation**.
 
+   **Put the attestation list in that same request, one line each** — the task's `file:line`,
+   the judgement being asked for, and who the task names. This is the authority those tasks were
+   diverted here to wait for: on a clear yes, flip the task's checkbox to `[x]`, record in one
+   line who attested and when, and commit it as you would any other task. On anything else it
+   stays `[ ]` and moves to the blocking list with what the human said.
+
    **Under `--auto`.** Do not wait. Tick the checkpoint conditions you actually established —
    every phase checkbox `[x]`, automated verification passing, and the `update_status` box once
    Step 9 has run it — and **leave "Manual verification confirmed by human" as `[ ]`**, because
    no human was asked. Then add one line under the checkpoint naming the run unattended, with
    the phase and the time, and listing the manual steps from `design.md` that nobody performed.
+   **Attestation tasks stay `[ ]`** and are listed there too — the phase still closes,
+   unattended, so the run terminates instead of stalling, and the report tells a person exactly
+   which judgements are outstanding.
 
    **The unticked box is the feature, not an oversight.** `--auto` buys the wait, not the
    attestation: that box records what a person did, and no run may tick it on its own authority.
+   An attestation task's checkbox is that same box under another name, and the same rule holds
+   for it.
 
 5. **Report completion.** Attended: only after the user confirms. Under `--auto`: immediately.
    Either way read the [templates/phase-completion-report.md](templates/phase-completion-report.md) NOW and emit it,
