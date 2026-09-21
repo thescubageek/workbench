@@ -160,3 +160,38 @@ criterion is run before the fix**. A criterion that passes before the change is 
   resolved its base as the local `main` (`2a6fa62`), eleven commits behind `origin/main`
   (`46ef587`), and attributed the Step 2 branch-naming backstop to this diff. That is a defect in
   `adversarial-review` Step 4, not in `implement`, and belongs to the target-2 review.
+
+### 📝 Modified Files (Round 6)
+
+This round changed prompt documents, not code — there are no test files, and the gate is
+`./plugin/scripts/lint` plus `./plugin/scripts/check`.
+
+#### Skill and reference files
+
+- `plugin/skills/update_status/SKILL.md` — R6-T1: remediation carve-out under BARRIER 1
+- `plugin/skills/update_status/reference/error-handling.md` — R6-T1: `create_project` routing gated
+- `plugin/skills/implement/SKILL.md` — R6-T2, R6-T3, R6-T4, R6-T6: `git add -f` staging, the
+  attestation list, the Step 8 phase/`design.md` branch, the `[blocked]` marker and parent-journal rule
+- `plugin/skills/implement/reference.md` — R6-T5: resume-path exemption
+- `plugin/skills/implement/templates/manual-verification-request.md` — R6-T4: round branch
+- `plugin/skills/implement/templates/phase-completion-report.md` — R6-T4: round branch
+- `plugin/agents/task-worker.md` — R6-T3: declines an attestation task
+- `plugin/agents/task-verifier.md` — R6-T3: routes an attestation FAIL to the checkpoint
+- `plugin/docs/reference/journal-entries.md` — R6-T6: `[blocked]` marker, parent-journal rule
+- `plugin/skills/implement_inline/SKILL.md` — R6-T7: carve-out, corrected remedy, journal handling
+- `plugin/skills/implement_inline/reference.md` — R6-T7: resume path, `[blocked]` producer/consumer
+- `plugin/skills/implement_inline/templates/manual-verification-request.md` — R6-T7: round branch
+- `plugin/skills/implement_inline/templates/phase-completion-report.md` — R6-T7: round branch
+- `plugin/skills/validate_project/SKILL.md` — R6-T8: phased-only qualifier on the required files
+- `plugin/skills/validate_project/reference/validation-rules.md` — R6-T6, R6-T8: `[blocked]`
+  exemption; `isRound` predicate and `validateRoundStructure()`
+- `plugin/skills/validate_project/reference/validation-checklist.md` — R6-T6, R6-T8: `[blocked]`
+  exception; two-shapes scoping and §9
+- `plugin/skills/validate_project/templates/validation-report.md` — R6-T8: round row handling
+
+**Quick verification commands:**
+
+```bash
+./plugin/scripts/lint --all
+./plugin/scripts/check
+```
