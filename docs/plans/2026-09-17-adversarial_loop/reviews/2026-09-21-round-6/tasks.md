@@ -77,7 +77,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       checkpoint instead of a worker. Negative control: the same grep against an unmodified copy
       must still return the RED result, proving the grep can fail. (~4 calls) (completed 2026-09-21 06:10)
 
-- [ ] **R6-T4** — `plugin/skills/implement/SKILL.md:418` — Step 8 and both templates source
+- [x] **R6-T4** — `plugin/skills/implement/SKILL.md:418` — Step 8 and both templates source
       manual-verification content from `design.md`, which Step 1 of the same change declares
       absent for a remediation plan.
       **Fails when:** `adversarial-loop` Phase 1 step 3 invokes `implement` with no `--auto`, so
@@ -91,7 +91,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       the remediation path of `SKILL.md:410-425`,
       `templates/manual-verification-request.md` and `templates/phase-completion-report.md`, and
       a replacement source for a round's manual steps must be present at a named`file:line`.
-      (~3 calls)
+      (~3 calls) (completed 2026-09-21 06:19)
 
 - [ ] **R6-T5** — `plugin/skills/implement/reference.md:55` — the resume path still requires
       `research.md` and `design.md` with no exemption, so `continue` on a round contradicts Step 1

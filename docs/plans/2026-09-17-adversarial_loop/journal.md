@@ -51,6 +51,28 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-21 06:15 — R6-T4 (closed)
+
+- **Task/phase**: R6-T4 — Step 8 and both templates source manual-verification content from
+  `design.md`, which Step 1 of the same skill declares absent for a remediation plan, and both
+  interpolate `Phase ${phase}` for a plan that has no phase.
+- **Landed**: all three surfaces **branched, not replaced**. Two new placeholders —
+  `${phaseLabel}` (`Phase <n>` phased, `Round <N>` for a round) and `${closingLine}` — each with
+  a substitution table in the templates and `${phaseLabel}` also stated in `SKILL.md` Step 8. A
+  round's manual steps now come from each outstanding task's own acceptance criterion, citing
+  `SKILL.md:196-199`. New rule: never wait on an empty checklist.
+- **Commits**: the commit carrying this entry (`R6-T4: ...`)
+- **Learned**: the verifier mechanically byte-compared the phased render at `HEAD` against the
+  new one. `phase-completion-report.md` round-trips exactly; `manual-verification-request.md`
+  differs by one line (the `from design.md` attribution moved into the substitution table), which
+  is unavoidable given the criterion and loses nothing. The worker's "renders byte-identically"
+  claim was an overstatement by that one line. **Tooling fact worth keeping**: the wrapped `diff`
+  in this shell reported "Files are identical" for two files that demonstrably differ — the
+  verifier caught it and re-ran under `cmp` and `/usr/bin/diff`. Do not trust the wrapped `diff`.
+- **Blocked by**: nothing. `SKILL.md:522` (Step 9's Implementation Notes template) carries the
+  same `Phase ${phase}` defect and **no remaining round-6 or round-7 task covers it** — recorded
+  for the checkpoint rather than fixed, since it is outside every task's scope.
+
 ## 2026-09-21 06:07 — R6-T3 (closed)
 
 - **Task/phase**: R6-T3 — shape-6 `(attestation)` findings have no mechanical criterion, so a

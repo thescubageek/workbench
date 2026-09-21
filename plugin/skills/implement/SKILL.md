@@ -433,9 +433,13 @@ Read [templates/modified-files-fragment.md](templates/modified-files-fragment.md
 
 ### Step 8: Phase Checkpoint
 
-**⛔ CHECKPOINT: Phase ${phase} Complete**
+**⛔ CHECKPOINT: ${phaseLabel} Complete**
 
-1. **Verify every Phase ${phase} checkbox is `[x]`, apart from the two lists that account for a
+`${phaseLabel}` is `Phase <n>` on a phased plan and `Round <N>`, from the round's directory name,
+on a remediation plan — which carries no numbered phase (Step 2). Substitute it here and in both
+Step 8 templates. A checkpoint headed `Phase undefined` reads as a run that lost its place.
+
+1. **Verify every ${phaseLabel} checkbox is `[x]`, apart from the two lists that account for a
    `[ ]`.** That is the phase-completion condition — there is nothing else to close. A task on
    the blocking list (6c) or the attestation list (Step 4) keeps its `[ ]` and is named here
    with its reason; every other task must be `[x]`.
@@ -475,7 +479,10 @@ Read [templates/modified-files-fragment.md](templates/modified-files-fragment.md
    every phase checkbox `[x]`, automated verification passing, and the `update_status` box once
    Step 9 has run it — and **leave "Manual verification confirmed by human" as `[ ]`**, because
    no human was asked. Then add one line under the checkpoint naming the run unattended, with
-   the phase and the time, and listing the manual steps from `design.md` that nobody performed.
+   `${phaseLabel}`, the time, and the manual steps nobody performed — from `design.md` on a
+   phased plan, and on a remediation plan from the outstanding tasks' own acceptance criteria in
+   the round's `tasks.md`, which is where a round's manual steps live because it has no
+   `design.md` (Step 3).
    **Attestation tasks stay `[ ]`** and are listed there too — the phase still closes,
    unattended, so the run terminates instead of stalling, and the report tells a person exactly
    which judgements are outstanding.
