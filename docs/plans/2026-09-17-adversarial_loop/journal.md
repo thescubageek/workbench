@@ -51,6 +51,31 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-22 18:33 — R7-T2 (closed)
+
+- **Task/phase**: R7-T2 — `adversarial-review` Step 8 writes every verification-surviving
+  finding into an executable plan, but `adversarial-loop` adjudicates afterwards and nothing
+  pruned the rejected findings before `implement` ran.
+- **Landed**: `adversarial-loop` Phase 1 step 3 retitled and given a ⛔ "prune before you
+  invoke" block plus the pruning instruction — a rejected finding's task line is **deleted**
+  from `## Tasks`, because `implement` keys only on the checkbox and has no disposition
+  awareness, so an annotation it does not read is not a fix and a tick asserts a fix nobody
+  made. Deleted set named against all five dispositions: `Wrong`, `Over-fitted`, and
+  `Pre-existing` except where this change made it materially more reachable (deferred to
+  `adversarial-review/reference.md` by link). `Valid` and `Real but disproportionate` keep their
+  tasks. `adversarial-review` Step 8's closing sentence replaced with a standalone/loop split,
+  so the review stays executable standalone where nothing adjudicates.
+- **Commits**: (this commit)
+- **Learned**: one escalation. The first attempt shipped two new contradictions into shipped
+  normative rules — it instructed the loop to correct `total_tasks`, which `/wb:update_status`
+  owns exclusively, and it stated `Real but disproportionate` was the only surviving
+  disposition, which silently dropped `Pre-existing`'s conditional fix path. Both were
+  contract-knowledge misses, not reasoning failures: a worker writing a pruning rule needs the
+  sole-writer counter contract and the full disposition table handed to it, not left to find.
+- **Follow-up filed**: `adversarial-loop/SKILL.md`'s self-citation "the same shape
+  `SKILL.md:242` requires of Phase 2" was already imprecise at HEAD and this insertion moved
+  the target further. Absolute line self-citations inside one file are the fragile pattern.
+
 ## 2026-09-22 18:27 — R7-T1 (closed)
 
 - **Task/phase**: R7-T1 — round 7 remediation: the blast-radius exclusion at

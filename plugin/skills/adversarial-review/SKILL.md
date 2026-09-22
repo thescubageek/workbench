@@ -323,8 +323,11 @@ without one was never verified — drop it rather than reporting it with a lower
 
 **A review round's output is a plan, not a patch.** Write the surviving findings to
 `docs/plans/<plan>/reviews/<date>-round-N/tasks.md` using the shape in
-[templates.md](templates.md), then stop. This skill does not fix anything; `adversarial-loop`
-runs `implement` against what you wrote.
+[templates.md](templates.md), then stop. This skill does not fix anything, and it does not
+adjudicate: every finding that survived verification gets a task, because the dispositions are the
+caller's to assign. Standalone, that file is the output and is executable as it stands. Under
+`adversarial-loop`, Phase 1 adjudicates first and prunes the rejected findings' tasks out of it
+before `implement` sees the file — [../adversarial-loop/SKILL.md](../adversarial-loop/SKILL.md) step 3.
 
 Skip this only when there is no plan directory — then the findings are the output and the
 caller decides what to do with them.

@@ -136,12 +136,34 @@ Checking the target out yourself is a state change nobody asked for.
    reviewer has been *asserted*; the label is the claim you are checking. Reviewers are wrong
    often enough that applying findings unexamined introduces defects, and a suggested fix is
    frequently worse than the finding it addresses.
-3. **Run `implement` against the remediation plan the review wrote.** Do not fix findings
-   inline. `adversarial-review` Step 8 emits
+3. **Prune the plan to what you adjudicated, then run `implement` against it.** Do not fix
+   findings inline. `adversarial-review` Step 8 emits
    `docs/plans/<plan>/reviews/<date>-round-N/tasks.md`; `implement` executes it one task at a
    time, in fresh context, each verified against its own acceptance criterion and committed
    separately. Size each fix by the proportionality gate, and prefer removing a trap to
    documenting one.
+
+   ⛔ **Prune before you invoke, because `implement` cannot read a disposition.** Step 8 writes
+   the plan before any adjudication exists, so it carries a task for **every** finding that
+   survived verification — including the ones step 2 just rejected. `implement` takes the first
+   unchecked task line in the phase and implements *"ONLY ... what is EXPLICITLY written in
+   tasks.md"* (`implement/SKILL.md:87`); the task shape in
+   [../adversarial-review/templates.md](../adversarial-review/templates.md) has no disposition
+   field, and nothing `implement` reads would carry one. So an unpruned round with two findings
+   adjudicated `Valid` and four rejected commits six fixes — and the gate below still passes,
+   because it asks only whether the `Valid` ones were resolved.
+
+   **Delete the rejected findings' task lines from `## Tasks`.** Rejected is `Wrong`,
+   `Over-fitted`, and `Pre-existing` — except a `Pre-existing` finding this change made materially
+   more reachable, which [../adversarial-review/reference.md](../adversarial-review/reference.md)
+   keeps fixable and which therefore keeps its task. `Valid` stays. `Real but disproportionate`
+   stays, rewritten to the smaller change, because it takes the finding and rejects only the
+   remedy. Deletion, not annotation: the unticked checkbox is what `implement` keys on, so a line
+   left in place gets implemented, and a line ticked to prevent that asserts a fix nobody made.
+   Leave the frontmatter counters alone — `/wb:update_status` owns them and reconciles them from
+   the checkboxes. Nothing is lost by deleting — the disposition and the evidence that settled it
+   go in the ledger at step 5, which is the record of what the round decided; the plan is only the
+   work list.
 
    **Point it at the round directory, never at the parent plan.** The parent holds the original
    plan and `implement` would re-run it. A remediation plan is `tasks.md` alone — the shape

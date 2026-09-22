@@ -47,7 +47,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       today (RED), and after the fix assert the metacharacter path is matched literally and a
       pattern failure is announced rather than swallowed. (~4 calls) (completed 2026-09-22 18:29)
 
-- [ ] **R7-T2** — `plugin/skills/adversarial-review/SKILL.md:314` — Step 8 writes every
+- [x] **R7-T2** — `plugin/skills/adversarial-review/SKILL.md:314` — Step 8 writes every
       verification-surviving finding into an executable plan, but adjudication happens afterwards
       and nothing prunes the rejected findings before `implement` runs.
       **Fails when:** `adversarial-loop/SKILL.md:38-49` orders it review → adjudicate → fix. Step
@@ -60,7 +60,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       (`adversarial-loop:193`) passes because it only checks Valid findings were resolved.
       **Acceptance (shape 3)**: dual grep — a pruning/annotation step present at a named
       `file:line` between adjudication and `implement`, *and* the current unconditional "runs
-      `implement` against what you wrote" phrasing absent. (~3 calls)
+      `implement` against what you wrote" phrasing absent. (~3 calls) (completed 2026-09-22 18:42)
 
 - [ ] **R7-T3** — `plugin/skills/adversarial-review/SKILL.md:312` — Step 8 has no zero-findings
       branch, so a clean round (the loop's success state) makes `implement` stop and the loop
