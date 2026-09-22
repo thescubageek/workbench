@@ -151,6 +151,8 @@ restating, so a rule changes in one place instead of drifting across copies.
 - **`branch-naming.md`** - What the working branch is called, and when to rename it
 - **`journal-entries.md`** - Where a journal entry goes (newest at the top, never appended), its `(open)`/`(closed)` contract, and when it opens and closes
 - **`code-review-integration.md`** - What Claude Code's built-in review commands provide, and which parts of that a skill may rely on
+- **`review-ledger.md`** - The findings ledger a review loop appends to between rounds, and the thrash breaker computed from it
+- **`remediation-plan.md`** - What a review round's remediation plan is: where it lives, how a consumer recognises one, the files it has and deliberately lacks, and how Step 8's placeholders resolve
 
 ### Hooks
 
