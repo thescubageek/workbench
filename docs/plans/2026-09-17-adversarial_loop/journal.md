@@ -51,6 +51,16 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-22 18:17 — P5-T7 (open)
+
+- **Task/phase**: P5-T7 — write `plugin/docs/reference/remediation-plan.md` and repoint the 15
+  restatements of the round-recognition rule at it; `adversarial-review` excluded (round 7's
+  target, R7-T4 lands its link). Also filed R7-T13 as the PD5-1 disclosure task.
+- **Next action**: write the doc; then edit each of the 15 sites to link rather than restate;
+  run `./plugin/scripts/check`, `lint --all` and the P5-T3 link resolver; flip P5-T7; two
+  commits — the doc, then the repointing.
+- **Started at**: 67e6139
+
 ## 2026-09-21 17:11 — Round 6 closed at 13 of 13 (closed)
 
 - **Task/phase**: Round 6 of the adversarial review of `plugin/skills/implement/SKILL.md`,

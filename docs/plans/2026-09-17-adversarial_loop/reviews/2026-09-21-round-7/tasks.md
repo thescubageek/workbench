@@ -192,6 +192,21 @@ criterion is run before the fix**. A criterion that passes before the change is 
       the fix assert Step 8 (or the loop) promotes it with `-f` and the file appears in
       `git status --short`. (~3 calls)
 
+- [ ] **R7-T13** — `plugin/skills/adversarial-review/SKILL.md` Step 3 and `templates.md` (the
+      reconnaissance summary) — PD5-1, decided 2026-09-20 as **disclose only**: the skill has no
+      disclosure when the fleet it sized cannot cover the range it resolved.
+      **Fails when:** on `origin/main...HEAD` at 81 files / +11,655 the skill sized tier MAX and
+      five lenses over ~5,000 runtime lines and would have reported findings indistinguishable
+      from a full pass; round 7's own path target expanded 137 delta lines to 948 with no line in
+      the output saying so. The existing disclosure machinery fires only for a missing built-in
+      leg and for dropped lenses — neither path covers this.
+      **Acceptance (shape 4 + negative control)**: the reconnaissance summary states the resolved
+      range's size beside the fleet it sized, and the report carries a shortfall line whenever a
+      lens is covering more than it can read — in the voice the built-in uses to disclose a
+      single-pass run. Grep for the shortfall line's template in `templates.md` and its trigger
+      in Step 3; today both greps return nothing (RED). Negative control: the same greps against
+      an unmodified copy still return nothing. No threshold, no stop, no `--since` — PD5-1
+      rejected both and `--since`/`--range` is 3.1 work. (~6 calls)
 - [ ] **R7-T14** — `plugin/skills/adversarial-review/templates.md:137-139,153` — shape 6 tells the
       producing model to "Label `(attestation)`, name who must look", but the task-line template
       reserves no slot for either, so the label is an instruction rather than a template literal
@@ -217,10 +232,17 @@ criterion is run before the fix**. A criterion that passes before the change is 
 - **Blocking set**: R7-T1, R7-T2, R7-T3. The first corrupts the measurement the whole tier
   decision rests on; the second lands fixes for findings the loop rejected; the third turns the
   loop's success state into a reported failure.
-- **R7-T13 does not exist and should.** PD5-1 fired for real this round: a path target expands to
-  the entire feature (948 lines) with no way to say "the delta since round N". The narrowing was
-  applied by hand. A `--since=<ref>` or `--range=<a..b>` argument, and a diff-size gate that
-  refuses rather than silently under-covering, is the missing control.
+- **R7-T13 is now the PD5-1 disclosure task** (filled 2026-09-22). PD5-1 fired for real this
+  round: a path target expands to the entire feature (948 lines) with no way to say "the delta
+  since round N", and the narrowing was applied by hand. PD5-1 was decided 2026-09-20 as
+  *disclose only* — see `design.md` → Resolved Decisions — so the task states the ratio and adds
+  a shortfall line. A `--since=<ref>` / `--range=<a..b>` argument and any refusing gate are
+  deferred to 3.1, recorded here so the idea is not lost.
+- **R7-T4 resolves by linking, not by inventing.** `plugin/docs/reference/remediation-plan.md`
+  (P5-T7, 2026-09-22) states the resolution rules for `<plan>`, `<N>` and `<date>`. R7-T4's fix
+  is to direct Step 8's read of that document and make the loop pass the plan directory it
+  resolved; it must not restate the rules in `SKILL.md`, which would recreate the drift P5-T7
+  removed. Round 6's consumers already link to it.
 - **Out of delta, recorded so it is not lost.** Real, but in surface rounds 1–2 already reviewed,
   so not tasked here: Step 2 does not handle branch targets at all (base and head both resolve
   from the current checkout); Step 2's `REVIEW.md NOT READ` diagnostic names `origin/main` when

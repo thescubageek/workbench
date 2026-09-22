@@ -817,6 +817,19 @@ ships exactly what the release exists to prevent.
       `verification-before-completion`, where the rule lives.* **This is the third of three responses
       to the silent-measurement class; items 1 and 2 shipped 2026-09-18 and this one must land
       before the effort is called complete.** (~22 calls) (completed 2026-09-18 18:05)
+- [ ] **P5-T7** — Write `plugin/docs/reference/remediation-plan.md` as the single shipped authority
+      on what a review round's remediation plan is — where it lives, how a consumer recognises
+      one, the files it has and deliberately lacks, its frontmatter keys, the one implicit phase,
+      the `${phaseLabel}` substitution, and the resolution rules for Step 8's `<plan>`, `<N>` and
+      `<date>` — and repoint every shipped restatement at it. Round 6 left the recognition rule
+      ("a `reviews:` key in frontmatter or a `reviews/<date>-round-N/` path") stated in 15 files
+      across 5 skills and the journal reference; the house rule is one authority under
+      `plugin/docs/reference/`, linked, because copies drift. `adversarial-review`'s two files are
+      **excluded** — they are round 7's target and R7-T4 lands their link. **Acceptance (shape 4 +
+      shape 5)**: `grep -rl 'Recognise one by' plugin/` names exactly one file, the new doc
+      (negative control: today it names 8); every skill that branches on the round shape carries
+      a resolving link to the doc; the P5-T3 link resolver prints nothing. (~30 calls) · Added
+      2026-09-22 from round 6's checkpoint notes
 
 ### Success Criteria
 
