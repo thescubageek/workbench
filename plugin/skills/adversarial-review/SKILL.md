@@ -55,11 +55,20 @@ mandatory ones.
 
 ⛔ **Bind `target` first, as your own first action.** Every block below reads `$target`, and
 nothing assigns it — so with it unset the chain takes its first branch and reviews the current
-branch while the report names whatever was asked for. Export it in the same shell you run the
-block in:
+branch while the report names whatever was asked for.
 
 - an argument was given → `target=<that argument>`
 - no argument → leave it unset; the first branch is then correct rather than accidental
+
+⛔ **The binding lives in you, not in the shell — re-state it as the first line of every block
+you run that reads `$target`.** Each Bash call is a *fresh* shell: `export target=42` in one call
+prints `UNSET` in the next. An earlier version of this note said to export it "in the same shell
+you run the block in", but there is no "the shell" — there is one per tool call, and Step 2's is
+not Step 1's. So when an argument was given, type the binding literally at the top of each block
+below — `target=42`, `target=some-branch` — and when none was given type nothing and let the
+expansion stay empty. Bound in one call only, Step 2 takes its `else` branch, `head_ref` becomes
+`HEAD`, and `REVIEW.md` is read from whatever branch happens to be checked out: the fourth
+outcome there, the one with no error to show for it.
 
 **Do not write `target=$1` in a fenced block.** The harness substitutes positional parameters
 before this text reaches you, so the block would arrive with the value already spliced in — the
@@ -130,6 +139,10 @@ first and stop if it is empty — the one-liner that interpolates the substituti
 version of this step that fails open:
 
 ```bash
+# Re-state Step 1's binding: this is a fresh shell and does not carry it. An argument was given
+# → make the next line read `target=<it>`. None was given → leave the line exactly as it is.
+target=""
+
 # Resolve the base OF THE TARGET, not of whatever branch happens to be checked out.
 if printf '%s' "${target:-}" | grep -qE '^[0-9]+$'; then
   base_branch=$(gh pr view "$target" --json baseRefName --jq .baseRefName 2>/dev/null)

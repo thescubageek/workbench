@@ -51,6 +51,36 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-22 23:21 — R7-T5 (closed)
+
+- **Task/phase**: R7-T5 — Step 1's binding note said to export `target` "in the same shell you
+  run the block in", but each Bash tool call is a fresh shell and Step 2 is a separate block.
+  On `/wb:adversarial-review 42` Step 2's digits test was therefore always false, `gh pr view`
+  ran bare, `head_ref` became `HEAD`, and REVIEW.md resolved from whatever branch was checked
+  out — the fourth outcome the skill itself calls "the one with no error to show for it".
+- **Landed**: the note now states that the binding lives in the model, not the shell, and must
+  be re-stated as the literal first line of every block that reads `$target`; Step 2's block
+  carries a concrete re-binding line, shipping as `target=""` so verbatim execution is unchanged.
+  Mechanical re-derivation was ruled out and the reason recorded: the target is an invocation
+  argument, and `gh pr view` bare resolves from the current branch, which is the bug itself.
+  The `target=$1` prohibition is intact and still adjacent.
+- **Commits**: (this commit)
+- **Learned**: the harness hook timestamps and `date -u` diverged by about four hours for part
+  of this session and then re-converged — the system clock was right and the hook timestamps
+  were stale, which is the opposite of what the earlier note in this entry guessed. Anything
+  stamped between R7-T4 and R7-T5 should be read against `date -u`, not against the harness.
+- **Follow-ups filed** (all three carried to the round-7 checkpoint):
+  - `adversarial-review/SKILL.md:56` is now stale — "Every block below reads `$target`, and
+    nothing assigns it" is false once Step 2's block assigns it, and a model that obeys it
+    literally by *prepending* `target=42` above the pasted block has it clobbered by the block's
+    own `target=""` on line 3. Measured: outcome 4 again, with no error to show for it. Strictly
+    better than before (previously no path worked; now edit-in-place works) but one plausible
+    reading re-opens the same failure.
+  - `adversarial-loop/SKILL.md:274` and `:404` have the same cross-block persistence bug —
+    `PR=$(gh pr view ${target:+"$target"} ...)` in a fresh shell resolves the PR from the
+    current branch, which is exactly the failure Phase 0's own note describes. Out of scope
+    here; named only in `adversarial-review`.
+
 ## 2026-09-22 18:59 — R7-T4 (closed)
 
 - **Task/phase**: R7-T4 — `<plan>`, `<N>` and `<date>` were never defined in `adversarial-review`

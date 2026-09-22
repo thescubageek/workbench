@@ -92,7 +92,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       same greps against an unmodified copy must still return nothing. (~4 calls)
       (completed 2026-09-22 19:03)
 
-- [ ] **R7-T5** — `plugin/skills/adversarial-review/SKILL.md:60` — the new binding note says to
+- [x] **R7-T5** — `plugin/skills/adversarial-review/SKILL.md:60` — the new binding note says to
       export `target` "in the same shell you run the block in", but shell state does not survive
       between Bash tool calls and Step 2 is a separate block.
       **Fails when:** measured — `export target=X` in one Bash call, `${target:-UNSET}` in the
@@ -103,7 +103,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       it", with the wrong base then echoed as legitimate.
       **Acceptance (shape 1)**: run `export target=42` and `echo "${target:-UNSET}"` in two
       separate Bash tool calls; assert UNSET today (RED). After the fix, assert Step 2 either
-      re-derives `target` in its own block or the note says so explicitly. (~3 calls)
+      re-derives `target` in its own block or the note says so explicitly. (~3 calls) (completed 2026-09-22 23:25)
 
 - [ ] **R7-T6** — `plugin/skills/adversarial-review/SKILL.md:81,88` — the Step 1 block never
       checks that the range it printed is real, and its `exit 1` kills the whole tool-call shell.
