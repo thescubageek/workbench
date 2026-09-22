@@ -329,8 +329,16 @@ caller's to assign. Standalone, that file is the output and is executable as it 
 `adversarial-loop`, Phase 1 adjudicates first and prunes the rejected findings' tasks out of it
 before `implement` sees the file — [../adversarial-loop/SKILL.md](../adversarial-loop/SKILL.md) step 3.
 
-Skip this only when there is no plan directory — then the findings are the output and the
-caller decides what to do with them.
+Two cases skip the write, and they are different absences:
+
+- **No plan directory** — the findings are the output and the caller decides what to do with them.
+- **Nothing survived verification** — Step 7 emitted an empty `findings` array, so there is no
+  task to write. Write no `tasks.md`, and **say in the report that the round was clean and left no
+  plan by design.** Saying it is the whole point: an unannounced silence here is indistinguishable
+  from a write that failed, and this is the absence that means "fine". Step 7 is already explicit
+  about its own empty case ([templates.md](templates.md)); this one is the same obligation. Why an
+  empty plan file is the wrong artifact instead lives in
+  [../../docs/reference/remediation-plan.md](../../docs/reference/remediation-plan.md).
 
 **Why a plan and not a list.** Across four rounds on this plugin, fixing findings ad hoc
 introduced defects at roughly the rate the reviews removed them: 64% of one round's findings

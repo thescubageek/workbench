@@ -62,7 +62,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       `file:line` between adjudication and `implement`, *and* the current unconditional "runs
       `implement` against what you wrote" phrasing absent. (~3 calls) (completed 2026-09-22 18:42)
 
-- [ ] **R7-T3** — `plugin/skills/adversarial-review/SKILL.md:312` — Step 8 has no zero-findings
+- [x] **R7-T3** — `plugin/skills/adversarial-review/SKILL.md:312` — Step 8 has no zero-findings
       branch, so a clean round (the loop's success state) makes `implement` stop and the loop
       misreports it as skill drift.
       **Fails when:** round 3 returns zero survivors with the plan directory present. Step 8's
@@ -74,7 +74,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       apart: say so and stop" — emitted exactly when it should flip to Phase 2.
       **Acceptance (shape 3)**: dual grep — a zero-findings branch present in Step 8 at a named
       `file:line`, *and* a matching clean-round branch in `adversarial-loop`'s step 3 so the stop
-      is not read as drift. (~3 calls)
+      is not read as drift. (~3 calls) (completed 2026-09-22 18:52)
 
 - [ ] **R7-T4** — `plugin/skills/adversarial-review/SKILL.md:315` — `<plan>`, `<N>` and `<date>`
       are never defined, so two sessions diverge on where to write, which round number to use,

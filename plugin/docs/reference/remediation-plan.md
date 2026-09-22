@@ -71,6 +71,22 @@ and there is no phase after it to proceed to.
 not resolve is unreadable to everything downstream of it, and that is the one structural error
 worth a critical.
 
+## A round with nothing to fix
+
+**A round that verified no findings writes no `tasks.md` at all** — not an empty one. The absence
+is the round's success state, and it is stated here so the skills either side of it cannot
+disagree about what it means.
+
+An empty plan file would be the worse artifact. `implement` Step 2 stops on a plan with no task
+lines and sends the caller back to re-run the review — the right response to a review that failed
+to write its findings, and exactly the wrong one for a review that had none to write. Writing
+nothing keeps those two absences apart. The round's record is the review's own report, an empty
+`ReportFindings`, plus the ledger entry under `adversarial-loop`.
+
+So a missing round directory is not an error on its own; it is an error only to a caller that
+knows a finding survived. A round directory that *exists* with a `## Tasks` section holding no
+task lines is the error.
+
 ## The journal
 
 A round writes **no journal of its own**. Its entries go in the parent plan's

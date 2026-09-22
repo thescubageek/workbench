@@ -51,6 +51,28 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-22 18:47 — R7-T3 (closed)
+
+- **Task/phase**: R7-T3 — `adversarial-review` Step 8 had no zero-findings branch, so a clean
+  round — the loop's success state — made `implement` stop on "no task lines" and the loop's
+  drift clause misreported it as the two skills having drifted apart.
+- **Landed**: Step 8's single skip became two named absences, the second being *nothing survived
+  verification* → write no `tasks.md` and say the round was clean by design. `adversarial-loop`
+  Phase 1 gained a clean-round branch after R7-T2's pruning paragraph and before the invoke,
+  covering both arrivals at an empty plan — zero survivors, and everything pruned. The decision
+  "no file, not an empty one" went once into `plugin/docs/reference/remediation-plan.md` as
+  *A round with nothing to fix*, with both skills linking it.
+- **Commits**: (this commit)
+- **Learned**: the drift clause is closed structurally rather than verbally — the new branch
+  returns *before* the invoke, so control reaches the drift paragraph only when a task line
+  remains, which implies the file exists. A missing file there can then only be genuine drift.
+  Verified independently that no consumer enumerates `reviews/`, so an absent round directory
+  moves the false alarm nowhere.
+- **Follow-up filed**: `adversarial-loop/SKILL.md:174` says invoking `implement` "would hit its
+  Step 2 stop" — exact for the pruned-empty arrival, but the wrote-nothing arrival would stop
+  at Step 1's presence check. Rationale imprecision only; the branch forbids the invoke either
+  way.
+
 ## 2026-09-22 18:33 — R7-T2 (closed)
 
 - **Task/phase**: R7-T2 — `adversarial-review` Step 8 writes every verification-surviving

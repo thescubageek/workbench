@@ -165,12 +165,29 @@ Checking the target out yourself is a state change nobody asked for.
    go in the ledger at step 5, which is the record of what the round decided; the plan is only the
    work list.
 
+   **If no task line remains, the round is clean — do not invoke `implement`.** Two arrivals,
+   indistinguishable from here and handled the same: the review verified nothing, so Step 8 wrote
+   no `tasks.md` at all
+   ([../../docs/reference/remediation-plan.md](../../docs/reference/remediation-plan.md)); or the
+   pruning above deleted every task line because every finding was rejected. Either way no
+   `Valid` finding remains, which is the gate's success condition below rather than a failure.
+   Invoking `implement` on it would hit its Step 2 stop on "no task lines" — an absence that
+   correctly means *the review failed to write its findings*, and the one this branch exists to
+   stop being reported as skill drift or as a broken round.
+
+   Nothing was fixed and nothing changed, so there is nothing for step 4 to verify and no reworked
+   area for step 6 to re-review: the pass you just took still certifies this tree. Record the
+   dispositions at step 5 — a round that decided nothing needed fixing is exactly what the ledger
+   has to show — and take the gate.
+
    **Point it at the round directory, never at the parent plan.** The parent holds the original
    plan and `implement` would re-run it. A remediation plan is `tasks.md` alone — the shape
    [../../docs/reference/remediation-plan.md](../../docs/reference/remediation-plan.md) defines — and
    `implement` Step 1 accepts it. If it instead stops on a missing file or
    on "no phases", the two skills have drifted apart: say so and stop, rather than fixing the
-   round inline and reporting it as the same thing.
+   round inline and reporting it as the same thing. The clean round is already out of that
+   sentence — the branch above returns before the invoke — so a file missing *here* is one you
+   had findings for.
 
    **Why not inline.** An aggregate gate run after twenty-two changes says the tree passes; it
    says nothing about whether any individual change did what it should, or broke another. On
