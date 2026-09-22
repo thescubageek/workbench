@@ -221,7 +221,11 @@ change, and that error direction is toward believing the change is safe.
 hits=$(grep -rnF -- "<changed symbol>" .)
 search=$?
 [ "$search" -le 1 ] || echo "SEARCH FAILED (grep exit $search) — NOT an isolated change" >&2
-[ -n "$hits" ] && printf '%s\n' "$hits" | grep -vE "^(\./)?<the changed file>:" | sed 's/^/  /'
+callers=$(printf '%s\n' "$hits" |
+  changed="<the changed file>" awk -F: '$1 != ENVIRON["changed"] && $1 != "./" ENVIRON["changed"]')
+filter=$?
+[ "$filter" -eq 0 ] || echo "FILTER FAILED (awk exit $filter) — NOT an isolated change" >&2
+[ -n "$callers" ] && printf '%s\n' "$callers" | sed 's/^/  /'
 ```
 
 Four details in that command are the difference between a measurement and a guess:
@@ -239,18 +243,24 @@ Four details in that command are the difference between a measurement and a gues
   clean one, and this measurement's errors all point toward believing the change is safe.
 - **The guard runs before the output is printed**, so a failed search is announced ahead of the
   emptiness that would otherwise read as "no callers".
-- **The exclusion is anchored on the path field**, `^(\./)?<file>:`, and not on the filename
-  appearing anywhere in the line. An unanchored `grep -v "<file>"` drops every line whose *text*
-  mentions that path — which, for a script invoked by path, is exactly its callers. Measured on
-  `shellcheck-gate`: unanchored returned one hit, a README heading, and read as an isolated
-  change; anchored it returns four, including `plugin/scripts/check:52`, the line that makes the
-  script part of the release gate. The `(\./)?` is not decoration: whether the path field
-  carries a leading `./` varies with the grep and with how it is invoked, and the same command
-  was observed both ways on one machine while this was being fixed. An anchor written for one
-  spelling silently filters nothing under the other. That failure is in the safe direction — the
-  changed file's own lines survive and the count reads wide — where the unanchored form fails
-  the other way, and the errors this block guards against all point toward believing the change
-  is safe.
+- **The exclusion compares the path field literally**, and not as a pattern. `awk -F:` splits
+  each hit into `path:line:text` and tests `$1` for string equality against the changed file —
+  against both spellings, bare and `./`-prefixed, because whether the path field carries a
+  leading `./` varies with the grep and with how it is invoked, and the same command was
+  observed both ways on one machine while this was being fixed. The path arrives through
+  `ENVIRON` rather than `-v`, which would read a `\t` in a filename as a tab. Two earlier
+  spellings each failed, in opposite directions. An unanchored `grep -v "<file>"` drops every
+  line whose *text* mentions that path — which, for a script invoked by path, is exactly its
+  callers: measured on `shellcheck-gate`, unanchored returned one hit, a README heading, and
+  read as an isolated change, where anchoring returns four, including `plugin/scripts/check:52`,
+  the line that makes the script part of the release gate. Anchoring it as an ERE,
+  `^(\./)?<file>:`, then interpolated the path into a regular expression: measured for
+  `app/[id].tsx`, `[id]` became a character class, the changed file's own lines were no longer
+  excluded and `app/i_tsx:9` — a real caller — was dropped in their place; for `app/[id.tsx`
+  the pattern was invalid, grep exited 2 printing nothing, and the empty output read as "no
+  callers". `filter=$?` is what closes that last one: a filter that could not run now announces
+  itself, because the errors this block guards against all point toward believing the change is
+  safe.
 
 Then choose the built-in's effort token. Read
 [../../docs/reference/code-review-integration.md](../../docs/reference/code-review-integration.md)

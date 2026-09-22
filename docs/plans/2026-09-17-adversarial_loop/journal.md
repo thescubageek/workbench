@@ -51,6 +51,23 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-22 18:27 — R7-T1 (closed)
+
+- **Task/phase**: R7-T1 — round 7 remediation: the blast-radius exclusion at
+  `adversarial-review/SKILL.md:224` interpolates the changed file's path raw into an ERE, so a
+  path with regex metacharacters silently changes or invalidates the filter, failing toward
+  "isolated".
+- **Landed**: the ERE exclusion replaced by a literal path-field comparison in `awk`, keyed on
+  `ENVIRON["changed"]` rather than `-v` (which processes escape sequences in the value), covering
+  both the `./`-prefixed and bare path-field spellings; a `filter=$?` guard now announces
+  `FILTER FAILED` on stderr ahead of the emptiness that used to read as "no callers"; the bullet
+  documenting the exclusion rewritten, and its false "that failure is in the safe direction"
+  claim removed — the metacharacter case drops real callers too.
+- **Learned**: the old ERE failed in *both* directions on `app/[id].tsx`, not only the
+  unbalanced one — the changed file's own lines survived and a genuine caller (`app/i_tsx`) was
+  silently dropped. R7-T11 will change how the search is invoked and therefore the path-field
+  spelling; the shipped filter handles both, so no rework of R7-T1 is implied.
+
 ## 2026-09-22 18:23 — P5-T7 (closed)
 
 - **Task/phase**: P5-T7 — `plugin/docs/reference/remediation-plan.md` written; the 15

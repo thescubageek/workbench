@@ -34,7 +34,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
 
 ## Tasks
 
-- [ ] **R7-T1** — `plugin/skills/adversarial-review/SKILL.md:224` — the newly-anchored exclusion
+- [x] **R7-T1** — `plugin/skills/adversarial-review/SKILL.md:224` — the newly-anchored exclusion
       interpolates the changed file's path raw into an ERE, so a path with regex metacharacters
       silently changes or invalidates the filter — and it fails toward "isolated", which the
       surrounding prose claims cannot happen.
@@ -45,7 +45,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       block guards against all point toward believing the change is safe".
       **Acceptance (shape 1)**: execute both commands above as written; assert exit 2 / empty
       today (RED), and after the fix assert the metacharacter path is matched literally and a
-      pattern failure is announced rather than swallowed. (~4 calls)
+      pattern failure is announced rather than swallowed. (~4 calls) (completed 2026-09-22 18:29)
 
 - [ ] **R7-T2** — `plugin/skills/adversarial-review/SKILL.md:314` — Step 8 writes every
       verification-surviving finding into an executable plan, but adjudication happens afterwards
