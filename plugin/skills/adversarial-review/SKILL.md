@@ -322,12 +322,21 @@ without one was never verified — drop it rather than reporting it with a lower
 ## Step 8: Emit the remediation plan
 
 **A review round's output is a plan, not a patch.** Write the surviving findings to
-`docs/plans/<plan>/reviews/<date>-round-N/tasks.md` using the shape in
+`docs/plans/<plan>/reviews/<date>-round-<N>/tasks.md` using the shape in
 [templates.md](templates.md), then stop. This skill does not fix anything, and it does not
 adjudicate: every finding that survived verification gets a task, because the dispositions are the
 caller's to assign. Standalone, that file is the output and is executable as it stands. Under
 `adversarial-loop`, Phase 1 adjudicates first and prunes the rejected findings' tasks out of it
 before `implement` sees the file — [../adversarial-loop/SKILL.md](../adversarial-loop/SKILL.md) step 3.
+
+**Read [../../docs/reference/remediation-plan.md](../../docs/reference/remediation-plan.md) NOW
+for how `<plan>`, `<N>` and `<date>` resolve.** All three rules are stated there, and are
+deliberately not restated here. The division of labour: `<plan>` is the plan directory the caller
+names — `adversarial-loop` resolves the active plan and passes it — while `<N>` and `<date>` you
+resolve at write time from that directory. Filling them in by eye is how a round lands somewhere
+no consumer looks: this skill carries nothing between rounds, so a guessed `<N>` writes round 2
+into round 1's directory and overwrites checkboxes a human already ticked, and a guessed `<plan>`
+files the round against work it did not review.
 
 Two cases skip the write, and they are different absences:
 

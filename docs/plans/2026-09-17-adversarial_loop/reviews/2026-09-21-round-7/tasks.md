@@ -76,7 +76,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       `file:line`, *and* a matching clean-round branch in `adversarial-loop`'s step 3 so the stop
       is not read as drift. (~3 calls) (completed 2026-09-22 18:52)
 
-- [ ] **R7-T4** — `plugin/skills/adversarial-review/SKILL.md:315` — `<plan>`, `<N>` and `<date>`
+- [x] **R7-T4** — `plugin/skills/adversarial-review/SKILL.md:315` — `<plan>`, `<N>` and `<date>`
       are never defined, so two sessions diverge on where to write, which round number to use,
       and which timezone dates the directory.
       **Fails when:** `grep -rn '<plan>|<date>|round-N' plugin/skills/adversarial-review/`
@@ -90,6 +90,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       **Acceptance (shape 4 + negative control)**: grep for a stated resolution rule for each of
       the three placeholders; today all three greps return nothing (RED). Negative control: the
       same greps against an unmodified copy must still return nothing. (~4 calls)
+      (completed 2026-09-22 19:03)
 
 - [ ] **R7-T5** — `plugin/skills/adversarial-review/SKILL.md:60` — the new binding note says to
       export `target` "in the same shell you run the block in", but shell state does not survive

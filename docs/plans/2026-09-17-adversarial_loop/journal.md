@@ -51,6 +51,30 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-22 18:59 — R7-T4 (closed)
+
+- **Task/phase**: R7-T4 — `<plan>`, `<N>` and `<date>` were never defined in `adversarial-review`
+  Step 8, so two sessions diverge on where to write, which round number to use, and which
+  timezone dates the directory. The review is stateless, so round 2 writes `round-1` and
+  clobbers round 1's `[x]` checkboxes.
+- **Landed**: resolved by **linking**, per the plan's own note. Step 8 gained a directed-read
+  paragraph in the skill's `Read X NOW` idiom pointing at
+  `plugin/docs/reference/remediation-plan.md`, stating only the division of labour (`<plan>` from
+  the caller; `<N>` and `<date>` resolved by the review at write time) and what guessing costs —
+  none of the rules themselves. Step 8's path template normalised `round-N` → `round-<N>`,
+  converging on the authority's spelling. `adversarial-loop` Phase 1 step 1 now resolves the
+  active plan directory and passes it, and says outright not to compute the round number or date
+  there.
+- **Commits**: (this commit)
+- **Learned**: the verifier mutated the worktree three ways — deleting the paragraph, downgrading
+  `NOW` to `eventually`, repointing the link — and each drove every placeholder grep back to RED,
+  which is what establishes the one paragraph is load-bearing rather than decorative. That is the
+  shape a shape-4 criterion needs to be worth running.
+- **Follow-up filed**: `round-N` (unbracketed) survives at `adversarial-loop/SKILL.md:148`,
+  `adversarial-review/templates.md:111` and `plugin/docs/reference/journal-entries.md:49`, all
+  pre-existing. Nothing matches on the literal, so it is cosmetic — but the loop now spells the
+  path two ways in one file.
+
 ## 2026-09-22 18:47 — R7-T3 (closed)
 
 - **Task/phase**: R7-T3 — `adversarial-review` Step 8 had no zero-findings branch, so a clean
