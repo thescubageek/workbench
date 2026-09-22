@@ -15,7 +15,7 @@ that renders this template faithfully and stops would otherwise emit neither —
 the final phase is exactly the defect.
 
 **Three substitutions branch on the kind of plan.** A remediation plan
-(`docs/plans/<plan>/reviews/<date>-round-N/`) has no numbered phase — `SKILL.md` Step 2 — so
+([../../../docs/reference/remediation-plan.md](../../../docs/reference/remediation-plan.md)) has no numbered phase — `SKILL.md` Step 2 — so
 there is no `${phase}` to name and nothing after it to proceed to.
 
 | Placeholder | Phased plan | Remediation plan |

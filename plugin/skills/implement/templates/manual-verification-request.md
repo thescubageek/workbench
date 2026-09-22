@@ -7,7 +7,7 @@ checkpoint ticks the conditions it established, leaves "Manual verification conf
 `[ ]`, and records the phase as having closed unattended.
 
 **Two substitutions branch on the kind of plan.** A remediation plan
-(`docs/plans/<plan>/reviews/<date>-round-N/`) has no numbered phase and no `design.md` —
+([../../../docs/reference/remediation-plan.md](../../../docs/reference/remediation-plan.md)) has no numbered phase and no `design.md` —
 `SKILL.md` Step 1 and Step 2 — so a template that hard-codes either waits on a checklist drawn
 from a file that does not exist, under a heading reading `Phase undefined`.
 

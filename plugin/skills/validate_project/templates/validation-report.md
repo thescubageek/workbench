@@ -110,8 +110,8 @@ Based on the validation results:
 - Assumptions: [count] pending, [count] validated
 - Pending decisions: [count] open, [count] resolved
 
-**On a remediation plan** (a `reviews:` key in frontmatter or a `reviews/<date>-round-N/` path),
-drop the research.md and design.md rows, the Planning Records block and the Current phase line
+**On a remediation plan** (the shape
+[../../../docs/reference/remediation-plan.md](../../../docs/reference/remediation-plan.md) defines), drop the research.md and design.md rows, the Planning Records block and the Current phase line
 rather than filling them with "n/a" or a status you inferred — they are absent by design, and a
 row reading "n/a" invites the next reader to go looking for the file. Add one line naming the
 parent plan from `reviews:`, and report the round against checklist §9.

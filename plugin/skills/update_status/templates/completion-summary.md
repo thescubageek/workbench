@@ -3,7 +3,7 @@
 Step 7 — emitted once, after the updates land.
 
 **Two substitutions branch on the kind of plan.** A remediation plan
-(`docs/plans/<plan>/reviews/<date>-round-N/`) has only `tasks.md`, and its single `## Tasks`
+([../../../docs/reference/remediation-plan.md](../../../docs/reference/remediation-plan.md)) has only `tasks.md`, and its single `## Tasks`
 section carries no phase number — `SKILL.md` Step 1. A summary that hard-codes the upstream
 documents reports updates to two files nobody touched, because they do not exist.
 

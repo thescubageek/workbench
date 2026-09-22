@@ -2,8 +2,8 @@
 
 Step 6 — emitted once, after the human confirms manual verification.
 
-**Three substitutions branch on the kind of plan.** A remediation plan has no numbered phase —
-SKILL.md Step 2 — so there is no `[N]` to name and nothing after it to proceed to.
+**Three substitutions branch on the kind of plan.** A remediation plan ([../../../docs/reference/remediation-plan.md](../../../docs/reference/remediation-plan.md))
+has no numbered phase — SKILL.md Step 2 — so there is no `[N]` to name and nothing after it to proceed to.
 
 | Placeholder | Phased plan | Remediation plan |
 | ----------- | ----------- | ---------------- |

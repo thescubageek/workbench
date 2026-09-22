@@ -11,6 +11,7 @@ Supporting files in this directory (read each when its step directs you to — n
 
 - [reference.md](reference.md) — the `claude[bot]` and CI mechanics, and the coverage question between rounds
 - [../../docs/reference/review-ledger.md](../../docs/reference/review-ledger.md) — the findings ledger and the thrash breaker
+- [../../docs/reference/remediation-plan.md](../../docs/reference/remediation-plan.md) — what the remediation plan Phase 1 step 3 hands to `implement` is, and where it lives
 
 It also reads, from the skills it sequences:
 
@@ -143,9 +144,9 @@ Checking the target out yourself is a state change nobody asked for.
    documenting one.
 
    **Point it at the round directory, never at the parent plan.** The parent holds the original
-   plan and `implement` would re-run it. A remediation plan is `tasks.md` alone — no
-   `research.md`, no `design.md`, no `current_phase`, no `## Phase N` headings — and
-   `implement` Step 1 names that shape and accepts it. If it instead stops on a missing file or
+   plan and `implement` would re-run it. A remediation plan is `tasks.md` alone — the shape
+   [../../docs/reference/remediation-plan.md](../../docs/reference/remediation-plan.md) defines — and
+   `implement` Step 1 accepts it. If it instead stops on a missing file or
    on "no phases", the two skills have drifted apart: say so and stop, rather than fixing the
    round inline and reporting it as the same thing.
 

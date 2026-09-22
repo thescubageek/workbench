@@ -16,6 +16,7 @@ Supporting files in this directory (read each when its step directs you to — n
 - `templates/` — [modified-files-fragment.md](templates/modified-files-fragment.md) (Step 5) · [manual-verification-request.md](templates/manual-verification-request.md) and [phase-completion-report.md](templates/phase-completion-report.md) (Step 6)
 - [reference.md](reference.md) — handling mismatches, resume logic, TDD best practices, special considerations, error handling, the DO/DON'T lists, configuration
 - [../../docs/reference/journal-entries.md](../../docs/reference/journal-entries.md) — where a journal entry goes (newest first, never appended), its heading contract, and when it opens and closes
+- [../../docs/reference/remediation-plan.md](../../docs/reference/remediation-plan.md) — what a review round's remediation plan is, how Step 1 recognises one, and the files it has and deliberately lacks
 
 **If a directed read fails, stop — do not continue from memory.** These files live outside your
 project, so a read can be refused. Say which file was refused, that reads outside the working
@@ -119,12 +120,10 @@ Take the project directory and the phase from the arguments, prompting for eithe
 missing. Then read `research.md`, `design.md` and `tasks.md` from that directory — **fully**, no
 `limit` or `offset`.
 
-**A remediation plan has only `tasks.md`, and that is correct.** `adversarial-review` Step 8
-writes `docs/plans/<plan>/reviews/<date>-round-N/tasks.md`; a review is not a project, so it has
-no research or design stage — the review *is* the research and the findings are the design input.
-Recognise one by a `reviews:` key in its frontmatter or a `reviews/<date>-round-N/` path, and take
-`tasks.md` alone as the whole plan. Do not stop, and do not route the user to
-`/wb:create_project` to manufacture two files that exist only to be empty.
+**A remediation plan has only `tasks.md`, and that is correct.** Read
+[../../docs/reference/remediation-plan.md](../../docs/reference/remediation-plan.md) NOW for how to recognise one
+and what it deliberately lacks, then take `tasks.md` alone as the whole plan. Do not stop, and do
+not route the user to `/wb:create_project` to manufacture two files that exist only to be empty.
 
 Every later step that reaches for research or design context — the REFACTOR step's patterns, Step
 4's edge cases, Step 5's testing patterns, Step 6's manual checks — then has nothing to reach for.
@@ -221,12 +220,9 @@ The heading shape is a contract — the session-start hook, `forge`, `daily-dige
 ## YYYY-MM-DD HH:MM — <task-id or short label> (open)
 ```
 
-**On a remediation plan, the entry goes in the parent plan's `journal.md`** —
-`docs/plans/<plan>/journal.md`, not a new file inside
-`docs/plans/<plan>/reviews/<date>-round-N/`. Every reader enumerates plans one level deep under
-`docs/plans/`, so a journal in the round directory is below all of them and nothing would ever
-open it. The round's task IDs already name the round, so the entry stays legible in the parent
-file.
+**On a remediation plan, the entry goes in the parent plan's `journal.md`** — a round directory
+holds no journal of its own. The rule and its reason are stated once, in `journal-entries.md` →
+*Which file, when the plan directory is nested*.
 
 **B. Test First (RED)**
 

@@ -18,9 +18,9 @@ Valid next steps:
 
 ## Missing Files
 
-**Check for a remediation plan before reporting anything missing.** A `reviews:` key in
-`tasks.md`'s frontmatter or a `reviews/<date>-round-N/` path means `tasks.md` alone *is* the whole
-plan — research.md and design.md are not missing, they were never written, and this message must
+**Check for a remediation plan before reporting anything missing.** A directory that
+`../../../docs/reference/remediation-plan.md` recognises as a round means `tasks.md` alone *is* the
+whole plan — research.md and design.md are not missing, they were never written, and this message must
 not fire. Reconcile the counters from the checkboxes and carry on; `/wb:create_project` would
 manufacture two files that exist only to be empty.
 

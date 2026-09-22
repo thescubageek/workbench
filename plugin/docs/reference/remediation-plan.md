@@ -29,7 +29,7 @@ original — a worse defect than the one the round exists to fix.
 
 Either test is sufficient; a consumer checks both because a hand-moved directory can lose one:
 
-1. `tasks.md`'s frontmatter carries a `reviews:` key, or
+1. `tasks.md` carries a `reviews:` key in its frontmatter, or
 2. the directory path matches `reviews/<something>-round-<digits>/`.
 
 The canonical form, for anything that reasons in code:
@@ -93,7 +93,7 @@ These are Step 8's placeholders, and two sessions writing a round must land on t
 The recognition rule is stated **here and nowhere else**. This must name exactly one file:
 
 ```bash
-grep -rl 'Recognise one by' plugin/
+grep -rlF 'a `reviews:` key in its frontmatter' plugin/
 ```
 
 Every consumer that branches on the round shape links to this document rather than restating it.

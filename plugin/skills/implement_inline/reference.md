@@ -68,9 +68,8 @@ no separate tracker to reload.
    - Read research.md and design.md for context
    - Read `.claude/wb/knowledge.md` if it exists
 
-   A remediation plan (recognise one by a `reviews:` key in its frontmatter or a
-   `reviews/<date>-round-N/` path) has no research.md or design.md — tasks.md alone is the whole
-   plan.
+   A remediation plan (the shape `../../docs/reference/remediation-plan.md` defines) has no
+   research.md or design.md — tasks.md alone is the whole plan.
 
 4. **Verify previous work** (optional):
 

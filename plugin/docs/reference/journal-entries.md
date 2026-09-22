@@ -61,6 +61,10 @@ Name the round in the entry's label so the parent journal stays readable — the
 already carry it (`R6-T6`), so the heading reads
 `## 2026-09-21 09:14 — R6-T6 (open)` and needs nothing further.
 
+This section is the one statement of the journal rule for a round. The rest of the round's
+contract — how to recognise one, what it has and lacks — is [remediation-plan.md](remediation-plan.md),
+which links here rather than restating this.
+
 ## The heading
 
 ```

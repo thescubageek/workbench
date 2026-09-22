@@ -817,7 +817,7 @@ ships exactly what the release exists to prevent.
       `verification-before-completion`, where the rule lives.* **This is the third of three responses
       to the silent-measurement class; items 1 and 2 shipped 2026-09-18 and this one must land
       before the effort is called complete.** (~22 calls) (completed 2026-09-18 18:05)
-- [ ] **P5-T7** — Write `plugin/docs/reference/remediation-plan.md` as the single shipped authority
+- [x] **P5-T7** — Write `plugin/docs/reference/remediation-plan.md` as the single shipped authority
       on what a review round's remediation plan is — where it lives, how a consumer recognises
       one, the files it has and deliberately lacks, its frontmatter keys, the one implicit phase,
       the `${phaseLabel}` substitution, and the resolution rules for Step 8's `<plan>`, `<N>` and
@@ -829,7 +829,13 @@ ships exactly what the release exists to prevent.
       shape 5)**: `grep -rl 'Recognise one by' plugin/` names exactly one file, the new doc
       (negative control: today it names 8); every skill that branches on the round shape carries
       a resolving link to the doc; the P5-T3 link resolver prints nothing. (~30 calls) · Added
-      2026-09-22 from round 6's checkpoint notes
+      2026-09-22 from round 6's checkpoint notes (completed 2026-09-22 18:23)
+      *Landed: 20 files — 15 restatement sites across `implement`, `implement_inline`,
+      `update_status`, `validate_project` and `adversarial-loop` now link; `journal-entries.md`
+      cross-links; README and help list the doc (and `review-ledger.md`, which both had
+      omitted). The check-it grep named 8 files before and names 1 after; the first pattern
+      self-matched an unrelated "Recognise one by that label" in `implement` and was
+      sharpened to the rule's own phrase. `adversarial-review` deliberately untouched — R7-T4.*
 
 ### Success Criteria
 

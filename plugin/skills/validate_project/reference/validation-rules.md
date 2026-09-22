@@ -3,10 +3,9 @@
 ## Which contract to validate against
 
 ```javascript
-// A remediation plan has only `tasks.md`, and that is correct. `adversarial-review` Step 8
-// writes `docs/plans/<plan>/reviews/<date>-round-N/tasks.md`; a review is not a project, so it
-// has no research or design stage. Recognise one by a `reviews:` key in its frontmatter or a
-// `reviews/<date>-round-N/` path, and take `tasks.md` alone as the whole plan.
+// A remediation plan has only `tasks.md`, and that is correct. The shape, and this predicate,
+// are defined in ../../../docs/reference/remediation-plan.md — the one statement of the
+// recognition rule; this is its canonical code form, copied verbatim, not a second definition.
 //
 // This switches the contract; it does not switch validation off. Everything gated on isRound
 // below is a rule that can only be about a second file — asserting it against a round produces
@@ -42,7 +41,7 @@ for (const file of requiredFiles) {
 const requiredFields = {
   all: ['project', 'created', 'status', 'last_updated', 'git_commit', 'git_branch'],
   tasks: ['task_tracking', 'current_phase', 'total_tasks', 'completed_tasks'],
-  // A round's frontmatter is the set `adversarial-review` Step 8 writes, and nothing else.
+  // A round's frontmatter is the set remediation-plan.md lists under *What it has*, and nothing else.
   // `last_updated`, `git_commit`, `git_branch` and `current_phase` are absent BY DESIGN —
   // a round has one implicit phase and is written in one sitting — so demanding them reports
   // four missing fields on a correctly generated file.

@@ -3,10 +3,10 @@
 The skill validates the following aspects.
 
 **Two shapes, two contracts.** A **phased project** has `research.md`, `design.md` and
-`tasks.md`. A **remediation plan** — `docs/plans/<plan>/reviews/<date>-round-N/tasks.md`, written
-by `adversarial-review` Step 8 — has only `tasks.md`, and that is correct: a review is not a
-project, so it has no research or design stage. Recognise one by a `reviews:` key in its
-frontmatter or a `reviews/<date>-round-N/` path, and take `tasks.md` alone as the whole plan.
+`tasks.md`. A **remediation plan** — the shape
+[../../../docs/reference/remediation-plan.md](../../../docs/reference/remediation-plan.md) defines — has only
+`tasks.md`, and that is correct: a review is not a project, so it has no research or design stage.
+That document is the authority on how to recognise one and on the frontmatter keys §9 checks.
 
 On a round, the sections marked below as phased-only do not apply — there is no second file for
 them to be about, and reporting each absence as a critical error buries the findings that are
@@ -137,8 +137,8 @@ Checked **instead of** §2, §6, §7 and §8 on a directory recognised as a roun
 document and this contract is deliberately short — but it is a contract. A branch that validated
 nothing would trade a false positive for a blind spot on the only file the round has.
 
-- ✅ Frontmatter carries the keys `adversarial-review` Step 8 writes: `project`, `reviews`,
-  `round`, `created`, `status`, `task_tracking`, `total_tasks`, `completed_tasks`
+- ✅ Frontmatter carries exactly the keys `remediation-plan.md` lists under *What it has* — the
+  set `adversarial-review` Step 8 writes, and nothing else
 - ❌ `reviews` names a directory that does not exist — it is the round's only link back to the
   plan under review, and a round whose parent cannot be resolved is unreadable to every reader
   downstream of it

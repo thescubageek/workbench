@@ -51,15 +51,26 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
-## 2026-09-22 18:17 — P5-T7 (open)
+## 2026-09-22 18:23 — P5-T7 (closed)
 
-- **Task/phase**: P5-T7 — write `plugin/docs/reference/remediation-plan.md` and repoint the 15
-  restatements of the round-recognition rule at it; `adversarial-review` excluded (round 7's
-  target, R7-T4 lands its link). Also filed R7-T13 as the PD5-1 disclosure task.
-- **Next action**: write the doc; then edit each of the 15 sites to link rather than restate;
-  run `./plugin/scripts/check`, `lint --all` and the P5-T3 link resolver; flip P5-T7; two
-  commits — the doc, then the repointing.
-- **Started at**: 67e6139
+- **Task/phase**: P5-T7 — `plugin/docs/reference/remediation-plan.md` written; the 15
+  restatements of the round-recognition rule repointed at it; R7-T13 filed as the PD5-1
+  disclosure task.
+- **Landed**: the doc (where a round lives, recognition rule with its canonical predicate, the
+  frontmatter keys, what it lacks by design, `Round <N>` as the phase label, the journal
+  cross-link, and resolution rules for `<plan>`, `<N>`, `<date>`); 20 files repointed (61+/67−);
+  README and help list it and `review-ledger.md`. `adversarial-review` untouched — R7-T4 lands
+  its link, and round 7's notes say so.
+- **Commits**: ee96dfb (bookkeeping), 25e2e57 (the doc), and the repointing commit that closes
+  this entry.
+- **Learned**: a check-it grep can self-match. `grep -rl 'Recognise one by'` named the doc
+  *and* `implement/SKILL.md`, whose hit was the attestation paragraph — same verb, different
+  rule. The pattern is now the rule's own phrase. The general resolver over every `.md` under
+  `plugin/` reports 13 pre-existing MISSes, all in plan-generating templates whose relative
+  links resolve inside the generated plan, not the plugin; the P5-T3 resolver never saw them
+  because it reads `SKILL.md` only. Not a defect, recorded so nobody re-finds it.
+- **Blocked by**: nothing. **Next**: round 7 launches in the other session; the
+  `<plan>`/`<N>`/`<date>` rules and the `--since` deferral are decisions to confirm or overturn.
 
 ## 2026-09-21 17:11 — Round 6 closed at 13 of 13 (closed)
 

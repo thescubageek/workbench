@@ -3,7 +3,7 @@
 Step 4 — present this and **wait** for confirmation before writing anything.
 
 **Two substitutions branch on the kind of plan.** A remediation plan
-(`docs/plans/<plan>/reviews/<date>-round-N/`) has only `tasks.md`, and its single `## Tasks`
+([../../../docs/reference/remediation-plan.md](../../../docs/reference/remediation-plan.md)) has only `tasks.md`, and its single `## Tasks`
 section carries no phase number — `SKILL.md` Step 1. A template that hard-codes the upstream
 documents therefore asks the user to confirm a status transition for two files that do not
 exist, under a phase the round never had.
