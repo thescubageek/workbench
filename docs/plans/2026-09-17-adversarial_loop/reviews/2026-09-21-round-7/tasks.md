@@ -105,7 +105,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       separate Bash tool calls; assert UNSET today (RED). After the fix, assert Step 2 either
       re-derives `target` in its own block or the note says so explicitly. (~3 calls) (completed 2026-09-22 23:25)
 
-- [ ] **R7-T6** — `plugin/skills/adversarial-review/SKILL.md:81,88` — the Step 1 block never
+- [x] **R7-T6** — `plugin/skills/adversarial-review/SKILL.md:81,88` — the Step 1 block never
       checks that the range it printed is real, and its `exit 1` kills the whole tool-call shell.
       Two findings, one file, one class (Step 1 resolution robustness).
       **Fails when:** (a) a glob or mistyped path fails `[ -e "$target" ]` (zsh does not glob
@@ -119,7 +119,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       has no detector for `exit`.
       **Acceptance (shape 1)**: execute all three cases as written; assert the measured wrong
       outcomes today (RED), then assert the fixed block reports a non-empty stat or says
-      explicitly that the range did not resolve, and returns rather than exits. (~6 calls)
+      explicitly that the range did not resolve, and returns rather than exits. (~6 calls) (completed 2026-09-22 23:39)
 
 - [ ] **R7-T7** — `plugin/skills/adversarial-review/SKILL.md:112` — the file names `check-guards`
       as what protects its fenced blocks; neither release gate scans markdown at all.

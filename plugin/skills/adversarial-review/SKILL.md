@@ -75,38 +75,61 @@ before this text reaches you, so the block would arrive with the value already s
 defect this repository fixed across eight stages in 2.0.1, and the reason argument slots are
 described in prose here rather than as shell.
 
-**Resolve the target into a range before running any `git diff`.** The three argument forms do
-not share a spelling, and the one that fails is fatal rather than empty:
+**Resolve the target into a range before running any `git diff`, then confirm the range is
+real.** The three argument forms do not share a spelling, and a resolution that went wrong does
+not announce itself in one voice: one spelling is fatal on stderr, another prints nothing and
+exits 0.
 
 ```bash
 # Revisions and pathspec are held apart, because they cannot survive one variable: quoted,
 # "origin/main...HEAD -- some/path" reaches git as a single argument; unquoted, it depends on
 # the shell splitting it. See the shell note below — that dependency is what broke here.
 pathspec=""
-if [ -z "${target:-}" ]; then
-  # This branch's own range. NOT a bare `git diff`, which shows only uncommitted work and is
-  # empty in the loop's normal state, between a fix commit and the next round.
-  range="origin/main...HEAD"
-elif [ -e "$target" ]; then
-  range="origin/main...HEAD"
-  pathspec="$target"
-elif printf '%s' "$target" | grep -qE '^[0-9]+$'; then
-  # A PR number. `git diff --stat 25` is `fatal: ambiguous argument`, so convert it first.
-  range=$(gh pr view "$target" --json baseRefName,headRefName \
-            --jq '"origin/" + .baseRefName + "...origin/" + .headRefName') \
-    || { echo "could not resolve PR $target via gh — NOT reviewing the current branch" >&2; exit 1; }
-else
-  # A branch — three dots, against its base. Two dots answers a different question.
-  range="origin/main...$target"
-fi
 
-if [ -n "$pathspec" ]; then
-  echo "range: $range -- $pathspec"
-  git diff --stat "$range" -- "$pathspec"
-else
-  echo "range: $range"
-  git diff --stat "$range"
-fi
+# The base is asked for, not assumed: `origin/main` is a last-resort fallback, and the endpoint
+# check below is what keeps it from being a silent one.
+base_ref() {
+  b=$(gh pr view "$@" --json baseRefName --jq .baseRefName 2>/dev/null)
+  printf 'origin/%s' "${b:-main}"
+}
+
+# A function, so a failure can `return`. See the exit note below — `exit` here ends the tool call.
+resolve_range() {
+  if [ -z "${target:-}" ]; then
+    # This branch's own range. NOT a bare `git diff`, which shows only uncommitted work and is
+    # empty in the loop's normal state, between a fix commit and the next round.
+    range="$(base_ref)...HEAD"
+  elif [ -e "$target" ]; then
+    range="$(base_ref)...HEAD"
+    pathspec="$target"
+  elif printf '%s' "$target" | grep -qE '^[0-9]+$'; then
+    # A PR number. `git diff --stat 25` is `fatal: ambiguous argument`, so convert it first.
+    range=$(gh pr view "$target" --json baseRefName,headRefName \
+              --jq '"origin/" + .baseRefName + "...origin/" + .headRefName') \
+      || { echo "could not resolve PR $target via gh — NOT reviewing the current branch" >&2; return 1; }
+  else
+    # A branch — three dots, against its base. Two dots answers a different question.
+    range="$(base_ref "$target")...$target"
+  fi
+
+  # Both endpoints, before the range is believed or printed as a finding-free diff.
+  left="${range%%...*}"
+  right="${range##*...}"
+  for ref in "$left" "$right"; do
+    git rev-parse --verify --quiet "$ref^{commit}" >/dev/null && continue
+    echo "range did not resolve: '$ref' is not a revision here — NOT reviewing" >&2
+    return 1
+  done
+
+  if [ -n "$pathspec" ]; then
+    echo "range: $range -- $pathspec"
+    git diff --stat "$range" -- "$pathspec"
+  else
+    echo "range: $range"
+    git diff --stat "$range"
+  fi
+}
+resolve_range
 ```
 
 ⛔ **These blocks run under zsh, not bash.** The Bash tool's shell is `/bin/zsh`, so a fenced
@@ -116,6 +139,14 @@ does **not** define `PIPESTATUS`. Both bit this file: `git diff --stat $range` d
 guard in Step 3 could never fire. Quote every expansion, keep a pathspec in its own variable,
 and take an exit status from `$?` on the line after the command rather than from a pipeline.
 
+⛔ **A failure here `return`s; it must never `exit`.** The Bash tool runs an entire call in one
+shell, so `exit 1` inside a fenced block ends that shell and not just the block: measured, a call
+of `false || { echo "failing" >&2; exit 1; }` followed by `echo "THIS SHOULD NOT PRINT"` printed
+only `failing`, and everything queued after it silently never ran. That is why the resolution is a
+function — `return 1` stops the resolution, leaves the rest of the call alive, and still prints
+the loud line, which is the part that must survive: "could not resolve PR N — NOT reviewing the
+current branch" must never be followed by a review of the current branch.
+
 ⛔ **One branch runs, and the branch is real.** An earlier version of this step listed the three
 forms as three consecutive `range=` assignments separated only by comments. A fenced `bash` block
 here is executed — `plugin/scripts/check-guards` scans these blocks for exactly that reason — so
@@ -124,10 +155,29 @@ report still named the PR.
 
 State the target and its size before reviewing — a wrong target wastes the whole pass.
 
-**An empty range and an unresolvable one are different, and only one of them is a stop.** If
-`gh` could not resolve the PR, say that; do not report it as a change with no content. If the
-range is genuinely empty, or is plainly not what was asked for, stop and say so rather than
-reviewing nothing.
+**An empty range and an unresolvable one are different, and only one of them is a stop.** Three
+outcomes, and the third is dangerous precisely because it wears the first one's clothes:
+
+- **Resolved, and empty** — the range parsed and the stat is blank. If that is genuinely the
+  change, or is plainly not what was asked for, stop and say so rather than reviewing nothing.
+- **Not resolved** — `gh` could not answer for the PR, or an endpoint is not a revision here. The
+  block says which, on stderr, and returns. Say that in the report; do not report it as a change
+  with no content.
+- **Resolved to something git cannot parse** — the outcome with no error to show for it. Measured
+  in this repository: `git diff --stat "origin/main...plugin/skills/adversarial-review/*.md"`
+  exits **0 printing nothing**, indistinguishable from an empty diff, because git takes a
+  wildcard-bearing argument as a *pathspec* rather than a revision and that pathspec matches no
+  file. Drop the wildcard and the same mistake is `fatal: ambiguous argument`, exit 128, written
+  to stderr with nothing reading it. The `git rev-parse --verify` pass over both endpoints is what
+  turns both into the second outcome before any stat is printed.
+
+**The base is asked for, not assumed.** `origin/main` is this repository's default, not every
+repository's, and it was hardcoded in three of the four branches above while
+`git diff --stat origin/nonexistent...HEAD` exits 128 onto stderr — measured, and nothing in the
+old block read it. The block now asks `gh` for the target's base branch, exactly as Step 2 does,
+and falls back to `origin/main` only when that returns nothing. What breaks a hardcoded base —
+`master`, `develop`, a shallow or single-branch clone, a fork checkout — is enumerated once, in
+Step 2's ⛔ note; it is not restated here.
 
 The built-in resolves its own target from the current repository and cannot be pointed at another
 checkout, so the target named here and the one it reviews must be the same repository.

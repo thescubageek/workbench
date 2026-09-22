@@ -51,6 +51,37 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-22 23:33 — R7-T6 (closed)
+
+- **Task/phase**: R7-T6 — three findings, one class, Step 1 resolution robustness: an
+  unvalidated range, a hardcoded `origin/main`, and an `exit 1` that kills the tool-call shell.
+- **Landed**: the block now splits the resolved range at `...` and `rev-parse --verify`s both
+  endpoints before anything is printed, so a glob or mistyped path says `range did not resolve`
+  instead of printing an empty stat as success — endpoint verification rather than a `git diff`
+  status check, because the glob case exits **0**. A `base_ref()` helper resolves the base the
+  way Step 2 already does and falls back to `origin/main` only when that yields nothing, with
+  Step 2's ⛔ note left as the one authority on the failure conditions. The resolution is wrapped
+  in `resolve_range()` and `exit 1` became `return 1`.
+- **Commits**: (this commit)
+- **Learned**: two measurements worth keeping. Git takes a wildcard-bearing argument as a
+  *pathspec*, which need not exist — that is why the glob range exits 0 and silent, while the
+  same path without the wildcard exits 128; a status check would have caught only the second.
+  And `return` inside the function wrapper is legal in every way the block can be run — sourced
+  under zsh, sourced under bash, pasted at top level, run as a script — verified in all four,
+  with `$?` observable each time.
+- **Follow-up filed**: `base_ref()` puts a `gh` network call on the no-argument path, which was
+  previously `gh`-free (~0.75s here vs 0.06s, and `gh pr view` was measured still hanging past
+  25s with the network unreachable — it has no built-in timeout). Absent and unauthenticated
+  `gh` both fall back cleanly and silently, and Step 2 already calls `gh` unconditionally on the
+  same path, so this is exposure the skill already had rather than new — but it is now on the
+  common path twice.
+- **Correction for R7-T7**: that task's headline premise, "neither release gate scans markdown at
+  all", is **false against this tree**. `check-guards` scans fenced shell blocks in shipped
+  markdown — its own docstring says so, `plugin/scripts/check:55` runs it, and pointed at one
+  SKILL.md it reports `1 files scanned`. The task's *substance* stands: `check-guards` has four
+  detector shapes and none of them sees `${PIPESTATUS[0]}` or `exit` in a fenced block, which is
+  what its acceptance criterion actually tests.
+
 ## 2026-09-22 23:21 — R7-T5 (closed)
 
 - **Task/phase**: R7-T5 — Step 1's binding note said to export `target` "in the same shell you
