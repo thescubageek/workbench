@@ -356,6 +356,31 @@ built-in may be relied on at all. The short form is `low`/`medium` for precision
 coverage. Take the lens set from [lenses.md](lenses.md). A `--effort` argument
 overrides the token but changes neither the tier nor the lens set.
 
+**State the range beside the fleet, and disclose the gap between them.** Both measurements are
+already on screen: Step 1 printed the resolved range's `git diff --stat`, and you have just sized
+the fleet that will read it. The summary's coverage line puts the two side by side, and the report
+carries the shortfall line from [templates.md](templates.md) whenever a lens is covering more than
+it read.
+
+⛔ **The trigger is a comparison, not a threshold — do not invent a number.** There is no diff size
+at which this fires, because no such size transplants: what is a wide range in one repository is a
+routine one in the next, and a cutoff would be the number this skill cannot supply. The comparison
+is between two things already measured here:
+
+- **What a lens was selected for** — the files in the range its trigger matched. That slice is what
+  it can read closely.
+- **What it is pointed at** — the whole resolved range, every time.
+
+When those are the same, the fleet covers the range and the report emits no shortfall line. When
+the range is wider — files no lens's trigger matched, so only the built-in leg reaches them, or a
+path target whose changed lines are a fraction of the file content a lens must read to judge them
+— the fleet is covering more than it read, and the report says so.
+
+**This discloses; it never stops.** A range wider than its fleet still runs and is still reported.
+What is not allowed is running it silently: an under-covering pass that says nothing is
+indistinguishable from a full one, which is the failure this whole skill exists to prevent, and
+disclosing it costs one line. Narrowing the target is the user's act, not this skill's.
+
 Emit the reconnaissance summary from [templates.md](templates.md) before proceeding.
 
 ## Step 4: Spawn both legs

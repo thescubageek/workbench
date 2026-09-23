@@ -20,9 +20,10 @@ before it is paid. A tier asserted without its evidence is a number nobody can d
    Tier: <tier>, set by <the axis that rated highest>
    Lenses: <lens (trigger)>, <lens (trigger)>  ·  dropped: <lens (why)>
    Effort: <token> — <why that token>
+   Coverage: <N> files / <±L> lines resolved  ·  <M> lenses + the built-in leg
 ```
 
-Three rules for it:
+Four rules for it:
 
 - **State the axis that set the tier**, not just the tier. The tier is the maximum of the axes, so
   naming the maximum is naming the reason.
@@ -31,6 +32,32 @@ Three rules for it:
   error direction is toward believing the change is safe.
 - **Name every dropped lens and why.** A silent drop turns a coverage decision into an invisible
   one.
+- **State the resolved range beside the fleet that will read it.** The coverage line is the two
+  measurements side by side — the size Step 1 printed, and the fleet just sized from it. A tier and
+  a lens count with nothing to scale them against cannot be argued with.
+
+### The coverage shortfall
+
+The coverage line says what was bought. When the fleet is covering more than it read, the report
+says that too — one line, emitted alongside the findings, in the voice the built-in uses to
+disclose a single-pass run.
+
+```text
+⚠️ Coverage shortfall — 81 files / +11,655 lines, 5 lenses + the built-in leg: the lens triggers
+   matched 12 files, and the other 69 were reached by the built-in leg alone
+⚠️ Coverage shortfall — a 137-line delta read as 948 lines of surrounding file; the lens findings
+   rest on more surface than the diff shows
+```
+
+Two rules for it:
+
+- **Emit it only when it is true, and never as a score.** A fleet that read its range in full emits
+  nothing here; the line's absence is the claim that the pass covered what it names. There is no
+  size at which it fires — the trigger is the comparison stated in `SKILL.md` Step 3, not a
+  threshold.
+- **It discloses, it does not stop.** A range wider than its fleet still runs and is still
+  reported. A review that covered less than it claims is the failure this whole skill exists to
+  prevent, and saying so costs one line; narrowing the target is the user's act, not the skill's.
 
 ## The findings
 

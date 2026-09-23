@@ -194,7 +194,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       the fix assert Step 8 (or the loop) promotes it with `-f` and the file appears in
       `git status --short`. (~3 calls) (completed 2026-09-23 16:46)
 
-- [ ] **R7-T13** — `plugin/skills/adversarial-review/SKILL.md` Step 3 and `templates.md` (the
+- [x] **R7-T13** — `plugin/skills/adversarial-review/SKILL.md` Step 3 and `templates.md` (the
       reconnaissance summary) — PD5-1, decided 2026-09-20 as **disclose only**: the skill has no
       disclosure when the fleet it sized cannot cover the range it resolved.
       **Fails when:** on `origin/main...HEAD` at 81 files / +11,655 the skill sized tier MAX and
@@ -208,7 +208,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       single-pass run. Grep for the shortfall line's template in `templates.md` and its trigger
       in Step 3; today both greps return nothing (RED). Negative control: the same greps against
       an unmodified copy still return nothing. No threshold, no stop, no `--since` — PD5-1
-      rejected both and `--since`/`--range` is 3.1 work. (~6 calls)
+      rejected both and `--since`/`--range` is 3.1 work. (~6 calls) (completed 2026-09-23 16:57)
 - [ ] **R7-T14** — `plugin/skills/adversarial-review/templates.md:137-139,153` — shape 6 tells the
       producing model to "Label `(attestation)`, name who must look", but the task-line template
       reserves no slot for either, so the label is an instruction rather than a template literal

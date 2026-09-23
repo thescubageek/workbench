@@ -51,6 +51,37 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-23 16:52 — R7-T13 (closed)
+
+- **Task/phase**: R7-T13 — PD5-1's disclosure: the skill had no way to say that the fleet it
+  sized cannot cover the range it resolved, so an under-covering pass was indistinguishable
+  from a full one.
+- **Landed**: a `Coverage:` row inside the existing reconnaissance-summary template (files and
+  lines resolved, beside the lens count and the built-in leg), "Three rules" → "Four rules" with
+  the fourth stating it, and a `### The coverage shortfall` subsection carrying the report line.
+  Step 3 gained the trigger, immediately before it emits the summary.
+- **Commits**: (this commit)
+- **Learned**: the trigger fires **without a threshold** because it is a set comparison, not a
+  cutoff — what a lens was selected for (the files in the range its trigger matched) against
+  what it is pointed at (the whole resolved range, every time, since `prompts.md` sends each
+  lens agent at the full target and tells it to read whole files). Same on both sides, no line.
+  That is what let PD5-1's "no number" boundary hold: verified mechanically, the only digits in
+  the added `SKILL.md` text are a cross-reference to Step 1.
+- **Known softness, recorded not fixed**: nothing in the pipeline *records* a file→lens map, so
+  the matched-slice set is re-derived at disclosure time rather than read off something already
+  built. Evaluable — `lenses.md` selects file by file and Step 1's `--stat` puts the per-file
+  list on screen — but nearly free if capture happened during selection instead. A refinement,
+  not a defect against PD5-1.
+- **Hook damage repaired in this entry's own file**: the markdown auto-fix stripped the
+  significant spaces inside inline code spans in R7-T12's entry, collapsing the unstaged- and
+  staged-modified status codes into two identical tokens and destroying the exact distinction
+  that entry was recording. Rewritten in words. The corrupted form is already in `6af7ff2`;
+  this commit carries the repair. **Any journal line whose meaning depends on whitespace inside
+  a code span will be silently rewritten by the hook** — write it in words.
+- **Handoff to R7-T14**: its citation `templates.md:137-139,153` was stale at HEAD and this
+  insertion moved the targets again. The task-line template is now `templates.md:168`, the
+  `(attestation)` taxonomy row `templates.md:183`.
+
 ## 2026-09-23 16:31 — R7-T12 (closed)
 
 - **Task/phase**: R7-T12 — Step 8 wrote into gitignored `docs/plans/` and nothing promoted the
@@ -73,7 +104,8 @@ this template, silently, from the moment of creation.
   was invented. **A worker writing a rule needs the norms handed to it, not left to infer.**
 - **Also learned, by measurement**: "Git refuses already-tracked plan files too" — inherited
   wording in three skills — is wrong. Git **stages** the tracked file and exits 1 anyway
-  (`write-tree` moves; status goes ` M` → `M `). The conclusion (keep `-f` every time) survives,
+  (`write-tree` moves; the status code goes from space-M, unstaged-modified, to M-space,
+  staged-modified). The conclusion (keep `-f` every time) survives,
   because the exit 1 still breaks the `&&` chain, but the mechanism is not refusal.
 - **Follow-ups filed**:
   - Two stale copies of that claim remain, at `implement_inline/SKILL.md:298` and
