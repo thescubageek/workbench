@@ -3,9 +3,9 @@ project: adversarial_loop
 reviews: docs/plans/2026-09-17-adversarial_loop
 round: 7
 created: 2026-09-21
-status: in-progress
-total_tasks: 12
-completed_tasks: 0
+status: complete
+total_tasks: 14
+completed_tasks: 14
 task_tracking: markdown-checkboxes
 ---
 
@@ -266,6 +266,21 @@ than committed as a test. The repository's standing gates are the regression net
 ```
 
 ## Implementation notes
+
+- **Round 8's second candidate — two shipped authorities disagree on a round's frontmatter.**
+  Found at this round's `/wb:update_status`, 2026-09-23.
+  `update_status/templates/frontmatter-fragments.md`'s `tasks.md` fragment writes `status`,
+  `last_updated`, `current_phase`, `total_tasks`, `completed_tasks`, `git_commit` and
+  `git_branch`. Its table carves out **only** `current_phase` for a remediation plan. But
+  `plugin/docs/reference/remediation-plan.md` — the named authority on what a round has and
+  deliberately lacks — lists `last_updated`, `git_commit` **and** `git_branch` alongside
+  `current_phase` as absent by design and "never reported as missing".
+
+  So a faithful rendering of the fragment writes three keys the contract says a round does not
+  carry, and the next `validate_project` run over that round sees frontmatter the contract does
+  not sanction. This run followed `remediation-plan.md` and wrote only `status`, `total_tasks`
+  and `completed_tasks`; the fragment's carve-out table is the place to fix it, since it already
+  reasons about the round shape and simply stops one row short. Shape 3, dual grep.
 
 - **Round 8's first candidate — `grep` in the Bash tool silently skips tracked files.**
   Filed 2026-09-23 at the round-7 checkpoint, measured twice independently. `grep` here is not

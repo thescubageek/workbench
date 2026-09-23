@@ -51,6 +51,25 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-23 21:24 — Round 7 closed (closed)
+
+- **Task/phase**: round-7 close — `/wb:update_status`, counters reconciled, round marked
+  complete at the user's explicit word.
+- **Landed**: `status: in-progress → complete`, `total_tasks: 12 → 14`, `completed_tasks: 0 →
+  14`. The stored `total_tasks` had been wrong since the round was written — 12 against 14 real
+  task lines — which is the drift the sole-writer rule exists to absorb rather than an error.
+- **Commits**: R7-T1 `4face1f` · T2 `fcd57a0` · T3 `5c44e1a` · T4 `42ee21e` · T5 `880a93e` ·
+  T6 `3d2cfa8` · T7 `d92cac3` · T8 `abe0d22` · T9 `8b56a4e` · T10 `96bee43` · T11 `5703020` ·
+  T12 `6af7ff2` · T13 `6a6f629` · T14 `f713390`, plus the aggregation and this close.
+- **Learned**: two escalations across fourteen tasks (R7-T2, R7-T12) and both failed the same
+  way — a decision that was *right* supported by a *reason the worker invented*, contradicting
+  shipped norms it had not read. Neither was a reasoning failure. The lesson is a prompting one:
+  hand a worker the governing contract, do not leave it to infer one.
+- **Round 8 candidates filed** in this round's Implementation notes, both found by this round's
+  own verification rather than by a review: the `grep` shim's engine varying by invocation, and
+  `frontmatter-fragments.md` disagreeing with `remediation-plan.md` about which frontmatter keys
+  a round carries. Round 8 not started.
+
 ## 2026-09-23 17:05 — R7-T14 (closed)
 
 - **Task/phase**: R7-T14 — shape 6 told the producing model to label a judgement task
