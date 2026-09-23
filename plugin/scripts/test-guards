@@ -121,6 +121,7 @@ SHAPE_OF = {
     'for over a glob with no existence test': 'glob',
     'unclosed shell fence': 'fence',
     'publish action not chained to the one before it': 'chain',
+    'bash-only construct in a block this harness runs under zsh': 'bashism',
 }
 
 

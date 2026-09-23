@@ -156,7 +156,7 @@
   "reason": "EQUIVALENT in shell. Relaxing `\\s+` to `\\s*` accepts `[-e ` and `test-f `. `[` and `test` are commands and need an argument separator, so neither is valid shell. The only other distinguishing input is a word ENDING in `test` immediately followed by `-e ` inside a glob-loop body \u2014 `cp \"$f\" releases/latest-e` \u2014 which is a fixture composed to satisfy the mutant, not to describe a script anyone writes."
  },
  {
-  "match": "analyse | \"\"\"lines: [(lineno, text)] -> [(lineno, shape, text)].\"\"\" | del Expr",
+  "match": "analyse | \"\"\"lines: [(lineno, text)] -> [(lineno, shape, text)]. | del Expr",
   "reason": "EQUIVALENT. Deletes a docstring. A docstring is a string expression nothing evaluates: `collect()` returns the same findings and the CLI prints the same output, so no corpus case and no integrity claim can observe it. The generator walks the syntax tree and cannot tell a docstring from a statement \u2014 that is the price of it having no blind spot correlated with the author's, and it is worth paying."
  },
  {

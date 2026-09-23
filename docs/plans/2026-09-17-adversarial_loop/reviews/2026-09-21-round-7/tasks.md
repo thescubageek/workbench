@@ -121,7 +121,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       outcomes today (RED), then assert the fixed block reports a non-empty stat or says
       explicitly that the range did not resolve, and returns rather than exits. (~6 calls) (completed 2026-09-22 23:39)
 
-- [ ] **R7-T7** — `plugin/skills/adversarial-review/SKILL.md:112` — the file names `check-guards`
+- [x] **R7-T7** — `plugin/skills/adversarial-review/SKILL.md:112` — the file names `check-guards`
       as what protects its fenced blocks; neither release gate scans markdown at all.
       **Fails when:** measured — `shellcheck-gate` builds its list from `find plugin/scripts
       plugin/hooks -type f` filtered on a bash/sh shebang, reports "9 shell scripts clean", and
@@ -131,7 +131,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       clean**. The protection the file cites does not cover the defect that bit it.
       **Acceptance (shape 2)**: a test case that fails before and passes after — reintroduce
       `${PIPESTATUS[0]}` into a fenced block and assert the gate now flags it, having first
-      asserted it does not today. (~5 calls)
+      asserted it does not today. (~5 calls) (completed 2026-09-23 21:20)
 
 - [x] **R7-T8** — `plugin/skills/adversarial-review/SKILL.md:227` — "Four details in that command"
       is followed by five bullets.
@@ -266,6 +266,30 @@ than committed as a test. The repository's standing gates are the regression net
 ```
 
 ## Implementation notes
+
+- **Round 8's first candidate — `grep` in the Bash tool silently skips tracked files.**
+  Filed 2026-09-23 at the round-7 checkpoint, measured twice independently. `grep` here is not
+  a binary: `type grep` reports a shell function from `~/.claude/shell-snapshots/`, which
+  re-execs as **ugrep with `--ignore-files`**, honouring `.gitignore`. `docs/plans/` is
+  gitignored but **tracked**, so those files are skipped at **exit 0 with no diagnostic** —
+  bare `grep` 30 hits against `command grep` 52 on one symbol, all 8 dropped files tracked.
+  Neither `search=$?` nor the `filter=$?` guard in the blast-radius block can see it, because
+  the search did not fail; it read a smaller tree.
+
+  **Corrected severity, against the first framing.** The dropped hits in *this* repository are
+  plan documents citing a filename — prose, not code callers — and in an ordinary repository
+  the ignored tree is build output a blast-radius measurement is right to skip. So this is not
+  "the search under-reports by 75%" as a general claim. The defect worth a round-8 task is
+  narrower and sharper: **the engine varies by invocation with nothing in the block able to
+  tell which ran.** A top-level Bash-tool call gets the shim; the identical line inside a
+  script file gets the system binary, because a non-interactive `zsh script.sh` never sources
+  the snapshot. Two honest runs of the same measurement can therefore disagree, and the
+  reconnaissance summary reports whichever it got as measured fact. It also explains the two
+  path spellings R7-T1 had to match and round 5 recorded without explanation: ugrep emits no
+  `./` prefix, the system binary does.
+
+  Recorded in `.claude/wb/knowledge.md` with its `Check it`. **Not started** — round 8's, not
+  round 7's.
 
 - **Blocking set**: R7-T1, R7-T2, R7-T3. The first corrupts the measurement the whole tier
   decision rests on; the second lands fixes for findings the loop rejected; the third turns the

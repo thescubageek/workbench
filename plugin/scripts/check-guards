@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """check-guards — find measurements whose failure is indistinguishable from a clean result.
 
-Three shapes produce a number, or a silence, that reads the same whether the command
+Five shapes produce a number, or a silence, that reads the same whether the command
 worked or not:
 
   1. A counting `grep` captured in a substitution whose exit status is never tested.
@@ -19,6 +19,12 @@ worked or not:
      unchained `gh pr view --json labels` after a failed `gh pr edit --add-label` prints
      an array without the label — which reads exactly like the label landing. `&&` is the
      whole remedy, and de-chaining is a one-character edit no other gate here can see.
+  5. A bash-only construct inside a fenced block in shipped markdown. Those blocks are
+     executed by the Bash tool, whose shell is zsh, so `${PIPESTATUS[0]}` expands to
+     NOTHING: `[ "" -le 1 ]` is then true and a grep that exited 2 passes its own guard
+     in silence. This shipped in adversarial-review/SKILL.md and survived both release
+     gates, which is the finding that bought this shape. Markdown only — a .sh file
+     carrying a bash shebang really is bash, and PIPESTATUS is correct there.
 
 Scans shipped shell scripts and the fenced shell blocks inside shipped markdown — those
 blocks are instructions a model executes, so they carry the same risk. Prose and tables
@@ -55,6 +61,11 @@ GLOB_WINDOW = 4
 PUBLISH = re.compile(r'^\s*(?:git\s+push|gh\s+pr\s+'
                      r'(?:ready|edit|comment|merge|view|close|reopen))\b')
 ASSIGN = re.compile(r'^\s*[A-Za-z_]\w*=')
+# `$PIPESTATUS` / `${PIPESTATUS[n]}`, but not `$pipestatus` (zsh's own, and the CORRECT
+# spelling here) nor `$MY_PIPESTATUSES` (the `$` binds to MY_, so the anchor never
+# reaches PIPESTATUS). Case-sensitive on purpose: lowercase is the right answer, not a
+# second defect.
+BASHISM = re.compile(r'\$\{?PIPESTATUS\b')
 
 EXEMPT = {'check-guards', 'test-guards'}
 
@@ -254,8 +265,12 @@ def unchained_publishes(lines):
     return out
 
 
-def analyse(lines):
-    """lines: [(lineno, text)] -> [(lineno, shape, text)]."""
+def analyse(lines, md=False):
+    """lines: [(lineno, text)] -> [(lineno, shape, text)].
+
+    `md` gates shape 5 alone. It asks "will THIS be run by the Bash tool's zsh?" — true
+    of a fenced block in shipped markdown, false of a script carrying a bash shebang.
+    """
     found, pending_glob = [], None
     texts = {no: t for no, t in lines}
     order = [no for no, _ in lines]
@@ -317,6 +332,14 @@ def analyse(lines):
             else:
                 pending_glob = (no, 0, raw)
 
+        # --- shape 5 ---------------------------------------------------------
+        # `line` is comment-stripped above, so a rule documenting this defect in a
+        # `# never use ${PIPESTATUS[0]}` comment does not trip it. Prose and ```text
+        # fences never reach here at all — md_shell_lines() yields shell fences only.
+        if md and BASHISM.search(line):
+            found.append((no, 'bash-only construct in a block this harness runs under zsh',
+                          raw))
+
     if pending_glob is not None:
         found.append((pending_glob[0], 'for over a glob with no existence test', pending_glob[2]))
 
@@ -335,6 +358,8 @@ FIXES = {
         '[ -e "$x" ] || continue   # as the body\'s first line',
     'publish action not chained to the one before it':
         'join them with && — a failed first command must stop the second',
+    'bash-only construct in a block this harness runs under zsh':
+        'this block runs under zsh: take the status from $? on the next line, not PIPESTATUS',
     'unclosed shell fence':
         'close the fence; everything after it would otherwise read as prose',
 }
@@ -384,7 +409,7 @@ def collect(targets):
             # walk. Counting the walk meant a file the dispatch skipped still incremented
             # the number the "scanned 0 files" guard reports.
             scanned += 1
-            for no, shape, raw in analyse(lines):
+            for no, shape, raw in analyse(lines, md=is_md):
                 findings.append((path, no, shape, raw.strip()))
     return findings, scanned
 

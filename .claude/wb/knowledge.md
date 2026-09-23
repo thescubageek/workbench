@@ -361,8 +361,7 @@ we have the in-repo cautionary example for that.
   actions — `-not`, `-exec` are rejected — so a probe needs plain `ls` per directory or
   `rtk proxy find`.
 - **Check it**: `echo "$0 ${ZSH_VERSION:-no-zsh} ${BASH_VERSION:-no-bash}"` through the Bash
-  tool reports `/bin/zsh 5.9 no-bash`; `grep --exclude-dir=.git -r x .` errors where the version
-  string implies it should not; and
+  tool reports `/bin/zsh 5.9 no-bash`; and
   `x=$(grep -rnF -- q /no/such/path 2>/dev/null); echo "dollar-question=$? pipestatus=${PIPESTATUS[0]:-<empty>}"`
   prints a real status beside an empty `PIPESTATUS`.
 
@@ -389,3 +388,49 @@ we have the in-repo cautionary example for that.
 - **Check it**: `printf 'a\nb\n' > /tmp/d1; printf 'a\nC\n' > /tmp/d2; diff /tmp/d1 /tmp/d2;
   echo "wrapped=$?"; command diff /tmp/d1 /tmp/d2 >/dev/null; echo "real=$?"` — prints
   `wrapped=0` beside `real=1`.
+
+## `grep` in the Bash tool is a shell function that re-execs as ugrep honouring `.gitignore`
+
+- **Why it matters**: `type grep` reports *a shell function from
+  `~/.claude/shell-snapshots/snapshot-zsh-*.sh`*, not a binary. It re-execs Claude Code as
+  ugrep with `--ignore-files`, which reads `.gitignore` — so a **gitignored-but-tracked** path
+  is skipped silently, at **exit 0, with no diagnostic**. Measured here on one symbol, same
+  flags, same cwd: bare `grep` returned **30** hits, `command grep` **52**; all **8** dropped
+  files were tracked (`git ls-files --error-unmatch` on each). No status guard can see this —
+  the search succeeded, it just read a smaller tree.
+- **This also explains the two path spellings.** ugrep emits the path field with **no** `./`
+  prefix; `command grep -r … .` emits `./`-prefixed. That is the "the same command was observed
+  both ways on one machine" that round 5 recorded and never explained, and it is why
+  `adversarial-review`'s blast-radius filter has to match both spellings.
+- **Severity, stated honestly**: in *this* repository the dropped paths are `docs/plans/`
+  documents citing a filename — plan prose, not code callers — and in an ordinary repository
+  the ignored tree is build output, which you usually want skipped. The hazard is not the
+  default; it is that **the engine varies by invocation** with nothing in the command able to
+  tell you which one ran. A top-level Bash-tool call gets the shim; the identical line inside a
+  script file gets the system binary, because a non-interactive `zsh script.sh` never sources
+  the snapshot. So a measurement and its re-run can legitimately disagree.
+- **What to do**: when a count must include tracked files under an ignored path — anything
+  measuring this repository's own `docs/plans/` — use `command grep`, or `git grep`, and say
+  which you used. Do not compare a number from one engine against a number from the other.
+- **Verified**: 2026-09-23 · `docs/plans/2026-09-17-adversarial_loop/reviews/2026-09-21-round-7/`
+  — surfaced by R7-T11's verification, re-derived directly at the round-7 checkpoint
+- **Check it**: `type grep` names the snapshot function; then
+  `echo "bare=$(grep -rnF -- review-ledger.md . | wc -l) real=$(command grep -rnF -- review-ledger.md . | wc -l)"`
+  prints two different numbers.
+
+## The lint hook strips significant whitespace inside inline code spans
+
+- **Why it matters**: the PostToolUse hook runs `lint --fix` after Write, Edit **and Bash**, and
+  its MD038 fix removes leading and trailing spaces inside backticks. A sentence whose meaning
+  lives in that whitespace is rewritten **silently, underneath you**, between one step and the
+  next. It did exactly this to a journal line recording git's status codes — the
+  space-then-M unstaged form and the M-then-space staged form were both collapsed to a bare
+  `M`, destroying the distinction the line existed to draw, and the corrupted form reached a
+  commit before anyone noticed.
+- **What to do**: write such distinctions **in words** — "space-then-M, unstaged" — not as
+  whitespace inside a code span. This applies to anything describing `git status --porcelain`
+  output, column-aligned fixtures, or a trailing-space-sensitive format.
+- **Verified**: 2026-09-23 · `docs/plans/2026-09-17-adversarial_loop/reviews/2026-09-21-round-7/`
+  — R7-T13's worker caught it in the round's own journal; repaired in `6a6f629`
+- **Check it**: write a markdown line containing a backticked single space followed by `M`,
+  save it, then re-read the file — the space is gone.

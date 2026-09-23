@@ -223,30 +223,39 @@ this template, silently, from the moment of creation.
   deletions were the two documenting the most recently fixed defects.
 - **Commits**: (this commit)
 
-## 2026-09-22 23:52 — R7-T7 [blocked] (open)
+## 2026-09-22 23:52 — R7-T7 (closed)
 
-- **Task/phase**: R7-T7 — `adversarial-review/SKILL.md` names `check-guards` as what protects
-  its fenced blocks, but no detector shape matches the defect that actually bit this file:
-  reverting `search=$?` to `search=${PIPESTATUS[0]}` — a bash array that expands to nothing
-  under the zsh the Bash tool runs — leaves **both** release gates exit 0, clean.
-- **Blocked by**: two consecutive worker agents died to the stream watchdog (`no progress for
-  600s`) with nothing written. The tree is clean both times; `plugin/scripts/check-guards` is
-  untouched. The first stall is explained — it blocked on `./plugin/scripts/test-guards`, which
-  was measured at **12m22s wall** (34s user, 20s system, 7% cpu: subprocess-bound), past the
-  600s watchdog. The second was re-spawned with that warning and the RED already established,
-  and stalled **before reading its first file**, which that explanation does not cover. Two
-  stalls, one explained and one not, is an infrastructure signal rather than a property of the
-  task.
-- **Established and carried forward, so a third attempt need not redo it**:
-  - RED is confirmed — `${PIPESTATUS[0]}` reintroduced into a fenced block leaves both gates
-    exit 0, clean.
-  - `test-guards` baseline on this tree: `corpus 86/86, integrity 15/15, mutations 23/23 — PASS`.
-  - The task's headline premise is false: `check-guards` **does** scan fenced shell blocks in
-    shipped markdown. The substance — four detector shapes, none seeing `${PIPESTATUS[0]}` — is
-    what the criterion tests.
-- **Next action**: waiting on the round-7 checkpoint. The work itself is unattempted, not failed
-  — a human decides whether to re-spawn a third worker, run it inline, or defer the detector to
-  round 8.
+- **Task/phase**: R7-T7 — `adversarial-review/SKILL.md` named `check-guards` as what protects
+  its fenced blocks, but no detector shape saw `${PIPESTATUS[0]}` — a bash array that expands
+  to nothing under the zsh the Bash tool runs, so `[ "" -le 1 ]` is true and a grep that exited
+  2 passes its own guard in silence. Planting it left **both** release gates at exit 0.
+- **Landed**: a fifth detector shape in `plugin/scripts/check-guards` — `$PIPESTATUS` or
+  `${PIPESTATUS[n]}` inside a fenced shell block, **markdown only**, because a `.sh` file
+  carrying a bash shebang really is bash and PIPESTATUS is correct there. Ten corpus cases:
+  three positives and **seven negatives**, the negatives being the ones that keep the gate from
+  being switched off — prose mention, a ```text fence, a real bash script, zsh's own lowercase
+  `$pipestatus`, the `$MY_PIPESTATUSES` substring, a `#` comment inside a fence, and
+  `$PIPESTATUSES`. Also corrected a pre-existing count defect in the docstring being extended:
+  it said "Three shapes" over four items — R7-T8's class, in the gate that hunts this family.
+- **Commits**: (this commit)
+- **Unblocked after two watchdog deaths.** Neither was the work. The first blocked on
+  `test-guards`, measured at 12m22s wall; the second stalled before its first file read, which
+  that does not explain. Run inline at the user's direction, with both suites backgrounded and
+  polled rather than run in the foreground — which is the whole remedy.
+- **Learned — the ratchet regrew, as predicted, and both survivors were instructive.** The
+  sweep went to 2 survivors. One was `\b` dropped from the new regex: no case distinguished
+  the anchored form from the bare one, closed by a negative case on `$PIPESTATUSES`, a
+  *different variable* that the bare form falsely flags. I proved the case discriminates before
+  trusting the suite. The other was not a new survivor at all but the pre-existing
+  equivalent-mutant waiver on `analyse`'s docstring **going stale**, because rewriting that
+  docstring changed the key it matches on. Re-keyed, not re-argued.
+- **Design note worth keeping**: a waiver key deliberately carries no line number, so edits
+  *elsewhere* cannot unhook it — but it embeds the statement text, so rewriting the very
+  statement a waiver names does unhook it. The sweep detects that and fails loudly rather than
+  letting the mutant reappear as an unexplained survivor. That is the right trade, and it means
+  editing a function whose docstring is waived costs one re-key.
+- **Final**: default suite corpus 96/96, integrity 15/15, mutations 23/23 — PASS. Generated
+  sweep 309/367 killed, 58 waived, **0 survived**; ratchet raised 305 → 309.
 
 ## 2026-09-22 23:33 — R7-T6 (closed)
 
