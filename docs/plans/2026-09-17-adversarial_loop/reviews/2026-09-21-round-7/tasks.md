@@ -229,6 +229,42 @@ criterion is run before the fix**. A criterion that passes before the change is 
       After the fix the emitted form pins both at a named `file:line`, and `implement`'s Step 4
       recognition matches it literally. (~3 calls) (completed 2026-09-23 17:08)
 
+### 📝 Modified Files (Round 7)
+
+#### Code Files
+
+- `plugin/skills/adversarial-review/SKILL.md` - Step 1 range resolution verified and non-fatal
+  (R7-T6); `target` re-binding, since each Bash call is a fresh shell (R7-T5); blast-radius
+  exclusion made literal and its failure announced (R7-T1); `--exclude-dir=.context` so the
+  search reads sources, not transcripts (R7-T11); bullet count corrected, twice (R7-T8, R7-T11);
+  Step 3 shortfall trigger (R7-T13); Step 8 reaches the placeholder rules, skips a clean round,
+  and stages what it wrote (R7-T4, R7-T3, R7-T12); `Write` declared (R7-T10); the dangling
+  ledger bullet removed and ownership stated (R7-T9)
+- `plugin/skills/adversarial-review/templates.md` - `Coverage:` row and the coverage-shortfall
+  subsection (R7-T13); the shape-6 attestation emitted form (R7-T14); promotion pointer (R7-T12)
+- `plugin/skills/adversarial-loop/SKILL.md` - prune the plan to what was adjudicated before
+  invoking `implement` (R7-T2); clean-round branch covering both arrivals at an empty plan
+  (R7-T3); pass the resolved plan directory to the review (R7-T4); commit the pruned plan on
+  the all-rejected arrival (R7-T12)
+- `plugin/skills/implement/SKILL.md` - Step 4 and Step 8.4 recognise the attestation literals
+  (R7-T14); the already-tracked `git add` claim corrected in 6b (R7-T12)
+- `plugin/docs/reference/remediation-plan.md` - *A round with nothing to fix* (R7-T3);
+  *Promoting it* (R7-T12)
+
+#### Test Files
+
+None. This plan's surface is markdown skill documents; every task's acceptance criterion is an
+executed shell case, a dual grep, or a reference resolver, run against the working tree rather
+than committed as a test. The repository's standing gates are the regression net.
+
+**Quick test commands:**
+
+```bash
+./plugin/scripts/lint --all
+./plugin/scripts/check-guards plugin/
+./plugin/scripts/check          # every gate; ~12.5 min wall, mostly test-guards
+```
+
 ## Implementation notes
 
 - **Blocking set**: R7-T1, R7-T2, R7-T3. The first corrupts the measurement the whole tier
