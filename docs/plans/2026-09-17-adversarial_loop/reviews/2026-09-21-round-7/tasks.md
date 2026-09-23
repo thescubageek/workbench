@@ -169,7 +169,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       and the "does not fix anything" sentence reconciled so it no longer implies no writes.
       (~2 calls) (completed 2026-09-23 02:37)
 
-- [ ] **R7-T11** — `plugin/skills/adversarial-review/SKILL.md:220` — the blast-radius search
+- [x] **R7-T11** — `plugin/skills/adversarial-review/SKILL.md:220` — the blast-radius search
       recurses the whole working directory with no exclusion, so most "measured" call sites can
       be transcript prose.
       **Fails when:** measured twice here — for `review-ledger.md`, 15 hits of which **11 (73%)**
@@ -181,7 +181,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       transcript hits — 11 of 15 today (RED); after the fix assert 0. Note for the implementer:
       the standing environment note says ugrep rejects `--exclude-dir`, but it was measured
       **working** here (`--include=` is the one that is rejected, exit 2) — verify before
-      choosing the mechanism. (~4 calls)
+      choosing the mechanism. (~4 calls) (completed 2026-09-23 03:46)
 
 - [ ] **R7-T12** — `plugin/skills/adversarial-review/templates.md:111` — Step 8 writes into
       gitignored `docs/plans/` and nothing promotes the file.

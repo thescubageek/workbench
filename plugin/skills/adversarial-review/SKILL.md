@@ -290,7 +290,7 @@ and confirm it ran — a search that errored returns the same emptiness as a gen
 change, and that error direction is toward believing the change is safe.
 
 ```bash
-hits=$(grep -rnF -- "<changed symbol>" .)
+hits=$(grep -rnF --exclude-dir=.context -- "<changed symbol>" .)
 search=$?
 [ "$search" -le 1 ] || echo "SEARCH FAILED (grep exit $search) — NOT an isolated change" >&2
 callers=$(printf '%s\n' "$hits" |
@@ -300,12 +300,27 @@ filter=$?
 [ -n "$callers" ] && printf '%s\n' "$callers" | sed 's/^/  /'
 ```
 
-Five details in that command are the difference between a measurement and a guess:
+Six details in that command are the difference between a measurement and a guess:
 
 - **`-F`** treats the symbol as a literal. Without it a name containing `[`, `(` or `\` is an
   invalid pattern, grep exits 2 printing nothing, and the empty output reads as "no callers".
 - **`--`** terminates the options. Without it a symbol beginning with `-` is consumed as a flag,
   which fails in the other direction and returns a flood.
+- **`--exclude-dir` keeps the search on the repository's sources** and off the session's own
+  working artifacts. `grep -r .` recurses everything under the working directory, and a session
+  transcript names files and symbols in prose without calling any of them. Measured here on
+  `review-ledger.md`: 30 hits, **22 of them (73%) lines in `.context/attachments/*.txt` session
+  transcripts**; on `check-guards`, 27 of 72. Since the tier is the maximum of the six axes, that
+  noise can raise the tier — and the fleet it pays for — on its own. The rule is the scope, not
+  the name: add an `--exclude-dir` for any other non-source tree the repository carries, such as
+  `node_modules`, `vendor` or build output. Naming a directory that does not exist was measured a
+  no-op, not an error, so the flag costs nothing in a repository without one. This shell has been
+  seen to reject the flag outright on some invocations, which is why the flag sits *behind* the
+  status guard above and not instead of it: a rejected flag exits 2 and is announced, rather than
+  returning the emptiness that reads as "no callers". Do not narrow it
+  further than non-source trees: an over-exclusion fails toward "isolated", which is the
+  direction every other detail here exists to prevent. Measured after the exclusion: 0 transcript
+  hits, and every non-transcript path present at the same line count as before it.
 - **The status is captured from grep directly, not from a pipeline.** `search=$?` on the line
   after the assignment is grep's own exit code. This used to read `${PIPESTATUS[0]}`, which is a
   **bash** array — and the Bash tool runs zsh, where it expands to nothing, `[ "" -le 1 ]` is

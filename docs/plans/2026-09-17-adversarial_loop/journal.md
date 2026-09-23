@@ -51,6 +51,42 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-23 03:38 — R7-T11 (closed)
+
+- **Task/phase**: R7-T11 — the blast-radius search recursed the whole working directory, so a
+  majority of "measured" call sites were session-transcript prose. The tier is the maximum of
+  six axes, so that noise raised the tier and the fleet cost.
+- **Landed**: `--exclude-dir=.context` on the search, behind the existing status guard; a sixth
+  bullet stating the general rule — cover the repository's *sources*, not the session's working
+  artifacts — with `node_modules`, `vendor` and build output named as the extension point rather
+  than claiming a complete list; and the count word `Five` → `Six`, keeping R7-T8's invariant in
+  the same edit.
+- **Commits**: (this commit)
+- **Learned**: the over-exclusion control is the half that matters, and it was checked per-file
+  under both grep engines — every real call site present before is present after, same files,
+  same line counts (8→8 and 45→45). A fix that returned zero for everything would also have
+  shown "0 transcripts". Also measured: naming a directory that does not exist is a **no-op**,
+  not an error, which is what makes the rule safe to copy into a repository without `.context`.
+- **A standing note I mis-briefed**: `.claude/wb/knowledge.md:353-367` does **not** say ugrep
+  rejects `--exclude-dir`, as round 7's task text and my prompt both had it. It says both flags
+  have been seen accepted *and* rejected and concludes "do not write a rule about which flags
+  work. Write the guard instead." That is the better guidance and the fix respects it. Its own
+  "Check it" line no longer reproduces — `grep --exclude-dir=.git -r x .` exits 0 today — so
+  that one line is a correction candidate.
+
+- **⚠️ Round-8 candidate, more severe than what this task fixed.** `grep` here is not a binary:
+  it is a shell function from `~/.claude/shell-snapshots/` that re-execs as **ugrep with
+  `--ignore-files`**, which honours `.gitignore`. `.gitignore:7` is `docs/plans/`, and those
+  files are **gitignored but tracked**. Measured on one symbol, same flags, same cwd: the shim
+  returns 8 hits, `/usr/bin/grep` returns 32 — the shim silently drops **24 of 32 real call
+  sites, 75%**, every one a tracked versioned file, at exit 0 with no diagnostic. Neither
+  `search=$?` nor `filter=$?` can see it. The engine varies by *invocation context*, not
+  randomly: a top-level Bash-tool command gets the shim, the same line inside a script file gets
+  BSD grep, because a non-interactive `zsh script.sh` never sources the snapshot — so a review
+  running Step 3 as written gets the under-reporting one. This defeats the block's purpose more
+  thoroughly than the transcript noise, and it is invisible to any task that measures with the
+  shim alone.
+
 ## 2026-09-23 02:36 — R7-T10 (closed)
 
 - **Task/phase**: R7-T10 — `allowed-tools` declared a read-only surface while Step 8 writes a
