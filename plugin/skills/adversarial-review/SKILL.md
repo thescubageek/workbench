@@ -425,6 +425,15 @@ no consumer looks: this skill carries nothing between rounds, so a guessed `<N>`
 into round 1's directory and overwrites checkboxes a human already ticked, and a guessed `<plan>`
 files the round against work it did not review.
 
+**Having written it, stage it — `git add -f` on the file you just wrote, and nothing else.**
+`docs/plans/` is gitignored, so the write alone leaves the round's only durable artifact
+untracked *and* invisible to `git status --short`, where a later clean-tree check reads clean
+over it and `git clean -fdx` takes it. Staging is not committing: the commit belongs to the
+caller, so report the plan as staged and awaiting one. Where no file was written — either case
+below — there is nothing to stage and no `git add` to run.
+[../../docs/reference/remediation-plan.md](../../docs/reference/remediation-plan.md) →
+*Promoting it* has the rule and why the `-f` is needed every time.
+
 Two cases skip the write, and they are different absences:
 
 - **No plan directory** — the findings are the output and the caller decides what to do with them.

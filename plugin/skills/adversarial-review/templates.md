@@ -112,7 +112,10 @@ Written at `docs/plans/<plan>/reviews/<date>-round-N/tasks.md` — **under** the
 not inside it. Nested one level deeper than `docs/plans/*/`, which is what the session-start
 hook globs, so a review's bookkeeping never competes to be the active plan or distorts the
 parent's counters. A sibling plan directory would sort newer and silently become the active
-plan: a worse defect than the one being fixed.
+plan: a worse defect than the one being fixed. That location is gitignored, so writing the file
+is only half of emitting it — stage it with `git add -f`, per
+[../../docs/reference/remediation-plan.md](../../docs/reference/remediation-plan.md) →
+*Promoting it*.
 
 ```text
 ---

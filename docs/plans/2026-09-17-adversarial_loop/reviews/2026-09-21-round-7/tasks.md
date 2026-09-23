@@ -183,7 +183,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       **working** here (`--include=` is the one that is rejected, exit 2) — verify before
       choosing the mechanism. (~4 calls) (completed 2026-09-23 03:46)
 
-- [ ] **R7-T12** — `plugin/skills/adversarial-review/templates.md:111` — Step 8 writes into
+- [x] **R7-T12** — `plugin/skills/adversarial-review/templates.md:111` — Step 8 writes into
       gitignored `docs/plans/` and nothing promotes the file.
       **Fails when:** `.gitignore:7` is `docs/plans/`; `git add` on the Step 8 path exits 1 with
       "The following paths are ignored … hint: Use -f", staging nothing. `git add -f` appears
@@ -192,7 +192,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       `git status --short` — every downstream "confirm the tree is clean" reads clean over it.
       **Acceptance (shape 1)**: `git add` the Step 8 path; assert exit 1 today (RED), and after
       the fix assert Step 8 (or the loop) promotes it with `-f` and the file appears in
-      `git status --short`. (~3 calls)
+      `git status --short`. (~3 calls) (completed 2026-09-23 16:46)
 
 - [ ] **R7-T13** — `plugin/skills/adversarial-review/SKILL.md` Step 3 and `templates.md` (the
       reconnaissance summary) — PD5-1, decided 2026-09-20 as **disclose only**: the skill has no

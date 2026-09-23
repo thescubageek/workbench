@@ -173,7 +173,7 @@ Checking the target out yourself is a state change nobody asked for.
    work list.
 
    **If no task line remains, the round is clean — do not invoke `implement`.** Two arrivals,
-   indistinguishable from here and handled the same: the review verified nothing, so Step 8 wrote
+   reaching the same verdict from different states: the review verified nothing, so Step 8 wrote
    no `tasks.md` at all
    ([../../docs/reference/remediation-plan.md](../../docs/reference/remediation-plan.md)); or the
    pruning above deleted every task line because every finding was rejected. Either way no
@@ -182,8 +182,15 @@ Checking the target out yourself is a state change nobody asked for.
    correctly means *the review failed to write its findings*, and the one this branch exists to
    stop being reported as skill drift or as a broken round.
 
-   Nothing was fixed and nothing changed, so there is nothing for step 4 to verify and no reworked
-   area for step 6 to re-review: the pass you just took still certifies this tree. Record the
+   **On the second arrival, commit the pruned plan yourself.** Step 8 staged the `tasks.md` it
+   wrote and the pruning above modified it, so the round plan is sitting staged in a tree no
+   `implement` run will ever commit — and Phase 2's `git status --porcelain` precondition lists
+   it and hard-fails, on the state this branch calls success. Re-stage it with
+   `git add -f <round-dir>/tasks.md` and commit it on its own, round number in the message,
+   before taking the gate. The first arrival wrote no file and has nothing to commit.
+
+   No code was fixed, so there is nothing for step 4 to verify and no reworked area for step 6
+   to re-review: the pass you just took still certifies this tree. Record the
    dispositions at step 5 — a round that decided nothing needed fixing is exactly what the ledger
    has to show — and take the gate.
 

@@ -51,6 +51,38 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-23 16:31 — R7-T12 (closed)
+
+- **Task/phase**: R7-T12 — Step 8 wrote into gitignored `docs/plans/` and nothing promoted the
+  file, so the round's only durable artifact never reached a commit, was lost to
+  `git clean -fdx`, and was invisible to every downstream "confirm the tree is clean".
+- **Landed**: the rule went into `remediation-plan.md` as a new *Promoting it* section — it is a
+  property of where the artifact lives, not of one skill's step — with Step 8 as the actor and a
+  pointer clause at the `templates.md` line the finding names. **Stage, do not commit**: the
+  commit belongs to the caller, and three callers are now named (6b's per-task commit under the
+  loop; the loop itself on the all-rejected arrival; the user standalone). Staging is enough —
+  measured, `git clean -fdx` does not reach a staged file, and `git worktree remove` refuses
+  rather than destroying one silently.
+- **Commits**: (this commit)
+- **Learned**: one escalation, and the failure was the same class as R7-T2's — a *reason* that
+  contradicted shipped norms. The first attempt justified not committing with "this repository
+  confirms git state changes with the user", citing `branch-naming.md` and root `CLAUDE.md`.
+  Neither says it: `CLAUDE.md` confirms the **push**, `branch-naming.md` scopes the phrase to
+  branch renames, `adversarial-loop`'s stop-table deliberately omits `git commit`, and
+  `implement` 6b commits per task unconfirmed. The decision was right; only its stated reason
+  was invented. **A worker writing a rule needs the norms handed to it, not left to infer.**
+- **Also learned, by measurement**: "Git refuses already-tracked plan files too" — inherited
+  wording in three skills — is wrong. Git **stages** the tracked file and exits 1 anyway
+  (`write-tree` moves; status goes ` M` → `M `). The conclusion (keep `-f` every time) survives,
+  because the exit 1 still breaks the `&&` chain, but the mechanism is not refusal.
+- **Follow-ups filed**:
+  - Two stale copies of that claim remain, at `implement_inline/SKILL.md:298` and
+    `implement_inline/reference.md:148`. One wrong copy beside two right ones is drift.
+  - `remediation-plan.md` says "a round directory that exists with a `## Tasks` section holding
+    no task lines **is the error**" — but on the all-rejected arrival the loop now durably
+    commits exactly that artifact. The producing paths differ, but the sentence is unqualified,
+    so a future consumer would flag a legitimate round.
+
 ## 2026-09-23 03:38 — R7-T11 (closed)
 
 - **Task/phase**: R7-T11 — the blast-radius search recursed the whole working directory, so a

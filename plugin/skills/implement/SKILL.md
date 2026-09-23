@@ -353,10 +353,11 @@ Step 4.
 plain `git add <plan-dir>/tasks.md` exits 1 with "The following paths are ignored", stages
 nothing, and breaks the `&&` chain — the commit never runs, and one task, one commit fails on the
 first passing task of the plan. The `&&` below is what makes that true: separate the three
-commands by newlines and a failed stage lets the commit land **without** the plan files. Git
-refuses **already-tracked** plan files too, so "this plan was promoted once" is not a reason to
-drop the `-f`. The `-f` overrides gitignore; it never widens the
-pathspec, so the by-path rule above still holds.
+commands by newlines and a failed stage lets the commit land **without** the plan files. A plain
+`git add` exits 1 even on an already-tracked plan file — staging it and failing anyway, which
+breaks the `&&` chain just the same — so "this plan was promoted once" is not a reason to drop
+the `-f`. The `-f` overrides gitignore; it never widens the pathspec, so the by-path rule above
+still holds.
 
 ```bash
 git add ${workerReportedFiles} &&                        # code — by path, no -f

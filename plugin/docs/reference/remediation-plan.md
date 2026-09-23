@@ -25,6 +25,44 @@ competes to be the active plan and never distorts the parent's counters. A sibli
 `docs/plans/<date>-review/` would sort newer and silently *become* the active plan, hiding the
 original — a worse defect than the one the round exists to fix.
 
+## Promoting it
+
+That path is inside `docs/plans/`, which is **gitignored** — so the round is written where git
+will not stage it by default. **Whoever writes the plan stages it, in the same step, with
+`git add -f`:**
+
+```bash
+git add -f docs/plans/<plan>/reviews/<date>-round-<N>/tasks.md
+```
+
+The `-f` is needed every time. A plain `git add` **exits 1 even on an already-tracked plan
+file** — it updates the index and fails anyway, so the `&&` chain breaks just the same — and
+"this plan was promoted once" is therefore not a reason to drop it. `-f` overrides the ignore
+rule without widening the pathspec, so staging stays by path. The rest of the reasoning is stated
+once, in [`implement` step 6b](../../skills/implement/SKILL.md): on a plan file git is not yet
+tracking, the same command exits 1 with "The following paths are ignored" and stages nothing.
+
+**Stage it; do not commit it.** The commit belongs to the caller, not to the round, and
+committing from the round would put the plan in a commit ahead of the work it lists — against
+*one task, one commit*. Staging is what the round owes: the file enters the index, where
+`git clean -fdx` no longer reaches it, and the caller's next commit carries it. Three callers,
+and a round says which one it is handing to:
+
+- Under `adversarial-loop` with tasks to run — `implement` step 6b's per-task commit.
+- Under `adversarial-loop` with every finding rejected — `implement` is never invoked, so the
+  loop commits the pruned plan itself before its clean-tree precondition
+  ([adversarial-loop](../../skills/adversarial-loop/SKILL.md) Phase 1 step 3).
+- Standalone — the user's, once they have read the round.
+
+**Nothing written, nothing to promote.** A round that verified no findings writes no `tasks.md`
+at all (below), and `git add -f` on a path that does not exist is
+`fatal: pathspec ... did not match any files`, exit 128. Stage only when the write happened.
+
+**An unpromoted round hides.** `git status --short` does not list *untracked* ignored files, so a
+round nobody staged is invisible there: every later "confirm the tree is clean" reads clean over
+the only durable artifact the round produced, and a `git clean -fdx` or a worktree teardown takes
+it with nothing left to show that it existed.
+
 ## How to recognise one
 
 Either test is sufficient; a consumer checks both because a hand-moved directory can lose one:
