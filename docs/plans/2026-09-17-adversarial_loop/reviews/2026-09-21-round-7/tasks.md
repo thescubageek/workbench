@@ -133,7 +133,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       `${PIPESTATUS[0]}` into a fenced block and assert the gate now flags it, having first
       asserted it does not today. (~5 calls)
 
-- [ ] **R7-T8** — `plugin/skills/adversarial-review/SKILL.md:227` — "Four details in that command"
+- [x] **R7-T8** — `plugin/skills/adversarial-review/SKILL.md:227` — "Four details in that command"
       is followed by five bullets.
       **Fails when:** `awk` between that heading and the next section counts **5** bullets (`-F`,
       `--`, status-from-`$?`, guard-runs-before-print, path-anchored exclusion); the delta changed
@@ -142,7 +142,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       `$?`-not-`PIPESTATUS` rule and the path anchor — which are exactly the two the same delta
       documents as fixes for measured defects.
       **Acceptance (shape 1)**: run the bullet count; assert 5 against a heading saying "Four"
-      today (RED), and equality after. (~2 calls)
+      today (RED), and equality after. (~2 calls) (completed 2026-09-23 02:19)
 
 - [ ] **R7-T9** — `plugin/skills/adversarial-review/SKILL.md:17` — `review-ledger.md` is listed
       as "the findings ledger a round appends to" and no step reads or writes it.

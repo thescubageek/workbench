@@ -291,7 +291,7 @@ filter=$?
 [ -n "$callers" ] && printf '%s\n' "$callers" | sed 's/^/  /'
 ```
 
-Four details in that command are the difference between a measurement and a guess:
+Five details in that command are the difference between a measurement and a guess:
 
 - **`-F`** treats the symbol as a literal. Without it a name containing `[`, `(` or `\` is an
   invalid pattern, grep exits 2 printing nothing, and the empty output reads as "no callers".

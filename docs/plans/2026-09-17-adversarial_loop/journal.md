@@ -51,6 +51,41 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-23 02:17 — R7-T8 (closed)
+
+- **Task/phase**: R7-T8 — "Four details in that command" stood above five bullets; the delta had
+  changed the count Three → Four while adding two.
+- **Landed**: the count, and only the count — `Four` → `Five`. One word, one line. All five
+  bullets verified byte-identical to HEAD, which is the substance of the finding: the danger it
+  names is a reader deleting a bullet to satisfy the stated number, and the two likeliest
+  deletions were the two documenting the most recently fixed defects.
+- **Commits**: (this commit)
+
+## 2026-09-22 23:52 — R7-T7 [blocked] (open)
+
+- **Task/phase**: R7-T7 — `adversarial-review/SKILL.md` names `check-guards` as what protects
+  its fenced blocks, but no detector shape matches the defect that actually bit this file:
+  reverting `search=$?` to `search=${PIPESTATUS[0]}` — a bash array that expands to nothing
+  under the zsh the Bash tool runs — leaves **both** release gates exit 0, clean.
+- **Blocked by**: two consecutive worker agents died to the stream watchdog (`no progress for
+  600s`) with nothing written. The tree is clean both times; `plugin/scripts/check-guards` is
+  untouched. The first stall is explained — it blocked on `./plugin/scripts/test-guards`, which
+  was measured at **12m22s wall** (34s user, 20s system, 7% cpu: subprocess-bound), past the
+  600s watchdog. The second was re-spawned with that warning and the RED already established,
+  and stalled **before reading its first file**, which that explanation does not cover. Two
+  stalls, one explained and one not, is an infrastructure signal rather than a property of the
+  task.
+- **Established and carried forward, so a third attempt need not redo it**:
+  - RED is confirmed — `${PIPESTATUS[0]}` reintroduced into a fenced block leaves both gates
+    exit 0, clean.
+  - `test-guards` baseline on this tree: `corpus 86/86, integrity 15/15, mutations 23/23 — PASS`.
+  - The task's headline premise is false: `check-guards` **does** scan fenced shell blocks in
+    shipped markdown. The substance — four detector shapes, none seeing `${PIPESTATUS[0]}` — is
+    what the criterion tests.
+- **Next action**: waiting on the round-7 checkpoint. The work itself is unattempted, not failed
+  — a human decides whether to re-spawn a third worker, run it inline, or defer the detector to
+  round 8.
+
 ## 2026-09-22 23:33 — R7-T6 (closed)
 
 - **Task/phase**: R7-T6 — three findings, one class, Step 1 resolution robustness: an
