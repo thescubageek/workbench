@@ -249,18 +249,19 @@ A task carrying a `Depends on:` field is the exception — check its named depen
 `[x]` before taking it. Nothing else encodes dependencies.
 
 **A task with no mechanical acceptance criterion is not worker work — divert it here.** An
-`adversarial-review` remediation plan emits these deliberately: the acceptance line is labelled
-`(attestation)` and names who must look, because the finding is a judgement call with no check
-to run. Recognise one by that label, or by an acceptance line saying outright that no mechanical
-criterion exists, and do **not** spawn a worker for it. There is nothing to implement, so a
-worker under TDD has no failing test to write, and the verifier reads the clean tree it
-correctly leaves behind as a FAIL — two workers and an escalation spent to arrive back at an
-unfinished task.
+`adversarial-review` remediation plan emits these deliberately, in the literal form its
+`templates.md` pins: `**Acceptance (attestation)**:` in place of the usual `(shape <n>)` label,
+followed by an `**Attestor:**` field naming who must look, because the finding is a judgement
+call with no check to run. Recognise one by that label and field, or by an acceptance line
+saying outright that no mechanical criterion exists, and do **not** spawn a worker for it. There
+is nothing to implement, so a worker under TDD has no failing test to write, and the verifier
+reads the clean tree it correctly leaves behind as a FAIL — two workers and an escalation spent
+to arrive back at an unfinished task.
 
 Instead: leave the checkbox `[ ]`, add the task to the phase checkpoint's **attestation list**
-with its `file:line` and the person or role the task names, and move on to the next task. Step
-8.4 is where a human is asked, and a human's answer there is the only thing that may flip that
-box.
+with its `file:line` and the person or role its `**Attestor:**` field names, and move on to the
+next task. Step 8.4 is where a human is asked, and a human's answer there is the only thing that
+may flip that box.
 
 ### Step 5: Spawn a Worker
 
@@ -491,8 +492,9 @@ A checkpoint headed `Phase undefined` reads as a run that lost its place.
    **Attended (the default).** Read [templates/manual-verification-request.md](templates/manual-verification-request.md) NOW, emit it, and **wait for the user's confirmation**.
 
    **Put the attestation list in that same request, one line each** — the task's `file:line`,
-   the judgement being asked for, and who the task names. This is the authority those tasks were
-   diverted here to wait for: on a clear yes, flip the task's checkbox to `[x]`, record in one
+   the judgement being asked for, and the person or role from its `**Attestor:**` field, so the
+   request names who must look rather than asking the room. This is the authority those tasks
+   were diverted here to wait for: on a clear yes, flip the task's checkbox to `[x]`, record in one
    line who attested and when, and commit it as you would any other task. On anything else it
    stays `[ ]` and moves to the blocking list with what the human said.
 

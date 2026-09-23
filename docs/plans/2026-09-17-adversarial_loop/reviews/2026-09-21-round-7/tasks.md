@@ -209,7 +209,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       in Step 3; today both greps return nothing (RED). Negative control: the same greps against
       an unmodified copy still return nothing. No threshold, no stop, no `--since` — PD5-1
       rejected both and `--since`/`--range` is 3.1 work. (~6 calls) (completed 2026-09-23 16:57)
-- [ ] **R7-T14** — `plugin/skills/adversarial-review/templates.md:137-139,153` — shape 6 tells the
+- [x] **R7-T14** — `plugin/skills/adversarial-review/templates.md:137-139,153` — shape 6 tells the
       producing model to "Label `(attestation)`, name who must look", but the task-line template
       reserves no slot for either, so the label is an instruction rather than a template literal
       and the consumer that now keys off it may never see it.
@@ -227,7 +227,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       prose; today `grep -n 'attestation' plugin/skills/adversarial-review/templates.md` hits
       only the table row at `:153` and nothing in the template block at `:137-139` (the RED).
       After the fix the emitted form pins both at a named `file:line`, and `implement`'s Step 4
-      recognition matches it literally. (~3 calls)
+      recognition matches it literally. (~3 calls) (completed 2026-09-23 17:08)
 
 ## Implementation notes
 

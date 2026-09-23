@@ -51,6 +51,28 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-23 17:05 — R7-T14 (closed)
+
+- **Task/phase**: R7-T14 — shape 6 told the producing model to label a judgement task
+  `(attestation)` and name who must look, but the emitted template reserved no slot for either,
+  so both were instructions in a table rather than literals in the line the consumer reads.
+- **Landed**: shape 6 now emits its own form — `**Acceptance (attestation)**:` plus an
+  `**Attestor:**` field — and drops `(~N calls)`, since no worker runs it and the annotation
+  exists to predict worker truncation. Shapes 1–5 are byte-identical. Taxonomy row 6 points at
+  the emitted form instead of restating it. `implement` Step 4 quotes both literals
+  character-for-character and keeps its prose fallback for hand-written plans; Step 8.4 sources
+  the person from `**Attestor:**`, so the checkpoint request names who must look rather than
+  asking the room.
+- **Commits**: (this commit)
+- **Learned**: the producer and consumer literals were compared **programmatically**, not by
+  eye — a near-miss on an asterisk or a colon is the entire defect this task closes. The colon
+  sits inside the bold on `**Attestor:**` and outside it on `**Acceptance (attestation)**:`;
+  that asymmetry is deliberate, matching the block's existing `**Fails when:**`, and both
+  consumer quotations reproduce it exactly. `task-worker.md` and `task-verifier.md` needed no
+  edit: both key on the substring `(attestation)`, which the new form satisfies.
+- **Round 6's half now has its pair.** R6-T3 built the consumer side; the producer side landing
+  here is what makes the label enforceable rather than advisory.
+
 ## 2026-09-23 16:52 — R7-T13 (closed)
 
 - **Task/phase**: R7-T13 — PD5-1's disclosure: the skill had no way to say that the fleet it
