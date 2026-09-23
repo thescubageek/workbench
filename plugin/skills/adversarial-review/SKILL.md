@@ -2,7 +2,7 @@
 name: adversarial-review
 description: Adversarial code review — assume the change is broken and hunt for how, then verify every finding before reporting. Sizes its own fan-out from what the diff touches, wraps the built-in /code-review for breadth, and injects named domain-expert lenses it does not have. Use when the user says "adversarial review", "review adversarially", "hunt for bugs in this branch", "review as a principal <domain> engineer", names expert lenses to review under, or asks whether another session's findings are accurate.
 argument-hint: "[<pr#>|<branch>|<path>] [--effort=<low|medium|high|xhigh|max>]"
-allowed-tools: Read, Glob, Grep, Bash, Task, Skill, ReportFindings
+allowed-tools: Read, Write, Glob, Grep, Bash, Task, Skill, ReportFindings
 ---
 
 # Adversarial Review
@@ -35,7 +35,9 @@ It **wraps** the built-in `/code-review` rather than re-implementing it, and add
 that review does not have: named domain-expert lenses, and a verification pass over every
 candidate. Reconnaissance decides how much of either to buy, *before* buying it.
 
-It does **not** fix anything. Findings are reported; `adversarial-loop` is what applies them.
+It does **not** fix anything — findings are reported, and `adversarial-loop` is what applies
+them. It does write: Step 8 emits the remediation plan itself, a new `tasks.md`, which is a
+report of what was found, not a fix to the diff under review.
 
 It does **not** adjudicate either, and so it writes **no findings ledger**. A ledger row is a
 finding's *disposition*, and a standalone round assigns none — Step 8 hands every verified

@@ -157,7 +157,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       After the fix either a step appends, or the bullet says the file is the loop's. (~3 calls)
       (completed 2026-09-23 02:29)
 
-- [ ] **R7-T10** — `plugin/skills/adversarial-review/SKILL.md:5` — `allowed-tools` declares a
+- [x] **R7-T10** — `plugin/skills/adversarial-review/SKILL.md:5` — `allowed-tools` declares a
       read-only surface while Step 8 writes a file.
       **Fails when:** the frontmatter is `Read, Glob, Grep, Bash, Task, Skill, ReportFindings` —
       no `Write`, no `Edit` — while Step 8 writes `docs/plans/<plan>/reviews/<date>-round-N/
@@ -167,7 +167,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       to decide whether the skill mutates the tree concludes it does not, and runs it unattended.
       **Acceptance (shape 3)**: dual grep — `Write` present in `adversarial-review/SKILL.md:5`,
       and the "does not fix anything" sentence reconciled so it no longer implies no writes.
-      (~2 calls)
+      (~2 calls) (completed 2026-09-23 02:37)
 
 - [ ] **R7-T11** — `plugin/skills/adversarial-review/SKILL.md:220` — the blast-radius search
       recurses the whole working directory with no exclusion, so most "measured" call sites can

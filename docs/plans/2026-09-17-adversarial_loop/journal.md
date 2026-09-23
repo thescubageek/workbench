@@ -51,6 +51,23 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-23 02:36 — R7-T10 (closed)
+
+- **Task/phase**: R7-T10 — `allowed-tools` declared a read-only surface while Step 8 writes a
+  file, and "It does **not** fix anything" reinforced the wrong reading. An operator checking
+  the frontmatter to decide whether the skill mutates the tree concluded it does not.
+- **Landed**: `Write` added to `allowed-tools`, placed after `Read` as every sibling places it.
+  The sentence now keeps the true claim and drops the false implication: it does not *fix*, and
+  it does write — Step 8 emits the plan, which is a report of what was found rather than a fix
+  to the diff under review.
+- **Commits**: (this commit)
+- **Learned**: `Edit` was deliberately omitted, and the reason is checkable rather than
+  stylistic. Step 8 always targets a fresh, never-before-existing round directory —
+  `remediation-plan.md` makes never reusing `<N>` a rule precisely because a reused number would
+  overwrite the previous round's `[x]` checkboxes — so the skill creates and never reads-then-
+  modifies. `REVIEW.md` is read-only in Step 2. Declaring `Edit` would have been over-declaration,
+  which is the same defect class as under-declaration pointed the other way.
+
 ## 2026-09-23 02:23 — R7-T9 (closed)
 
 - **Task/phase**: R7-T9 — the header block listed `review-ledger.md` as "the findings ledger a
