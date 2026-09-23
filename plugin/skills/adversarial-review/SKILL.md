@@ -14,7 +14,6 @@ Supporting files in this directory (read each when its step directs you to — n
 - [templates.md](templates.md) — the reconnaissance summary, the `ReportFindings` call, the restatement, the remediation plan, and the fallbacks
 - [reference.md](reference.md) — verify-only mode, the five dispositions, the proportionality gate, the coverage check
 - [../../docs/reference/code-review-integration.md](../../docs/reference/code-review-integration.md) — what the built-in review machinery provides and which parts of it may be relied on
-- [../../docs/reference/review-ledger.md](../../docs/reference/review-ledger.md) — the findings ledger a round appends to
 
 **If a directed read fails, stop — do not continue from memory.** These files live outside your
 project, so a read can be refused. Say which file was refused, that reads outside the working
@@ -37,6 +36,14 @@ that review does not have: named domain-expert lenses, and a verification pass o
 candidate. Reconnaissance decides how much of either to buy, *before* buying it.
 
 It does **not** fix anything. Findings are reported; `adversarial-loop` is what applies them.
+
+It does **not** adjudicate either, and so it writes **no findings ledger**. A ledger row is a
+finding's *disposition*, and a standalone round assigns none — Step 8 hands every verified
+finding to the caller as a task. `adversarial-loop` Phase 1 step 5 is what writes the ledger and
+what the thrash breaker reads
+([../../docs/reference/review-ledger.md](../../docs/reference/review-ledger.md)); a round run
+outside the loop leaves none, so do not run the breaker against one and read its silence as a
+clean trend.
 
 ## Arguments
 

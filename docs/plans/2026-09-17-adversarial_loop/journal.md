@@ -51,6 +51,29 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-23 02:23 — R7-T9 (closed)
+
+- **Task/phase**: R7-T9 — the header block listed `review-ledger.md` as "the findings ledger a
+  round appends to" and no step read or wrote it.
+- **Landed**: the round does not append, and the skill now says so. The dangling bullet was
+  removed from the header block and the ownership stated in *What this skill does, and does not*
+  — `adversarial-loop` Phase 1 step 5 is the writer — with `review-ledger.md` linked once, not
+  restated.
+- **Commits**: (this commit)
+- **Learned**: the reason option (a) was wrong is structural, not stylistic. A ledger row's two
+  load-bearing fields are `disposition` and `introduced_by`; a standalone review assigns no
+  dispositions (they are the caller's) and carries nothing between rounds, so `introduced_by` is
+  *underivable*, not merely unknown. Writing rows of `unknown` into a file the loop's Blocking
+  triggers then read is worse than writing none. And the breaker is a two-round trend test with
+  a floor of three findings, so a standalone round could never fire it anyway — the harm the
+  finding names is the false-clean *reading*, which is exactly what documenting the absence
+  closes.
+- **Deviation, accepted**: the criterion said "the bullet says the file is the loop's"; the
+  bullet was removed instead. Verified as the stronger form of the same fix — the header block's
+  contract is "read each when its step directs you to", so a reworded bullet would still be
+  dangling. Discoverability went up, not down: one mention at HEAD, three lines now, and earlier
+  in the file.
+
 ## 2026-09-23 02:17 — R7-T8 (closed)
 
 - **Task/phase**: R7-T8 — "Four details in that command" stood above five bullets; the delta had

@@ -144,7 +144,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       **Acceptance (shape 1)**: run the bullet count; assert 5 against a heading saying "Four"
       today (RED), and equality after. (~2 calls) (completed 2026-09-23 02:19)
 
-- [ ] **R7-T9** — `plugin/skills/adversarial-review/SKILL.md:17` — `review-ledger.md` is listed
+- [x] **R7-T9** — `plugin/skills/adversarial-review/SKILL.md:17` — `review-ledger.md` is listed
       as "the findings ledger a round appends to" and no step reads or writes it.
       **Fails when:** `grep -rn 'ledger|review-log' plugin/skills/adversarial-review/` returns
       exactly one hit — that header line. The ledger at `docs/plans/<plan>/review-log.md` is
@@ -155,6 +155,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       **Acceptance (shape 5)**: a reference resolver — every file listed in the header block must
       have at least one step that directs its read. Today `review-ledger.md` has zero (RED).
       After the fix either a step appends, or the bullet says the file is the loop's. (~3 calls)
+      (completed 2026-09-23 02:29)
 
 - [ ] **R7-T10** — `plugin/skills/adversarial-review/SKILL.md:5` — `allowed-tools` declares a
       read-only surface while Step 8 writes a file.
