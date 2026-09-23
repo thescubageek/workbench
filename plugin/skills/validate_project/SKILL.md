@@ -13,6 +13,7 @@ Supporting files in this directory (read each when its step directs you to — n
 
 - `reference/` — [validation-checklist.md](reference/validation-checklist.md) and [validation-rules.md](reference/validation-rules.md) (Step 3) · [important-guidelines.md](reference/important-guidelines.md) · [configuration.md](reference/configuration.md)
 - `templates/` — [error-message-formats.md](templates/error-message-formats.md) (Step 3) · [validation-report.md](templates/validation-report.md) (Step 4)
+- [../../docs/reference/remediation-plan.md](../../docs/reference/remediation-plan.md) — what a review round's remediation plan is, how Step 1 recognises one, and the files it has and deliberately lacks
 
 **If a directed read fails, stop — do not continue from memory.** These files live outside your
 project, so a read can be refused. Say which file was refused, that reads outside the working
@@ -63,9 +64,23 @@ the counts win.
 **⛔ BARRIER 1: Read ALL files FULLY - no shortcuts**
 
 Take the project directory from the arguments, prompting for it if it is missing. Then read
-every document it holds — **fully**, no `limit` or `offset`: `research.md`, `design.md` and
-`tasks.md` are required; `journal.md` and any `handoff*.md` are optional and validated only when
-present.
+every document it holds — **fully**, no `limit` or `offset`. On a **phased project**,
+`research.md`, `design.md` and `tasks.md` are required; `journal.md` and any `handoff*.md` are
+optional and validated only when present.
+
+**A remediation plan has only `tasks.md`, and that is correct.** Read
+[../../docs/reference/remediation-plan.md](../../docs/reference/remediation-plan.md) NOW for how to recognise one
+and what it deliberately lacks, then take `tasks.md` alone as the whole plan. Do not report the
+missing `research.md`, `design.md` or `depends_on` chain — `/wb:implement` and
+`/wb:update_status` both run this shape, so a validator that calls it broken is wrong about the
+workflow rather than right about the plan, and its real findings get buried under three errors
+nobody can act on.
+
+**Switch contract; do not switch off.** A round has its own structure and can get that structure
+wrong, so validate it against §9 of the checklist — the frontmatter keys Step 8 writes, a
+`reviews:` that resolves, a `## Tasks` section — plus every §3 task-tracking check, which applies
+to a round unchanged. Skipping validation on a round would trade a false positive for a blind
+spot on the file that *is* the whole plan.
 
 1. **Check directory exists**:
 
@@ -74,8 +89,8 @@ present.
    ```
 
 2. **Read all required files**:
-   - Read research.md FULLY
-   - Read design.md FULLY
+   - Read research.md FULLY (a remediation plan has none — skip it)
+   - Read design.md FULLY (a remediation plan has none — skip it)
    - Read tasks.md FULLY
    - Read journal.md and handoff.md if they exist
 

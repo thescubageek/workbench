@@ -15,6 +15,8 @@ Supporting files in this directory (read each when its step directs you to — n
 
 - `templates/` — [modified-files-fragment.md](templates/modified-files-fragment.md) (Step 5) · [manual-verification-request.md](templates/manual-verification-request.md) and [phase-completion-report.md](templates/phase-completion-report.md) (Step 6)
 - [reference.md](reference.md) — handling mismatches, resume logic, TDD best practices, special considerations, error handling, the DO/DON'T lists, configuration
+- [../../docs/reference/journal-entries.md](../../docs/reference/journal-entries.md) — where a journal entry goes (newest first, never appended), its heading contract, and when it opens and closes
+- [../../docs/reference/remediation-plan.md](../../docs/reference/remediation-plan.md) — what a review round's remediation plan is, how Step 1 recognises one, and the files it has and deliberately lacks
 
 **If a directed read fails, stop — do not continue from memory.** These files live outside your
 project, so a read can be refused. Say which file was refused, that reads outside the working
@@ -59,7 +61,8 @@ When invoked, check for arguments:
 3. **ZERO SCOPE CREEP**: Implement EXACTLY what's in tasks.md - NO additions, NO improvements, NO extras
 4. **Progress Tracking**: checkbox state in `tasks.md` is the source of truth — flipping a task's checkbox **is** the act of recording it done
 5. **Verification Gates**: Respect ⛔ CHECKPOINT markers between phases
-6. **Documentation First**: Read research.md and design.md for context before starting
+6. **Documentation First**: Read research.md and design.md for context before starting — a
+   remediation plan has neither, and Step 1 says what to read instead
 
 ### CRITICAL: NO SCOPE ADDITIONS - NONE
 
@@ -117,16 +120,27 @@ Take the project directory and the phase from the arguments, prompting for eithe
 missing. Then read `research.md`, `design.md` and `tasks.md` from that directory — **fully**, no
 `limit` or `offset`.
 
+**A remediation plan has only `tasks.md`, and that is correct.** Read
+[../../docs/reference/remediation-plan.md](../../docs/reference/remediation-plan.md) NOW for how to recognise one
+and what it deliberately lacks, then take `tasks.md` alone as the whole plan. Do not stop, and do
+not route the user to `/wb:create_project` to manufacture two files that exist only to be empty.
+
+Every later step that reaches for research or design context — the REFACTOR step's patterns, Step
+4's edge cases, Step 5's testing patterns, Step 6's manual checks — then has nothing to reach for.
+On such a plan the task text and its acceptance criterion are the whole specification; do not go
+hunting for the absent file.
+
 1. **Read project structure**:
    - Check that specified directory exists
-   - Verify presence of research.md, design.md, tasks.md
+   - Verify presence of research.md, design.md, tasks.md — for a remediation plan, `tasks.md`
+     alone satisfies this
 
-2. **Read research.md FULLY**:
+2. **Read research.md FULLY** (a remediation plan has none — skip to step 4):
    - Understand what currently exists in the codebase
    - Note patterns and conventions to follow
    - Identify key file:line references
 
-3. **Read design.md FULLY**:
+3. **Read design.md FULLY** (likewise absent from a remediation plan):
    - Understand the desired end state
    - Review success criteria for the phase
    - Note both automated and manual verification requirements
@@ -154,7 +168,9 @@ After reading all documentation, synthesize:
 There is no external tracker. `tasks.md` is both the plan and the status surface, so
 establishing position is a read, not a setup step.
 
-1. **Find the phase**: `current_phase` in frontmatter, or the phase given as `$2`.
+1. **Find the phase**: `current_phase` in frontmatter, or the phase given as `$2`. A remediation
+   plan carries neither: its `## Tasks` section is the single phase, and Step 6's checkpoint
+   falls at the end of the round.
 
 2. **Find the next task**: the first `- [ ]` line in that phase's task list. Tasks run in
    document order; a task carrying a `Depends on:` field is the exception, so check that its
@@ -177,10 +193,15 @@ establishing position is a read, not a setup step.
 
 4. **Read the journal tail**: `journal.md`'s most recent entry. An **open** entry means the
    previous session was interrupted mid-task or simply moved on — an uncommitted working tree
-   tells you which. Finish or supersede that work before starting something new.
+   tells you which. Finish or supersede that work before starting something new. An open entry
+   carrying `[blocked]` is neither — it was left open deliberately and its `Next action` names
+   what it waits on, so read that before deciding. On a remediation plan the journal to read is
+   the **parent plan's** `docs/plans/<plan>/journal.md`; a round directory has none.
 
 **If `tasks.md` has no phases or no tasks**, stop and say so: the plan has not been decomposed
-yet, and `/wb:create_tasks` is what writes it.
+yet, and `/wb:create_tasks` is what writes it. **A remediation plan is exempt from the phase half
+of this check, never from the task half**: no task lines is still a stop, and there the fix is to
+re-run the review, not `/wb:create_tasks`.
 
 ### Step 3: Implement Phase Tasks
 
@@ -188,15 +209,20 @@ yet, and `/wb:create_tasks` is what writes it.
 
 **A. Open a journal entry**
 
-Before touching code, append an entry to `journal.md` naming the task ID, what you are about
-to do, and the exact next action — written **at the start**, not the end, because a session does
-not get to choose how it ends.
+Before touching code, add an entry at the **top** of `journal.md` — never appended to the end —
+naming the task ID, what you are about to do, and the exact next action, written **at the start**
+of the work, not the end, because a session does not get to choose how it ends. Read
+[../../docs/reference/journal-entries.md](../../docs/reference/journal-entries.md) NOW and follow it.
 
 The heading shape is a contract — the session-start hook, `forge`, `daily-digest`, `resume_handoff` and `create_handoff` all match on the trailing `(open)` / `(closed)`, and an entry ending any other way is invisible to them. Timestamp from `date -u +"%Y-%m-%d %H:%M"`, never estimated:
 
 ```
 ## YYYY-MM-DD HH:MM — <task-id or short label> (open)
 ```
+
+**On a remediation plan, the entry goes in the parent plan's `journal.md`** — a round directory
+holds no journal of its own. The rule and its reason are stated once, in `journal-entries.md` →
+*Which file, when the plan directory is nested*.
 
 **B. Test First (RED)**
 
@@ -251,7 +277,7 @@ In this order:
    is the tracking act — not a note about the tracking act. A finished task with an unflipped
    checkbox is indistinguishable from unfinished work to the next session.
 2. **Commit.** One task, one commit, with the task ID in the message. The commit log is the
-   durable audit trail.
+   durable audit trail. Stage it as **Staging** below describes.
 3. **Close the journal entry** with what landed and its commit.
 4. **Add implementation notes** to tasks.md if there was a discovery or a deviation:
 
@@ -259,6 +285,31 @@ In this order:
    ## Implementation Notes
    - [YYYY-MM-DD] Completed [task-id]: [brief note about discoveries or deviations]
    ```
+
+**Staging.** Stage the files this task changed **by path** — never `git add -A` or `.`, which
+sweeps in generated artifacts (`__pycache__/`, `*.pyc`, build output) that are not the task's
+work.
+
+**Stage the plan's own files with `git add -f`, every time.** `docs/plans/` is gitignored, so a
+plain `git add [plan-dir]/tasks.md` exits 1 with "The following paths are ignored", stages
+nothing, and breaks the `&&` chain — the commit never runs, and the checkbox you just flipped
+stays in the working tree instead of the log. The `&&` below is what makes that true: separate
+the three commands by newlines and a failed stage lets the commit land **without** the plan
+files. Git refuses **already-tracked** plan files too, so "this plan was promoted once" is not a
+reason to drop the `-f`. The `-f` overrides gitignore; it
+never widens the pathspec, so the by-path rule above still holds.
+
+```bash
+git add [files this task changed] &&                     # code — by path, no -f
+git add -f [plan-dir]/tasks.md [plan-dir]/journal.md &&  # plan files — always -f
+git commit -m "[task-id]: ..."
+```
+
+**A failed stage hides.** `git status --short` does not list *untracked* ignored files, so an
+unpromoted plan directory's `tasks.md` is invisible there and the tree reads clean over a status
+edit that was never committed. (A *tracked* plan file that is merely modified does show, so the
+blindness is specific to a directory nothing has promoted.) Confirm what the commit actually
+contains with `git show --stat HEAD` rather than inferring it from a clean tree.
 
 **Do NOT**:
 

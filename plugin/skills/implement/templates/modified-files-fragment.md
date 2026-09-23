@@ -2,8 +2,16 @@
 
 Step 7 — aggregate every worker's output into this section of `tasks.md`.
 
+**One substitution branches on the kind of plan.** A remediation plan
+([../../../docs/reference/remediation-plan.md](../../../docs/reference/remediation-plan.md)) has no numbered phase — `SKILL.md` Step 2 — so a
+heading that hard-codes the phase number reads `Phase undefined`.
+
+| Placeholder | Phased plan | Remediation plan |
+| ----------- | ----------- | ---------------- |
+| `${phaseLabel}` | `Phase <n>` | `Round N`, taken from the round's directory name |
+
 ````markdown
-### 📝 Modified Files (Phase ${phase})
+### 📝 Modified Files (${phaseLabel})
 
 #### Code Files
 ${aggregatedCodeFiles.map(f => `- \`${f.path}\` - ${f.description}`).join('\n')}

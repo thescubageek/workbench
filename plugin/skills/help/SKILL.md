@@ -24,6 +24,8 @@ You are a helpful guide to this workflow system, not just dumping text.
 /wb:help status       # Where task status lives and who writes it
 /wb:help continuity   # Journal, knowledge file, handoffs, compaction
 /wb:help mockup       # Mockup iteration workflow
+/wb:help review       # Reviewing a change adversarially
+/wb:help reference    # The shipped reference docs and what each governs
 /wb:help [stage]      # Specific stage (e.g., /wb:help create_design)
 ```
 
@@ -156,7 +158,7 @@ Researches existing UI patterns, asks clarifying questions, creates versioned mo
 
 ### `/wb:create_handoff [directory] [reason]`
 
-Captures context for session transfer, reviews the session's knowledge candidates, and appends a journal pointer. A handoff crossing machines must `git add -f` its plan directory — plan directories are gitignored by default.
+Captures context for session transfer, reviews the session's knowledge candidates, and adds a journal pointer at the top of `journal.md`. A handoff crossing machines must `git add -f` its plan directory — plan directories are gitignored by default.
 
 ### `/wb:resume_handoff [handoff-file]`
 
@@ -177,6 +179,41 @@ Morning "catch me up + plan my day" orchestrator. Restores active-project contex
 ### `/wb:model-help [handoff-or-spec]`
 
 Advises which Claude model + reasoning-effort to run a task at (advice only, never implements). Also runs in **gate mode**: the per-phase "model journey" a `forge` should take and whether switching the main model at a gate is worth the context-reload cost.
+
+## Other skills
+
+Not pipeline stages — invoke them directly when you want them.
+
+| Skill | What it does |
+| ----- | ------------ |
+| `/wb:adversarial-review [<pr#>\|<branch>\|<path>] [--effort=<level>]` | Assumes the change is broken and hunts for how. Sizes its own fan-out from what the diff touches, wraps the built-in `/code-review`, injects domain-expert lenses, and verifies every finding before reporting |
+| `/wb:adversarial-loop [<pr#>\|<branch>] [--effort=<level>]` | Drives a change to reviewable: review, adjudicate, fix, re-verify until a pass is clean. Runs anywhere there is a diff; if a pull request exists it also flips to ready, waits on CI and `claude[bot]`, and replies until resolved |
+| `/wb:reply-to-claude [<pr#>]` | Answers a `claude[bot]` review with a comment mapping one-to-one to its findings — what was fixed, what was rejected and why |
+| `/wb:review-prep [target]` | Interactive diff walkthrough in tmux and nvim — paced for a human, where `adversarial-review` is a batch hunt |
+| `/wb:research-validation [directory]` | Re-checks a research document against the code: do the paths exist, do the snippets match, are the behavioural claims still true |
+| `/wb:jira-context <TICKET>` | Loads a ticket's Agents section and the files it points at. Runs standalone, or as `create_research`'s Step 0 |
+| `/wb:fetch-issues [repo]` | Triages open GitHub issues into per-issue, session-ready handoffs |
+| `/wb:create_product_research [directory]` | Research from a product angle — user-visible behaviour and flows rather than implementation |
+| `/wb:tracer-bullet` | Fires one cheap probe at the riskiest assumption before fanning out into speculative work |
+| `/wb:clip <instruction>` | Runs an instruction and copies the result to the clipboard instead of printing it |
+| `/wb:eli5-clip` | Summarises recent work in plain language for a non-technical reader, and clips it |
+
+Background skills activate on their own and are not invoked: `doc-adherence`,
+`project-structure`, `tdd-discipline`, `verification-before-completion`, `status-sync`,
+`mockup-iteration`.
+
+## Shipped reference docs
+
+Each is the single authority for one rule. Stages link to them rather than restating, so the rule
+changes in one place.
+
+| Doc | Governs |
+| --- | ------- |
+| `docs/reference/branch-naming.md` | What the working branch is called, and when to rename it |
+| `docs/reference/journal-entries.md` | Where a journal entry goes — newest at the top, never appended — its `(open)`/`(closed)` contract, and when it opens and closes |
+| `docs/reference/code-review-integration.md` | What Claude Code's built-in review commands provide, and which parts of that a skill may rely on |
+| `docs/reference/review-ledger.md` | The findings ledger a review loop appends to between rounds, and the thrash breaker computed from it |
+| `docs/reference/remediation-plan.md` | What a review round's remediation plan is — where it lives, how a consumer recognises one, what it has and deliberately lacks, and how Step 8's placeholders resolve |
 
 ## Core Principles
 

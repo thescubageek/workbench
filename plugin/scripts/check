@@ -1,0 +1,68 @@
+#!/usr/bin/env bash
+
+# check — every gate this repository has, in one command.
+#
+# The guards existed before this script and nothing invoked them, which is its own
+# instance of the class they hunt: a check that never runs and a check that always
+# passes are indistinguishable from the outside. This is what CI runs, and it is what
+# a maintainer runs before a release.
+#
+# Usage: plugin/scripts/check
+# Exit 0 if every gate passes, 1 otherwise. Every gate runs — a failure does not
+# short-circuit the rest, because knowing one thing is broken is less useful than
+# knowing which things are.
+
+set -uo pipefail
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+cd "$ROOT" || exit 2
+
+FAILED=()
+
+gate() {  # name command...
+  local name="$1"; shift
+  printf '\n\033[0;34m▶ %s\033[0m\n' "$name"
+  if "$@"; then
+    printf '\033[0;32m✓ %s\033[0m\n' "$name"
+  else
+    printf '\033[0;31m✗ %s\033[0m\n' "$name"
+    FAILED+=("$name")
+  fi
+}
+
+# An optional tool that is silently skipped when missing is the silent-success class this
+# repository exists to catch, one level up: a gate that did not run and a gate that passed are
+# the same green. So shellcheck is required, and its absence fails loudly with the install line.
+require() {  # name install-hint minimum-version
+  if ! command -v "$1" >/dev/null 2>&1; then
+    printf '\033[0;31m✗ %s is not installed\033[0m\n  install: %s\n' "$1" "$2"
+    FAILED+=("$1 missing")
+    return 1
+  fi
+  local have
+  have=$("$1" --version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+(\.[0-9]+)?' | head -1)
+  if [ -n "$have" ] && [ "$(printf '%s\n%s\n' "$3" "$have" | sort -V | head -1)" != "$3" ]; then
+    printf '\033[0;31m✗ %s %s is older than the required %s\033[0m\n' "$1" "$have" "$3"
+    FAILED+=("$1 too old")
+    return 1
+  fi
+  return 0
+}
+
+require shellcheck 'brew install shellcheck  |  apt-get install shellcheck' 0.9.0 \
+  && gate "shell lint"            ./plugin/scripts/shellcheck-gate
+
+gate "markdown lint"            ./plugin/scripts/lint --all
+gate "unguarded measurements"   ./plugin/scripts/check-guards
+gate "check-guards contract"    ./plugin/scripts/test-guards
+gate "count contract"           ./plugin/scripts/test-count
+gate "PHI scrub patterns"       ./plugin/scripts/test-phi-patterns
+gate "quiet contract"           ./plugin/scripts/test-quiet
+
+echo
+if [ ${#FAILED[@]} -eq 0 ]; then
+  echo "✅ check: all gates passed"
+  exit 0
+fi
+printf '❌ check: %d gate(s) failed:\n' "${#FAILED[@]}"
+printf '   - %s\n' "${FAILED[@]}"
+exit 1

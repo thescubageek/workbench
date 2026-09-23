@@ -31,9 +31,11 @@ code=$?
 if [[ $code -eq 0 ]]; then
     # Success: collapse to a checkmark + the runner's own summary line.
     # Keep the log so the advertised path is real if detail is ever needed.
-    lines=$(grep -c . "$LOG")
+    # grep -c exits 1 on no match and 2 on error, so an unguarded capture yields an
+    # empty string when the log is missing and prints "( lines suppressed)".
+    lines=$(grep -c . "$LOG" 2>/dev/null) || true
     summary=$(grep . "$LOG" | tail -1)
-    echo "✓ $* (${lines} lines suppressed → ${LOG})"
+    echo "✓ $* (${lines:-0} lines suppressed → ${LOG})"
     [[ -n "$summary" ]] && echo "  $summary"
 else
     # Failure: dump everything verbatim, then discard the temp file.

@@ -170,6 +170,12 @@ Annotate each with its projected tool-call cost; anything past ~50 splits at a n
 
 ### Success Criteria
 
+Each automated criterion is a command whose **failure must be observable**. Before writing one,
+answer what it prints when the criterion is false — a criterion checking for the *absence* of
+something (a grep that must return nothing) passes for every reason, including a wrong path, a
+wrong pattern, and a command that never ran. The `verification-before-completion` skill's FALSIFY
+step is the rule; this is the moment it applies.
+
 #### Automated Verification
 - [ ] Unit tests pass: `npm test src/component.test.ts`
 - [ ] Integration tests pass: `npm test:integration`

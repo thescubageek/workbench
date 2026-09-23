@@ -104,6 +104,14 @@ git diff                    # the full change
 If the tree is unexpectedly clean, the worker changed nothing — that is a FAIL, not a pass
 with an empty diff.
 
+**One exception, and it is about routing, not effort: an attestation task.** If the task's
+acceptance criterion is labelled `(attestation)`, or says outright that no mechanical criterion
+exists — a named human must judge — then a clean tree is the correct outcome and the worker was
+right to decline. Still
+return FAIL, but say in Issues Found that this is an attestation task needing the coordinator's
+phase checkpoint, **not another worker**. Re-running it at a higher tier cannot produce a diff
+either, so a FAIL that does not say this sends the task around the same loop again.
+
 **Look for**:
 
 - Files modified match task description

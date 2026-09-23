@@ -1,0 +1,51 @@
+name: checks
+
+# Runs the repository's own gates. This workflow is maintainer infrastructure and is never
+# shipped: marketplace.json sets "source": "./plugin", so nothing outside plugin/ reaches an
+# installer. Installing the plugin does not install this.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Least privilege, pinned here rather than inherited. This workflow checks out and EXECUTES
+# repository scripts, and on a fork pull request those scripts are author-controlled. The
+# repository default is currently read-only, but that is an org-level setting this file cannot
+# see and does not control — so it states its own floor.
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # python3 is preinstalled on ubuntu-latest; asserted rather than assumed, because a
+      # missing interpreter would make check-guards and test-guards fail in a way that reads
+      # as a gate failure rather than a missing dependency.
+      - name: Assert python3
+        run: python3 --version
+
+      # Pinned like markdownlint: shellcheck's findings move between releases, and a gate
+      # whose output depends on whichever version the runner happened to ship is a gate that
+      # goes red on a pull request that changed nothing.
+      - name: Install shellcheck
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y shellcheck
+          shellcheck --version
+
+      - name: Install markdownlint-cli
+        # Pinned. Unpinned against a .markdownlintrc carrying "default": true, the next
+        # upstream release that adds a rule turns CI red on a pull request that changed
+        # nothing. The MD060 entry already in that config is the evidence this has happened.
+        # Pinned to the version this tree is actually linted against locally — a pin that
+        # differs from the maintainer's version just moves the disagreement into CI.
+        run: npm install -g markdownlint-cli@0.49.0
+
+      - name: Run every gate
+        run: ./plugin/scripts/check

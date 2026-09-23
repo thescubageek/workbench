@@ -9,9 +9,10 @@ Conventions:
 - `SINCE` = the window start as ISO date (`YYYY-MM-DD`). Default: contents of
   `.context/daily-digest/last-run`, else 24h ago; on Monday with no last-run, the
   previous Friday.
-- **Scrub PHI before returning** (see the PHI guardrail in SKILL.md). Return keys,
-  numbers, titles, and *categories* — replace any patient identifier / Member ID
-  (`(?:BM|BC|BA)-[A-Z]{2}-\d{8}`) with a placeholder.
+- **Scrub PHI before returning.** Return keys, numbers, titles, and *categories* —
+  replace any patient identifier or Member ID with a placeholder (`[PATIENT]`,
+  `[MEMBER_ID]`, `[DOB]`). The patterns are in *PHI patterns* at the bottom of this file;
+  match them, do not paraphrase them.
 - Return **structured notes**, not raw tool output.
 
 ---
@@ -23,14 +24,14 @@ Conventions:
 `git config user.email` are frequently three different strings (e.g. GitHub
 `thescubageek`, Jira/email `you@company.com`, git a personal address). `@me` in `gh`
 resolves to the **GitHub login**, which is correct for `gh` queries — but when you
-reconcile a reef PR (authored under the GitHub login) against a Jira ticket (owned
+reconcile a work-repo PR (authored under the GitHub login) against a Jira ticket (owned
 under the SSO identity) in Phase 2, match on **ticket key in the PR title/branch**, not
 on author handle. Capture `ME` and prefer the literal login over `@me` in searches so
 the identity in play is explicit.
 
 **Run against the work repo, not necessarily `cwd`.** `gh pr list` defaults to the
 current repo; if the digest is invoked from a tooling/plan repo, add
-`-R <owner>/<work-repo>` (e.g. `-R hellobrightline/reef`) or the PR queries silently
+`-R <owner>/<work-repo>` (e.g. `-R acme/widgets`) or the PR queries silently
 return empty. An empty result from the wrong repo is a false "nothing in flight" — a
 gap, not a clean slate.
 
@@ -63,18 +64,36 @@ gh pr list $R --author "$ME" --state open \
 # Plan state comes from the plan documents; there is no tracker to query.
 # Scope counts to lines carrying a task ID — criteria and prerequisites are
 # checkboxes too, and counting them inflates progress.
+# `grep -c` prints 0 AND exits 1 on no match, and an unmatched glob leaves $T as the
+# literal pattern, so an unguarded count yields an EMPTY string and the -gt test then
+# errors instead of reporting. A measurement that failed must not read as a clean zero.
 for T in docs/plans/*/tasks.md; do
-  done=$(grep -cE '^- \[x\] \*\*[A-Z0-9-]*[0-9][A-Z0-9-]*\*\*' "$T")
-  left=$(grep -cE '^- \[ \] \*\*[A-Z0-9-]*[0-9][A-Z0-9-]*\*\*' "$T")
-  [ "$left" -gt 0 ] && echo "$T: $done done, $left left"
+  [ -e "$T" ] || continue
+  done=$(grep -cE '^- \[x\] \*\*[A-Z0-9-]*[0-9][A-Z0-9-]*\*\*' "$T" 2>/dev/null) || true
+  left=$(grep -cE '^- \[ \] \*\*[A-Z0-9-]*[0-9][A-Z0-9-]*\*\*' "$T" 2>/dev/null) || true
+  [ "${left:-0}" -gt 0 ] && echo "$T: ${done:-0} done, ${left:-0} left"
 done
 
 # Today: the first unchecked task in the active plan's current phase
 # Progress: tasks whose (completed YYYY-MM-DD ...) stamp falls inside the window
 grep -nE '^- \[x\] .*\(completed '"$SINCE" docs/plans/*/tasks.md
 
-# In flight: an OPEN journal entry means work was interrupted mid-task
-grep -l 'OPEN' docs/plans/*/journal.md 2>/dev/null
+# In flight: the NEWEST journal entry being open means work was interrupted mid-task.
+# Two things this must get right, both learned from getting them wrong:
+#   - discard the template's placeholder headings, or every untouched plan reports
+#     interrupted work forever (the hook discards them the same way);
+#   - read the NEWEST entry, not any entry — a stale open entry further down is a
+#     bookkeeping error, not work in flight.
+for J in docs/plans/*/journal.md; do
+  [ -e "$J" ] || continue
+  newest=$(grep -E '^## ' "$J" 2>/dev/null | grep -vE '\[YYYY|<YYYY|YYYY-MM-DD' | head -1)
+  # Normalize the way wb-prime.sh does before testing the suffix. A bare case match is
+  # case-sensitive and whitespace-strict, so `(OPEN)` or one trailing space reads as closed
+  # here while the hook reports it open — two surfaces disagreeing on the same file.
+  case "$(printf '%s' "$newest" | tr 'A-Z' 'a-z' | sed 's/[[:space:]]*$//')" in
+    *'(open)') echo "$J: $newest" ;;
+  esac
+done
 
 # Blocked: the plan says so itself
 sed -n '/^### Current Blockers/,/^###/p' docs/plans/*/tasks.md
@@ -86,8 +105,8 @@ Resolve identity once: `atlassianUserInfo`. **Resolve `cloudId` properly — the
 site-hostname shortcut is unreliable.** Passing a bare hostname often resolves to a
 cloudId that "isn't explicitly granted by the user" and every query fails. Call
 `getAccessibleAtlassianResources` first and use the returned `id` (a UUID) as `cloudId`;
-cache it. Note the granted host may be prefixed (e.g. `hellobrightline.atlassian.net`,
-not `brightline.atlassian.net`) — don't guess it. Use
+cache it. Note the granted host may carry a prefix the shorter name does not (e.g.
+`acmecorp.atlassian.net`, not `acme.atlassian.net`) — don't guess it. Use
 `responseContentFormat: "markdown"`, `fields: ["summary","status","priority","updated","assignee","issuetype"]`.
 
 **Cap every query.** Set `maxResults` (≤50) and keep `fields` minimal — an unbounded
@@ -189,3 +208,47 @@ Compute **free focus blocks** = gaps between events during working hours → fee
 Phase 4 window budget. Flag events needing prep (interviews, design reviews, demos)
 as their own Today items. Event titles/attendees are generally not PHI, but
 **don't reproduce patient-appointment details** if any surface.
+
+## PHI patterns — canonical
+
+**These live here, in the file the collectors are handed.** A collector is the surface that
+touches a raw payload, so a pattern it cannot see is a pattern that does not run. This block was
+briefly moved to `SKILL.md` to stop two copies drifting; that removed it from the only surface
+that needed it, which is the more dangerous of the two failures — the digest was still written,
+still reported clean, and carried whatever the collector had no pattern to catch.
+
+`SKILL.md`'s PHI guardrail states the *rules* and points here for the *patterns*. One copy, in
+the place both readers reach: the orchestrator reads this file too.
+
+Scrub anything matching either pattern, plus obvious variants — lowercase, missing or extra
+separators, surrounding punctuation:
+
+```text
+(?i)\b(?:BM|BC|BA)[-_ ]?[A-Z]{2}[-_ ]?\d{8}\b      # canonical, plus the variants below
+(?i)\b[A-Z]{2}[-_ ][A-Z]{2}[-_ ]\d{6,10}\b          # the general shape, separators required
+```
+
+**The variants are in the patterns, not in the prose.** An earlier version described them —
+"lowercase, missing or extra separators" — while the regexes matched only the canonical form,
+and the line above tells you to match rather than paraphrase. A collector obeying that
+instruction literally could not produce the coverage the instruction demanded, and
+`bm-ca-12345678` — the most common hand-typed form — went through unscrubbed.
+
+`(?i)` covers case. `[-_ ]?` on the first pattern covers absent, hyphen, underscore and space
+separators; the second requires a separator, because without one `\b[A-Z]{2}[A-Z]{2}\d{6,10}\b`
+would swallow ordinary alphanumeric tokens. Verified against `TB-2421`, `PR-42`, ISO dates and
+git SHAs — none match.
+
+**Known cost, accepted deliberately**: the general shape cannot distinguish a member ID from
+any other two-segment `AA-BB-nnnnnn` identifier, so a locale-scoped job id (`EN-US-10023456`)
+or a purchase order is redacted too. Over-redaction is the safe direction for a
+de-identification rule — but it costs a digest item its actionable reference, so the cases are
+pinned in `plugin/scripts/test-phi-patterns` rather than left to drift. Narrowing the digit
+floor below six would start eating ordinary references; that is tested too.
+
+A repository may **add** its own format in its `CLAUDE.md`. It may not narrow or disable these:
+a de-identification rule that goes quiet when it is unconfigured still reports clean, which is
+worse than having no rule at all.
+
+Checked against realistic digest content, the general pattern does **not** match `TB-2421`,
+`PR-42`, ISO dates, or git SHAs — so it does not over-redact the fields a digest is made of.

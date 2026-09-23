@@ -1,11 +1,7 @@
 ---
 name: research-validation
 description: Validates research documents against the actual codebase. Checks file paths exist, code snippets match, and behavioral claims are accurate. Use when "validate research", "check research accuracy", "verify research", or "is this research still accurate".
-allowed-tools: Read, Glob, Grep, Bash
-  - Read
-  - Grep
-  - Glob
-  - Bash(test:*, ls:*)
+allowed-tools: Read, Edit, Glob, Grep, Bash(test:*, ls:*)
 ---
 
 # Research Validation
