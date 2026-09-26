@@ -51,6 +51,16 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-26 18:59 — R8-T1 (closed)
+
+- **Task/phase**: R8-T1 — `update_status`'s `tasks.md` fragment carve-out names only
+  `current_phase` for a round; make it name all four keys `remediation-plan.md:102` lists as absent.
+- **Landed**: one carve-out row in `frontmatter-fragments.md` — omit `last_updated`, `git_commit`,
+  `git_branch` for a round, citing the reference doc's "Lacks, by design" list. RED before:
+  table rows current_phase=1, the other three 0; after: 1 each, `remediation-plan.md` hash
+  unchanged (`3ff1e22`). Sonnet worker, verifier PASS, no escalation.
+- **Commits**: this commit (R8-T1).
+
 ## 2026-09-26 18:39 — P5-T5 and round 8 filed (closed)
 
 - **Task/phase**: P5-T5 — delete the three personal skills; and file round 8 from the two

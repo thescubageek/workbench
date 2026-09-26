@@ -23,7 +23,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
 
 ## Tasks
 
-- [ ] **R8-T1** — `plugin/skills/update_status/templates/frontmatter-fragments.md:13,37-42` — the
+- [x] **R8-T1** — `plugin/skills/update_status/templates/frontmatter-fragments.md:13,37-42` — the
       `tasks.md` fragment's round carve-out stops one row short: it omits `current_phase` for a
       round and still writes `last_updated`, `git_commit` and `git_branch`, three keys
       `plugin/docs/reference/remediation-plan.md:102` lists as absent by design and never
@@ -37,7 +37,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       **Acceptance (shape 3)**: dual grep — the carve-out table at `frontmatter-fragments.md:13`
       names all four keys a round omits (`current_phase`, `last_updated`, `git_commit`,
       `git_branch`), and `remediation-plan.md:102` is unchanged, so both files now say the same
-      set. RED today: the table names one. (~4 calls)
+      set. RED today: the table names one. (~4 calls) (completed 2026-09-26 19:01)
 
 - [ ] **R8-T2** — `plugin/skills/adversarial-review/SKILL.md:293` — the blast-radius search's
       engine varies by invocation, and nothing in the block can tell which ran.

@@ -11,6 +11,7 @@ writing frontmatter into two files that do not exist.
 | -------- | ----------- | ---------------- |
 | the `research.md` and `design.md` fragments below | apply both | skip both — a round has neither document, and Step 1 says to leave them out rather than record them as "n/a" |
 | `current_phase` in the `tasks.md` fragment | write the counted phase number | omit the key — do not invent a phase number for a plan that has none |
+| `last_updated`, `git_commit`, `git_branch` in the `tasks.md` fragment | write all three | omit all three — remediation-plan.md's "Lacks, by design" list names them, and a round never reports them as missing |
 
 ## research.md — phased plans only
 
