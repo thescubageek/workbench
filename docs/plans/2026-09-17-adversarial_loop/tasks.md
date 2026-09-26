@@ -787,7 +787,7 @@ ships exactly what the release exists to prevent.
       `adversarial-loop` reaches clean without `gh` — run 6. Six runs, four of them blocked
       before they measured anything: twice on auto mode, once on a launch that dropped
       `--plugin-dir`, once on a one-file fixture that made the loop's own gate unsatisfiable.*
-- [ ] **P5-T5** — Only after P5-T4 passes: delete `~/.claude/skills/adversarial-review`,
+- [x] **P5-T5** — Only after P5-T4 passes: delete `~/.claude/skills/adversarial-review`,
       `~/.claude/skills/adversarial-loop` and `~/.claude/skills/reply-to-claude`. These are the
       port's source material and are not reproduced in full in this repository, so this task is
       last and is contingent on the smoke session. Confirm with the user before running the
@@ -798,6 +798,11 @@ ships exactly what the release exists to prevent.
       shipped one. The prefix decides, deterministically. Design A3 framed this as
       non-deterministic enumeration; it is not. A user who types the skill's own name gets the
       wrong artifact, which is exactly what this task removes.*
+      *(completed 2026-09-26 18:39) — user confirmed 2026-09-26; the three directories (143, 236 and 54
+      lines, matching research.md's day-one counts) were archived to
+      `~/.claude/adversarial-skills-pre-3.0.0.tar.gz`, outside the skills tree so nothing
+      enumerates it, then removed. `ls -d ~/.claude/skills/adversarial-* ~/.claude/skills/reply-to-claude`
+      now prints nothing.*
 
 - [x] **P5-T6** — Ship `plugin/scripts/count` with a contract test, and repoint the counting
       idioms that remain in shipped skills at it. The wrapper returns a count on success and a
@@ -904,7 +909,7 @@ print('\n'.join(gaps))"
       left unticked for exactly that reason.*
 - [x] `wb:adversarial-loop` reached clean with no `gh` available and said so — run 6, two rounds
       to clean, terminal branch quoted in the ledger
-- [ ] The user has confirmed the deletion of the three personal skills
+- [x] The user has confirmed the deletion of the three personal skills — 2026-09-26, and it ran
 - [x] **Evaluate the P1-T2 substitution** — *assessed 2026-09-20 and recorded at the foot of
       [thoughts/2026-09-17-wrapper-shape-probe.md](thoughts/2026-09-17-wrapper-shape-probe.md).
       Verdict: adequate for what it claimed, and the plan then mispriced what it deferred. The

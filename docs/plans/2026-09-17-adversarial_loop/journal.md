@@ -51,6 +51,23 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-26 18:39 — P5-T5 and round 8 filed (closed)
+
+- **Task/phase**: P5-T5 — delete the three personal skills; and file round 8 from the two
+  candidates round 7's verification left.
+- **Landed**: `~/.claude/skills/adversarial-review`, `adversarial-loop` and `reply-to-claude`
+  removed on the user's explicit word, after archiving to
+  `~/.claude/adversarial-skills-pre-3.0.0.tar.gz` (outside the skills tree, so nothing
+  enumerates it — the design accepted no fallback, but a reversible delete costs nothing).
+  The bare-name shadowing knowledge entry's `Check it` now prints nothing. Round 8 plan written
+  at `reviews/2026-09-26-round-8/tasks.md`, two tasks, no review run; its launch prompt handed
+  to the other session.
+- **Commits**: 150949a (round 8 plan), and this commit.
+- **Learned**: the deletion was the last task in the parent plan, so the parent is now at every
+  task `[x]`. What still holds the Phase 5 checkpoint open is the human attestation box and the
+  release close — PR #25 retitle, CHANGELOG date, `/wb:update_status` — which wait on round 8.
+- **Blocked by**: round 8 running in the other session.
+
 ## 2026-09-23 21:24 — Round 7 closed (closed)
 
 - **Task/phase**: round-7 close — `/wb:update_status`, counters reconciled, round marked
