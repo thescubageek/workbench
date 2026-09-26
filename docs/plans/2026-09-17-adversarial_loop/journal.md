@@ -51,6 +51,25 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-26 19:04 — R8-T2 (closed)
+
+- **Task/phase**: R8-T2 — pin the blast-radius search's engine to `command grep` in
+  `adversarial-review/SKILL.md:293`, and add the seventh "details in that command" bullet saying why.
+- **Landed**: `hits=$(command grep …)`; heading Six → Seven; a new first bullet stating why,
+  sourced from the knowledge entry. RED: `Check it` bare=31 real=53, heading Six/bullets 6.
+  After: Seven/7; with the block's flags on `review-ledger.md`, top-level 31 = in-script 31 =
+  `/usr/bin/grep` 31, where the old bare spelling gave 9. lint and check-guards clean. Opus
+  worker handed the contract explicitly; verifier PASS, no escalation.
+- **Commits**: this commit (R8-T2).
+- **Learned**: the untouched `--exclude-dir` bullet's figures were taken through the shim.
+  Its "30 hits, 22 of them (73%) transcripts" on `review-ledger.md` is 22 of 53 (~42%) through
+  the pinned engine; "on `check-guards`, 27 of 72" reproduces on neither engine today (32
+  transcript hits on both; totals 77 shim, 202 real). Its closing claim still holds (53 → 31
+  after exclusion, exactly the 22 removed). `.context/` is excluded via `.git/info/exclude`,
+  yet the shim returns its hits, so that is not the path it skips. The path-field bullet's
+  unexplained `./` variance is now explained by the engine split and was left as written.
+  Both are follow-ups, not tasked.
+
 ## 2026-09-26 18:59 — R8-T1 (closed)
 
 - **Task/phase**: R8-T1 — `update_status`'s `tasks.md` fragment carve-out names only

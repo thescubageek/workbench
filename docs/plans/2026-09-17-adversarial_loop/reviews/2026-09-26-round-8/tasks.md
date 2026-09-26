@@ -39,7 +39,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       `git_branch`), and `remediation-plan.md:102` is unchanged, so both files now say the same
       set. RED today: the table names one. (~4 calls) (completed 2026-09-26 19:01)
 
-- [ ] **R8-T2** — `plugin/skills/adversarial-review/SKILL.md:293` — the blast-radius search's
+- [x] **R8-T2** — `plugin/skills/adversarial-review/SKILL.md:293` — the blast-radius search's
       engine varies by invocation, and nothing in the block can tell which ran.
       **Fails when:** in a top-level Bash-tool call `grep` is a shell function from
       `~/.claude/shell-snapshots/` that re-execs as ugrep honouring `.gitignore`, so
@@ -63,7 +63,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       Then re-run the `Check it` through the block's own spelling and assert the count matches
       `command grep`'s. Do not add an `--ignore-files`-style exclusion in its place: the
       `--exclude-dir=.context` already scopes the search, and a gitignore-honouring engine fails
-      toward "isolated". (~6 calls)
+      toward "isolated". (~6 calls) (completed 2026-09-26 19:06)
 
 ## Implementation notes
 

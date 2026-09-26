@@ -290,7 +290,7 @@ and confirm it ran — a search that errored returns the same emptiness as a gen
 change, and that error direction is toward believing the change is safe.
 
 ```bash
-hits=$(grep -rnF --exclude-dir=.context -- "<changed symbol>" .)
+hits=$(command grep -rnF --exclude-dir=.context -- "<changed symbol>" .)
 search=$?
 [ "$search" -le 1 ] || echo "SEARCH FAILED (grep exit $search) — NOT an isolated change" >&2
 callers=$(printf '%s\n' "$hits" |
@@ -300,8 +300,16 @@ filter=$?
 [ -n "$callers" ] && printf '%s\n' "$callers" | sed 's/^/  /'
 ```
 
-Six details in that command are the difference between a measurement and a guess:
+Seven details in that command are the difference between a measurement and a guess:
 
+- **`command grep` pins the engine.** In a top-level Bash-tool call bare `grep` is a shell
+  function from `~/.claude/shell-snapshots/` that re-execs as ugrep honouring `.gitignore`, so a
+  tracked-but-ignored file is skipped at exit 0 and no status guard below can see it; the same
+  line inside a script gets the system binary. So the count varied by invocation — measured on
+  one symbol, bare 30 hits against `command grep`'s 52 (`.claude/wb/knowledge.md`).
+  `command` bypasses the function, so one engine answers in both. Do not re-add the gitignore
+  behaviour as a flag: `--exclude-dir` is the scope, and a gitignore-honouring engine fails
+  toward "isolated".
 - **`-F`** treats the symbol as a literal. Without it a name containing `[`, `(` or `\` is an
   invalid pattern, grep exits 2 printing nothing, and the empty output reads as "no callers".
 - **`--`** terminates the options. Without it a symbol beginning with `-` is consumed as a flag,
