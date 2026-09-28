@@ -434,3 +434,19 @@ we have the in-repo cautionary example for that.
   — R7-T13's worker caught it in the round's own journal; repaired in `6a6f629`
 - **Check it**: write a markdown line containing a backticked single space followed by `M`,
   save it, then re-read the file — the space is gone.
+
+## The harness substitutes bare `$1` and `$ARGUMENTS` in a skill body, but not the braced forms
+
+- **Why it matters**: `check-guards` shape 6 (R9-T0) flags `$<digit>` and `$ARGUMENTS` inside a
+  fenced block of a shipped `SKILL.md` and deliberately leaves `${1:-…}` unmatched
+  (`fetch-issues/SKILL.md:46`). Whether that exemption was safe was untested until 2026-09-28.
+  Measured headless in a scratch repository with a four-line probe skill invoked with arguments:
+  `A: $1` arrived substituted, `C: $ARGUMENTS` arrived as the full argument string, and
+  `B: ${1:-default}` and `D: ${ARGUMENTS:-none}` arrived **verbatim, unsubstituted**. So the
+  braced default form is a real shell expansion at run time, never a harness splice, and shape 6's
+  exemption is correct. Write `${1:-…}` when a block genuinely wants a shell positional; never
+  write bare `$1` in a fence.
+- **Verified**: 2026-09-28 · `docs/plans/2026-09-17-adversarial_loop/` (round 9 follow-up 3)
+- **Check it**: create `.claude/skills/x/SKILL.md` in a scratch repo whose body is a `text` fence
+  with the four lines above; `claude -p --allowedTools=Skill "Invoke skill x with arguments: hello
+  world"`; lines A and C come back substituted, B and D come back literal.
