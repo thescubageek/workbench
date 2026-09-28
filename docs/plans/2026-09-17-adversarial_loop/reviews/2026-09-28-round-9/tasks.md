@@ -111,7 +111,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       isDraft call; assert it exits non-zero before any `git push`. RED today: reaches the else
       branch. (~5 calls) (completed 2026-09-28 15:23)
 
-- [ ] **R9-T8** — `plugin/skills/adversarial-loop/SKILL.md:402` — Phase 5 requires "the SHA the
+- [x] **R9-T8** — `plugin/skills/adversarial-loop/SKILL.md:402` — Phase 5 requires "the SHA the
       bot's newest comment was written against", which no surface the bot edits carries.
       **Fails when:** Bot reviews commit A, B is pushed, bot edits its comment for B: a review's
       commit_id still reads A and an issue comment has no commit field, so the gate cannot clear
@@ -121,7 +121,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       exists on some repository; recorded as such in the skill.
       **Acceptance (shape 3)**: dual grep — Phase 5 no longer asks for "the SHA the bot's newest
       comment was written against"; it names the check-run `head_sha` comparison and says the
-      rule is provisional pending a real bot run. RED today. (~4 calls)
+      rule is provisional pending a real bot run. RED today. (~4 calls) (completed 2026-09-28 15:26)
 
 - [ ] **R9-T9** — `plugin/docs/reference/review-ledger.md:21` — the ledger path is gitignored and
       no step stages it.

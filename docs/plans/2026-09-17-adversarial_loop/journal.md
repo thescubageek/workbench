@@ -51,6 +51,17 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-28 15:25 — R9-T8 (closed)
+
+- **Task/phase**: R9-T8 — adversarial-loop/SKILL.md:402: Phase 5 asks for 'the SHA the bot's newest
+  comment was written against', which no surface carries. Decided 2026-09-27: compare the review
+  check-run's head_sha for the current head; provisional until a real claude[bot] run.
+- **Landed**: Phase 5's 'compare, don't assume' now reads the bot's review check-run for HEAD and
+  requires a completed one whose head_sha equals git rev-parse HEAD; a skipped run is not clearance;
+  marked provisional pending a real claude[bot] run. RED: phrase 1, head_sha 0. GREEN: phrase 0,
+  head_sha 1, provisional in Phase 5.
+- **Commits**: the R9-T8 commit
+
 ## 2026-09-28 14:44 — R9-T7 (closed)
 
 - **Task/phase**: R9-T7 — `adversarial-loop/SKILL.md:283`: `DRAFT=$(gh pr view … isDraft)` has
