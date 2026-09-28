@@ -1804,6 +1804,28 @@ resolved, leaving a dated line saying how.
 
 ### Implementation Notes
 
+- **[2026-09-28] Follow-up for 3.1 — a truncated worker should prompt, with a recommendation,
+  instead of the coordinator deciding silently.** Raised by the user after R9-T0's worker hit
+  `task-worker.md`'s `maxTurns: 60` (estimated at ~8 calls; a detector shape plus corpus cases
+  plus a mutation sweep needs far more). `implement` Step 6a currently has the coordinator pick
+  between finishing the slice inline and re-delegating the remainder, unasked. Proposed shape:
+  - **The cap is not a per-spawn lever.** `maxTurns` lives in agent frontmatter; the spawn tool
+    cannot override it, so "continue with a higher cap" means editing the shipped agent file
+    for every task everywhere. The real choices are: resume the same agent with its context
+    (used in round 9 — **whether the cap resets on resume is unmeasured; probe first**),
+    re-delegate only the remainder, or finish inline.
+  - **Prompt with a recommendation derived from state**, not a bare menu: the worker's report
+    names what landed and what it did not reach; the tree shows how much is done; the task
+    carries an estimate. A one- or two-step remainder → inline. Half a task → re-delegate. A
+    remainder the worker could not name → closer to genuine failure (6c) than truncation, and
+    say so.
+  - **Under `--auto`** there is nobody to ask: take the recommendation and record it at the
+    checkpoint, the same deferral shape the attestation box uses.
+  - **Correct the task's `(~N calls)` annotation in place** at every truncation. That number is
+    what the next coordinator reads to decide whether to split before spawning; leaving it
+    wrong guarantees the same stop next time.
+  - Touches: `implement/SKILL.md` Step 6a, `prompts/worker-prompt.md` (the report must name the
+    remainder), `agents/task-worker.md`. Core stage — its own round, not a review-round task.
 - **[2026-09-20] Two findings from run 6 that are recorded, not fixed.**
   - **Three of four lens legs ran `python3 tests/test_profile.py`**, against the shared preamble's
     explicit *"do not run the test suite"* — which `adversarial-review` Step 6 reserves for
