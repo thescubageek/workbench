@@ -206,11 +206,11 @@ criterion is run before the fix**. A criterion that passes before the change is 
       `checks.yml`, and the comment names the same minimum as `require shellcheck` in
       `plugin/scripts/check`. (~3 calls) (completed 2026-09-28 18:04)
 
-- [ ] **R9-T21** — `.gitignore:14` — two `.pyc` files stay tracked despite the new ignore rules.
+- [x] **R9-T21** — `.gitignore:14` — two `.pyc` files stay tracked despite the new ignore rules.
       **Fails when:** Re-running the spike rewrites the bytecode; `git status` shows both tracked
       .pyc files modified, the churn the new comment says is fixed.
       **Acceptance (shape 4)**: `git ls-files '*.pyc'` prints nothing, with a negative control that
-      it prints both paths today. (~2 calls)
+      it prints both paths today. (~2 calls) (completed 2026-09-28 18:04)
 
 - [ ] **R9-T22** — `README.md:311` — the mutation-test numbers match no shipped fixture;
       `plugin/scripts/README.md:193-215` carries a third set.

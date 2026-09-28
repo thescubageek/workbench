@@ -51,6 +51,15 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-28 18:04 — R9-T21 (closed)
+
+- **Task/phase**: R9-T21 — two spike .pyc files stay tracked despite the new __pycache__/ and *.pyc
+  ignore rules, so re-running the spike churns them.
+- **Landed**: both spike .pyc files removed from the index with git rm --cached; they stay on disk
+  and are now covered by the existing __pycache__/ and *.pyc rules. Negative control: git ls-files
+  '*.pyc' printed both paths; now prints nothing.
+- **Commits**: the R9-T21 commit
+
 ## 2026-09-28 18:04 — R9-T20 (closed)
 
 - **Task/phase**: R9-T20 — .github/workflows/checks.yml: the shellcheck install comment claims
