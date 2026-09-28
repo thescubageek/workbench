@@ -122,8 +122,9 @@ Dropped by verification (REFUTED, not ledgered as findings):
     `check-guards`' lexer.
 - **Escalation, decided 2026-09-28 (user):** `create_research` then `create_design` on two
   components — the `check-guards` lexer (T5, T7, T10, T11, T12, T21) and `adversarial-review`
-  target resolution (T3, T4, T13, T29) — in a **new plan directory**, folded into 3.0.0 on this
-  branch before PR #25 merges. One tracer bullet per component before any fix. Cluster 3
+  target resolution (T3, T4, T13, T29) — in a **new plan directory** —
+  `docs/plans/2026-09-28-guard_lexer_and_pr_identity/` — folded into 3.0.0 on this branch
+  before PR #25 merges. One tracer bullet per component before any fix. Cluster 3
   (`adversarial-loop` publishing and ledger mechanics, `reply-to-claude`) and the eight standalone
   findings stay in round 10 as ordinary tasks, worked after the escalation lands.
 - **Same file three consecutive rounds (advisory):**
