@@ -207,6 +207,15 @@ re-run the review, not `/wb:create_tasks`.
 
 #### For Each Implementation Task
 
+**A task with no mechanical acceptance criterion is not TDD work — divert it here.** Recognise
+one by the literal `**Acceptance (attestation)**:` label (in place of the usual `(shape <n>)`)
+and its accompanying `**Attestor:**` field, or by an acceptance line saying outright that no
+mechanical criterion exists — see [../implement/SKILL.md](../implement/SKILL.md) Step 4 for the
+full rationale. Do not attempt RED/GREEN/REFACTOR on it: leave the checkbox `[ ]`, add the task
+to the phase checkpoint's **attestation list** with its `file:line` and the person or role its
+`**Attestor:**` field names, and move to the next task. Step 6.3 is where a human is asked, and
+a human's answer there is the only thing that may flip that box.
+
 **A. Open a journal entry**
 
 Before touching code, add an entry at the **top** of `journal.md` — never appended to the end —
@@ -365,13 +374,23 @@ Read [templates/modified-files-fragment.md](templates/modified-files-fragment.md
 
 Complete these steps IN ORDER before proceeding to next phase:
 
-1. **Verify every Phase [N] checkbox is `[x]`.** Read the phase section and check. This is the
-   phase-completion condition — there is nothing else to close. A task left `[ ]` means the
-   phase is not done, even if you believe the work happened.
+1. **Verify every Phase [N] checkbox is `[x]`, apart from the attestation list that accounts
+   for a `[ ]`.** Read the phase section and check. This is the phase-completion condition —
+   there is nothing else to close. A task diverted in Step 3 keeps its `[ ]` and is named here
+   with its `file:line`, judgement, and attestor; every other task left `[ ]` means the phase is
+   not done, even if you believe the work happened.
 
 2. **Run automated verification** (the block in Step 5). All checks must pass.
 
 3. **Request manual verification.** Read [templates/manual-verification-request.md](templates/manual-verification-request.md) NOW, emit it, and **wait for the user's confirmation**.
+
+   **Put the attestation list in that same request, one line each** — the task's `file:line`,
+   the judgement being asked for, and the person or role from its `**Attestor:**` field, so the
+   request names who must look rather than asking the room. On a clear yes, flip the task's
+   checkbox to `[x]`, record in one line who attested and when, and commit it as you would any
+   other task. On anything else it stays `[ ]` and moves to the checkpoint's notes with what the
+   human said. See [../implement/SKILL.md](../implement/SKILL.md) Step 8.4 for the full
+   rationale.
 
 4. **Report completion.** Only after the user confirms: read the
    [templates/phase-completion-report.md](templates/phase-completion-report.md) NOW and emit it.

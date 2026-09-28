@@ -51,6 +51,16 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-28 17:00 — R9-T13 (closed)
+
+- **Task/phase**: R9-T13 — implement_inline/SKILL.md: no handling for attestation-shaped tasks; Step
+  3 attempts TDD on a judgement and Step 6 has no carve-out, so a round can never close.
+- **Landed**: Step 3 diverts an Acceptance (attestation) / Attestor: task to the checkpoint's
+  attestation list without TDD; Step 6 carves that list out of the every-box-[x] condition and puts
+  it in the manual-verification request, where only a human's clear yes flips it. Links
+  implement/SKILL.md for the rationale. RED 0 'attestation' hits; GREEN in both step ranges.
+- **Commits**: the R9-T13 commit
+
 ## 2026-09-28 15:32 — R9-T12 (closed)
 
 - **Task/phase**: R9-T12 — adversarial-review/SKILL.md Step 2 resolves REVIEW.md's base only for

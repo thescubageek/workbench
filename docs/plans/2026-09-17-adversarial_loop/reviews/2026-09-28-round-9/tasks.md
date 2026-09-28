@@ -158,14 +158,14 @@ criterion is run before the fix**. A criterion that passes before the change is 
       **Acceptance (shape 1)**: run Step 2's block with `target=<a local branch other than HEAD>`;
       assert the echoed `head_ref` is that branch. RED today: echoes HEAD. (~4 calls) (completed 2026-09-28 16:59)
 
-- [ ] **R9-T13** — `plugin/skills/implement_inline/SKILL.md:368` — no handling for
+- [x] **R9-T13** — `plugin/skills/implement_inline/SKILL.md:368` — no handling for
       attestation-shaped tasks.
       **Fails when:** A round with an `**Acceptance (attestation)**:` task run via
       /wb:implement_inline: Step 3 attempts TDD on an unfalsifiable judgement, and Step 6 requires
       every box `[x]` with no carve-out, so the round can never close.
       **Acceptance (shape 3)**: dual grep — `implement_inline/SKILL.md` Step 3 names
       `Acceptance (attestation)` and Step 6 carves out the attestation list, matching
-      `implement/SKILL.md:250-263`. RED today: 0 hits for "attestation". (~3 calls)
+      `implement/SKILL.md:250-263`. RED today: 0 hits for "attestation". (~3 calls) (completed 2026-09-28 17:01)
 
 - [ ] **R9-T14** — `plugin/scripts/check-guards:52` — COUNTING misses `grep -cE`, `-ci`, `-cv`.
       **Fails when:** A fenced block `n=$(grep -cE foo f)` with no guard scans '✅ no unguarded
