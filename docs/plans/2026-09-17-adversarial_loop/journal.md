@@ -51,6 +51,19 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-28 15:32 — R9-T12 (closed)
+
+- **Task/phase**: R9-T12 — adversarial-review/SKILL.md Step 2 resolves REVIEW.md's base only for
+  numeric targets; a branch target uses the current checkout.
+- **Landed**: Step 2's fence now sniffs the target as Step 1 does: none or a path uses the current
+  checkout, digits a PR (unchanged), anything else a branch with gh pr view on it and head_ref set
+  to it; both echo lines name the head. RED on feature-A with target feature-B: head_ref=HEAD, base
+  origin/main. GREEN: head feature-B, base origin/release; no target and PR 7 unchanged.
+- **Commits**: the R9-T12 commit
+- **Learned**: Step 2's PR branch still sets head_ref to the pushed head, whereas Step 1 now ends at
+  HEAD on the PR's own checkout (R9-T2); reading REVIEW.md from the merge-base makes that harmless
+  in practice, but the two steps no longer agree.
+
 ## 2026-09-28 15:31 — R9-T11 (closed)
 
 - **Task/phase**: R9-T11 — adversarial-loop/SKILL.md Phase 3: the wait does not distinguish a poll

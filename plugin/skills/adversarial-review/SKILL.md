@@ -210,13 +210,16 @@ version of this step that fails open:
 target=""
 
 # Resolve the base OF THE TARGET, not of whatever branch happens to be checked out.
-if printf '%s' "${target:-}" | grep -qE '^[0-9]+$'; then
+if [ -z "${target:-}" ] || [ -e "$target" ]; then
+  base_branch=$(gh pr view --json baseRefName --jq .baseRefName 2>/dev/null)
+  head_ref="HEAD"
+elif printf '%s' "$target" | grep -qE '^[0-9]+$'; then
   base_branch=$(gh pr view "$target" --json baseRefName --jq .baseRefName 2>/dev/null)
   head_ref=$(gh pr view "$target" --json headRefName --jq .headRefName 2>/dev/null)
   head_ref="origin/${head_ref:-}"
 else
-  base_branch=$(gh pr view --json baseRefName --jq .baseRefName 2>/dev/null)
-  head_ref="HEAD"
+  base_branch=$(gh pr view "$target" --json baseRefName --jq .baseRefName 2>/dev/null)
+  head_ref="$target"
 fi
 [ -n "$base_branch" ] && base_branch="origin/$base_branch"
 base_branch=${base_branch:-origin/main}
@@ -224,9 +227,9 @@ base_branch=${base_branch:-origin/main}
 base=$(git merge-base "$head_ref" "$base_branch" 2>/dev/null)
 
 if [ -z "$base" ]; then
-  echo "REVIEW.md NOT READ: no base ref resolved from '$base_branch'" >&2
+  echo "REVIEW.md NOT READ: no base ref resolved from '$base_branch' (head $head_ref)" >&2
 else
-  echo "REVIEW.md read from $base_branch (merge-base $base)" >&2
+  echo "REVIEW.md read from $base_branch (merge-base $base, head $head_ref)" >&2
   git show "$base:REVIEW.md"
 fi
 ```

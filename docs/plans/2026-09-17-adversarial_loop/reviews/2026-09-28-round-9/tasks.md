@@ -150,13 +150,13 @@ criterion is run before the fix**. A criterion that passes before the change is 
       exited non-zero is a failed poll to be reported, not a wait (presence), negative control on
       the current text. (~3 calls) (completed 2026-09-28 15:32)
 
-- [ ] **R9-T12** — `plugin/skills/adversarial-review/SKILL.md:211` — Step 2 resolves REVIEW.md's
+- [x] **R9-T12** — `plugin/skills/adversarial-review/SKILL.md:211` — Step 2 resolves REVIEW.md's
       base only for numeric targets; a branch target uses the current checkout.
       **Fails when:** On feature-A, `adversarial-review feature-B` (PR base `release`) reads
       REVIEW.md from merge-base(HEAD, feature-A's base), contradicting 'Resolve the base OF THE
       TARGET', and the review runs under another change's rules.
       **Acceptance (shape 1)**: run Step 2's block with `target=<a local branch other than HEAD>`;
-      assert the echoed `head_ref` is that branch. RED today: echoes HEAD. (~4 calls)
+      assert the echoed `head_ref` is that branch. RED today: echoes HEAD. (~4 calls) (completed 2026-09-28 16:59)
 
 - [ ] **R9-T13** — `plugin/skills/implement_inline/SKILL.md:368` — no handling for
       attestation-shaped tasks.
