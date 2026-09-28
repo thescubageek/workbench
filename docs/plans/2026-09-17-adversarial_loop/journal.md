@@ -51,6 +51,19 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-28 00:24 — Round 8 closed (closed)
+
+- **Task/phase**: round-8 close — checkpoint confirmed by the user (both criteria re-run from
+  another session), R8-T3 folded in at their word, `/wb:update_status` on the round.
+- **Landed**: `status: in-progress → complete`, `total_tasks: 2 → 3`, `completed_tasks: 0 → 3`,
+  and only those three keys — the round's close now follows R8-T1's fragment rather than the
+  session's judgement. Round 8 Implementation notes added.
+- **Commits**: R8-T1 `3ea4de1` · T2 `aed5524` · T3 `3a99b62`, the aggregation `8cb9173`, and this
+  close.
+- **Blocked by**: nothing in the round. The parent release close — Phase 5 attestation,
+  `/wb:update_status` on the parent, CHANGELOG date, PR #25 retitle — belongs to the other
+  session once this push lands.
+
 ## 2026-09-28 00:16 — R8-T3 (closed)
 
 - **Task/phase**: R8-T3 — filed at the round-8 checkpoint from R8-T2's Learned line: re-measure

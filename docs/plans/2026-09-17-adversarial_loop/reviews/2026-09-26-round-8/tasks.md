@@ -3,9 +3,9 @@ project: adversarial_loop
 reviews: docs/plans/2026-09-17-adversarial_loop
 round: 8
 created: 2026-09-26
-status: in-progress
-total_tasks: 2
-completed_tasks: 0
+status: complete
+total_tasks: 3
+completed_tasks: 3
 task_tracking: markdown-checkboxes
 ---
 
@@ -106,6 +106,17 @@ run against the working tree rather than committed as a test.
 
 ## Implementation notes
 
+- [2026-09-28] Round 8 complete using coordinated workers:
+  - 3 workers spawned (sequential execution): R8-T1 sonnet, R8-T2 and R8-T3 opus
+  - 0 escalations, 0 truncations recovered
+  - Main context kept clean, no compaction needed
+  - Key learnings: R8-T3 was filed at the checkpoint from R8-T2's own verification — the
+    neighbouring bullet's figures had been taken through the shim R8-T2 removed. Handing the
+    worker the governing contract (the knowledge entry, the heading-count rule) up front, as
+    round 7's escalations recommended, produced no invented rationale in three tasks. The
+    session was switched into auto mode during R8-T3; work stopped until it was turned off.
+  - Gates at the checkpoint: `lint --all`, `check-guards plugin/` and `./plugin/scripts/check`
+    all passed before R8-T3; `lint` and `check-guards` re-run on R8-T3's file clean.
 - **Both tasks were found by verification, not review.** Round 7 ran no review pass over its own
   fix surface; these are what closing the round measured. The breaker has no ledger row for
   round 8 because no findings were adjudicated — the tasks are decisions already taken, filed
