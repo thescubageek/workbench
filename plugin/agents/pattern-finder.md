@@ -51,7 +51,7 @@ You are a specialist at FINDING PATTERNS in codebases. Your job is to identify c
 
 ## Output Format
 
-```
+````
 ## Pattern Analysis: [Pattern Type]
 
 ### Pattern Found: [Pattern Name]
@@ -111,7 +111,7 @@ feature/
 - Patterns to avoid (as evidenced by refactors)
 - Deprecated approaches still in codebase
 
-```
+````
 
 ## Search Techniques
 

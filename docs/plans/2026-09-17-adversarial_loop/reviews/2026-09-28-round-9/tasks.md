@@ -179,13 +179,13 @@ criterion is run before the fix**. A criterion that passes before the change is 
       **Acceptance (shape 2)**: must-fire corpus case for `n="$(grep -c foo f)"` and
       `echo "found $(grep -c x f)"`; RED today; GREEN after. (~4 calls) (completed 2026-09-28 17:19)
 
-- [ ] **R9-T17** — `plugin/scripts/check-guards:92` — an unclosed non-shell fence swallows later
+- [x] **R9-T17** — `plugin/scripts/check-guards:92` — an unclosed non-shell fence swallows later
       shell blocks.
       **Fails when:** An unclosed `text`-tagged fence followed by a `bash`-tagged fence containing
       `n=$(grep -c foo f)` exits 0 clean with no unclosed-fence finding; markdownlint in the same
       gate also passes it.
       **Acceptance (shape 2)**: must-fire corpus case with that document; RED today; GREEN after.
-      (~4 calls)
+      (~4 calls) (completed 2026-09-28 17:51)
 
 - [ ] **R9-T19** — `plugin/scripts/test-guards:593` — the --generated ratchet compares an absolute
       kill count.

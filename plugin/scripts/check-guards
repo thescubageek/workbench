@@ -98,7 +98,7 @@ def md_shell_lines(text):
                 # prescribed way to show a counter-example — was entered as live shell.
                 inb, ch, ln = True, m.group('f')[0], len(m.group('f'))
                 shell = m.group('info').lower() in SHELL_INFO
-                unclosed_at = i if shell else None
+                unclosed_at = i
             continue
         if m and m.group('f')[0] == ch and len(m.group('f')) >= ln and not m.group('info'):
             inb, shell, unclosed_at = False, False, None
@@ -389,7 +389,7 @@ FIXES = {
         'use no positional token at all — `cut -d: -f1`, `while IFS=: read -r path _`, or '
         'describe the argument slot in prose',
     'unclosed shell fence':
-        'close the fence; everything after it would otherwise read as prose',
+        'close the fence; a later ```bash opener is otherwise read as its content and never scanned',
 }
 
 

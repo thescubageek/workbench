@@ -1279,5 +1279,19 @@
   "path": "scripts/p.sh",
   "content": "#!/usr/bin/env bash\nset -uo pipefail\ntarget=$1\necho \"$target\"\n",
   "provenance": "R9-T0"
+ },
+ {
+  "id": "r9-unclosed-text-then-bash",
+  "shape": "fence",
+  "expect": 1,
+  "path": "doc-r9t17.md",
+  "content": "# D\n\n```text\nexample left open\n\n```bash\nn=$(grep -c foo f)\n",
+  "provenance": "R9-T17",
+  "expect_at": [
+   [
+    3,
+    "fence"
+   ]
+  ]
  }
 ]

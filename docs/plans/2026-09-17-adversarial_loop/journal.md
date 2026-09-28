@@ -51,6 +51,21 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-28 17:41 — R9-T17 (closed)
+
+- **Task/phase**: R9-T17 — check-guards: an unclosed non-shell fence swallows every later shell
+  block, and no unclosed-fence finding is raised.
+- **Landed**: md_shell_lines reports an unclosed fence of any info string (unclosed_at = i), and the
+  FIXES text says why: a later bash opener is read as its content and never scanned. Corpus
+  r9-unclosed-text-then-bash. RED 113/114 on HEAD's checker; GREEN 114/114; generated 344/395, 0
+  survived, ratchet held. The widened check found a real one: plugin/agents/pattern-finder.md's
+  Output Format example nested fenced blocks inside a three-backtick fence, leaving the fence at
+  :114 open; its outer fence is now four backticks.
+- **Commits**: the R9-T17 commit
+- **Learned**: the task's own document form is only detectable when the fence is genuinely unclosed
+  — with a closing fence on the bash block, CommonMark pairs it with the text opener and nothing is
+  unclosed.
+
 ## 2026-09-28 17:14 — R9-T15 (closed)
 
 - **Task/phase**: R9-T15 — check-guards substitutions() skips a double-quoted $( ), so n="$(grep -c
