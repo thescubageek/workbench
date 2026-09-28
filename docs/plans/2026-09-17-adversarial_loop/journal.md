@@ -51,6 +51,17 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-28 13:53 — R9-T3 (closed)
+
+- **Task/phase**: R9-T3 — the plan directory `adversarial-loop` passes has no slot in
+  `adversarial-review`'s argument grammar, so it binds as a path target.
+- **Landed**: `--plan=<dir>` as adversarial-review's third slot, on `--effort=`'s pattern (named,
+  stripped before binding target); Step 8 and `adversarial-loop/SKILL.md:135` use the same
+  spelling. RED: both greps missed on HEAD; GREEN: three hits, one spelling, across `plugin/`.
+- **Commits**: the R9-T3 commit.
+- **Learned**: the round-9 run used the space form `--plan <dir>`, which the rule does not parse;
+  `argument-hint:` in the frontmatter still shows only `--effort=`. Both are checkpoint follow-ups.
+
 ## 2026-09-28 13:38 — R9-T2 (closed)
 
 - **Task/phase**: R9-T2 — `adversarial-review/SKILL.md:116`: a PR-number target on its own

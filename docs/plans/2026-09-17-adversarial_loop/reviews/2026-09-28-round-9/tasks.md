@@ -58,7 +58,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       for a same-checkout PR target; assert the printed range's right endpoint is `HEAD` (or that
       the block refuses and names the gap). RED today: prints `origin/<head>`. (~5 calls) (completed 2026-09-28 13:47)
 
-- [ ] **R9-T3** — `plugin/skills/adversarial-loop/SKILL.md:135` — the plan directory the loop is
+- [x] **R9-T3** — `plugin/skills/adversarial-loop/SKILL.md:135` — the plan directory the loop is
       told to pass has no slot in adversarial-review's argument grammar and is bound as a path
       target.
       **Fails when:** No loop argument → review invoked with `docs/plans/<plan>`; Step 1 binds
@@ -66,7 +66,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       that directory instead of the branch's change.
       **Acceptance (shape 3)**: dual grep — adversarial-review's Arguments section names the plan
       slot (its spelling and that it is stripped before binding target), and
-      `adversarial-loop/SKILL.md:135` uses that same spelling. RED today: no slot defined. (~4 calls)
+      `adversarial-loop/SKILL.md:135` uses that same spelling. RED today: no slot defined. (~4 calls) (completed 2026-09-28 13:59)
 
 - [ ] **R9-T4** — `plugin/skills/reply-to-claude/SKILL.md:33` — every snippet runs `gh pr view`
       with no argument, so `<pr#>` is never used.

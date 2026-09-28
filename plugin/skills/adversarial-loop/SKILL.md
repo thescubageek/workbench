@@ -132,7 +132,7 @@ Checking the target out yourself is a state change nobody asked for.
 1. **Review.** Invoke `adversarial-review` against the target. Pass `--effort` through if given;
    otherwise let its reconnaissance size the pass.
 
-   **Resolve the active plan directory and pass that too.** Its Step 8 writes the round under the
+   **Resolve the active plan directory and pass it as `--plan=<dir>`.** Its Step 8 writes the round under the
    plan you name; named nothing, it is left choosing between every `docs/plans/*/` in the
    repository — or skipping the write, which leaves step 3 below with no file to prune. The
    review is what resolves the round number and the date from that directory

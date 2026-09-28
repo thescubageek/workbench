@@ -49,12 +49,15 @@ clean trend.
 
 ## Arguments
 
-Two slots, both optional:
+Three slots, all optional:
 
 - **Target** — a PR number, a branch, or a path. Sniff the type: digits are a PR, a path that
   exists on disk is a path, anything else is a branch. Absent, review the current diff.
 - **`--effort=<level>`** — an override. Strip it before binding the positional, and match it by
   name so it may appear anywhere in the invocation. Absent, reconnaissance picks the level.
+- **`--plan=<dir>`** — the plan directory Step 8 writes the round under. Strip it before binding
+  the positional, and match it by name so it may appear anywhere in the invocation — left in, the
+  directory exists on disk and is bound as a path target. Absent, Step 8's no-plan case applies.
 
 **If the invocation names lenses in prose** — "review this as a principal frontend engineer" —
 carry them through to Step 4 and use them verbatim. They are additive, not a replacement for the
@@ -466,7 +469,7 @@ before `implement` sees the file — [../adversarial-loop/SKILL.md](../adversari
 **Read [../../docs/reference/remediation-plan.md](../../docs/reference/remediation-plan.md) NOW
 for how `<plan>`, `<N>` and `<date>` resolve.** All three rules are stated there, and are
 deliberately not restated here. The division of labour: `<plan>` is the plan directory the caller
-names — `adversarial-loop` resolves the active plan and passes it — while `<N>` and `<date>` you
+names in `--plan=<dir>` — `adversarial-loop` resolves the active plan and passes it — while `<N>` and `<date>` you
 resolve at write time from that directory. Filling them in by eye is how a round lands somewhere
 no consumer looks: this skill carries nothing between rounds, so a guessed `<N>` writes round 2
 into round 1's directory and overwrites checkboxes a human already ticked, and a guessed `<plan>`
