@@ -153,11 +153,21 @@ def substitutions(line):
     Quote-aware. Counting parens blind to quotes cut the span at the `)` inside
     `$(sed 's/)//' f | grep -c foo)`, so COUNTING never saw the grep and a genuinely
     unguarded capture reported clean; the mirror falsely reported `$(grep -c ")" f || true)`.
+    The shell expands `$( )` inside double quotes, so only single quotes suppress one; a
+    substitution opens a fresh quoting context, so its inner quotes are tracked from its start.
     """
-    q = _quote_spans(line)
-    res, i = [], 0
+    res, i, quote = [], 0, None
     while i < len(line):
-        if line.startswith('$(', i) and not q[i]:
+        ch = line[i]
+        if quote == "'":
+            if ch == "'":
+                quote = None
+            i += 1
+        elif ch in '"\'' and (quote is None or ch == quote):
+            quote = None if quote else ch
+            i += 1
+        elif line.startswith('$(', i):
+            q = [False] * (i + 2) + _quote_spans(line[i + 2:])
             depth, j = 1, i + 2
             while j < len(line) and depth:
                 if line.startswith('$(', j) and not q[j]:
@@ -169,7 +179,7 @@ def substitutions(line):
                 j += 1
             res.append((i + 2, j - 1))
             i = j
-        elif line[i] == '`' and not q[i]:
+        elif ch == '`':
             j = line.find('`', i + 1)
             if j == -1:
                 # A stray backtick — a line-continued capture, or one inside a string the
@@ -298,7 +308,7 @@ def analyse(lines, md=False, skill=False):
             # excuse an unguarded one after it. Both directions of this have shipped as
             # bugs in this repository — the corpus case `s1-guard-on-earlier` is the one
             # that caught it here, on the first run of the new implementation.
-            if GUARD.search(inner) or GUARD.match(after.lstrip('`)').lstrip()):
+            if GUARD.search(inner) or GUARD.match(after.lstrip('`)').lstrip('"').lstrip()):
                 continue
             # The rule is "captured and the status never tested", not "captured".
             # A bare assignment does not mask $? — shellcheck is right about that — so look

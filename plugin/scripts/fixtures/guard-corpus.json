@@ -876,6 +876,64 @@
   ]
  },
  {
+  "id": "s1-dq-assign",
+  "shape": "capture",
+  "expect": 1,
+  "path": "skills/s/dq-assign.md",
+  "content": "# X\n\n```bash\nn=\"$(grep -c foo f)\"\necho \"$n\"\n```\n",
+  "provenance": "R9-T15 \u2014 substitutions() treated a `$(` inside double quotes as quoted text, so the quoted capture scanned clean while the unquoted form was flagged.",
+  "expect_at": [
+   [
+    4,
+    "capture"
+   ]
+  ]
+ },
+ {
+  "id": "s1-dq-echo",
+  "shape": "capture",
+  "expect": 1,
+  "path": "skills/s/dq-echo.md",
+  "content": "# X\n\n```bash\necho \"found $(grep -c x f)\"\n```\n",
+  "provenance": "R9-T15 \u2014 a `$( )` embedded mid-string in double quotes is expanded by the shell and must be scanned.",
+  "expect_at": [
+   [
+    4,
+    "capture"
+   ]
+  ]
+ },
+ {
+  "id": "s1-dq-guarded",
+  "shape": "capture",
+  "expect": 0,
+  "path": "skills/s/dq-guarded.md",
+  "content": "# X\n\n```bash\nn=\"$(grep -c foo f)\" || true\necho \"${n:-0}\"\n```\n",
+  "provenance": "R9-T15 \u2014 the `|| true` after the closing `\"` must still be read as the guard."
+ },
+ {
+  "id": "s1-sq-suppressed",
+  "shape": "capture",
+  "expect": 0,
+  "path": "skills/s/sq-suppressed.md",
+  "content": "# X\n\n```bash\n\"./tool\" \"it's\" 'a $(grep -c foo f)'\n```\n",
+  "provenance": "R9-T15 \u2014 single quotes suppress a `$( )`; double quotes do not, and each quote closes only on its own kind (the `'` in `\"it's\"` is literal). The line opens with a quote so the tracker must see column 0."
+ },
+ {
+  "id": "s1-sq-then-dq",
+  "shape": "capture",
+  "expect": 1,
+  "path": "skills/s/sq-then-dq.md",
+  "content": "# X\n\n```bash\necho 'x' \"$(grep -c foo f)\"\n```\n",
+  "provenance": "R9-T15 \u2014 a single-quoted string must close, or everything after it on the line reads as quoted.",
+  "expect_at": [
+   [
+    4,
+    "capture"
+   ]
+  ]
+ },
+ {
   "id": "ok-nested-substitution-guarded",
   "shape": "none",
   "expect": 0,

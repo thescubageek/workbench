@@ -51,6 +51,20 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-28 17:14 — R9-T15 (closed)
+
+- **Task/phase**: R9-T15 — check-guards substitutions() skips a double-quoted $( ), so n="$(grep -c
+  foo f)" scans clean.
+- **Landed**: substitutions() tracks quotes itself: single quotes suppress a substitution, double
+  quotes do not, and each $( span gets a fresh quote map from its opener; shape 1's trailing-guard
+  test also strips a closing quote. Five corpus cases (s1-dq-assign, s1-dq-echo, s1-dq-guarded,
+  s1-sq-suppressed, s1-sq-then-dq). RED 109/111 on HEAD's checker; GREEN 113/113, integrity 15/15,
+  mutations 25/25; generated 344/395, 51 waived, 0 survived, ratchet 318 -> 344.
+- **Commits**: the R9-T15 commit
+- **Learned**: the restructure unhooked 12 waivers and left 17 survivors; closed by 2 corpus cases,
+  7 re-keys (3 with rewritten arguments), 1 rewritten argument, 7 deletions. Backslash escapes are
+  still not modelled — a double-quoted \$( now reads as a substitution; follow-up.
+
 ## 2026-09-28 17:02 — R9-T14 (closed)
 
 - **Task/phase**: R9-T14 — check-guards COUNTING misses grep -cE, -ci, -cv.

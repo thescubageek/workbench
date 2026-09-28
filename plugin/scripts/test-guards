@@ -43,9 +43,9 @@ CORPUS = os.path.join(HERE, 'fixtures', 'guard-corpus.json')
 # Each survivor in fixtures/mutation-survivors.txt prints its own key to copy.
 #
 #   'abandon the line on a stray backtick' (break vs continue in substitutions()):
-#     unreachable from valid shell. An unquoted, unpaired backtick is a syntax error, and a
-#     backtick inside quotes is already handled by the quote scanner — so no corpus case can
-#     distinguish the two behaviours. The `continue` form is kept because it is more
+#     unreachable from valid shell. An unpaired backtick unquoted or inside double quotes is
+#     an unterminated substitution, a syntax error, and one inside single quotes never reaches
+#     the branch — so no corpus case can distinguish the two behaviours. The `continue` form is kept because it is more
 #     defensible, not because a test demands it.
 
 MUTATIONS = [

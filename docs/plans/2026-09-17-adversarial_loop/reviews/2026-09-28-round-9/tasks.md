@@ -173,11 +173,11 @@ criterion is run before the fix**. A criterion that passes before the change is 
       **Acceptance (shape 2)**: add must-fire corpus cases for `-cE`, `-ci`, `-cv` to
       `fixtures/guard-corpus.json`; RED today; GREEN after the regex change. (~4 calls) (completed 2026-09-28 17:06)
 
-- [ ] **R9-T15** — `plugin/scripts/check-guards:151` — substitutions() skips double-quoted `$( )`.
+- [x] **R9-T15** — `plugin/scripts/check-guards:151` — substitutions() skips double-quoted `$( )`.
       **Fails when:** `n="$(grep -c foo f)"` with no guard scans clean (exit 0) while the unquoted
       form is flagged.
       **Acceptance (shape 2)**: must-fire corpus case for `n="$(grep -c foo f)"` and
-      `echo "found $(grep -c x f)"`; RED today; GREEN after. (~4 calls)
+      `echo "found $(grep -c x f)"`; RED today; GREEN after. (~4 calls) (completed 2026-09-28 17:19)
 
 - [ ] **R9-T17** — `plugin/scripts/check-guards:92` — an unclosed non-shell fence swallows later
       shell blocks.
