@@ -186,8 +186,9 @@ Checking the target out yourself is a state change nobody asked for.
    wrote and the pruning above modified it, so the round plan is sitting staged in a tree no
    `implement` run will ever commit — and Phase 2's `git status --porcelain` precondition lists
    it and hard-fails, on the state this branch calls success. Re-stage it with
-   `git add -f <round-dir>/tasks.md` and commit it on its own, round number in the message,
-   before taking the gate. The first arrival wrote no file and has nothing to commit.
+   `git add -f <round-dir>/tasks.md`, staging the ledger the same way alongside it, and commit
+   both on their own, round number in the message, before taking the gate. The first arrival
+   wrote no file and has nothing to commit.
 
    No code was fixed, so there is nothing for step 4 to verify and no reworked area for step 6
    to re-review: the pass you just took still certifies this tree. Record the
@@ -229,6 +230,14 @@ Checking the target out yourself is a state change nobody asked for.
    case step 3 already handles. `docs/plans/<plan>/review-log.md` when there is a plan;
    otherwise pick one file, **name it in the round report**, and reuse it for every round of this
    run. If you cannot write one at all, stop and say so rather than running on.
+
+   **Stage it in this step, the same way as the round plan** —
+   [remediation-plan.md's "Promoting it"](../../docs/reference/remediation-plan.md) is the
+   pattern to mirror: `git add -f docs/plans/<plan>/review-log.md`, stage only, do not commit.
+   The commit that carries it is whichever one is already happening — `implement`'s per-task
+   commit on a normal round, or step 3's own pruned-plan commit on the all-rejected branch,
+   where no `implement` run will ever fire. A no-plan ledger outside `docs/plans/` is staged
+   the same way, at whatever path was picked above.
 
    **A breaker that cannot fire is worse than none**, because its presence is what licenses
    proceeding. Both Blocking triggers in

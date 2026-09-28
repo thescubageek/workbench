@@ -123,14 +123,14 @@ criterion is run before the fix**. A criterion that passes before the change is 
       comment was written against"; it names the check-run `head_sha` comparison and says the
       rule is provisional pending a real bot run. RED today. (~4 calls) (completed 2026-09-28 15:26)
 
-- [ ] **R9-T9** — `plugin/docs/reference/review-ledger.md:21` — the ledger path is gitignored and
+- [x] **R9-T9** — `plugin/docs/reference/review-ledger.md:21` — the ledger path is gitignored and
       no step stages it.
       **Fails when:** Rounds 1–2 run in one worktree; work resumes in a fresh worktree or after
       `git clean -fdx`; the round directories survive but review-log.md does not, and both Blocking
       breaker triggers read the missing file as a clean trend.
       **Acceptance (shape 4)**: grep for a `git add -f` of `review-log.md` in
       `adversarial-loop/SKILL.md` step 5 (presence), with a negative control that the same grep
-      against `origin/main`'s copy returns nothing. (~3 calls)
+      against `origin/main`'s copy returns nothing. (~3 calls) (completed 2026-09-28 15:28)
 
 - [ ] **R9-T10** — `plugin/skills/adversarial-loop/SKILL.md:382` — Phase 4 bot rounds are never
       written to the ledger and repeat without a bound.

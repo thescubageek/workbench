@@ -24,6 +24,9 @@ the round report, and use that one for every round of the run. There is no versi
 that runs without a ledger: both Blocking triggers below read it, and a file that was never
 created reads exactly like a clean one.
 
+`docs/plans/` is gitignored, so the ledger is staged with `git add -f` every round, the same
+way as the round plan — see [adversarial-loop step 5](../../skills/adversarial-loop/SKILL.md).
+
 One row per finding per round:
 
 | Field | Meaning |

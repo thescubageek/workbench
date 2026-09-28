@@ -51,6 +51,18 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-28 15:27 — R9-T9 (closed)
+
+- **Task/phase**: R9-T9 — review-ledger.md: the ledger path is gitignored and no step stages it, so
+  a fresh worktree or git clean -fdx loses it and the breaker reads a clean trend.
+- **Landed**: step 5 stages the ledger with git add -f docs/plans/<plan>/review-log.md (stage, not
+  commit; carried by implement's per-task commit or step 3's pruned-plan commit), step 3's all-
+  rejected commit stages it too, review-ledger.md points there. RED: 0 hits on HEAD (origin/main
+  lacks the file entirely, so HEAD is the negative control); GREEN: line 236, inside step 5.
+- **Commits**: the R9-T9 commit
+- **Learned**: implement's own 6b stages only tasks.md and journal.md, so on a normal round the
+  ledger rides only if the coordinator adds it — as this run does by hand.
+
 ## 2026-09-28 15:25 — R9-T8 (closed)
 
 - **Task/phase**: R9-T8 — adversarial-loop/SKILL.md:402: Phase 5 asks for 'the SHA the bot's newest
