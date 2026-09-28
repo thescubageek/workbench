@@ -51,6 +51,19 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-28 17:52 — R9-T19 (closed)
+
+- **Task/phase**: R9-T19 — test-guards --generated ratchets an absolute kill count, so a new
+  unwaived survivor hides behind a higher kill count.
+- **Landed**: the --generated decision is a pure ratchet_verdict(killed, prev, survivors, stale): it
+  fails on stale waivers, on any unwaived survivor, and on a falling kill count, reporting every
+  failing rule before the exit. Plain test-guards self-tests it with killed 318 > prev 309 plus one
+  survivor. RED: that self-test failed against today's rule; GREEN: suite PASS, sweep 344/395, 0
+  survived, exit 0.
+- **Commits**: the R9-T19 commit
+- **Learned**: no test drives test-guards --generated as a CLI, so the self-test covers the
+  decision, not __main__'s wiring of it.
+
 ## 2026-09-28 17:41 — R9-T17 (closed)
 
 - **Task/phase**: R9-T17 — check-guards: an unclosed non-shell fence swallows every later shell

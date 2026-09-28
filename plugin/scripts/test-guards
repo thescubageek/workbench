@@ -499,6 +499,24 @@ def run_generated(impl):
     return survivors, waived, killed, len(mutants), stale
 
 
+def ratchet_verdict(killed, prev, survivors, stale):
+    """The --generated pass/fail decision, pure so the plain suite can test it."""
+    msgs = []
+    if stale:
+        msgs.append(f'❌ {len(stale)} waiver(s) match no generated mutant. The statement each\n'
+                    f'   one names has been rewritten or removed, so it is now waiving nothing\n'
+                    f'   while its mutant survives unexplained. Re-key them from the `waive as:`\n'
+                    f'   lines in fixtures/mutation-survivors.txt, or delete them:'
+                    + ''.join(f'\n      {m}' for m in stale))
+    if survivors:
+        msgs.append(f'❌ {len(survivors)} unwaived survivor(s). Kill each with a corpus case, or '
+                    f'waive it with an argument —\n   keys in fixtures/mutation-survivors.txt.')
+    if killed < prev:
+        msgs.append(f'❌ ratchet: killed fell from {prev} to {killed}. Either add a corpus '
+                    f'case, or waive the mutant in fixtures/mutation-waivers.json with a reason.')
+    return not msgs, msgs
+
+
 def main():
     print(f'corpus: {CORPUS}')
     base = run_corpus(CG)
@@ -564,8 +582,12 @@ def main():
     print(f"  {'✓' if intact else '✗'} the tool under test is unmodified "
           f"({'sha matches' if intact else 'SHA CHANGED — a mutant may have been left on disk'})")
 
+    verdict_ok = not ratchet_verdict(318, 309, [('L1 x', 'k', None)], [])[0]
+    print(f"  {'✓' if verdict_ok else '✗'} --generated fails on an unwaived survivor "
+          f"even when the kill count rose")
+
     ok = (base['correct'] == base['total'] and caught == len(MUTATIONS)
-          and integ_ok == len(integ) and intact)
+          and integ_ok == len(integ) and intact and verdict_ok)
     print(f"\ntest-guards: corpus {base['correct']}/{base['total']}, "
           f"integrity {integ_ok}/{len(integ)}, "
           f"mutations {caught}/{len(MUTATIONS)} — {'PASS' if ok else 'FAIL'}")
@@ -581,24 +603,18 @@ if __name__ == '__main__':
         print(f'\ngenerated: {killed}/{total} killed ({pct}%), '
               f'{len(waiv)} waived, {len(surv)} survived')
 
-        # A RATCHET, not a pass/fail bar. Demanding zero survivors would fail forever at
-        # 67% and be ignored within a week; reporting a number nobody compares to anything
-        # is the same as not running it. So: the kill count may not fall. A newly surviving
-        # mutation must be killed with a corpus case, or waived with an argument.
-        if stale:
-            print(f'\n❌ {len(stale)} waiver(s) match no generated mutant. The statement each\n'
-                  f'   one names has been rewritten or removed, so it is now waiving nothing\n'
-                  f'   while its mutant survives unexplained. Re-key them from the `waive as:`\n'
-                  f'   lines in fixtures/mutation-survivors.txt, or delete them:')
-            for m in stale:
-                print(f'      {m}')
-            sys.exit(1)
-
+        # Two rules: the kill count may not fall, AND no survivor may go unwaived. The count
+        # alone was not enough — ten trivially killed new mutants outweigh one detector
+        # mutant that stopped dying, so the ratchet read 'raised' over a real regression.
+        # Zero-unwaived was once unaffordable at 67%; with every survivor now killed or
+        # waived, it is the bar. A survivor must be killed by a corpus case, or waived with
+        # an argument. Every failing rule reports before the exit.
         rpath = os.path.join(HERE, 'fixtures', 'mutation-ratchet.json')
         prev = json.load(open(rpath))['killed'] if os.path.exists(rpath) else 0
-        if killed < prev:
-            print(f'\n❌ ratchet: killed fell from {prev} to {killed}. Either add a corpus '
-                  f'case, or waive the mutant in fixtures/mutation-waivers.json with a reason.')
+        ok, msgs = ratchet_verdict(killed, prev, surv, stale)
+        for m in msgs:
+            print('\n' + m)
+        if not ok:
             sys.exit(1)
         if killed > prev:
             json.dump({'killed': killed, 'of': total}, open(rpath, 'w'), indent=1)

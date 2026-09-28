@@ -187,13 +187,13 @@ criterion is run before the fix**. A criterion that passes before the change is 
       **Acceptance (shape 2)**: must-fire corpus case with that document; RED today; GREEN after.
       (~4 calls) (completed 2026-09-28 17:51)
 
-- [ ] **R9-T19** — `plugin/scripts/test-guards:593` — the --generated ratchet compares an absolute
+- [x] **R9-T19** — `plugin/scripts/test-guards:593` — the --generated ratchet compares an absolute
       kill count.
       **Fails when:** An edit adds ~10 trivially killed mutants while one previously killed detector
       mutant survives; killed rises 309→318, the ratchet reports 'raised', and the regression shows
       only as an unasserted line in mutation-survivors.txt.
       **Acceptance (shape 2)**: a test-guards integrity case where a new unwaived survivor appears
-      alongside a higher kill count; assert --generated fails. RED today. (~5 calls)
+      alongside a higher kill count; assert --generated fails. RED today. (~5 calls) (completed 2026-09-28 17:59)
 
 - [ ] **R9-T20** — `.github/workflows/checks.yml:36` — the shellcheck install is unpinned despite
       its comment.
