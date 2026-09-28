@@ -68,7 +68,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       slot (its spelling and that it is stripped before binding target), and
       `adversarial-loop/SKILL.md:135` uses that same spelling. RED today: no slot defined. (~4 calls) (completed 2026-09-28 13:59)
 
-- [ ] **R9-T4** — `plugin/skills/reply-to-claude/SKILL.md:33` — every snippet runs `gh pr view`
+- [x] **R9-T4** — `plugin/skills/reply-to-claude/SKILL.md:33` — every snippet runs `gh pr view`
       with no argument, so `<pr#>` is never used.
       **Fails when:** On a branch whose PR is #42, `/wb:reply-to-claude 57` collects #42's bot
       findings and, after confirmation, posts the public @claude reply to #42 while reporting it as
@@ -76,6 +76,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       **Acceptance (shape 3)**: dual grep — each of the four `gh pr view` snippets (`:33`, `:48`,
       `:90`, `:105`) carries the `${target:+"$target"}` form, and a binding step like
       adversarial-loop Phase 0 is present. RED today: zero snippets pass the argument. (~4 calls)
+      (completed 2026-09-28 14:09)
 
 - [ ] **R9-T5** — `plugin/skills/adversarial-review/SKILL.md:234` — REVIEW.md may add "known
       false positives", which is finding-level suppression from a base that can be

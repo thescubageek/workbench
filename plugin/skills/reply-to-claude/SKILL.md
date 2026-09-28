@@ -23,14 +23,28 @@ and on what evidence. A reply that says "addressed feedback" carries none of tha
 
 ## Step 1: Resolve the pull request and the repository
 
-Take the PR number from the argument if given, otherwise from the current branch. **Derive the
-repository rather than assuming it — and bind both values, in every shell that uses them.** A Bash
-call starts a fresh shell, so an assignment made in one call is gone by the next; each snippet
-below re-derives rather than inheriting:
+⛔ **Bind `target` first, as your own first action.** The argument hint advertises `<pr#>`, and
+every snippet below that calls `gh pr view` reads `$target`. With it unbound, `gh pr view`
+resolves the current branch's PR while the report names the one that was asked for — see
+[../adversarial-loop/SKILL.md](../adversarial-loop/SKILL.md) Phase 0, the same binding.
+
+- an argument was given → `target=<that argument>`
+- no argument → leave it unset; resolving from the current branch is then correct rather than
+  accidental
+
+**The binding lives in you, not in the shell — re-state it as the first line of every block below
+that reads `$target`.** A Bash call starts a fresh shell, so an assignment made in one call is
+gone by the next; each snippet below re-derives rather than inheriting. **Do not write
+`target=$1` in a fenced block** — see
+[../adversarial-review/SKILL.md](../adversarial-review/SKILL.md) Step 1, which carries the
+history of that defect.
+
+**Derive the repository rather than assuming it — and bind both values, in every shell that uses
+them.**
 
 ```bash
 REPO=$(gh repo view --json nameWithOwner --jq .nameWithOwner) || exit 1
-PR=$(gh pr view --json number --jq .number) || exit 1
+PR=$(gh pr view ${target:+"$target"} --json number --jq .number) || exit 1
 [ -n "$REPO" ] && [ -n "$PR" ] || { echo "could not resolve repo/PR" >&2; exit 1; }
 ```
 
@@ -45,7 +59,7 @@ ignored a finding:
 
 ```bash
 REPO=$(gh repo view --json nameWithOwner --jq .nameWithOwner) || exit 1
-PR=$(gh pr view --json number --jq .number) || exit 1
+PR=$(gh pr view ${target:+"$target"} --json number --jq .number) || exit 1
 
 gh api --paginate "repos/$REPO/pulls/$PR/reviews"   --jq '.[] | select(.user.login=="claude[bot]") | .body'
 gh api --paginate "repos/$REPO/pulls/$PR/comments"  --jq '.[] | select(.user.login=="claude[bot]") | "\(.path):\(.line) \(.body)"'
@@ -87,7 +101,7 @@ the first and the third, and a Bash call does not inherit variables from the pre
 **4a — mint the path and print it.**
 
 ```bash
-PR=$(gh pr view --json number --jq .number) || exit 1
+PR=$(gh pr view ${target:+"$target"} --json number --jq .number) || exit 1
 body=$(mktemp "${TMPDIR:-/tmp}/reply-pr${PR}-XXXXXX") || exit 1
 mv "$body" "$body.md" && body="$body.md"
 echo "$body"
@@ -102,7 +116,7 @@ a separate confirmation. Then, passing the same literal path (not a variable —
 4a is gone):
 
 ```bash
-PR=$(gh pr view --json number --jq .number) || exit 1
+PR=$(gh pr view ${target:+"$target"} --json number --jq .number) || exit 1
 gh pr comment "$PR" --body-file "<the path 4a printed>"
 ```
 

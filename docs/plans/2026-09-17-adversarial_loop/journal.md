@@ -51,6 +51,15 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-28 14:02 — R9-T4 (closed)
+
+- **Task/phase**: R9-T4 — `reply-to-claude/SKILL.md`: every `gh pr view` runs with no argument,
+  so a `<pr#>` argument is never used and the reply can land on the wrong PR.
+- **Landed**: a Phase-0 style `target` binding in Step 1, linking adversarial-review Step 1 for
+  the history; all four `gh pr view` lines carry `${target:+"$target"}`. RED 0 of 4; GREEN 4 of 4;
+  a zsh shim shows `pr view 57 …` bound and `pr view --json …` unset.
+- **Commits**: the R9-T4 commit.
+
 ## 2026-09-28 13:53 — R9-T3 (closed)
 
 - **Task/phase**: R9-T3 — the plan directory `adversarial-loop` passes has no slot in
