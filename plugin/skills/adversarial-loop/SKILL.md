@@ -357,10 +357,14 @@ harder:**
 3. **Confirm each poll could have seen something.** Per `reference.md`, a filter on `claude`
    rather than `claude[bot]` matches nothing and returns success, and the bot **edits its comment
    in place** — so compare `updated_at` or the newest comment id, never "is there a new comment".
-   A poll that cannot distinguish "no findings" from "no filter match" has not polled.
+   A poll that cannot distinguish "no findings" from "no filter match" has not polled. A poll
+   whose `gh` command exits non-zero is a **failed poll**, not an empty one — report its exit
+   status and stderr (rate limit, expired token) rather than counting it toward "nothing
+   arrived".
 4. **At the bound, stop and surface.** Say what did arrive — the rollup state, whether any
    `claude[bot]` comment exists at all, and its `updated_at` — and name the two ordinary causes
-   above. Then let the user decide.
+   above, plus any failed polls separately (so a rate-limited or expired token reads as its own
+   cause, not as a slow or broken bot). Then let the user decide.
 
 ⛔ **Do not enter Phase 5 from a timed-out wait.** Its gate requires the bot to report nothing
 outstanding, and *nothing arrived* is not that. This is the same absence-means-broken confusion

@@ -51,6 +51,15 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-28 15:31 — R9-T11 (closed)
+
+- **Task/phase**: R9-T11 — adversarial-loop/SKILL.md Phase 3: the wait does not distinguish a poll
+  whose gh call errored from one that found nothing.
+- **Landed**: Phase 3 step 3: a poll whose gh command exits non-zero is a failed poll, reported with
+  its status and stderr, never counted toward 'nothing arrived'; step 4's bound report names failed
+  polls as their own cause. Negative control 0 hits in the range; GREEN 2.
+- **Commits**: the R9-T11 commit
+
 ## 2026-09-28 15:29 — R9-T10 (closed)
 
 - **Task/phase**: R9-T10 — adversarial-loop/SKILL.md Phase 4: bot rounds are never written to the

@@ -141,14 +141,14 @@ criterion is run before the fix**. A criterion that passes before the change is 
       check (presence), with a negative control showing the range has zero "ledger" hits today.
       (~3 calls) (completed 2026-09-28 15:30)
 
-- [ ] **R9-T11** — `plugin/skills/adversarial-loop/SKILL.md:346` — the Phase 3 wait does not
+- [x] **R9-T11** — `plugin/skills/adversarial-loop/SKILL.md:346` — the Phase 3 wait does not
       distinguish a poll whose gh call errored from one that found nothing.
       **Fails when:** The gh token hits a rate limit or expires mid-wait; 15 polls error; the bound
       report reads 'no claude[bot] comment' and names only 'bot erroring / workflow disabled' as
       causes, indistinguishable from a slow bot.
       **Acceptance (shape 4)**: grep Phase 3 step 3 for an instruction that a poll whose command
       exited non-zero is a failed poll to be reported, not a wait (presence), negative control on
-      the current text. (~3 calls)
+      the current text. (~3 calls) (completed 2026-09-28 15:32)
 
 - [ ] **R9-T12** — `plugin/skills/adversarial-review/SKILL.md:211` — Step 2 resolves REVIEW.md's
       base only for numeric targets; a branch target uses the current checkout.
