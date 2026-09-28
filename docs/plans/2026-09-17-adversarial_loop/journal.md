@@ -51,6 +51,19 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-28 19:30 — Round 10 filed; breaker Blocking on the introduced-rate trend (closed)
+
+- **Task/phase**: second `/wb:adversarial-loop 25` run, stopped after Phase 1 as instructed.
+  Committed here: `reviews/2026-09-28-round-10/tasks.md` (25 task lines after pruning 4),
+  `review-log.md` (+31 rows, breaker section), `thoughts/2026-09-28-pr-loop-run-2.md`.
+- **Landed**: this commit. No PR phase engaged; Q4 still unexercised. No target workaround was
+  needed — R9-T2/R9-T26 held on the PR's own checkout.
+- **Learned**: first computable trend: 16% → 94% `prev-fix`. Caveat recorded: round 9's 33-file
+  surface covers nearly every path, so intersection is weak here; two causal chains are real
+  (R9-T15 → R10-T10, R9-T0 → R10-T5). Two mirror-image candidates surfaced, undecided.
+- **Blocked by**: the user's decision on the mirror-image candidates and the R&D scope; round 10
+  is not worked and no review runs until the escalation is done.
+
 ## 2026-09-28 18:22 — R9-T26 (closed)
 
 - **Task/phase**: R9-T26 — adversarial-review Step 2 sets head_ref to origin/<headRefName> for a PR
