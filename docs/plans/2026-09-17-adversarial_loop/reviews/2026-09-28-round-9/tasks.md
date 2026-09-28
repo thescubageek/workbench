@@ -255,6 +255,40 @@ criterion is run before the fix**. A criterion that passes before the change is 
       with `target=25`; assert the echoed `head_ref` is `HEAD`. RED today: echoes
       `origin/adversarial-loop-skill-research`. (~4 calls) (completed 2026-09-28 18:24)
 
+### 📝 Modified Files (Round 9)
+
+#### Code Files
+
+- `plugin/scripts/check-guards` - shape 6, positional tokens in a SKILL.md fence (T0); COUNTING matches `c` anywhere in a flag cluster (T14); double-quoted `$( )` scanned (T15); unclosed fence of any language reported (T17)
+- `plugin/skills/adversarial-review/SKILL.md` - no-positional blast-radius filter (T1); PR target on its own checkout ends at `HEAD` (T2); `--plan=<dir>` slot, both spellings, in `argument-hint` (T3, T25); REVIEW.md entries are hints, wired through Step 6 (T5); Step 2 base for branch targets (T12) and `HEAD` on the PR's own checkout (T26)
+- `plugin/skills/adversarial-review/prompts.md` - verifier's `REVIEW.md entry:` slot, a hint to re-check (T5)
+- `plugin/skills/adversarial-review/templates.md` - `### REVIEW.md entries` disclosure (T5)
+- `plugin/skills/adversarial-loop/SKILL.md` - passes `--plan=<dir>` (T3); isDraft guard (T7); Phase 5 check-run `head_sha`, provisional (T8); ledger staged (T9); Phase 4 ledger and breaker (T10); failed polls reported (T11); self-citations resolve (T24)
+- `plugin/skills/reply-to-claude/SKILL.md` - `target` binding and `${target:+"$target"}` on every `gh pr view` (T4)
+- `plugin/skills/implement_inline/SKILL.md` - attestation diversion and checkpoint carve-out (T13)
+- `plugin/skills/daily-digest/sources.md` - member-ID scrub patterns widened (T6)
+- `plugin/agents/pattern-finder.md` - four-backtick outer fence, the real unclosed fence T17 surfaced
+- `plugin/docs/reference/review-ledger.md` - ledger staged with `git add -f` (T9)
+- `plugin/docs/reference/remediation-plan.md` - `<plan>` row names `--plan=<dir>` (T25)
+- `.github/workflows/checks.yml` - shellcheck comment states the 0.9.0 floor (T20)
+- `README.md`, `plugin/scripts/README.md` - mutation figures from the fixtures, both ratchet rules (T22); all seven `check` gates (T23)
+- `docs/plans/2026-09-17-adversarial_loop/thoughts/spike/__pycache__/*.pyc` - untracked (T21)
+
+#### Test Files
+
+- `plugin/scripts/test-guards` - positional-detector mutations (T0); `ratchet_verdict()` and its self-test (T19); stray-backtick comment corrected (T15)
+- `plugin/scripts/fixtures/guard-corpus.json` - 96 → 114 cases (T0, T14, T15, T17)
+- `plugin/scripts/fixtures/mutation-waivers.json` - re-keyed and re-argued, 58 → 51 (T14, T15)
+- `plugin/scripts/fixtures/mutation-ratchet.json`, `mutation-survivors.txt` - 309 → 344 of 395, 0 survivors (T0, T15)
+- `plugin/scripts/test-phi-patterns` - four synthetic must-match cases (T6)
+
+**Quick test commands:**
+
+```bash
+./plugin/scripts/check
+./plugin/scripts/test-guards --generated
+```
+
 ## Implementation notes
 
 - **Decisions taken 2026-09-27 before any task ran** (user, in the release-close session):
