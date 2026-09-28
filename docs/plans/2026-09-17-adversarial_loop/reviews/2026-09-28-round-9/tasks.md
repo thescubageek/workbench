@@ -21,6 +21,21 @@ criterion is run before the fix**. A criterion that passes before the change is 
 
 ## Tasks
 
+- [ ] **R9-T0** — `plugin/scripts/check-guards` — no detector shape sees a positional token
+      (`$<digit>`, `$ARGUMENTS`) inside a fenced block of a shipped `SKILL.md`, the class 2.0.1
+      removed across eight stages and R7-T1 reintroduced at `adversarial-review/SKILL.md:297`.
+      **Fails when:** `/wb:adversarial-review 25 --plan <dir>` — the harness substitutes the awk
+      `$1` with `--plan` before the block reaches the session; measured in the round-9 run.
+      `check-guards plugin/` exits 0 over the file today. Every other `$1` under
+      `plugin/skills/` is prose ("Use `$1` as the project directory") and `clip`'s
+      `$ARGUMENTS` is deliberate, so the shape scans fenced blocks only and allowlists `clip`.
+      **Acceptance (shape 2)**: a must-fire corpus case with `$1` inside a `bash` fence and a
+      must-not-fire case with `$1` in prose; RED today (the gate passes both); GREEN after the
+      shape lands, with `check-guards plugin/` now flagging `:297` and nothing else. Model it on
+      shape 5 (R7-T7, the `PIPESTATUS` bashism). **Lands first, as its own commit, before
+      R9-T1** — the breaker fired Blocking on R9-T1 and this is the tracer bullet that retires
+      the class rather than the fourth instance. (~8 calls)
+
 - [ ] **R9-T1** — `plugin/skills/adversarial-review/SKILL.md:297` — the blast-radius awk filter
       uses the awk field `$1`, which the harness substitutes with an invocation argument.
       **Fails when:** `/wb:adversarial-review 25` → the block arrives as
@@ -30,7 +45,9 @@ criterion is run before the fix**. A criterion that passes before the change is 
       prints FILTER FAILED.
       **Acceptance (shape 1)**: invoke the skill with an argument and execute the Step 3 block as
       received against a two-line input where one line is the changed file; assert only the other
-      line prints. RED today: both print. (~6 calls)
+      line prints. RED today: both print. Rewrite with **no positional token at all** —
+      `cut -d: -f1` or `while IFS=: read -r path _` — so R9-T0's shape passes it; do not escape or
+      quote `$1` around the harness. · Depends on: R9-T0 (~6 calls)
 
 - [ ] **R9-T2** — `plugin/skills/adversarial-review/SKILL.md:116` — a PR-number target resolves
       to the pushed origin head, so loop re-reviews never see local fix commits.
@@ -66,9 +83,13 @@ criterion is run before the fix**. A criterion that passes before the change is 
       **Fails when:** PR B stacked on the same author's PR A; A's REVIEW.md says guard removal in
       middleware/ is a known false positive; reviewing B reads it from the merge-base as Present and
       B's guard-removal finding is dropped with no lens disabled and no tier lowered.
-      **Acceptance (attestation)**: whether a REVIEW.md false-positive entry should be disallowed,
-      demoted to a hint the verifier must still check, or only disclosed in the report.
-      **Attestor:** repository maintainer (security-boundary decision).
+      **Decided 2026-09-27 by the maintainer**: keep the entries, demote them to a hint the
+      verifier must still check, and disclose in the report every finding a REVIEW.md entry
+      touched.
+      **Acceptance (shape 3)**: dual grep — `adversarial-review/SKILL.md` Step 2 no longer says an
+      entry drops a finding; `prompts.md`'s verifier prompt names the entry as a hint to re-check,
+      not a verdict; `templates.md` carries a one-line disclosure per touched finding. RED today:
+      the verifier prompt never mentions REVIEW.md. (~6 calls)
 
 - [ ] **R9-T6** — `plugin/skills/daily-digest/sources.md:227` — the member-ID scrub patterns miss
       IDs adjacent to `_`, with doubled separators, or dot-separated.
@@ -94,10 +115,12 @@ criterion is run before the fix**. A criterion that passes before the change is 
       **Fails when:** Bot reviews commit A, B is pushed, bot edits its comment for B: a review's
       commit_id still reads A and an issue comment has no commit field, so the gate cannot clear
       mechanically and the session must improvise.
-      **Acceptance (attestation)**: what signal Phase 5 compares against HEAD instead (e.g. the
-      review check run's head SHA, or a SHA the bot states in its body), decided against a real
-      claude[bot] run once one exists on this repository.
-      **Attestor:** repository maintainer.
+      **Decided 2026-09-27 by the maintainer**: compare the review check-run's `head_sha` for
+      the current head, not a SHA on the comment. Provisional until a real `claude[bot]` run
+      exists on some repository; recorded as such in the skill.
+      **Acceptance (shape 3)**: dual grep — Phase 5 no longer asks for "the SHA the bot's newest
+      comment was written against"; it names the check-run `head_sha` comparison and says the
+      rule is provisional pending a real bot run. RED today. (~4 calls)
 
 - [ ] **R9-T9** — `plugin/docs/reference/review-ledger.md:21` — the ledger path is gitignored and
       no step stages it.
@@ -209,3 +232,22 @@ criterion is run before the fix**. A criterion that passes before the change is 
       unrelated between-rounds text with nothing inline to correct it.
       **Acceptance (shape 5)**: a resolver — for each `SKILL.md:<n>` self-citation in the file,
       the cited line contains the quoted or named text. RED today: 2 of them fail. (~3 calls)
+
+## Implementation notes
+
+- **Decisions taken 2026-09-27 before any task ran** (user, in the release-close session):
+  - **Breaker: Blocking.** R9-T1 is a mirror-image regression of the 2.0.1 positional-substitution
+    fix. Resolved by a tracer bullet, not full escalation: R9-T0 (a `check-guards` shape) and
+    R9-T1 land first, as their own commits, then the rest under `implement`.
+  - **R9-T5 and R9-T8** converted from attestations to mechanical tasks with the decisions
+    written into them.
+  - **Q4:** the missing `claude[bot]` dependency is accepted as the PR-phase test. The stop with
+    a clear message is the recorded result; installing the app is a separate repository
+    decision.
+- **Ordering**: R9-T0, then R9-T1, then loop-correctness (T2, T3, T7, T9, T10, T11, T12), then
+  publishing/compliance (T4, T5, T6, T8, T13), then detector gaps (T14, T15, T17, T19), then docs
+  (T20–T24). `implement` runs in document order; the IDs are left as filed.
+- **Round 9 is post-close.** The parent plan reached `complete` at 86 of 86 on 2026-09-27; this
+  round exists because the first PR-loop run was also the first review over the round 6–8 fix
+  surface. R9-T2 must land before any re-review of a PR target, or the re-review reads the
+  pushed head and misses local fixes — until then, re-review with no target argument.

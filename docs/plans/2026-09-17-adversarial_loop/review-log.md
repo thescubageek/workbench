@@ -54,5 +54,7 @@ reporting the plan as staged.
   `target=$1` in a fenced block"). If that counts as a mirror image, the breaker is **Blocking**:
   stop fixing, escalate `adversarial-review` Step 3 to research/design, and fire a tracer bullet
   before another attempt.
+  **Decided 2026-09-27: it counts. Blocking, resolved by tracer bullet — R9-T0 adds the
+  `check-guards` shape, R9-T1 rewrites without a positional token; both land before the rest.**
 - **Same file three consecutive rounds (advisory):** `plugin/skills/adversarial-review/SKILL.md`
   was touched by round 7 (R7-T1) and round 8 (R8-T2) and carries findings in round 9.

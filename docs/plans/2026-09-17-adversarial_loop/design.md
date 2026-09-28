@@ -666,6 +666,20 @@ There is no database here; the "data" is the record shapes this design commits t
     user rejected is recorded in `handoff-2026-09-21-04-43.md` under "Recommended cut".
   - Source: handoff-2026-09-21-04-43.md → tasks.md PD5-2 · Decided 2026-09-20
 
+- **The breaker's first Blocking trip, and how it was resolved.** Round 9 — the first
+  `adversarial-loop` run over a real PR — found that R7-T1 had put an awk `$1` inside a fenced
+  block, reintroducing the positional-substitution class 2.0.1 removed across eight stages; the
+  harness substituted it during the run. Ruled a mirror-image regression on 2026-09-27.
+  - Resolved by tracer bullet rather than research/design: a `check-guards` detector shape for
+    positional tokens in fenced blocks of shipped skills, then a rewrite with no such token.
+    The escalation path exists for design defects; this is a detector gap, and the detector
+    already has the fence-scanning machinery.
+  - Also decided the same day: REVIEW.md false-positive entries become hints the verifier
+    re-checks, with per-finding disclosure (R9-T5); Phase 5 compares the review check-run's
+    `head_sha`, provisional until a real bot run (R9-T8); and Q4's PR-phase test accepts the
+    missing-`claude[bot]` stop as its result rather than installing the app first.
+  - Source: reviews/2026-09-28-round-9 · Decided 2026-09-27
+
 ## Scope Definition
 
 ### In Scope
