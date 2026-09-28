@@ -3,9 +3,9 @@ project: adversarial_loop
 reviews: docs/plans/2026-09-17-adversarial_loop
 round: 9
 created: 2026-09-28
-status: in-progress
+status: complete
 total_tasks: 25
-completed_tasks: 0
+completed_tasks: 25
 task_tracking: markdown-checkboxes
 ---
 
@@ -326,3 +326,16 @@ criterion is run before the fix**. A criterion that passes before the change is 
        `ratchet_verdict()`.
     8. Line-number self-citations drift with every edit (this round moved them by 82 and 57
        lines). A resolver added to `check` would catch the next one.
+- [2026-09-28] Round 9 complete using coordinated workers:
+  - 26 workers spawned for 25 tasks (sequential, apart from three docs tasks run ahead of
+    order and committed in document order); 0 escalations; 1 truncation recovered (R9-T0,
+    resumed for its tail only).
+  - Verified by a verifier agent through R9-T7, by the coordinator inline from R9-T8 on, after
+    a mid-session auto-mode block and the user's word to continue.
+  - Key learnings: text-keyed mutation waivers go stale whenever the statement they name is
+    edited, and the sweep is what catches it; a widened detector should be run over the real
+    tree before it lands (R9-T17 found a genuine unclosed fence in `pattern-finder.md`); an
+    acceptance grep can be narrower than the decision it encodes (R9-T5 needed Step 6 wiring
+    the grep never asked for).
+- Status updated to `complete` on 2026-09-28 by `/wb:update_status`, at 25 of 25, on the
+  user's word at the checkpoint.
