@@ -85,10 +85,10 @@ this template, silently, from the moment of creation.
 
 ## 2026-09-28 18:04 — R9-T21 (closed)
 
-- **Task/phase**: R9-T21 — two spike .pyc files stay tracked despite the new __pycache__/ and *.pyc
+- **Task/phase**: R9-T21 — two spike .pyc files stay tracked despite the new `__pycache__/` and `*.pyc`
   ignore rules, so re-running the spike churns them.
 - **Landed**: both spike .pyc files removed from the index with git rm --cached; they stay on disk
-  and are now covered by the existing __pycache__/ and *.pyc rules. Negative control: git ls-files
+  and are now covered by the existing `__pycache__/` and `*.pyc` rules. Negative control: git ls-files
   '*.pyc' printed both paths; now prints nothing.
 - **Commits**: the R9-T21 commit
 
@@ -114,7 +114,7 @@ this template, silently, from the moment of creation.
   survived, exit 0.
 - **Commits**: the R9-T19 commit
 - **Learned**: no test drives test-guards --generated as a CLI, so the self-test covers the
-  decision, not __main__'s wiring of it.
+  decision, not `__main__`'s wiring of it.
 
 ## 2026-09-28 17:41 — R9-T17 (closed)
 
