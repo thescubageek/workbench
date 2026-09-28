@@ -49,14 +49,14 @@ criterion is run before the fix**. A criterion that passes before the change is 
       `cut -d: -f1` or `while IFS=: read -r path _` — so R9-T0's shape passes it; do not escape or
       quote `$1` around the harness. · Depends on: R9-T0 (~6 calls) (completed 2026-09-28 13:26)
 
-- [ ] **R9-T2** — `plugin/skills/adversarial-review/SKILL.md:116` — a PR-number target resolves
+- [x] **R9-T2** — `plugin/skills/adversarial-review/SKILL.md:116` — a PR-number target resolves
       to the pushed origin head, so loop re-reviews never see local fix commits.
       **Fails when:** `/wb:adversarial-loop 25` on PR 25's checkout: round 1's fixes are committed
       locally by implement; round 2's re-review diffs the unchanged origin head, so fixed findings
       recur or the gate clears from the record, and Phase 2 pushes commits no pass ever read.
       **Acceptance (shape 1)**: with a local commit ahead of `origin/<head>`, run Step 1's block
       for a same-checkout PR target; assert the printed range's right endpoint is `HEAD` (or that
-      the block refuses and names the gap). RED today: prints `origin/<head>`. (~5 calls)
+      the block refuses and names the gap). RED today: prints `origin/<head>`. (~5 calls) (completed 2026-09-28 13:47)
 
 - [ ] **R9-T3** — `plugin/skills/adversarial-loop/SKILL.md:135` — the plan directory the loop is
       told to pass has no slot in adversarial-review's argument grammar and is bound as a path

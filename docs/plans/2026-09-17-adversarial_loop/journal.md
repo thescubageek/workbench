@@ -51,6 +51,18 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-28 13:38 — R9-T2 (closed)
+
+- **Task/phase**: R9-T2 — `adversarial-review/SKILL.md:116`: a PR-number target on its own
+  checkout resolves to `origin/<head>`, so loop re-reviews never see local fix commits.
+- **Landed**: in `resolve_range`'s numeric branch, when the PR's `headRefName` is the current
+  branch the right endpoint becomes `HEAD`. RED in a scratch repo with a `gh` shim: `origin/main...origin/feat`,
+  local fix unread. GREEN: `origin/main...HEAD`; a PR for another branch, no target, path and
+  branch targets all unchanged. `/`-named heads and detached HEAD checked.
+- **Commits**: the R9-T2 commit.
+- **Learned**: Step 2's `head_ref` for a PR target is still the pushed head — it reads REVIEW.md
+  from the base, so likely harmless, but it no longer matches Step 1. R9-T12 is in that code.
+
 ## 2026-09-28 13:02 — R9-T1 (closed)
 
 - **Task/phase**: R9-T1 — `adversarial-review/SKILL.md:297`: rewrite the blast-radius filter

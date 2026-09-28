@@ -116,6 +116,10 @@ resolve_range() {
     range=$(gh pr view "$target" --json baseRefName,headRefName \
               --jq '"origin/" + .baseRefName + "...origin/" + .headRefName') \
       || { echo "could not resolve PR $target via gh — NOT reviewing the current branch" >&2; return 1; }
+    # The PR's own checkout: end at HEAD, not the pushed head, or local fix commits go unread.
+    if [ "${range##*...origin/}" = "$(git branch --show-current)" ]; then
+      range="${range%...*}...HEAD"
+    fi
   else
     # A branch — three dots, against its base. Two dots answers a different question.
     range="$(base_ref "$target")...$target"
