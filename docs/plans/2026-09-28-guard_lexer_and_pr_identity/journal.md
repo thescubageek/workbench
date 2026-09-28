@@ -51,6 +51,18 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-28 23:55 — explore_design (closed)
+
+- **Task/phase**: between P0-T2 and P0-T3 — architecture exploration for both components.
+- **Landed**: `thoughts/2026-09-28-lexer-and-pr-identity.md`. PR identity decided (I-A: resolve
+  by `headRefOid`, fetch `refs/pull/<N>/head` as a named step, one resolver for Steps 1–2);
+  answers research Q2 and Q3. Lexer narrowed to L-B vs L-C, L-A rejected; the user asked for a
+  tracer bullet before choosing. Measured after the discussion: ShellCheck 0.11 has no token or
+  AST output, so L-C can only be findings-as-detector — the spike's rejected candidate B.
+- **Commits**: this commit.
+- **Learned**: next is the two tracer bullets (pre-registrations are in the thoughts doc), then
+  `/wb:resolve_questions` for Q1/Q4 and the lexer choice, then `/wb:create_design`.
+
 ## 2026-09-28 20:24 — create_research (closed)
 
 - **Task/phase**: P0-T2 — research for 2026-09-28-guard_lexer_and_pr_identity
