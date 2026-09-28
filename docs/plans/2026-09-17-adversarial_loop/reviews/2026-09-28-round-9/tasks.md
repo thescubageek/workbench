@@ -220,12 +220,12 @@ criterion is run before the fix**. A criterion that passes before the change is 
       figures present match `jq length` on guard-corpus.json and mutation-waivers.json and the
       contents of mutation-ratchet.json. (~4 calls) (completed 2026-09-28 18:06)
 
-- [ ] **R9-T23** — `plugin/scripts/README.md:100` — the `check` gate list omits shellcheck-gate and
+- [x] **R9-T23** — `plugin/scripts/README.md:100` — the `check` gate list omits shellcheck-gate and
       test-phi-patterns.
       **Fails when:** A reader relying on that line concludes shell lint and the PHI scrub patterns
       are not gated by check/CI.
       **Acceptance (shape 3)**: dual grep — line 100 names all seven gates in `check`'s order, and
-      `plugin/scripts/check:51-59` is unchanged. (~2 calls)
+      `plugin/scripts/check:51-59` is unchanged. (~2 calls) (completed 2026-09-28 18:07)
 
 - [ ] **R9-T24** — `plugin/skills/adversarial-loop/SKILL.md:417` — two self-citations point at
       wrong lines (`:394` → `:191`, `:417` → `:242`).

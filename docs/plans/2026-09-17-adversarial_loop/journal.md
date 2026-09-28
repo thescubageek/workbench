@@ -51,6 +51,15 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-28 18:07 — R9-T23 (closed)
+
+- **Task/phase**: R9-T23 — plugin/scripts/README.md:100: the check gate list omits shellcheck-gate
+  and test-phi-patterns.
+- **Landed**: line 100 lists all seven gates in check's order — shellcheck-gate (0.9.0 floor), lint
+  --all, check-guards, test-guards, test-count, test-phi-patterns, test-quiet. RED: shellcheck-gate
+  and test-phi-patterns absent on HEAD; GREEN: all seven present; plugin/scripts/check unchanged.
+- **Commits**: the R9-T23 commit
+
 ## 2026-09-28 18:05 — R9-T22 (closed)
 
 - **Task/phase**: R9-T22 — README.md and plugin/scripts/README.md carry mutation-test figures that

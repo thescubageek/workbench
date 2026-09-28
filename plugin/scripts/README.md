@@ -97,7 +97,7 @@ runs before cutting a release.
 ./plugin/scripts/check
 ```
 
-Runs, in order: `lint --all`, `check-guards`, `test-guards`, `test-count`, `test-quiet`. **Every
+Runs, in order: `shellcheck-gate` (shellcheck ≥ 0.9.0 required), `lint --all`, `check-guards`, `test-guards`, `test-count`, `test-phi-patterns`, `test-quiet`. **Every
 gate runs even after one fails** — knowing that something is broken is less useful than knowing
 which things are. Exits 0 only if all of them pass.
 
