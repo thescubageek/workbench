@@ -51,6 +51,25 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-28 00:32 — Plan closed: tasks.md complete at 86 of 86 (closed)
+
+- **Task/phase**: release close after round 8. `/wb:update_status` on the parent plan.
+- **Landed**: counters 83/85 → 86/86 and `git_commit` refreshed (4d9814c, silent side);
+  then, on the user's word ("as recommended"): four attestations ticked that record decisions
+  demonstrably taken — Phase 5's manual verification, Phase 7's round-3 approval, Phase 8's spike
+  verdict, Phase 9's re-run decision — and `status: in-progress → complete` on the parent and on
+  round 5, which had sat at 10 of 10 unflipped since 2026-09-20. Ten manual items across Phases
+  3, 6, 7, 8 and 9 were never exercised and are annotated *deferred at plan close* rather than
+  ticked; the four attestation boxes above them stay `[ ]` with a note saying why. A plan can
+  close with named deferrals; it cannot honestly close with attestations a session ticked.
+- **Commits**: 4d9814c and this commit.
+- **Learned**: every prior close reconciled counters and left `status:` alone, so the transition
+  rule's requirement — each phase's manual verification confirmed — had never been tested against
+  this plan's nine checkpoints. Nineteen human boxes were open. The rule held: it forced the
+  deferrals to be named instead of assumed.
+- **Still owed for the release, each confirmed separately**: CHANGELOG `[3.0.0]` date, PR #25
+  retitle from 2.2.0 and un-draft, push, tag.
+
 ## 2026-09-28 00:24 — Round 8 closed (closed)
 
 - **Task/phase**: round-8 close — checkpoint confirmed by the user (both criteria re-run from

@@ -2,7 +2,7 @@
 project: adversarial_loop
 ticket: null
 created: 2026-09-17
-status: in-progress
+status: complete
 last_updated: 2026-09-27
 assignee: scraig
 current_phase: 5
@@ -508,8 +508,8 @@ rewritten, because the pair is a better worked example than either alone.*
       exists — `gh` cannot resolve this repository to a GitHub host. Per Phase 1's terminal
       branch, the loop ends at clean. Phases 2-5 did not engage."*
 - [ ] With a PR present but `claude[bot]` absent, the loop stops with a clear message rather than
-      quietly skipping the bot round
-- [ ] `reply-to-claude` composes a correct reply in a repository that is not `reef`
+      quietly skipping the bot round *(deferred at plan close, 2026-09-27 — never exercised; a 3.x item)*
+- [ ] `reply-to-claude` composes a correct reply in a repository that is not `reef` *(deferred at plan close, 2026-09-27 — never exercised; a 3.x item)*
 
 ### Modified Files
 
@@ -950,7 +950,7 @@ shortened one.
       only `[ ]` left in the phase is the attestation below
 - [x] **(derivable)** All automated verification passing — all nine re-run 2026-09-19 on the
       3.0.0 commit; output in [thoughts/2026-09-19-release-checks.md](thoughts/2026-09-19-release-checks.md)
-- [ ] **(attestation)** Manual verification confirmed by human
+- [x] **(attestation)** Manual verification confirmed by human — confirmed by the user 2026-09-27
 - [x] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
       only writer of those fields, so do not edit `current_phase` or `completed_tasks` by hand.
       *Reconciled 2026-09-19 across every phase at once, not at this checkpoint: 81 → 83 of 85.
@@ -1144,10 +1144,10 @@ phase:
 #### Manual Verification
 
 - [ ] The base-ref read has been exercised in a repository with no `origin/main` and observed to
-      **fail** rather than silently read the index
-- [ ] A human has read the provenance rule and agrees it says what an agent needs to hear
+      **fail** rather than silently read the index *(deferred at plan close, 2026-09-27 — never exercised; a 3.x item)*
+- [ ] A human has read the provenance rule and agrees it says what an agent needs to hear *(deferred at plan close, 2026-09-27 — never exercised; a 3.x item)*
 - [ ] The confirmation gates have been read as an agent would read them — they must be
-      unambiguous about *which* actions stop for a human
+      unambiguous about *which* actions stop for a human *(deferred at plan close, 2026-09-27 — never exercised; a 3.x item)*
 
 ### Modified Files
 
@@ -1177,7 +1177,7 @@ shortened one.
 
 - [x] **(derivable)** Every Phase 6 checkbox is `[x]`
 - [x] **(derivable)** All automated verification passing
-- [ ] **(attestation)** Manual verification confirmed by human
+- [ ] **(attestation)** Manual verification confirmed by human *(not ticked at plan close, 2026-09-27: this phase has deferred manual items)*
 - [x] **(attestation)** A fresh adversarial review has been **explicitly approved by the user**
       before it is run — the user asked to gate it, and a re-review run unasked is the same
       unrequested outward step this phase exists to close
@@ -1310,8 +1310,8 @@ Landed already, ahead of this phase, because it was a live safety defect:
 
 #### Manual Verification
 
-- [ ] The PHI guardrail has been re-read by a human, against the pre-Phase-6 version
-- [ ] A human agrees the verdict→disposition mapping is stated where both readers will find it
+- [ ] The PHI guardrail has been re-read by a human, against the pre-Phase-6 version *(deferred at plan close, 2026-09-27 — never exercised; a 3.x item)*
+- [ ] A human agrees the verdict→disposition mapping is stated where both readers will find it *(deferred at plan close, 2026-09-27 — never exercised; a 3.x item)*
 
 ### ⛔ CHECKPOINT: Phase 7 Complete
 
@@ -1330,8 +1330,8 @@ shortened one.
 
 - [x] **(derivable)** Every Phase 7 checkbox is `[x]`
 - [x] **(derivable)** All automated verification passing
-- [ ] **(attestation)** Manual verification confirmed by human
-- [ ] **(attestation)** A round 3 review has been **explicitly approved by the user**. Round 2
+- [ ] **(attestation)** Manual verification confirmed by human *(not ticked at plan close, 2026-09-27: this phase has deferred manual items)*
+- [x] **(attestation)** A round 3 review has been **explicitly approved by the user**. Round 2 *(it ran; confirmed by the user 2026-09-27)*
       found that a third of its findings were created by round 1's fixes; this phase is the same
       kind of surface, and assuming it is clean is the mistake the plan exists to prevent
 - [x] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
@@ -1509,9 +1509,9 @@ Three mechanisms, each independently sufficient to produce this:
 
 #### Manual Verification
 
-- [ ] A human has agreed the circuit-breaker thresholds are ones they want the loop to stop on
+- [ ] A human has agreed the circuit-breaker thresholds are ones they want the loop to stop on *(deferred at plan close, 2026-09-27 — never exercised; a 3.x item)*
 - [ ] The spike's pre-registered outcomes were written **before** it ran, and the verdict is read
-      against them rather than around them
+      against them rather than around them *(deferred at plan close, 2026-09-27 — never exercised; a 3.x item)*
 
 ### ⛔ CHECKPOINT: Phase 8 Complete
 
@@ -1528,10 +1528,10 @@ before, and following it ticks the human sign-off box. **This block, labels and 
 included, is repeated in full at every phase's checkpoint**; a later phase never gets a
 shortened one.
 
-- [ ] **(derivable)** Every Phase 8 checkbox is `[x]`
+- [ ] **(derivable)** Every Phase 8 checkbox is `[x]` *(two manual items deferred at plan close, 2026-09-27)*
 - [x] **(derivable)** All automated verification passing — re-run 2026-09-19
-- [ ] **(attestation)** Manual verification confirmed by human
-- [ ] **(attestation)** The spike's verdict has been **decided by the user**, not adopted by the
+- [ ] **(attestation)** Manual verification confirmed by human *(not ticked at plan close, 2026-09-27: this phase has deferred manual items)*
+- [x] **(attestation)** The spike's verdict has been **decided by the user**, not adopted by the *(Phase 9 prerequisite records it; confirmed by the user 2026-09-27)*
       session. The whole point of escalating out of the fix loop is that a design decision gets
       made deliberately
 - [x] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
@@ -1628,7 +1628,7 @@ closure is checkable rather than asserted.
 #### Manual Verification
 
 - [ ] A human has read the new implementation and agrees it is simpler than what it replaces —
-      if it is not, the approach did not pay for itself and that should be said
+      if it is not, the approach did not pay for itself and that should be said *(deferred at plan close, 2026-09-27 — never exercised; a 3.x item)*
 
 ### ⛔ CHECKPOINT: Phase 9 Complete
 
@@ -1647,8 +1647,8 @@ shortened one.
 
 - [x] **(derivable)** Every Phase 9 checkbox is `[x]`
 - [x] **(derivable)** All automated verification passing
-- [ ] **(attestation)** Manual verification confirmed by human
-- [ ] **(attestation)** Whether to re-run the adversarial review has been **decided by the user**.
+- [ ] **(attestation)** Manual verification confirmed by human *(not ticked at plan close, 2026-09-27: this phase has deferred manual items)*
+- [x] **(attestation)** Whether to re-run the adversarial review has been **decided by the user**. *(rounds 4–8 each were; confirmed by the user 2026-09-27)*
       Three rounds established that a fix phase is the highest-defect-density surface in the
       plan; this phase is a rewrite, which is more of it
 - [x] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
