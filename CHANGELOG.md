@@ -11,7 +11,7 @@ requires `shellcheck` and `python3` and fails loudly without them. A contributor
 the checks at 2.1.0 cannot at 3.0.0 without installing two tools, and no reading of "removed or
 renamed stages" would have warned them.
 
-## [3.0.0] — 2026-09-18
+## [3.0.0] — 2026-09-27
 
 Three review skills, added by **wrapping** Claude Code's built-in review machinery rather than
 re-implementing it. Research corrected the premise twice: `review-strict` is not a shipped
