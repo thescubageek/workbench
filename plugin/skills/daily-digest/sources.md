@@ -224,8 +224,8 @@ Scrub anything matching either pattern, plus obvious variants — lowercase, mis
 separators, surrounding punctuation:
 
 ```text
-(?i)\b(?:BM|BC|BA)[-_ ]?[A-Z]{2}[-_ ]?\d{8}\b      # canonical, plus the variants below
-(?i)\b[A-Z]{2}[-_ ][A-Z]{2}[-_ ]\d{6,10}\b          # the general shape, separators required
+(?i)(?<![A-Z0-9])(?:BM|BC|BA)[-_ .]{0,2}[A-Z]{2}[-_ .]{0,2}\d{8}(?![A-Z0-9])      # canonical, plus the variants below
+(?i)(?<![A-Z0-9])[A-Z]{2}[-_ .]{1,2}[A-Z]{2}[-_ .]{1,2}\d{6,10}(?![A-Z0-9])          # the general shape, separators required
 ```
 
 **The variants are in the patterns, not in the prose.** An earlier version described them —
@@ -234,10 +234,12 @@ and the line above tells you to match rather than paraphrase. A collector obeyin
 instruction literally could not produce the coverage the instruction demanded, and
 `bm-ca-12345678` — the most common hand-typed form — went through unscrubbed.
 
-`(?i)` covers case. `[-_ ]?` on the first pattern covers absent, hyphen, underscore and space
-separators; the second requires a separator, because without one `\b[A-Z]{2}[A-Z]{2}\d{6,10}\b`
-would swallow ordinary alphanumeric tokens. Verified against `TB-2421`, `PR-42`, ISO dates and
-git SHAs — none match.
+`(?i)` covers case. `[-_ .]{0,2}` on the first pattern covers absent, hyphen, underscore, space
+and dot separators, single or doubled; the second requires one or two, because without one
+`[A-Z]{2}[A-Z]{2}\d{6,10}` would swallow ordinary alphanumeric tokens. The edges are
+alphanumeric lookarounds, not `\b`: `_` is a word character, so `\b` finds no boundary in
+`member_BM-CA-12345678` or `BM-CA-12345678_intake.pdf` and the ID went through. Verified against
+`TB-2421`, `PR-42`, ISO dates, git SHAs, `v1.2.3` and `a.b` — none match.
 
 **Known cost, accepted deliberately**: the general shape cannot distinguish a member ID from
 any other two-segment `AA-BB-nnnnnn` identifier, so a locale-scoped job id (`EN-US-10023456`)

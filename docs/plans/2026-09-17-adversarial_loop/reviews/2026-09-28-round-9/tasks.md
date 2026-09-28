@@ -92,7 +92,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       not a verdict; `templates.md` carries a one-line disclosure per touched finding. RED today:
       the verifier prompt never mentions REVIEW.md. (~6 calls) (completed 2026-09-28 14:16)
 
-- [ ] **R9-T6** — `plugin/skills/daily-digest/sources.md:227` — the member-ID scrub patterns miss
+- [x] **R9-T6** — `plugin/skills/daily-digest/sources.md:227` — the member-ID scrub patterns miss
       IDs adjacent to `_`, with doubled separators, or dot-separated.
       **Fails when:** Synthetic `BM-CA-12345678_intake.pdf`, `member_BM-CA-12345678`,
       `BM--CA--12345678`, `BM.CA.12345678` match neither pattern, so such an ID in an email subject
@@ -100,7 +100,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       passing variants.
       **Acceptance (shape 2)**: add those four synthetic cases to `plugin/scripts/test-phi-patterns`
       as must-match; RED today: 4 fail; GREEN after the pattern change, with the existing
-      must-not-match cases (Jira, PR, date, SHA) still passing. (~5 calls)
+      must-not-match cases (Jira, PR, date, SHA) still passing. (~5 calls) (completed 2026-09-28 14:39)
 
 - [ ] **R9-T7** — `plugin/skills/adversarial-loop/SKILL.md:283` — `DRAFT=$(gh pr view … isDraft)`
       has no failure guard.

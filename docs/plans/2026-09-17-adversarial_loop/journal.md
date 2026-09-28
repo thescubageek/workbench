@@ -51,6 +51,18 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-28 14:37 — R9-T6 (closed)
+
+- **Task/phase**: R9-T6 — `daily-digest/sources.md:227`: the member-ID scrub patterns miss IDs
+  adjacent to `_`, with doubled separators, or dot-separated.
+- **Landed**: `\b` replaced by `(?<![A-Z0-9])` / `(?![A-Z0-9])` (under `(?i)`), separators
+  widened to `[-_ .]{0,2}` (general shape `{1,2}`, still required); the prose below updated in
+  place. Four synthetic must-match rows. RED 14/18; GREEN 18/18, every must-not-match intact.
+- **Commits**: the R9-T6 commit.
+- **Learned**: `_` is a word character, so `\b` could never bound an ID glued to an underscore.
+  Follow-ups: dotted `xx.yy.123456` is now redacted (unpinned over-match); three-or-more
+  separator runs are still unmatched by design.
+
 ## 2026-09-28 14:14 — R9-T5 (closed)
 
 - **Task/phase**: R9-T5 — `adversarial-review` REVIEW.md "known false positives" act as
