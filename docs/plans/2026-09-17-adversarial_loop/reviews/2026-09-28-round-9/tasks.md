@@ -78,7 +78,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       adversarial-loop Phase 0 is present. RED today: zero snippets pass the argument. (~4 calls)
       (completed 2026-09-28 14:09)
 
-- [ ] **R9-T5** — `plugin/skills/adversarial-review/SKILL.md:234` — REVIEW.md may add "known
+- [x] **R9-T5** — `plugin/skills/adversarial-review/SKILL.md:234` — REVIEW.md may add "known
       false positives", which is finding-level suppression from a base that can be
       author-controlled.
       **Fails when:** PR B stacked on the same author's PR A; A's REVIEW.md says guard removal in
@@ -90,7 +90,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       **Acceptance (shape 3)**: dual grep — `adversarial-review/SKILL.md` Step 2 no longer says an
       entry drops a finding; `prompts.md`'s verifier prompt names the entry as a hint to re-check,
       not a verdict; `templates.md` carries a one-line disclosure per touched finding. RED today:
-      the verifier prompt never mentions REVIEW.md. (~6 calls)
+      the verifier prompt never mentions REVIEW.md. (~6 calls) (completed 2026-09-28 14:16)
 
 - [ ] **R9-T6** — `plugin/skills/daily-digest/sources.md:227` — the member-ID scrub patterns miss
       IDs adjacent to `_`, with doubled separators, or dot-separated.

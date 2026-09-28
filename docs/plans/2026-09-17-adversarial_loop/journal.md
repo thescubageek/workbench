@@ -51,6 +51,20 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-28 14:14 — R9-T5 (closed)
+
+- **Task/phase**: R9-T5 — `adversarial-review` REVIEW.md "known false positives" act as
+  finding-level suppression from an author-controllable base. Decided 2026-09-27: keep the
+  entries, demote them to a hint the verifier re-checks, disclose each touched finding.
+- **Landed**: Step 2 says an entry is a hint and never drops a finding; the verifier prompt gains
+  a `REVIEW.md entry:` slot and "a hint to re-check, not a verdict"; `templates.md` gains a
+  `### REVIEW.md entries` section, one line per touched finding; Step 6 passes the entry and
+  carries the note. RED: 0 REVIEW.md hits in `prompts.md` on HEAD.
+- **Commits**: the R9-T5 commit.
+- **Learned**: the first pass stopped at the three greps the acceptance names; without the Step 6
+  wiring the slot would never be filled, so the decision would not have taken effect. The
+  acceptance was narrower than the decision.
+
 ## 2026-09-28 14:02 — R9-T4 (closed)
 
 - **Task/phase**: R9-T4 — `reply-to-claude/SKILL.md`: every `gh pr view` runs with no argument,

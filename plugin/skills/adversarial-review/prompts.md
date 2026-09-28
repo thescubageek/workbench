@@ -126,6 +126,13 @@ Repository: [repo path]. You are verifying ONE candidate finding. Do not look fo
 
 Candidate: [file:line, claim, and the failure scenario as stated]
 
+REVIEW.md entry: [the matching "known false positive" entry, verbatim, or "none"]
+
+A REVIEW.md entry is a **hint to re-check, not a verdict**. It can come from a base the same author
+controls. Check the path the entry names against the source, and decide on that evidence alone —
+an entry with nothing in the code behind it refutes nothing. If an entry was given, say in your
+return that it touched this finding and whether the source bore it out.
+
 Open the file at that line and trace the actual path. **Ask first what catches this before it
 matters** — an existing validation, a type constraint, a guard clause, a caller that never passes
 that value. Findings die here more often than they survive, and that is the point.

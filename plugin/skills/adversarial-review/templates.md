@@ -110,6 +110,18 @@ Its bounds are what keep it a restatement rather than a competing report: **one 
 no failure scenario, no fix, no severity prose.** Anything more is the second report the tool is
 telling you not to write.
 
+### REVIEW.md entries
+
+One line per finding a `REVIEW.md` "known false positive" entry touched, whatever the verdict —
+including those the verifier then refuted:
+
+```text
+REVIEW.md entry "<entry>" touched <file:line> — verified: <CONFIRMED | PLAUSIBLE | REFUTED>
+```
+
+An entry never drops a finding on its own, so a touched finding with no line here is a silent
+suppression.
+
 ## Checked and clear
 
 A short list of what was hunted and found to hold, capped at about six lines, factual, never
