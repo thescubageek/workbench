@@ -1804,6 +1804,31 @@ resolved, leaving a dated line saying how.
 
 ### Implementation Notes
 
+- **[2026-09-28] Follow-up for 3.1 — the journal is a machine-read record; make it cheap to
+  read and terse to write.** Measured on this plan: 137 KB, 91 entries, ~34k tokens, ~380 tokens
+  per entry. Writing is cheap (two edits per task, ~1k tokens, under 2% of a task's worker and
+  verifier spend). Reading whole is not. Three changes, decided by the user 2026-09-28 — the
+  journal is read by agents, not humans, so prose has no audience:
+  1. **No stage reads the whole file.** `create_handoff` Step 1 reads `journal.md` "fully" and
+     `validate_project` Step 1 reads it if present; both should read the newest N entries (the
+     tail). The validator's journal rules are heading regexes and never needed the body in
+     context. Every other reader — the hook, `forge`, `implement`, `implement_inline`,
+     `resume_handoff`, `daily-digest` — already takes the tail. Touches: `create_handoff/SKILL.md`,
+     `validate_project/SKILL.md`, and `journal-entries.md` gains a one-line "readers take the
+     tail" rule.
+  2. **Entries are fields, not prose.** `journal-entries.md`'s shape is one-line fields; the
+     average entry here is 380 tokens because Learned became paragraphs. Cap Learned at three
+     lines and only when it changes the remaining work; durable facts go to `knowledge.md`, which
+     the contract already says. Add the cap to the contract and to `implement`'s and
+     `implement_inline`'s entry instructions.
+  3. **One entry per phase under `implement`, not per task.** The per-task record already exists
+     there — one task, one commit, and a `[ ]` beside a dirty tree is the interruption signal;
+     the worker's report carries the next action. Open at Step 4, close at the Step 8
+     checkpoint; 6c's `[blocked]` marker still applies to the phase entry. `implement_inline`
+     stays per task — no worker report to fall back on. Cuts entries ~80% on a round-heavy plan.
+  - Not doing: a per-ticket toggle. A three-task plan writes ~2k tokens of journal; the cost
+    only appears on long plans, where the journal is wanted. Fix the readers and the shape.
+  - Core stages — its own 3.1 round with the truncation-prompt item above.
 - **[2026-09-28] Follow-up for 3.1 — a truncated worker should prompt, with a recommendation,
   instead of the coordinator deciding silently.** Raised by the user after R9-T0's worker hit
   `task-worker.md`'s `maxTurns: 60` (estimated at ~8 calls; a detector shape plus corpus cases
