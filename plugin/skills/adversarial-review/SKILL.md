@@ -218,7 +218,11 @@ if [ -z "${target:-}" ] || [ -e "$target" ]; then
 elif printf '%s' "$target" | grep -qE '^[0-9]+$'; then
   base_branch=$(gh pr view "$target" --json baseRefName --jq .baseRefName 2>/dev/null)
   head_ref=$(gh pr view "$target" --json headRefName --jq .headRefName 2>/dev/null)
-  head_ref="origin/${head_ref:-}"
+  if [ "$head_ref" = "$(git branch --show-current)" ]; then
+    head_ref="HEAD"
+  else
+    head_ref="origin/${head_ref:-}"
+  fi
 else
   base_branch=$(gh pr view "$target" --json baseRefName --jq .baseRefName 2>/dev/null)
   head_ref="$target"

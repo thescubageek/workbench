@@ -245,7 +245,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       `adversarial-loop/SKILL.md:135` and `remediation-plan.md`'s `<plan>` row use the `=`
       spelling. RED today: `argument-hint` has no `--plan`. (~4 calls) (completed 2026-09-28 18:22)
 
-- [ ] **R9-T26** — `plugin/skills/adversarial-review/SKILL.md:218-219` — Step 2 resolves
+- [x] **R9-T26** — `plugin/skills/adversarial-review/SKILL.md:218-219` — Step 2 resolves
       `head_ref` to `origin/<headRefName>` for a PR target even when that head is the current
       checkout, while Step 1 (R9-T2) now ends the range at `HEAD` in that case — so the
       `REVIEW.md` merge-base and the reviewed range disagree by every local fix commit.
@@ -253,7 +253,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       against the pushed head.
       **Acceptance (shape 1)**: with a local commit ahead of `origin/<head>`, run Step 2's block
       with `target=25`; assert the echoed `head_ref` is `HEAD`. RED today: echoes
-      `origin/adversarial-loop-skill-research`. (~4 calls)
+      `origin/adversarial-loop-skill-research`. (~4 calls) (completed 2026-09-28 18:24)
 
 ## Implementation notes
 

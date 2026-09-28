@@ -51,6 +51,17 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-28 18:22 — R9-T26 (closed)
+
+- **Task/phase**: R9-T26 — adversarial-review Step 2 sets head_ref to origin/<headRefName> for a PR
+  target even on that PR's own checkout, while Step 1 now ends at HEAD; REVIEW.md's merge-base and
+  the reviewed range disagree by every local fix.
+- **Landed**: Step 2's PR branch sets head_ref to HEAD when the PR's headRefName is the checked-out
+  branch, else origin/<name> — Step 1's R9-T2 rule, so REVIEW.md's merge-base and the reviewed range
+  agree. RED (local commit ahead, target 25): head origin/feature-A. GREEN: head HEAD; PR 7 for
+  another branch, no target and a branch target unchanged.
+- **Commits**: the R9-T26 commit
+
 ## 2026-09-28 18:20 — R9-T25 (closed)
 
 - **Task/phase**: R9-T25 — adversarial-review parses only --plan=<dir>; the space form binds as a
