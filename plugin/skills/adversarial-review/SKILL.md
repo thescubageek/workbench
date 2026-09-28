@@ -293,10 +293,13 @@ change, and that error direction is toward believing the change is safe.
 hits=$(command grep -rnF --exclude-dir=.context -- "<changed symbol>" .)
 search=$?
 [ "$search" -le 1 ] || echo "SEARCH FAILED (grep exit $search) — NOT an isolated change" >&2
-callers=$(printf '%s\n' "$hits" |
-  changed="<the changed file>" awk -F: '$1 != ENVIRON["changed"] && $1 != "./" ENVIRON["changed"]')
+changed="<the changed file>"
+callers=$(printf '%s\n' "$hits" | while IFS= read -r hit; do
+  file=${hit%%:*}
+  [ "$file" = "$changed" ] || [ "$file" = "./$changed" ] || printf '%s\n' "$hit"
+done)
 filter=$?
-[ "$filter" -eq 0 ] || echo "FILTER FAILED (awk exit $filter) — NOT an isolated change" >&2
+[ "$filter" -eq 0 ] || echo "FILTER FAILED (exit $filter) — NOT an isolated change" >&2
 [ -n "$callers" ] && printf '%s\n' "$callers" | sed 's/^/  /'
 ```
 
@@ -339,13 +342,18 @@ Seven details in that command are the difference between a measurement and a gue
   clean one, and this measurement's errors all point toward believing the change is safe.
 - **The guard runs before the output is printed**, so a failed search is announced ahead of the
   emptiness that would otherwise read as "no callers".
-- **The exclusion compares the path field literally**, and not as a pattern. `awk -F:` splits
-  each hit into `path:line:text` and tests `$1` for string equality against the changed file —
+- **The exclusion compares the path field literally**, and not as a pattern. The loop cuts
+  each `path:line:text` hit at its first `:` and tests that path with `[ = ]`, string equality,
+  against the changed file —
   against both spellings, bare and `./`-prefixed, because the leading `./` depends on the engine
   (first bullet): the ugrep shim emits the path with no `./`, the system binary emits it
   `./`-prefixed. The block pins the binary, but a user's own `grep`, or a run that drops the
-  `command` spelling, can produce either, so both are matched. The path arrives through
-  `ENVIRON` rather than `-v`, which would read a `\t` in a filename as a tab. Two earlier
+  `command` spelling, can produce either, so both are matched. The path is compared as a quoted
+  shell variable, which interprets no escapes; the `awk -v` route would read a `\t` in a
+  filename as a tab. The filter carries no awk field token either: the harness substitutes
+  `$<digit>` in a skill body with the invocation's arguments, and an awk field was measured
+  becoming `25 != …`, which kept every line, and `feature/foo != …`, which made awk exit 2. The
+  loop variable is `file`, not `path`, because zsh ties `path` to `PATH`. Two earlier
   spellings each failed, in opposite directions. An unanchored `grep -v "<file>"` drops every
   line whose *text* mentions that path — which, for a script invoked by path, is exactly its
   callers: measured on `shellcheck-gate`, unanchored returned one hit, a README heading, and

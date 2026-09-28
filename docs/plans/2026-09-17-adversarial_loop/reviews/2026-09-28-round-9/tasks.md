@@ -36,7 +36,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       R9-T1** — the breaker fired Blocking on R9-T1 and this is the tracer bullet that retires
       the class rather than the fourth instance. (~8 calls) (completed 2026-09-28 12:38)
 
-- [ ] **R9-T1** — `plugin/skills/adversarial-review/SKILL.md:297` — the blast-radius awk filter
+- [x] **R9-T1** — `plugin/skills/adversarial-review/SKILL.md:297` — the blast-radius awk filter
       uses the awk field `$1`, which the harness substitutes with an invocation argument.
       **Fails when:** `/wb:adversarial-review 25` → the block arrives as
       `awk -F: '25 != ENVIRON["changed"] && …'`, which exits 0 and keeps every line, so the
@@ -47,7 +47,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       received against a two-line input where one line is the changed file; assert only the other
       line prints. RED today: both print. Rewrite with **no positional token at all** —
       `cut -d: -f1` or `while IFS=: read -r path _` — so R9-T0's shape passes it; do not escape or
-      quote `$1` around the harness. · Depends on: R9-T0 (~6 calls)
+      quote `$1` around the harness. · Depends on: R9-T0 (~6 calls) (completed 2026-09-28 13:26)
 
 - [ ] **R9-T2** — `plugin/skills/adversarial-review/SKILL.md:116` — a PR-number target resolves
       to the pushed origin head, so loop re-reviews never see local fix commits.

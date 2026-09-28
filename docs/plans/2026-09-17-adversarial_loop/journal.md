@@ -51,6 +51,20 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-28 13:02 — R9-T1 (closed)
+
+- **Task/phase**: R9-T1 — `adversarial-review/SKILL.md:297`: rewrite the blast-radius filter
+  with no positional token, so the harness cannot substitute the awk `$1`.
+- **Landed**: the awk filter became `while IFS= read -r hit; do file=${hit%%:*}; …` with literal
+  `[ = ]` tests against both spellings; `filter=$?` and the FILTER FAILED guard kept; the
+  mechanics bullet rewritten in place. RED as received: arg `25` kept both lines, arg
+  `feature/foo` gave awk exit 2. GREEN in zsh and bash on all four inputs. `check-guards plugin/`
+  back to exit 0 — the class is now gated, not just fixed.
+- **Commits**: the R9-T1 commit.
+- **Learned**: the task line's suggested `while IFS=: read -r path _` is wrong under zsh —
+  `path` is tied to `PATH`, so the loop would overwrite it. The loop variable is `file`. Lines
+  past the old :297 in this file moved by 3.
+
 ## 2026-09-28 02:42 — R9-T0 (closed)
 
 - **Task/phase**: R9-T0 — `check-guards` shape 6: a positional token (`$<digit>`, `$ARGUMENTS`)
