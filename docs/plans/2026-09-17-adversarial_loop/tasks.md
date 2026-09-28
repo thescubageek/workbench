@@ -3,14 +3,14 @@ project: adversarial_loop
 ticket: null
 created: 2026-09-17
 status: in-progress
-last_updated: 2026-09-20
+last_updated: 2026-09-27
 assignee: scraig
 current_phase: 5
-total_tasks: 85
-completed_tasks: 83
+total_tasks: 86
+completed_tasks: 86
 task_tracking: markdown-checkboxes
 depends_on: [research.md, design.md]
-git_commit: 02e43d2
+git_commit: 98014bc
 git_branch: adversarial-loop-skill-research
 repository: thescubageek/workbench
 tags: [tasks, tracking, adversarial_loop]
@@ -946,7 +946,8 @@ before, and following it ticks the human sign-off box. **This block, labels and 
 included, is repeated in full at every phase's checkpoint**; a later phase never gets a
 shortened one.
 
-- [ ] **(derivable)** Every Phase 5 checkbox is `[x]`
+- [x] **(derivable)** Every Phase 5 checkbox is `[x]` — 2026-09-27, after P5-T5 and P5-T7; the
+      only `[ ]` left in the phase is the attestation below
 - [x] **(derivable)** All automated verification passing — all nine re-run 2026-09-19 on the
       3.0.0 commit; output in [thoughts/2026-09-19-release-checks.md](thoughts/2026-09-19-release-checks.md)
 - [ ] **(attestation)** Manual verification confirmed by human
