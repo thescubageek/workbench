@@ -51,6 +51,30 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-28 01:29 — Round 9 filed by the first PR-loop run (closed)
+
+- **Task/phase**: `/wb:adversarial-loop 25` ran in another session against PR #25 and stopped
+  after Phase 1 adjudication and prune, as instructed. Committed here: its round plan, the plan's
+  first findings ledger, and the verbatim run record.
+- **Landed**: `reviews/2026-09-28-round-9/tasks.md` (22 tasks after pruning three Over-fitted;
+  counters unreconciled, `update_status` owns them), `review-log.md` (25 rows; rounds 1–8 left
+  none), `thoughts/2026-09-27-pr-loop-run.md`. Round directory dated by `date -u` — the run
+  crossed UTC midnight — exactly as `remediation-plan.md` says.
+- **Commits**: this commit.
+- **Learned**:
+  - **R7-T13's shortfall line fired for real**: 107 files, lens triggers matched 74, the other 33
+    reached by the built-in leg alone. First time the disclosure has run on an uncovered range.
+  - **R9-T1 is confirmed independently**: `adversarial-review/SKILL.md:297` carries an awk `$1`
+    inside a fenced block, and the harness substituted it with `--plan` during the run. Every
+    other `$1` under `plugin/skills/` is prose; `clip`'s `$ARGUMENTS` is deliberate. `check-guards`
+    has no shape for it. Introduced by R7-T1 — the class 2.0.1 removed across eight stages.
+  - **Q4 remains unexercised**, correctly: the loop's Phase 1 gate held on 21 Valid findings, so
+    no PR phase was entered. The PR-phase test needs a clean local gate first.
+- **Blocked by**: three decisions for the user — whether R9-T1 counts as a mirror-image
+  regression (breaker Blocking), the two attestations R9-T5 and R9-T8, and whether to install
+  the Claude GitHub app before the PR-phase run or accept the missing-dependency stop as the
+  test.
+
 ## 2026-09-28 00:39 — Release steps 1–3 and two headless probes (closed)
 
 - **Task/phase**: release close after the plan reached `complete`. On the user's word: push,
