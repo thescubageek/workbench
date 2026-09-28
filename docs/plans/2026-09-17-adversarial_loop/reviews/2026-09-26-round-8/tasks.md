@@ -65,6 +65,29 @@ criterion is run before the fix**. A criterion that passes before the change is 
       `--exclude-dir=.context` already scopes the search, and a gitignore-honouring engine fails
       toward "isolated". (~6 calls) (completed 2026-09-26 19:06)
 
+### 📝 Modified Files (Round 8)
+
+#### Code Files
+
+- `plugin/skills/update_status/templates/frontmatter-fragments.md` - carve-out row omitting
+  `last_updated`, `git_commit`, `git_branch` for a round (R8-T1)
+- `plugin/skills/adversarial-review/SKILL.md` - blast-radius search pinned to `command grep`;
+  the seventh "details in that command" bullet, heading count updated (R8-T2)
+
+#### Test Files
+
+None. Both acceptance criteria are executed commands — a dual grep and a hash (R8-T1); the
+knowledge entry's `Check it`, R7-T8's bullet count and a top-level-versus-script count (R8-T2) —
+run against the working tree rather than committed as a test.
+
+**Quick test commands:**
+
+```bash
+./plugin/scripts/lint --all
+./plugin/scripts/check-guards plugin/
+./plugin/scripts/check          # every gate; mostly test-guards
+```
+
 ## Implementation notes
 
 - **Both tasks were found by verification, not review.** Round 7 ran no review pass over its own
