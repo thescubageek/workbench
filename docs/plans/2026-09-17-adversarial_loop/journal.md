@@ -51,6 +51,16 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-28 18:20 — R9-T25 (closed)
+
+- **Task/phase**: R9-T25 — adversarial-review parses only --plan=<dir>; the space form binds as a
+  path target, and argument-hint omits --plan.
+- **Landed**: argument-hint gains [--plan=<dir>]; the Arguments bullet accepts --plan=<dir> and
+  --plan <dir>, stripping the flag and, in the space form, the word after it before target binds;
+  remediation-plan.md's <plan> row names --plan=<dir>; adversarial-loop:135 already used it. RED: no
+  --plan in argument-hint; GREEN: all four checks.
+- **Commits**: the R9-T25 commit
+
 ## 2026-09-28 18:07 — R9-T24 (closed)
 
 - **Task/phase**: R9-T24 — adversarial-loop/SKILL.md: two SKILL.md:<n> self-citations point at the

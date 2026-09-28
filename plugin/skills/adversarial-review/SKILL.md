@@ -1,7 +1,7 @@
 ---
 name: adversarial-review
 description: Adversarial code review — assume the change is broken and hunt for how, then verify every finding before reporting. Sizes its own fan-out from what the diff touches, wraps the built-in /code-review for breadth, and injects named domain-expert lenses it does not have. Use when the user says "adversarial review", "review adversarially", "hunt for bugs in this branch", "review as a principal <domain> engineer", names expert lenses to review under, or asks whether another session's findings are accurate.
-argument-hint: "[<pr#>|<branch>|<path>] [--effort=<low|medium|high|xhigh|max>]"
+argument-hint: "[<pr#>|<branch>|<path>] [--effort=<low|medium|high|xhigh|max>] [--plan=<dir>]"
 allowed-tools: Read, Write, Glob, Grep, Bash, Task, Skill, ReportFindings
 ---
 
@@ -55,9 +55,11 @@ Three slots, all optional:
   exists on disk is a path, anything else is a branch. Absent, review the current diff.
 - **`--effort=<level>`** — an override. Strip it before binding the positional, and match it by
   name so it may appear anywhere in the invocation. Absent, reconnaissance picks the level.
-- **`--plan=<dir>`** — the plan directory Step 8 writes the round under. Strip it before binding
-  the positional, and match it by name so it may appear anywhere in the invocation — left in, the
-  directory exists on disk and is bound as a path target. Absent, Step 8's no-plan case applies.
+- **`--plan=<dir>`** — the plan directory Step 8 writes the round under. Both `--plan=<dir>` and
+  `--plan <dir>` are accepted; for the space form, strip the flag and the word after it before
+  binding the positional. Match it by name so it may appear anywhere in the invocation — left in,
+  the directory exists on disk and is bound as a path target. Absent, Step 8's no-plan case
+  applies.
 
 **If the invocation names lenses in prose** — "review this as a principal frontend engineer" —
 carry them through to Step 4 and use them verbatim. They are additive, not a replacement for the

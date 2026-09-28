@@ -234,7 +234,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       **Acceptance (shape 5)**: a resolver — for each `SKILL.md:<n>` self-citation in the file,
       the cited line contains the quoted or named text. RED today: 2 of them fail. (~3 calls) (completed 2026-09-28 18:07)
 
-- [ ] **R9-T25** — `plugin/skills/adversarial-review/SKILL.md:4` and `:58`,
+- [x] **R9-T25** — `plugin/skills/adversarial-review/SKILL.md:4` and `:58`,
       `plugin/docs/reference/remediation-plan.md` `<plan>` row — the Arguments section parses
       only `--plan=<dir>`; the round-9 loop run passed `--plan <dir>` and it was bound as a path
       target; `argument-hint:` omits `--plan` entirely.
@@ -243,7 +243,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       **Acceptance (shape 3)**: `argument-hint` names `[--plan=<dir>]`; the Arguments section
       accepts both `--plan=<dir>` and `--plan <dir>` and strips both before binding `target`;
       `adversarial-loop/SKILL.md:135` and `remediation-plan.md`'s `<plan>` row use the `=`
-      spelling. RED today: `argument-hint` has no `--plan`. (~4 calls)
+      spelling. RED today: `argument-hint` has no `--plan`. (~4 calls) (completed 2026-09-28 18:22)
 
 - [ ] **R9-T26** — `plugin/skills/adversarial-review/SKILL.md:218-219` — Step 2 resolves
       `head_ref` to `origin/<headRefName>` for a PR target even when that head is the current

@@ -138,7 +138,7 @@ These are Step 8's placeholders, and two sessions writing a round must land on t
 
 | Placeholder | Rule |
 | ----------- | ---- |
-| `<plan>` | The plan directory the caller names. `adversarial-loop` resolves the active plan and passes it. With no caller and exactly one `docs/plans/*/tasks.md` at `status: in-progress`, use that one. Otherwise **skip Step 8 and say so** — the findings are the output, and guessing a plan directory files a round against the wrong work. |
+| `<plan>` | The plan directory the caller names in `--plan=<dir>`. `adversarial-loop` resolves the active plan and passes it. With no caller and exactly one `docs/plans/*/tasks.md` at `status: in-progress`, use that one. Otherwise **skip Step 8 and say so** — the findings are the output, and guessing a plan directory files a round against the wrong work. |
 | `<N>` | One more than the highest `-round-<N>` already present under `docs/plans/<plan>/reviews/`, across every date. Never reuse a number: a second `round-6` overwrites the first round's `[x]` checkboxes. |
 | `<date>` | `date -u +%F` — UTC, the same clock the journal contract uses. Directories dated locally before this rule existed keep their names; the round number, not the date, is what readers cite. |
 
