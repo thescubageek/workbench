@@ -51,6 +51,19 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-28 15:29 — R9-T10 (closed)
+
+- **Task/phase**: R9-T10 — adversarial-loop/SKILL.md Phase 4: bot rounds are never written to the
+  ledger and repeat without a bound.
+- **Landed**: Phase 4 gains step 3 (record each bot finding's disposition in Phase 1's ledger as the
+  next round, staged the same way) and step 5 (evaluate review-ledger.md's triggers on the new rows
+  before re-summoning @claude; Blocking stops and surfaces). List renumbered 1-7; the in-list step
+  references follow. Negative control 0 ledger hits in the range; GREEN 2.
+- **Commits**: the R9-T10 commit
+- **Learned**: the renumbering moved the reply step from 4 to 6; the worker updated 'step 3 removes
+  it' but missed 'Reading it at step 4 instead is too late', which would have pointed at the push
+  step — corrected by the coordinator before commit.
+
 ## 2026-09-28 15:27 — R9-T9 (closed)
 
 - **Task/phase**: R9-T9 — review-ledger.md: the ledger path is gitignored and no step stages it, so

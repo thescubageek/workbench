@@ -132,14 +132,14 @@ criterion is run before the fix**. A criterion that passes before the change is 
       `adversarial-loop/SKILL.md` step 5 (presence), with a negative control that the same grep
       against `origin/main`'s copy returns nothing. (~3 calls) (completed 2026-09-28 15:28)
 
-- [ ] **R9-T10** — `plugin/skills/adversarial-loop/SKILL.md:382` — Phase 4 bot rounds are never
+- [x] **R9-T10** — `plugin/skills/adversarial-loop/SKILL.md:382` — Phase 4 bot rounds are never
       written to the ledger and repeat without a bound.
       **Fails when:** Bot round 1 flags capture A; the fix guards B in a way that excuses A; bot
       round 2 flags B; no ledger rows exist, so the mirror-image trigger never evaluates and the
       loop repeats unboundedly, re-summoning @claude each round.
       **Acceptance (shape 4)**: grep Phase 4's line range for a ledger-record step and a breaker
       check (presence), with a negative control showing the range has zero "ledger" hits today.
-      (~3 calls)
+      (~3 calls) (completed 2026-09-28 15:30)
 
 - [ ] **R9-T11** — `plugin/skills/adversarial-loop/SKILL.md:346` — the Phase 3 wait does not
       distinguish a poll whose gh call errored from one that found nothing.
