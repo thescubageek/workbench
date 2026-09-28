@@ -50,3 +50,15 @@ this template, silently, from the moment of creation.
 ```
 
 <!-- Real entries begin below this line, newest first. -->
+
+## 2026-09-28 20:24 — create_research (closed)
+
+- **Task/phase**: P0-T2 — research for 2026-09-28-guard_lexer_and_pr_identity
+- **Landed**: research.md complete — 6 parallel agents (2 analyzers, test apparatus, pattern
+  finder, locator, environment measurements); the lexer, its test apparatus, the target
+  resolver, the spike precedent, and gh/git identity facts documented; 4 open questions.
+- **Commits**: this commit.
+- **Learned**: `refs/pull/25/head` exists on the remote at `headRefOid` and fetches cleanly,
+  but the local refspec never brings it in; `shlex` is present, `bashlex` is not. Every held
+  finding's mechanism reproduced by measurement. Next: `/wb:resolve_questions`, then the two
+  tracer bullets, then `/wb:create_design`.

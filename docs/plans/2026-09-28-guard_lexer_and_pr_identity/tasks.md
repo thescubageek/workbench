@@ -55,7 +55,7 @@ grep -cE '^- \[ \] \*\*[A-Z0-9-]*[0-9][A-Z0-9-]*\*\*' tasks.md    # remaining
 ### 📋 Documentation Setup
 
 - [x] **P0-T1** — Create project structure (completed 2026-09-28 20:05)
-- [ ] **P0-T2** — Complete research using `/wb:create_research docs/plans/2026-09-28-guard_lexer_and_pr_identity`
+- [x] **P0-T2** — Complete research using `/wb:create_research docs/plans/2026-09-28-guard_lexer_and_pr_identity` (completed 2026-09-28 20:24)
 - [ ] **P0-T3** — Create design document using `/wb:create_design docs/plans/2026-09-28-guard_lexer_and_pr_identity`
 - [ ] **P0-T4** — Generate execution plan using `/wb:create_tasks docs/plans/2026-09-28-guard_lexer_and_pr_identity`
 
