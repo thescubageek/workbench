@@ -234,6 +234,27 @@ criterion is run before the fix**. A criterion that passes before the change is 
       **Acceptance (shape 5)**: a resolver — for each `SKILL.md:<n>` self-citation in the file,
       the cited line contains the quoted or named text. RED today: 2 of them fail. (~3 calls) (completed 2026-09-28 18:07)
 
+- [ ] **R9-T25** — `plugin/skills/adversarial-review/SKILL.md:4` and `:58`,
+      `plugin/docs/reference/remediation-plan.md` `<plan>` row — the Arguments section parses
+      only `--plan=<dir>`; the round-9 loop run passed `--plan <dir>` and it was bound as a path
+      target; `argument-hint:` omits `--plan` entirely.
+      **Fails when:** `/wb:adversarial-loop` invokes the review with the space form and Step 1
+      reviews the plan directory.
+      **Acceptance (shape 3)**: `argument-hint` names `[--plan=<dir>]`; the Arguments section
+      accepts both `--plan=<dir>` and `--plan <dir>` and strips both before binding `target`;
+      `adversarial-loop/SKILL.md:135` and `remediation-plan.md`'s `<plan>` row use the `=`
+      spelling. RED today: `argument-hint` has no `--plan`. (~4 calls)
+
+- [ ] **R9-T26** — `plugin/skills/adversarial-review/SKILL.md:218-219` — Step 2 resolves
+      `head_ref` to `origin/<headRefName>` for a PR target even when that head is the current
+      checkout, while Step 1 (R9-T2) now ends the range at `HEAD` in that case — so the
+      `REVIEW.md` merge-base and the reviewed range disagree by every local fix commit.
+      **Fails when:** on PR 25's own checkout with local commits ahead, Step 2 reads `REVIEW.md`
+      against the pushed head.
+      **Acceptance (shape 1)**: with a local commit ahead of `origin/<head>`, run Step 2's block
+      with `target=25`; assert the echoed `head_ref` is `HEAD`. RED today: echoes
+      `origin/adversarial-loop-skill-research`. (~4 calls)
+
 ## Implementation notes
 
 - **Decisions taken 2026-09-27 before any task ran** (user, in the release-close session):
@@ -252,3 +273,22 @@ criterion is run before the fix**. A criterion that passes before the change is 
   round exists because the first PR-loop run was also the first review over the round 6–8 fix
   surface. R9-T2 must land before any re-review of a PR target, or the re-review reads the
   pushed head and misses local fixes — until then, re-review with no target argument.
+- **Follow-ups at the round checkpoint (2026-09-28)**, triaged by the user:
+  - Follow-ups 1 and 2 became **R9-T25** and **R9-T26**, folded into this round before Step 9;
+    follow-up 10 (the `<plan>` row naming `--plan=<dir>`) is inside R9-T25.
+  - Follow-up 3 is **closed**: a headless probe showed the harness substitutes bare `$1` and
+    `$ARGUMENTS` but delivers `${1:-default}` and `${ARGUMENTS:-none}` verbatim, so shape 6's
+    exemption of the braced form is correct. Recorded in `.claude/wb/knowledge.md` (`852285a`).
+  - Follow-up 9 is **decided**: the branch stays as named.
+  - **Round-10 / 3.1 candidates** (4–8, verbatim from the checkpoint handback):
+    4. `implement` step 6b stages only `tasks.md` and `journal.md`. The review ledger rode
+       along only because the coordinator added it by hand.
+    5. PHI scrub (`daily-digest/sources.md`): dotted `xx.yy.123456` is now redacted, an
+       unpinned over-match. Runs of three or more separators are still unmatched. Use synthetic
+       IDs only.
+    6. `check-guards` doesn't model backslash escapes, so an escaped `$(` inside double quotes
+       now reads as a substitution.
+    7. No test drives `test-guards --generated` as a CLI; the self-test covers only
+       `ratchet_verdict()`.
+    8. Line-number self-citations drift with every edit (this round moved them by 82 and 57
+       lines). A resolver added to `check` would catch the next one.
