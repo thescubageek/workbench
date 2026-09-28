@@ -51,6 +51,15 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-28 14:44 — R9-T7 (closed)
+
+- **Task/phase**: R9-T7 — `adversarial-loop/SKILL.md:283`: `DRAFT=$(gh pr view … isDraft)` has
+  no failure guard, so a transient failure pushes without `gh pr ready`.
+- **Landed**: the DRAFT assignment is guarded with || { …; exit 1; }, and a second line rejects any
+  value but true/false. RED (gh shim fails isDraft): PUSH logged, 'already open', exit 0. GREEN:
+  fail and empty value exit 1 with no push; true pushes then readies; false pushes only.
+- **Commits**: the R9-T7 commit
+
 ## 2026-09-28 14:37 — R9-T6 (closed)
 
 - **Task/phase**: R9-T6 — `daily-digest/sources.md:227`: the member-ID scrub patterns miss IDs

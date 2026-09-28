@@ -102,14 +102,14 @@ criterion is run before the fix**. A criterion that passes before the change is 
       as must-match; RED today: 4 fail; GREEN after the pattern change, with the existing
       must-not-match cases (Jira, PR, date, SHA) still passing. (~5 calls) (completed 2026-09-28 14:39)
 
-- [ ] **R9-T7** — `plugin/skills/adversarial-loop/SKILL.md:283` — `DRAFT=$(gh pr view … isDraft)`
+- [x] **R9-T7** — `plugin/skills/adversarial-loop/SKILL.md:283` — `DRAFT=$(gh pr view … isDraft)`
       has no failure guard.
       **Fails when:** The isDraft query fails transiently while the PR is a draft → DRAFT="" → the
       else branch pushes, prints 'already open', never runs `gh pr ready`, and Phase 3 waits on a
       bot review that was never summoned.
       **Acceptance (shape 1)**: execute the Phase 2 block with `gh` shimmed to fail only the
       isDraft call; assert it exits non-zero before any `git push`. RED today: reaches the else
-      branch. (~5 calls)
+      branch. (~5 calls) (completed 2026-09-28 15:23)
 
 - [ ] **R9-T8** — `plugin/skills/adversarial-loop/SKILL.md:402` — Phase 5 requires "the SHA the
       bot's newest comment was written against", which no surface the bot edits carries.

@@ -280,7 +280,9 @@ not inherit variables from the previous one:
 ```bash
 PR=$(gh pr view ${target:+"$target"} --json number --jq .number) \
   || { echo "no PR for ${target:-the current branch}" >&2; exit 1; }
-DRAFT=$(gh pr view "$PR" --json isDraft --jq .isDraft)
+DRAFT=$(gh pr view "$PR" --json isDraft --jq .isDraft) \
+  || { echo "isDraft check failed for PR $PR" >&2; exit 1; }
+[ "$DRAFT" = true ] || [ "$DRAFT" = false ] || { echo "isDraft returned unexpected value: '$DRAFT'" >&2; exit 1; }
 [ -z "$(git status --porcelain)" ] || {
   echo "uncommitted changes — the round's work is not in the head being published" >&2
   git status --short >&2; exit 1; }
