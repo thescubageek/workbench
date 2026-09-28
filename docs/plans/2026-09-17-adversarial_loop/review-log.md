@@ -115,6 +115,17 @@ Dropped by verification (REFUTED, not ledgered as findings):
   - `adversarial-review/SKILL.md:125` (fork PR resolved to local HEAD) is the inverse of R9-T2/R9-T26. That fix was for "a PR target reviews the origin head, not the local commits"; this finding is "a PR target reviews the local HEAD, not the PR".
   - `check-guards:174` (`\$(` false positive) is the inverse of R9-T15. R9-T15 fixed "double-quoted `$(` never scanned"; this is "a literal `\$(` in double quotes is scanned".
   - If either counts, the breaker is Blocking on that trigger too.
+  - **Decided 2026-09-28: both count.** Each is the round-9 fix's own axis flipped — which head a
+    PR target reviews (R9-T2/R9-T26 → R10-T3), what counts as a substitution inside double quotes
+    (R9-T15 → R10-T10) — and each names a component the introduced-rate trend already points at.
+    Blocking on the mirror-image trigger for `adversarial-review` Steps 1–2 and for
+    `check-guards`' lexer.
+- **Escalation, decided 2026-09-28 (user):** `create_research` then `create_design` on two
+  components — the `check-guards` lexer (T5, T7, T10, T11, T12, T21) and `adversarial-review`
+  target resolution (T3, T4, T13, T29) — in a **new plan directory**, folded into 3.0.0 on this
+  branch before PR #25 merges. One tracer bullet per component before any fix. Cluster 3
+  (`adversarial-loop` publishing and ledger mechanics, `reply-to-claude`) and the eight standalone
+  findings stay in round 10 as ordinary tasks, worked after the escalation lands.
 - **Same file three consecutive rounds (advisory):**
   - It fires for `plugin/skills/adversarial-review/SKILL.md`, which was touched by rounds 8 (R8-T2) and 9 and carries findings in round 10.
   - `plugin/skills/adversarial-loop/SKILL.md` and `plugin/scripts/check-guards` do **not** meet it. `git log` shows fix commits from R4, R5, R7 and R9 on each, and none from R8, so rounds 9 and 10 are only two consecutive.

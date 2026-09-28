@@ -242,3 +242,17 @@ criterion is run before the fix**. A criterion that passes before the change is 
       callers and inflate the blast radius.
       **Acceptance (shape 1)**: in a scratch clone with such a commit, execute the Step 3 block and
       assert no `./.git/` hit prints. RED today: four do. (~4 calls)
+
+## Implementation notes
+
+- **[2026-09-28] Round 10 is held behind an escalation.** The breaker tripped Blocking on the
+  introduced-rate trend (16% → 94%) and, by the user's decision, on two mirror-image regressions
+  (R10-T3 ← R9-T2/R9-T26; R10-T10 ← R9-T15). Per `review-ledger.md` → *What to do when it
+  trips*: no task here is worked and no review runs until research and design have been done on
+  the two components that tripped it, with a tracer bullet each. That R&D lives in its own plan
+  directory (see the ledger's round-10 breaker section for the pointer once created) and lands on
+  this branch before PR #25 merges.
+  - **Held for the design** (do not fix ad hoc; the design closes or reshapes them): T3, T4, T13,
+    T29 (target resolution); T5, T7, T10, T11, T12, T21 (lexer).
+  - **Ordinary tasks, worked after the escalation lands**: T1, T2, T6, T8, T9, T14, T16, T17,
+    T18, T19, T23, T24, T25, T26, T28.
