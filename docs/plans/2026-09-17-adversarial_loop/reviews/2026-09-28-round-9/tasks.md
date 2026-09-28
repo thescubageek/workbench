@@ -195,7 +195,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       **Acceptance (shape 2)**: a test-guards integrity case where a new unwaived survivor appears
       alongside a higher kill count; assert --generated fails. RED today. (~5 calls) (completed 2026-09-28 17:59)
 
-- [ ] **R9-T20** — `.github/workflows/checks.yml:36` — the shellcheck install is unpinned despite
+- [x] **R9-T20** — `.github/workflows/checks.yml:36` — the shellcheck install is unpinned despite
       its comment.
       **Fails when:** ubuntu-latest rolls to a newer shellcheck; shellcheck-gate reports new
       findings and CI goes red on a PR that changed nothing — the case the comment claims to
@@ -204,7 +204,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       `plugin/scripts/check` enforces; do not pin an apt package on `ubuntu-latest`.
       **Acceptance (shape 3)**: dual grep — "Pinned like markdownlint" absent from
       `checks.yml`, and the comment names the same minimum as `require shellcheck` in
-      `plugin/scripts/check`. (~3 calls)
+      `plugin/scripts/check`. (~3 calls) (completed 2026-09-28 18:04)
 
 - [ ] **R9-T21** — `.gitignore:14` — two `.pyc` files stay tracked despite the new ignore rules.
       **Fails when:** Re-running the spike rewrites the bytecode; `git status` shows both tracked

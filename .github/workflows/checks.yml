@@ -30,9 +30,9 @@ jobs:
       - name: Assert python3
         run: python3 --version
 
-      # Pinned like markdownlint: shellcheck's findings move between releases, and a gate
-      # whose output depends on whichever version the runner happened to ship is a gate that
-      # goes red on a pull request that changed nothing.
+      # shellcheck is not pinned: apt-get installs whatever version ubuntu-latest ships.
+      # plugin/scripts/check enforces 0.9.0 minimum and fails loudly if below it.
+      # Newer runner versions may surface new findings; that residual risk is accepted.
       - name: Install shellcheck
         run: |
           sudo apt-get update -qq

@@ -51,6 +51,17 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-28 18:04 — R9-T20 (closed)
+
+- **Task/phase**: R9-T20 — .github/workflows/checks.yml: the shellcheck install comment claims
+  'Pinned like markdownlint' but the install is unpinned. Remedy fixed by the plan: correct the
+  comment to state the 0.9.0 floor plugin/scripts/check enforces.
+- **Landed**: the comment now says shellcheck is not pinned (apt on ubuntu-latest ships what it
+  ships), that plugin/scripts/check enforces the 0.9.0 floor and fails loudly below it, and that
+  newer-version findings are an accepted residual risk. RED: 'Pinned like markdownlint' 1 hit on
+  HEAD; GREEN: 0, and both files name 0.9.0. plugin/scripts/check unchanged.
+- **Commits**: the R9-T20 commit
+
 ## 2026-09-28 17:52 — R9-T19 (closed)
 
 - **Task/phase**: R9-T19 — test-guards --generated ratchets an absolute kill count, so a new
