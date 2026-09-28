@@ -51,6 +51,24 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-28 00:16 — R8-T3 (closed)
+
+- **Task/phase**: R8-T3 — filed at the round-8 checkpoint from R8-T2's Learned line: re-measure
+  the `--exclude-dir` bullet's figures through the pinned engine, and name the engine split as
+  the cause of the path-field bullet's `./` variance.
+- **Landed**: the `--exclude-dir` bullet now carries dated `command grep` figures —
+  `review-ledger.md` 56 hits, 22 (39%) transcripts; `check-guards` 32 of 207 — and its closing
+  claim re-checked true. The path-field bullet names the engine split (ugrep shim no `./`,
+  binary `./`) as the cause; the dual-spelling awk match is unchanged. Seven/7 still agree;
+  lint and check-guards clean. RED: old figures at `:320-321`, "observed both ways" at `:345`.
+  Opus worker, verifier PASS, no escalation.
+- **Commits**: this commit (R8-T3).
+- **Learned**: the session was switched into auto mode mid-task — the worker reported an
+  auto-mode classifier declining one reflow edit, then the instruction appeared in the
+  coordinator's context. Work stopped until the user turned it off; the coordinator made the
+  reflow after. Counts drift by one or two per day as plan documents cite the symbol (53 → 55 →
+  56), which is why the prose dates them.
+
 ## 2026-09-26 19:04 — R8-T2 (closed)
 
 - **Task/phase**: R8-T2 — pin the blast-radius search's engine to `command grep` in

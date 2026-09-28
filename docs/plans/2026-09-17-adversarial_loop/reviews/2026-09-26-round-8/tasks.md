@@ -65,6 +65,20 @@ criterion is run before the fix**. A criterion that passes before the change is 
       `--exclude-dir=.context` already scopes the search, and a gitignore-honouring engine fails
       toward "isolated". (~6 calls) (completed 2026-09-26 19:06)
 
+- [x] **R8-T3** — `plugin/skills/adversarial-review/SKILL.md:319` and `:345` — the
+      `--exclude-dir` bullet's figures ("30 hits, 22 of them (73%)"; "on `check-guards`, 27 of
+      72") were measured through the shim, so the shipped text carries numbers its own pinned
+      engine cannot reproduce; and the path-field bullet still calls the `./`-prefix variance
+      "observed both ways on one machine" when the engine split now explains it. Filed at the
+      round-8 checkpoint from R8-T2's journal Learned line.
+      **Fails when:** a reader runs the block as written and gets 22 of 53 (~42%) and no
+      reproduction of 27/72.
+      **Acceptance (shape 1 + shape 3)**: re-measure both figures with `command grep` and the
+      block's own flags, assert the old numbers absent and the new ones present at the named
+      lines; the path-field bullet names the engine split (ugrep emits no `./`, the binary does)
+      as the cause and keeps the dual-spelling awk match. Bullet count and heading number still
+      agree. (~6 calls) (completed 2026-09-28 00:19)
+
 ### 📝 Modified Files (Round 8)
 
 #### Code Files
@@ -72,7 +86,9 @@ criterion is run before the fix**. A criterion that passes before the change is 
 - `plugin/skills/update_status/templates/frontmatter-fragments.md` - carve-out row omitting
   `last_updated`, `git_commit`, `git_branch` for a round (R8-T1)
 - `plugin/skills/adversarial-review/SKILL.md` - blast-radius search pinned to `command grep`;
-  the seventh "details in that command" bullet, heading count updated (R8-T2)
+  the seventh "details in that command" bullet, heading count updated (R8-T2); the
+  `--exclude-dir` bullet's figures re-measured through the pinned engine and the path-field
+  bullet's `./` variance attributed to the engine split (R8-T3)
 
 #### Test Files
 

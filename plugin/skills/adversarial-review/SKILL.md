@@ -316,10 +316,11 @@ Seven details in that command are the difference between a measurement and a gue
   which fails in the other direction and returns a flood.
 - **`--exclude-dir` keeps the search on the repository's sources** and off the session's own
   working artifacts. `grep -r .` recurses everything under the working directory, and a session
-  transcript names files and symbols in prose without calling any of them. Measured here on
-  `review-ledger.md`: 30 hits, **22 of them (73%) lines in `.context/attachments/*.txt` session
-  transcripts**; on `check-guards`, 27 of 72. Since the tier is the maximum of the six axes, that
-  noise can raise the tier — and the fleet it pays for — on its own. The rule is the scope, not
+  transcript names files and symbols in prose without calling any of them. Measured 2026-09-28
+  with the block's own `command grep` on `review-ledger.md`: 56 hits, **22 of them (39%) lines in
+  `.context/attachments/*.txt` session transcripts**; on `check-guards`, 32 of 207. Since the
+  tier is the maximum of the six axes, that noise can raise the tier — and the fleet it pays for
+  — on its own. The rule is the scope, not
   the name: add an `--exclude-dir` for any other non-source tree the repository carries, such as
   `node_modules`, `vendor` or build output. Naming a directory that does not exist was measured a
   no-op, not an error, so the flag costs nothing in a repository without one. This shell has been
@@ -340,9 +341,10 @@ Seven details in that command are the difference between a measurement and a gue
   emptiness that would otherwise read as "no callers".
 - **The exclusion compares the path field literally**, and not as a pattern. `awk -F:` splits
   each hit into `path:line:text` and tests `$1` for string equality against the changed file —
-  against both spellings, bare and `./`-prefixed, because whether the path field carries a
-  leading `./` varies with the grep and with how it is invoked, and the same command was
-  observed both ways on one machine while this was being fixed. The path arrives through
+  against both spellings, bare and `./`-prefixed, because the leading `./` depends on the engine
+  (first bullet): the ugrep shim emits the path with no `./`, the system binary emits it
+  `./`-prefixed. The block pins the binary, but a user's own `grep`, or a run that drops the
+  `command` spelling, can produce either, so both are matched. The path arrives through
   `ENVIRON` rather than `-v`, which would read a `\t` in a filename as a tab. Two earlier
   spellings each failed, in opposite directions. An unanchored `grep -v "<file>"` drops every
   line whose *text* mentions that path — which, for a script invoked by path, is exactly its
