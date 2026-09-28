@@ -51,6 +51,23 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-28 02:42 — R9-T0 (closed)
+
+- **Task/phase**: R9-T0 — `check-guards` shape 6: a positional token (`$<digit>`, `$ARGUMENTS`)
+  inside a fenced shell block of a shipped `SKILL.md`. Tracer bullet for the Blocking breaker on
+  R9-T1; lands first, as its own commit.
+- **Landed**: `POSITIONAL` / `POSITIONAL_OK={'clip'}`, a `skill` flag on `analyse()` set for
+  `SKILL.md` only, a FIXES entry, docstring "Six shapes". Nine `s6-*` corpus cases (2 must-fire,
+  7 must-not-fire); two hand mutations. RED: corpus 103/105 against HEAD's checker. GREEN:
+  corpus 105/105, integrity 15/15, mutations 25/25; generated 318/376, 58 waived, 0 survived,
+  ratchet 309 → 318. `check-guards plugin/` now exits 1 on `adversarial-review/SKILL.md:297`
+  alone, which is R9-T1's RED.
+- **Commits**: the R9-T0 commit.
+- **Learned**: the one generated survivor (`ARGUMENTS\b` word boundary) was closed by dropping the
+  `\b`, erring toward flagging `$ARGUMENTS_X`. The braced `${1:-…}` at `fetch-issues/SKILL.md:46`
+  is deliberately unmatched; whether the harness leaves it alone is untested. The worker hit its
+  turn cap once while waiting on backgrounded test-guards, and was resumed for the tail only.
+
 ## 2026-09-28 01:29 — Round 9 filed by the first PR-loop run (closed)
 
 - **Task/phase**: `/wb:adversarial-loop 25` ran in another session against PR #25 and stopped

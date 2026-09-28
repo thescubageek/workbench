@@ -109,6 +109,11 @@ MUTATIONS = [
      "            return bool(STATUS_TEST.search(nxt))"),
     ('ignore a one-liner glob body',
      "            if body and _is_guard(body):", "            if False:"),
+    ('disable the positional-token detector',
+     "        if skill and POSITIONAL.search(line):",
+     "        if False and skill and POSITIONAL.search(line):"),
+    ('drop the clip allowlist',
+     "POSITIONAL_OK = {'clip'}", "POSITIONAL_OK = set()"),
     ('enter nested non-shell fences as shell',
      "                shell = m.group('info').lower() in SHELL_INFO",
      "                shell = True"),
@@ -122,6 +127,7 @@ SHAPE_OF = {
     'unclosed shell fence': 'fence',
     'publish action not chained to the one before it': 'chain',
     'bash-only construct in a block this harness runs under zsh': 'bashism',
+    'positional token in a skill block the harness substitutes': 'positional',
 }
 
 

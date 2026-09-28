@@ -21,7 +21,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
 
 ## Tasks
 
-- [ ] **R9-T0** — `plugin/scripts/check-guards` — no detector shape sees a positional token
+- [x] **R9-T0** — `plugin/scripts/check-guards` — no detector shape sees a positional token
       (`$<digit>`, `$ARGUMENTS`) inside a fenced block of a shipped `SKILL.md`, the class 2.0.1
       removed across eight stages and R7-T1 reintroduced at `adversarial-review/SKILL.md:297`.
       **Fails when:** `/wb:adversarial-review 25 --plan <dir>` — the harness substitutes the awk
@@ -34,7 +34,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       shape lands, with `check-guards plugin/` now flagging `:297` and nothing else. Model it on
       shape 5 (R7-T7, the `PIPESTATUS` bashism). **Lands first, as its own commit, before
       R9-T1** — the breaker fired Blocking on R9-T1 and this is the tracer bullet that retires
-      the class rather than the fourth instance. (~8 calls)
+      the class rather than the fourth instance. (~8 calls) (completed 2026-09-28 12:38)
 
 - [ ] **R9-T1** — `plugin/skills/adversarial-review/SKILL.md:297` — the blast-radius awk filter
       uses the awk field `$1`, which the harness substitutes with an invocation argument.

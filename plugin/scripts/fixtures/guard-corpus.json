@@ -1095,5 +1095,89 @@
   "path": "skills/s/I.md",
   "content": "# I\n\n```bash\nPIPESTATUSES=3\necho \"$PIPESTATUSES\"\n```\n",
   "provenance": "R7-T7"
+ },
+ {
+  "id": "s6-dollar1-bash-fence",
+  "shape": "positional",
+  "expect": 1,
+  "path": "skills/s/SKILL.md",
+  "content": "# S\n\n```bash\nhits=$(command grep -rnF -- \"x\" .)\ncallers=$(printf '%s\\n' \"$hits\" | awk -F: '$1 != \"f\"')\n```\n",
+  "provenance": "R9-T0",
+  "expect_at": [
+   [
+    5,
+    "positional"
+   ]
+  ]
+ },
+ {
+  "id": "s6-arguments-fence",
+  "shape": "positional",
+  "expect": 1,
+  "path": "skills/s/SKILL.md",
+  "content": "# S\n\n```sh\ntarget=\"$ARGUMENTS\"\n```\n",
+  "provenance": "R9-T0",
+  "expect_at": [
+   [
+    4,
+    "positional"
+   ]
+  ]
+ },
+ {
+  "id": "s6-prose",
+  "shape": "positional",
+  "expect": 0,
+  "path": "skills/s/SKILL.md",
+  "content": "# S\n\n- Use `$1` as the project directory\n- Use `$ARGUMENTS` verbatim\n",
+  "provenance": "R9-T0"
+ },
+ {
+  "id": "s6-text-fence",
+  "shape": "positional",
+  "expect": 0,
+  "path": "skills/s/SKILL.md",
+  "content": "# S\n\n```text\ntarget=$1\n```\n",
+  "provenance": "R9-T0"
+ },
+ {
+  "id": "s6-comment-in-fence",
+  "shape": "positional",
+  "expect": 0,
+  "path": "skills/s/SKILL.md",
+  "content": "# S\n\n```bash\n# never write target=$1 here; the harness splices it\ntarget=\"<the project directory>\"\n```\n",
+  "provenance": "R9-T0"
+ },
+ {
+  "id": "s6-not-skill-md",
+  "shape": "positional",
+  "expect": 0,
+  "path": "skills/s/reference.md",
+  "content": "# R\n\n```bash\nawk -F: '{print $1}' f\n```\n",
+  "provenance": "R9-T0"
+ },
+ {
+  "id": "s6-clip-allowlisted",
+  "shape": "positional",
+  "expect": 0,
+  "path": "skills/clip/SKILL.md",
+  "content": "# Clip\n\n```bash\nprintf '%s' \"$ARGUMENTS\" | pbcopy\n```\n",
+  "provenance": "R9-T0"
+ },
+ {
+  "id": "s6-braced-default",
+  "shape": "positional",
+  "expect": 0,
+  "path": "skills/s/SKILL.md",
+  "content": "# S\n\n```bash\nREPO=\"${1:-$(gh repo view --json nameWithOwner -q .nameWithOwner)}\"\n```\n",
+  "provenance": "R9-T0"
+ },
+ {
+  "id": "s6-real-script",
+  "shape": "positional",
+  "expect": 0,
+  "path": "scripts/p.sh",
+  "content": "#!/usr/bin/env bash\nset -uo pipefail\ntarget=$1\necho \"$target\"\n",
+  "provenance": "R9-T0"
  }
 ]

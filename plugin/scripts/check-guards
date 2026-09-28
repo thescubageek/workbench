@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """check-guards — find measurements whose failure is indistinguishable from a clean result.
 
-Five shapes produce a number, or a silence, that reads the same whether the command
+Six shapes produce a number, or a silence, that reads the same whether the command
 worked or not:
 
   1. A counting `grep` captured in a substitution whose exit status is never tested.
@@ -25,6 +25,13 @@ worked or not:
      in silence. This shipped in adversarial-review/SKILL.md and survived both release
      gates, which is the finding that bought this shape. Markdown only — a .sh file
      carrying a bash shebang really is bash, and PIPESTATUS is correct there.
+  6. A positional token (`$1`, `$ARGUMENTS`) inside a fenced block of a shipped SKILL.md.
+     The harness substitutes those in the skill body with the invocation's arguments
+     before the block reaches the session, so `awk -F: '$1 != …'` arrives as
+     `awk -F: '--plan != …'`. Release 2.0.1 removed this across eight stages and it came
+     back in adversarial-review. SKILL.md only — a supporting file is read, not
+     substituted — and `clip` is exempt, because splicing $ARGUMENTS in is its job. The
+     braced `${1:-…}` is not the harness's pattern and is not matched.
 
 Scans shipped shell scripts and the fenced shell blocks inside shipped markdown — those
 blocks are instructions a model executes, so they carry the same risk. Prose and tables
@@ -66,6 +73,8 @@ ASSIGN = re.compile(r'^\s*[A-Za-z_]\w*=')
 # reaches PIPESTATUS). Case-sensitive on purpose: lowercase is the right answer, not a
 # second defect.
 BASHISM = re.compile(r'\$\{?PIPESTATUS\b')
+POSITIONAL = re.compile(r'\$(?:\d|ARGUMENTS)')
+POSITIONAL_OK = {'clip'}
 
 EXEMPT = {'check-guards', 'test-guards'}
 
@@ -265,11 +274,12 @@ def unchained_publishes(lines):
     return out
 
 
-def analyse(lines, md=False):
+def analyse(lines, md=False, skill=False):
     """lines: [(lineno, text)] -> [(lineno, shape, text)].
 
     `md` gates shape 5 alone. It asks "will THIS be run by the Bash tool's zsh?" — true
     of a fenced block in shipped markdown, false of a script carrying a bash shebang.
+    `skill` gates shape 6: the file is a SKILL.md the harness substitutes arguments into.
     """
     found, pending_glob = [], None
     texts = {no: t for no, t in lines}
@@ -340,6 +350,11 @@ def analyse(lines, md=False):
             found.append((no, 'bash-only construct in a block this harness runs under zsh',
                           raw))
 
+        # --- shape 6 ---------------------------------------------------------
+        if skill and POSITIONAL.search(line):
+            found.append((no, 'positional token in a skill block the harness substitutes',
+                          raw))
+
     if pending_glob is not None:
         found.append((pending_glob[0], 'for over a glob with no existence test', pending_glob[2]))
 
@@ -360,6 +375,9 @@ FIXES = {
         'join them with && — a failed first command must stop the second',
     'bash-only construct in a block this harness runs under zsh':
         'this block runs under zsh: take the status from $? on the next line, not PIPESTATUS',
+    'positional token in a skill block the harness substitutes':
+        'use no positional token at all — `cut -d: -f1`, `while IFS=: read -r path _`, or '
+        'describe the argument slot in prose',
     'unclosed shell fence':
         'close the fence; everything after it would otherwise read as prose',
 }
@@ -409,7 +427,9 @@ def collect(targets):
             # walk. Counting the walk meant a file the dispatch skipped still incremented
             # the number the "scanned 0 files" guard reports.
             scanned += 1
-            for no, shape, raw in analyse(lines, md=is_md):
+            skill = (base == 'SKILL.md'
+                     and os.path.basename(os.path.dirname(path)) not in POSITIONAL_OK)
+            for no, shape, raw in analyse(lines, md=is_md, skill=skill):
                 findings.append((path, no, shape, raw.strip()))
     return findings, scanned
 
