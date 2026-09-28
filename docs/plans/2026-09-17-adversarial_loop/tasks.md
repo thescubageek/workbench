@@ -1809,13 +1809,18 @@ resolved, leaving a dated line saying how.
   per entry. Writing is cheap (two edits per task, ~1k tokens, under 2% of a task's worker and
   verifier spend). Reading whole is not. Three changes, decided by the user 2026-09-28 — the
   journal is read by agents, not humans, so prose has no audience:
-  1. **No stage reads the whole file.** `create_handoff` Step 1 reads `journal.md` "fully" and
-     `validate_project` Step 1 reads it if present; both should read the newest N entries (the
-     tail). The validator's journal rules are heading regexes and never needed the body in
-     context. Every other reader — the hook, `forge`, `implement`, `implement_inline`,
-     `resume_handoff`, `daily-digest` — already takes the tail. Touches: `create_handoff/SKILL.md`,
-     `validate_project/SKILL.md`, and `journal-entries.md` gains a one-line "readers take the
-     tail" rule.
+  1. **Tail by default; the whole file on a stated reason, never by default.** `create_handoff`
+     Step 1 reads `journal.md` "fully" and `validate_project` Step 1 reads it if present; both
+     become tail-first — the newest N entries — with an explicit widen step: read further back
+     only when the tail leaves a question the handoff or the validation needs answered (an open
+     entry whose `Started at` predates the tail; a `[blocked]` entry whose block is not
+     explained above it; a validator ERROR whose cause is in an older entry), and say in the
+     output that the read was widened and why. The validator's heading rules are regexes run in
+     bash over the whole file at zero context cost; only the *body* read is scoped. Every other
+     reader — the hook, `forge`, `implement`, `implement_inline`, `resume_handoff`,
+     `daily-digest` — already takes the tail. Touches: `create_handoff/SKILL.md`,
+     `validate_project/SKILL.md`, and `journal-entries.md` gains the rule: readers take the tail
+     and widen on a named reason.
   2. **Entries are fields, not prose.** `journal-entries.md`'s shape is one-line fields; the
      average entry here is 380 tokens because Learned became paragraphs. Cap Learned at three
      lines and only when it changes the remaining work; durable facts go to `knowledge.md`, which
