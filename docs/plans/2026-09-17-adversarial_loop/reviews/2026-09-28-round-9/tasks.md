@@ -227,12 +227,12 @@ criterion is run before the fix**. A criterion that passes before the change is 
       **Acceptance (shape 3)**: dual grep — line 100 names all seven gates in `check`'s order, and
       `plugin/scripts/check:51-59` is unchanged. (~2 calls) (completed 2026-09-28 18:07)
 
-- [ ] **R9-T24** — `plugin/skills/adversarial-loop/SKILL.md:417` — two self-citations point at
+- [x] **R9-T24** — `plugin/skills/adversarial-loop/SKILL.md:417` — two self-citations point at
       wrong lines (`:394` → `:191`, `:417` → `:242`).
       **Fails when:** Following `SKILL.md:242` from Phase 5 to check the chaining rule lands on
       unrelated between-rounds text with nothing inline to correct it.
       **Acceptance (shape 5)**: a resolver — for each `SKILL.md:<n>` self-citation in the file,
-      the cited line contains the quoted or named text. RED today: 2 of them fail. (~3 calls)
+      the cited line contains the quoted or named text. RED today: 2 of them fail. (~3 calls) (completed 2026-09-28 18:07)
 
 ## Implementation notes
 

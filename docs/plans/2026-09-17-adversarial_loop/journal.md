@@ -51,6 +51,17 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-28 18:07 — R9-T24 (closed)
+
+- **Task/phase**: R9-T24 — adversarial-loop/SKILL.md: two SKILL.md:<n> self-citations point at the
+  wrong lines.
+- **Landed**: the two self-citations now resolve: the Phase 5 clean-pass citation 191 -> 273 ('a
+  clean pass certifies the commit it read') and the chaining citation 242 -> 299 (Phase 2's git push
+  && gh pr ready). Resolver: 2 of 2 fail on HEAD, 0 on the tree.
+- **Commits**: the R9-T24 commit
+- **Learned**: line-number self-citations drift with every edit above them; round 9 alone moved
+  these by 82 and 57 lines. A resolver in check would stop the next one.
+
 ## 2026-09-28 18:07 — R9-T23 (closed)
 
 - **Task/phase**: R9-T23 — plugin/scripts/README.md:100: the check gate list omits shellcheck-gate

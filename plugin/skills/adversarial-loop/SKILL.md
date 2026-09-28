@@ -411,7 +411,7 @@ Only when **both** hold **on the current head SHA**: the bot reports nothing out
 check rollup is green — not on the latest run, which may have settled on a previous commit.
 
 ⛔ **The head SHA qualifies the bot too, not just the rollup.** A bot review certifies the commit
-it read, exactly as a local pass does — `SKILL.md:191`, *"a clean pass certifies the commit it
+it read, exactly as a local pass does — `SKILL.md:273`, *"a clean pass certifies the commit it
 read"*, and the reviewer is a reviewer either way. So if anything has been pushed since the
 comment the bot last updated, its clearance is about a commit that is no longer the head, and
 nothing will tell you: `reference.md:54` records that the review check reports **skipped** on
@@ -444,7 +444,7 @@ gh pr edit "$PR" --add-label "<the repository's ready-for-review label>" \
   && gh pr view "$PR" --json labels
 ```
 
-⛔ **Chained, not sequential — the same shape `SKILL.md:242` requires of Phase 2.** Written as
+⛔ **Chained, not sequential — the same shape `SKILL.md:299` requires of Phase 2.** Written as
 two statements, a failed `--add-label` is masked: the edit exits non-zero with *"not found"*
 where the repository has no label by that name, the unchained `gh pr view` succeeds anyway, and
 what it prints is a labels array **without** the label — which is exactly what the confirmation
