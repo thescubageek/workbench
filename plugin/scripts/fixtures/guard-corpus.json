@@ -834,6 +834,48 @@
   ]
  },
  {
+  "id": "s1-combined-cE",
+  "shape": "capture",
+  "expect": 1,
+  "path": "skills/s/combined-cE.md",
+  "content": "# X\n\n```bash\nn=$(grep -cE foo f)\necho \"$n\"\n```\n",
+  "provenance": "R9-T14 \u2014 `-cE` puts `c` first in the flag cluster; COUNTING required it last, so the capture scanned clean while `-c` alone was flagged.",
+  "expect_at": [
+   [
+    4,
+    "capture"
+   ]
+  ]
+ },
+ {
+  "id": "s1-combined-ci",
+  "shape": "capture",
+  "expect": 1,
+  "path": "skills/s/combined-ci.md",
+  "content": "# X\n\n```bash\nn=$(grep -ci foo f)\necho \"$n\"\n```\n",
+  "provenance": "R9-T14 \u2014 `-ci` puts `c` first in the flag cluster; COUNTING required it last, so the capture scanned clean while `-c` alone was flagged.",
+  "expect_at": [
+   [
+    4,
+    "capture"
+   ]
+  ]
+ },
+ {
+  "id": "s1-combined-cv",
+  "shape": "capture",
+  "expect": 1,
+  "path": "skills/s/combined-cv.md",
+  "content": "# X\n\n```bash\nn=$(grep -cv foo f)\necho \"$n\"\n```\n",
+  "provenance": "R9-T14 \u2014 `-cv` puts `c` first in the flag cluster; COUNTING required it last, so the capture scanned clean while `-c` alone was flagged.",
+  "expect_at": [
+   [
+    4,
+    "capture"
+   ]
+  ]
+ },
+ {
   "id": "ok-nested-substitution-guarded",
   "shape": "none",
   "expect": 0,

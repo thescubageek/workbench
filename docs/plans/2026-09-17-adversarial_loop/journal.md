@@ -51,6 +51,18 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-28 17:02 — R9-T14 (closed)
+
+- **Task/phase**: R9-T14 — check-guards COUNTING misses grep -cE, -ci, -cv.
+- **Landed**: COUNTING's short-flag alternative became -[A-Za-z]*c[A-Za-z]*, so c anywhere in a
+  cluster counts; --color and -C still do not. Three must-fire cases s1-combined-cE/-ci/-cv. RED
+  corpus 105/108 on HEAD's checker; GREEN 108/108, integrity 15/15, mutations 25/25; generated
+  318/376, 58 waived, 0 survived, ratchet held.
+- **Commits**: the R9-T14 commit
+- **Learned**: a waiver keyed on a statement's text goes stale when that statement is edited — the
+  sweep caught it (1 stale waiver, 1 survivor, same mutant) and it was re-keyed with its argument
+  extended, not dropped.
+
 ## 2026-09-28 17:00 — R9-T13 (closed)
 
 - **Task/phase**: R9-T13 — implement_inline/SKILL.md: no handling for attestation-shaped tasks; Step

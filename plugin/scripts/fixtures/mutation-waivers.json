@@ -8,8 +8,8 @@
   "reason": "EQUIVALENT, provably. The pattern is applied with `re.match`, which anchors at position 0 by definition; it is not compiled with `re.MULTILINE` and is never applied to text containing a newline. The `^` cannot change a decision. It stays because the pattern should read as anchored, and a later change to `.search` would need it."
  },
  {
-  "match": "<module> | COUNTING = re.compile(r'\\bgrep\\b[^|;)`]*?\\s(?:-[A-Za-z]*c|--coun... | regex drop word boundaries: \\bgrep\\b[^|;)`]*?\\s(?:-[A-Za-z]*c|--",
-  "reason": "EQUIVALENT. COUNTING's \\b around `grep` is redundant against this corpus: every fixture spells the command as a standalone word, so removing the boundaries changes no decision. The boundaries are still right \u2014 `egrep`/`zgrep` must not match \u2014 but no case distinguishes it, and inventing one to satisfy the mutant would be fitting the corpus to the tool."
+  "match": "<module> | COUNTING = re.compile(r'\\bgrep\\b[^|;)`]*?\\s(?:-[A-Za-z]*c[A-Za-z... | regex drop word boundaries: \\bgrep\\b[^|;)`]*?\\s(?:-[A-Za-z]*c[A-",
+  "reason": "EQUIVALENT. COUNTING's \\b around `grep` is redundant against this corpus: every fixture spells the command as a standalone word, so removing the boundaries changes no decision. The boundaries are still right \u2014 `egrep`/`zgrep` must not match \u2014 but no case distinguishes it, and inventing one to satisfy the mutant would be fitting the corpus to the tool. Re-keyed in R9-T14, when the flag cluster became `-[A-Za-z]*c[A-Za-z]*`: the trailing boundary after that greedy cluster only separates it from a following digit (`-c5`), which is not a grep spelling anyone writes, so it is equivalent for the same reason."
  },
  {
   "match": "<module> | GUARD = re.compile(r'\\|\\|\\s*(?:true\\b|:(?!\\w)|echo\\b)') | regex drop word boundaries: \\|\\|\\s*(?:true\\b|:(?!\\w)|echo\\b)",

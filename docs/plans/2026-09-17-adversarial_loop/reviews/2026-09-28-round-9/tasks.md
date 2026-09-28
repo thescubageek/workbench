@@ -167,11 +167,11 @@ criterion is run before the fix**. A criterion that passes before the change is 
       `Acceptance (attestation)` and Step 6 carves out the attestation list, matching
       `implement/SKILL.md:250-263`. RED today: 0 hits for "attestation". (~3 calls) (completed 2026-09-28 17:01)
 
-- [ ] **R9-T14** — `plugin/scripts/check-guards:52` — COUNTING misses `grep -cE`, `-ci`, `-cv`.
+- [x] **R9-T14** — `plugin/scripts/check-guards:52` — COUNTING misses `grep -cE`, `-ci`, `-cv`.
       **Fails when:** A fenced block `n=$(grep -cE foo f)` with no guard scans '✅ no unguarded
       measurements' (exit 0); the `-c` control on the same line is flagged.
       **Acceptance (shape 2)**: add must-fire corpus cases for `-cE`, `-ci`, `-cv` to
-      `fixtures/guard-corpus.json`; RED today; GREEN after the regex change. (~4 calls)
+      `fixtures/guard-corpus.json`; RED today; GREEN after the regex change. (~4 calls) (completed 2026-09-28 17:06)
 
 - [ ] **R9-T15** — `plugin/scripts/check-guards:151` — substitutions() skips double-quoted `$( )`.
       **Fails when:** `n="$(grep -c foo f)"` with no guard scans clean (exit 0) while the unquoted

@@ -56,7 +56,7 @@ import sys
 
 FENCE = re.compile(r'^(?P<ind>[ ]{0,3})(?P<f>`{3,}|~{3,})[ \t]*(?P<info>\S*)')
 SHELL_INFO = {'bash', 'sh', 'shell'}
-COUNTING = re.compile(r'\bgrep\b[^|;)`]*?\s(?:-[A-Za-z]*c|--count)\b')
+COUNTING = re.compile(r'\bgrep\b[^|;)`]*?\s(?:-[A-Za-z]*c[A-Za-z]*|--count)\b')
 # `:` is not a word character, so a trailing \b after it can never match — the
 # documented minimum-bar guard `|| :` was reported as unguarded. Anchor per-alternative.
 GUARD = re.compile(r'\|\|\s*(?:true\b|:(?!\w)|echo\b)')
