@@ -51,6 +51,18 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-28 18:05 — R9-T22 (closed)
+
+- **Task/phase**: R9-T22 — README.md and plugin/scripts/README.md carry mutation-test figures that
+  match no shipped fixture.
+- **Landed**: both READMEs now quote the fixtures as they stand: corpus 114, 15 integrity checks, 25
+  curated mutations, generated 344 of 395, 51 waivers, with pointers to where each live number is
+  recorded. The ratchet passages state both rules R9-T19 made true: the count may not fall and no
+  survivor may go unwaived. RED: 7 stale figures on HEAD; GREEN: 0.
+- **Commits**: the R9-T22 commit
+- **Learned**: the task line's own 'fixtures hold' figures (96/23/309/367/58) had already gone stale
+  inside this round — a present-tense count is re-measured at write time, never copied from a plan.
+
 ## 2026-09-28 18:04 — R9-T21 (closed)
 
 - **Task/phase**: R9-T21 — two spike .pyc files stay tracked despite the new __pycache__/ and *.pyc

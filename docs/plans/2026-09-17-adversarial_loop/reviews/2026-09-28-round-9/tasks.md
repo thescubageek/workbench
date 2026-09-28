@@ -212,13 +212,13 @@ criterion is run before the fix**. A criterion that passes before the change is 
       **Acceptance (shape 4)**: `git ls-files '*.pyc'` prints nothing, with a negative control that
       it prints both paths today. (~2 calls) (completed 2026-09-28 18:04)
 
-- [ ] **R9-T22** — `README.md:311` — the mutation-test numbers match no shipped fixture;
+- [x] **R9-T22** — `README.md:311` — the mutation-test numbers match no shipped fixture;
       `plugin/scripts/README.md:193-215` carries a third set.
       **Fails when:** A reader judging check-guards' strength reads 73 cases / 244 of 292 in present
       tense while the fixtures hold 96 cases, 23 mutations, 309 of 367, 58 waivers.
       **Acceptance (shape 3)**: dual grep — the stale figures absent from both READMEs, and the
       figures present match `jq length` on guard-corpus.json and mutation-waivers.json and the
-      contents of mutation-ratchet.json. (~4 calls)
+      contents of mutation-ratchet.json. (~4 calls) (completed 2026-09-28 18:06)
 
 - [ ] **R9-T23** — `plugin/scripts/README.md:100` — the `check` gate list omits shellcheck-gate and
       test-phi-patterns.

@@ -308,19 +308,21 @@ indistinguishable from "nothing matched": a `grep -c` captured without a status 
 so a document may describe a bad pattern freely — a deliberate counter-example belongs in a `text`
 fence rather than a `bash` one.
 
-`scripts/test-guards` is its contract test, in three parts: a **73-case labelled corpus**,
-**15 scan-integrity checks** the corpus structurally cannot cover, and **mutation survivability**
-— 22 single-line breaks planted in the checker, each of which must be caught. The third part
-exists because an earlier suite reported 31/31 while four of the checker's guards were each
-deletable with a one-line edit. A corpus proves the detectors fire on what you thought of;
-mutation proves the corpus would notice if one stopped firing at all.
+`scripts/test-guards` is its contract test, in three parts: a **114-case labelled corpus**
+(`jq length fixtures/guard-corpus.json`), **15 scan-integrity checks** the corpus structurally
+cannot cover, and **mutation survivability** — 25 single-line breaks planted in the checker, each
+of which must be caught. The third part exists because an earlier suite reported 31/31 while four
+of the checker's guards were each deletable with a one-line edit. A corpus proves the detectors
+fire on what you thought of; mutation proves the corpus would notice if one stopped firing at
+all.
 
 `test-guards --generated` is the fourth part and runs separately, because it is slow and because
 it is a **ratchet rather than a pass/fail bar**. `lib_mutate.py` walks the syntax tree and changes
 one thing — a comparison, a boolean, an integer constant, a regex, a deleted statement — which
-gives it no blind spot correlated with the author's. It currently kills **244 of 292**; the count
-may not fall, so a newly surviving mutant has to be killed with a corpus case or waived in
-`fixtures/mutation-waivers.json` **with an argument**. The 48 waived ones are genuinely equivalent
+gives it no blind spot correlated with the author's. It currently kills **344 of 395** (recorded
+in `fixtures/mutation-ratchet.json`); the count may not fall, and no survivor may go unwaived — a
+newly surviving mutant has to be killed with a corpus case or waived in
+`fixtures/mutation-waivers.json` **with an argument**. The 51 waived ones are genuinely equivalent
 — deleted docstrings, a `^` on a pattern used with `re.match`, a branch unreachable from valid
 shell — and each entry says why. Waivers are addressed by a key that carries no line number, so an
 edit elsewhere in the file cannot silently unhook one; the sweep fails if a waiver ever stops

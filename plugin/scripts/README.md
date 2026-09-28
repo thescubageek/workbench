@@ -190,12 +190,12 @@ Contract tests for `check-guards`, in **three** parts — and the third is the o
 ./plugin/scripts/test-guards
 ```
 
-- **Corpus** — 43 labelled cases in `fixtures/guard-corpus.json`, each carrying the review round
-  that found it. Every shape must fire; every correct form must not.
+- **Corpus** — 114 labelled cases (`jq length fixtures/guard-corpus.json`), each carrying the
+  review round that found it. Every shape must fire; every correct form must not.
 - **Scan integrity** — properties the corpus structurally cannot test, because every corpus case
   materialises a real directory: a missing target exits 2, an empty directory does not hard-fail,
   a symlinked directory is followed.
-- **Mutation survivability** — twelve single-line breaks are planted in `check-guards` and the
+- **Mutation survivability** — 25 single-line breaks are planted in `check-guards` and the
   suite asserts each one is caught. This exists because a previous suite reported 31/31 while four
   of the checker's guards could each be deleted with a one-line edit and it stayed green. **A
   corpus proves the detectors fire on what you thought of; mutation proves the corpus would notice
@@ -212,7 +212,7 @@ Acceptance bar: 100% of the corpus, all integrity checks, every mutation caught.
 seconds against `check`'s ~20. It parses `check-guards` and mutates it mechanically: every
 comparison operator, boolean operator and integer constant, every statement deletion, and a set
 of regex weakenings (drop anchors, drop word boundaries, collapse alternations, widen
-quantifiers). ~294 mutants.
+quantifiers). 395 mutants (recorded in `fixtures/mutation-ratchet.json`).
 
 **Why both.** The curated list is author-written, and round 4 of this repository's own review
 established what that is worth: the same session wrote the tool, the corpus *and* the mutations,
@@ -226,9 +226,10 @@ resolution — as a survivor, which inflated the survivor count by 11%.
 
 **It ratchets rather than gating.** Demanding zero survivors would fail forever at 67% and be
 ignored within a week; printing a number nobody compares to anything is the same as not running
-it. So the kill count is recorded in `fixtures/mutation-ratchet.json` and **may not fall** — a
-newly surviving mutant must be killed with a corpus case or waived with an argument. That is the
-one thing the sweep enforces.
+it. So the kill count is recorded in `fixtures/mutation-ratchet.json` and **may not fall**, and
+**no survivor may go unwaived**: a newly surviving mutant must be killed with a corpus case or
+waived with an argument, and `--generated` fails on any unwaived survivor or a stale waiver.
+Those are the two things the sweep enforces.
 
 **Equivalent mutants are the known cost**, waived in `fixtures/mutation-waivers.json`, and a
 waiver carries an argument rather than an entry. Treat the survivor list as a queue of corpus
