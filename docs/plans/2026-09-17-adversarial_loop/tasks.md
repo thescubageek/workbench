@@ -1143,8 +1143,8 @@ phase:
 
 #### Manual Verification
 
-- [ ] The base-ref read has been exercised in a repository with no `origin/main` and observed to
-      **fail** rather than silently read the index *(deferred at plan close, 2026-09-27 — never exercised; a 3.x item)*
+- [x] The base-ref read has been exercised in a repository with no `origin/main` and observed to
+      **fail** rather than silently read the index — *exercised 2026-09-27, headless, in a repository with no remote: Step 1 returned before any diff and Step 2 printed `REVIEW.md NOT READ` without touching the index. Record: [thoughts/2026-09-27-headless-probes.md](thoughts/2026-09-27-headless-probes.md)*
 - [ ] A human has read the provenance rule and agrees it says what an agent needs to hear *(deferred at plan close, 2026-09-27 — never exercised; a 3.x item)*
 - [ ] The confirmation gates have been read as an agent would read them — they must be
       unambiguous about *which* actions stop for a human *(deferred at plan close, 2026-09-27 — never exercised; a 3.x item)*

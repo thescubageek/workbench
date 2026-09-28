@@ -51,6 +51,22 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-28 00:39 — Release steps 1–3 and two headless probes (closed)
+
+- **Task/phase**: release close after the plan reached `complete`. On the user's word: push,
+  CHANGELOG `[3.0.0]` dated 2026-09-27, PR #25 retitled to 3.0.0 and marked ready for review.
+  Tag held until after merge.
+- **Landed**: two headless probes from scratch repositories in `/tmp`, both PASS, recorded
+  verbatim in `thoughts/2026-09-27-headless-probes.md`. A docs-only diff reached Step 8 with zero
+  findings and wrote nothing, saying so in the sentence R7-T3 specified; a repository with no
+  remote stopped at Step 1 with the range-did-not-resolve line and Step 2 never touched the
+  index. Phase 6's base-ref manual item, deferred at plan close an hour earlier, is now ticked.
+- **Commits**: this commit.
+- **Learned**: un-drafting PR #25 created the fixture the loop's PR phases have never had. The
+  launch prompt for that run is in the other session; it stops after adjudication if findings
+  survive, so a round 9 is a decision rather than a side effect.
+- **Blocked by**: the PR-loop run in the other session; the tag waits on merge.
+
 ## 2026-09-28 00:32 — Plan closed: tasks.md complete at 86 of 86 (closed)
 
 - **Task/phase**: release close after round 8. `/wb:update_status` on the parent plan.
