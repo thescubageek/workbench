@@ -51,6 +51,13 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-29 01:13 — create_design (open)
+
+- **Task/phase**: P0-T3 — design for 2026-09-28-guard_lexer_and_pr_identity
+- **Next action**: awaiting approval at Step 6 — design.md is written (draft); on approval
+  set `status: approved` and close this entry
+- **Started at**: 41a7a3a
+
 ## 2026-09-29 00:51 — tracer bullets: lexer L-B, identity I-A (closed)
 
 - **Task/phase**: the two bullets the breaker required before any fix.
