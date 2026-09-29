@@ -474,12 +474,14 @@ one idiom for a base.
 
 ## Open Questions
 
+*All questions resolved as of 2026-09-28.*
+
 | ID | Question | Blocks | State |
 | -- | -------- | ------ | ----- |
-| Q1 | May the lexer take a dependency beyond the Python stdlib (`bashlex` is not installed; `shlex` is), or must a rebuilt lexer stay stdlib-only? The parent plan treated adding `shellcheck` and `python3` as a major-version change to what the plugin requires of its environment. | the candidate set for the lexer tracer bullet | Open |
-| Q2 | May `adversarial-review` fetch `refs/pull/<N>/head` into a remote-tracking ref? The skill's stance is that checking a target out is "a state change nobody asked for"; a fetch writes a ref but touches no worktree. Without it, a PR not on the current checkout can only be reviewed at whatever `origin/<head>` last fetched. | the identity resolver's design | Open |
-| Q3 | When a PR target's head branch is the current checkout, is the reviewed range the local `HEAD` (today, R9-T2), the PR's `headRefOid`, or both with the difference disclosed? This is the axis both mirror-image regressions (R9-T2/R9-T26 → R10-T3) sit on, and a fork PR with the same branch name makes name matching wrong in either direction. | the identity resolver's design, and R10-T3/T4/T13 | Open |
-| Q4 | Does `--generated` join `check` and CI, given that after R9-T19 it is the only gate that fails on an unwaived survivor and it runs in minutes rather than the README's 80 seconds? | the tracer bullet's acceptance bar and R10-T17/T18's scope | Open |
+| Q1 | May the lexer take a dependency beyond the Python stdlib (`bashlex` is not installed; `shlex` is), or must a rebuilt lexer stay stdlib-only? The parent plan treated adding `shellcheck` and `python3` as a major-version change to what the plugin requires of its environment. | the candidate set for the lexer tracer bullet | **Resolved 2026-09-28** → design.md (## Technical Decisions) |
+| Q2 | May `adversarial-review` fetch `refs/pull/<N>/head` into a remote-tracking ref? The skill's stance is that checking a target out is "a state change nobody asked for"; a fetch writes a ref but touches no worktree. Without it, a PR not on the current checkout can only be reviewed at whatever `origin/<head>` last fetched. | the identity resolver's design | **Resolved 2026-09-28** → design.md (## Technical Decisions) |
+| Q3 | When a PR target's head branch is the current checkout, is the reviewed range the local `HEAD` (today, R9-T2), the PR's `headRefOid`, or both with the difference disclosed? This is the axis both mirror-image regressions (R9-T2/R9-T26 → R10-T3) sit on, and a fork PR with the same branch name makes name matching wrong in either direction. | the identity resolver's design, and R10-T3/T4/T13 | **Resolved 2026-09-28** → design.md (## Technical Decisions) |
+| Q4 | Does `--generated` join `check` and CI, given that after R9-T19 it is the only gate that fails on an unwaived survivor and it runs in minutes rather than the README's 80 seconds? | the tracer bullet's acceptance bar and R10-T17/T18's scope | **Resolved 2026-09-28** → design.md (## Technical Decisions) |
 
 ## Next Steps
 
