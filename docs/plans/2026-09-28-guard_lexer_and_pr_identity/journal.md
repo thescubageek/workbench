@@ -51,12 +51,16 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
-## 2026-09-29 01:13 — create_design (open)
+## 2026-09-29 01:22 — create_design (closed)
 
 - **Task/phase**: P0-T3 — design for 2026-09-28-guard_lexer_and_pr_identity
-- **Next action**: awaiting approval at Step 6 — design.md is written (draft); on approval
-  set `status: approved` and close this entry
-- **Started at**: 41a7a3a
+- **Landed**: design.md written and approved (`status: approved`) — one lexer, one resolver;
+  Mode A from the exploration record and both tracer bullets; Q1–Q4 carried in as Resolved
+  Decisions; 4 rejected alternatives carried across; 0 pending decisions, 3 assumptions.
+  Step 2 fan-out skipped: the research fan-out this session had already read the entire
+  surface.
+- **Commits**: 0177b1a (draft), this commit (approval).
+- **Learned**: nothing that changes the remaining work. Next: `/wb:create_tasks`.
 
 ## 2026-09-29 00:51 — tracer bullets: lexer L-B, identity I-A (closed)
 
