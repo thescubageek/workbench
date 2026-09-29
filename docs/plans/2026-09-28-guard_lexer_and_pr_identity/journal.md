@@ -51,6 +51,18 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-29 01:37 — create_tasks (closed)
+
+- **Task/phase**: P0-T4 — execution plan for 2026-09-28-guard_lexer_and_pr_identity
+- **Landed**: tasks.md — 3 phases, 14 implementation tasks (P1 ×5 lexer, P2 ×5 resolver,
+  P3 ×4 CI and close-out), no Phase 0 tracer bullet because both bullets already ran; every
+  task sized under 50 calls; the resolver block written into the plan and scanned clean by
+  `check-guards`. Step 2 fan-out skipped: the research fan-out this session read the whole
+  surface; three small facts read directly.
+- **Commits**: this commit.
+- **Learned**: nothing that changes the plan. Next: `/wb:implement` in a fresh session on
+  Opus 4.8 / high, `--plugin-dir plugin`, Phase 1 first.
+
 ## 2026-09-29 01:22 — create_design (closed)
 
 - **Task/phase**: P0-T3 — design for 2026-09-28-guard_lexer_and_pr_identity
