@@ -5,6 +5,88 @@ All notable changes to the `wb` plugin are recorded here.
 Versioning follows semver as it applies to a prompt library: **patch** for prompt bugfixes,
 **minor** for additive skills/agents/hooks, **major** for removed or renamed stages.
 
+## [2.1.1] — 2026-09-29
+
+A data-loss fix in the markdown lint hook. `lint-hook` ran `lint --fix` on markdown files a
+Bash command had merely **read**, and `lint` applied no exclusions at all to files named
+explicitly — the route the hook uses. Together they silently rewrote a vendored, hash-verified
+documentation mirror in a consuming repository. Reported with patches by a downstream user;
+caught only because that mirror carries a per-file sha256 manifest. Most repositories have no
+manifest, and for them this failure was invisible.
+
+Rolled as a patch so the version-keyed plugin cache picks it up. It will be absorbed into 3.0.0.
+
+### Fixed
+
+- **The Bash route auto-fixed files it could not know it had written.** The guard was
+  `find -mmin -1`, which answers *"was this file modified recently?"* — never *"did **this
+  command** modify it?"* Those diverge exactly when an earlier step writes a batch of markdown
+  and a later command reads one of them, which bulk generators (doc mirrors, codegen,
+  scaffolding, `create_project` itself) make the common case rather than the edge case. This is
+  a `PostToolUse` hook, so there is no pre-state to compare against: the information needed to
+  answer the question is not available at the point the question is asked. **So the question is
+  no longer asked.** The Bash route now reports and never rewrites, which preserves the guard's
+  actual intent — markdown written via a heredoc should not bypass linting — without the
+  destructive false positive. `Write`/`Edit` take their path from `tool_input.file_path`, which
+  *is* unambiguous, so those still auto-fix.
+- **`lint` applied no exclusions to explicit file arguments.** The exclude list lived only
+  inside the `--all` branch, so any path handed in — every path the hook hands in — was linted
+  regardless. Exclusions now come from `wb_lint_ignored()` in the new
+  `plugin/scripts/lint-common.sh`, consulted on **all three** file-selection routes.
+- **The `--all` exclusions were anchored to the repository root.** `./vendor/*` never matched
+  `docs/vendor/`, `third_party/vendor/`, or any nested vendor directory — even `--all` would
+  have rewritten the mirror. All built-in exclusions now match at any depth.
+- **`.markdownlintrc.tmp` was written into `$PWD` and removed with a bare `rm -f`.** Two
+  concurrent lints in one repository raced on it, and a `set -euo pipefail` abort left it behind
+  as an untracked file that then appeared in the *next* run's changed-files sweep. It is now
+  created in a `mktemp -d` directory removed by an `EXIT` trap.
+
+### Added
+
+- **`.wblintignore` and `.markdownlintignore` are honoured**, at the repository root, on every
+  route. `markdownlint-cli` already reads the latter, so a repository that has one has already
+  declared its intent; wb ignoring that file was surprising. Matching reuses `git check-ignore`
+  rather than reimplementing gitignore semantics — but `core.excludesFile` is *additive*, so
+  the repository's own `.gitignore` still matches and `check-ignore -v` is parsed to accept a
+  hit only from the file wb passed in. Honouring `.gitignore` would be wrong here: `docs/plans/`
+  is gitignored until a plan is promoted, and plan documents are exactly what the hook exists
+  to lint.
+- **`WB_LINT_HOOK=0`** — a one-line kill switch that makes the hook a no-op, so anyone hitting
+  a problem with it has an escape hatch that does not require editing the plugin manifest.
+- **`WB_LINT_FIX_ON_BASH=1`** — opt back into auto-fixing on the Bash route, for anyone who
+  wants the old behaviour and accepts that a read-only command can then silently rewrite
+  content the session did not author. Opt-in, because the failure mode is silent corruption and
+  that is the wrong thing to have on by default.
+- **`plugin/scripts/test-lint`** — contract tests for both scripts, covering the reporter's
+  suggested cases: read-only Bash does not mutate, vendor paths are excluded at any depth on
+  the explicit route, both ignore files are honoured, a gitignored-but-not-lint-ignored path is
+  still linted, `Write`/`Edit` still fixes, and both env vars behave. Verified against a planted
+  regression — reverting the two fixes turns 8 of the 15 checks red — so they are known to fire
+  rather than merely known to pass.
+
+### Not changed, deliberately
+
+- **The invented default config still applies with `--fix`.** The report noted that
+  `--fix`-ing house style (`MD003: atx`, `MD007: indent 2`, `MD024 siblings_only`) into files
+  the session did not author is a stylistic opinion expressed as a mutation. That is true, and
+  it is now unreachable: after the Bash-route fix, hook-driven `--fix` only runs on the file a
+  `Write`/`Edit` just authored, and any other `--fix` is a human typing the command. Making it
+  report-only would leave every repository without a markdownlint config with no autofix at
+  all, which is a real feature loss against an exposure that no longer exists.
+- **`grep -oE '[A-Za-z0-9._~/-]+\.md'` still over-matches** `.md` paths inside quoted strings
+  and unrelated arguments — a `git commit -m` message naming `README.md`, for instance. It now
+  determines only what gets *reported*, so the cost is a stray line rather than a rewrite, and
+  tightening it risks missing the heredoc writes the Bash route exists to catch.
+
+### Migration
+
+None, unless you were relying on the Bash route to auto-fix — set `WB_LINT_FIX_ON_BASH=1` if
+so. Update the plugin and restart:
+
+```bash
+claude plugin update wb@thescubageek-workbench
+```
+
 ## [2.0.1] — 2026-09-16
 
 Two prompt bugfixes in the shipped skill bodies, found by running `/wb:validate_execution`

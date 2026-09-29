@@ -26,7 +26,7 @@ entry and maintainer material that is never shipped.
 - `plugin/skills/` - workflow stages (`/wb:*`) and background skills
 - `plugin/agents/` - specialized subagent definitions
 - `plugin/hooks/` - event handlers (SessionStart, PreCompact, PostToolUse)
-- `plugin/scripts/` - utility scripts (lint, lint-hook)
+- `plugin/scripts/` - utility scripts (lint, lint-hook, lint-common.sh, quiet, and their tests)
 - `plugin/docs/reference/` - shipped, runtime-referenced docs a skill may link into
 - `docs/` - **maintainer-facing; never shipped.** Not a runtime rules source
 - `.claude/` - local development config, plus `wb/knowledge.md` (committed)
@@ -53,7 +53,21 @@ history is marked non-normative at its top, so it cannot be read as current guid
 ./plugin/scripts/lint --all
 ```
 
-**Automatic Linting**: PostToolUse hooks automatically lint markdown files after Write/Edit operations.
+```bash
+# Contract tests for lint + lint-hook (run after changing either)
+./plugin/scripts/test-lint
+```
+
+**Automatic Linting**: PostToolUse hooks lint markdown after Write/Edit/Bash. Write and Edit
+name the file unambiguously, so the hook auto-fixes. Bash does not — a command that merely
+*read* a file is indistinguishable from one that wrote it — so the Bash route **reports only**.
+`WB_LINT_HOOK=0` disables the hook; `WB_LINT_FIX_ON_BASH=1` opts back into fixing on Bash.
+
+**Exclusions**: `plugin/scripts/lint-common.sh` holds `wb_lint_ignored()`, the one answer to
+"may lint touch this path?", consulted on every route. It excludes `vendor/`, `node_modules/`,
+`.git/`, `.context/`, `tmp/`, `.next/`, `dist/`, `build/` at any depth and honours
+`.wblintignore` / `.markdownlintignore`. It deliberately does **not** honour `.gitignore`:
+`docs/plans/` is gitignored until promoted and is exactly what the hook exists to lint.
 
 ### Configuration
 

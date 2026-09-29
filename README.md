@@ -253,7 +253,21 @@ The plugin cannot (and does not) write to your personal config — this rule is 
 ./plugin/scripts/lint           # Lint changed files
 ./plugin/scripts/lint --fix     # Auto-fix issues
 ./plugin/scripts/lint --all     # Lint all markdown files
+./plugin/scripts/test-lint      # Contract tests for lint + lint-hook
 ```
+
+`lint` never touches `vendor/`, `node_modules/`, `.git/`, `.context/`, `tmp/`, `.next/`,
+`dist/` or `build/` at any depth, and honours a repository's `.wblintignore` or
+`.markdownlintignore`. These apply on **every** route, including explicitly named files.
+A path that is merely `.gitignore`d is still linted — wb's own plan directories live in one.
+
+The `lint-hook` PostToolUse hook auto-fixes on `Write`/`Edit`, where the path is unambiguous,
+and **reports without rewriting** on `Bash`, where it cannot tell a write from a read.
+
+| Variable | Effect |
+| -------- | ------ |
+| `WB_LINT_HOOK=0` | Disable the hook entirely |
+| `WB_LINT_FIX_ON_BASH=1` | Opt back into auto-fixing on the Bash route |
 
 ### Testing Changes
 

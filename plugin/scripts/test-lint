@@ -1,0 +1,156 @@
+#!/usr/bin/env bash
+
+# Contract tests for scripts/lint and scripts/lint-hook.
+#
+# The regression that motivated these: lint-hook ran `lint --fix` on markdown a
+# Bash command had merely READ, and lint applied no exclusions to explicitly
+# named files. Together they silently rewrote a vendored, hash-verified doc
+# mirror. Cases 1-3 below are that failure; cases 4-6 are the features that must
+# not regress while fixing it.
+
+set -uo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+LINT="$SCRIPT_DIR/lint"
+HOOK="$SCRIPT_DIR/lint-hook"
+
+PASS=0
+FAIL=0
+
+check() {
+    local desc="$1" cond="$2"
+    if [[ "$cond" == "1" ]]; then
+        echo "  ✓ $desc"
+        PASS=$((PASS + 1))
+    else
+        echo "  ✗ $desc"
+        FAIL=$((FAIL + 1))
+    fi
+}
+
+if ! command -v markdownlint >/dev/null 2>&1; then
+    echo "test-lint: markdownlint not installed — cannot run. Install markdownlint-cli."
+    exit 1
+fi
+if ! command -v jq >/dev/null 2>&1; then
+    echo "test-lint: jq not installed — cannot build hook payloads."
+    exit 1
+fi
+
+echo "test-lint: $LINT"
+
+REPO="$(mktemp -d)"
+trap 'rm -rf "$REPO"' EXIT
+cd "$REPO" || exit 1
+git init -q .
+
+# A deliberately lint-dirty body: MD012 (consecutive blank lines) is auto-fixable
+# under the default config, so `--fix` provably rewrites it when allowed to.
+dirty() { printf '# x\n\n\n> a\n' > "$1"; }
+sha()   { shasum -a 256 "$1" | awk '{print $1}'; }
+
+mkdir -p docs/vendor a/b/vendor docs/mirror docs/other plans
+dirty docs/vendor/x.md
+dirty a/b/vendor/x.md
+dirty docs/mirror/x.md
+dirty docs/other/x.md
+dirty plans/x.md
+dirty read-only.md
+dirty authored.md
+
+printf 'docs/mirror/\n' > .wblintignore
+# plans/ is gitignored but NOT lint-ignored: wb's own plan directories live in a
+# gitignored path and are exactly what the hook exists to lint. A .gitignore
+# match must never be mistaken for a lint-ignore match.
+printf 'plans/\n' > .gitignore
+
+# --- Control: --fix really does rewrite an ordinary dirty file ---
+before=$(sha docs/other/x.md)
+"$LINT" --fix docs/other/x.md >/dev/null 2>&1
+check "control: --fix rewrites an ordinary dirty file" \
+    "$([[ "$before" != "$(sha docs/other/x.md)" ]] && echo 1 || echo 0)"
+
+# --- Case 1: read-only Bash must not mutate. The regression that started this. ---
+before=$(sha read-only.md)
+jq -n --arg c "sed -n '1,5p' read-only.md" '{tool_input:{command:$c}}' | "$HOOK" >/dev/null 2>&1
+check "read-only Bash command does not mutate the file" \
+    "$([[ "$before" == "$(sha read-only.md)" ]] && echo 1 || echo 0)"
+
+# The Bash path still REPORTS, so the anti-bypass intent survives.
+out=$(jq -n --arg c "sed -n '1,5p' read-only.md" '{tool_input:{command:$c}}' | "$HOOK" 2>&1)
+check "read-only Bash command still reports findings" \
+    "$(echo "$out" | grep -q '⚠️' && echo 1 || echo 0)"
+
+# --- Case 2: vendor paths are excluded at any depth, on the explicit-path route ---
+before=$(sha docs/vendor/x.md)
+"$LINT" --fix docs/vendor/x.md >/dev/null 2>&1
+check "docs/vendor/ is excluded on the explicit-path route" \
+    "$([[ "$before" == "$(sha docs/vendor/x.md)" ]] && echo 1 || echo 0)"
+
+before=$(sha a/b/vendor/x.md)
+"$LINT" --fix a/b/vendor/x.md >/dev/null 2>&1
+check "vendor/ nested at any depth is excluded" \
+    "$([[ "$before" == "$(sha a/b/vendor/x.md)" ]] && echo 1 || echo 0)"
+
+# --- Case 3: .wblintignore / .markdownlintignore honoured on the explicit route ---
+before=$(sha docs/mirror/x.md)
+out=$("$LINT" --fix docs/mirror/x.md 2>&1)
+check ".wblintignore is honoured on the explicit-path route" \
+    "$([[ "$before" == "$(sha docs/mirror/x.md)" ]] && echo 1 || echo 0)"
+check ".wblintignore match is skipped before markdownlint is spawned" \
+    "$(echo "$out" | grep -q 'Skipped 1 ignored path' && echo 1 || echo 0)"
+
+# markdownlint-cli reads .markdownlintignore natively, so an unchanged file alone
+# would not prove OUR predicate saw it. Assert the skip line too: that only comes
+# from wb_lint_ignored, and it is what lets the hook skip the spawn entirely.
+mv .wblintignore .markdownlintignore
+dirty docs/mirror/x.md
+before=$(sha docs/mirror/x.md)
+out=$("$LINT" --fix docs/mirror/x.md 2>&1)
+check ".markdownlintignore is honoured on the explicit-path route" \
+    "$([[ "$before" == "$(sha docs/mirror/x.md)" ]] && echo 1 || echo 0)"
+check ".markdownlintignore match is skipped before markdownlint is spawned" \
+    "$(echo "$out" | grep -q 'Skipped 1 ignored path' && echo 1 || echo 0)"
+rm -f .markdownlintignore
+
+# A gitignored path is NOT a lint-ignored path.
+before=$(sha plans/x.md)
+"$LINT" --fix plans/x.md >/dev/null 2>&1
+check "a gitignored-but-not-lint-ignored path is still fixed" \
+    "$([[ "$before" != "$(sha plans/x.md)" ]] && echo 1 || echo 0)"
+
+# --- Case 4: Write/Edit still fixes. Don't regress the feature. ---
+before=$(sha authored.md)
+jq -n --arg p "$REPO/authored.md" '{tool_input:{file_path:$p}}' | "$HOOK" >/dev/null 2>&1
+check "Write/Edit path still auto-fixes" \
+    "$([[ "$before" != "$(sha authored.md)" ]] && echo 1 || echo 0)"
+
+# ... but not into an ignored path.
+dirty docs/vendor/x.md
+before=$(sha docs/vendor/x.md)
+jq -n --arg p "$REPO/docs/vendor/x.md" '{tool_input:{file_path:$p}}' | "$HOOK" >/dev/null 2>&1
+check "Write/Edit path respects exclusions" \
+    "$([[ "$before" == "$(sha docs/vendor/x.md)" ]] && echo 1 || echo 0)"
+
+# --- Case 5: WB_LINT_HOOK=0 makes the hook a no-op ---
+dirty authored.md
+before=$(sha authored.md)
+jq -n --arg p "$REPO/authored.md" '{tool_input:{file_path:$p}}' | WB_LINT_HOOK=0 "$HOOK" >/dev/null 2>&1
+check "WB_LINT_HOOK=0 is a no-op" \
+    "$([[ "$before" == "$(sha authored.md)" ]] && echo 1 || echo 0)"
+
+# --- Case 6: WB_LINT_FIX_ON_BASH=1 restores the old behaviour, opt-in ---
+dirty read-only.md
+before=$(sha read-only.md)
+jq -n --arg c "cat read-only.md" '{tool_input:{command:$c}}' \
+    | WB_LINT_FIX_ON_BASH=1 "$HOOK" >/dev/null 2>&1
+check "WB_LINT_FIX_ON_BASH=1 opts back into fixing on the Bash path" \
+    "$([[ "$before" != "$(sha read-only.md)" ]] && echo 1 || echo 0)"
+
+# --- Case 7: no temp config is left behind in the working directory ---
+check "no .markdownlintrc.tmp left in \$PWD" \
+    "$([[ ! -e .markdownlintrc.tmp ]] && echo 1 || echo 0)"
+
+echo ""
+echo "test-lint: $PASS passed, $FAIL failed"
+[[ $FAIL -eq 0 ]]
