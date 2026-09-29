@@ -6,6 +6,13 @@
 # Resolve script directory (works whether invoked from plugin or directly)
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
+# Kill switch. One line to disable the hook entirely while something is wrong
+# with it, without editing the plugin manifest.
+[ "${WB_LINT_HOOK:-1}" = "0" ] && exit 0
+
+# shellcheck source=./lint-common.sh
+. "$SCRIPT_DIR/lint-common.sh"
+
 # Parse the JSON payload. Claude Code delivers the PostToolUse payload as JSON
 # on stdin, not via an env var. Prefer jq; fall back to grep/sed if jq is absent.
 # (CLAUDE_TOOL_ARGS is honored as a legacy fallback.)
@@ -21,14 +28,22 @@ else
     COMMAND=""
 fi
 
+# Write / Edit: tool_input.file_path names the file the tool just wrote. The
+# path is unambiguous, so fixing it in place is safe.
 lint_one() {
     echo "🔍 Linting markdown: $(basename "$1")"
     "$SCRIPT_DIR/lint" --fix "$1" 2>&1 | grep -E "(✓|✅|⚠️|Clean|Fixed)" | head -3
 }
 
+# Bash: we cannot know whether the command wrote the file or merely named it,
+# so we report and never mutate. See the note on the Bash branch below.
+lint_report() {
+    "$SCRIPT_DIR/lint" "$1" 2>&1 | grep -E "(⚠️|Issues)" | head -3
+}
+
 # Write / Edit deliver an explicit path.
 if [[ "$FILE_PATH" == *.md ]]; then
-    lint_one "$FILE_PATH"
+    wb_lint_ignored "$FILE_PATH" || lint_one "$FILE_PATH"
     exit 0
 fi
 
@@ -36,14 +51,26 @@ fi
 # markdown exactly as Write does. That route had no gate at all, so a session
 # told to prefer Bash for file changes silently bypassed this hook entirely.
 #
-# Lint the .md paths named in the command, but ONLY those modified in the last
-# minute: a command that merely READ a markdown file must never be rewritten by
-# --fix as a side effect of having been mentioned.
+# It must not auto-fix, though. `find -mmin -1` answers "was this file modified
+# recently?", never "did THIS command modify it?" — and those diverge exactly
+# when an earlier step wrote a batch of markdown and a later command reads one
+# of them. Doc mirrors, codegen and scaffolding make that the common case, not
+# the edge case, and this is a PostToolUse hook with no pre-state to compare
+# against: the information needed is not available at the point of the question.
+#
+# So the question is not answered. The Bash path reports and never rewrites.
+# Set WB_LINT_FIX_ON_BASH=1 to opt back into fixing, accepting that a read-only
+# command can then silently rewrite content this session did not author.
 if [ -n "$COMMAND" ]; then
     printf '%s' "$COMMAND" | grep -oE '[A-Za-z0-9._~/-]+\.md' | sort -u | while read -r f; do
         [ -f "$f" ] || continue
+        wb_lint_ignored "$f" && continue
         [ -n "$(find "$f" -mmin -1 2>/dev/null)" ] || continue
-        lint_one "$f"
+        if [ "${WB_LINT_FIX_ON_BASH:-0}" = "1" ]; then
+            lint_one "$f"
+        else
+            lint_report "$f"
+        fi
     done
 fi
 

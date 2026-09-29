@@ -85,16 +85,22 @@ we have the in-repo cautionary example for that.
 - **Verified**: 2026-09-08 · `docs/plans/2026-09-08-upstream-fable-merge/`
 - **Check it**: `/agents` in a session prints "The /agents wizard has been removed."
 
-## `./plugin/scripts/lint --all` does not consult `.gitignore`
+## `./plugin/scripts/lint` deliberately ignores `.gitignore`, and honours `.wblintignore` instead
 
-- **Why it matters**: it walks the tree with a hardcoded exclusion list
-  (`node_modules`, `.git`, `.context`, `vendor`, `tmp`, `.next`, `dist`, `build`). Any *other*
-  gitignored directory holding markdown — a vendored export, a scratch area — gets linted and
-  fails the gate for findings that are not ours. The fix is to add the path to that list, not
-  to reinterpret the gate.
-- **Verified**: 2026-09-08 · `docs/plans/2026-09-08-upstream-fable-merge/`
-- **Check it**: `sed -n '/LINT_ALL.*true/,/^else/p' plugin/scripts/lint` shows the `find`
-  exclusion list.
+- **Why it matters**: `docs/plans/` is gitignored until a plan is promoted, and plan documents
+  are exactly what the lint hook exists to lint — so honouring `.gitignore` would silently stop
+  linting the workflow's own output. Exclusions instead come from `wb_lint_ignored()` in
+  `plugin/scripts/lint-common.sh`: a built-in list (`vendor`, `node_modules`, `.git`,
+  `.context`, `tmp`, `.next`, `dist`, `build`, matched at **any** depth) plus `.wblintignore`
+  and `.markdownlintignore` at the repo root. To exclude a path, add it to `.wblintignore` or
+  to that built-in list — do not reach for `.gitignore`, and do not reinterpret the gate.
+- **The subtlety that bites**: `git check-ignore -c core.excludesFile=<f>` is *additive* — the
+  repository's own `.gitignore` still matches. `wb_lint_ignored` parses `check-ignore -v` and
+  accepts a match only when the reported source is the file it passed in. Anyone rewriting that
+  predicate will reintroduce the plans-not-linted bug if they drop the source check.
+- **Verified**: 2026-09-29 · wb 2.1.1
+- **Check it**: `./plugin/scripts/test-lint` — the case
+  "a gitignored-but-not-lint-ignored path is still fixed" is this fact.
 
 ## Plugin-directory reads are gated by the working-directory boundary
 
