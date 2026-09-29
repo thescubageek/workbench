@@ -51,6 +51,23 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-29 05:28 — P1-T4 (closed)
+
+- **Task/phase**: P1-T4 — R10-T5: the shape-6 fix hint recommended a loop variable that
+  breaks the shell it runs in.
+- **Landed**: two edits to `check-guards`. The hint now reads
+  `while IFS=: read -r file _`; the module docstring's shape-6 paragraph gains one sentence —
+  "Under zsh `path` is tied to `PATH`, so a loop variable named `path` empties the command
+  lookup path." `read -r path` count 1 to 0, `read -r file` 0 to 1. Corpus 127/127,
+  integrity 15/15, mutations 25/25; scanner clean at 146 files.
+- **Commits**: this commit.
+- **Learned**: the docstring claim was **verified against zsh rather than accepted**, which is
+  what a normative docstring earns: `typeset -p path` prints `typeset -aT PATH path=( … )`,
+  and `echo a:b | while IFS=: read -r path _` leaves `PATH` empty and `ls` not found. The
+  curated-anchor hazard that bit P1-T3 was checked for and did not apply here — prose lines
+  carry no anchors — but checking cost one grep and the failure it prevents is a suite
+  reporting 25/25 with an entry protecting nothing.
+- **Blocked by**: nothing.
 ## 2026-09-29 05:10 — P1-T3 (closed)
 
 - **Task/phase**: P1-T3 — R10-T12: `|| echo` stops counting as a status guard.

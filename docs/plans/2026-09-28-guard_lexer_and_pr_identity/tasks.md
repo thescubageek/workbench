@@ -236,11 +236,11 @@ P1-T2 and at the checkpoint, backgrounded.
       is either still clean or every shipped line it now flags is fixed in this same task (they
       would be lines that relied on `|| echo` as a guard; the fix is `|| true` with `${n:-0}`,
       the docstring's own minimum bar). (~8 calls) (completed 2026-09-29 05:20)
-- [ ] **P1-T4** — R10-T5: change the shape-6 fix hint at `check-guards:389` from
+- [x] **P1-T4** — R10-T5: change the shape-6 fix hint at `check-guards:389` from
       `while IFS=: read -r path _` to `while IFS=: read -r file _`, and add one sentence to the
       module docstring's shape-6 paragraph that `path` is tied to `PATH` under zsh. **RED**
       (shape 3): `command grep -c 'read -r path' plugin/scripts/check-guards` → 1; after: 0 and
-      `command grep -c 'read -r file' …` → 1. (~3 calls)
+      `command grep -c 'read -r file' …` → 1. (~3 calls) (completed 2026-09-29 05:32)
 - [ ] **P1-T5** — R10-T21: relabel the unclosed-fence finding from `'unclosed shell fence'` to
       `'unclosed fence'` at `check-guards:391` (FIXES key) and `:432` (the `findings.append`),
       with a hint that names the language of the fence left open; map the new label in

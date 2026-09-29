@@ -31,7 +31,8 @@ worked or not:
      `awk -F: '--plan != …'`. Release 2.0.1 removed this across eight stages and it came
      back in adversarial-review. SKILL.md only — a supporting file is read, not
      substituted — and `clip` is exempt, because splicing $ARGUMENTS in is its job. The
-     braced `${1:-…}` is not the harness's pattern and is not matched.
+     braced `${1:-…}` is not the harness's pattern and is not matched. Under zsh `path` is
+     tied to `PATH`, so a loop variable named `path` empties the command lookup path.
 
 Scans shipped shell scripts and the fenced shell blocks inside shipped markdown — those
 blocks are instructions a model executes, so they carry the same risk. Prose and tables
@@ -413,7 +414,7 @@ FIXES = {
     'bash-only construct in a block this harness runs under zsh':
         'this block runs under zsh: take the status from $? on the next line, not PIPESTATUS',
     'positional token in a skill block the harness substitutes':
-        'use no positional token at all — `cut -d: -f1`, `while IFS=: read -r path _`, or '
+        'use no positional token at all — `cut -d: -f1`, `while IFS=: read -r file _`, or '
         'describe the argument slot in prose',
     'unclosed shell fence':
         'close the fence; a later ```bash opener is otherwise read as its content and never scanned',
