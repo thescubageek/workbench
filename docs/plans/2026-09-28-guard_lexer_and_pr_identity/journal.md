@@ -51,6 +51,33 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-29 05:10 — P1-T3 (closed)
+
+- **Task/phase**: P1-T3 — R10-T12: `|| echo` stops counting as a status guard.
+- **Landed**: `GUARD` at `check-guards:62` loses its `|echo\b` alternative; one must-fire
+  corpus case `echo-is-not-a-guard` (126 to 127); and the curated mutation
+  `restore the unmatchable \b after the : guard` re-anchored, because it matched the old
+  `GUARD` line's exact text including `|echo\b)`. No shipped line anywhere in `plugin/` had
+  relied on `|| echo`, so the tighter regex forced no downstream fixes — 146 files scanned
+  clean. Corpus 127/127, integrity 15/15, mutations 25/25.
+- **Commits**: this commit.
+- **Learned**: two things.
+  1. **Scoping a task to "do not touch the test harness" was wrong here.** Removing a regex
+     alternative invalidated a curated mutation that anchors on the line's *exact text*, and
+     the worker correctly stopped rather than edit fixtures it had been told not to. The
+     repository's own precedent is the opposite: P1-T1 re-anchored the three mutations its
+     rewrite invalidated, and `test-guards:95` says why — "a mutation that no longer applies
+     protects nothing". A commit that removed `|echo\b` and left the stale anchor would have
+     shipped a suite reporting 25/25 with one entry protecting nothing. **A change that
+     invalidates a curated anchor re-anchors it in the same commit.**
+  2. **"Caught via false positives only" is not a weak kill for this bug class — it is the
+     only channel there is.** The R4-T6 bug relaxes a guard, and a relaxed guard cannot
+     manifest as a missed detection by construction; its sole symptom is a spurious finding on
+     a correctly-guarded line. Verified by planting the mutation: corpus drops to 126/127 with
+     `r4-ok-or-colon` (`n=$(grep -c foo f.txt) || :`) as the catcher, and the pre-change entry
+     produced the identical signal.
+- **Blocked by**: nothing.
+
 ## 2026-09-29 02:34 — P1-T2 (closed)
 
 - **Task/phase**: P1-T2 — close the generated mutation sweep after the lexer rewrite.

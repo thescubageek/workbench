@@ -229,13 +229,13 @@ P1-T2 and at the checkpoint, backgrounded.
       `lex()`"), since the sweep's `killed < prev` rule would otherwise fail on a total that
       changed. **GREEN**: `--generated` reports 0 unwaived, 0 stale, and the plain suite still
       passes. (~30 calls, plus two backgrounded runs of ~4 minutes) (completed 2026-09-29 04:58)
-- [ ] **P1-T3** — R10-T12: remove `echo` from `GUARD` (`check-guards:62` today,
+- [x] **P1-T3** — R10-T12: remove `echo` from `GUARD` (`check-guards:62` today,
       `re.compile(r'\|\|\s*(?:true\b|:(?!\w)|echo\b)')` → drop the `|echo\b` alternative). Corpus
       first: a must-fire case `n=$(grep -c foo f.txt || echo 0)` with provenance R10-T12. **RED**:
       119 of 121, that case missed. After the change: **GREEN**, and `./plugin/scripts/check-guards plugin/`
       is either still clean or every shipped line it now flags is fixed in this same task (they
       would be lines that relied on `|| echo` as a guard; the fix is `|| true` with `${n:-0}`,
-      the docstring's own minimum bar). (~8 calls)
+      the docstring's own minimum bar). (~8 calls) (completed 2026-09-29 05:20)
 - [ ] **P1-T4** — R10-T5: change the shape-6 fix hint at `check-guards:389` from
       `while IFS=: read -r path _` to `while IFS=: read -r file _`, and add one sentence to the
       module docstring's shape-6 paragraph that `path` is tied to `PATH` under zsh. **RED**

@@ -1440,5 +1440,19 @@
     "capture"
    ]
   ]
+ },
+ {
+  "id": "echo-is-not-a-guard",
+  "shape": "capture",
+  "expect": 1,
+  "path": "scripts/e.sh",
+  "content": "#!/usr/bin/env bash\nn=$(grep -c foo f.txt || echo 0)\n",
+  "provenance": "R10-T12 \u2014 `|| echo 0` substitutes a value and discards the status, so a failed grep reads as a clean zero. It is not a guard; only `|| true` (with `${n:-0}` at the point of use) and `|| :` are.",
+  "expect_at": [
+   [
+    2,
+    "capture"
+   ]
+  ]
  }
 ]
