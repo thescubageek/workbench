@@ -55,7 +55,7 @@ import re
 import sys
 
 FENCE = re.compile(r'^(?P<ind>[ ]{0,3})(?P<f>`{3,}|~{3,})[ \t]*(?P<info>\S*)')
-SHELL_INFO = {'bash', 'sh', 'shell'}
+SHELL_INFO = {'bash', 'sh', 'shell', 'zsh'}
 COUNTING = re.compile(r'\bgrep\b[^|;)`]*?\s(?:-[A-Za-z]*c[A-Za-z]*|--count)\b')
 # `:` is not a word character, so a trailing \b after it can never match — the
 # documented minimum-bar guard `|| :` was reported as unguarded. Anchor per-alternative.
@@ -108,90 +108,117 @@ def md_shell_lines(text):
     return out, unclosed_at
 
 
-def strip_comment(line):
-    """Drop a trailing comment, respecting quotes.
+def lex(line):
+    """One pass over a shell line -> (ctx, spans).
 
-    A `#` inside a string is not a comment. Cutting at the first `#` unconditionally
-    deleted the detector's own input on `grep -v "^#" f | grep -c foo` — the most
-    idiomatic count-non-comment-lines spelling there is — and reported it clean.
+    ctx[i] is (in_single, in_double, escaped) for every index. spans is
+    [(inner_start, close_index)] for every $( ) and backtick substitution, nested ones
+    included, each appended when it CLOSES — so the list is in close order and an inner
+    substitution precedes the outer one containing it. This is the single place that
+    decides "inside quotes": strip_comment, _quote_spans, substitutions and statements all
+    read it, so they cannot disagree with each other — which is what the three separate
+    trackers this replaces did (R9-T15 -> R10-T10 -> R10-T11).
+
+    Rules, from the shell. This docstring is normative: it is the statement of what the
+    machine below is FOR, so a review can check the code against a rule instead of against
+    the previous fix, and it is edited with the code. A backslash escapes the next
+    character outside single quotes; single quotes are literal until the next single quote;
+    double quotes toggle; $( ) and backticks open a fresh quoting context and restore the
+    outer one on close; single quotes suppress a substitution and double quotes do not —
+    but a `)` inside double quotes is literal and closes nothing; an unclosed $( ) runs to
+    the end of the line; an unclosed backtick is a stray and yields no span.
+
+    The tuple carries only what a consumer reads. A substitution-depth field was written
+    into the tracer bullet's seed "for completeness" and the generated sweep priced the
+    completeness at about twenty equivalent mutants, each needing an argued waiver; a shape
+    that needs depth adds it back together with the consumer that reads it.
     """
-    out, quote = [], None
+    n = len(line)
+    ctx = [None] * n
+    spans = []
+    sq = dq = esc = False
+    stack = []                                   # (inner_start, kind, saved_dq)
+    i = 0
+    while i < n:
+        ch = line[i]
+        if esc:
+            ctx[i] = (sq, dq, True)
+            esc = False
+            i += 1
+            continue
+        if sq:
+            ctx[i] = (True, False, False)
+            if ch == "'":
+                sq = False
+            i += 1
+            continue
+        if ch == '\\':
+            ctx[i] = (False, dq, False)
+            esc = True
+            i += 1
+            continue
+        if ch == "'" and not dq:
+            ctx[i] = (True, False, False)
+            sq = True
+            i += 1
+            continue
+        if ch == '"':
+            ctx[i] = (False, True, False)
+            dq = not dq
+            i += 1
+            continue
+        if line.startswith('$(', i):
+            stack.append((i + 2, 'paren', dq))
+            dq = False
+            ctx[i] = ctx[i + 1] = (False, False, False)
+            i += 2
+            continue
+        if ch == ')' and not dq and stack and stack[-1][1] == 'paren':
+            inner, _, dq = stack.pop()
+            spans.append((inner, i))
+            ctx[i] = (False, dq, False)
+            i += 1
+            continue
+        if ch == '`':
+            if stack and stack[-1][1] == 'tick':
+                inner, _, dq = stack.pop()
+                spans.append((inner, i))
+                ctx[i] = (False, dq, False)
+            else:
+                stack.append((i + 1, 'tick', dq))
+                dq = False
+                ctx[i] = (False, False, False)
+            i += 1
+            continue
+        ctx[i] = (sq, dq, False)
+        i += 1
+    for inner, kind, _ in stack:
+        if kind == 'paren':
+            spans.append((inner, n))             # unclosed $( runs to end of line
+    return ctx, spans
+
+
+def strip_comment(line):
+    """Drop a trailing comment: a `#` outside quotes, unescaped, at column 0 or after
+    whitespace. A `#` inside a string is not a comment — cutting at the first `#`
+    unconditionally deleted the detector's own input on `grep -v "^#" f | grep -c foo`."""
+    ctx, _ = lex(line)
     for i, ch in enumerate(line):
-        if quote:
-            out.append(ch)
-            if ch == quote:
-                quote = None
-        elif ch in '"\'':
-            quote = ch
-            out.append(ch)
-        elif ch == '#' and (i == 0 or line[i - 1].isspace()):
-            break
-        else:
-            out.append(ch)
-    return ''.join(out)
+        sq, dq, escd = ctx[i]
+        if ch == '#' and not (sq or dq or escd) and (i == 0 or line[i - 1].isspace()):
+            return line[:i]
+    return line
 
 
 def _quote_spans(text):
     """Index -> True when that index sits inside a quoted string."""
-    inq, quote, out = False, '', []
-    for ch in text:
-        if inq:
-            out.append(True)
-            if ch == quote:
-                inq = False
-        elif ch in '"\'':
-            inq, quote = True, ch
-            out.append(True)
-        else:
-            out.append(False)
-    return out
+    ctx, _ = lex(text)
+    return [bool(c[0] or c[1]) for c in ctx]
 
 
 def substitutions(line):
-    """(inner_start, close_index) for every $( ) and backtick span, outermost first.
-
-    Quote-aware. Counting parens blind to quotes cut the span at the `)` inside
-    `$(sed 's/)//' f | grep -c foo)`, so COUNTING never saw the grep and a genuinely
-    unguarded capture reported clean; the mirror falsely reported `$(grep -c ")" f || true)`.
-    The shell expands `$( )` inside double quotes, so only single quotes suppress one; a
-    substitution opens a fresh quoting context, so its inner quotes are tracked from its start.
-    """
-    res, i, quote = [], 0, None
-    while i < len(line):
-        ch = line[i]
-        if quote == "'":
-            if ch == "'":
-                quote = None
-            i += 1
-        elif ch in '"\'' and (quote is None or ch == quote):
-            quote = None if quote else ch
-            i += 1
-        elif line.startswith('$(', i):
-            q = [False] * (i + 2) + _quote_spans(line[i + 2:])
-            depth, j = 1, i + 2
-            while j < len(line) and depth:
-                if line.startswith('$(', j) and not q[j]:
-                    depth += 1
-                    j += 2
-                    continue
-                if line[j] == ')' and not q[j]:
-                    depth -= 1
-                j += 1
-            res.append((i + 2, j - 1))
-            i = j
-        elif ch == '`':
-            j = line.find('`', i + 1)
-            if j == -1:
-                # A stray backtick — a line-continued capture, or one inside a string the
-                # quote scanner did not pair. Skip it and keep scanning: `break` here
-                # discarded every later substitution on the line.
-                i += 1
-                continue
-            res.append((i + 1, j))
-            i = j + 1
-        else:
-            i += 1
-    return res
+    """(inner_start, close_index) for every $( ) and backtick span, nested included."""
+    return lex(line)[1]
 
 
 # A line that actually tests the PRECEDING command's status: a conditional, or an

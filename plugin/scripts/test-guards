@@ -62,10 +62,10 @@ MUTATIONS = [
     ('treat every capture as guarded',
      "            if GUARD.search(inner) or GUARD.match(",
      "            if True or GUARD.search(inner) or GUARD.match("),
-    ('break the quote-aware comment strip',
-     "    out, quote = [], None", "    return line.split('#')[0]\n    out, quote = [], None"),
-    ('stop scanning sh/shell fences',
-     "SHELL_INFO = {'bash', 'sh', 'shell'}", "SHELL_INFO = {'bash'}"),
+    ('break the backslash handling',
+     "        if ch == '\\\\':", "        if False and ch == '\\\\':"),
+    ('break single-quote suppression of a substitution',
+     "        if sq:", "        if sq and not line.startswith('$(', i):"),
     ('break the fence closer',
      "if m and m.group('f')[0] == ch and len(m.group('f')) >= ln and not m.group('info'):",
      "if False:"),
@@ -95,9 +95,13 @@ MUTATIONS = [
     ('take the targets raw instead of resolving them',
      "    targets = [os.path.abspath(a) for a in argv] if argv else [os.path.join(root, 'plugin')]",
      "    targets = argv or ['plugin']"),
-    # One per R4 fix — a fix without a mutation is a fix that can silently revert.
-    ('make the span finder quote-blind again',
-     "                if line[j] == ')' and not q[j]:", "                if line[j] == ')':"),
+    # One per fix — a fix without a mutation is a fix that can silently revert. The three
+    # lex() entries here and above replace anchors the one-lexer rewrite deleted; each
+    # was planted in a scratch copy and shown to fail the corpus before it was trusted,
+    # because a mutation that no longer applies protects nothing.
+    ('break the save-and-restore of dq across a substitution',
+     "            stack.append((i + 2, 'paren', dq))\n            dq = False",
+     "            stack.append((i + 2, 'paren', dq))"),
     ('restore the unmatchable \\b after the : guard',
      "GUARD = re.compile(r'\\|\\|\\s*(?:true\\b|:(?!\\w)|echo\\b)')",
      "GUARD = re.compile(r'\\|\\|\\s*(?:true|:|echo)\\b')"),

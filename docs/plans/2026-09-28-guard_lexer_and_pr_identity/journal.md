@@ -51,6 +51,29 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-29 01:51 — P1-T1 (closed)
+
+- **Task/phase**: P1-T1 — land `lex()` in `plugin/scripts/check-guards` and the six corpus
+  cases that pin it; rewrite the three curated mutations whose anchors vanish.
+- **Landed**: one `lex(line)` returning per-character `(in_single, in_double, escaped)` and
+  every span in close order; `strip_comment`, `_quote_spans` and `substitutions()` are thin
+  readers of it and `statements()` reads the same flags, so the four consumers cannot disagree.
+  `depth` dropped everywhere; close-paren branch guarded by `not dq`; the eight shell rules in
+  the docstring. `'zsh'` added to `SHELL_INFO`. Corpus 114 to 120. Three curated mutations
+  re-anchored on `lex()`, total held at 25.
+- **Commits**: this commit.
+- **Learned**: two things worth carrying into P1-T2.
+  1. **RED was 117/120, not the 114/120 the plan predicted.** Only the tracer bullet's three
+     cases fail against the shipped checker; the three sweep-gap cases pass against the old
+     trackers because they pin mutants of the *new* `lex()`, not defects of the old ones. The
+     verifier reproduced 117/120 against `HEAD:plugin/scripts/check-guards` independently.
+  2. **A2 held, and the check caught a real defect in the work itself.** Planting each
+     rewritten mutation in a scratch copy scored 119/120 for all three. The first draft of
+     `gen-sweep-dq-across-subst` put the guarded capture first and the planted `dq` mutant
+     scored 120/120 — the case was inverted so the unguarded capture leads. Trusting the case
+     without planting the mutant would have shipped a curated mutation protecting nothing.
+- **Blocked by**: nothing.
+
 ## 2026-09-29 01:37 — create_tasks (closed)
 
 - **Task/phase**: P0-T4 — execution plan for 2026-09-28-guard_lexer_and_pr_identity

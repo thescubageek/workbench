@@ -1293,5 +1293,78 @@
     "fence"
    ]
   ]
+ },
+ {
+  "id": "r10-t10-escaped-dollar-paren",
+  "shape": "capture",
+  "expect": 0,
+  "path": "skills/s/SKILL.md",
+  "content": "# S\n\n```bash\nf=\"cost \\$(grep -c q f)\"\necho \"$f\"\n```\n",
+  "provenance": "R10-T10 \u2014 a backslash-escaped $( inside double quotes is literal; the shell does not substitute, so there is no capture to guard"
+ },
+ {
+  "id": "r10-t11-nested-guard-inner",
+  "shape": "capture",
+  "expect": 1,
+  "path": "skills/s/SKILL.md",
+  "content": "# S\n\n```bash\nn=$(echo \"$(grep -c a f || true) $(grep -c b g)\")\necho \"$n\"\n```\n",
+  "provenance": "R10-T11 \u2014 only the outermost span is scanned, so the guard on the first inner substitution clears the unguarded second one",
+  "expect_at": [
+   [
+    4,
+    "capture"
+   ]
+  ]
+ },
+ {
+  "id": "r10-t7-zsh-fence-positional",
+  "shape": "positional",
+  "expect": 1,
+  "path": "skills/s/SKILL.md",
+  "content": "# S\n\n```zsh\nt=$1\necho \"$t\"\n```\n",
+  "provenance": "R10-T7 \u2014 shape 6 reads only bash/sh/shell fences; a zsh fence in a SKILL.md is executed by the same harness",
+  "expect_at": [
+   [
+    4,
+    "positional"
+   ]
+  ]
+ },
+ {
+  "id": "gen-sweep-dq-across-subst",
+  "shape": "capture",
+  "expect": 1,
+  "path": "skills/s/SKILL.md",
+  "content": "# S\n\n```bash\necho \"count $(grep -c foo f) and $(grep -c bar g || true)\"\n```\n",
+  "provenance": "gen-sweep (thoughts/2026-09-28-lexer-tracer-bullet.md survivor table, lex) \u2014 one double-quoted string spans both $( ) boundaries, the FIRST capture is the unguarded one. Without the save-and-restore of dq across a substitution the `)` is literal inside the still-open double quote, neither span closes, both run to end of line, and the second capture's `|| true` falls inside the first span and clears it.",
+  "expect_at": [
+   [
+    4,
+    "capture"
+   ]
+  ]
+ },
+ {
+  "id": "gen-sweep-sq-semicolon-publish",
+  "shape": "none",
+  "expect": 0,
+  "path": "skills/s/SKILL.md",
+  "content": "# S\n\n```bash\ngit push && gh pr ready \"$PR\"; echo 'a;b'\n```\n",
+  "provenance": "gen-sweep (thoughts/2026-09-28-lexer-tracer-bullet.md survivor table, _quote_spans) \u2014 no case had a `;` inside SINGLE quotes on a chained publish line, so statements() never had to tell the two quote flags apart; the quoted `;` must not open a second statement.",
+  "expect_at": []
+ },
+ {
+  "id": "gen-sweep-backtick-in-dq",
+  "shape": "capture",
+  "expect": 1,
+  "path": "skills/s/SKILL.md",
+  "content": "# S\n\n```bash\necho \"found `grep -c foo f`\"\n```\n",
+  "provenance": "gen-sweep (thoughts/2026-09-28-lexer-tracer-bullet.md survivor table, lex) \u2014 a backtick capture opened inside double quotes: the shell expands it, so the span must be found and the unguarded count reported.",
+  "expect_at": [
+   [
+    4,
+    "capture"
+   ]
+  ]
  }
 ]

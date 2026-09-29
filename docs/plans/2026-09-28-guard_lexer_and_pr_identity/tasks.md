@@ -197,7 +197,7 @@ Tasks run in document order. Each Phase 1 task writes its corpus cases first, re
 count from `./plugin/scripts/test-guards`, then changes the checker. `--generated` runs only in
 P1-T2 and at the checkpoint, backgrounded.
 
-- [ ] **P1-T1** — Land `lex()` and the six corpus cases that pin it. Corpus first, into
+- [x] **P1-T1** — Land `lex()` and the six corpus cases that pin it. Corpus first, into
       `fixtures/guard-corpus.json` with `provenance`: the bullet's three
       (`r10-t10-escaped-dollar-paren` expect 0; `r10-t11-nested-guard-inner` expect 1 at its
       line, `capture`; `r10-t7-zsh-fence-positional` expect 1, `positional` — contents verbatim
@@ -216,7 +216,7 @@ P1-T2 and at the checkpoint, backgrounded.
       (drop `dq = False` on `$(` open) — each anchored on a line of the new `lex()`, and each
       **shown to fail the corpus** when planted in a scratch copy before it is trusted (A2).
       **GREEN**: corpus 120/120, integrity 15/15, mutations 25/25. Do not run `--generated`
-      here. (~35 calls)
+      here. (~35 calls) (completed 2026-09-29 02:12)
 - [ ] **P1-T2** — Close the generated sweep. Run `./plugin/scripts/test-guards --generated`
       **in the background** and read the survivors file. Expected from the bullet: 13 stale
       waivers (statements in the replaced functions) and a handful of survivors in `lex()` and
@@ -725,6 +725,18 @@ resolved, leaving a dated line saying how.
 - **[2026-09-28] The seed is scored, not trusted.** `thoughts/spike/candidates/B/check-guards`
   reached 117/117 on the harness; P1-T1 still runs the corpus RED first because the seed
   carries the `depth` field the design removes, and a removal is an edit.
+- **[2026-09-29] P1-T1: RED was 117/120, not the predicted 114/120.** The three sweep-gap
+  cases pass against the old trackers — they pin mutants of the new `lex()`, not defects of the
+  old ones — so only the tracer bullet's three were ever RED. Reproduced independently against
+  `HEAD:plugin/scripts/check-guards`. The prediction in P1-T1's text was wrong; the
+  implementation was not.
+- **[2026-09-29] P1-T1 left `SHELL_INFO` with no curated mutation.** The task named all three
+  replacements as `lex()` mutations and pinned the total at 25, so the retired
+  `stop scanning sh/shell fences` entry had no slot. P1-T2's sweep will emit a `SHELL_INFO`
+  mutant and force it killed or waived — check it there rather than adding a 26th mutation.
+- **[2026-09-29] Two stale notes in `test-guards` deferred to P1-T2.** The waiver note at
+  `:45-49` describes a `break`/`continue` branch of the old `substitutions()` that `lex()` does
+  not have.
 
 ---
 
