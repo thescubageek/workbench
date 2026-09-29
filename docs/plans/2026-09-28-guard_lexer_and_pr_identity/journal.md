@@ -51,6 +51,20 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-29 00:51 — tracer bullets: lexer L-B, identity I-A (closed)
+
+- **Task/phase**: the two bullets the breaker required before any fix.
+- **Landed**: lexer — baseline 114/117, L-B 117/117 on the second attempt (one real bug found
+  by the corpus: `)` inside double quotes), L-C 89/117; sweep 338/425 with 49 survivors, 26 in
+  new code and mostly a dead `depth` field. Verdict L-B, recorded in the exploration document.
+  Identity — name test proceeds, OID test refuses, pull-ref fetch works on a fake origin and on
+  GitHub. Harness, candidates and raw results kept under `thoughts/spike/`.
+- **Commits**: this commit.
+- **Learned**: prediction 3 was right on verdict, wrong on mechanism (must-fire, not
+  must-not-fire); prediction 2's survivor count was under by the cost of one unread field.
+  Next: `/wb:resolve_questions` (Q1, Q4; Q2/Q3 already answered by I-A), then
+  `/wb:create_design`.
+
 ## 2026-09-28 23:55 — explore_design (closed)
 
 - **Task/phase**: between P0-T2 and P0-T3 — architecture exploration for both components.

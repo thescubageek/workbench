@@ -1,0 +1,83 @@
+corpus: /Users/scraig/conductor/workspaces/workbench/ankara/docs/plans/2026-09-28-guard_lexer_and_pr_identity/thoughts/spike/harness/fixtures/guard-corpus.json
+
+== corpus ==
+  89/117 (32 of 60 must-fire caught, 0 false positives)
+  ✗ MISSED  s1-lastline (want [(3, 'capture')], got [])
+  ✗ MISSED  s1-backtick (want [(2, 'capture')], got [])
+  ✗ MISSED  s1-spaced (want [(2, 'capture')], got [])
+  ✗ MISSED  s1-longflag (want [(2, 'capture')], got [])
+  ✗ MISSED  s1-guard-on-later (want [(2, 'capture')], got [])
+  ✗ MISSED  s1-guard-on-earlier (want [(2, 'capture')], got [])
+  ✗ MISSED  s1-grep-in-string (want [(2, 'capture')], got [])
+  ✗ MISSED  md-indented (want [(4, 'capture')], got [])
+  ✗ MISSED  md-last-line (want [(5, 'capture')], got [])
+  ✗ MISSED  md-info-string (want [(2, 'capture')], got [])
+  ✗ MISSED  md-sh-fence (want [(2, 'capture')], got [])
+  ✗ MISSED  md-tilde-fence (want [(2, 'capture')], got [])
+  ✗ MISSED  q85-bare-assign (want [(2, 'capture')], got [])
+  ✗ MISSED  q85-masked-local (want [(2, 'capture')], got [])
+  ✗ MISSED  md-fence-closer-matters (want [(8, 'capture')], got [])
+  ✗ MISSED  extensionless-script (want [(2, 'capture')], got [])
+  ✗ MISSED  r4-stray-backtick (want [(2, 'capture')], got [])
+  ✗ MISSED  r4-cross-fence-lookahead (want [(4, 'capture')], got [])
+  ✗ MISSED  r4-wrong-command-status (want [(2, 'capture')], got [])
+  ✗ MISSED  r4-cross-fence-real-test (want [(4, 'capture')], got [])
+  ✗ MISSED  s1-hash-in-expansion (want [(2, 'capture')], got [])
+  ✗ MISSED  s1-line-continued-capture (want [(2, 'capture')], got [])
+  ✗ MISSED  s1-nested-substitution (want [(2, 'capture')], got [])
+  ✗ MISSED  s1-combined-cE (want [(4, 'capture')], got [])
+  ✗ MISSED  s1-combined-ci (want [(4, 'capture')], got [])
+  ✗ MISSED  s1-combined-cv (want [(4, 'capture')], got [])
+  ✗ MISSED  s1-dq-assign (want [(4, 'capture')], got [])
+  ✗ MISSED  r10-t7-zsh-fence-positional (want [(4, 'positional')], got [])
+
+== scan integrity (outside the corpus) ==
+  ✓ a missing target exits 2
+  ✓ ...and names the path it could not find
+  ✓ an empty directory exits 0, not a hard fail
+  ✓ a directory with no shell or markdown exits 0
+  ✓ ...and says nothing was checked rather than reporting clean
+  ✓ the reported file count is the real one (4)
+  ✓ a clean tree with files in it exits 0
+  ✗ a relative target resolves against the caller cwd
+  ✗ ...and a run with findings says why it failed, on stderr
+  ✓ an exempt file with a defect is not reported
+  ✗ ...but the same content elsewhere IS
+  ✗ a symlink nested in the tree is followed
+  ✓ an unreadable file exits 2, not silently skipped
+  ✓ ...and names the file it could not read
+  ✗ with no target it scans the plugin tree beside it
+
+== mutation survivability ==
+  ?? disable the capture detector: anchor not found — MUTATION DID NOT APPLY
+  ✓ disable the publish-chaining detector: caught (35 misses vs 28, integrity 10/15)
+  ✓ disable the --include detector: caught (29 misses vs 28, integrity 10/15)
+  ✓ disable the glob detector: caught (37 misses vs 28, integrity 10/15)
+  ?? treat every capture as guarded: anchor not found — MUTATION DID NOT APPLY
+  ✓ break the quote-aware comment strip: caught (30 misses vs 28, integrity 10/15)
+  ✓ stop scanning sh/shell fences: caught (31 misses vs 28, integrity 10/15)
+  ✓ break the fence closer: caught (39 misses vs 28, integrity 10/15)
+  ✓ stop scanning extensionless scripts: caught (28 misses vs 28, integrity 9/15)
+  ✓ drop the unclosed-fence report: caught (30 misses vs 28, integrity 10/15)
+  ✓ drop the trailing glob flush: caught (35 misses vs 28, integrity 10/15)
+  ✓ delete the missing-target refusal: caught (28 misses vs 28, integrity 9/15)
+  ✓ inflate the scanned-file count: caught (28 misses vs 28, integrity 9/15)
+  ✗ delete the by-name exemptions: SURVIVED (89/117 + 10/15)
+  ✗ stop following nested symlinks: SURVIVED (89/117 + 10/15)
+  ✓ silently skip an unreadable file: caught (28 misses vs 28, integrity 9/15)
+  ✗ take the targets raw instead of resolving them: SURVIVED (89/117 + 10/15)
+  ✗ make the span finder quote-blind again: SURVIVED (89/117 + 10/15)
+  ✗ restore the unmatchable \b after the : guard: SURVIVED (89/117 + 10/15)
+  ✗ drop the fence-gap check in the lookahead: SURVIVED (89/117 + 10/15)
+  ✗ accept any line containing $? as a test: SURVIVED (89/117 + 10/15)
+  ✓ ignore a one-liner glob body: caught via false positives only (1 vs 0) — no detector broke
+  ✓ disable the positional-token detector: caught (30 misses vs 28, integrity 10/15)
+  ✓ drop the clip allowlist: caught via false positives only (1 vs 0) — no detector broke
+  ✓ enter nested non-shell fences as shell: caught via false positives only (2 vs 0) — no detector broke
+
+  16/25 mutations caught
+  ✓ the tool under test is unmodified (sha matches)
+  ✓ --generated fails on an unwaived survivor even when the kill count rose
+
+test-guards: corpus 89/117, integrity 10/15, mutations 16/25 — FAIL
+EXIT 1

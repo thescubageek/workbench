@@ -1,0 +1,54 @@
+== generated mutation sweep ==
+  baseline 117/117 corpus, 13 integrity
+  425 generated mutants
+
+  killed   338/425
+  waived   38 (equivalent mutants, reasons in fixtures/mutation-waivers.json)
+  SURVIVED 49
+
+  full list -> fixtures/mutation-survivors.txt
+  survivors by source line (most first):
+      5 x L169   e.g. cmp Eq->NotEq
+      5 x L209   e.g. bool and<->or
+      3 x L421   e.g. int 2+1
+      3 x L448   e.g. int 2+1
+      2 x L495   e.g. int 0+1
+      2 x L481   e.g. int 0-1
+      2 x L433   e.g. bool and<->or
+      2 x L166   e.g. int 1+1
+      2 x L183   e.g. int 1+1
+      1 x L423   e.g. int 0+1
+      1 x L167   e.g. int 2-1
+      1 x L459   e.g. int 1+1
+      1 x L499   e.g. int 1-1
+      1 x L164   e.g. int 2-1
+      1 x L181   e.g. int 1-1
+      1 x L176   e.g. int 1-1
+      1 x L112   e.g. del Expr
+      1 x L195   e.g. del Expr
+
+generated: 338/425 killed (79%), 38 waived, 49 survived
+
+❌ 13 waiver(s) match no generated mutant. The statement each
+   one names has been rewritten or removed, so it is now waiving nothing
+   while its mutant survives unexplained. Re-key them from the `waive as:`
+   lines in fixtures/mutation-survivors.txt, or delete them:
+      strip_comment | """Drop a trailing comment, respecting quotes. | del Expr
+      substitutions | elif ch == '`': | i = j + 1 | int 1+1
+      substitutions | elif ch == '`': | i = j + 1 | int 1-1
+      substitutions | elif ch == '`': | j = line.find('`', i + 1) | int 1+1
+      substitutions | elif ch == '`': | res.append((i + 1, j)) | int 1-1
+      substitutions | elif line.startswith('$(', i): | depth, j = 1, i + 2 | int 2+1
+      substitutions | elif line.startswith('$(', i): | depth, j = 1, i + 2 | int 2-1
+      substitutions | elif line.startswith('$(', i): | res.append((i + 2, j - 1)) | int 1-1
+      substitutions | elif line.startswith('$(', i): | res.append((i + 2, j - 1)) | int 2-1
+      substitutions | if j == -1: | i += 1 | int 1+1
+      substitutions | if line.startswith('$(', j) and not q[j]: | continue | del Continue
+      substitutions | if line.startswith('$(', j) and not q[j]: | j += 2 | int 2+1
+      substitutions | if line.startswith('$(', j) and not q[j]: | j += 2 | int 2-1
+
+❌ 49 unwaived survivor(s). Kill each with a corpus case, or waive it with an argument —
+   keys in fixtures/mutation-survivors.txt.
+
+❌ ratchet: killed fell from 344 to 338. Either add a corpus case, or waive the mutant in fixtures/mutation-waivers.json with a reason.
+EXIT 1

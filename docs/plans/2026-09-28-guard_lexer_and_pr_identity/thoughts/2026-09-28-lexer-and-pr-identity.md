@@ -56,17 +56,25 @@ bullet).
 
 ## Decision Record — the lexer
 
-**Chosen direction**: **not yet decided.** Narrowed to two: **L-B** (one hand-written stdlib
-state machine replacing the three quote trackers) or **L-C** (ShellCheck as the engine). L-A
-(fix the trackers in place) is rejected. A tracer bullet decides between L-B and L-C.
+**Chosen direction**: **L-B** — one hand-written stdlib state machine, `lex(line)`, replacing
+`strip_comment`'s, `_quote_spans`'s and `substitutions()`'s three separate quote trackers;
+every consumer reads its context, so "inside quotes" has one definition. Decided by the tracer
+bullet recorded in `2026-09-28-lexer-tracer-bullet.md` on 2026-09-28: L-B reached 117/117 on
+the second attempt with every held finding's case passing; L-C reached 89/117, missing 28
+must-fire cases because ShellCheck will not flag a bare assignment (Q8-5 verbatim).
 
-**Rationale for not deciding**: the user's words — "I think we should do a tracer bullet before
+**How it was decided** — the user chose a bullet over a judgement call: the user's words — "I think we should do a tracer bullet before
 deciding between L-B and L-C", 2026-09-28. The round-3 spike is the precedent: a pre-registered
 probe scoring candidates on the corpus and the mutation sweep decided the last rebuild, and the
 breaker's own rule requires a bullet before another attempt.
 
 **Rejected**:
 
+- **L-C — ShellCheck as the engine** — measured at 89/117 on the harness: ShellCheck 0.11 has no
+  token or AST output, and its SC2312 does not fire on a bare assignment, so shape 1's rule
+  ("captured and the status never tested") cannot be expressed as a code mapping. Reaching the
+  bar would mean re-implementing the capture scan and the lookahead in Python, which is L-B
+  plus a process per fence.
 - **L-A — fix the three trackers in place** — keeps three definitions of "inside quotes". The
   breaker fired on exactly this pattern: R9-T15 changed one tracker's view of double quotes and
   produced R10-T10 because the other two never learned about backslashes. A fourth pass over
@@ -92,7 +100,8 @@ half, for the reason candidate B did not.
 **Revisit if**: the bullet shows L-B cannot reach 114/114 without encoding tracker-specific
 behaviours the corpus happens to pin — then the corpus, not the lexer, is what needs redesign.
 
-**Decided**: the narrowing on 2026-09-28, with scraig; the choice waits on the bullet.
+**Decided**: the narrowing on 2026-09-28 with scraig, after 2 rounds; the choice by the
+tracer bullet the same day, read against its pre-registration.
 
 ---
 
@@ -231,9 +240,8 @@ for the bullet's design; it was not used to overrule the user's request for a bu
 
 ## Open Threads
 
-- **The lexer choice** waits on the tracer bullet, pre-registered per the record above. The
-  bullet's write-up goes in this directory's `thoughts/` and the decision, when made, is recorded
-  by `resolve_questions` or by amending the lexer record here.
+- **The lexer choice** was made by the tracer bullet the same day; its write-up is
+  `2026-09-28-lexer-tracer-bullet.md`, and the record above was amended rather than re-opened.
 - **Research Q1** (may the lexer take a non-stdlib dependency) is moot for L-B and L-C as
   framed — neither needs one — but stays open in `research.md` until `resolve_questions` closes
   it.

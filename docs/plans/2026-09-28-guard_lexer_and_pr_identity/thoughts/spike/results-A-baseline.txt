@@ -1,0 +1,58 @@
+corpus: /Users/scraig/conductor/workspaces/workbench/ankara/docs/plans/2026-09-28-guard_lexer_and_pr_identity/thoughts/spike/harness/fixtures/guard-corpus.json
+
+== corpus ==
+  114/117 (58 of 60 must-fire caught, 1 false positives)
+  ✗ MISSED  r10-t11-nested-guard-inner (want [(4, 'capture')], got [])
+  ✗ MISSED  r10-t7-zsh-fence-positional (want [(4, 'positional')], got [])
+  ✗ FALSE+  r10-t10-escaped-dollar-paren (got [(4, 'capture')])
+
+== scan integrity (outside the corpus) ==
+  ✓ a missing target exits 2
+  ✓ ...and names the path it could not find
+  ✓ an empty directory exits 0, not a hard fail
+  ✓ a directory with no shell or markdown exits 0
+  ✓ ...and says nothing was checked rather than reporting clean
+  ✓ the reported file count is the real one (4)
+  ✓ a clean tree with files in it exits 0
+  ✗ a relative target resolves against the caller cwd
+  ✗ ...and a run with findings says why it failed, on stderr
+  ✓ an exempt file with a defect is not reported
+  ✓ ...but the same content elsewhere IS
+  ✓ a symlink nested in the tree is followed
+  ✓ an unreadable file exits 2, not silently skipped
+  ✓ ...and names the file it could not read
+  ✓ with no target it scans the plugin tree beside it
+
+== mutation survivability ==
+  ✓ disable the capture detector: caught (36 misses vs 2, integrity 10/15)
+  ✓ disable the publish-chaining detector: caught (9 misses vs 2, integrity 15/15)
+  ✓ disable the --include detector: caught (3 misses vs 2, integrity 15/15)
+  ✓ disable the glob detector: caught (11 misses vs 2, integrity 15/15)
+  ✓ treat every capture as guarded: caught (36 misses vs 2, integrity 10/15)
+  ✓ break the quote-aware comment strip: caught (5 misses vs 2, integrity 15/15)
+  ✓ stop scanning sh/shell fences: caught (6 misses vs 2, integrity 15/15)
+  ✓ break the fence closer: caught (24 misses vs 2, integrity 15/15)
+  ✓ stop scanning extensionless scripts: caught (3 misses vs 2, integrity 14/15)
+  ✓ drop the unclosed-fence report: caught (4 misses vs 2, integrity 15/15)
+  ✓ drop the trailing glob flush: caught (9 misses vs 2, integrity 15/15)
+  ✗ delete the missing-target refusal: SURVIVED (114/117 + 14/15)
+  ✗ inflate the scanned-file count: SURVIVED (114/117 + 14/15)
+  ✗ delete the by-name exemptions: SURVIVED (114/117 + 14/15)
+  ✗ stop following nested symlinks: SURVIVED (114/117 + 14/15)
+  ✗ silently skip an unreadable file: SURVIVED (114/117 + 14/15)
+  ✗ take the targets raw instead of resolving them: SURVIVED (114/117 + 14/15)
+  ✓ make the span finder quote-blind again: caught via false positives only (2 vs 1) — no detector broke
+  ✓ restore the unmatchable \b after the : guard: caught via false positives only (2 vs 1) — no detector broke
+  ✓ drop the fence-gap check in the lookahead: caught (3 misses vs 2, integrity 15/15)
+  ✓ accept any line containing $? as a test: caught (3 misses vs 2, integrity 15/15)
+  ✓ ignore a one-liner glob body: caught via false positives only (2 vs 1) — no detector broke
+  ✓ disable the positional-token detector: caught (4 misses vs 2, integrity 15/15)
+  ✓ drop the clip allowlist: caught via false positives only (2 vs 1) — no detector broke
+  ✓ enter nested non-shell fences as shell: caught via false positives only (5 vs 1) — no detector broke
+
+  19/25 mutations caught
+  ✓ the tool under test is unmodified (sha matches)
+  ✓ --generated fails on an unwaived survivor even when the kill count rose
+
+test-guards: corpus 114/117, integrity 13/15, mutations 19/25 — FAIL
+EXIT 1
