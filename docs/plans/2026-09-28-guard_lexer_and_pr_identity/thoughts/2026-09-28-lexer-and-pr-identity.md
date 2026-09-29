@@ -8,10 +8,9 @@ status: decided
 
 # Exploration: the lexer, and PR identity
 
-Two decisions, explored together because the same breaker trip escalated both. One is decided;
-the other is narrowed to two directions and handed to a tracer bullet. Each has its own record
-below so `create_design` can formalize the decided one and carry the open one forward as a
-pending decision.
+Two decisions, explored together because the same breaker trip escalated both. Identity was
+decided in discussion; the lexer was narrowed to two directions and decided by a tracer bullet
+the same day. Each has its own record below so `create_design` can formalize both.
 
 ## Decision Record — PR identity
 
