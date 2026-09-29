@@ -1366,5 +1366,79 @@
     "capture"
    ]
   ]
+ },
+ {
+  "id": "gen-sweep-quoted-semicolon-not-a-split",
+  "shape": "none",
+  "expect": 0,
+  "path": "scripts/qs1.sh",
+  "content": "#!/usr/bin/env bash\ngh pr comment \"$PR\" -b 'done; git push happened'\necho ok\ngh pr comment \"$PR\" -b \"done; git push happened\"\n",
+  "provenance": "gen-sweep P1-T2 \u2014 the five surviving mutants of `_quote_spans`'s `bool(c[0] or c[1])` each drop ONE of the two quote flags, or require both. A `;` inside single quotes and a `;` inside double quotes, each in the body of a publish command, are what tell the flags apart: drop either one and statements() splits the line into two adjacent publishes and reports a chain that is not there. The middle `echo ok` keeps the two publish lines non-adjacent so the baseline has nothing to report.",
+  "expect_at": []
+ },
+ {
+  "id": "gen-sweep-escaped-quote-then-subst",
+  "shape": "capture",
+  "expect": 1,
+  "path": "scripts/qs2.sh",
+  "content": "#!/usr/bin/env bash\necho \"\\\"$(grep -c foo f.txt)\\\"\"\n",
+  "provenance": "gen-sweep P1-T2 \u2014 an escaped `\\\"` immediately before a substitution. The escape must be consumed by exactly one character: leave `esc` set (`esc = False` deleted) and every later character is swallowed as escaped, so the `$(` never opens; fall out of the escape branch without its `continue` (`del Continue`) and the escaped `\"` is re-examined as a real quote, which toggles dq and again loses the substitution. Either way the unguarded count disappears.",
+  "expect_at": [
+   [
+    2,
+    "capture"
+   ]
+  ]
+ },
+ {
+  "id": "gen-sweep-sq-opens-before-subst",
+  "shape": "none",
+  "expect": 0,
+  "path": "scripts/qs3.sh",
+  "content": "#!/usr/bin/env bash\necho '$(grep -c foo f.txt)'\n",
+  "provenance": "gen-sweep P1-T2 \u2014 a substitution opening on the very first character inside single quotes. Every other single-quote case in this corpus has text between the opening quote and the `$(`, so the `continue` that ends the single-quote-open branch was never load-bearing: without it the opener falls through to the `$(` test on the character it has just quoted, and a literal string is reported as an unguarded capture.",
+  "expect_at": []
+ },
+ {
+  "id": "gen-sweep-backtick-reopens-quoting",
+  "shape": "chain",
+  "expect": 1,
+  "path": "scripts/qs4.sh",
+  "content": "#!/usr/bin/env bash\ngh pr comment \"$PR\" -b \"x `echo a; git push` y\"\n",
+  "provenance": "gen-sweep P1-T2 \u2014 a backtick opens a FRESH quoting context, which is lex()'s docstring rule and the shell's: the `;` inside the backticks is a command separator even though the backticks sit inside double quotes, so `git push` really does run unconditionally after `echo a` and its failure is invisible. Drop the `dq = False` that the backtick opener saves and restores and the `;` reads as quoted text, so the second action is never seen.",
+  "expect_at": [
+   [
+    2,
+    "chain"
+   ]
+  ]
+ },
+ {
+  "id": "gen-sweep-tick-in-paren-guard-outside",
+  "shape": "capture",
+  "expect": 1,
+  "path": "scripts/qs5.sh",
+  "content": "#!/usr/bin/env bash\nn=$(`grep -c foo f` ; echo z) || true\n",
+  "provenance": "gen-sweep P1-T2 \u2014 a backtick nested inside a `$( )`, with the `|| true` OUTSIDE the substitution. Kills `lex | if ch == '`': | if stack and stack[-1][1] == 'tick': | int 1-1 #2`, which reads the BOTTOM of the substitution stack instead of the top: at the closing backtick the stack is [paren, tick], `stack[0][1]` is 'paren', so the close is missed and a second tick is pushed; the `)` then sees a tick on top and is literal; the end-of-line flush emits one paren span running to end of line, which swallows the outside `|| true` into the span, so an unguarded capture reads as guarded. The earlier waiver argued from ten probes that all put the guard inside the substitution, which is why none could differ.",
+  "expect_at": [
+   [
+    2,
+    "capture"
+   ]
+  ]
+ },
+ {
+  "id": "gen-sweep-paren-in-tick-guard-outside",
+  "shape": "capture",
+  "expect": 1,
+  "path": "scripts/qs6.sh",
+  "content": "#!/usr/bin/env bash\nn=`$(grep -c foo f) ; echo z` || true\n",
+  "provenance": "gen-sweep P1-T2 \u2014 the mirror nesting, a `$( )` inside a backtick, with the `|| true` OUTSIDE the substitution. Kills `lex | while i < n: | if ch == ')' and not dq and stack and stack[-1][1] == 'paren': | int 1-1 #2`, which reads the BOTTOM of the stack: at the `)` the stack is [tick, paren], `stack[0][1]` is 'tick', so the paren never closes; the closing backtick then finds a paren on top, not a tick, and pushes a second tick; the end-of-line flush emits the unclosed paren as one span running to end of line, which swallows the outside `|| true`, so an unguarded capture reads as guarded. Valid bash (`bash -n` clean) with no stray `)` anywhere, which the earlier waiver claimed was required.",
+  "expect_at": [
+   [
+    2,
+    "capture"
+   ]
+  ]
  }
 ]

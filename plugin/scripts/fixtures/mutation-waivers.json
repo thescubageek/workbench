@@ -52,8 +52,8 @@
   "reason": "EQUIVALENT, provably. The only statement after the fence-closer branch is `if shell: out.append(...)`, and the branch has just assigned `shell = False`."
  },
  {
-  "match": "strip_comment | \"\"\"Drop a trailing comment, respecting quotes. | del Expr",
-  "reason": "EQUIVALENT. Deletes a docstring. A docstring is a string expression nothing evaluates: `collect()` returns the same findings and the CLI prints the same output, so no corpus case and no integrity claim can observe it. The generator walks the syntax tree and cannot tell a docstring from a statement \u2014 that is the price of it having no blind spot correlated with the author's, and it is worth paying."
+  "match": "strip_comment | \"\"\"Drop a trailing comment: a `#` outside quotes, unescaped, at ... | del Expr",
+  "reason": "EQUIVALENT. Deletes a docstring. A docstring is a string expression nothing evaluates: `collect()` returns the same findings and the CLI prints the same output, so no corpus case and no integrity claim can observe it. The generator walks the syntax tree and cannot tell a docstring from a statement \u2014 that is the price of it having no blind spot correlated with the author's, and it is worth paying. Re-keyed in P1-T2: the docstring text itself changed when `strip_comment` was rebuilt on `lex()`, so the key moved. The argument did not."
  },
  {
   "match": "_quote_spans | \"\"\"Index -> True when that index sits inside a quoted string.\"\"\" | del Expr",
@@ -64,52 +64,16 @@
   "reason": "EQUIVALENT. Deletes a docstring. A docstring is a string expression nothing evaluates: `collect()` returns the same findings and the CLI prints the same output, so no corpus case and no integrity claim can observe it. The generator walks the syntax tree and cannot tell a docstring from a statement \u2014 that is the price of it having no blind spot correlated with the author's, and it is worth paying."
  },
  {
-  "match": "substitutions | elif line.startswith('$(', i): | depth, j = 1, i + 2 | int 2+1",
-  "reason": "EQUIVALENT in practice. Starting at `i + 3` skips the first character of the substitution's body, which changes a decision only when that character is `)` (an empty `$()`) or opens an immediately nested `$($(...))`. Neither is a shape a counting capture takes."
+  "match": "lex | if line.startswith('$(', i): | i += 2 | int 2-1",
+  "reason": "EQUIVALENT, provably. Re-keyed in P1-T2 from `substitutions | if line.startswith('$(', j) and not q[j]: | j += 2 | int 2-1`: the same step past a `$(` the scanner has just consumed, now in `lex()`. Stepping by 1 leaves `i` on that `(`. The next iteration falls all the way to the loop tail for it \u2014 `(` is not `\\`, `'`, `\"`, `)` or a backtick, and `line.startswith('$(', i)` is false at a bare `(` \u2014 and the tail writes `(sq, dq, False)`, which here is `(False, False, False)`: `sq` is False because the `if sq` branch returns before this one, and `dq` was set False two lines above. That is byte-for-byte the tuple the branch's own `ctx[i] = ctx[i + 1] = (False, False, False)` already wrote at that index. Identical ctx, identical spans. The mirror `int 2+1` is NOT waived \u2014 it skips the first character of the body, and the corpus kills it."
  },
  {
-  "match": "substitutions | elif line.startswith('$(', i): | depth, j = 1, i + 2 | int 2-1",
-  "reason": "EQUIVALENT, provably. The branch is entered only when `line.startswith('$(', i)`, so `line[i + 1]` is always `(` \u2014 it does not start `$(` and it is not `)`. The extra iteration changes nothing before `j` reaches `i + 2`."
+  "match": "lex | if line.startswith('$(', i): | stack.append((i + 2, 'paren', dq)) | int 2-1",
+  "reason": "EQUIVALENT, provably. Re-keyed in P1-T2 from `substitutions | elif line.startswith('$(', i): | res.append((i + 2, j - 1)) | int 2-1`, the statement `lex()` replaced: it is the same mutation of the same decision \u2014 where a `$( )` span's inner text begins \u2014 and so the same argument. The span's inner text gains one leading character, and that character is always the `(` of the `$(` that opened it. COUNTING starts matching at `\\bgrep\\b` and `(` is a non-word character, so the boundary still holds; GUARD requires `||`, which a lone `(` cannot make. Neither detector can read differently for it."
  },
  {
-  "match": "substitutions | if line.startswith('$(', j) and not q[j]: | j += 2 | int 2+1",
-  "reason": "EQUIVALENT in practice. These change how the scanner steps past a nested `$(` it has just counted. Stepping by 1 lands on the `(`, which is neither `$(` nor `)`, so the next iteration recovers; stepping by 3, or falling through instead of continuing, differ only when the character immediately after a nested `$(` is `)` or begins another `$(` \u2014 `$($())` and `$($(...))`. No counting capture is written that way. Deleting the step entirely is NOT waived: it spins, and s1-nested-substitution catches it."
- },
- {
-  "match": "substitutions | if line.startswith('$(', j) and not q[j]: | j += 2 | int 2-1",
-  "reason": "EQUIVALENT in practice. These change how the scanner steps past a nested `$(` it has just counted. Stepping by 1 lands on the `(`, which is neither `$(` nor `)`, so the next iteration recovers; stepping by 3, or falling through instead of continuing, differ only when the character immediately after a nested `$(` is `)` or begins another `$(` \u2014 `$($())` and `$($(...))`. No counting capture is written that way. Deleting the step entirely is NOT waived: it spins, and s1-nested-substitution catches it."
- },
- {
-  "match": "substitutions | if line.startswith('$(', j) and not q[j]: | continue | del Continue",
-  "reason": "EQUIVALENT in practice. These change how the scanner steps past a nested `$(` it has just counted. Stepping by 1 lands on the `(`, which is neither `$(` nor `)`, so the next iteration recovers; stepping by 3, or falling through instead of continuing, differ only when the character immediately after a nested `$(` is `)` or begins another `$(` \u2014 `$($())` and `$($(...))`. No counting capture is written that way. Deleting the step entirely is NOT waived: it spins, and s1-nested-substitution catches it."
- },
- {
-  "match": "substitutions | elif line.startswith('$(', i): | res.append((i + 2, j - 1)) | int 2-1",
-  "reason": "EQUIVALENT, provably. The span's inner text gains one leading character, and that character is always the `(` of the `$(` that opened it. COUNTING starts matching at `\\bgrep\\b` and `(` is a non-word character, so the boundary still holds; GUARD requires `||`. Neither detector can read differently for it."
- },
- {
-  "match": "substitutions | elif line.startswith('$(', i): | res.append((i + 2, j - 1)) | int 1-1",
-  "reason": "EQUIVALENT for any closed substitution. The span's end moves from the `)` to one past it, so the inner text gains exactly that `)`. COUNTING's negated class excludes `)` so it cannot match across it, GUARD requires `||`, and ``after.lstrip('`)')`` strips the same character back off the other side. The two forms can differ only on an UNCLOSED `$(`, where there is no `)` \u2014 and an unclosed substitution is a shell syntax error."
- },
- {
-  "match": "substitutions | elif ch == '`': | j = line.find('`', i + 1) | int 1+1",
-  "reason": "EQUIVALENT in practice. ``find('`', i + 1)`` and ``find('`', i + 2)`` differ only when the closing backtick sits at `i + 1`, i.e. an empty capture ``` `` ```. Anything with content puts the closer at `i + 2` or later."
- },
- {
-  "match": "substitutions | if j == -1: | i += 1 | int 1+1",
-  "reason": "EQUIVALENT in practice. The branch runs only for a backtick outside single quotes with no pair on the line \u2014 unquoted or inside double quotes, that is an unterminated substitution, a syntax error; `r4-stray-backtick` is the fixture that reaches it, and it kills the mutants that spin or abandon the line. What survives here changes only how the scanner steps past the stray backtick, which matters only when the very next character is a quote, `$(` or backtick that decides a later finding. The curated `abandon the line on a stray backtick` waiver makes the same argument."
- },
- {
-  "match": "substitutions | elif ch == '`': | res.append((i + 1, j)) | int 1-1",
-  "reason": "EQUIVALENT, provably. The backtick span's inner text gains one leading character, always the opening backtick itself. COUNTING anchors on `\\bgrep\\b` and a backtick is a non-word character, so the boundary holds; GUARD requires `||`."
- },
- {
-  "match": "substitutions | elif ch == '`': | i = j + 1 | int 1+1",
-  "reason": "EQUIVALENT in practice. `j + 2` skips the single character after a closing backtick. That distinguishes a substitution opening flush against it, or a quote closing flush against it (``\"`cmd`\"``) \u2014 skipping that `\"` leaves the double-quote state open, which changes a finding only if a single-quoted `$(...)` holding a counting command follows later on the same line. No capture is written that way."
- },
- {
-  "match": "substitutions | elif ch == '`': | i = j + 1 | int 1-1",
-  "reason": "EQUIVALENT in practice. `j + 0` re-uses the closing backtick as the next opener, which recovers every real pair and additionally spans the text BETWEEN pairs as if it were a capture. That text is ordinary shell on the same line, already scanned there, so the finding set changes only if a single-quoted `$(...)` holding a counting command sits between two backtick pairs on one line \u2014 the one place the extra span ignores quoting the main scan honours. No capture is written that way."
+  "match": "lex | if stack and stack[-1][1] == 'tick': | stack.append((i + 1, 'tick', dq)) | int 1-1",
+  "reason": "EQUIVALENT, provably. Re-keyed in P1-T2 from `substitutions | elif ch == '`': | res.append((i + 1, j)) | int 1-1`, the statement `lex()` replaced; same mutation of the same decision, same argument. The backtick span's inner text gains one leading character, always the opening backtick itself. COUNTING anchors on `\\bgrep\\b` and a backtick is a non-word character, so the boundary holds; GUARD requires `||`."
  },
  {
   "match": "<module> | STATUS_LINE = re.compile(r'^\\s*(?:if\\s|\\[\\[?|test\\s|[A-Za-z_]\\w*... | regex drop the leading anchor: ^\\s*(?:if\\s|\\[\\[?|test\\s|[A-Za-z_]\\w",
@@ -202,5 +166,9 @@
  {
   "match": "unchained_publishes | \"\"\"[(lineno, text)] for an outward-facing action immediately fol... | del Expr",
   "reason": "EQUIVALENT. Deletes a docstring. A docstring is a string expression nothing evaluates: `collect()` returns the same findings and the CLI prints the same output, so no corpus case and no integrity claim can observe it. The generator walks the syntax tree and cannot tell a docstring from a statement \u2014 that is the price of it having no blind spot correlated with the author's, and it is worth paying."
+ },
+ {
+  "match": "lex | \"\"\"One pass over a shell line -> (ctx, spans). | del Expr",
+  "reason": "EQUIVALENT. Deletes a docstring. A docstring is a string expression nothing evaluates: `collect()` returns the same findings and the CLI prints the same output, so no corpus case and no integrity claim can observe it. The generator walks the syntax tree and cannot tell a docstring from a statement \u2014 that is the price of it having no blind spot correlated with the author's, and it is worth paying. This one is worth a second sentence: `lex()`'s docstring is NORMATIVE \u2014 it is the statement of the shell rules the machine below implements, and a review reads the code against it rather than against the previous fix. That makes it the most valuable prose in the file and still impossible for any input to observe, because nothing evaluates it. Normative prose is protected by review, not by the sweep, and pretending otherwise would mean writing a corpus case that cannot exist."
  }
 ]

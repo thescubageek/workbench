@@ -51,6 +51,36 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-29 02:34 — P1-T2 (closed)
+
+- **Task/phase**: P1-T2 — close the generated mutation sweep after the lexer rewrite.
+- **Landed**: sweep reconciled against `lex()`. 13 stale waivers (the exact prediction) —
+  8 deleted, 5 re-keyed. 6 corpus cases added (120 to 126), each the sole killer of a named
+  survivor. 3 waivers added, then 2 of them deleted again (see below) and a 3rd deleted by the
+  coordinator, leaving 43. Ratchet re-based once, by the harness itself, 344/395 to 377/420.
+  Final: 377/420 killed, 43 waived, **0 survived**, 0 stale.
+- **Commits**: this commit.
+- **Learned**: three things, and the first is the important one.
+  1. **An equivalence argument backed by a probe set is only as good as the probe set's
+     variety.** Two waivers claimed `stack[0][1]` and `stack[-1][1]` were indistinguishable,
+     on ten probes that all put `|| true` *inside* the substitution. With the guard **outside**,
+     valid bash tells them apart — `n=$(`grep -c foo f`; echo z) || true` — and the mutant's
+     end-of-line flush swallows the outside guard, so an unguarded capture reads as guarded.
+     Both became corpus cases. A third waiver (`$( | del Continue`) fell to the same idea and
+     was deleted too. The failure mode is not "wrong argument" but "probes that share a hidden
+     assumption and so cannot fail" — the same shape as the knowledge file's "a probe that
+     cannot fail is not evidence".
+  2. **`redundant` and `stale` are different waiver states and only one is fatal.**
+     `test-guards:451-457` partitions idle waivers: `stale` (the statement is gone) fails the
+     run; `redundant` (the mutant lives and a corpus case now kills it) prints an informational
+     line and does not. A waiver can therefore be harmless to the gate and still carry a false
+     argument, which is what the deleted third one was.
+  3. **`lex()` added 25 mutants, not the ~6 the bullet's arithmetic implied.** Its stack
+     discipline — the tick/paren kinds, the `dq` save-restore — is state the old flat scanner
+     did not have, so removing `depth` did not shrink the population as much as predicted.
+- **Blocked by**: nothing. The run was interrupted once by a spend limit and resumed with its
+  context intact; the failure was external, not a defect in the work.
+
 ## 2026-09-29 01:51 — P1-T1 (closed)
 
 - **Task/phase**: P1-T1 — land `lex()` in `plugin/scripts/check-guards` and the six corpus

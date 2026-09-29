@@ -383,6 +383,14 @@ we have the in-repo cautionary example for that.
 - **The two spellings that are reliable**: `command diff --color a b` and `rtk proxy diff a b`
   both exit 1 on a difference. `cmp a b` exits 1 and names the first differing byte, and is the
   better choice when the question is "identical or not" rather than "what changed".
+- **The `--color` in that line is load-bearing, not decoration (2026-09-28).** Measured in one
+  call on differing files: `command diff` exits **0**, `command diff --color` exits **1**,
+  `rtk proxy diff` exits 1, `cmp` exits 1, `/usr/bin/diff` exits 1. A worker that read this
+  entry, dropped the flag as cosmetic, and used bare `command diff` reported that this entry was
+  wrong and that `cmp` was the only reliable spelling. The entry was right; the flag is what
+  makes it right, because `--color` is the argument the rtk hook's rewrite does not match. If
+  the question is only "identical or not", reach for `cmp` — it is the spelling with no flag to
+  drop.
 - **Verified**: 2026-09-21 · `docs/plans/2026-09-17-adversarial_loop/reviews/2026-09-21-round-6/`
   — surfaced by R6-T4's verification, re-derived directly at the round-6 checkpoint
 - **Check it**: `printf 'a\nb\n' > /tmp/d1; printf 'a\nC\n' > /tmp/d2; diff /tmp/d1 /tmp/d2;

@@ -41,12 +41,6 @@ CORPUS = os.path.join(HERE, 'fixtures', 'guard-corpus.json')
 # every anchor below it, unhooking those waivers silently — the mutant reappears as an
 # unexplained survivor while the ratchet, which watches only the kill count, stays green.
 # Each survivor in fixtures/mutation-survivors.txt prints its own key to copy.
-#
-#   'abandon the line on a stray backtick' (break vs continue in substitutions()):
-#     unreachable from valid shell. An unpaired backtick unquoted or inside double quotes is
-#     an unterminated substitution, a syntax error, and one inside single quotes never reaches
-#     the branch — so no corpus case can distinguish the two behaviours. The `continue` form is kept because it is more
-#     defensible, not because a test demands it.
 
 MUTATIONS = [
     ('disable the capture detector',

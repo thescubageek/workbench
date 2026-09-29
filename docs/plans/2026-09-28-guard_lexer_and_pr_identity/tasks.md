@@ -217,7 +217,7 @@ P1-T2 and at the checkpoint, backgrounded.
       **shown to fail the corpus** when planted in a scratch copy before it is trusted (A2).
       **GREEN**: corpus 120/120, integrity 15/15, mutations 25/25. Do not run `--generated`
       here. (~35 calls) (completed 2026-09-29 02:12)
-- [ ] **P1-T2** — Close the generated sweep. Run `./plugin/scripts/test-guards --generated`
+- [x] **P1-T2** — Close the generated sweep. Run `./plugin/scripts/test-guards --generated`
       **in the background** and read the survivors file. Expected from the bullet: 13 stale
       waivers (statements in the replaced functions) and a handful of survivors in `lex()` and
       `_quote_spans` — fewer than the bullet's 26 because `depth` is gone. For each stale waiver:
@@ -228,7 +228,7 @@ P1-T2 and at the checkpoint, backgrounded.
       commit message** ("re-based from 344/395 after the lexer rewrite; N mutants added by
       `lex()`"), since the sweep's `killed < prev` rule would otherwise fail on a total that
       changed. **GREEN**: `--generated` reports 0 unwaived, 0 stale, and the plain suite still
-      passes. (~30 calls, plus two backgrounded runs of ~4 minutes)
+      passes. (~30 calls, plus two backgrounded runs of ~4 minutes) (completed 2026-09-29 04:58)
 - [ ] **P1-T3** — R10-T12: remove `echo` from `GUARD` (`check-guards:62` today,
       `re.compile(r'\|\|\s*(?:true\b|:(?!\w)|echo\b)')` → drop the `|echo\b` alternative). Corpus
       first: a must-fire case `n=$(grep -c foo f.txt || echo 0)` with provenance R10-T12. **RED**:
@@ -254,7 +254,9 @@ P1-T2 and at the checkpoint, backgrounded.
 
 #### Automated Verification
 
-- [ ] `./plugin/scripts/test-guards` → corpus 122/122, integrity 16/16, mutations 25/25 — PASS
+- [ ] `./plugin/scripts/test-guards` → corpus 128/128, integrity 16/16, mutations 25/25 — PASS
+      (was 122/122 when planned: P1-T2 was assumed to add no corpus cases and added six, each
+      the sole killer of a named survivor — see Implementation Notes)
 - [ ] `./plugin/scripts/test-guards --generated` (backgrounded) → 0 unwaived survivors, 0 stale
       waivers, ratchet held at the re-based value
 - [ ] `./plugin/scripts/check-guards plugin/` → clean (shape 6 sees `zsh` fences now; none
@@ -737,6 +739,28 @@ resolved, leaving a dated line saying how.
 - **[2026-09-29] Two stale notes in `test-guards` deferred to P1-T2.** The waiver note at
   `:45-49` describes a `break`/`continue` branch of the old `substitutions()` that `lex()` does
   not have.
+- **[2026-09-29] P1-T2: the sweep's corpus grew by six, not zero.** Phase 1's automated bar
+  was written as `corpus 122/122` on the assumption P1-T2 would close its survivors with
+  waivers alone. Six of them were killable by real input instead, and the task's own rule
+  prefers a corpus case over a waiver whenever one exists. The bar is corrected to `128/128`
+  above; the count is 126 today and P1-T3 and P1-T5 add one each.
+- **[2026-09-29] P1-T2: three waivers asserted an equivalence that valid bash falsifies.**
+  All three argued that `stack[0][1]` and `stack[-1][1]` (or a missing `continue`) could not be
+  told apart, each on a probe set whose lines all placed `|| true` **inside** the substitution.
+  With the guard **outside**, the mutant's end-of-line flush swallows it and an unguarded
+  capture reads as guarded: `n=$(`grep -c foo f`; echo z) || true`. Two became corpus cases in
+  the escalation; the third was deleted by the coordinator after its mutant turned out to be
+  killed by one of them. **The generalisable lesson is about the probe set, not the argument**:
+  ten probes that share a hidden assumption cannot fail, which is the knowledge file's "a probe
+  that cannot fail is not evidence" in a new costume. An equivalence waiver needs probes that
+  vary the thing the argument depends on.
+- **[2026-09-29] FOLLOW-UP, not fixed: `strip_comment` truncates a line at a `#` inside a
+  substitution.** On `echo "x`grep -c foo f # note`"` the `#` inside the backticks is a real
+  shell comment, so the substitution does run an unguarded `grep -c` — but `strip_comment`
+  cuts the **whole line** there, discarding the closing backtick, so the span never forms and
+  `check-guards` reports nothing. A false negative that blinds the capture detector for the rest
+  of the line. Found twice independently during P1-T2 and deliberately left alone: a corpus case
+  pinning `expect 0` would pin the bug, and fixing it is not P1-T2's task. Needs its own task.
 
 ---
 
