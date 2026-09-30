@@ -51,6 +51,18 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-30 08:08 — P6-T1 (closed)
+
+- **Task/phase**: P6-T1 — `plugin/scripts/test-wbte-dictionary`, RED. It runs in parallel with P5-T5 (the user's full-auto instruction), because Phase 6 depends only on P2-T1
+- **Landed**: 13 checks over the four cases in the task. With no extractor, the 9 positive checks fail with exit 127, and the 4 "nothing written" checks pass trivially
+- **Commits**: see `P6-T1: add the wbte-dictionary contract test (RED)`
+
+## 2026-09-30 08:06 — P5-T5 (open)
+
+- **Task/phase**: P5-T5 — a larger fixture, `evals/fixture-large/`, that makes the stages spawn sub-agents, plus `--fixture` support and the Phase 4 before-run on it
+- **Next action**: read the create_research, create_design and create_tasks fan-out and skip rules, build the fixture, then run a tracer of `create_research` and look for agent spawns
+- **Started at**: 72af3b1
+
 ## 2026-09-30 06:39 — P4-T9 (closed)
 
 - **Task/phase**: P4-T9 — the Objective 1 measurement: 2.1.1 against the P4-T8 tree, 3 repeats, with the design.md targets and the within-run judge
