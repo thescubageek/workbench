@@ -137,7 +137,7 @@ Based on dependency analysis:
 | Phase 2: Rules authority, harness, and baseline | ✅ Complete | 8/8 | 100% |
 | Phase 3: Rule card | ✅ Complete | 3/3 | 100% |
 | Phase 4: Objective 1 — link lines and template rewrites | ✅ Complete | 10/10 | 100% |
-| Phase 5: Objective 2 — gated "lite" rewrite | 🔄 In Progress | 0/4 | 0% |
+| Phase 5: Objective 2 — gated "lite" rewrite | 🔄 In Progress | 0/5 | 0% |
 | Phase 6: Dictionary skill | ⏸️ Not Started | 0/2 | 0% |
 | Phase 7: Documentation, handoff, and release checks | ⏸️ Not Started | 0/5 | 0% |
 
@@ -862,18 +862,37 @@ files. The 3.0.0 handoff (P7-T2) lists them.
 1. Rewrite the files with the "lite" rules from `technical-english.md`. Keep barriers, "Read
    [link] NOW" directives, and capitalized scope rules as they are. The 2.0.0 trials showed that
    trimming them made results worse (R3, R4).
-2. Run `evals/run.py` with 3 repeats, comparing the Phase 4 tree with the rewrite applied.
-3. Keep the rewrite only if the judge finds no loss in 3 of 3 repeats and `token_check.py`
-   passes. Otherwise restore the file from the Phase 4 commit with `git checkout <sha> -- <file>`.
+2. Run `evals/run.py --fixture evals/fixture-large` with 3 repeats on the tree with the rewrite
+   applied. Compare it with the P5-T5 "before" run of the Phase 4 tree on the same fixture
+   (the user's choice, 2026-09-30).
+3. Keep the rewrite only if the within-run judge (D7) finds no loss in 3 of 3 repeats and
+   `token_check.py` passes, apart from the known missing git keys. A file that no transcript
+   of the gate run reads or spawns is recorded as "not exercised", not as "no loss". Otherwise restore the file from the Phase 4 commit with `git checkout <sha> -- <file>`.
 4. Record the verdict per file in `thoughts/2026-09-30-lite-verdicts.md`, in a table with the
    file, repeats, judge result and kept or restored.
 
 ### Tasks
 
-- [ ] **P5-T1** — Gate `create_research/{reference,sub-agent-prompts}.md`. (~30 calls)
-- [ ] **P5-T2** — Gate `create_design/{reference,sub-agent-prompts}.md`. (~30 calls)
-- [ ] **P5-T3** — Gate `create_tasks/{reference,examples,sub-agent-prompts}.md`. (~30 calls)
-- [ ] **P5-T4** — Gate `agents/{codebase-analyzer,codebase-locator}.md`. Then measure the token
+- [ ] **P5-T5** — Build a larger fixture, `evals/fixture-large/`, so that the stages spawn their
+      sub-agents (the D6 follow-up). Added 2026-09-30 at the user's request: on the small
+      fixture, no stage spawned an agent in 12 sessions, so 5 of the 9 Phase 5 files cannot
+      show "no loss".
+      - A synthetic project, written for the fixture and copied from no other code. It must be
+        large enough that a stage cannot read the whole surface itself. It needs a
+        `QUESTION.md`, an `expected.json` with at least 6 facts at known lines, and the
+        existing `plan-seed/`.
+      - `--fixture DIR` on `evals/run.py` and `evals/judge.py`, with `evals/fixture/` as the
+        default.
+      - A tracer run of `create_research` on the Phase 4 tree must show at least one agent
+        spawn in its transcript. If it does not, make the fixture larger and run it again.
+      - Then run the Phase 4 tree (`f2c78e8`) on the new fixture with 3 repeats. That run is
+        the "before" side of every Phase 5 gate.
+      - Record the fixture size, the spawn evidence, and the before run in
+        `thoughts/2026-09-30-lite-verdicts.md`. (~40 calls)
+- [ ] **P5-T1** — Gate `create_research/{reference,sub-agent-prompts}.md`. Depends on: P5-T5. (~30 calls)
+- [ ] **P5-T2** — Gate `create_design/{reference,sub-agent-prompts}.md`. Depends on: P5-T5. (~30 calls)
+- [ ] **P5-T3** — Gate `create_tasks/{reference,examples,sub-agent-prompts}.md`. Depends on: P5-T5. (~30 calls)
+- [ ] **P5-T4** — Gate `agents/{codebase-analyzer,codebase-locator}.md` (Depends on: P5-T5). Then measure the token
       cost of the final tree with `claude --plugin-dir plugin plugin details wb` and add it to
       `thoughts/2026-09-30-lite-verdicts.md` beside the baseline. (~30 calls)
 
