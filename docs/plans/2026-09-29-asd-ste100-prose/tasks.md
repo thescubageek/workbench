@@ -4,13 +4,13 @@ ticket: null
 created: 2026-09-29
 status: in-progress
 last_updated: 2026-09-30
-current_phase: 8
-total_tasks: 47
-completed_tasks: 47
+current_phase: 9
+total_tasks: 53
+completed_tasks: 53
 task_tracking: markdown-checkboxes
 depends_on: [research.md, design.md]
 assignee: scraig
-git_commit: e6572a0
+git_commit: ccf4546
 git_branch: wb-2.2.0/asd_ste100_prose
 repository: thescubageek/workbench
 tags: [tasks, tracking, asd-ste100-prose]
@@ -141,7 +141,7 @@ Based on dependency analysis:
 | Phase 6: Dictionary skill | ✅ Complete | 2/2 | 100% |
 | Phase 7: Documentation, handoff, and release checks | ✅ Complete | 5/5 | 100% |
 | Phase 8: Validation fixes | ✅ Complete | 7/7 | 100% |
-| Phase 9: PR descriptions and commit messages in WBTE | 🔄 In progress | 0/6 | 0% |
+| Phase 9: PR descriptions and commit messages in WBTE | ✅ Complete | 6/6 | 100% |
 
 Counts come from the checkboxes below and are reconciled by `/wb:update_status`.
 
@@ -1374,11 +1374,11 @@ Added 2026-09-30 at the user's request.
 
 #### Automated Verification
 
-- [ ] `./plugin/scripts/test-pr-template`, `./plugin/scripts/test-prime`, `./plugin/scripts/test-lint`
+- [x] `./plugin/scripts/test-pr-template`, `./plugin/scripts/test-prime`, `./plugin/scripts/test-lint`
       and `./plugin/scripts/test-quiet` pass
-- [ ] `python3 evals/link_check.py` and `python3 evals/token_check.py` pass
-- [ ] Each planted PR body gives its expected exit code from `wbte_check.py --pr`
-- [ ] `./plugin/scripts/lint --all` exits 0, and `claude plugin validate plugin/` passes
+- [x] `python3 evals/link_check.py` and `python3 evals/token_check.py` pass
+- [x] Each planted PR body gives its expected exit code from `wbte_check.py --pr`
+- [x] `./plugin/scripts/lint --all` exits 0, and `claude plugin validate plugin/` passes
 
 #### Manual Verification
 
@@ -1401,11 +1401,14 @@ before, and following it ticks the human sign-off box. **This block, labels and 
 included, is repeated in full at every phase's checkpoint**; a later phase never gets a
 shortened one.
 
-- [ ] **(derivable)** Every Phase 9 checkbox is `[x]`
-- [ ] **(derivable)** All automated verification passing
+- [x] **(derivable)** Every Phase 9 checkbox is `[x]`
+- [x] **(derivable)** All automated verification passing
 - [ ] **(attestation)** Manual verification confirmed by human
-- [ ] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
+- [x] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
       only writer of those fields, so do not edit `current_phase` or `completed_tasks` by hand
+
+**Closed 2026-09-30 16:57 UTC.** The attestation stays `[ ]`. Nobody has run `/wb:pr-description` on this
+branch or in a repository with a PR template yet. Both are in the manual checklist.
 
 **Do not proceed without human confirmation of manual tests** — unless the phase is being run
 under `/wb:implement --auto`, which buys the wait and not the attestation. In that case the

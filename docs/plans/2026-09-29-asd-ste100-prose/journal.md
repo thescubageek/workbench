@@ -51,6 +51,13 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-30 16:57 — Phase 9 (closed)
+
+- **Task/phase**: P9-T1 to P9-T6 — PR descriptions and commit messages in WBTE (D15 to D17)
+- **Landed**: the reference section, `pr-template` with its test (13 checks), `/wb:pr-description` and its generic template, card v4 (149 words, rule 9), `wbte_check.py --pr` with planted bodies, and the docs. Counters reconciled to 53/53
+- **Commits**: `4060244` (P9-T1) to `ccf4546` (P9-T6)
+- **Learned**: no wb stage wrote PR text before, so only the card reached the harness's own PR writing. 3.0.0's `reply-to-claude` posts PR comments and needs the link line in the post-3.0.0 pass
+
 ## 2026-09-30 16:47 — Phase 9 (open)
 
 - **Task/phase**: P9-T1 to P9-T6 — PR descriptions and commit messages in WBTE (D15 to D17)
