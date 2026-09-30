@@ -70,7 +70,7 @@ rule. A stage that follows a link line also reads the reference doc, about 2,100
 
 ### Changed
 
-- **Every output template links to the reference doc.** That is 43 templates, and 4 inline
+- **Every output template links to the reference doc.** That is 44 templates, including the new PR template, and 4 inline
   output steps in `create_project`, `create_research`, `create_product_research` and
   `resolve_questions`.
 - **32 output templates** not shared with 3.0.0 are rewritten in WBTE.
