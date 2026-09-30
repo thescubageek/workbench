@@ -16,6 +16,10 @@ design_approach: "Option A — reference doc plus always-on rule card"
 
 # Design: asd-ste100-prose
 
+> **Kept in the repository without its sibling records.** This design cites `research.md`,
+> `tasks.md` and `thoughts/` records of the same plan. They are not in the repository. Each
+> decision below is complete without them.
+
 **Created**: 2026-09-29 17:35 UTC
 **Designer**: scraig
 **Ticket**: N/A

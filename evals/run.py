@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Before/after driver: run the wb stages headless on the fixture, for two plugin trees.
 
-Maintainer-only. It follows the probe in
-docs/plans/2026-09-29-asd-ste100-prose/thoughts/2026-09-30-harness-probe.md.
+Maintainer-only. It grew from the headless driver probe of the 2.2.0 plan (design.md A6, in
+docs/plans/2026-09-29-asd-ste100-prose/).
 
 Usage: run.py --before REF_OR_PATH [--after REF_OR_PATH] [--repeats N] [--model M]
               [--stages research,design,tasks] [--timeout SECONDS] [--fixture DIR]

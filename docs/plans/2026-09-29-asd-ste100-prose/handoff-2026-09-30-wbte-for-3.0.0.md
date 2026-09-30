@@ -18,8 +18,8 @@ says what 2.2.0 changed, what the merge will conflict on, and what the first rel
 must still do.
 **Updated**: 2026-09-30, during the manual checks. Phases 2 to 6 and 10 are signed off
 **Current Phase**: Phase 10 of 10
-**Overall Progress**: count the ID-scoped task lines in `tasks.md`. All tasks are done, and the
-Phase 7 to 9 sign-offs are with the user
+**Overall Progress**: all 59 tasks are done, and every phase is signed off. The plan closed on
+2026-09-30
 
 ## Quick Start
 
@@ -129,7 +129,7 @@ The first release after 3.0.0 (3.0.1 or 3.1.0, design.md D-Q3) must still do the
 1. **Fix the judge first, before any gated rewrite.** The within-run judge (D7) cannot see a
    loss inside `research.md`. Add a check of each run's `research.md` against the baseline's
    expected facts and values. Also make the judge file a removed `file:line` under `lost_refs`,
-   not `other_losses`. Recalibrate once for both (tasks.md, Implementation Notes).
+   not `other_losses`. Recalibrate once for both.
 2. **Rewrite the prose of the shared files in WBTE.** They have the link line only. The rewrite
    must keep every exempt token (`technical-english.md`, Exempt tokens), and each change must
    pass the harness gate.
@@ -194,7 +194,8 @@ python3 evals/report.py evals/runs/<timestamp>
 
 ### Project Documents
 
-The plan documents and the `thoughts/` records are in the same directory as this handoff.
+`design.md` in this directory holds every decision this handoff cites (D-Q1 to D17). The
+research, task and measurement records of the plan are not in the repository.
 
 ## Handoff Verification
 
