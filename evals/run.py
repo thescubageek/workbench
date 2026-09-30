@@ -11,7 +11,9 @@ A tree is a git ref (archived with `git archive <ref> plugin`) or a path to a ch
 plugin directory. With no --after, only the before tree runs (a baseline). Each repeat gets a fresh copy of evals/fixture/project with the plan seed at
 docs/plans/2026-01-01-fixture/. Stages run in order: create_research, create_design,
 create_tasks. A headless run cannot approve a design, so the driver sets `status: approved`
-in design.md before create_tasks. When a stage stops to ask, the driver resumes the session
+in design.md before create_tasks, and skips create_tasks when design.md was not written.
+Every call gets `--add-dir <tree>/plugin`: a resumed session is refused reads of the stage's
+own supporting files without it, while a marketplace install can read them. When a stage stops to ask, the driver resumes the session
 with one fixed reply. Both trees get the same replies.
 
 Output: evals/runs/<timestamp>/<before|after>/<repeat>/ with the plan documents, the chat
@@ -117,7 +119,8 @@ def run_stage(name, tree, run_dir, out_dir, model, timeout):
     prompt = f"/wb:{stage['skill']} {PLAN_REL}"
     if stage["question"]:
         prompt += " " + read(os.path.join(FIXTURE, "QUESTION.md")).strip()
-    base = ["claude", "-p", "--plugin-dir", os.path.join(tree, "plugin"),
+    plugin = os.path.join(tree, "plugin")
+    base = ["claude", "-p", "--plugin-dir", plugin, "--add-dir", plugin,
             "--allowedTools=Skill", "--permission-mode", "acceptEdits",
             "--model", model, "--output-format", "json"]
     calls, texts = [], []
@@ -159,6 +162,11 @@ def run_repeat(label, tree, repeat, out_root, args):
     stages = []
     for name in args.stages:
         if name == "tasks":
+            design = [s for s in stages if s["stage"] == "design"]
+            if design and not design[0]["written"]:
+                stages.append({"stage": "tasks", "skipped": "design.md was not written"})
+                print(f"  {label} #{repeat} tasks: skipped, design.md was not written", flush=True)
+                continue
             stages.append({"stage": "approve", "approved":
                            approve_design(os.path.join(run_dir, PLAN_REL, "design.md"))})
         result = run_stage(name, tree, run_dir, out_dir, args.model, args.timeout)

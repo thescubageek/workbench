@@ -414,10 +414,10 @@ user requirement.
 
 #### Integration
 
-- [ ] **P2-T8** — Run the 2.1.1 baseline: `evals/run.py` on `4b32306` with 3 repeats, then
+- [x] **P2-T8** — Run the 2.1.1 baseline: `evals/run.py` on `4b32306` with 3 repeats, then
       `wbte_check.py` and `token_check.py` on every output. Also run
       `claude --plugin-dir <before>/plugin plugin details wb` and record the "Projected token
-      cost" block. Write the numbers to `thoughts/2026-09-30-baseline.md`. (~25 calls)
+      cost" block. Write the numbers to `thoughts/2026-09-30-baseline.md`. (~25 calls) (completed 2026-09-30 01:47)
 
 ### Success Criteria
 
@@ -1116,6 +1116,8 @@ Things to determine during implementation:
 - **Harness run cost.** Each repeat runs three stages, and each comparison runs 3 repeats on 2
   trees. Record the wall time and token use of the first full run (P2-T8), and reduce repeats
   or stages if the cost is too high.
+  - [2026-09-30] P2-T8: 3 repeats of one tree took 817 s and cost $4.68. So a 3-repeat
+    before/after comparison costs about $9.40 and takes about 28 min.
 - **Judge reliability.** Record how often the judge disagrees with itself across repeats
   (P2-T7). If the rate is high, add mechanical checks before trusting its verdicts.
   - [2026-09-30] **Finding (P2-T7): the verdict on `design.md` is not a fidelity signal as
@@ -1133,6 +1135,13 @@ Things to determine during implementation:
   passes on every generated document. Read it as "no failure beyond this known one".
 - **Headless design approval.** The harness sets `status: approved` before `create_tasks`.
   Confirm that `create_tasks` accepts that and does not wait for input.
+  - [2026-09-30] Confirmed with one exception. `create_tasks` accepts the driver-set
+    `status: approved`. When the generated design keeps a blocking pending decision, it stops
+    and asks, and the fixed follow-up reply moves it on (2 of 3 baseline repeats).
+    `create_design` always stops once at Step 4, because the fixture plan names no goal.
+  - [2026-09-30] A resumed call was refused reads of the stage's own templates without
+    `--add-dir`. The driver now passes `--add-dir <tree>/plugin` on every call
+    (`.claude/wb/knowledge.md`).
 - **Card wording.** P3-T3 may need up to three card versions. Keep each version and its
   numbers.
 - **Unrecognized hook payloads.** The hook header says it is silent on an unrecognized payload,

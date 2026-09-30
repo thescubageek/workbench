@@ -229,3 +229,9 @@ we have the in-repo cautionary example for that.
 - **Verified**: 2026-09-15 · `docs/plans/2026-09-08-upstream-fable-merge/`
 - **Check it**: install from a local marketplace, run a stage with the read boundary forced on,
   and read the refused path in its output — it names the marketplace source directory.
+
+## A resumed headless session loses read access to a `--plugin-dir` stage's supporting files
+
+- **Why it matters**: the eval harness (`evals/run.py`) resumes a stage with `claude -p --resume <id>` when the stage stops to ask. On 2026-09-30, one such follow-up call was refused `Read` of `create_design/templates/design-md-template.md` in a `--plugin-dir` checkout outside the cwd. The first call of the same session had read the stage's files without a refusal. The stage then stopped, as its manifest rule says, and wrote nothing. The refusal did not occur on every run (the P2-T6 run's follow-ups worked), so a harness without the fix fails at random. Pass `--add-dir <plugin-dir>` on every call, first and resumed.
+- **Verified**: 2026-09-30 · `docs/plans/2026-09-29-asd-ste100-prose/` (baseline run `evals/runs/20260930T011540Z`, repeat 3, `design.follow-up-1.json` lists the denials under `permission_denials`)
+- **Check it**: in `evals/run.py`, the `base` command list carries `--add-dir`. Without it, repeat a 3-repeat baseline and look for `permission_denials` on `Read` in any `*.follow-up-*.json`.

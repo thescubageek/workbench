@@ -36,10 +36,12 @@ A tree is a git ref or a path. A path can be a checkout or a plugin directory, s
 measures the working tree. To record a baseline of one tree, omit `--after`.
 
 Each stage is one `claude -p` call from a directory outside the plugin tree. The call uses
-`--allowedTools=Skill`, `--permission-mode acceptEdits`, and a pinned `--model` (default
-`sonnet`). Some stages stop to ask a question. When that happens, the driver resumes the
+`--allowedTools=Skill`, `--permission-mode acceptEdits`, `--add-dir <tree>/plugin`, and a
+pinned `--model` (default `sonnet`). Without `--add-dir`, a resumed session is refused reads
+of the stage's own supporting files. Some stages stop to ask a question. When that happens, the driver resumes the
 session with one fixed reply, at most twice. A headless run cannot approve a design, so the
-driver sets `status: approved` in `design.md` before `create_tasks`. Both trees get the same
+driver sets `status: approved` in `design.md` before `create_tasks`. If `design.md` was not
+written, the driver skips `create_tasks` for that repeat. Both trees get the same
 treatment.
 
 Output goes to `evals/runs/<timestamp>/<before|after>/<repeat>/`:

@@ -51,6 +51,13 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-30 01:20 — P2-T8 (closed)
+
+- **Task/phase**: P2-T8 — the 2.1.1 baseline: 3 repeats of `4b32306`, `wbte_check.py` and `token_check.py` on every output, and the token cost from `plugin details`
+- **Landed**: the baseline, run `evals/runs/20260930T013327Z`, recorded in `thoughts/2026-09-30-baseline.md`. 7.0% of document sentences have more than 25 words. Documents have 82 semicolons in prose, and chat has 27 IDs used alone. The always-on cost is about 3,251 tokens
+- **Commits**: see `P2-T8: record the 2.1.1 baseline`
+- **Learned**: the first baseline run failed in repeat 3, because a resumed call could not read the stage's templates. The driver now passes `--add-dir` and skips `create_tasks` after an unwritten design. The rerun wrote 9 of 9 documents
+
 ## 2026-09-30 01:14 — P2-T7 (closed)
 
 - **Task/phase**: P2-T7 — `evals/judge.py`, `evals/report.py`, `evals/README.md`, and calibration of the judge on two pairs from the P2-T6 run
