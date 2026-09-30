@@ -51,6 +51,13 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-30 00:58 — P2-T6 (closed)
+
+- **Task/phase**: P2-T6 — `evals/run.py`, the before/after driver (two trees, fresh fixture per repeat, three stages, headless approval step)
+- **Landed**: the driver. It ran 1 repeat of `4b32306` against itself (`evals/runs/20260930T010202Z`), and all 6 stages wrote their document. Wall time was about 11 min and cost was $3.06. `--after` is optional for a one-tree baseline
+- **Commits**: see `P2-T6: add the before/after stage driver`
+- **Learned**: `create_design` stops at Step 4 to ask which option to design, because the fixture plan names no goal. One fixed follow-up reply ("take the option you recommend") gets it to write `design.md`. `create_tasks` accepted the driver-set `status: approved` and did not wait for input. The stages skipped their sub-agent fan-out, because the fixture is small. The session was interrupted once (a change of location), and the tree held only the open journal entry.
+
 ## 2026-09-30 00:53 — P2-T5 (closed)
 
 - **Task/phase**: P2-T5 — `evals/link_check.py` with planted inputs (template without a link line, a file that restates a rule, a tracked `.pdf`)

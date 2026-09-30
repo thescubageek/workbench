@@ -403,10 +403,10 @@ user requirement.
       file that restates a rule phrase, a tracked `.pdf`. Each must exit 1. Today the check is
       expected to fail on every template, because no link lines exist yet. Record that as the
       RED state. (~25 calls) (completed 2026-09-30 00:41)
-- [ ] **P2-T6** — Write `evals/run.py` from the P1-T3 probe: two trees from git refs, a fresh
+- [x] **P2-T6** — Write `evals/run.py` from the P1-T3 probe: two trees from git refs, a fresh
       fixture copy per repeat, the three stages in order, the `status: approved` step, the model
       pinned with `--model`, and outputs under `evals/runs/`. Run it once with 1 repeat on
-      `4b32306` against itself to prove the plumbing. (~40 calls)
+      `4b32306` against itself to prove the plumbing. (~40 calls) (completed 2026-09-30 01:13)
 - [ ] **P2-T7** — Write `evals/judge.py` and `evals/report.py`, and `evals/README.md`. Calibrate
       the judge on 2 pairs from the P2-T6 run: the real output, and a copy with one `file:line`
       reference and one fact removed. The judge must flag the altered copy in 3 of 3 runs.
