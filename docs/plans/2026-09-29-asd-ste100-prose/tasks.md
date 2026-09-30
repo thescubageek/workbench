@@ -1361,8 +1361,8 @@ Added 2026-09-30 at the user's request.
 - [x] **P9-T2** — Write `plugin/scripts/test-pr-template` (RED), then `plugin/scripts/pr-template`
       until it is green. Cases: each GitHub location, case-insensitive names, a template
       directory, no template (the generic path), and a run from a subdirectory. (completed 2026-09-30 16:49)
-- [ ] **P9-T3** — Write `plugin/skills/pr-description/SKILL.md` and
-      `templates/pr-description.md`. `link_check.py` must pass.
+- [x] **P9-T3** — Write `plugin/skills/pr-description/SKILL.md` and
+      `templates/pr-description.md`. `link_check.py` must pass. (completed 2026-09-30 16:53)
 - [ ] **P9-T4** — In `test-prime`, require that the card names PR descriptions and commit
       messages (RED). Change the card, within 150 words, until `test-prime` is green.
 - [ ] **P9-T5** — Add `--pr` to `evals/wbte_check.py`, with a planted long PR body (exit 1) and a
