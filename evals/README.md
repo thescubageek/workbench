@@ -58,10 +58,12 @@ python3 evals/link_check.py
 python3 evals/token_check.py
 python3 evals/token_check.py <generated>/tasks.md <generated>/journal.md
 python3 evals/wbte_check.py <generated>/research.md <chat-output>.txt
+python3 evals/wbte_check.py --pr <pr-body>.md
 ```
 
 Each checker exits 0 when every check holds and 1 when a check fails. A file that ends in
-`.txt` is chat output for `wbte_check.py`.
+`.txt` is chat output for `wbte_check.py`. With `--pr`, `wbte_check.py` also checks a PR body:
+it warns above 250 words, and fails above 400 words or above 150 words in one section.
 
 Prove that a checker still fires after you change it:
 
@@ -69,6 +71,7 @@ Prove that a checker still fires after you change it:
 for f in evals/fixtures/planted/bad-*; do python3 evals/wbte_check.py "$f" && echo "MISSED $f"; done
 for f in evals/fixtures/planted/tokens/bad-*; do python3 evals/token_check.py "$f" && echo "MISSED $f"; done
 for d in evals/fixtures/planted/links/bad-*/; do python3 evals/link_check.py --root "$d" && echo "MISSED $d"; done
+python3 evals/wbte_check.py --pr evals/fixtures/planted/pr/bad-pr-long.md && echo "MISSED the long PR body"
 ```
 
 ## Limits

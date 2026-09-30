@@ -4,10 +4,12 @@
 Maintainer-only. The rules it measures live in
 plugin/docs/reference/technical-english.md.
 
-Usage: wbte_check.py [--json] [--chat] [--long-share N] [--max-cluster N]
+Usage: wbte_check.py [--json] [--chat | --pr] [--long-share N] [--max-cluster N]
                      [--dictionary PATH] FILE...
 
-A file ending in .txt is chat output. Every other file is a document.
+A file ending in .txt is chat output. Every other file is a document. With --pr, every file
+is a PR description: it also gets a word budget (a warning above 250 words, a failure above
+400, or above 150 in one section) and the ID rule of chat output.
 Exit 0 when every threshold holds, 1 when one breaks, 2 on a usage error.
 """
 
@@ -178,7 +180,34 @@ def load_dictionary(path):
     return status
 
 
-def check_file(path, chat, max_cluster, dictionary):
+PR_WARN_WORDS = 250
+PR_MAX_WORDS = 400
+PR_MAX_SECTION_WORDS = 150
+PR_SKIP_LINE = re.compile(r"^\s*([-*] \[[ xX]\]|🤖 Generated with|Co-Authored-By:)")
+
+
+def pr_budget(raw):
+    """Words in a PR body, in total and per `##` section.
+
+    Comments, code blocks, checklist lines and attribution lines do not count. Tables do.
+    """
+    text = re.sub(r"<!--.*?-->", "", raw, flags=re.S)
+    text = re.sub(r"^```.*?^```[^\n]*$", "", text, flags=re.S | re.M)
+    sections = {}
+    name = "(before the first heading)"
+    for line in text.split("\n"):
+        if re.match(r"^#{1,6} ", line):
+            name = line.lstrip("#").strip()
+            continue
+        if PR_SKIP_LINE.match(line):
+            continue
+        n = len(re.findall(r"[A-Za-z0-9][\w'./:-]*", line))
+        if n:
+            sections[name] = sections.get(name, 0) + n
+    return sum(sections.values()), sections
+
+
+def check_file(path, chat, max_cluster, dictionary, pr=False):
     raw = open(path, encoding="utf-8").read()
     prose = raw if chat else strip_markdown(raw)
     sents = [s for u in blocks(prose) for s in sentences(u)]
@@ -195,8 +224,11 @@ def check_file(path, chat, max_cluster, dictionary):
         "max_words": max(lengths) if lengths else 0,
         "semicolons": joined.count(";"),
         "noun_clusters": [c for s in sents for c in noun_clusters(s, max_cluster)],
-        "lone_ids": lone_ids(raw) if chat else [],
+        "lone_ids": lone_ids(raw) if chat or pr else [],
     }
+    if pr:
+        result["mode"] = "pr"
+        result["pr_words"], result["pr_sections"] = pr_budget(raw)
     if dictionary is not None:
         tokens = [w.lower() for s in sents for w in re.findall(r"[A-Za-z]+", s)]
         result["unapproved_words"] = sorted(
@@ -210,6 +242,7 @@ def main(argv):
     ap.add_argument("files", nargs="+")
     ap.add_argument("--json", action="store_true", help="print JSON instead of text")
     ap.add_argument("--chat", action="store_true", help="treat every file as chat output")
+    ap.add_argument("--pr", action="store_true", help="treat every file as a PR description")
     ap.add_argument("--long-share", type=float, default=0.05,
                     help="max share of sentences over 25 words (default 0.05)")
     ap.add_argument("--max-cluster", type=int, default=3,
@@ -224,8 +257,8 @@ def main(argv):
         if not os.path.isfile(path):
             print(f"wbte_check: no such file: {path}", file=sys.stderr)
             return 2
-        chat = args.chat or path.endswith(".txt")
-        results.append(check_file(path, chat, args.max_cluster, dictionary))
+        chat = not args.pr and (args.chat or path.endswith(".txt"))
+        results.append(check_file(path, chat, args.max_cluster, dictionary, pr=args.pr))
 
     total_sents = sum(r["sentences"] for r in results)
     total_long = sum(r["over_25"] for r in results)
@@ -242,6 +275,17 @@ def main(argv):
         if r["noun_clusters"]:
             failures.append(f"{r['file']}: noun cluster over {args.max_cluster} words: "
                             + "; ".join(r["noun_clusters"]))
+        if "pr_words" in r:
+            if r["pr_words"] > PR_MAX_WORDS:
+                failures.append(f"{r['file']}: PR body has {r['pr_words']} words "
+                                f"(limit {PR_MAX_WORDS})")
+            for name, n in r["pr_sections"].items():
+                if n > PR_MAX_SECTION_WORDS:
+                    failures.append(f"{r['file']}: section '{name}' has {n} words "
+                                    f"(limit {PR_MAX_SECTION_WORDS})")
+    warnings = [f"{r['file']}: PR body has {r['pr_words']} words (target {PR_WARN_WORDS})"
+                for r in results
+                if PR_WARN_WORDS < r.get("pr_words", 0) <= PR_MAX_WORDS]
 
     summary = {
         "files": len(results),
@@ -249,6 +293,7 @@ def main(argv):
         "over_25_share": round(share, 4),
         "dictionary": dictionary is not None,
         "failures": failures,
+        "warnings": warnings,
         "results": results,
     }
     if args.json:
@@ -262,6 +307,12 @@ def main(argv):
                   + (f", {len(r['unapproved_words'])} unapproved words"
                      if "unapproved_words" in r else ""))
         print(f"total: {total_sents} sentences, {share:.1%} over 25 words")
+        for r in results:
+            if "pr_words" in r:
+                print(f"{r['file']}: PR body {r['pr_words']} words, sections: "
+                      + ", ".join(f"{k} {v}" for k, v in r["pr_sections"].items()))
+        for w in warnings:
+            print(f"WARN {w}")
         for f in failures:
             print(f"FAIL {f}")
         print("PASS" if not failures else "FAIL")
