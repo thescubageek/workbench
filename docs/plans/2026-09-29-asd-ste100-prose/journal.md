@@ -51,6 +51,12 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-30 01:58 — P3-T3 (closed)
+
+- **Task/phase**: P3-T3 — measure A1: does the rule card change chat output? 3 repeats, `4b32306` against the working tree
+- **Landed**: A1 validated with card v2. Across 3 repeats, 4.3% of document sentences had more than 25 words (2.1.1: 10.4%). Document semicolons fell from 120 to 16, and chat IDs used alone fell from 17 to 3. No expected fact was lost. The record is `thoughts/2026-09-30-card-measurement.md`
+- **Commits**: see `P3-T3: measure the rule card (A1 validated with card v2)`
+- **Learned**: card v1 did not move the chat IDs. Putting the ID rule first, with examples, did. Two runs were lost to network outages, and the driver does not retry on `API Error`
 ## 2026-09-30 01:55 — P3-T2 (closed)
 
 - **Task/phase**: P3-T2 — `card()` and two guarded calls in `plugin/hooks/wb-prime.sh`, a header bullet, and a `CLAUDE.md` line for `test-prime`

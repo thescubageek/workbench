@@ -571,12 +571,12 @@ exit 0 on every path; no file changes (checksums before and after); wall time un
       `plugin/scripts/test-prime` until it is green, then run `plugin/scripts/test-lint` and
       `plugin/scripts/test-quiet`. Add `./plugin/scripts/test-prime` to `CLAUDE.md` under
       Development Tools, next to `test-lint`. (~20 calls) (completed 2026-09-30 01:50)
-- [ ] **P3-T3** — Measure A1: run `evals/run.py` with 3 repeats, comparing `4b32306` with the
+- [x] **P3-T3** — Measure A1: run `evals/run.py` with 3 repeats, comparing `4b32306` with the
       working tree (the card is the only plugin change). Compare the chat-output metrics with
       the baseline. If the metrics do not improve, change the card wording and run again, at
       most 2 more times. Record the verdict and each card version in
       `thoughts/2026-09-30-card-measurement.md`, and set A1 in design.md to `Validated` or
-      `Invalid — <what moved and what did not>`. (~30 calls)
+      `Invalid — <what moved and what did not>`. (~30 calls) (completed 2026-09-30 04:46)
 
 ### Success Criteria
 
@@ -1161,6 +1161,13 @@ Things to determine during implementation:
     (`.claude/wb/knowledge.md`).
 - **Card wording.** P3-T3 may need up to three card versions. Keep each version and its
   numbers.
+  - [2026-09-30] Two versions. Card v1 changed the documents (4.4% of sentences over 25
+    words, 30 semicolons) but not the chat IDs (20 used alone, against 17 for 2.1.1). Card v2
+    puts the ID rule first and cut chat IDs to 3. It uses 149 of the 150 words that the test
+    allows. Both versions and their numbers are in `thoughts/2026-09-30-card-measurement.md`.
+  - [2026-09-30] Network outages (`ENOTFOUND`) spoiled two runs. The driver records the
+    `API Error` text as the stage output and marks the stage "not written". It does not retry.
+    A retry on `API Error` would save a rerun (follow-up, not done).
 - **Unrecognized hook payloads.** The hook header says it is silent on an unrecognized payload,
   but the code prints the orientation. `test-prime` records today's behaviour. It is not
   changed in this plan.
