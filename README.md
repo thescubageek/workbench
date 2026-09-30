@@ -251,9 +251,8 @@ The plugin cannot (and does not) write to your personal config — this rule is 
 
 wb Technical English (WBTE) is the writing standard for everything the workbench writes for a
 person to read: plan documents, handoffs, reports, PR descriptions, commit messages, and the
-conversation. It gives short
-sentences, one instruction in each sentence, no semicolons, no unexplained IDs, and exact values
-in place of vague phrases.
+conversation. It gives short sentences, one instruction in each sentence, no semicolons, no
+unexplained IDs, and exact values in place of vague phrases.
 
 WBTE is adapted from the principles of ASD-STE100 Issue 9. ASD does not endorse it, and it is
 not ASD-STE100 compliant. The plugin contains no text from the standard and no part of its
@@ -261,11 +260,10 @@ dictionary.
 
 - **The rules** are in one file, `plugin/docs/reference/technical-english.md`. Every output
   template links to it.
-- **The rule card** is a summary of the rules in about 150 words. The session-start hook prints
-  it on every startup, resume, and compaction.
+- **The rule card** is a short summary of the rules. The session-start hook prints it on every
+  startup, resume, and compaction.
 - **PR descriptions and commit messages** stay short. `/wb:pr-description` drafts a PR title
-  and body from the branch. It fills the repository's PR template, or a generic one, and aims
-  for about one screen. It creates or updates the PR only after you confirm.
+  and body from the branch, and creates or updates the PR after you confirm.
 - **Repository terms.** A repository can list its own technical nouns in
   `.claude/wb/technical-nouns.md`, one on each line. WBTE treats them as approved terms.
 - **The optional dictionary.** Download the free ASD-STE100 Issue 9 PDF from ASD, then run

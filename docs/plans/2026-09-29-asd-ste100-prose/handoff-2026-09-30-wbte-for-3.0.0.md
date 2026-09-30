@@ -23,8 +23,7 @@ Phase 7 to 9 sign-offs are with the user
 
 ## Quick Start
 
-On the same machine, use `claude --resume` instead. This handoff is for the 3.0.0 branch and its
-maintainers. To load it as context, run `/wb:resume_handoff docs/plans/2026-09-29-asd-ste100-prose/handoff-2026-09-30-wbte-for-3.0.0.md`.
+This handoff is for the 3.0.0 branch and its maintainers. The resume command is at the end.
 
 ## Current State Summary
 
@@ -34,10 +33,10 @@ output, adapted from the principles of ASD-STE100 Issue 9 (design.md, D1 and D2)
 **Where the work is**: 2.2.0 is on `wb-2.2.0/asd_ste100_prose`, not yet merged or pushed.
 The version bump and the release checks are done.
 
-**The rule for shared files (D-Q3)**: in the 48 `plugin/` files that 3.0.0 also changes, 2.2.0
-adds only a link line, and in `wb-prime.sh` only the rule card. Every prose rewrite of those files
-waits for the first release after 3.0.0. One exception (D14): `plugin/scripts/README.md` and
-`plugin/skills/help/SKILL.md` each gain a section for the new scripts and skill.
+**The rule for shared files (D-Q3)**: 2.2.0 changes 16 of the 48 `plugin/` files that 3.0.0
+also changes. 12 get only a link line, `wb-prime.sh` gets only the card, `plugin.json` gets the
+version, and `plugin/scripts/README.md` and `plugin/skills/help/SKILL.md` gain new sections
+(D14). The other 32 do not change. Every prose rewrite waits for the first release after 3.0.0.
 
 ## New files
 
@@ -83,7 +82,8 @@ In `create_research/SKILL.md`, the line sits just before the Step 8 completion l
 
 ## The `wb-prime.sh` change
 
-It has three hunks, and the file auto-merges with 3.0.0 at `2fff76c` (design.md D5):
+It has four hunks: the header bullet, `card()`, and one call in each branch. The file
+auto-merges with 3.0.0 at `2fff76c` (design.md D5):
 
 1. A header bullet, after "exit 0 always":
    `#   - the WBTE rule card prints on every session start (startup, resume, compact), …`.
@@ -144,9 +144,9 @@ The first release after 3.0.0 (3.0.1 or 3.1.0, design.md D-Q3) must still do the
    `gh pr comment`. Give its comment step the link line, so that the "Pull requests and commit
    messages" rules of `technical-english.md` apply there too.
 
-**The file lists for this pass.** Make them from git instead of copying a list. The 13 shared
-files that 2.2.0 changed are listed under "The link line". If `rtk` is installed, run this through
-`rtk proxy`, because `rtk` rewrites `grep` and `comm` output.
+**The file lists for this pass.** Make them from git instead of copying a list. The 16 shared
+files that 2.2.0 changed are named under "Current State Summary". If `rtk` is installed, run
+this through `rtk proxy`, because `rtk` rewrites `grep` and `comm` output.
 
 ```bash
 git diff --name-only --diff-filter=M 46ef587 2fff76c -- plugin | sort > /tmp/shared
@@ -188,22 +188,12 @@ python3 evals/report.py evals/runs/<timestamp>
   model does not always follow the link line (P4-T2). A rule that must always hold belongs on
   the card. Card v4 has 149 words, and `test-prime` limits it to 150, so a new card rule must
   replace old words.
-- A resumed headless session is refused reads of a `--plugin-dir` stage's own files without
-  `--add-dir` (`.claude/wb/knowledge.md`).
-- `wb_lint_ignored` did not ignore a path that is in both `.gitignore` and `.wblintignore`.
-  P8-T2 fixed it in `plugin/scripts/lint-common.sh`, which 3.0.0 does not have yet (it came in
-  2.1.1). The fix merges with no conflict.
 
 ## Artifacts and References
 
 ### Project Documents
 
-- Research: `docs/plans/2026-09-29-asd-ste100-prose/research.md`
-- Design: `docs/plans/2026-09-29-asd-ste100-prose/design.md` (D-Q1 to D-Q5, D1 to D17)
-- Tasks: `docs/plans/2026-09-29-asd-ste100-prose/tasks.md`
-- Measurements: `thoughts/2026-09-30-baseline.md`, `-card-measurement.md`,
-  `-link-measurement.md`, `-objective-1-report.md`, `-judge-calibration.md`, `-lite-verdicts.md`
-- Validation: `docs/plans/2026-09-29-asd-ste100-prose/validation-report.md`
+The plan documents and the `thoughts/` records are in the same directory as this handoff.
 
 ## Handoff Verification
 

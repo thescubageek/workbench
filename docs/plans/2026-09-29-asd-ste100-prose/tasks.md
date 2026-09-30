@@ -5,8 +5,8 @@ created: 2026-09-29
 status: in-progress
 last_updated: 2026-09-30
 current_phase: 10
-total_tasks: 55
-completed_tasks: 55
+total_tasks: 56
+completed_tasks: 56
 task_tracking: markdown-checkboxes
 depends_on: [research.md, design.md]
 assignee: scraig
@@ -142,7 +142,7 @@ Based on dependency analysis:
 | Phase 7: Documentation, handoff, and release checks | ✅ Complete | 5/5 | 100% |
 | Phase 8: Validation fixes | ✅ Complete | 7/7 | 100% |
 | Phase 9: PR descriptions and commit messages in WBTE | ✅ Complete | 6/6 | 100% |
-| Phase 10: Manual-check fixes | ✅ Complete | 2/2 | 100% |
+| Phase 10: Manual-check fixes | ✅ Complete | 3/3 | 100% |
 
 Counts come from the checkboxes below and are reconciled by `/wb:update_status`.
 
@@ -435,7 +435,9 @@ user requirement.
 - [x] `grep -ril 'ASD-STE100' plugin/` lists only `technical-english.md` (the credit line)
       *(true when ticked. Phase 6 added `plugin/scripts/wbte-dictionary` and
       `plugin/skills/wbte-dictionary/SKILL.md`, which name the standard in usage text and link
-      the free PDF. Neither holds ASD rules text. Corrected in P8-T4)*
+      the free PDF. Neither holds ASD rules text. Corrected in P8-T4. Since D14 and D15, the
+      grep also matches `plugin/scripts/README.md` and `plugin/skills/help/SKILL.md`, 5 files in
+      all, each a name or a usage line)*
 
 #### Manual Verification
 
@@ -1462,6 +1464,8 @@ Fix the defects that the manual checks find. Added 2026-09-30 during the checks.
 - [x] **P10-T2** — Correct the stale claims and records that the Phase 7 and Phase 8 check found,
       and make the trims it named in the CHANGELOG entry, the handoff and the README section.
       Replace the handoff's two long file lists with the command that makes them. (completed 2026-09-30 19:05)
+- [x] **P10-T3** — Correct the claims and records that the re-run of the Phase 7 and Phase 8
+      check found, and make its trims. (completed 2026-09-30 19:16)
 
 ### Success Criteria
 
@@ -1653,7 +1657,7 @@ resolved, leaving a dated line saying how.
 - [2026-09-30] **Follow-up from P1-T2: three 2.1.1 templates fail markdownlint as written.**
   `create_project/templates/{research,design,tasks}-md-template.md` have no blank lines around
   headings, lists and tables. The lint hook fixes each generated copy after the write. The
-  fixture seeds were lint-fixed. The templates were not changed, because that is not in this plan.
+  fixture seeds were lint-fixed. The templates were not changed, because that is not in this plan. *(Update: P4-T3 later rewrote the three templates in WBTE, and they now lint clean.)*
 - [2026-09-30] **Limit of the P1-T3 probe: the sub-agent fan-out was not tested.** The fixture is
   small, so `create_research` skipped its agents, as the 2.1.1 stage allows. The probe also ran
   with the read boundary off. P2-T6 is the first run that can show whether headless stages

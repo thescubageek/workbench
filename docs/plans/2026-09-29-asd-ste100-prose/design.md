@@ -473,6 +473,8 @@ execution phase and measured by the harness.
     the new parts in 2.2.0, even at the cost of a merge conflict.
   - Trade-off: up to two new merge conflicts. The handoff gets a resolution note for each file
     that conflicts.
+  - Update 2026-09-30: D15 later added `pr-template`, `test-pr-template` and
+    `/wb:pr-description` to the same two files.
   - Source: design.md PD4 · Decided 2026-09-30
 
 - **D15 — PR descriptions follow WBTE through three channels: the card, a reference section, and
@@ -485,7 +487,8 @@ execution phase and measured by the harness.
   - Rationale (the user's words): a teammate asked "Please stop sending me long AI diatribes
     for me to parse". PR descriptions must use WBTE and be "designed for brevity, simplicity
     and human consumption".
-  - Trade-off: the card has 9 free words, so other card wording gets shorter. The card changes
+  - Trade-off: the card had 9 free words when this was decided, so other card wording got
+    shorter. Card v4 leaves 1 free word. The card changes
     again after the A1 measurement.
   - Source: user request, 2026-09-30 · Decided 2026-09-30
 - **D16 — The rule covers PR descriptions and commit messages.**
