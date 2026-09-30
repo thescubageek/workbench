@@ -1000,9 +1000,9 @@ content); `HOME=$(mktemp -d)`; a `PATH` with no `pdftotext` and no python3.
       gives the expected TSV rows, no tool gives exit 2 and a message that names both tools,
       the output lands only under the temporary `HOME`, and a run inside a git work tree is
       refused. (~30 calls) (completed 2026-09-30 08:09)
-- [ ] **P6-T2** — Write `plugin/scripts/wbte-dictionary` until the test is green, and write
+- [x] **P6-T2** — Write `plugin/scripts/wbte-dictionary` until the test is green, and write
       `plugin/skills/wbte-dictionary/SKILL.md`. Point the dictionary section of
-      `technical-english.md` at the skill and the output path. (~30 calls)
+      `technical-english.md` at the skill and the output path. (~30 calls) (completed 2026-09-30 08:10)
 
 ### Success Criteria
 

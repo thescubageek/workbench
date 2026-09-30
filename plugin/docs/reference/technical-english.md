@@ -190,6 +190,9 @@ conflict:
 The source standard has a dictionary of approved words. ASD does not permit redistribution of
 it, so the plugin does not ship it. A user can make a private copy from their own free copy of
 the standard. The copy lives outside every repository, at `~/.claude/wb/wbte-dictionary.tsv`.
+To make it, run `/wb:wbte-dictionary <path-to-the-pdf>`. The skill runs
+`plugin/scripts/wbte-dictionary`, and the file has the columns word, pos, status (`approved` or
+`not approved`), and alternatives. The alternatives column is best-effort.
 
 If the copy exists and you are not sure about a word, look up that one word:
 

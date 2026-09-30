@@ -51,6 +51,13 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-30 08:10 — P6-T2 (closed)
+
+- **Task/phase**: P6-T2 — the `wbte-dictionary` extractor script, the `/wb:wbte-dictionary` skill, and the pointer in `technical-english.md`
+- **Landed**: `test-wbte-dictionary` passes 13 of 13. On the user's own PDF, with a temporary HOME outside every repo, it wrote 1,975 entries (652 approved), and 1,114 of the 1,323 unapproved words have alternatives. The development copy was deleted. The always-on cost is ~3,412 tokens, up from ~3,251 (the new skill adds ~130)
+- **Commits**: see `P6-T2: add the wbte-dictionary extractor and skill`
+- **Learned**: the entry was opened and closed in the same step. The commit that closes P6-T1 marks the start
+
 ## 2026-09-30 08:08 — P6-T1 (closed)
 
 - **Task/phase**: P6-T1 — `plugin/scripts/test-wbte-dictionary`, RED. It runs in parallel with P5-T5 (the user's full-auto instruction), because Phase 6 depends only on P2-T1
