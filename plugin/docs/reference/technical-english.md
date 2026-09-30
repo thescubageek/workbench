@@ -203,7 +203,7 @@ with these rules.
    longer. Put the detail behind a link to the plan, the handoff, or the ticket.
 6. Do not describe each file or each commit. The diff and the log show them.
 7. Do not paste plan text, tables of metrics, or test logs. Give the one number that matters,
-   and link to the rest.
+   and link to the rest. If a number comes from an earlier run, say which one.
 8. Write the title in the imperative, in at most 72 characters. Name the change. Keep a ticket
    key prefix if the repository uses one.
 9. Keep these exactly as they are: attribution lines, closing keywords such as `Closes #12`,

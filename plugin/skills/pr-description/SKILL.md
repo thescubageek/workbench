@@ -21,7 +21,12 @@ plan, and the ticket.
    ```bash
    git log --format='- %s' <base>..HEAD
    git diff --stat <base>...HEAD | tail -1
+   git diff --dirstat=lines,0 <base>...HEAD
    ```
+
+   The directory split shows how much of the change is tests, fixtures, plan documents, or
+   generated output. If most of the size is in such paths, say so in one line, so that a
+   reviewer can size the review.
 
 3. Read the diff of the files that the commits name, as much as you need to state the change.
    Do not read generated or vendored files.
@@ -52,7 +57,14 @@ Read the "Pull requests and commit messages" section of
 
 - Keep the template's headings in their order. Scope each section to what a reviewer needs
   from it. Leave out an empty section, or write "None." if the template requires it.
-- Give the change first, then the reason. Name behaviour and decisions, not files or commits.
+- Lead the summary with what a user or a reviewer notices first, such as a new command, a
+  changed default, or a new cost. Then give the reason. Name behaviour and decisions, not files
+  or commits.
+- Give one testing line for each kind of check, such as "all contract tests pass". Do not list
+  every command. Report as run only the checks you ran in this session. If a number comes from
+  an earlier run or an earlier tree, say which one.
+- Write each link as a full URL, because a PR body does not resolve a relative path. Get the
+  base URL with `gh repo view --json url -q .url`, then link `<url>/blob/<branch>/<path>`.
 - Keep exact values that matter, such as a limit, a count, or a `file:line`. Link to plans,
   logs and tables. Do not paste them.
 - Keep closing keywords (`Closes #12`), ticket links, template checklists and the session's
@@ -60,7 +72,8 @@ Read the "Pull requests and commit messages" section of
 - Never write secrets, credentials, or personal data. In a healthcare repository, this includes
   patient identifiers and member IDs.
 
-Then check the size. Count the words of the body without its checklists and attribution line.
+Then check the size. Count the words of the section text only: leave out the headings,
+comments, code blocks, checklists and the attribution line.
 If the count is over 250, cut before you show the draft: shorten each section to its scope and
 move the detail behind a link. A complex change can stay longer. Say why in one sentence.
 
