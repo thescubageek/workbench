@@ -46,8 +46,6 @@ rule. A stage that follows a link line also reads the reference doc, about 2,500
   - It runs `gh pr create` or `gh pr edit` only after the user confirms.
   - `plugin/scripts/pr-template` finds the template in GitHub's order, and
     `plugin/scripts/test-pr-template` tests it.
-  - The card and `technical-english.md` carry the same rules for every PR description and
-    commit message, also when the skill does not run.
 - **`/wb:wbte-dictionary`** and `plugin/scripts/wbte-dictionary`.
   - They make a private copy of the approved-word dictionary from the user's own free copy of
     the Issue 9 PDF.
@@ -57,14 +55,12 @@ rule. A stage that follows a link line also reads the reference doc, about 2,500
   - `plugin/scripts/test-wbte-dictionary` tests it with invented words only.
 - **Repository terms.** A repository can list its own technical nouns in
   `.claude/wb/technical-nouns.md`.
-- **`evals/`**, a maintainer-only eval harness that measures stage output before and after a
-  change. It is never shipped. See `evals/README.md`.
 
 ### Changed
 
-- **Every output template links to the reference doc.** That is 44 templates, including the new PR template,
-  and 4 inline output steps in `create_project`, `create_research`, `create_product_research` and
-  `resolve_questions`.
+- **Every output template links to the reference doc.** That is 44 templates, including the new
+  PR template, and 4 inline output steps in `create_project`, `create_research`,
+  `create_product_research` and `resolve_questions`.
 - **32 output templates** not shared with 3.0.0 are rewritten in WBTE.
 - **7 instruction files** for `create_research`, `create_design` and `create_tasks` get a
   "lite" rewrite. Each passed a no-loss gate in the harness, with 1 repeat instead of 3.
@@ -82,10 +78,9 @@ rule. A stage that follows a link line also reads the reference doc, about 2,500
 
 ### Not changed, deliberately
 
-- **The 48 files that the 3.0.0 branch also changes.** 12 get only a link line, and
-  `wb-prime.sh` gets only the card. `/wb:help` and `plugin/scripts/README.md` gain new
-  sections. The others do not change. Their prose waits for the first release after 3.0.0. This includes the `create_tasks` template
-  boilerplate that is the source of the remaining semicolons.
+- **The 48 files that the 3.0.0 branch also changes** get only small, local edits. Their prose
+  waits for the first release after 3.0.0, including the `create_tasks` boilerplate that holds
+  the remaining semicolons. The 3.0.0 handoff lists every edit.
 - **The `codebase-analyzer` and `codebase-locator` agents.** Their lite rewrite was restored
   after its gate found a lost fact.
 - **No runtime check.** The rules reach the model as instructions. The lint hook, CI and the

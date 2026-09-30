@@ -4,8 +4,8 @@ type: handoff
 project: asd-ste100-prose
 phase: 10
 handoff_reason: the 3.0.0 branch adopts wb Technical English (WBTE) from 2.2.0
-last_task: P10-T2 — the corrections from the Phase 7 and Phase 8 check
-git_commit: 1d45555
+last_task: P10-T4 — the last corrections from the Phase 7 and Phase 8 check
+git_commit: 59a723f
 git_branch: wb-2.2.0/asd_ste100_prose
 repository: thescubageek/workbench
 ---
@@ -16,14 +16,15 @@ repository: thescubageek/workbench
 **Reason**: `adversarial-loop-skill-research` (3.0.0) merges `main` after 2.2.0 lands. This file
 says what 2.2.0 changed, what the merge will conflict on, and what the first release after 3.0.0
 must still do.
-**Updated**: 2026-09-30, after the manual checks of Phases 2 to 8
+**Updated**: 2026-09-30, during the manual checks. Phases 2 to 6 and 10 are signed off
 **Current Phase**: Phase 10 of 10
 **Overall Progress**: count the ID-scoped task lines in `tasks.md`. All tasks are done, and the
 Phase 7 to 9 sign-offs are with the user
 
 ## Quick Start
 
-This handoff is for the 3.0.0 branch and its maintainers. The resume command is at the end.
+This handoff is for the 3.0.0 branch and its maintainers. To load it as context, run
+`/wb:resume_handoff docs/plans/2026-09-29-asd-ste100-prose/handoff-2026-09-30-wbte-for-3.0.0.md`.
 
 ## Current State Summary
 
@@ -203,7 +204,3 @@ Before you use this handoff, check these items:
       on the paths above
 - [ ] `./plugin/scripts/test-prime` passes on the merged tree
 - [ ] `python3 evals/link_check.py` and `python3 evals/token_check.py` pass on the merged tree
-
----
-
-**Handoff complete.** To resume, run `/wb:resume_handoff docs/plans/2026-09-29-asd-ste100-prose/handoff-2026-09-30-wbte-for-3.0.0.md`.

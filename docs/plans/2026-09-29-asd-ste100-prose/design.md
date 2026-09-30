@@ -367,6 +367,8 @@ execution phase and measured by the harness.
     release check must repeat the test.
   - Trade-off: `knowledge.md` is not in the P7-T5 expected set, so the 3.0.0 handoff needs a
     resolution note for it (keep both appended entries).
+  - Update 2026-09-30: after D14, `git merge-tree` gives 7 conflicts. The two new ones are
+    `plugin/scripts/README.md` and `plugin/skills/help/SKILL.md`, and the handoff has their notes.
   - Source: design.md A5 · Decided 2026-09-30
 
 - **D6 — A6 stays open until a larger fixture tests the sub-agent fan-out.**
@@ -488,8 +490,8 @@ execution phase and measured by the harness.
     for me to parse". PR descriptions must use WBTE and be "designed for brevity, simplicity
     and human consumption".
   - Trade-off: the card had 9 free words when this was decided, so other card wording got
-    shorter. Card v4 leaves 1 free word. The card changes
-    again after the A1 measurement.
+    shorter. Card v4 leaves 1 free word. The A1 measurement used card v2.
+    Card v4 was not measured.
   - Source: user request, 2026-09-30 · Decided 2026-09-30
 - **D16 — The rule covers PR descriptions and commit messages.**
   - A commit subject has at most 72 characters and uses the imperative. A body is optional,
@@ -556,7 +558,7 @@ execution phase and measured by the harness.
   `validation-report.md`)*
 - [x] Every output template and inline output step links to `technical-english.md`, and no
   other file restates the rules.
-  *(Evidence: `python3 evals/link_check.py` passes on 43 templates and 4 inline steps)*
+  *(Evidence: `python3 evals/link_check.py` passes on 44 templates and 4 inline steps)*
 - [x] Generated documents from the harness fixture have no semicolons in prose.
   *(Met with the D8 exception: 9 remain, all from the shared `tasks.md` boilerplate.
   `thoughts/2026-09-30-objective-1-report.md`)*
@@ -599,8 +601,9 @@ execution phase and measured by the harness.
   run worked with no dictionary copy present)*
 - [x] Merge: `git merge-tree` of 2.2.0 and the 3.0.0 branch shows conflicts only in link lines,
   `wb-prime.sh`, the manifests, `README.md`, and `CHANGELOG.md`.
-  *(Met with the D5 exception: `.gitignore` and `.claude/wb/knowledge.md` also conflict. Both are
-  append-only, and the handoff has their resolution notes)*
+  *(Met with the D5 and D14 exceptions: `.gitignore`, `.claude/wb/knowledge.md`,
+  `plugin/scripts/README.md` and `plugin/skills/help/SKILL.md` also conflict, 7 paths in all.
+  Each is append-only, and the handoff has its resolution note. `CHANGELOG.md` merges cleanly)*
 - [x] Legal: the repo contains no ASD rules text and no dictionary content. The name does not
   use the registered mark.
   *(Evidence: `link_check.py` finds no PDF or dictionary text. No `.pdf` or `.tsv` is tracked)*

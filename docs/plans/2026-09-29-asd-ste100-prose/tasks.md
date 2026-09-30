@@ -5,8 +5,8 @@ created: 2026-09-29
 status: in-progress
 last_updated: 2026-09-30
 current_phase: 10
-total_tasks: 56
-completed_tasks: 56
+total_tasks: 57
+completed_tasks: 57
 task_tracking: markdown-checkboxes
 depends_on: [research.md, design.md]
 assignee: scraig
@@ -142,7 +142,7 @@ Based on dependency analysis:
 | Phase 7: Documentation, handoff, and release checks | ✅ Complete | 5/5 | 100% |
 | Phase 8: Validation fixes | ✅ Complete | 7/7 | 100% |
 | Phase 9: PR descriptions and commit messages in WBTE | ✅ Complete | 6/6 | 100% |
-| Phase 10: Manual-check fixes | ✅ Complete | 3/3 | 100% |
+| Phase 10: Manual-check fixes | ✅ Complete | 4/4 | 100% |
 
 Counts come from the checkboxes below and are reconciled by `/wb:update_status`.
 
@@ -1466,6 +1466,8 @@ Fix the defects that the manual checks find. Added 2026-09-30 during the checks.
       Replace the handoff's two long file lists with the command that makes them. (completed 2026-09-30 19:05)
 - [x] **P10-T3** — Correct the claims and records that the re-run of the Phase 7 and Phase 8
       check found, and make its trims. (completed 2026-09-30 19:16)
+- [x] **P10-T4** — Make the last corrections and trims from the third run of the Phase 7 and
+      Phase 8 check. (completed 2026-09-30 19:42)
 
 ### Success Criteria
 
