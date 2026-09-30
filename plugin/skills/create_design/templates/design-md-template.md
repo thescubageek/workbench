@@ -122,7 +122,7 @@ This table is the record, because there is no external tracker.
 
 | ID | Decision Needed | Blocks | State |
 | -- | --------------- | ------ | ----- |
-| PD1 | [What needs to be decided; options and trade-offs in one line] | [phase or "execution start"] | Open |
+| PD1 | [What needs to be decided. Give the options and trade-offs in one line] | [phase or "execution start"] | Open |
 | PD2 | [Another decision] | [what cannot proceed] | Open |
 
 - **IDs are local and stable.** Number them `PD1`, `PD2`, and so on, in the order you raise
