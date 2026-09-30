@@ -1199,8 +1199,11 @@ for the post-3.0.0 pass; how to run `evals/` and the gate; the expected merge co
       they describe the release correctly
       *(signed off by the user 2026-09-30, after three read-only fact and length checks. P10-T2 to
       P10-T4 fixed what they found)*
-- [ ] A smoke session with `claude --plugin-dir <repo>/plugin` shows the card, and one stage
+- [x] A smoke session with `claude --plugin-dir <repo>/plugin` shows the card, and one stage
       produces WBTE output
+      *(signed off by the user 2026-09-30: `/wb:create_project` in a throwaway repo. The card was
+      present, the stage read `technical-english.md`, and `wbte_check.py` passed on 4 of the 5
+      documents. See the Implementation Notes for the limits)*
 
 ### 📝 Modified Files (Phase 7)
 
@@ -1239,7 +1242,7 @@ shortened one.
 
 - [x] **(derivable)** Every Phase 7 checkbox is `[x]`
 - [x] **(derivable)** All automated verification passing
-- [ ] **(attestation)** Manual verification confirmed by human
+- [x] **(attestation)** Manual verification confirmed by human
 - [x] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
       only writer of those fields, so do not edit `current_phase` or `completed_tasks` by hand
 
@@ -1249,6 +1252,9 @@ handoff, and confirms that they describe the release. A smoke session with
 `claude --plugin-dir <repo>/plugin` shows the card, and one stage writes WBTE output.
 "All automated verification passing" stayed `[ ]` because of `lint --all`. It is ticked
 2026-09-30 after P8-T2.
+
+**Signed off 2026-09-30:** the user confirmed both Phase 7 manual checks. The attestation is
+ticked.
 
 **The plan cannot close itself.** Every task is `[x]`, but `status: complete` is a
 judgment-bearing change behind `/wb:update_status`'s own barrier. It waits for a person.
@@ -1616,6 +1622,14 @@ resolved, leaving a dated line saying how.
   user accepted the shared `tasks.md` boilerplate semicolons for 2.2.0 (D8). The final run,
   `20260930T073357Z`, meets every target except 2 chat IDs in one sentence. The record is
   `thoughts/2026-09-30-objective-1-report.md`.
+- [2026-09-30] **Follow-ups from the Phase 7 smoke session.**
+  - The PASS mostly measures template text, because `create_project` fills in only values. The
+    harness runs in P4-T9 measured the model's own writing.
+  - `journal.md` keeps a template semicolon. The journal template is shared with 3.0.0, so it
+    has the link line only, the same case as D8. The post-3.0.0 pass rewrites it.
+  - The branch report did not keep its one-line shape (`🌿 Branch: … — rename it?`,
+    `branch-naming.md`). `technical-english.md` names the `✅ … Next:` shape as fixed, but not
+    this one. *When:* a 2.2.x patch adds it to the fixed shapes if it recurs, the D11 trigger.
 - [2026-09-30] **Follow-ups from the Phase 4 readability sign-off.** The side-by-side of repeat 1
   found these. Each is run-to-run variance, not a template change: neither research template
   mentions running code, in 2.1.1 or in 2.2.0.
