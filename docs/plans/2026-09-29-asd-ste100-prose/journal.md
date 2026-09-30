@@ -51,6 +51,13 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-30 00:39 — P2-T3 (closed)
+
+- **Task/phase**: P2-T3 — `evals/wbte_check.py` and its planted-failure inputs with clean siblings
+- **Landed**: the checker, with 4 bad inputs and 4 clean siblings in `evals/fixtures/planted/`. Before the checker existed, every input exited 2. Now each bad input exits 1 and each clean sibling exits 0. The reference doc passes. Files that end in `.txt` are chat output. The limits apply to all given files together
+- **Commits**: see `P2-T3: add the WBTE metric checker`
+- **Learned**: the first noun-cluster heuristic flagged verbs and names in real documents. It now treats words that end in -s as breaks, joins runs of capitalized words, and counts multi-word technical nouns from the reference doc as one word. A few false positives remain ("want lower skill quality"), so cluster counts are a trend signal, not a hard gate
+
 ## 2026-09-30 00:36 — P2-T2 (closed)
 
 - **Task/phase**: P2-T2 — ignore rules: `.gitignore` gains `evals/runs/`, `__pycache__/`, `*.pyc`; new `.wblintignore` with `evals/fixtures/planted/`
