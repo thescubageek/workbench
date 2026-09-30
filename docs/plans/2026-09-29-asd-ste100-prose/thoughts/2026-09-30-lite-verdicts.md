@@ -49,3 +49,4 @@ chose 1 repeat for each gate. Every verdict below is "1 of 1".
 | ---- | ----- | --- | --------- | --------------------- | -------------- | ----------- | ---- | ----- |
 | P5-T1 | `create_research/reference.md`, `create_research/sub-agent-prompts.md` | `20260930T082512Z` | both files read by `create_research`, 4 agents spawned | no loss, no loss | only the known git keys | 5 of 19 | $4.52 | **kept** |
 | P5-T2 | `create_design/reference.md`, `create_design/sub-agent-prompts.md` | `20260930T082458Z` | both files read by `create_design`, 6 agents spawned | no loss, no loss | only the known git keys | 6 of 19 | $6.37 | **kept** |
+| P5-T3 | `create_tasks/reference.md`, `create_tasks/examples.md`, `create_tasks/sub-agent-prompts.md` | `20260930T120839Z` | all three files read by `create_tasks`, 3 agents spawned | no loss, no loss | only the known git keys | 6 of 19 | $5.61 | **kept** |

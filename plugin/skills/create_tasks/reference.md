@@ -46,18 +46,18 @@ Read this when a step directs you to.
 
 ### Handling Implementation Discoveries
 
-Some things can only be determined during coding:
+You can determine some things only during coding:
 
 1. **Document in "Implementation Discoveries"**:
    - Note what needs investigation
    - Update with findings as discovered
    - Adjust tasks if needed
 
-2. **Don't Block on Minor Unknowns**:
+2. **Do Not Block on Minor Unknowns**:
    - Make reasonable assumptions for low-stakes details
    - Plan to test and adjust
    - Document the uncertainty
-   - **But**: if an unknown is *load-bearing* (its failure invalidates whole phases), don't assume — resolve it with a Phase 0 tracer bullet first (see Step 3)
+   - **But**: if an unknown is *load-bearing* (its failure invalidates whole phases), do not assume. Resolve it with a Phase 0 tracer bullet first (see Step 3)
 
 3. **Update During Implementation**:
    - Add discovered constraints
@@ -66,7 +66,7 @@ Some things can only be determined during coding:
 
 ### Leveraging Agent Findings
 
-Use agent findings throughout execution plan:
+Use agent findings throughout the execution plan:
 
 1. **Dependencies**: Order phases based on dependency agent analysis
 2. **Testing**: Incorporate test coverage agent recommendations
@@ -84,22 +84,21 @@ Tasks should be:
 
 ### Size by tool calls, not by hours
 
-Wall-clock time predicts nothing about whether a task can be finished. **Tool calls do.** A
-one-hour task touching 3 files is ~20 calls; a one-hour task touching 12 files is ~80.
+Wall-clock time predicts nothing about whether a worker can finish a task. **Tool calls do.** A
+one-hour task that touches 3 files is ~20 calls. A one-hour task that touches 12 files is ~80.
 
-A delegated worker hard-stops when it exhausts its tool-call budget — observed near **~70
-calls**, which is measured evidence from one machine and one model, not a guaranteed constant.
-The failure is worse than it sounds because truncation always eats the **finishing tail**: the
-last edits, the verification run, the status update. What is left behind looks like work in
-progress, not like a failure.
+A delegated worker hard-stops when it exhausts its tool-call budget. The observed stop is near
+**~70 calls**. This number is measured evidence from one machine and one model, not a
+guaranteed constant. The failure is worse than it sounds, because truncation always eats the
+**finishing tail**: the last edits, the verification run, the status update. The work that is
+left behind looks like work in progress, not like a failure.
 
-**A task projecting past ~50 calls is split at its natural seam before it is ever spawned.**
+**Split a task that projects past ~50 calls at its natural seam before you ever spawn it.**
 Half the observed ceiling is the budget, because the estimate is an estimate.
 
-Annotate each task with its rough projection — `(~30 calls)` — so the number that predicts
-truncation is the number the plan carries. `examples.md` works through a projection and a
-split.
+Annotate each task with its rough projection — `(~30 calls)` — so that the plan carries the
+number that predicts truncation. `examples.md` works through a projection and a split.
 
 ## Configuration
 
-This skill creates an execution plan from approved research and design documents. It leverages Claude Code's agent spawning capabilities to analyze dependencies, test coverage, and similar patterns.
+This skill creates an execution plan from approved research and design documents. It uses Claude Code's agent spawning capabilities to analyze dependencies, test coverage, and similar patterns.

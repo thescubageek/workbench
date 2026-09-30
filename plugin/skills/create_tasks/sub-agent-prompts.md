@@ -1,8 +1,8 @@
 # create_tasks — sub-agent prompts
 
-Read this when Step 2 directs you to. All three spawn together, in parallel — read the file
-whole. Use the prompts verbatim, substituting the bracketed placeholders from research.md and
-design.md.
+Read this when Step 2 directs you to. All three agents spawn together, in parallel. Read the
+file whole. Use the prompts verbatim, and substitute the bracketed placeholders from
+research.md and design.md.
 
 **Sub-agents are READ-ONLY** — they return findings only; YOU write `tasks.md` after
 synthesizing.
