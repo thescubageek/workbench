@@ -1,14 +1,16 @@
 # validate_execution — templates
 
+Write this output in wb Technical English (WBTE): read [technical-english.md](../../docs/reference/technical-english.md) and apply it. Keep every exempt token exactly as it is.
+
 Read the **section you need**, when its step directs you to.
 
 Sections: `Validation report` (Step 5)
 
 ## Validation report
 
-Step 5 — the document this skill produces. Every file:line, metric, test result and status in
-it must come from real tool output; omit a value or mark it `unverified` rather than inventing
-one.
+Step 5. This is the document that the skill writes. Every file:line, metric, test result and
+status in it must come from real tool output. If a value has no source, omit it or mark it
+`unverified`. Do not invent a value.
 
 ````markdown
 # Validation Report: [Project Name]
@@ -35,12 +37,12 @@ Generated: [YYYY-MM-DD HH:MM]
 
 #### Incomplete/Missing Tasks
 ❌ [Task description] - Not found in code
-⚠️ [Task description] - Partially complete (missing X)
+⚠️ [Task description] - Partly complete (X is missing)
 
 #### Success Criteria Results
 
 **Automated Verification**:
-- ✅ Tests pass: `make test` (all 45 tests passing)
+- ✅ Tests pass: `make test` (45 of 45 tests pass)
 - ✅ Linting clean: `make lint` (no issues)
 - ❌ Build fails: `make build` (error: [specific error])
 
@@ -69,7 +71,7 @@ Generated: [YYYY-MM-DD HH:MM]
 1. **[Description]** at `file:line`
    - Plan specified: [what plan said]
    - Actual implementation: [what was done]
-   - Justification: [why it's better]
+   - Justification: [why it is better]
 
 ### Unjustified Deviations
 1. **[Description]** at `file:line`
@@ -80,15 +82,15 @@ Generated: [YYYY-MM-DD HH:MM]
 ## Issues and Risks
 
 ### Critical Issues (Must Fix)
-- 🔴 [Issue description] - Blocks functionality
-- 🔴 [Issue description] - Security concern
+- 🔴 [Issue description] - It blocks a function
+- 🔴 [Issue description] - It is a security concern
 
 ### Non-Critical Issues (Should Fix)
-- 🟡 [Issue description] - Performance impact
-- 🟡 [Issue description] - Maintainability concern
+- 🟡 [Issue description] - It affects performance
+- 🟡 [Issue description] - It makes maintenance harder
 
 ### Potential Risks
-- ⚠️ [Risk description] - Monitor in production
+- ⚠️ [Risk description] - Monitor it in production
 - ⚠️ [Risk description] - May affect [component]
 
 ## Recommendations
@@ -99,33 +101,33 @@ Generated: [YYYY-MM-DD HH:MM]
 3. Complete [incomplete task]
 
 ### Before Deployment
-1. Perform manual testing checklist below
-2. Review with team lead
-3. Update documentation
+1. Do the manual testing checklist below
+2. Review the change with the team lead
+3. Update the documentation
 
 ### Future Improvements (Not Blocking)
 1. Consider refactoring [component] for clarity
-2. Add additional error handling at [location]
+2. Add error handling at [location]
 
 ## Manual Testing Checklist
 
-Copy this checklist for manual verification:
+Copy this checklist for the manual verification:
 
 ### User Interface
-- [ ] Feature appears correctly in UI
+- [ ] The feature appears correctly in the UI
 - [ ] All user interactions work as expected
-- [ ] Error states display properly
-- [ ] Performance is acceptable
+- [ ] Error states display correctly
+- [ ] The performance is acceptable
 
 ### Integration
-- [ ] Works with existing [component]
-- [ ] Data flows correctly through system
-- [ ] No regressions in related features
+- [ ] It works with the existing [component]
+- [ ] Data flows correctly through the system
+- [ ] Related features show no regressions
 
 ### Edge Cases
-- [ ] Handles empty/null inputs
-- [ ] Works with maximum data size
-- [ ] Graceful degradation on errors
+- [ ] It handles empty or null inputs
+- [ ] It works with the maximum data size
+- [ ] It degrades safely when an error occurs
 
 ## Appendix: Validation Evidence
 
@@ -138,11 +140,11 @@ Deletions: -[Z] lines
 
 ### Test Execution Logs
 
-[Include key excerpts from test runs]
+[Include the key excerpts from the test runs]
 
 ### Agent Findings
 
-[Include relevant findings from validation agents]
+[Include the relevant findings from the validation agents]
 
 ---
 
@@ -150,12 +152,12 @@ Deletions: -[Z] lines
 
 **Next Steps**:
 
-1. Address any critical issues identified
-2. Perform manual testing using checklist above
-3. Get approval from reviewer
-4. Deploy with confidence
+1. Fix each critical issue found above
+2. Do the manual testing with the checklist above
+3. Get approval from a reviewer
+4. Deploy the change
 
 **Validator Notes**:
-[Any additional context or observations about the implementation]
+[Other context or observations about the implementation]
 
 ````

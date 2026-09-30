@@ -51,6 +51,11 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-30 05:40 — P4-T6 (closed)
+
+- **Task/phase**: P4-T6 — WBTE rewrite, with the link line, of `validate_execution/templates.md`, `validate_project/templates/error-message-formats.md`, `resolve_questions/templates.md`, and `create_tasks/templates/plan-presentation-message.md`
+- **Landed**: `link_check.py` failed on 4 of 4 before the change and on 0 after it. The registry passes (including `[To be added]` and the three tracking-table headings), lint is clean, and the added lines have no semicolons. The report status words and the error titles did not change
+- **Commits**: see `P4-T6: rewrite the validation, resolve_questions and plan-presentation templates in WBTE`
 ## 2026-09-30 05:36 — P4-T5 (closed)
 
 - **Task/phase**: P4-T5 — WBTE rewrite, with the link line, of the `create_handoff` templates, `resume_handoff/templates.md`, and the `explore_design` templates

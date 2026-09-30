@@ -1,9 +1,11 @@
 # Plan presentation message
 
-Step 6 — emitted once, after `tasks.md` is written.
+Write this output in wb Technical English (WBTE): read [technical-english.md](../../../docs/reference/technical-english.md) and apply it. Keep every exempt token exactly as it is.
+
+Step 6. Emit this once, after `tasks.md` is written.
 
 ```
-✅ Execution plan created at: [path]/tasks.md
+✅ The execution plan is written: [path]/tasks.md
 
 Implementation structure:
 - Phase 1: [Name] - [X] tasks
@@ -12,26 +14,26 @@ Implementation structure:
 
 Total tasks: [total count]
 
-Agent findings incorporated:
+Agent findings used in the plan:
 - Dependency order: [key dependency from agent]
 - Test coverage: [X] unit tests, [Y] integration tests
 - Similar patterns: [reference to pattern agent findings]
 
-Key features of the plan:
-- Clear implementation sequence based on dependency analysis
-- Specific code changes with before/after context
-- Comprehensive test coverage from agent analysis
-- Automated and manual verification per phase
-- Quick test commands to avoid running full suite
-- Every task sized by projected tool calls, split past ~50
+The plan has these features:
+- An implementation order from the dependency analysis
+- Specific code changes, with the state before and after each change
+- Test coverage from the agent analysis
+- Automated and manual verification for each phase
+- Quick test commands, so that the full suite does not need to run each time
+- A size for each task in projected tool calls. A task larger than about 50 calls is split
 
 Where status lives:
-- Checkbox state in tasks.md is the source of truth
-- Frontmatter counters are a derived cache; /wb:update_status is their only writer
-- Git is the durable record — one task, one commit
+- The checkboxes in tasks.md are the source of truth
+- The frontmatter counters are a derived cache. /wb:update_status is their only writer
+- Git is the durable record, with one commit for each task
 
 Next steps:
 1. Review the execution plan in tasks.md
-2. Run `/wb:implement` to begin implementation with TDD via worker agents (`/wb:implement_inline` runs it in this session)
-3. Flip checkboxes as work completes; run /wb:update_status at each phase checkpoint
+2. Run `/wb:implement` to start the implementation with TDD and worker agents. `/wb:implement_inline` runs it in this session instead
+3. Tick each checkbox when its work is done. Run /wb:update_status at each phase checkpoint
 ```
