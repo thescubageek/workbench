@@ -4,13 +4,13 @@ ticket: null
 created: 2026-09-29
 status: in-progress
 last_updated: 2026-09-30
-current_phase: 7
-total_tasks: 40
-completed_tasks: 40
+current_phase: 8
+total_tasks: 47
+completed_tasks: 47
 task_tracking: markdown-checkboxes
 depends_on: [research.md, design.md]
 assignee: scraig
-git_commit: d0f8441
+git_commit: e6572a0
 git_branch: wb-2.2.0/asd_ste100_prose
 repository: thescubageek/workbench
 tags: [tasks, tracking, asd-ste100-prose]
@@ -1312,8 +1312,12 @@ shortened one.
 - [x] **(derivable)** Every Phase 8 checkbox is `[x]`
 - [x] **(derivable)** All automated verification passing
 - [ ] **(attestation)** Manual verification confirmed by human
-- [ ] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
+- [x] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
       only writer of those fields, so do not edit `current_phase` or `completed_tasks` by hand
+
+**Closed 2026-09-30 16:33 UTC, at the user's request (fix, resolve the questions, then iterate).** The
+attestation stays `[ ]`. Nobody has read the corrected records and the CHANGELOG lines. The
+attestations of Phases 2 and 4 to 7 are also still open, so `status: complete` waits.
 
 **Do not proceed without human confirmation of manual tests** — unless the phase is being run
 under `/wb:implement --auto`, which buys the wait and not the attestation. In that case the

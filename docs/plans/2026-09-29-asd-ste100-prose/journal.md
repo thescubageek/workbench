@@ -51,6 +51,13 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-30 16:33 — Phase 8 (closed)
+
+- **Task/phase**: P8-T1 to P8-T7 — the validation fixes, then PD1 to PD4 through resolve_questions (D11 to D14)
+- **Landed**: the `~/.claude` git-repo refusal, the `.wblintignore`-over-`.gitignore` fix (`lint --all` exits 0), the last template semicolon, the corrected plan records, the card skipped on PreCompact (the cause of the duplicate card), the `/wb:help` and scripts README entries, and the CHANGELOG and handoff notes. Counters reconciled to 47/47
+- **Commits**: `e8c073e` (the validation report) to `e6572a0` (P8-T7)
+- **Learned**: a manual `/compact` puts PreCompact's stdout into the next context, against the `wb-prime.sh` header. `git merge-tree` now gives 7 paths, each with a resolution note
+
 ## 2026-09-30 16:12 — Phase 8 (open)
 
 - **Task/phase**: P8-T1 to P8-T4 — the validation fixes
