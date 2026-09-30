@@ -1356,8 +1356,8 @@ Added 2026-09-30 at the user's request.
 
 ### Tasks
 
-- [ ] **P9-T1** — Write the "Pull requests and commit messages" section in
-      `technical-english.md`. Run `link_check.py` and `token_check.py`.
+- [x] **P9-T1** — Write the "Pull requests and commit messages" section in
+      `technical-english.md`. Run `link_check.py` and `token_check.py`. (completed 2026-09-30 16:58)
 - [ ] **P9-T2** — Write `plugin/scripts/test-pr-template` (RED), then `plugin/scripts/pr-template`
       until it is green. Cases: each GitHub location, case-insensitive names, a template
       directory, no template (the generic path), and a run from a subdirectory.

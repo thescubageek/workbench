@@ -185,6 +185,39 @@ conflict:
 - Say only what the user must act on. Say it in plain words, with no unexplained IDs.
 - Do not repeat a document in chat. The document itself follows WBTE.
 
+## Pull requests and commit messages
+
+A PR description and a commit message are output. A reviewer reads them between other work, so
+keep them short. All the output rules apply. `/wb:pr-description` drafts a PR title and body
+with these rules.
+
+**PR descriptions:**
+
+1. Use the repository's PR template. `plugin/scripts/pr-template` finds it in the places that
+   GitHub reads. If the repository has no template, use the generic template of
+   `/wb:pr-description`.
+2. Keep the template's headings in their order. Do not add headings.
+3. Write each section for what a reviewer needs from it. Give the change first, then the reason.
+4. If a section has nothing to say, leave it out. If the template requires it, write "None."
+5. Aim for one screen: about 150 to 250 words for the whole body. A complex change can be
+   longer. Put the detail behind a link to the plan, the handoff, or the ticket.
+6. Do not describe each file or each commit. The diff and the log show them.
+7. Do not paste plan text, tables of metrics, or test logs. Give the one number that matters,
+   and link to the rest.
+8. Write the title in the imperative, in at most 72 characters. Name the change. Keep a ticket
+   key prefix if the repository uses one.
+9. Keep these exactly as they are: attribution lines, closing keywords such as `Closes #12`,
+   the template's checklists and their checkboxes, and ticket links.
+10. Never write secrets, credentials, or personal data. In a healthcare repository, this
+    includes patient identifiers and member IDs.
+
+**Commit messages:**
+
+1. Write the subject in the imperative, in at most 72 characters, with no full stop. Keep a task
+   ID or ticket key prefix where the workflow requires it, for example `P8-T5: …`.
+2. A body is optional. If you write one, write a few short lines that say why, not what.
+3. Keep trailer lines exactly as they are, for example `Co-Authored-By:`.
+
 ## Optional dictionary
 
 The source standard has a dictionary of approved words. ASD does not permit redistribution of
