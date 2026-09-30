@@ -51,6 +51,12 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-30 12:35 — P7-T2 (closed)
+
+- **Task/phase**: P7-T2 — `handoff-2026-09-30-wbte-for-3.0.0.md` for the `adversarial-loop-skill-research` branch
+- **Landed**: the handoff lists the new files, the link-line text and its 12 shared locations, the three `wb-prime.sh` hunks, the expected merge conflicts (5 paths, confirmed with `git merge-tree` at `2fff76c`), the post-3.0.0 work (the other 35 shared files, the D8 boilerplate, the agent draft, and 36 non-shared files), and how to run the harness and the gate
+- **Commits**: see `P7-T2: add the WBTE handoff for the 3.0.0 branch`
+
 ## 2026-09-30 12:34 — P5-T4 (closed)
 
 - **Task/phase**: P5-T4 — the gated lite rewrite of `agents/codebase-analyzer.md` and `agents/codebase-locator.md`, then the token cost of the final tree
