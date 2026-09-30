@@ -655,8 +655,8 @@ templates in WBTE, and show that generated output meets the design's targets.
 
 ### Prerequisites
 
-- [ ] Phase 3 complete and verified
-- [ ] Phase 3 manual testing confirmed — *an attestation, like the checkpoint's. Under
+- [x] Phase 3 complete and verified
+- [x] Phase 3 manual testing confirmed — *an attestation, like the checkpoint's. Under
       `/wb:implement --auto` it stays `[ ]` and the phase proceeds anyway; the previous phase's
       checkpoint records that nobody was asked. Unticked here means deferred, not blocked.*
 
@@ -699,8 +699,8 @@ change to full stops or commas.
 
 #### Implementation
 
-- [ ] **P4-T1** — Add the link line to the 12 shared locations listed above. Run
-      `python3 evals/link_check.py` and confirm that those 12 now pass. (~20 calls)
+- [x] **P4-T1** — Add the link line to the 12 shared locations listed above. Run
+      `python3 evals/link_check.py` and confirm that those 12 now pass. (~20 calls) (completed 2026-09-30 05:17)
 - [ ] **P4-T2** — Measure A2: run `evals/run.py` with 3 repeats, comparing the Phase 3 tree
       with the P4-T1 tree. Record whether the generated `tasks.md` and chat summaries moved
       towards the targets in `thoughts/2026-09-30-link-measurement.md`. Set A2 in design.md.

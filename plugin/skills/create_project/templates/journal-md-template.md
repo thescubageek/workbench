@@ -1,5 +1,7 @@
 # journal.md Template
 
+Write this output in wb Technical English (WBTE): read [technical-english.md](../../../docs/reference/technical-english.md) and apply it. Keep every exempt token exactly as it is.
+
 The generated `journal.md` must contain **no `##` heading until a real entry is written**.
 Every reader of this file takes the first `##` line as the most recent entry, so an example
 heading left in the document is read as an entry — and since the example ends in `(open)`, the

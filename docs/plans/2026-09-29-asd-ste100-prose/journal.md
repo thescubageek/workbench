@@ -51,6 +51,12 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-30 05:18 — P4-T1 (closed)
+
+- **Task/phase**: P4-T1 — add the link line to the 12 locations shared with 3.0.0 (11 templates and the `create_research` Step 8 completion line)
+- **Landed**: `link_check.py` failed on 12 of 12 before the change and fails on 0 of 12 after it. Each file gained exactly 2 lines (the link line and a blank line) and lost none. Lint is clean, and the token registry passes
+- **Commits**: see `P4-T1: link the 12 shared output locations to technical-english.md`
+
 ## 2026-09-30 01:58 — P3-T3 (closed)
 
 - **Task/phase**: P3-T3 — measure A1: does the rule card change chat output? 3 repeats, `4b32306` against the working tree
