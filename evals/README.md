@@ -17,7 +17,7 @@ requirement.
 | `token_check.py` | Checks that templates keep each exempt token, and runs the parser patterns on generated documents. |
 | `tokens.json` | The patterns and the token registry that `token_check.py` reads. |
 | `link_check.py` | Checks the link lines to the reference doc, the single-authority rule, and that no ASD content is tracked. |
-| `judge.py` | An LLM judge that looks for content that the "after" output lost. |
+| `judge.py` | An LLM judge. `--within` (the gate) checks that each run's `design.md` and `tasks.md` keep the facts of its own `research.md`. Without it, the judge compares a before document with an after document, which is reliable for `research.md` only. |
 | `report.py` | Writes one markdown report for a run. |
 | `fixtures/planted/` | Planted failures and clean siblings. Each checker must fail on each bad input. |
 | `runs/` | Run output. It is gitignored. |
@@ -28,7 +28,7 @@ Use the repository root as the working directory.
 
 ```bash
 python3 evals/run.py --before 4b32306 --after HEAD --repeats 3
-python3 evals/judge.py --run evals/runs/<timestamp>
+python3 evals/judge.py --run evals/runs/<timestamp> --within
 python3 evals/report.py evals/runs/<timestamp>
 ```
 

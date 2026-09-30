@@ -51,6 +51,13 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-30 06:35 — P4-T10 (closed)
+
+- **Task/phase**: P4-T10 — the within-run judge mode (D7), with calibration on the 2.1.1 baseline run
+- **Landed**: `judge.py --within` and `--research/--doc/--context`. With prompt v2, the planted copy (F2 and `config.py:4` removed) is flagged in 3 of 3 runs, and the real 2.1.1 baseline run shows no loss in 3 of 3 repeats (6 of 6 judgments). The record is `thoughts/2026-09-30-judge-calibration.md`
+- **Commits**: see `P4-T10: add and calibrate the within-run judge mode (D7)`
+- **Learned**: prompt v1 ("ignore facts that the approach does not need") missed the planted loss in 0 of 3 runs. The fix is a rule that a mention of a research setting must give its value or its `file:line`
+
 ## 2026-09-30 05:28 — P4-T8 (closed)
 
 - **Task/phase**: P4-T8 — WBTE rewrite, with the link line, of the two `forge` templates, the `daily-digest`, `touch-grass`, `implement` and `implement_inline` templates, and the end-of-turn summary in `resolve_questions/SKILL.md`

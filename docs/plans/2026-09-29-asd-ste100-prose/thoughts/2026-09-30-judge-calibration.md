@@ -63,3 +63,33 @@ The expected-fact counts also move between runs of the same tree, for all three 
   change of that size.
 - A human decides how the gate uses the judge before P4-T9 and Phase 5. See the
   Implementation Discoveries in `tasks.md`.
+
+## The within-run mode (P4-T10, design.md D7)
+
+D7 changed the gate. The judge now asks whether a run's `design.md` and `tasks.md` carry
+forward the facts, `file:line` references and IDs of that run's own `research.md`. For
+`tasks.md`, the run's `design.md` is given as context. The command is
+`python3 evals/judge.py --run <run> --within`, or `--research <file> --doc <file>` for one
+judgment.
+
+The calibration used the 2.1.1 baseline run, `evals/runs/20260930T013327Z` (3 repeats). The
+files are in `calibration-within/`.
+
+**The planted loss** is a copy of `before/1/plan/design.md` with fact F2 removed in 5 places:
+the default of 3 attempts at `config.py:4`. The copy still says "the existing default" and "the
+default number of times".
+
+| Prompt | Planted copy flagged | Real run, no loss |
+| ------ | -------------------- | ----------------- |
+| v1 | 0 of 3 | 3 of 3 repeats (6 of 6 judgments) |
+| v2 | **3 of 3** (F2 each time) | **3 of 3 repeats (6 of 6 judgments)** |
+
+- **Prompt v1** told the judge to ignore research facts that the chosen approach does not need.
+  The judge then read "the existing default" as enough, and it missed the loss in all 3 runs.
+  The mechanical count did find it: F2 was cited in `research.md` and not in the copy.
+- **Prompt v2** adds one rule. If a document mentions a setting, default, limit or behavior
+  from research, it must give the research value or its `file:line`. With that rule, the judge
+  flags the planted copy every time and still finds no loss in the real run.
+
+**Result: the within-run mode is calibrated (prompt v2).** P4-T9 and Phase 5 use it as the
+"no loss" gate. The v1 verdicts are kept in `calibration-within/v1/`.
