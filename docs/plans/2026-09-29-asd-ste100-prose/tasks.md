@@ -4,13 +4,13 @@ ticket: null
 created: 2026-09-29
 status: in-progress
 last_updated: 2026-09-30
-current_phase: 5
-total_tasks: 39
-completed_tasks: 28
+current_phase: 7
+total_tasks: 40
+completed_tasks: 36
 task_tracking: markdown-checkboxes
 depends_on: [research.md, design.md]
 assignee: scraig
-git_commit: fcd44a9
+git_commit: 85e1507
 git_branch: wb-2.2.0/asd_ste100_prose
 repository: thescubageek/workbench
 tags: [tasks, tracking, asd-ste100-prose]
@@ -137,9 +137,9 @@ Based on dependency analysis:
 | Phase 2: Rules authority, harness, and baseline | ✅ Complete | 8/8 | 100% |
 | Phase 3: Rule card | ✅ Complete | 3/3 | 100% |
 | Phase 4: Objective 1 — link lines and template rewrites | ✅ Complete | 10/10 | 100% |
-| Phase 5: Objective 2 — gated "lite" rewrite | 🔄 In Progress | 0/5 | 0% |
-| Phase 6: Dictionary skill | ⏸️ Not Started | 0/2 | 0% |
-| Phase 7: Documentation, handoff, and release checks | ⏸️ Not Started | 0/5 | 0% |
+| Phase 5: Objective 2 — gated "lite" rewrite | ✅ Complete | 5/5 | 100% |
+| Phase 6: Dictionary skill | ✅ Complete | 2/2 | 100% |
+| Phase 7: Documentation, handoff, and release checks | 🔄 In Progress | 1/5 | 20% |
 
 Counts come from the checkboxes below and are reconciled by `/wb:update_status`.
 
@@ -952,7 +952,7 @@ shortened one.
 - [x] **(derivable)** Every Phase 5 checkbox is `[x]`
 - [ ] **(derivable)** All automated verification passing
 - [ ] **(attestation)** Manual verification confirmed by human
-- [ ] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
+- [x] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
       only writer of those fields, so do not edit `current_phase` or `completed_tasks` by hand
 
 **Closed under the full-auto instruction, 2026-09-30 12:35 UTC.** The attestation stays `[ ]`. Nobody has
@@ -1072,7 +1072,7 @@ shortened one.
 - [x] **(derivable)** Every Phase 6 checkbox is `[x]`
 - [x] **(derivable)** All automated verification passing
 - [ ] **(attestation)** Manual verification confirmed by human
-- [ ] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
+- [x] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
       only writer of those fields, so do not edit `current_phase` or `completed_tasks` by hand
 
 **Closed under the full-auto instruction, 2026-09-30 12:35 UTC.** The attestation stays `[ ]`. Nobody has
