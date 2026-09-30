@@ -235,10 +235,10 @@ real users (`.claude/wb/knowledge.md`, the cwd entry).
 
 #### Automated Verification
 
-- [ ] `test -f "$tmp/run/docs/plans/2026-01-01-fixture/research.md"` and
+- [x] `test -f "$tmp/run/docs/plans/2026-01-01-fixture/research.md"` and
       `grep -q '^status: complete' …/research.md` both succeed in the probe run
-- [ ] `./plugin/scripts/lint evals/fixture/**/*.md` is clean
-- [ ] `git ls-files docs/plans/2026-09-29-asd-ste100-prose/` lists `tasks.md`
+- [x] `./plugin/scripts/lint evals/fixture/**/*.md` is clean
+- [x] `git ls-files docs/plans/2026-09-29-asd-ste100-prose/` lists `tasks.md`
 
 #### Manual Verification
 
@@ -246,18 +246,25 @@ real users (`.claude/wb/knowledge.md`, the cwd entry).
       did not improvise
 - [ ] The probe record names its cwd
 
-### Modified Files
+### 📝 Modified Files (Phase 1)
 
 #### Code Files
 
-- `evals/fixture/project/*` — fixture project
-- `evals/fixture/QUESTION.md`, `evals/fixture/expected.json`, `evals/fixture/plan-seed/*`
-- `docs/plans/2026-09-29-asd-ste100-prose/thoughts/2026-09-30-harness-probe.md`
+- `evals/fixture/project/README.md`, `evals/fixture/project/src/linkcheck/{__init__,config,checker,cli}.py` - the `linkcheck` fixture project, with facts F1–F6 at known lines (P1-T2)
+- `evals/fixture/QUESTION.md` - the fixed research question (P1-T2)
+- `evals/fixture/expected.json` - the 6 expected facts, with `id`, `fact`, `ref` (`file:line`) and `contains` (P1-T2)
+- `evals/fixture/plan-seed/{README,research,design,tasks,journal}.md` - a plan directory made from the 2.1.1 `create_project` templates (P1-T2)
+- `docs/plans/2026-09-29-asd-ste100-prose/thoughts/2026-09-30-harness-probe.md` - the probe record: PASS, with cwd, command, model and duration (P1-T3)
 
-**Quick test command for this phase**:
+#### Test Files
+
+- none (data and probe tasks)
+
+**Quick test commands:**
 
 ```bash
-./plugin/scripts/lint evals/fixture/QUESTION.md evals/fixture/plan-seed/*.md
+# Run all tests for this phase
+./plugin/scripts/lint $(git ls-files 'evals/fixture/*.md')
 ```
 
 ### ⛔ CHECKPOINT: Phase 1 Complete
@@ -275,8 +282,8 @@ before, and following it ticks the human sign-off box. **This block, labels and 
 included, is repeated in full at every phase's checkpoint**; a later phase never gets a
 shortened one.
 
-- [ ] **(derivable)** Every Phase 1 checkbox is `[x]`
-- [ ] **(derivable)** All automated verification passing
+- [x] **(derivable)** Every Phase 1 checkbox is `[x]`
+- [x] **(derivable)** All automated verification passing
 - [ ] **(attestation)** Manual verification confirmed by human
 - [ ] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
       only writer of those fields, so do not edit `current_phase` or `completed_tasks` by hand
@@ -1149,6 +1156,14 @@ resolved, leaving a dated line saying how.
   `claude plugin tag plugin/` on a clean tree (`.claude/wb/knowledge.md`).
 - **Planned against 2.1.1** (`4b32306`). If `main` moves before Phase 7, rebase and repeat the
   P7-T4 checks.
+- [2026-09-30] **Follow-up from P1-T2: three 2.1.1 templates fail markdownlint as written.**
+  `create_project/templates/{research,design,tasks}-md-template.md` have no blank lines around
+  headings, lists and tables. The lint hook fixes each generated copy after the write. The
+  fixture seeds were lint-fixed. The templates were not changed, because that is not in this plan.
+- [2026-09-30] **Limit of the P1-T3 probe: the sub-agent fan-out was not tested.** The fixture is
+  small, so `create_research` skipped its agents, as the 2.1.1 stage allows. The probe also ran
+  with the read boundary off. P2-T6 is the first run that can show whether headless stages
+  spawn sub-agents.
 
 ---
 
