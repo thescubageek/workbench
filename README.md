@@ -138,6 +138,8 @@ Background capabilities that Claude automatically invokes:
 - **`daily-digest`** - Morning "catch me up + plan my day" orchestrator across Jira, wb plans, git, and more
 - **`clip`** - Runs an instruction, then copies the result to the clipboard (cross-platform) instead of printing it
 - **`eli5-clip`** - Summarizes recent work as a warm, plain-language message for a non-technical reader and copies it to the clipboard, tailored to a named recipient
+- **`pr-description`** - Drafts a short WBTE PR title and body from the branch, in the repository's PR template, and creates or updates the PR after you confirm
+- **`wbte-dictionary`** - Makes a private copy of the ASD-STE100 approved-word dictionary from your own copy of the Issue 9 PDF
 
 ### Hooks
 
@@ -248,7 +250,8 @@ The plugin cannot (and does not) write to your personal config — this rule is 
 ## wb Technical English (WBTE)
 
 wb Technical English (WBTE) is the writing standard for everything the workbench writes for a
-person to read: plan documents, handoffs, reports, and the conversation. It gives short
+person to read: plan documents, handoffs, reports, PR descriptions, commit messages, and the
+conversation. It gives short
 sentences, one instruction in each sentence, no semicolons, no unexplained IDs, and exact values
 in place of vague phrases.
 
@@ -258,9 +261,12 @@ dictionary.
 
 - **The rules** are in one file, `plugin/docs/reference/technical-english.md`. Every output
   template links to it.
-- **The rule card** is a summary of the rules in about 140 words. The session-start hook prints
+- **The rule card** is a summary of the rules in about 150 words. The session-start hook prints
   it on every startup, resume, and compaction, also in a repository with no plans and with a
   `.claude/wb/PRIME.md`.
+- **PR descriptions and commit messages** stay short. `/wb:pr-description` drafts a PR title
+  and body from the branch. It fills the repository's PR template, or a generic one, and aims
+  for about one screen. It creates or updates the PR only after you confirm.
 - **Repository terms.** A repository can list its own technical nouns in
   `.claude/wb/technical-nouns.md`, one on each line. WBTE treats them as approved terms.
 - **The optional dictionary.** Download the free ASD-STE100 Issue 9 PDF from ASD, then run

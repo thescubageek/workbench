@@ -8,7 +8,8 @@ Versioning follows semver as it applies to a prompt library: **patch** for promp
 ## [2.2.0] — 2026-09-30
 
 wb Technical English (WBTE) is a writing standard for everything the workbench writes for a
-person to read: plan documents, handoffs, reports, and the conversation. It is adapted from the
+person to read: plan documents, handoffs, reports, PR descriptions, commit messages, and the
+conversation. It is adapted from the
 principles of ASD-STE100 Issue 9. ASD does not endorse it, and it is not ASD-STE100 compliant.
 The plugin contains no text from the standard and no part of its dictionary.
 
@@ -25,7 +26,7 @@ Measured on the harness fixture (3 repeats, `sonnet`), 2.1.1 against the final t
 | Semicolons in document prose | 82 | 9, all in the `tasks.md` boilerplate that 3.0.0 shares |
 | Chat IDs used alone | 25 | 2, in one sentence |
 | Lost facts (the within-run judge) | none in 3 of 3 | none in 3 of 3 |
-| Always-on token cost | ~3,251 | ~3,412, plus the rule card (141 words) |
+| Always-on token cost | ~3,251 | ~3,539, plus the rule card (149 words) |
 | Cost of `create_research`, `create_design`, `create_tasks` on invoke | ~5.2k, ~5.4k, ~3.8k | unchanged |
 
 The 2 chat IDs are a known remainder. If they show up in real use, a 2.2.x patch tightens the
@@ -38,12 +39,20 @@ rule. A stage that follows a link line also reads the reference doc, about 2,100
   and shorthand, the exempt tokens that parsers match, how WBTE combines with Output
   discipline, the optional dictionary, and repository terms.
 - **A rule card at every session start.** `hooks/wb-prime.sh` prints a summary of the rules
-  (141 words) on startup, resume and compaction, with or without active plans, and outside the
+  (149 words) on startup, resume and compaction, with or without active plans, and outside the
   `.claude/wb/PRIME.md` override. It does not print on PreCompact, because a manual `/compact`
   shows PreCompact's output in the next context, and the card would be there twice.
   `WB_TECH_ENGLISH=0` turns it off. With the switch set, the hook output is byte-identical to
   2.1.1.
-- **`plugin/scripts/test-prime`**, 42 contract checks for the session-start hook.
+- **`plugin/scripts/test-prime`**, 44 contract checks for the session-start hook.
+- **`/wb:pr-description`**, for short PR descriptions.
+  - It drafts the title and body from the branch's commits and diff. It fills the repository's
+    PR template, or a generic one, scopes each section, and aims for about one screen.
+  - It runs `gh pr create` or `gh pr edit` only after the user confirms.
+  - `plugin/scripts/pr-template` finds the template in GitHub's order, and
+    `plugin/scripts/test-pr-template` tests it.
+  - The card and `technical-english.md` carry the same rules for every PR description and
+    commit message, also when the skill does not run.
 - **`/wb:wbte-dictionary`** and `plugin/scripts/wbte-dictionary`.
   - They make a private copy of the approved-word dictionary from the user's own free copy of
     the Issue 9 PDF.

@@ -155,7 +155,26 @@ changing `wbte-dictionary`.
 Contract tests for `hooks/wb-prime.sh`. They cover the WBTE rule card on each SessionStart
 source, with 0, 1 and 2 active plans and with `.claude/wb/PRIME.md`. They also cover no card on
 PreCompact, `WB_TECH_ENGLISH=0`, `--export`, exit 0, no file changes, and the 5-second limit
-with 200 plans. The card has a limit of 150 words. Run after changing `wb-prime.sh`.
+with 200 plans. The card has a limit of 150 words and must name PR descriptions and commit
+messages. Run after changing `wb-prime.sh`.
+
+### `pr-template`
+
+Prints the PR template that `/wb:pr-description` fills. It looks where GitHub looks, in
+GitHub's order: `.github/`, the repository root, then `docs/`. Each line is
+`repo <absolute path>`: the default `pull_request_template.md` (any case) first, then the `.md`
+files of a `PULL_REQUEST_TEMPLATE/` directory. With no template, the one line is
+`generic <absolute path>`, the template that ships with the skill. It only reads.
+
+```bash
+./scripts/pr-template
+```
+
+### `test-pr-template`
+
+Contract tests for `pr-template`: each location, GitHub's order, names in any case, a template
+directory, no template, a run from a subdirectory, and a run outside a repository. Run after
+changing `pr-template`.
 
 ## Configuration
 

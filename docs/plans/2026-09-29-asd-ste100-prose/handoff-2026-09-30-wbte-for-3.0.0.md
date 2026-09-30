@@ -42,10 +42,14 @@ waits for the first release after 3.0.0. One exception (D14): `plugin/scripts/RE
 
 - `plugin/docs/reference/technical-english.md` — the single authority for the rules. No other
   file restates them, and `evals/link_check.py` checks that.
-- `plugin/scripts/test-prime` — 42 contract checks for `wb-prime.sh`, including the card.
+- `plugin/scripts/test-prime` — 44 contract checks for `wb-prime.sh`, including the card.
 - `plugin/scripts/wbte-dictionary`, `plugin/scripts/test-wbte-dictionary` — the extractor for
   the user's own dictionary copy, and its test.
 - `plugin/skills/wbte-dictionary/SKILL.md` — `/wb:wbte-dictionary`.
+- `plugin/skills/pr-description/` — `/wb:pr-description` and its generic PR template (D15 to
+  D17).
+- `plugin/scripts/pr-template`, `plugin/scripts/test-pr-template` — the PR-template finder and
+  its test.
 - `evals/` — the maintainer-only eval harness. It is never shipped. See "Run the harness".
 - `.wblintignore` — keeps lint away from `evals/fixtures/planted/` and `evals/runs/`.
 
@@ -83,7 +87,7 @@ It has three hunks, and the file auto-merges with 3.0.0 at `2fff76c` (design.md 
 1. A header bullet, after "exit 0 always":
    `#   - the WBTE rule card prints on every session start (startup, resume, compact), …`.
    It also says why the card does not print on PreCompact (D13).
-2. A new `card()` function after `orientation()`. It prints card v3 (141 words) and the path
+2. A new `card()` function after `orientation()`. It prints card v4 (149 words) and the path
    `$CLAUDE_PLUGIN_ROOT/docs/reference/technical-english.md`.
 3. Two guarded calls:
    - In the recovery branch, before `[ "$count" -eq 0 ] && exit 0`. It skips PreCompact,
@@ -112,8 +116,8 @@ the orientation or recovery sections, place the two calls again and run `test-pr
 | `README.md` | both branches edit it (this conflict already exists with 2.1.1) | keep both. 2.2.0 adds the "wb Technical English (WBTE)" section |
 | `.gitignore` | both branches append `__pycache__/` and `*.pyc`. 2.2.0 also adds `evals/runs/` | keep one copy of each line, and keep `evals/runs/` |
 | `.claude/wb/knowledge.md` | both branches append entries | keep both appended entries |
-| `plugin/scripts/README.md` | both branches add script sections after `test-quiet` (D14) | keep both. 2.2.0 adds `wbte-dictionary`, `test-wbte-dictionary` and `test-prime`, and one clause in the `test-lint` entry |
-| `plugin/skills/help/SKILL.md` | both branches add entries after `/wb:model-help` (D14) | keep both. 2.2.0 adds the `/wb:wbte-dictionary` entry |
+| `plugin/scripts/README.md` | both branches add script sections after `test-quiet` (D14) | keep both. 2.2.0 adds `wbte-dictionary`, `test-wbte-dictionary`, `test-prime`, `pr-template` and `test-pr-template`, and one clause in the `test-lint` entry |
+| `plugin/skills/help/SKILL.md` | both branches add entries after `/wb:model-help` (D14) | keep both. 2.2.0 adds the `/wb:pr-description` and `/wb:wbte-dictionary` entries |
 
 P7-T4 and P7-T5 run the check again on the final tree and record any other path.
 
@@ -132,6 +136,9 @@ The first release after 3.0.0 (3.0.1 or 3.1.0, design.md D-Q3) must still do the
    draft was in `.context/lite/` on the 2.2.0 machine. Gate it with 3 repeats.
 4. **Gate the remaining non-shared instruction files.** 2.2.0 rewrote the output templates and
    the Phase 5 files only.
+5. **Apply the PR rules to 3.0.0's own PR text.** `reply-to-claude` posts PR comments with
+   `gh pr comment`. Give its comment step the link line, so that the "Pull requests and commit
+   messages" rules of `technical-english.md` apply there too.
 
 **The 48 shared files** (`git diff --name-only --diff-filter=M 46ef587 2fff76c -- plugin`,
 limited to the files on `4b32306`). The 13 that 2.2.0 changed are listed above. These are the

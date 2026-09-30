@@ -1367,8 +1367,8 @@ Added 2026-09-30 at the user's request.
       messages (RED). Change the card, within 150 words, until `test-prime` is green. (completed 2026-09-30 16:54)
 - [x] **P9-T5** — Add `--pr` to `evals/wbte_check.py`, with a planted long PR body (exit 1) and a
       clean sibling (exit 0). (completed 2026-09-30 16:55)
-- [ ] **P9-T6** — Document the skill in README, CHANGELOG, `/wb:help` and the handoff. Run
-      `git merge-tree` and add a note for any new conflict.
+- [x] **P9-T6** — Document the skill in README, CHANGELOG, `/wb:help` and the handoff. Run
+      `git merge-tree` and add a note for any new conflict. (completed 2026-09-30 16:56)
 
 ### Success Criteria
 

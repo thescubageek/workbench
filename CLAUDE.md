@@ -59,6 +59,9 @@ history is marked non-normative at its top, so it cannot be read as current guid
 
 # Contract tests for hooks/wb-prime.sh, including the WBTE rule card (run after changing it)
 ./plugin/scripts/test-prime
+
+# Contract tests for scripts/pr-template, the PR-template finder (run after changing it)
+./plugin/scripts/test-pr-template
 ```
 
 **Eval harness** (`evals/`, maintainer-only, never shipped): measures stage output before and
