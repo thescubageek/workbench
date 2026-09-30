@@ -892,9 +892,9 @@ files. The 3.0.0 handoff (P7-T2) lists them.
 - [x] **P5-T1** — Gate `create_research/{reference,sub-agent-prompts}.md`. Depends on: P5-T5. (~30 calls) (completed 2026-09-30 12:22, 1 of 1 repeats per D10)
 - [x] **P5-T2** — Gate `create_design/{reference,sub-agent-prompts}.md`. Depends on: P5-T5. (~30 calls) (completed 2026-09-30 12:22, 1 of 1 repeats per D10)
 - [x] **P5-T3** — Gate `create_tasks/{reference,examples,sub-agent-prompts}.md`. Depends on: P5-T5. (~30 calls) (completed 2026-09-30 12:22, 1 of 1 repeats per D10)
-- [ ] **P5-T4** — Gate `agents/{codebase-analyzer,codebase-locator}.md` (Depends on: P5-T5). Then measure the token
+- [x] **P5-T4** — Gate `agents/{codebase-analyzer,codebase-locator}.md` (Depends on: P5-T5). Then measure the token
       cost of the final tree with `claude --plugin-dir plugin plugin details wb` and add it to
-      `thoughts/2026-09-30-lite-verdicts.md` beside the baseline. (~30 calls)
+      `thoughts/2026-09-30-lite-verdicts.md` beside the baseline. (~30 calls) (completed 2026-09-30 12:34, 1 of 1 repeats per D10. The verdict is "restored")
 
 ### Success Criteria
 

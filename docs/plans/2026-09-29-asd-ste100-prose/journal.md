@@ -51,6 +51,13 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-30 12:34 — P5-T4 (closed)
+
+- **Task/phase**: P5-T4 — the gated lite rewrite of `agents/codebase-analyzer.md` and `agents/codebase-locator.md`, then the token cost of the final tree
+- **Landed**: restored. In the gate run `20260930T122037Z` (1 repeat, D10), `design.md` cited `classify.py:81-83` for a rule at `classify.py:29`, and that file has 40 lines. The within-run judge flagged the loss. The agent files stay as they are in 2.1.1, and the draft stays in `.context/lite/`. The always-on cost is ~3,412 tokens (2.1.1: ~3,251), and the per-stage cost is unchanged. The record is `thoughts/2026-09-30-lite-verdicts.md`
+- **Commits**: see `P5-T4: restore the agent files (the gate found a loss), and record the token cost`
+- **Learned**: with 1 repeat, a loss cannot be told apart from run-to-run variance. The post-3.0.0 pass should gate the agent draft again with 3 repeats
+
 ## 2026-09-30 12:22 — P5-T3 (closed)
 
 - **Task/phase**: P5-T3 — the gated lite rewrite of `create_tasks/reference.md`, `create_tasks/examples.md`, `create_tasks/sub-agent-prompts.md`

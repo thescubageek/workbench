@@ -50,3 +50,38 @@ chose 1 repeat for each gate. Every verdict below is "1 of 1".
 | P5-T1 | `create_research/reference.md`, `create_research/sub-agent-prompts.md` | `20260930T082512Z` | both files read by `create_research`, 4 agents spawned | no loss, no loss | only the known git keys | 5 of 19 | $4.52 | **kept** |
 | P5-T2 | `create_design/reference.md`, `create_design/sub-agent-prompts.md` | `20260930T082458Z` | both files read by `create_design`, 6 agents spawned | no loss, no loss | only the known git keys | 6 of 19 | $6.37 | **kept** |
 | P5-T3 | `create_tasks/reference.md`, `create_tasks/examples.md`, `create_tasks/sub-agent-prompts.md` | `20260930T120839Z` | all three files read by `create_tasks`, 3 agents spawned | no loss, no loss | only the known git keys | 6 of 19 | $5.61 | **kept** |
+| P5-T4 | `agents/codebase-analyzer.md`, `agents/codebase-locator.md` | `20260930T122037Z` | spawned in all three stages (`codebase-analyzer` 9 times, `codebase-locator` once) | **loss**, no loss | only the known git keys | 5 of 19 | $5.34 | **restored** |
+
+**P5-T4 is restored.** Its `design.md` cites `src/linkcrawl/core/classify.py:81-83` for the
+429-to-skipped rule. That file has 40 lines, and research gives the rule at `classify.py:29`. With
+1 repeat, the cause could be the agent rewrite or run-to-run variance. The gate rule keeps a
+rewrite only when it shows no loss, so the two agent files stay as they are in 2.1.1. The draft
+is kept in `.context/lite/plugin/agents/` for the post-3.0.0 pass, which can gate it again with 3
+repeats.
+
+## Token cost
+
+`claude --plugin-dir <tree>/plugin plugin details wb`:
+
+| Item | 2.1.1 (`4b32306`) | Final tree (P5-T4) |
+| ---- | ----------------- | ------------------ |
+| Always-on, every session | ~3,251 | ~3,412 (the new `wbte-dictionary` skill adds ~130) |
+| `create_research` on invoke | ~5.2k | ~5.2k |
+| `create_design` on invoke | ~5.4k | ~5.4k |
+| `create_tasks` on invoke | ~3.8k | ~3.8k |
+| `codebase-analyzer`, `codebase-locator` on invoke | ~1.2k, ~1k | ~1.2k, ~1k |
+
+`plugin details` does not count hook output or runtime reads. Two more costs apply:
+
+- **The rule card** is 141 words (about 190 tokens) at every session start, and again after each
+  compaction.
+- **The reference doc** is read when a stage follows a link line. It has 1,571 words, so about
+  2,100 tokens. The model followed the link in about two of three linked stage runs
+  (P4-T2).
+
+## Summary
+
+| Result | Tasks |
+| ------ | ----- |
+| Kept (no loss, 1 of 1) | P5-T1, P5-T2, P5-T3: 7 skill files |
+| Restored (loss in `design.md`) | P5-T4: the 2 agent files |
