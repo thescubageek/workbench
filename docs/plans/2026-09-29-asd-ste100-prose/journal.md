@@ -51,6 +51,13 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-30 12:22 — P5-T2 (closed)
+
+- **Task/phase**: P5-T2 — the gated lite rewrite of `create_design/reference.md`, `create_design/sub-agent-prompts.md`
+- **Landed**: kept. The gate run is `20260930T082458Z`, 1 repeat (D10). Every rewritten file was exercised (both files read by `create_design`, 6 agents spawned). The within-run judge found no loss in `design.md` or `tasks.md`. `token_check.py` found only the known missing git keys. The run cited 6 of the 19 facts (the before-run cited 5). Cost $6.37
+- **Commits**: see `P5-T2: keep the lite rewrite of create_design/reference.md, create_design/sub-agent-prompts.md`
+- **Learned**: the gate ran before this entry was written, in the overnight batch. This entry was opened and closed in one step
+
 ## 2026-09-30 12:22 — P5-T1 (closed)
 
 - **Task/phase**: P5-T1 — the gated lite rewrite of `create_research/reference.md`, `create_research/sub-agent-prompts.md`
