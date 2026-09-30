@@ -115,7 +115,14 @@ remove a word for each word it adds.
 
 ## A3: the card after compaction with no active plan
 
-Not yet performed. This is a manual step in the Phase 3 checkpoint. A human runs `/compact` in
+**Partial result, 2026-09-30.** The user ran an interactive session with
+`claude --plugin-dir /Users/scraig/conductor/workspaces/workbench/houston-v2/plugin` in
+`/tmp/wb-a3-noplans`, a new git repo with no plans. The model reported the card in its
+context, from the wb SessionStart hook, with the full-rules path resolved. That shows the
+startup path with 0 plans. `/compact` did not run ("Not enough messages to compact"), so the
+compact path is not tested yet, and A3 stays `Pending`.
+
+The remaining step: This is a manual step in the Phase 3 checkpoint. A human runs `/compact` in
 a real interactive session, in a repo with no active plans, with
 `claude --plugin-dir <repo>/plugin`. Then the human confirms that the card is in the next
 context. `test-prime` shows that the hook prints the card on `source=compact` with 0 plans. It
