@@ -1195,8 +1195,10 @@ for the post-3.0.0 pass; how to run `evals/` and the gate; the expected merge co
 
 #### Manual Verification
 
-- [ ] A human reads the README section, the CHANGELOG entry and the handoff, and confirms that
+- [x] A human reads the README section, the CHANGELOG entry and the handoff, and confirms that
       they describe the release correctly
+      *(signed off by the user 2026-09-30, after three read-only fact and length checks. P10-T2 to
+      P10-T4 fixed what they found)*
 - [ ] A smoke session with `claude --plugin-dir <repo>/plugin` shows the card, and one stage
       produces WBTE output
 
@@ -1320,7 +1322,8 @@ the user's request, after `/wb:validate_execution`.
 
 #### Manual Verification
 
-- [ ] A human reads the corrected records and the CHANGELOG lines
+- [x] A human reads the corrected records and the CHANGELOG lines
+      *(signed off by the user 2026-09-30, with the Phase 7 read)*
 
 ### ⛔ CHECKPOINT: Phase 8 Complete
 
@@ -1339,7 +1342,7 @@ shortened one.
 
 - [x] **(derivable)** Every Phase 8 checkbox is `[x]`
 - [x] **(derivable)** All automated verification passing
-- [ ] **(attestation)** Manual verification confirmed by human
+- [x] **(attestation)** Manual verification confirmed by human
 - [x] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
       only writer of those fields, so do not edit `current_phase` or `completed_tasks` by hand
 
@@ -1348,6 +1351,8 @@ attestation stays `[ ]`. Nobody has read the corrected records and the CHANGELOG
 attestations of Phases 2 and 4 to 7 are also still open, so `status: complete` waits.
 *(Update 2026-09-30: the user has since signed off Phases 2, 4, 5 and 6. The attestations of
 Phases 7, 8 and 9 are still open.)*
+
+**Signed off 2026-09-30:** the user confirmed the Phase 8 read. The attestation is ticked.
 
 **Do not proceed without human confirmation of manual tests** — unless the phase is being run
 under `/wb:implement --auto`, which buys the wait and not the attestation. In that case the
