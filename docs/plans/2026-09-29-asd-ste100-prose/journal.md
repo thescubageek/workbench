@@ -51,6 +51,13 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-30 00:24 — P1-T3 (closed)
+
+- **Task/phase**: P1-T3 — run the headless driver probe against the 2.1.1 tree (tests assumption A6)
+- **Landed**: probe PASS in 59 s, exit 0. `research.md` reached `status: complete`, 4 of 6 facts are cited at the exact `file:line`, and the `✅ research.md updated` line is in stdout. The record is `thoughts/2026-09-30-harness-probe.md`. A6 is still `Pending` (the plan changes it only on failure). Verifier PASS
+- **Commits**: see `P1-T3: record the headless driver probe`
+- **Learned**: the stage skipped its sub-agent fan-out, as 2.1.1 allows when the whole surface is already read. So the probe does not show that headless runs can spawn sub-agents. The read boundary was off on this machine
+
 ## 2026-09-30 00:17 — P1-T2 (closed)
 
 - **Task/phase**: P1-T2 — build `evals/fixture/` (project, QUESTION.md, expected.json, plan-seed)

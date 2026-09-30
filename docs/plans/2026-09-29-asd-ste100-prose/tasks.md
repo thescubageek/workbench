@@ -223,13 +223,13 @@ real users (`.claude/wb/knowledge.md`, the cwd entry).
       least 3 facts at known lines), `QUESTION.md`, `expected.json`, and `plan-seed/` made from
       the 2.1.1 `create_project` templates (`git show 4b32306:plugin/skills/create_project/templates/…`).
       Lint the markdown with `./plugin/scripts/lint`. (~20 calls) (completed 2026-09-30 00:19)
-- [ ] **P1-T3** — Run the driver probe above against the 2.1.1 tree. Pass means all three: the
+- [x] **P1-T3** — Run the driver probe above against the 2.1.1 tree. Pass means all three: the
       run copy has `docs/plans/2026-01-01-fixture/research.md` with `status: complete`, the file
       cites at least 2 of the expected facts at their `file:line`, and stdout has the
       `✅ research.md updated` completion line. Record the result in
       `thoughts/2026-09-30-harness-probe.md` with cwd, command, model and duration. If the probe
       fails, record why, mark A6 `Invalid` in design.md, and stop at the checkpoint. Phases 2–5
-      need a new driver in that case. (~20 calls)
+      need a new driver in that case. (~20 calls) (completed 2026-09-30 00:24)
 
 ### Success Criteria
 
