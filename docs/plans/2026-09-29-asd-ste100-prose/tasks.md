@@ -582,10 +582,10 @@ exit 0 on every path; no file changes (checksums before and after); wall time un
 
 #### Automated Verification
 
-- [ ] `./plugin/scripts/test-prime` passes
-- [ ] `./plugin/scripts/test-lint` and `./plugin/scripts/test-quiet` pass
-- [ ] `bash -n plugin/hooks/wb-prime.sh` succeeds
-- [ ] The card is at most 150 words (checked in `test-prime`)
+- [x] `./plugin/scripts/test-prime` passes
+- [x] `./plugin/scripts/test-lint` and `./plugin/scripts/test-quiet` pass
+- [x] `bash -n plugin/hooks/wb-prime.sh` succeeds
+- [x] The card is at most 150 words (checked in `test-prime`)
 
 #### Manual Verification
 
@@ -595,21 +595,24 @@ exit 0 on every path; no file changes (checksums before and after); wall time un
       and set A3 in design.md
 - [ ] A human reads the card and confirms it is short, clear, and WBTE
 
-### Modified Files
+### 📝 Modified Files (Phase 3)
 
 #### Code Files
 
-- `plugin/hooks/wb-prime.sh` — `card()` and two guarded calls
-- `CLAUDE.md` — one line for `test-prime`
+- `plugin/hooks/wb-prime.sh` - `card()` (card v2, 149 words), two calls guarded by `WB_TECH_ENGLISH=0`, and a header bullet (P3-T2, P3-T3)
+- `CLAUDE.md` - a `test-prime` line under Development Tools (P3-T2)
+- `thoughts/2026-09-30-card-measurement.md` - the A1 measurement and both card versions (P3-T3)
+- `design.md` - A1 set to `Validated 2026-09-30` (P3-T3)
 
 #### Test Files
 
-- `plugin/scripts/test-prime` — new contract test
+- `plugin/scripts/test-prime` - the 40-case contract test for `wb-prime.sh` (P3-T1, and the `strip_card` blank-line fix in P3-T2)
 
-**Quick test command for this phase**:
+**Quick test commands:**
 
 ```bash
-./plugin/scripts/test-prime && ./plugin/scripts/test-lint && ./plugin/scripts/test-quiet
+# Run all tests for this phase
+plugin/scripts/quiet ./plugin/scripts/test-prime && plugin/scripts/quiet ./plugin/scripts/test-lint && plugin/scripts/quiet ./plugin/scripts/test-quiet
 ```
 
 ### ⛔ CHECKPOINT: Phase 3 Complete
@@ -627,8 +630,8 @@ before, and following it ticks the human sign-off box. **This block, labels and 
 included, is repeated in full at every phase's checkpoint**; a later phase never gets a
 shortened one.
 
-- [ ] **(derivable)** Every Phase 3 checkbox is `[x]`
-- [ ] **(derivable)** All automated verification passing
+- [x] **(derivable)** Every Phase 3 checkbox is `[x]`
+- [x] **(derivable)** All automated verification passing
 - [ ] **(attestation)** Manual verification confirmed by human
 - [ ] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
       only writer of those fields, so do not edit `current_phase` or `completed_tasks` by hand
