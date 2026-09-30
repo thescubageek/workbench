@@ -433,7 +433,7 @@ user requirement.
 
 #### Manual Verification
 
-- [ ] A human reads `technical-english.md` and confirms it is WBTE, has no ASD text, and states
+- [x] A human reads `technical-english.md` and confirms it is WBTE, has no ASD text, and states
       every design.md Data Model section
 - [ ] A human reads one judge verdict and one baseline report and confirms they make sense
 
@@ -487,6 +487,9 @@ shortened one.
 - [ ] **(attestation)** Manual verification confirmed by human
 - [x] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
       only writer of those fields, so do not edit `current_phase` or `completed_tasks` by hand
+
+**Update 2026-09-30:** the user confirmed `technical-english.md`. The judge-verdict and
+baseline-report read is still open, so the attestation stays `[ ]`.
 
 **Closed unattended, 2026-09-30 01:50 UTC.** The user asked for a full-auto run while away. The
 attestation stays `[ ]`. Nobody performed the Phase 2 manual steps: a human reads
@@ -593,7 +596,7 @@ exit 0 on every path; no file changes (checksums before and after); wall time un
       plugin (`claude --plugin-dir <repo>/plugin`), run `/compact` and confirm that the card is
       in the next context. Record the cwd and result in `thoughts/2026-09-30-card-measurement.md`,
       and set A3 in design.md
-- [ ] A human reads the card and confirms it is short, clear, and WBTE
+- [x] A human reads the card and confirms it is short, clear, and WBTE (confirmed by the user, 2026-09-30)
 
 ### 📝 Modified Files (Phase 3)
 
