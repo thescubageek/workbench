@@ -1,0 +1,1 @@
+Research how linkcrawl decides that a link is broken, skipped, or fine: which settings control timeouts, retries, backoff, rate limits and robots.txt handling, where their defaults are defined and how they are overridden, how the result cache affects a re-check, and how each result reaches the exit status and the reports.

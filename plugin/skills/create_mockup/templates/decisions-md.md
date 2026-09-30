@@ -1,6 +1,8 @@
 # decisions.md
 
-Step 5 — `mockups/v00N/decisions.md`.
+Write this output in wb Technical English (WBTE): read [technical-english.md](../../../docs/reference/technical-english.md) and apply it. Keep every exempt token exactly as it is.
+
+Step 5. Write `mockups/v00N/decisions.md`.
 
 ```markdown
 ---
@@ -14,22 +16,22 @@ created: [YYYY-MM-DD]
 
 ### Layout Choice
 - **Decision**: [what was chosen]
-- **Rationale**: [why, referencing research]
+- **Rationale**: [why, with a reference to the research]
 - **Alternative considered**: [what else could work]
 
 ### Component Choices
 - **Decision**: Use [component] for [purpose]
-- **Rationale**: Matches existing pattern at [file:line]
+- **Rationale**: It matches the existing pattern at [file:line]
 
 ## Based On Research
 
-- Layout follows pattern from [similar feature]
-- Components reused from [library location]
-- Styling matches [existing page]
+- The layout follows the pattern from [similar feature]
+- The components come from [library location]
+- The styling matches [existing page]
 
 ## Assumptions
 
-1. [Assumption made due to unclear requirement]
+1. [An assumption made because a requirement is not clear]
 2. [Assumption about user behavior]
 
 ## Needs Validation

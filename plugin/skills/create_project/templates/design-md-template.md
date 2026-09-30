@@ -1,5 +1,7 @@
 # design.md Template
 
+Write this output in wb Technical English (WBTE): read [technical-english.md](../../../docs/reference/technical-english.md) and apply it. Keep every exempt token exactly as it is.
+
 ````markdown
 ---
 project: [project-name]
@@ -22,10 +24,10 @@ depends_on: research.md
 **Designer**: [username]
 **Ticket**: [ticket-reference or N/A]
 
-<!-- Status lives in frontmatter `status:` only. Do not restate it here: it is the field
-     /wb:create_tasks and forge gate on, it changes, and a second copy goes stale the moment
-     the design is approved. `created` and `ticket` are repeated above because they never
-     change after creation. -->
+<!-- The status is only in the frontmatter `status:` field. Do not repeat it here.
+     /wb:create_tasks and forge read that field, and it changes. A second copy is out of
+     date as soon as the design is approved. `created` and `ticket` are repeated above,
+     because they do not change after creation. -->
 
 ## Problem Statement
 

@@ -201,15 +201,17 @@ Do NOT echo the full doc back. Do NOT summarize after every question. Keep caden
 
 ### Step 5: Final summary
 
-After the last question (or when the user halts):
+Write this output in wb Technical English (WBTE): read [technical-english.md](../../docs/reference/technical-english.md) and apply it. Keep every exempt token exactly as it is.
 
-1. If every question in a file's Open Questions section is now resolved, optionally add a banner under the heading: `_All questions resolved as of YYYY-MM-DD._`
-2. Send a single end-of-turn message summarizing:
-   - How many resolved, how many skipped, how many remain — naming any **critical** ones still open explicitly.
-   - Where the decisions landed, and which source records were marked resolved.
-   - The suggested next wb step: `research.md` questions → `/wb:create_design`; `design.md` → `/wb:create_tasks`; `tasks.md` → `/wb:implement` or resuming a phase.
+After the last question, or when the user stops:
 
-Keep this summary to ≤ 6 lines. The user just had a focused conversation; don't re-explain it.
+1. If every question in the Open Questions section of a file is now resolved, you may add this banner under the heading: `_All questions resolved as of YYYY-MM-DD._`
+2. Send one end-of-turn message with this summary:
+   - The number resolved, the number skipped, and the number that remain. Name each **critical** question that is still open.
+   - Where each decision was recorded, and which source records are now resolved.
+   - The next wb step. For `research.md` questions, it is `/wb:create_design`. For `design.md`, it is `/wb:create_tasks`. For `tasks.md`, it is `/wb:implement`, or the phase to resume.
+
+Keep this summary to 6 lines or fewer. The user just had a focused conversation, so do not explain it again.
 
 ## Operating Principles
 

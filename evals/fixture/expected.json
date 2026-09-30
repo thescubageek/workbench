@@ -1,0 +1,42 @@
+{
+  "question_file": "QUESTION.md",
+  "paths_relative_to": "project/",
+  "facts": [
+    {
+      "id": "F1",
+      "fact": "The default request timeout is 10 seconds",
+      "ref": "src/linkcheck/config.py:3",
+      "contains": "DEFAULT_TIMEOUT_SECONDS = 10"
+    },
+    {
+      "id": "F2",
+      "fact": "check_url makes at most 3 attempts per link (MAX_RETRIES)",
+      "ref": "src/linkcheck/config.py:4",
+      "contains": "MAX_RETRIES = 3"
+    },
+    {
+      "id": "F3",
+      "fact": "The LINKCHECK_TIMEOUT environment variable overrides the default timeout",
+      "ref": "src/linkcheck/config.py:9",
+      "contains": "os.environ.get(\"LINKCHECK_TIMEOUT\""
+    },
+    {
+      "id": "F4",
+      "fact": "An HTTP status of 400 or higher marks a link as broken",
+      "ref": "src/linkcheck/checker.py:21",
+      "contains": "status >= BROKEN_STATUS_MIN"
+    },
+    {
+      "id": "F5",
+      "fact": "After the last attempt fails with a network error, check_url raises LinkCheckError",
+      "ref": "src/linkcheck/checker.py:31",
+      "contains": "raise LinkCheckError"
+    },
+    {
+      "id": "F6",
+      "fact": "The CLI exits with status 2 when any link is broken",
+      "ref": "src/linkcheck/cli.py:18",
+      "contains": "return 2"
+    }
+  ]
+}

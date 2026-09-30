@@ -1,10 +1,12 @@
 # Exploration document
 
-Step 6 — `[project-dir]/thoughts/YYYY-MM-DD-<topic>.md`.
+Write this output in wb Technical English (WBTE): read [technical-english.md](../../../docs/reference/technical-english.md) and apply it. Keep every exempt token exactly as it is.
 
-**The decision record is the top section, and that placement is load-bearing**: `create_design`
-scans `thoughts/` for exactly this section and formalizes it into `design.md`'s Technical
-Decisions. A record buried below the exploration is a record the consuming stage will not find.
+Step 6. Write `[project-dir]/thoughts/YYYY-MM-DD-<topic>.md`.
+
+**The decision record is the top section, and its position matters.** `create_design` looks in
+`thoughts/` for exactly this section. It writes the record into the Technical Decisions of
+`design.md`. If the record is below the exploration, `create_design` does not find it.
 
 ````markdown
 ---
@@ -21,15 +23,15 @@ status: decided | abandoned
 
 **Chosen direction**: [the approach, in one line]
 
-**Rationale**: [why this one — the reasoning the user actually gave, not a reconstruction]
+**Rationale**: [why this direction. Use the reasons that the user gave, not a reconstruction]
 
 **Rejected**:
 
 - **[Option B]** — [why not. The specific reason, not "less good"]
 - **[Option C]** — [why not]
 
-**Revisit if**: [the condition that would reopen this — a constraint that might change, an
-assumption that might fail. Omit only if there genuinely isn't one.]
+**Revisit if**: [the condition that reopens this decision, for example a constraint that can
+change or an assumption that can fail. Omit this only if there is no such condition.]
 
 **Decided**: [YYYY-MM-DD], with [user], after [N] rounds of discussion.
 
@@ -37,13 +39,13 @@ assumption that might fail. Omit only if there genuinely isn't one.]
 
 ## The Decision Space
 
-**What is actually being decided**: [one sentence — the question, not the options]
+**What is actually being decided**: [one sentence. State the question, not the options]
 
-**What is NOT being decided here**: [adjacent questions deliberately held out of scope]
+**What is NOT being decided here**: [related questions that are kept out of scope on purpose]
 
 **Constraints that bound any answer**:
 
-- [From research.md: what exists that we must work with — file:line]
+- [From research.md: what exists and must be used, with file:line]
 - [From the user: a stated requirement or preference]
 
 **What would make this decision wrong**: [the thing that, if true, invalidates the choice]
@@ -53,9 +55,9 @@ assumption that might fail. Omit only if there genuinely isn't one.]
 ### [Direction A — descriptive name]
 
 - **Shape**: [what this actually looks like, concretely]
-- **Precedent**: [where something like this already exists — file:line, or "none in this codebase"]
+- **Precedent**: [where something similar already exists: file:line, or "none in this codebase"]
 - **Buys**: [what it gets you]
-- **Costs**: [what it gives up — be specific; "more complex" is not a cost]
+- **Costs**: [what it gives up. Be specific. "More complex" is not a cost]
 - **Fails if**: [the condition under which this is the wrong choice]
 
 ### [Direction B]
@@ -64,11 +66,11 @@ assumption that might fail. Omit only if there genuinely isn't one.]
 
 ## Discussion
 
-[The actual trade-off conversation, in enough detail that the reasoning survives. This is the
-part that a Rejected Alternatives section in design.md cannot carry, because design.md is
-written by the pass that already chose. Quote the user where their words settled something.]
+[The trade-off discussion, in enough detail to keep the reasoning. The Rejected Alternatives
+section in design.md cannot hold this, because the stage that writes design.md has already
+chosen. Quote the user where their words decided something.]
 
 ## Open Threads
 
-[Anything raised and deliberately left unresolved, with why. Not everything has to close.]
+[Each point that was raised and left open on purpose, with the reason. Not every point must close.]
 ````

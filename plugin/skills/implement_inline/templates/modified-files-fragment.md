@@ -1,6 +1,8 @@
 # Modified Files fragment
 
-Step 5 — append or update this section in `tasks.md` after implementation.
+Write this output in wb Technical English (WBTE): read [technical-english.md](../../../docs/reference/technical-english.md) and apply it. Keep every exempt token exactly as it is.
+
+Step 5. After the implementation, add or update this section in `tasks.md`.
 
 ````markdown
 ### 📝 Modified Files
@@ -16,7 +18,7 @@ Step 5 — append or update this section in `tasks.md` after implementation.
 **Quick test commands:**
 
 ```bash
-# Run tests for this phase only (scope which tests run AND quiet the green output)
+# Run only the tests for this phase. The scope limits the tests, and quiet hides green output
 scripts/quiet npm test path/to/test1.spec.ts path/to/test2.test.ts
 ```
 ````

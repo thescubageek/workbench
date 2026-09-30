@@ -1,0 +1,190 @@
+#!/usr/bin/env bash
+
+# Contract tests for hooks/wb-prime.sh.
+#
+# The hook prints the session-start orientation, the plan bootstrap, the compaction
+# recovery text, and the WBTE rule card. The card must reach the model on every session
+# start: startup, resume and compact, with and without active plans, and with and without
+# .claude/wb/PRIME.md. WB_TECH_ENGLISH=0 removes the card and nothing else. The hook
+# contract does not change: it only reads, it always exits 0, and it stays fast.
+
+set -uo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+HOOK="$SCRIPT_DIR/../hooks/wb-prime.sh"
+CARD_START="wb Technical English (WBTE)"
+CARD_END="docs/reference/technical-english.md"
+
+PASS=0
+FAIL=0
+
+check() {
+    local desc="$1" cond="$2"
+    if [[ "$cond" == "1" ]]; then
+        echo "  ✓ $desc"
+        PASS=$((PASS + 1))
+    else
+        echo "  ✗ $desc"
+        FAIL=$((FAIL + 1))
+    fi
+}
+
+yes_if() { if "$@"; then echo 1; else echo 0; fi; }
+
+echo "test-prime: $HOOK"
+
+unset WB_TECH_ENGLISH
+
+WORK="$(mktemp -d)"
+trap 'rm -rf "$WORK"' EXIT
+
+startup='{"hook_event_name":"SessionStart","source":"startup"}'
+resume='{"hook_event_name":"SessionStart","source":"resume"}'
+compact='{"hook_event_name":"SessionStart","source":"compact"}'
+precompact='{"hook_event_name":"PreCompact","trigger":"auto"}'
+precompact_manual='{"hook_event_name": "PreCompact", "trigger": "manual"}'
+
+# A repository with N active plans.
+make_repo() {
+    local dir="$1" n="$2" i
+    mkdir -p "$dir"
+    git -C "$dir" init -q
+    for ((i = 1; i <= n; i++)); do
+        mkdir -p "$dir/docs/plans/2026-01-0$i-plan$i"
+        printf -- '---\nstatus: in-progress\ncurrent_phase: 1\n---\n\n- [ ] **P1-T1** — first task\n' \
+            > "$dir/docs/plans/2026-01-0$i-plan$i/tasks.md"
+    done
+}
+
+# run DIR PAYLOAD [ENV...] — prints the hook output; the exit code goes to $WORK/rc.
+run() {
+    local dir="$1" payload="$2"
+    shift 2
+    (cd "$dir" && printf '%s' "$payload" | env "$@" bash "$HOOK")
+    echo $? > "$WORK/rc"
+}
+
+has_card() { grep -qF "$CARD_START" <<<"$1" && grep -qF "$CARD_END" <<<"$1"; }
+no_card() { ! grep -qF "$CARD_START" <<<"$1"; }
+rc_zero() { [[ "$(cat "$WORK/rc")" == "0" ]]; }
+# Remove the card and the one blank line the hook prints before it.
+strip_card() {
+    awk -v s="$CARD_START" -v e="$CARD_END" '
+        index($0, s) { skip = 1; if (held && prev == "") held = 0 }
+        !skip { if (held) print prev; prev = $0; held = 1 }
+        skip && index($0, e) { skip = 0 }
+        END { if (held) print prev }' <<<"$1"
+}
+
+for n in 0 1 2; do make_repo "$WORK/repo$n" "$n"; done
+
+# --- The card on every session start ---
+for n in 0 1 2; do
+    out=$(run "$WORK/repo$n" "$startup")
+    check "startup, $n plan(s): card present" "$(yes_if has_card "$out")"
+    check "startup, $n plan(s): exit 0" "$(yes_if rc_zero)"
+done
+
+out=$(run "$WORK/repo1" "$resume")
+check "resume: card present" "$(yes_if has_card "$out")"
+check "resume: orientation still present" "$(yes_if grep -qF 'wb: structured development workflow' <<<"$out")"
+
+for n in 0 1 2; do
+    out=$(run "$WORK/repo$n" "$compact")
+    check "compact, $n plan(s): card present" "$(yes_if has_card "$out")"
+    check "compact, $n plan(s): exit 0" "$(yes_if rc_zero)"
+done
+out=$(run "$WORK/repo1" "$compact")
+check "compact, 1 plan: recovery text still present" "$(yes_if grep -qF 'Context was just compacted' <<<"$out")"
+
+# PreCompact prints no card. A manual /compact shows PreCompact's stdout, and that stdout
+# reaches the next context beside the SessionStart:compact card, so a card here is a copy.
+out=$(run "$WORK/repo1" "$precompact")
+check "PreCompact (auto): no card" "$(yes_if no_card "$out")"
+check "PreCompact (auto): recovery text still present" "$(yes_if grep -qF 'Context was just compacted' <<<"$out")"
+check "PreCompact: exit 0" "$(yes_if rc_zero)"
+out=$(run "$WORK/repo0" "$precompact_manual")
+check "PreCompact (manual, spaced JSON): no card" "$(yes_if no_card "$out")"
+
+# --- PRIME.md replaces the orientation, not the card ---
+make_repo "$WORK/prime" 0
+mkdir -p "$WORK/prime/.claude/wb"
+echo "Custom orientation for this repository." > "$WORK/prime/.claude/wb/PRIME.md"
+out=$(run "$WORK/prime" "$startup")
+check "PRIME.md, startup: custom text printed" "$(yes_if grep -qF 'Custom orientation' <<<"$out")"
+check "PRIME.md, startup: default orientation replaced" \
+    "$(yes_if bash -c '! grep -qF "wb: structured development workflow" <<<"$0"' "$out")"
+check "PRIME.md, startup: card present" "$(yes_if has_card "$out")"
+out=$(run "$WORK/prime" "$compact")
+check "PRIME.md, compact, 0 plans: card present" "$(yes_if has_card "$out")"
+
+# --- WB_TECH_ENGLISH ---
+for v in unset empty 1; do
+    case "$v" in
+        unset) out=$(run "$WORK/repo1" "$startup") ;;
+        empty) out=$(run "$WORK/repo1" "$startup" WB_TECH_ENGLISH=) ;;
+        1)     out=$(run "$WORK/repo1" "$startup" WB_TECH_ENGLISH=1) ;;
+    esac
+    check "WB_TECH_ENGLISH $v: card present" "$(yes_if has_card "$out")"
+done
+for payload in startup compact; do
+    with=$(run "$WORK/repo1" "${!payload}")
+    without=$(run "$WORK/repo1" "${!payload}" WB_TECH_ENGLISH=0)
+    check "WB_TECH_ENGLISH=0, $payload: no card" "$(yes_if no_card "$without")"
+    check "WB_TECH_ENGLISH=0, $payload: output is the unset output minus the card" \
+        "$(yes_if [ "$(strip_card "$with")" == "$without" ])"
+done
+out=$(run "$WORK/repo0" "$compact" WB_TECH_ENGLISH=0)
+check "WB_TECH_ENGLISH=0, compact, 0 plans: no output (unchanged)" "$(yes_if [ -z "$out" ])"
+
+# --- Paths that are not a session start ---
+out=$(cd "$WORK/repo1" && bash "$HOOK" --export </dev/null)
+check "--export without stdin: orientation, no card" \
+    "$(yes_if bash -c 'grep -qF "wb: structured development workflow" <<<"$0" && ! grep -qF "$1" <<<"$0"' "$out" "$CARD_START")"
+out=$(cd "$WORK/repo1" && printf '%s' "$startup" | bash "$HOOK" --export)
+check "--export with stdin: no card" "$(yes_if no_card "$out")"
+out=$(run "$WORK/repo1" "")
+check "empty stdin: no output" "$(yes_if [ -z "$out" ])"
+check "empty stdin: exit 0" "$(yes_if rc_zero)"
+
+# Today an unrecognized payload takes the orientation path (the header says "silent").
+# This records that behaviour. It is not changed here.
+out=$(run "$WORK/repo1" '{"unexpected":true}')
+check "unrecognized payload: prints the orientation (recorded behaviour)" \
+    "$(yes_if grep -qF 'wb: structured development workflow' <<<"$out")"
+check "unrecognized payload: exit 0" "$(yes_if rc_zero)"
+
+# --- Read-only, fast, and safe from a subdirectory ---
+sums() { (cd "$1" && find . -type f -not -path './.git/*' -exec shasum {} + | sort); }
+before=$(sums "$WORK/repo2")
+run "$WORK/repo2" "$startup" >/dev/null
+run "$WORK/repo2" "$compact" >/dev/null
+check "no file changes (checksums before and after)" "$(yes_if [ "$before" == "$(sums "$WORK/repo2")" ])"
+
+make_repo "$WORK/many" 0
+for i in $(seq 1 200); do
+    d="$WORK/many/docs/plans/2026-01-01-p$i"
+    mkdir -p "$d"
+    printf -- '---\nstatus: in-progress\ncurrent_phase: 1\n---\n\n- [ ] **P1-T1** — task\n' > "$d/tasks.md"
+done
+start=$(date +%s)
+run "$WORK/many" "$startup" >/dev/null
+elapsed=$(( $(date +%s) - start ))
+check "200 plan directories: under 5 s (took ${elapsed} s)" "$(yes_if [ "$elapsed" -lt 5 ])"
+
+mkdir -p "$WORK/repo1/src/deep"
+out=$(run "$WORK/repo1/src/deep" "$startup")
+check "run from a subdirectory: card present" "$(yes_if has_card "$out")"
+check "run from a subdirectory: exit 0" "$(yes_if rc_zero)"
+
+# --- Card size ---
+out=$(run "$WORK/repo0" "$compact")
+words=$(awk -v s="$CARD_START" -v e="$CARD_END" 'index($0,s){on=1} on{print} on&&index($0,e){exit}' <<<"$out" | wc -w | tr -d ' ')
+check "card is at most 150 words (it has $words)" "$(yes_if test "$words" -gt 0 -a "$words" -le 150)"
+card=$(awk -v s="$CARD_START" -v e="$CARD_END" 'index($0,s){on=1} on{print} on&&index($0,e){exit}' <<<"$out")
+check "card names PR descriptions" "$(yes_if grep -qi 'PR description' <<<"$card")"
+check "card names commit messages" "$(yes_if grep -qi 'commit message' <<<"$card")"
+
+echo ""
+echo "test-prime: $PASS passed, $FAIL failed"
+[[ $FAIL -eq 0 ]]

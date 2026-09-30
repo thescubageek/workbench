@@ -88,7 +88,8 @@ private exclusion list.
 
 Contract tests for `lint` and `lint-hook`: read-only Bash does not mutate, exclusions apply on
 the explicit-path route at any depth, ignore files are honoured, a gitignored path is still
-linted, Write/Edit still fixes, and both env vars do what they say. Run after changing either
+linted, a path in both `.gitignore` and `.wblintignore` is skipped, Write/Edit still fixes, and
+both env vars do what they say. Run after changing either
 script.
 
 ### `quiet`
@@ -124,6 +125,56 @@ lost. The wrapped command's exit code is always passed through unchanged.
 ### `test-quiet`
 
 Contract tests for `quiet` (success collapse, failure dump, exit-code pass-through). Run after changing `quiet`.
+
+### `wbte-dictionary`
+
+Makes a private copy of the ASD-STE100 approved-word dictionary from your own copy of the Issue
+9 PDF. The `/wb:wbte-dictionary` skill runs it. The plugin works without the copy.
+
+```bash
+./scripts/wbte-dictionary ~/Downloads/ASD-STE100_ISSUE9.pdf
+```
+
+**Features:**
+
+- Writes `~/.claude/wb/wbte-dictionary.tsv` with the columns word, part of speech, status, and
+  alternatives. The alternatives are best-effort.
+- Refuses to write inside a git work tree, also when only `~/.claude` is one (exit 3). ASD does
+  not permit redistribution, so the copy stays out of every repository.
+- Uses `pdftotext -layout` if present, otherwise python3 with `pypdf`. If neither is present, it
+  says what to install and exits 2.
+
+### `test-wbte-dictionary`
+
+Contract tests for `wbte-dictionary`, with invented words only. They cover the expected rows,
+the missing-tool message, output under `$HOME` only, and both git work-tree refusals. Run after
+changing `wbte-dictionary`.
+
+### `test-prime`
+
+Contract tests for `hooks/wb-prime.sh`. They cover the WBTE rule card on each SessionStart
+source, with 0, 1 and 2 active plans and with `.claude/wb/PRIME.md`. They also cover no card on
+PreCompact, `WB_TECH_ENGLISH=0`, `--export`, exit 0, no file changes, and the 5-second limit
+with 200 plans. The card has a limit of 150 words and must name PR descriptions and commit
+messages. Run after changing `wb-prime.sh`.
+
+### `pr-template`
+
+Prints the PR template that `/wb:pr-description` fills. It looks where GitHub looks, in
+GitHub's order: `.github/`, the repository root, then `docs/`. Each line is
+`repo <absolute path>`: the default `pull_request_template.md` (any case) first, then the `.md`
+files of a `PULL_REQUEST_TEMPLATE/` directory. With no template, the one line is
+`generic <absolute path>`, the template that ships with the skill. It only reads.
+
+```bash
+./scripts/pr-template
+```
+
+### `test-pr-template`
+
+Contract tests for `pr-template`: each location, GitHub's order, names in any case, a template
+directory, no template, a run from a subdirectory, and a run outside a repository. Run after
+changing `pr-template`.
 
 ## Configuration
 

@@ -245,6 +245,8 @@ If the user has follow-up questions:
 **Close the journal entry first**, with a `(closed)` heading naming what landed and which stage
 follows — an entry left open beside finished work reads as an interruption.
 
+Write this output in wb Technical English (WBTE): read [technical-english.md](../../docs/reference/technical-english.md) and apply it. Keep every exempt token exactly as it is.
+
 Emit a one-line summary, not a recap:
 
 ```

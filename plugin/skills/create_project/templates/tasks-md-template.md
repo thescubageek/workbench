@@ -1,5 +1,7 @@
 # tasks.md Template
 
+Write this output in wb Technical English (WBTE): read [technical-english.md](../../../docs/reference/technical-english.md) and apply it. Keep every exempt token exactly as it is.
+
 ````markdown
 ---
 project: [project-name]
@@ -28,14 +30,14 @@ tags: [tasks, tracking, [project-name]]
 
 ## Task tracking
 
-**Checkbox state in this file is the source of truth.** There is no external tracker. Flip
-`[ ]` → `[x]` as work completes and append `(completed YYYY-MM-DD HH:MM)`. The frontmatter
-counters are a derived cache with exactly one writer — `/wb:update_status` — and are never
-hand-edited. Git is the durable record.
+**The checkboxes in this file are the source of truth.** There is no external tracker. When a
+task is done, change its `[ ]` to `[x]` and add `(completed YYYY-MM-DD HH:MM)`. The
+frontmatter counters are a derived cache. Only `/wb:update_status` writes them, so never edit
+them by hand. Git is the durable record.
 
-Every task line carries a bold local ID with at least one digit (`P1-T3`), and every count is
-scoped to that shape — this file's own success criteria and prerequisites are checkboxes too,
-and a bare `grep -c '^- \[x\]'` counts them as tasks:
+Every task line has a bold local ID with at least one digit, for example `P1-T3`. Every count
+uses that shape. The success criteria and prerequisites in this file are checkboxes too, so a
+bare `grep -c '^- \[x\]'` counts them as tasks:
 
 ```bash
 grep -cE '^- \[x\] \*\*[A-Z0-9-]*[0-9][A-Z0-9-]*\*\*' tasks.md    # completed
@@ -80,10 +82,10 @@ grep -cE '^- \[ \] \*\*[A-Z0-9-]*[0-9][A-Z0-9-]*\*\*' tasks.md    # remaining
 ### Current Blockers
 | Blocker | Impact | Action | Owner | Due Date |
 |---------|--------|--------|-------|----------|
-| Research needed | Can't design | Run /wb:create_research | [username] | [date] |
+| Research is needed | The design cannot start | Run /wb:create_research | [username] | [date] |
 
 ### Implementation Notes
-- Project initialized on [YYYY-MM-DD]
+- The project was created on [YYYY-MM-DD].
 
 ---
 

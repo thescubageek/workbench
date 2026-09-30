@@ -56,7 +56,17 @@ history is marked non-normative at its top, so it cannot be read as current guid
 ```bash
 # Contract tests for lint + lint-hook (run after changing either)
 ./plugin/scripts/test-lint
+
+# Contract tests for hooks/wb-prime.sh, including the WBTE rule card (run after changing it)
+./plugin/scripts/test-prime
+
+# Contract tests for scripts/pr-template, the PR-template finder (run after changing it)
+./plugin/scripts/test-pr-template
 ```
+
+**Eval harness** (`evals/`, maintainer-only, never shipped): measures stage output before and
+after a change to the plugin. It needs python3 and the `claude` CLI. See `evals/README.md`. Run
+`python3 evals/link_check.py` and `python3 evals/token_check.py` after any template change.
 
 **Automatic Linting**: PostToolUse hooks lint markdown after Write/Edit/Bash. Write and Edit
 name the file unambiguously, so the hook auto-fixes. Bash does not — a command that merely
@@ -224,6 +234,9 @@ When creating or modifying commands:
 5. Separate automated from manual verification
 6. Read files fully before processing
 7. Spawn independent agents in parallel; synthesize only after all have returned
+8. Start every new output template with the WBTE link line. `plugin/docs/reference/technical-english.md`
+   is the one place the writing rules change. The rule card in `plugin/hooks/wb-prime.sh`
+   summarizes it, and `plugin/scripts/test-prime` limits the card to 150 words
 
 ## Best Practices
 

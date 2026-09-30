@@ -1,0 +1,120 @@
+#!/usr/bin/env bash
+
+# Contract tests for scripts/wbte-dictionary.
+#
+# The extractor turns the user's own copy of the dictionary into
+# ~/.claude/wb/wbte-dictionary.tsv. Every input here is invented: no ASD text is in this
+# repository. The contract: the expected rows for a known input, exit 2 with both tool names
+# when no extractor is present, output under $HOME only, and a refusal inside a git work tree,
+# also when only ~/.claude is one.
+
+set -uo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+TOOL="$SCRIPT_DIR/wbte-dictionary"
+
+PASS=0
+FAIL=0
+
+check() {
+    local desc="$1" cond="$2"
+    if [[ "$cond" == "1" ]]; then
+        echo "  ✓ $desc"
+        PASS=$((PASS + 1))
+    else
+        echo "  ✗ $desc"
+        FAIL=$((FAIL + 1))
+    fi
+}
+
+yes_if() { if "$@"; then echo 1; else echo 0; fi; }
+
+echo "test-wbte-dictionary: $TOOL"
+
+WORK="$(mktemp -d)"
+trap 'rm -rf "$WORK"' EXIT
+
+# Invented words in the layout that `pdftotext -layout` gives: a headword with its part of
+# speech, then wide gaps between columns. Approved words are in capitals. The first zorbit
+# line is a change-log row before the dictionary, so the later entry must win. An approved verb
+# lists its forms after a comma (BLORP). A headword can be indented by one space (frell), and
+# an alternative can have two words. A line indented to the second column (GRONK) is not a
+# headword.
+cat > "$WORK/invented.txt" <<'EOF'
+Change record
+zorbit (v)          Approved alternatives revised.
+
+Part 2 – Dictionary
+zorbit (v)          TURN (v)             Turn the handle.          Zorbit the handle.
+                                         Continued example text.
+ZIPPLE (n)          A small hand tool.   Put the zipple here.
+glarf (adj)         FULL (adj), WHOLE (adj)    The tank is full.   The tank is glarf.
+QUANTLE (v)         To move a part.      Quantle the lever.
+BLORP (v),          To move fast.        BLORP THE PART.
+BLORPS,
+BLORPED
+ frell (v)          MAKE SURE (v)        MAKE SURE THAT       Frell that the
+                   GRONK (v)            GRONK THE LEVER.     Gronk the lever.
+EOF
+
+expected=$(printf 'word\tpos\tstatus\talternatives\nblorp\tv\tapproved\t\nfrell\tv\tnot approved\tMAKE SURE (v)\nglarf\tadj\tnot approved\tFULL (adj), WHOLE (adj)\nquantle\tv\tapproved\t\nzipple\tn\tapproved\t\nzorbit\tv\tnot approved\tTURN (v)\n')
+
+# --- Case 1: the invented input gives the expected rows ---
+HOME1="$WORK/home1"
+mkdir -p "$HOME1"
+out=$(cd "$WORK" && HOME="$HOME1" "$TOOL" "$WORK/invented.txt" 2>&1)
+code=$?
+check "invented input: exit 0 (got $code)" "$(yes_if [ "$code" -eq 0 ])"
+tsv="$HOME1/.claude/wb/wbte-dictionary.tsv"
+check "invented input: the TSV exists" "$(yes_if [ -f "$tsv" ])"
+check "invented input: the TSV has the expected rows" "$(yes_if [ "$(cat "$tsv" 2>/dev/null)" == "$expected" ])"
+check "invented input: the report names the entry count" "$(yes_if grep -q '6 entries' <<<"$out")"
+
+# --- Case 2: output lands only under the temporary HOME ---
+before=$(cd "$WORK" && find . -type f -not -path './home*' | sort)
+(cd "$WORK" && HOME="$HOME1" "$TOOL" "$WORK/invented.txt" >/dev/null 2>&1)
+after=$(cd "$WORK" && find . -type f -not -path './home*' | sort)
+check "no file is written outside HOME" "$(yes_if [ "$before" == "$after" ])"
+check "HOME holds only the TSV" \
+    "$(yes_if [ "$(cd "$HOME1" && find . -type f)" == "./.claude/wb/wbte-dictionary.tsv" ])"
+
+# --- Case 3: no extractor for a PDF gives exit 2 and names both tools ---
+BIN="$WORK/bin"
+mkdir -p "$BIN"
+for t in bash sh env awk sed grep sort mkdir cat tr head mv rm dirname basename git mktemp printf wc; do
+    p=$(command -v "$t" 2>/dev/null) && ln -sf "$p" "$BIN/$t"
+done
+printf '%%PDF-1.4\n%% invented, not a real document\n' > "$WORK/fake.pdf"
+HOME2="$WORK/home2"
+mkdir -p "$HOME2"
+out=$(HOME="$HOME2" PATH="$BIN" "$TOOL" "$WORK/fake.pdf" 2>&1)
+code=$?
+check "no pdftotext and no python3: exit 2 (got $code)" "$(yes_if [ "$code" -eq 2 ])"
+check "the message names pdftotext" "$(yes_if grep -q 'pdftotext' <<<"$out")"
+check "the message names python3 with pypdf" "$(yes_if grep -qi 'pypdf' <<<"$out")"
+check "no TSV is written" "$(yes_if [ ! -e "$HOME2/.claude/wb/wbte-dictionary.tsv" ])"
+
+# --- Case 4: a HOME inside a git work tree is refused ---
+HOME3="$WORK/home3"
+mkdir -p "$HOME3"
+git -C "$HOME3" init -q
+out=$(HOME="$HOME3" "$TOOL" "$WORK/invented.txt" 2>&1)
+code=$?
+check "inside a git work tree: refused with exit 3 (got $code)" "$(yes_if [ "$code" -eq 3 ])"
+check "the refusal says why" "$(yes_if grep -qi 'git work tree' <<<"$out")"
+check "no TSV is written inside the work tree" "$(yes_if [ ! -e "$HOME3/.claude/wb/wbte-dictionary.tsv" ])"
+
+# --- Case 5: a ~/.claude that is its own git work tree is refused ---
+# A dotfiles setup can make ~/.claude a repository while $HOME is not one. The output
+# directory does not exist yet, so the probe must climb to its nearest existing ancestor.
+HOME4="$WORK/home4"
+mkdir -p "$HOME4/.claude"
+git -C "$HOME4/.claude" init -q
+out=$(HOME="$HOME4" "$TOOL" "$WORK/invented.txt" 2>&1)
+code=$?
+check "a HOME whose .claude is a git work tree: refused with exit 3 (got $code)" "$(yes_if [ "$code" -eq 3 ])"
+check "no TSV is written inside that .claude" "$(yes_if [ ! -e "$HOME4/.claude/wb/wbte-dictionary.tsv" ])"
+
+echo ""
+echo "test-wbte-dictionary: $PASS passed, $FAIL failed"
+[[ $FAIL -eq 0 ]]

@@ -1,6 +1,6 @@
 # create_research — sub-agent prompts
 
-Read this when Step 4 directs you to. Use these prompts verbatim, substituting the bracketed
+Read this when Step 4 directs you to. Use these prompts verbatim. Substitute the bracketed
 placeholders. Never paraphrase them from memory.
 
 **Sub-agents are READ-ONLY** — they return findings only; YOU write `research.md` after
@@ -91,8 +91,8 @@ Task({
 - Testing pattern discovery
 
 The three typed agents above carry the documentarian constraint in their own definitions.
-An ad-hoc `general-purpose` agent does **not** — so when you spawn a one-off researcher, the
-documentarian constraint goes in the spawning prompt explicitly. That is what Step 4's
+An ad-hoc `general-purpose` agent does **not** carry it. So when you spawn a one-off researcher,
+put the documentarian constraint in the spawning prompt explicitly. That is what Step 4's
 "Remind EVERY agent" instruction exists for.
 
 ## Parallel Execution

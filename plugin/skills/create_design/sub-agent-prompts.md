@@ -1,7 +1,7 @@
 # create_design — sub-agent prompts
 
-Read this when Step 2 directs you to. All three spawn together, in parallel — read the file
-whole. Use the prompts verbatim, substituting the bracketed placeholders from research.md.
+Read this when Step 2 directs you to. All three agents spawn together, in parallel. Read the
+file whole. Use the prompts verbatim. Substitute the bracketed placeholders from research.md.
 
 **Sub-agents are READ-ONLY** — they return findings only; YOU write `design.md` after
 synthesizing.

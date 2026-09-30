@@ -1,26 +1,28 @@
 # resolve_questions — templates
 
-Read this when Step 4d directs you to. These are the **canonical** shapes for every record this
-skill writes; Step 4d points here rather than restating them, so there is one definition to
-keep correct.
+Write this output in wb Technical English (WBTE): read [technical-english.md](../../docs/reference/technical-english.md) and apply it. Keep every exempt token exactly as it is.
+
+Read this when Step 4d directs you to. These are the **canonical** shapes for every record that
+this skill writes. Step 4d points here and does not repeat them, so only one definition must
+stay correct.
 
 ## Persistence Format Reference
 
-Resolving one question raised in `research.md` touches **two** places: the decision lands in `design.md`, and the source question in `research.md` gets a pointer (research stays facts-only).
+A question from `research.md` changes **two** places when it is resolved. The decision goes into `design.md`. The source question in `research.md` gets a pointer, because research contains facts only.
 
-**① Decision lands in `design.md` `## Technical Decisions`:**
+**① The decision goes into `## Technical Decisions` in `design.md`:**
 
 ```markdown
 ## Technical Decisions
 
 ### Data Model
 - Partial responses persist server-side via a new `in_progress_responses` column
-  - Rationale: aligns with the charting-note autosave precedent; PHI posture already approved for that path
+  - Rationale: it follows the charting-note autosave precedent. The PHI posture for that path is already approved
   - Trade-off: one more write path to keep consistent with final-submit
   - Source: research.md Q1 · Decided 2026-05-18
 ```
 
-**② Source question in `research.md` becomes a pointer (no decision/rationale embedded — facts-only):**
+**② The source question in `research.md` becomes a pointer. It contains no decision and no rationale, because research contains facts only:**
 
 ```markdown
 ## Open Questions
@@ -31,14 +33,14 @@ Resolving one question raised in `research.md` touches **two** places: the decis
 | Q2 | Is multi-device resume in scope, or same-device only? | resume scope | Open |
 ```
 
-**Resolving a question that lives in `design.md`/`execution.md`** (decisions belong there, so record in place):
+**A question that lives in `design.md` or `execution.md`** is resolved in place, because decisions belong there:
 
 ```markdown
 - Should branching semantics change for resumed sessions?
-  - **Decided 2026-05-18**: No — resume reuses the existing branch; keeps the state machine single-path. (Rationale: avoids a second code path no one asked for.)
+  - **Decided 2026-05-18**: No. Resume uses the existing branch, so the state machine keeps one path. (Rationale: it avoids a second code path that nobody asked for.)
 ```
 
-**Reconciling tracking tables:**
+**Update the tracking tables:**
 
 ```markdown
 ## Pending Decisions
