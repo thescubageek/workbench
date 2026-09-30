@@ -140,7 +140,7 @@ Based on dependency analysis:
 | Phase 5: Objective 2 — gated "lite" rewrite | ✅ Complete | 5/5 | 100% |
 | Phase 6: Dictionary skill | ✅ Complete | 2/2 | 100% |
 | Phase 7: Documentation, handoff, and release checks | ✅ Complete | 5/5 | 100% |
-| Phase 8: Validation fixes | ✅ Complete | 4/4 | 100% |
+| Phase 8: Validation fixes | 🔄 In progress | 4/7 | 57% |
 
 Counts come from the checkboxes below and are reconciled by `/wb:update_status`.
 
@@ -1267,6 +1267,19 @@ the user's request, after `/wb:validate_execution`.
 - [x] **P8-T4** — Correct the plan records: A6, D6 and D7 in `design.md`, the Phase 2
       ASD-STE100 criterion, and the `wb_lint_ignored` note. Add the fixes to the CHANGELOG
       2.2.0 entry. (completed 2026-09-30 16:27)
+- [ ] **P8-T5** — Stop the duplicate card after `/compact` (D13). The A3 transcript shows one
+      SessionStart copy and a second copy in the `/compact` stdout, which carries the PreCompact
+      output into the next context. In `plugin/scripts/test-prime`, expect no card on PreCompact,
+      for both `auto` and `manual` triggers (RED). Then skip the card on PreCompact in
+      `plugin/hooks/wb-prime.sh`, and correct the header bullet. Run `git merge-tree` again.
+      Added 2026-09-30 after resolve_questions.
+- [ ] **P8-T6** — Document `wbte-dictionary`, `test-prime` and `test-wbte-dictionary` in
+      `plugin/scripts/README.md`, and `/wb:wbte-dictionary` in `plugin/skills/help/SKILL.md`
+      (D14). Run `git merge-tree`, and add a resolution note to the handoff for each new
+      conflict. Added 2026-09-30 after resolve_questions.
+- [ ] **P8-T7** — CHANGELOG and handoff: name the 2 remaining chat IDs as a known remainder
+      (D11), add the per-stage token cost (D12), and describe P8-T5 and P8-T6. Tick the
+      design.md token-cost criterion. Added 2026-09-30 after resolve_questions.
 
 ### Success Criteria
 
@@ -1296,7 +1309,7 @@ before, and following it ticks the human sign-off box. **This block, labels and 
 included, is repeated in full at every phase's checkpoint**; a later phase never gets a
 shortened one.
 
-- [x] **(derivable)** Every Phase 8 checkbox is `[x]`
+- [ ] **(derivable)** Every Phase 8 checkbox is `[x]`
 - [x] **(derivable)** All automated verification passing
 - [ ] **(attestation)** Manual verification confirmed by human
 - [ ] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
