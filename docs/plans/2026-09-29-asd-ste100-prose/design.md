@@ -455,6 +455,9 @@ execution phase and measured by the harness.
   - Rationale (the user's choice): know the cause before the release ships, not after.
   - Trade-off: a manual interactive step before release, for a cost of about 190 tokens after
     each compaction.
+  - Update 2026-09-30: the transcript settled it, so no interactive run was needed. The second
+    copy was the PreCompact output, which a manual `/compact` shows in its stdout. P8-T5 stops the
+    card on PreCompact (`thoughts/2026-09-30-card-measurement.md`).
   - Source: design.md PD3 · Decided 2026-09-30
 
 - **D14 — Document the new scripts and skill now, in two files shared with 3.0.0.**

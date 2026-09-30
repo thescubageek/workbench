@@ -1267,12 +1267,12 @@ the user's request, after `/wb:validate_execution`.
 - [x] **P8-T4** — Correct the plan records: A6, D6 and D7 in `design.md`, the Phase 2
       ASD-STE100 criterion, and the `wb_lint_ignored` note. Add the fixes to the CHANGELOG
       2.2.0 entry. (completed 2026-09-30 16:27)
-- [ ] **P8-T5** — Stop the duplicate card after `/compact` (D13). The A3 transcript shows one
+- [x] **P8-T5** — Stop the duplicate card after `/compact` (D13). The A3 transcript shows one
       SessionStart copy and a second copy in the `/compact` stdout, which carries the PreCompact
       output into the next context. In `plugin/scripts/test-prime`, expect no card on PreCompact,
       for both `auto` and `manual` triggers (RED). Then skip the card on PreCompact in
       `plugin/hooks/wb-prime.sh`, and correct the header bullet. Run `git merge-tree` again.
-      Added 2026-09-30 after resolve_questions.
+      Added 2026-09-30 after resolve_questions. (completed 2026-09-30 16:52)
 - [ ] **P8-T6** — Document `wbte-dictionary`, `test-prime` and `test-wbte-dictionary` in
       `plugin/scripts/README.md`, and `/wb:wbte-dictionary` in `plugin/skills/help/SKILL.md`
       (D14). Run `git merge-tree`, and add a resolution note to the handoff for each new
@@ -1421,6 +1421,9 @@ resolved, leaving a dated line saying how.
   user accepted the shared `tasks.md` boilerplate semicolons for 2.2.0 (D8). The final run,
   `20260930T073357Z`, meets every target except 2 chat IDs in one sentence. The record is
   `thoughts/2026-09-30-objective-1-report.md`.
+- [2026-09-30] **Follow-up from P8-T5: the recovery text also appears twice after a manual
+  `/compact`** when a plan is active, for the same reason as the card. That is 2.1.1 behaviour in
+  a shared part of `wb-prime.sh`, so this plan does not change it.
 - [2026-09-30] **Resolved in P8-T2: `wb_lint_ignored` did not ignore a path that is in both
   `.gitignore` and `.wblintignore`.** `git check-ignore -v` reports only the winning source,
   and a `.gitignore` match outranks the lint-ignore file. The predicate accepted only a match

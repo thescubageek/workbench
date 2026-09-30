@@ -20,6 +20,8 @@
 #   - exit 0 always. A hook that fails a session start is worse than no hook.
 #   - the WBTE rule card prints on every session start (startup, resume, compact), with or
 #     without active plans, and outside the PRIME.md override. WB_TECH_ENGLISH=0 turns it off.
+#     It does not print on PreCompact: a manual /compact shows PreCompact's stdout, and that
+#     stdout reaches the next context, so a card there was a second copy (measured 2026-09-30).
 #
 # Override: `.claude/wb/PRIME.md` in the cwd replaces the static orientation block
 # (the recovery text and the bootstrap are never overridden — they are facts, not prose).
@@ -110,7 +112,8 @@ count=$(echo "$candidates" | wc -w | tr -d ' ')
 
 # ---------------------------------------------------------------- recovery mode
 if echo "$payload" | grep -qE '"compact"|PreCompact'; then
-  [ "${WB_TECH_ENGLISH:-1}" = "0" ] || card
+  echo "$payload" | grep -qE '"hook_event_name" *: *"PreCompact"' ||
+    [ "${WB_TECH_ENGLISH:-1}" = "0" ] || card
   [ "$count" -eq 0 ] && exit 0
   echo "Context was just compacted — any plan-doc summaries above are paraphrase, not verified content."
   if [ "$count" -eq 1 ]; then

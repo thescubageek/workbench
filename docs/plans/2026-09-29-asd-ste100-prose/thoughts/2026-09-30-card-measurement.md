@@ -165,3 +165,15 @@ was `/tmp/wb-a3-noplans`, a new git repo with no plans.
    text and the same `SessionStart:compact` label. So the card's token cost after compaction
    is about double. The cause is not known. It may be the harness, because the plugin
    registers `wb-prime.sh` once for SessionStart (follow-up, not changed).
+
+### The cause of the duplicate card (P8-T5, D13)
+
+The A3 transcript (`~/.claude/projects/-private-tmp-wb-a3-noplans/`) settles the cause:
+
+- Each `/compact` fired `SessionStart:compact` once. That record renders the card once.
+- The `/compact` command's stdout (`<local-command-stdout>`) holds the PreCompact output of
+  `wb-prime.sh`, card included. That stdout is part of the next context.
+- Every card names the same plugin root, so wb was loaded only once.
+
+So the second copy came from PreCompact. P8-T5 stops the card on PreCompact. The hook header
+said PreCompact's stdout is not model-visible, which is not true for a manual `/compact`.

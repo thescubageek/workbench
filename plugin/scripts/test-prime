@@ -42,6 +42,7 @@ startup='{"hook_event_name":"SessionStart","source":"startup"}'
 resume='{"hook_event_name":"SessionStart","source":"resume"}'
 compact='{"hook_event_name":"SessionStart","source":"compact"}'
 precompact='{"hook_event_name":"PreCompact","trigger":"auto"}'
+precompact_manual='{"hook_event_name": "PreCompact", "trigger": "manual"}'
 
 # A repository with N active plans.
 make_repo() {
@@ -96,9 +97,14 @@ done
 out=$(run "$WORK/repo1" "$compact")
 check "compact, 1 plan: recovery text still present" "$(yes_if grep -qF 'Context was just compacted' <<<"$out")"
 
+# PreCompact prints no card. A manual /compact shows PreCompact's stdout, and that stdout
+# reaches the next context beside the SessionStart:compact card, so a card here is a copy.
 out=$(run "$WORK/repo1" "$precompact")
-check "PreCompact: card present" "$(yes_if has_card "$out")"
+check "PreCompact (auto): no card" "$(yes_if no_card "$out")"
+check "PreCompact (auto): recovery text still present" "$(yes_if grep -qF 'Context was just compacted' <<<"$out")"
 check "PreCompact: exit 0" "$(yes_if rc_zero)"
+out=$(run "$WORK/repo0" "$precompact_manual")
+check "PreCompact (manual, spaced JSON): no card" "$(yes_if no_card "$out")"
 
 # --- PRIME.md replaces the orientation, not the card ---
 make_repo "$WORK/prime" 0
