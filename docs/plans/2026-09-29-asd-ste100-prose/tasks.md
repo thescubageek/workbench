@@ -510,11 +510,11 @@ whether it changes chat output (A1).
 
 ### Prerequisites
 
-- [ ] Phase 2 complete and verified
+- [x] Phase 2 complete and verified
 - [ ] Phase 2 manual testing confirmed — *an attestation, like the checkpoint's. Under
       `/wb:implement --auto` it stays `[ ]` and the phase proceeds anyway; the previous phase's
       checkpoint records that nobody was asked. Unticked here means deferred, not blocked.*
-- [ ] The 2.1.1 baseline is recorded in `thoughts/2026-09-30-baseline.md`
+- [x] The 2.1.1 baseline is recorded in `thoughts/2026-09-30-baseline.md`
 
 ### Changes Required
 
@@ -563,9 +563,9 @@ exit 0 on every path; no file changes (checksums before and after); wall time un
 
 ### Tasks
 
-- [ ] **P3-T1** — Write `plugin/scripts/test-prime` with every case above. Run it against the
+- [x] **P3-T1** — Write `plugin/scripts/test-prime` with every case above. Run it against the
       current hook. The card cases must fail (RED), and every other case must pass. Record the
-      RED output in the commit message. (~35 calls)
+      RED output in the commit message. (~35 calls) (completed 2026-09-30 01:49)
 - [ ] **P3-T2** — Add `card()` and its two guarded calls to `plugin/hooks/wb-prime.sh`, and the
       header bullet. Write the card text (6–8 short imperatives, the ID rule, the path). Run
       `plugin/scripts/test-prime` until it is green, then run `plugin/scripts/test-lint` and

@@ -51,6 +51,13 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-30 01:53 — P3-T1 (closed)
+
+- **Task/phase**: P3-T1 — `plugin/scripts/test-prime`, the contract test for `wb-prime.sh`, RED against the current hook
+- **Landed**: 40 cases. Against the current hook, the 15 card cases fail and the 25 others pass
+- **Commits**: see `P3-T1: add the wb-prime contract test (RED)`
+- **Learned**: macOS `seq 1 0` counts down, so it prints 1 and 0. The first draft's "0 plans" repository had 2 plans. The test uses a C-style loop
+
 ## 2026-09-30 01:20 — P2-T8 (closed)
 
 - **Task/phase**: P2-T8 — the 2.1.1 baseline: 3 repeats of `4b32306`, `wbte_check.py` and `token_check.py` on every output, and the token cost from `plugin details`
