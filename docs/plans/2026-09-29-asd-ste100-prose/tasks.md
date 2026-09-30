@@ -10,7 +10,7 @@ completed_tasks: 59
 task_tracking: markdown-checkboxes
 depends_on: [research.md, design.md]
 assignee: scraig
-git_commit: 7c17302
+git_commit: 09795ea
 git_branch: wb-2.2.0/asd_ste100_prose
 repository: thescubageek/workbench
 tags: [tasks, tracking, asd-ste100-prose]
@@ -1527,7 +1527,8 @@ shortened one.
 - [x] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
       only writer of those fields, so do not edit `current_phase` or `completed_tasks` by hand
 
-**Closed 2026-09-30 18:51 UTC.** The user rebuilt the copy and confirmed the lookups.
+**Closed 2026-09-30 21:05 UTC.** The user rebuilt the copy and confirmed the lookups. P10-T2 to P10-T6 made
+the fixes that the later manual checks found.
 
 **Do not proceed without human confirmation of manual tests** — unless the phase is being run
 under `/wb:implement --auto`, which buys the wait and not the attestation. In that case the

@@ -51,6 +51,13 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-30 21:05 — Phase 10 (closed)
+
+- **Task/phase**: P10-T1 to P10-T6 — the fixes that the manual checks found, and the checks themselves
+- **Landed**: all 11 manual checks signed off. Fixes: the dictionary extractor (2,120 entries, 796 approved), three rounds of release-doc corrections and trims (CHANGELOG 950 to 776 words), sharper `/wb:pr-description` rules, and `wbte_check.py --pr --template`. Counters reconciled to 59/59
+- **Commits**: `85fa413` (the Phase 10 plan) to `09795ea` (P10-T6)
+- **Learned**: a read-only test session with a clipped prompt finds stale claims well, but each fix round finds a few more. The rtk hook rewrites `diff`, `grep` and `comm`, so use `rtk proxy` or python when a count matters
+
 ## 2026-09-30 16:57 — Phase 9 (closed)
 
 - **Task/phase**: P9-T1 to P9-T6 — PR descriptions and commit messages in WBTE (D15 to D17)
