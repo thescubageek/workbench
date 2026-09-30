@@ -51,6 +51,12 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-30 08:11 — P7-T1 (closed)
+
+- **Task/phase**: P7-T1 — the README section on WBTE, and the two `CLAUDE.md` lines. This runs ahead of the Phase 5 gates (the user's full-auto instruction), because it does not depend on their results
+- **Landed**: the README section "wb Technical English (WBTE)": what WBTE is, the credit line, the card, repository terms, the dictionary skill, and a `Variable | Effect` table for `WB_TECH_ENGLISH=0`. `CLAUDE.md` gains item 8 under Working with Commands and an Eval harness line under Development Tools. Both files lint clean, and `link_check.py` passes. The README section has no sentence over 25 words
+- **Commits**: see `P7-T1: document WBTE in README and CLAUDE.md`
+
 ## 2026-09-30 08:10 — P6-T2 (closed)
 
 - **Task/phase**: P6-T2 — the `wbte-dictionary` extractor script, the `/wb:wbte-dictionary` skill, and the pointer in `technical-english.md`

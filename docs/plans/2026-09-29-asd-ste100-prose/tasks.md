@@ -1109,7 +1109,7 @@ for the post-3.0.0 pass; how to run `evals/` and the gate; the expected merge co
 
 ### Tasks
 
-- [ ] **P7-T1** — Write the README section and the two `CLAUDE.md` lines. Lint both. (~15 calls)
+- [x] **P7-T1** — Write the README section and the two `CLAUDE.md` lines. Lint both. (~15 calls) (completed 2026-09-30 08:11)
 - [ ] **P7-T2** — Write `handoff-2026-09-30-wbte-for-3.0.0.md` with every item in Changes
       Required §2. `git add -f` it. (~20 calls)
 - [ ] **P7-T3** — Write the CHANGELOG 2.2.0 entry. Bump both manifests to 2.2.0. (~15 calls)

@@ -245,6 +245,35 @@ The `/wb:*` commands already keep narration terse (act on barriers silently, emi
 
 The plugin cannot (and does not) write to your personal config — this rule is opt-in by design.
 
+## wb Technical English (WBTE)
+
+wb Technical English (WBTE) is the writing standard for everything the workbench writes for a
+person to read: plan documents, handoffs, reports, and the conversation. It gives short
+sentences, one instruction in each sentence, no semicolons, no unexplained IDs, and exact values
+in place of vague phrases.
+
+WBTE is adapted from the principles of ASD-STE100 Issue 9. ASD does not endorse it, and it is
+not ASD-STE100 compliant. The plugin contains no text from the standard and no part of its
+dictionary.
+
+- **The rules** are in one file, `plugin/docs/reference/technical-english.md`. Every output
+  template links to it.
+- **The rule card** is a summary of the rules in about 140 words. The session-start hook prints
+  it on every startup, resume, and compaction, also in a repository with no plans and with a
+  `.claude/wb/PRIME.md`.
+- **Repository terms.** A repository can list its own technical nouns in
+  `.claude/wb/technical-nouns.md`, one on each line. WBTE treats them as approved terms.
+- **The optional dictionary.** Download the free ASD-STE100 Issue 9 PDF from ASD, then run
+  `/wb:wbte-dictionary <path-to-the-pdf>`.
+  - The command writes a private copy to `~/.claude/wb/wbte-dictionary.tsv`, outside every
+    repository.
+  - It needs `pdftotext` (poppler) or python3 with `pypdf`.
+  - The plugin works without the copy.
+
+| Variable | Effect |
+| -------- | ------ |
+| `WB_TECH_ENGLISH=0` | Do not print the rule card at session start. Nothing else in the hook output changes |
+
 ## Development
 
 ### Linting
