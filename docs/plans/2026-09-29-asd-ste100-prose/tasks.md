@@ -720,12 +720,12 @@ change to full stops or commas.
 - [x] **P4-T7** — Rewrite in WBTE, with the link line: `create_mockup/templates/{clarifying-questions,decisions-md,mockup-html,mockup-log-md,mockup-md,presentation-message,ui-research-summary}.md`,
       `create_product_research/templates.md`, and the completion line at
       `create_product_research/SKILL.md:236-239`. Run both checks. (~35 calls) (completed 2026-09-30 05:28)
-- [ ] **P4-T8** — Rewrite in WBTE, with the link line: `forge/templates/{model-plan,output-style}.md`,
+- [x] **P4-T8** — Rewrite in WBTE, with the link line: `forge/templates/{model-plan,output-style}.md`,
       `daily-digest/digest-template.md`, `touch-grass/state-template.md`,
       `implement/templates/incomplete-worker-message.md`,
       `implement_inline/templates/modified-files-fragment.md`, and the end-of-turn summary at
       `resolve_questions/SKILL.md:205-212`. Run both checks. `link_check.py` must now pass on
-      every template. (~30 calls)
+      every template. (~30 calls) (completed 2026-09-30 05:30)
 
 #### Integration
 

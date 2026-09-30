@@ -1,8 +1,10 @@
 # daily-digest — artifact template
 
-Write to `.context/daily-digest/<YYYY-MM-DD>.md`. **PHI-free** — refer to work by
-ticket key / PR # / issue title only, never patient identifiers or Member IDs. Keep
-it tight; this is a plan, not a report.
+Write this output in wb Technical English (WBTE): read [technical-english.md](../../docs/reference/technical-english.md) and apply it. Keep every exempt token exactly as it is.
+
+Write to `.context/daily-digest/<YYYY-MM-DD>.md`. The digest is **PHI-free**. Refer to work
+only by ticket key, PR number or issue title. Never write patient identifiers or Member IDs.
+Keep it short, because it is a plan and not a report.
 
 ````markdown
 ---
@@ -22,7 +24,7 @@ sources_gap: [sentry, notion, gmail]   # unavailable this run + why (below)
 
 ## 🎯 First move
 
-<the single highest-leverage action right now, fully specified + its effort tier>
+<the one action with the most value now, fully specified, with its effort tier>
 → `<entry point, e.g. /wb:forge TB-2421>`
 
 ## Today (ranked)
@@ -37,7 +39,7 @@ sources_gap: [sentry, notion, gmail]   # unavailable this run + why (below)
 
 **You owe (blocks others):**
 
-- [#PR](https://github.com/o/r/pull/PR) — <title> — <who's waiting> → `<review skill>`
+- [#PR](https://github.com/o/r/pull/PR) — <title> — <who is waiting> → `<review skill>`
 
 **Awaiting others (your work):**
 
@@ -66,16 +68,17 @@ sources_gap: [sentry, notion, gmail]   # unavailable this run + why (below)
 
 Rendering notes:
 
-- **Every source reference is a clickable link.** Render each PR, ticket, and Sentry
-  issue as a markdown link to the URL its collector returned — `gh`'s `url`, Jira's
-  `webUrl`, Sentry's permalink. Never emit a bare `#123` or `TB-2934` when you have its
-  URL; the whole point of the digest is one-click navigation to exactly what's needed.
-  Link the **Work item** and **Sources** cells, the **Entry point** cell when it targets
-  a specific PR/issue, and every bullet in Needs-review / Progress / Blocked. If a
-  collector returned no URL for an item, leave it as plain text and don't invent one.
-- **Reconciled rows only.** If JIRA-123, PR#45, and bd-12 are the same work, they are
-  ONE row with all three (each linked) in the Sources column — never three rows.
+- **Every source reference is a clickable link.** Write each PR, ticket, and Sentry issue
+  as a markdown link to the URL that its collector returned: the `url` from `gh`, the
+  `webUrl` from Jira, or the Sentry permalink. If you have the URL, never write a bare `#123`
+  or `TB-2934`. The digest exists to give one-click access to each item. Link the
+  **Work item** and **Sources** cells. Link the **Entry point** cell when it targets a
+  specific PR or issue. Link every bullet in Needs review, Progress and Blocked. If a
+  collector returned no URL for an item, write plain text, and do not invent a URL.
+- **Use reconciled rows only.** If JIRA-123, PR#45, and bd-12 are the same work, they are
+  ONE row. All three go in the Sources column, each with its link. Never write three rows.
 - **Effort tiers are required** on every Today row (from the SKILL.md rubric).
-- **Diff, not dump.** Progress lists what changed since the window, not the full board.
-- Keep Needs-review's "you owe" list first — it usually blocks other people.
+- **Show the changes, not everything.** Progress lists what changed since the window
+  started, not the full board.
+- Put the "you owe" list first in Needs review, because it usually blocks other people.
 - If a source is in `sources_gap`, it MUST also appear under **Gaps** with a reason.

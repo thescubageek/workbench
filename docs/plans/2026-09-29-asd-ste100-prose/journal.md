@@ -51,6 +51,13 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-30 05:28 — P4-T8 (closed)
+
+- **Task/phase**: P4-T8 — WBTE rewrite, with the link line, of the two `forge` templates, the `daily-digest`, `touch-grass`, `implement` and `implement_inline` templates, and the end-of-turn summary in `resolve_questions/SKILL.md`
+- **Landed**: `link_check.py` now passes on all 43 templates and all 4 inline output steps (exit 0). The registry passes, lint is clean, and the added lines have no semicolons. `incomplete-worker-message.md` now pairs the task ID with `${task.title}`, following the ID rule
+- **Commits**: see `P4-T8: rewrite the forge, digest, touch-grass and implement templates in WBTE`
+- **Learned**: `daily-digest/digest-template.md` and `touch-grass/state-template.md` sit directly in the skill directory, so their link path is `../../`, not `../../../`
+
 ## 2026-09-30 05:27 — P4-T7 (closed)
 
 - **Task/phase**: P4-T7 — WBTE rewrite, with the link line, of the seven `create_mockup` templates, `create_product_research/templates.md`, and the completion line in `create_product_research/SKILL.md`
