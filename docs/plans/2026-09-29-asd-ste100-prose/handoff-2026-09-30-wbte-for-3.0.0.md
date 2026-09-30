@@ -2,10 +2,10 @@
 created: 2026-09-30T12:36:27+00:00
 type: handoff
 project: asd-ste100-prose
-phase: 7
+phase: 10
 handoff_reason: the 3.0.0 branch adopts wb Technical English (WBTE) from 2.2.0
-last_task: P7-T2 — this handoff
-git_commit: 4f35e39
+last_task: P10-T2 — the corrections from the Phase 7 and Phase 8 check
+git_commit: 1d45555
 git_branch: wb-2.2.0/asd_ste100_prose
 repository: thescubageek/workbench
 ---
@@ -16,9 +16,10 @@ repository: thescubageek/workbench
 **Reason**: `adversarial-loop-skill-research` (3.0.0) merges `main` after 2.2.0 lands. This file
 says what 2.2.0 changed, what the merge will conflict on, and what the first release after 3.0.0
 must still do.
-**Current Phase**: Phase 7 of 7
-**Overall Progress**: 36/40 tasks at the time of writing (count the ID-scoped task lines in
-`tasks.md`)
+**Updated**: 2026-09-30, after the manual checks of Phases 2 to 8
+**Current Phase**: Phase 10 of 10
+**Overall Progress**: count the ID-scoped task lines in `tasks.md`. All tasks are done, and the
+Phase 7 to 9 sign-offs are with the user
 
 ## Quick Start
 
@@ -31,7 +32,7 @@ maintainers. To load it as context, run `/wb:resume_handoff docs/plans/2026-09-2
 output, adapted from the principles of ASD-STE100 Issue 9 (design.md, D1 and D2).
 
 **Where the work is**: 2.2.0 is on `wb-2.2.0/asd_ste100_prose`, not yet merged or pushed.
-The version bump and the release checks are P7-T3 to P7-T5.
+The version bump and the release checks are done.
 
 **The rule for shared files (D-Q3)**: in the 48 `plugin/` files that 3.0.0 also changes, 2.2.0
 adds only a link line, and in `wb-prime.sh` only the rule card. Every prose rewrite of those files
@@ -107,8 +108,7 @@ the orientation or recovery sections, place the two calls again and run `test-pr
 
 ## Expected merge conflicts
 
-`git merge-tree --write-tree` of this branch with `adversarial-loop-skill-research` at `2fff76c`
-(before the version bump):
+`git merge-tree --write-tree` of this branch with `adversarial-loop-skill-research` at `2fff76c`:
 
 | Path | Cause | Resolution |
 | ---- | ----- | ---------- |
@@ -119,7 +119,7 @@ the orientation or recovery sections, place the two calls again and run `test-pr
 | `plugin/scripts/README.md` | both branches add script sections after `test-quiet` (D14) | keep both. 2.2.0 adds `wbte-dictionary`, `test-wbte-dictionary`, `test-prime`, `pr-template` and `test-pr-template`, and one clause in the `test-lint` entry |
 | `plugin/skills/help/SKILL.md` | both branches add entries after `/wb:model-help` (D14) | keep both. 2.2.0 adds the `/wb:pr-description` and `/wb:wbte-dictionary` entries |
 
-P7-T4 and P7-T5 run the check again on the final tree and record any other path.
+Run the same check again before the merge. The branches may have moved.
 
 ## The post-3.0.0 pass
 
@@ -144,85 +144,20 @@ The first release after 3.0.0 (3.0.1 or 3.1.0, design.md D-Q3) must still do the
    `gh pr comment`. Give its comment step the link line, so that the "Pull requests and commit
    messages" rules of `technical-english.md` apply there too.
 
-**The 48 shared files** (`git diff --name-only --diff-filter=M 46ef587 2fff76c -- plugin`,
-limited to the files on `4b32306`). The 13 that 2.2.0 changed are listed above. These are the
-other 35. Two of them, `plugin/scripts/README.md` and `plugin/skills/help/SKILL.md`, gained
-sections in 2.2.0 (D14), but their existing prose is not rewritten:
+**The file lists for this pass.** Make them from git instead of copying a list. The 13 shared
+files that 2.2.0 changed are listed under "The link line". If `rtk` is installed, run this through
+`rtk proxy`, because `rtk` rewrites `grep` and `comm` output.
 
-- `plugin/.claude-plugin/plugin.json`
-- `plugin/agents/pattern-finder.md`
-- `plugin/agents/task-verifier.md`
-- `plugin/agents/task-worker.md`
-- `plugin/scripts/README.md`
-- `plugin/scripts/lint`
-- `plugin/scripts/quiet`
-- `plugin/scripts/test-quiet`
-- `plugin/skills/create_design/SKILL.md`
-- `plugin/skills/create_execution/SKILL.md`
-- `plugin/skills/create_handoff/SKILL.md`
-- `plugin/skills/create_tasks/SKILL.md`
-- `plugin/skills/daily-digest/SKILL.md`
-- `plugin/skills/daily-digest/sources.md`
-- `plugin/skills/forge/SKILL.md`
-- `plugin/skills/help/SKILL.md`
-- `plugin/skills/implement/SKILL.md`
-- `plugin/skills/implement/reference.md`
-- `plugin/skills/implement_coordinated/SKILL.md`
-- `plugin/skills/implement_inline/SKILL.md`
-- `plugin/skills/implement_inline/reference.md`
-- `plugin/skills/implement_tasks/SKILL.md`
-- `plugin/skills/model-help/SKILL.md`
-- `plugin/skills/project-structure/SKILL.md`
-- `plugin/skills/research-validation/SKILL.md`
-- `plugin/skills/resume_handoff/SKILL.md`
-- `plugin/skills/review-prep/SKILL.md`
-- `plugin/skills/touch-grass/SKILL.md`
-- `plugin/skills/update_status/SKILL.md`
-- `plugin/skills/update_status/reference/error-handling.md`
-- `plugin/skills/validate_execution/SKILL.md`
-- `plugin/skills/validate_project/SKILL.md`
-- `plugin/skills/validate_project/reference/validation-checklist.md`
-- `plugin/skills/validate_project/reference/validation-rules.md`
-- `plugin/skills/verification-before-completion/SKILL.md`
+```bash
+git diff --name-only --diff-filter=M 46ef587 2fff76c -- plugin | sort > /tmp/shared
+git ls-tree -r --name-only 4b32306 plugin | sort | comm -12 - /tmp/shared > /tmp/shared-48
+git diff --name-only 4b32306 <the 2.2.0 merge commit> -- plugin | sort > /tmp/changed
 
-**The non-shared files that 2.2.0 did not rewrite** (36):
-
-- `plugin/agents/product-behavior-analyzer.md`
-- `plugin/agents/research-validator.md`
-- `plugin/docs/reference/README.md`
-- `plugin/docs/reference/branch-naming.md`
-- `plugin/skills/clip/SKILL.md`
-- `plugin/skills/create_handoff/reference.md`
-- `plugin/skills/create_mockup/SKILL.md`
-- `plugin/skills/create_mockup/reference.md`
-- `plugin/skills/create_mockup/sub-agent-prompts.md`
-- `plugin/skills/create_product_research/reference.md`
-- `plugin/skills/create_product_research/sub-agent-prompts.md`
-- `plugin/skills/create_project/reference.md`
-- `plugin/skills/doc-adherence/SKILL.md`
-- `plugin/skills/eli5-clip/SKILL.md`
-- `plugin/skills/explore_design/SKILL.md`
-- `plugin/skills/fetch-issues/SKILL.md`
-- `plugin/skills/forge/examples.md`
-- `plugin/skills/implement/prompts/escalation-worker-prompt.md`
-- `plugin/skills/implement/prompts/verifier-prompt.md`
-- `plugin/skills/implement/prompts/worker-prompt.md`
-- `plugin/skills/jira-context/SKILL.md`
-- `plugin/skills/mockup-iteration/SKILL.md`
-- `plugin/skills/resolve_questions/examples.md`
-- `plugin/skills/resolve_questions/reference.md`
-- `plugin/skills/resume_handoff/reference.md`
-- `plugin/skills/status-sync/SKILL.md`
-- `plugin/skills/tdd-discipline/SKILL.md`
-- `plugin/skills/tracer-bullet/SKILL.md`
-- `plugin/skills/update_status/reference/configuration.md`
-- `plugin/skills/update_status/reference/important-notes.md`
-- `plugin/skills/update_status/reference/smart-status-detection.md`
-- `plugin/skills/update_status/reference/status-transition-logic.md`
-- `plugin/skills/validate_execution/reference.md`
-- `plugin/skills/validate_execution/sub-agent-prompts.md`
-- `plugin/skills/validate_project/reference/configuration.md`
-- `plugin/skills/validate_project/reference/important-guidelines.md`
+cat /tmp/shared-48       # the 48 shared files: every one needs its prose rewrite
+git ls-tree -r --name-only 4b32306 plugin | grep '\.md$' | sort \
+  | comm -23 - /tmp/shared-48 | comm -23 - /tmp/changed
+                         # 38 non-shared files that 2.2.0 did not rewrite, with the 2 agents of item 4
+```
 
 ## Run the harness
 
@@ -251,25 +186,20 @@ python3 evals/report.py evals/runs/<timestamp>
 
 - A rule that lives only in the reference doc applies in about two runs of three, because the
   model does not always follow the link line (P4-T2). A rule that must always hold belongs on
-  the card. The card has room for 9 more words (`test-prime` limits it to 150).
+  the card. Card v4 has 149 words, and `test-prime` limits it to 150, so a new card rule must
+  replace old words.
 - A resumed headless session is refused reads of a `--plugin-dir` stage's own files without
   `--add-dir` (`.claude/wb/knowledge.md`).
 - `wb_lint_ignored` did not ignore a path that is in both `.gitignore` and `.wblintignore`.
   P8-T2 fixed it in `plugin/scripts/lint-common.sh`, which 3.0.0 does not have yet (it came in
   2.1.1). The fix merges with no conflict.
-- A manual `/compact` shows PreCompact's stdout, and that stdout reaches the next context. So
-  PreCompact output is model-visible there, against the `wb-prime.sh` header. The card now skips
-  PreCompact (P8-T5). The recovery text still prints twice when a plan is active (2.1.1
-  behaviour, a follow-up).
-- **Known remainder (D11):** the final Objective 1 run has 2 chat IDs used alone, in one
-  `create_tasks` summary sentence. If this shows up in real use, a 2.2.x patch tightens it.
 
 ## Artifacts and References
 
 ### Project Documents
 
 - Research: `docs/plans/2026-09-29-asd-ste100-prose/research.md`
-- Design: `docs/plans/2026-09-29-asd-ste100-prose/design.md` (D-Q1 to D-Q5, D1 to D14)
+- Design: `docs/plans/2026-09-29-asd-ste100-prose/design.md` (D-Q1 to D-Q5, D1 to D17)
 - Tasks: `docs/plans/2026-09-29-asd-ste100-prose/tasks.md`
 - Measurements: `thoughts/2026-09-30-baseline.md`, `-card-measurement.md`,
   `-link-measurement.md`, `-objective-1-report.md`, `-judge-calibration.md`, `-lite-verdicts.md`

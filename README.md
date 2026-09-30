@@ -262,8 +262,7 @@ dictionary.
 - **The rules** are in one file, `plugin/docs/reference/technical-english.md`. Every output
   template links to it.
 - **The rule card** is a summary of the rules in about 150 words. The session-start hook prints
-  it on every startup, resume, and compaction, also in a repository with no plans and with a
-  `.claude/wb/PRIME.md`.
+  it on every startup, resume, and compaction.
 - **PR descriptions and commit messages** stay short. `/wb:pr-description` drafts a PR title
   and body from the branch. It fills the repository's PR template, or a generic one, and aims
   for about one screen. It creates or updates the PR only after you confirm.
@@ -278,7 +277,7 @@ dictionary.
 
 | Variable | Effect |
 | -------- | ------ |
-| `WB_TECH_ENGLISH=0` | Do not print the rule card at session start. Nothing else in the hook output changes |
+| `WB_TECH_ENGLISH=0` | Do not print the rule card at session start |
 
 ## Development
 

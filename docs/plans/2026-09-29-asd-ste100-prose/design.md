@@ -444,6 +444,8 @@ execution phase and measured by the harness.
     D8, D10, D11). The `validate_project` criterion and the dictionary-skill criterion stay open,
     because no run or person has shown them yet. The token-cost criterion waits for the
     per-stage line in the CHANGELOG.
+  - Update 2026-09-30: the token-cost criterion is ticked (P8-T7). The dictionary-skill criterion
+    is ticked after the Phase 6 sign-off. Only the `validate_project` criterion stays open.
   - Rationale: a reader of the design sees what is met and where the proof is.
   - Trade-off: a ticked box with an exception reads as "met" at a glance. The note carries the
     exception.
@@ -565,10 +567,11 @@ execution phase and measured by the harness.
   listed under Integration Points still matches.
   *(Open: `token_check.py` checks the parser patterns, and only the known missing git keys fail.
   No run has used the `validate_project` stage itself)*
-- [ ] The dictionary skill produces a local copy from a user-supplied Issue 9 PDF, or says
+- [x] The dictionary skill produces a local copy from a user-supplied Issue 9 PDF, or says
   clearly which tool is missing.
-  *(Open until the Phase 6 attestation. `test-wbte-dictionary` passes, and a development run of
-  the script on the user's PDF gave 1,975 entries. Nobody has run the skill in a fresh session)*
+  *(Evidence: the user ran `/wb:wbte-dictionary` in a fresh session on 2026-09-30. It wrote
+  2,120 entries, 796 approved, after the P10-T1 fix. `test-wbte-dictionary` covers the missing
+  tools)*
 - [x] The fidelity judge finds no lost facts, `file:line` references, IDs, or barriers in each
   accepted skill rewrite, over repeated runs.
   *(Met with the D10 exception: 1 repeat for each gate, not 3.
@@ -581,8 +584,9 @@ execution phase and measured by the harness.
 - [x] Token cost: the rule card adds at most about 200 tokens to each session. The change in
   per-stage cost is measured with `claude --plugin-dir plugin plugin details wb` and reported
   in the CHANGELOG.
-  *(Evidence: the card is 141 words, about 190 tokens. The CHANGELOG 2.2.0 table reports the
-  always-on and per-stage costs from `thoughts/2026-09-30-lite-verdicts.md`)*
+  *(Evidence: card v4 is 149 words, about 200 tokens. The CHANGELOG 2.2.0 table reports the
+  always-on cost (~3,539 tokens, from `plugin details` after P9-T6) and the per-stage costs from
+  `thoughts/2026-09-30-lite-verdicts.md`)*
 - [x] Reliability: the hook contract is unchanged. It only reads, it always exits 0, and it
   stays inside the 5-second timeout.
   *(Evidence: `test-prime:152-172`. 200 plan directories take about 2.5 s, the same as 2.1.1)*

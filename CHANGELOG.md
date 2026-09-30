@@ -9,16 +9,12 @@ Versioning follows semver as it applies to a prompt library: **patch** for promp
 
 wb Technical English (WBTE) is a writing standard for everything the workbench writes for a
 person to read: plan documents, handoffs, reports, PR descriptions, commit messages, and the
-conversation. It is adapted from the
-principles of ASD-STE100 Issue 9. ASD does not endorse it, and it is not ASD-STE100 compliant.
-The plugin contains no text from the standard and no part of its dictionary.
+conversation. It is adapted from the principles of ASD-STE100 Issue 9. ASD does not endorse it,
+and it is not ASD-STE100 compliant. The plugin contains no text from the standard and no part
+of its dictionary.
 
-The release had two objectives. Output comes first. Skill instruction prose comes second, and a
-change to it stayed only where a measurement showed no loss. A maintainer-only eval harness
-took the measurements. Files that the 3.0.0 branch also changes get only a link line, so 3.0.0
-can merge 2.2.0 with small, local conflicts.
-
-Measured on the harness fixture (3 repeats, `sonnet`), 2.1.1 against the final tree:
+Measured on the harness fixture (3 repeats, `sonnet`), 2.1.1 against the final Phase 4 tree
+(card v3). The later card changes were not measured:
 
 | Measure | 2.1.1 | 2.2.0 |
 | ------- | ----- | ----- |
@@ -30,7 +26,7 @@ Measured on the harness fixture (3 repeats, `sonnet`), 2.1.1 against the final t
 | Cost of `create_research`, `create_design`, `create_tasks` on invoke | ~5.2k, ~5.4k, ~3.8k | unchanged |
 
 The 2 chat IDs are a known remainder. If they show up in real use, a 2.2.x patch tightens the
-rule. A stage that follows a link line also reads the reference doc, about 2,100 tokens.
+rule. A stage that follows a link line also reads the reference doc, about 2,500 tokens.
 
 ### Added
 
@@ -62,26 +58,23 @@ rule. A stage that follows a link line also reads the reference doc, about 2,100
   - `plugin/scripts/test-wbte-dictionary` tests it with invented words only.
 - **Repository terms.** A repository can list its own technical nouns in
   `.claude/wb/technical-nouns.md`.
-- **`evals/`**, the maintainer-only eval harness. It is never shipped.
-  - Contents: two fixtures, a before/after stage driver, a WBTE metric checker, an
-    exempt-token checker, a link-line checker, an LLM fidelity judge with a within-run mode,
-    and a report writer.
-  - Each checker is proven against planted failures.
+- **`evals/`**, a maintainer-only eval harness that measures stage output before and after a
+  change. It is never shipped. See `evals/README.md`.
 
 ### Changed
 
-- **Every output template links to the reference doc.** That is 44 templates, including the new PR template, and 4 inline
-  output steps in `create_project`, `create_research`, `create_product_research` and
+- **Every output template links to the reference doc.** That is 44 templates, including the new PR template,
+  and 4 inline output steps in `create_project`, `create_research`, `create_product_research` and
   `resolve_questions`.
 - **32 output templates** not shared with 3.0.0 are rewritten in WBTE.
 - **7 instruction files** for `create_research`, `create_design` and `create_tasks` get a
-  "lite" rewrite. Each passed a gate on a fixture large enough that the stages spawn their
-  agents. The gate is no loss from the within-run judge, 1 repeat, because the spend limit cut
-  the planned 3.
+  "lite" rewrite. Each passed a no-loss gate in the harness, with 1 repeat instead of 3.
 - **The `plan-presentation-message.md` summary** lists assumptions and pending decisions with
   their meanings.
-- **`/wb:help` and `plugin/scripts/README.md`** describe `/wb:wbte-dictionary`, its script, and
-  the two new contract tests.
+- **`/wb:help` and `plugin/scripts/README.md`** describe `/wb:pr-description`,
+  `/wb:wbte-dictionary`, their scripts, and the three new contract tests.
+- **`CLAUDE.md`** names the new contract tests and the eval harness. Under "Working with
+  Commands", it says that new output templates carry the link line.
 
 ### Fixed
 
@@ -98,8 +91,8 @@ rule. A stage that follows a link line also reads the reference doc, about 2,100
   boilerplate that is the source of the remaining semicolons.
 - **The `codebase-analyzer` and `codebase-locator` agents.** Their lite rewrite was restored
   after its gate found a lost fact.
-- **Maintainer docs** (`CLAUDE.md`, the CHANGELOG history, and `docs/`). The README gains one
-  section.
+- **Maintainer prose.** The CHANGELOG history and `docs/` are not rewritten. The README gains
+  one section.
 - **No runtime check.** The rules reach the model as instructions. The lint hook, CI and the
   validators do not check wording, and no new requirement applies to users.
 - **Parser tokens.** Every task-ID shape, journal heading, status value, checkpoint label and

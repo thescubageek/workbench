@@ -5,8 +5,8 @@ created: 2026-09-29
 status: in-progress
 last_updated: 2026-09-30
 current_phase: 10
-total_tasks: 54
-completed_tasks: 54
+total_tasks: 55
+completed_tasks: 55
 task_tracking: markdown-checkboxes
 depends_on: [research.md, design.md]
 assignee: scraig
@@ -142,7 +142,7 @@ Based on dependency analysis:
 | Phase 7: Documentation, handoff, and release checks | ✅ Complete | 5/5 | 100% |
 | Phase 8: Validation fixes | ✅ Complete | 7/7 | 100% |
 | Phase 9: PR descriptions and commit messages in WBTE | ✅ Complete | 6/6 | 100% |
-| Phase 10: Manual-check fixes | ✅ Complete | 1/1 | 100% |
+| Phase 10: Manual-check fixes | ✅ Complete | 2/2 | 100% |
 
 Counts come from the checkboxes below and are reconciled by `/wb:update_status`.
 
@@ -1344,6 +1344,8 @@ shortened one.
 **Closed 2026-09-30 16:33 UTC, at the user's request (fix, resolve the questions, then iterate).** The
 attestation stays `[ ]`. Nobody has read the corrected records and the CHANGELOG lines. The
 attestations of Phases 2 and 4 to 7 are also still open, so `status: complete` waits.
+*(Update 2026-09-30: the user has since signed off Phases 2, 4, 5 and 6. The attestations of
+Phases 7, 8 and 9 are still open.)*
 
 **Do not proceed without human confirmation of manual tests** — unless the phase is being run
 under `/wb:implement --auto`, which buys the wait and not the attestation. In that case the
@@ -1457,6 +1459,9 @@ Fix the defects that the manual checks find. Added 2026-09-30 during the checks.
       add invented entries of each shape (RED). Fix `plugin/scripts/wbte-dictionary` until the
       test is green. Then run it on the user's PDF with a temporary `HOME` and compare the counts. (completed 2026-09-30 18:37. On the user's PDF: 2,120 entries, 796 approved, against
       1,975 and 652 before. `check (v)` now gives `MAKE SURE (v)`, and `start (v)` is present)
+- [x] **P10-T2** — Correct the stale claims and records that the Phase 7 and Phase 8 check found,
+      and make the trims it named in the CHANGELOG entry, the handoff and the README section.
+      Replace the handoff's two long file lists with the command that makes them. (completed 2026-09-30 19:05)
 
 ### Success Criteria
 
@@ -1584,10 +1589,12 @@ resolved, leaving a dated line saying how.
   reference doc, the three checkers with planted failures, the driver, the judge, the report,
   and the 2.1.1 baseline. Two driver fixes came from real runs: `--add-dir` on every call, and
   skipping `create_tasks` after an unwritten design. The judge-calibration finding needs a
-  human decision before P4-T9 and Phase 5.
+  human decision before P4-T9 and Phase 5. *(Resolved: the user decided D7, and P4-T10 built
+  the within-run judge.)*
 - [2026-09-30] **Follow-up (D6): a larger fixture that makes the stages spawn their
   sub-agents.** A6 stays `Pending` until a headless run shows the fan-out. This is not a new
-  task in this plan, because the task list does not change without a replan.
+  task in this plan, because the task list does not change without a replan. *(Resolved: the
+  user added P5-T5, its runs showed the fan-out, and A6 is validated.)*
 - [2026-09-30] **Journal timestamps corrected.** Twelve entry headings (P2-T2 to P2-T5,
   P3-T1, P3-T2, and P4-T1 to P4-T6) had estimated times, not times from `date -u`. Ten were later
   than the commit that closed the entry. Each heading now carries the time of the commit that
@@ -1639,7 +1646,8 @@ resolved, leaving a dated line saying how.
   on the new large fixture. Phase 6 added the dictionary extractor and skill. Phase 7 added the
   README and CLAUDE.md docs, the 3.0.0 handoff, the CHANGELOG entry, the 2.2.0 bump, and the
   release checks. Open for a human: the attestations of Phases 2 and 4 to 7, and `status:
-  complete`.
+  complete`. *(Update 2026-09-30: Phases 2, 4, 5 and 6 are signed off. Phases 7, 8 and 9 are
+  open.)*
 - **Planned against 2.1.1** (`4b32306`). If `main` moves before Phase 7, rebase and repeat the
   P7-T4 checks.
 - [2026-09-30] **Follow-up from P1-T2: three 2.1.1 templates fail markdownlint as written.**
@@ -1649,7 +1657,7 @@ resolved, leaving a dated line saying how.
 - [2026-09-30] **Limit of the P1-T3 probe: the sub-agent fan-out was not tested.** The fixture is
   small, so `create_research` skipped its agents, as the 2.1.1 stage allows. The probe also ran
   with the read boundary off. P2-T6 is the first run that can show whether headless stages
-  spawn sub-agents.
+  spawn sub-agents. *(Resolved: the P5-T5 large fixture showed the fan-out.)*
 
 ---
 
