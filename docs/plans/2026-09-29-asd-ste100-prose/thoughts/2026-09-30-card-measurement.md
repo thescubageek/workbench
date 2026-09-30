@@ -177,3 +177,10 @@ The A3 transcript (`~/.claude/projects/-private-tmp-wb-a3-noplans/`) settles the
 
 So the second copy came from PreCompact. P8-T5 stops the card on PreCompact. The hook header
 said PreCompact's stdout is not model-visible, which is not true for a manual `/compact`.
+
+## Card v4 (P9-T4, D15)
+
+Card v4 adds rule 9 for PR descriptions and commit messages, and names `/wb:pr-description`.
+To stay within 150 words, the first line says "applies to everything you write", and rule 6
+drops "in chat or in documents". The card has 149 words. The harness has not measured v4:
+no harness stage writes a PR description, and rules 1 to 8 keep their meaning.

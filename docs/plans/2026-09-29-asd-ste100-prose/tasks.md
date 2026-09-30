@@ -1363,8 +1363,8 @@ Added 2026-09-30 at the user's request.
       directory, no template (the generic path), and a run from a subdirectory. (completed 2026-09-30 16:49)
 - [x] **P9-T3** — Write `plugin/skills/pr-description/SKILL.md` and
       `templates/pr-description.md`. `link_check.py` must pass. (completed 2026-09-30 16:53)
-- [ ] **P9-T4** — In `test-prime`, require that the card names PR descriptions and commit
-      messages (RED). Change the card, within 150 words, until `test-prime` is green.
+- [x] **P9-T4** — In `test-prime`, require that the card names PR descriptions and commit
+      messages (RED). Change the card, within 150 words, until `test-prime` is green. (completed 2026-09-30 16:54)
 - [ ] **P9-T5** — Add `--pr` to `evals/wbte_check.py`, with a planted long PR body (exit 1) and a
       clean sibling (exit 0).
 - [ ] **P9-T6** — Document the skill in README, CHANGELOG, `/wb:help` and the handoff. Run

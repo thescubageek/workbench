@@ -181,6 +181,9 @@ check "run from a subdirectory: exit 0" "$(yes_if rc_zero)"
 out=$(run "$WORK/repo0" "$compact")
 words=$(awk -v s="$CARD_START" -v e="$CARD_END" 'index($0,s){on=1} on{print} on&&index($0,e){exit}' <<<"$out" | wc -w | tr -d ' ')
 check "card is at most 150 words (it has $words)" "$(yes_if test "$words" -gt 0 -a "$words" -le 150)"
+card=$(awk -v s="$CARD_START" -v e="$CARD_END" 'index($0,s){on=1} on{print} on&&index($0,e){exit}' <<<"$out")
+check "card names PR descriptions" "$(yes_if grep -qi 'PR description' <<<"$card")"
+check "card names commit messages" "$(yes_if grep -qi 'commit message' <<<"$card")"
 
 echo ""
 echo "test-prime: $PASS passed, $FAIL failed"

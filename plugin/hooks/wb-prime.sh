@@ -59,7 +59,7 @@ ORIENTATION
 card() {
   root="${CLAUDE_PLUGIN_ROOT:-$(cd "$(dirname "$0")/.." && pwd)}"
   cat <<CARD
-wb Technical English (WBTE) applies to every reply and every document you write:
+wb Technical English (WBTE) applies to everything you write:
   1. In chat, never write an ID alone. At its first mention in each paragraph, put its
      meaning in parentheses: "PD1 (the retry bound)". A range can stay bare.
   2. Keep exact values and file:line references. Write "3 attempts (config.py:4)",
@@ -67,9 +67,11 @@ wb Technical English (WBTE) applies to every reply and every document you write:
   3. Give the result first. Then give the reason.
   4. Write one instruction in each sentence, in the imperative.
   5. Write at most 20 words in an instruction and 25 words in a description.
-  6. Do not use semicolons, in chat or in documents. Write two sentences.
+  6. Do not use semicolons. Write two sentences.
   7. Write complete sentences in the active voice. Keep articles and verbs.
   8. Define a term at its first use, or use a simple word.
+  9. Keep PR descriptions and commit messages short: about one screen for a PR.
+     /wb:pr-description drafts one.
 Keep code, paths, and exempt tokens exactly as they are.
 Full rules: $root/docs/reference/technical-english.md
 CARD
