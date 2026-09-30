@@ -1259,28 +1259,28 @@ the user's request, after `/wb:validate_execution`.
 
 - [x] **P8-T1** — In `plugin/scripts/test-wbte-dictionary`, add a case where `$HOME/.claude` is
       a git work tree and `$HOME/.claude/wb` does not exist (RED). Pin the refusal exit code
-      to 3. Fix the probe in `plugin/scripts/wbte-dictionary` until the test is green. (completed 2026-09-30 16:16)
+      to 3. Fix the probe in `plugin/scripts/wbte-dictionary` until the test is green. (completed 2026-09-30 16:14)
 - [x] **P8-T2** — In `plugin/scripts/test-lint`, add a case where a path is in both `.gitignore`
       and `.wblintignore` (RED). Fix `wb_lint_ignored` so the `.wblintignore` match wins. Add
-      `evals/runs/` to `.wblintignore`. Confirm that `./plugin/scripts/lint --all` exits 0. (completed 2026-09-30 16:20)
+      `evals/runs/` to `.wblintignore`. Confirm that `./plugin/scripts/lint --all` exits 0. (completed 2026-09-30 16:15)
 - [x] **P8-T3** — Replace the semicolon in `create_design/templates/design-md-template.md:125`.
-      Run `evals/link_check.py` and `evals/token_check.py`. (completed 2026-09-30 16:21)
+      Run `evals/link_check.py` and `evals/token_check.py`. (completed 2026-09-30 16:16)
 - [x] **P8-T4** — Correct the plan records: A6, D6 and D7 in `design.md`, the Phase 2
       ASD-STE100 criterion, and the `wb_lint_ignored` note. Add the fixes to the CHANGELOG
-      2.2.0 entry. (completed 2026-09-30 16:27)
+      2.2.0 entry. (completed 2026-09-30 16:17)
 - [x] **P8-T5** — Stop the duplicate card after `/compact` (D13). The A3 transcript shows one
       SessionStart copy and a second copy in the `/compact` stdout, which carries the PreCompact
       output into the next context. In `plugin/scripts/test-prime`, expect no card on PreCompact,
       for both `auto` and `manual` triggers (RED). Then skip the card on PreCompact in
       `plugin/hooks/wb-prime.sh`, and correct the header bullet. Run `git merge-tree` again.
-      Added 2026-09-30 after resolve_questions. (completed 2026-09-30 16:52)
+      Added 2026-09-30 after resolve_questions. (completed 2026-09-30 16:29)
 - [x] **P8-T6** — Document `wbte-dictionary`, `test-prime` and `test-wbte-dictionary` in
       `plugin/scripts/README.md`, and `/wb:wbte-dictionary` in `plugin/skills/help/SKILL.md`
       (D14). Run `git merge-tree`, and add a resolution note to the handoff for each new
-      conflict. Added 2026-09-30 after resolve_questions. (completed 2026-09-30 17:04)
+      conflict. Added 2026-09-30 after resolve_questions. (completed 2026-09-30 16:31)
 - [x] **P8-T7** — CHANGELOG and handoff: name the 2 remaining chat IDs as a known remainder
       (D11), add the per-stage token cost (D12), and describe P8-T5 and P8-T6. Tick the
-      design.md token-cost criterion. Added 2026-09-30 after resolve_questions. (completed 2026-09-30 17:08)
+      design.md token-cost criterion. Added 2026-09-30 after resolve_questions. (completed 2026-09-30 16:31)
 
 ### Success Criteria
 
@@ -1357,7 +1357,7 @@ Added 2026-09-30 at the user's request.
 ### Tasks
 
 - [x] **P9-T1** — Write the "Pull requests and commit messages" section in
-      `technical-english.md`. Run `link_check.py` and `token_check.py`. (completed 2026-09-30 16:58)
+      `technical-english.md`. Run `link_check.py` and `token_check.py`. (completed 2026-09-30 16:48)
 - [ ] **P9-T2** — Write `plugin/scripts/test-pr-template` (RED), then `plugin/scripts/pr-template`
       until it is green. Cases: each GitHub location, case-insensitive names, a template
       directory, no template (the generic path), and a run from a subdirectory.
