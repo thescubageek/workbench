@@ -51,6 +51,12 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-30 12:37 — P7-T3 (closed)
+
+- **Task/phase**: P7-T3 — the CHANGELOG 2.2.0 entry, and both manifests bumped to 2.2.0
+- **Landed**: `## [2.2.0] — 2026-09-30` in the 2.1.1 shape (a prose intro, a results table, Added, Changed, "Not changed, deliberately", Migration). `plugin.json` and `marketplace.json` both say `2.2.0`. `claude plugin validate plugin/` passes
+- **Commits**: see `wb 2.2.0: CHANGELOG entry and version bump (P7-T3)`
+
 ## 2026-09-30 12:35 — P7-T2 (closed)
 
 - **Task/phase**: P7-T2 — `handoff-2026-09-30-wbte-for-3.0.0.md` for the `adversarial-loop-skill-research` branch
