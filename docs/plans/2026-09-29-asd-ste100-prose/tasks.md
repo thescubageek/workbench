@@ -2,15 +2,15 @@
 project: asd-ste100-prose
 ticket: null
 created: 2026-09-29
-status: not-started
+status: in-progress
 last_updated: 2026-09-29
-current_phase: 1
+current_phase: 2
 total_tasks: 38
-completed_tasks: 4
+completed_tasks: 7
 task_tracking: markdown-checkboxes
 depends_on: [research.md, design.md]
 assignee: scraig
-git_commit: 4b32306
+git_commit: b2ddce8
 git_branch: wb-2.2.0/asd_ste100_prose
 repository: thescubageek/workbench
 tags: [tasks, tracking, asd-ste100-prose]
@@ -133,8 +133,8 @@ Based on dependency analysis:
 | Phase | Status | Tasks | Progress |
 |-------|--------|-------|----------|
 | Phase 0: Planning | ✅ Complete | 4/4 | 100% |
-| Phase 1: Tracer bullet — prove the harness driver | ⏸️ Not Started | 0/3 | 0% |
-| Phase 2: Rules authority, harness, and baseline | ⏸️ Not Started | 0/8 | 0% |
+| Phase 1: Tracer bullet — prove the harness driver | ✅ Complete | 3/3 | 100% |
+| Phase 2: Rules authority, harness, and baseline | 🔄 In Progress | 0/8 | 0% |
 | Phase 3: Rule card | ⏸️ Not Started | 0/3 | 0% |
 | Phase 4: Objective 1 — link lines and template rewrites | ⏸️ Not Started | 0/9 | 0% |
 | Phase 5: Objective 2 — gated "lite" rewrite | ⏸️ Not Started | 0/4 | 0% |
@@ -242,9 +242,9 @@ real users (`.claude/wb/knowledge.md`, the cwd entry).
 
 #### Manual Verification
 
-- [ ] A human reads the probe's `research.md` and confirms that the stage ran as designed and
+- [x] A human reads the probe's `research.md` and confirms that the stage ran as designed and
       did not improvise
-- [ ] The probe record names its cwd
+- [x] The probe record names its cwd
 
 ### 📝 Modified Files (Phase 1)
 
@@ -284,8 +284,8 @@ shortened one.
 
 - [x] **(derivable)** Every Phase 1 checkbox is `[x]`
 - [x] **(derivable)** All automated verification passing
-- [ ] **(attestation)** Manual verification confirmed by human
-- [ ] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
+- [x] **(attestation)** Manual verification confirmed by human
+- [x] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
       only writer of those fields, so do not edit `current_phase` or `completed_tasks` by hand
 
 **Do not proceed without human confirmation of manual tests** — unless the phase is being run
