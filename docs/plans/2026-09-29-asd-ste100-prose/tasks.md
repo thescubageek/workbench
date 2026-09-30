@@ -1443,18 +1443,19 @@ Fix the defects that the manual checks find. Added 2026-09-30 during the checks.
 
 ### Tasks
 
-- [ ] **P10-T1** — Fix the dictionary extractor (found by the A4 check). It skips an approved
+- [x] **P10-T1** — Fix the dictionary extractor (found by the A4 check). It skips an approved
       headword that has a comma after its part of speech (`ADAPT (v),`, 205 lines) and a
       headword indented by one or two spaces (39 lines). It also cuts an alternative of more than
       one word ("MAKE SURE (v)" becomes "SURE (v)"). In `plugin/scripts/test-wbte-dictionary`,
       add invented entries of each shape (RED). Fix `plugin/scripts/wbte-dictionary` until the
-      test is green. Then run it on the user's PDF with a temporary `HOME` and compare the counts.
+      test is green. Then run it on the user's PDF with a temporary `HOME` and compare the counts. (completed 2026-09-30 18:37. On the user's PDF: 2,120 entries, 796 approved, against
+      1,975 and 652 before. `check (v)` now gives `MAKE SURE (v)`, and `start (v)` is present)
 
 ### Success Criteria
 
 #### Automated Verification
 
-- [ ] `./plugin/scripts/test-wbte-dictionary` passes, and `shellcheck` is clean
+- [x] `./plugin/scripts/test-wbte-dictionary` passes, and `shellcheck` is clean
 
 #### Manual Verification
 

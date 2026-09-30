@@ -59,20 +59,25 @@ else
   cat "$in" > "$text"
 fi
 
-# A headword line: a word, its part of speech in parentheses, then at least two spaces. A
-# capitalized headword is approved. For an unapproved word, the capitalized words with a part
-# of speech on the same line are its approved alternatives. A later entry for the same word and
-# part of speech replaces an earlier one, so the dictionary wins over the change record.
+# A headword line: at most two spaces of indent, a word, its part of speech in parentheses, then
+# a comma (an approved verb lists its forms) or at least two spaces. A line indented further is
+# the alternatives column of an earlier entry. A capitalized headword is approved. For an
+# unapproved word, the capitalized phrases with a part of speech on the same line are its
+# approved alternatives, for example "MAKE SURE (v)". A later entry for the same word and part of
+# speech replaces an earlier one, so the dictionary wins over the change record.
 awk '
-  match($0, /^[A-Za-z][A-Za-z'"'"' -]*[A-Za-z] \((v|n|adj|adv|prep|conj|pron|art)\)  /) {
-    head = substr($0, 1, RLENGTH)
-    rest = substr($0, RLENGTH + 1)
-    word = head; sub(/ \(.*$/, "", word)
+  {
+    line = $0 "  "
+  }
+  match(line, /^ ? ?[A-Za-z][A-Za-z'"'"' -]*[A-Za-z] \((v|n|adj|adv|prep|conj|pron|art)\)(,|  )/) {
+    head = substr(line, 1, RLENGTH)
+    rest = substr(line, RLENGTH + 1)
+    word = head; sub(/^ +/, "", word); sub(/ \(.*$/, "", word)
     pos = head; sub(/^.*\(/, "", pos); sub(/\).*$/, "", pos)
     approved = (word == toupper(word))
     alts = ""
     if (!approved) {
-      while (match(rest, /[A-Z][A-Z-]+ \((v|n|adj|adv|prep|conj|pron|art)\)/)) {
+      while (match(rest, /[A-Z][A-Z-]*( [A-Z][A-Z-]*)* \((v|n|adj|adv|prep|conj|pron|art)\)/)) {
         alts = alts (alts == "" ? "" : ", ") substr(rest, RSTART, RLENGTH)
         rest = substr(rest, RSTART + RLENGTH)
       }

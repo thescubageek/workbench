@@ -36,7 +36,10 @@ trap 'rm -rf "$WORK"' EXIT
 
 # Invented words in the layout that `pdftotext -layout` gives: a headword with its part of
 # speech, then wide gaps between columns. Approved words are in capitals. The first zorbit
-# line is a change-log row before the dictionary, so the later entry must win.
+# line is a change-log row before the dictionary, so the later entry must win. An approved verb
+# lists its forms after a comma (BLORP). A headword can be indented by one space (frell), and
+# an alternative can have two words. A line indented to the second column (GRONK) is not a
+# headword.
 cat > "$WORK/invented.txt" <<'EOF'
 Change record
 zorbit (v)          Approved alternatives revised.
@@ -47,9 +50,14 @@ zorbit (v)          TURN (v)             Turn the handle.          Zorbit the ha
 ZIPPLE (n)          A small hand tool.   Put the zipple here.
 glarf (adj)         FULL (adj), WHOLE (adj)    The tank is full.   The tank is glarf.
 QUANTLE (v)         To move a part.      Quantle the lever.
+BLORP (v),          To move fast.        BLORP THE PART.
+BLORPS,
+BLORPED
+ frell (v)          MAKE SURE (v)        MAKE SURE THAT       Frell that the
+                   GRONK (v)            GRONK THE LEVER.     Gronk the lever.
 EOF
 
-expected=$(printf 'word\tpos\tstatus\talternatives\nglarf\tadj\tnot approved\tFULL (adj), WHOLE (adj)\nquantle\tv\tapproved\t\nzipple\tn\tapproved\t\nzorbit\tv\tnot approved\tTURN (v)\n')
+expected=$(printf 'word\tpos\tstatus\talternatives\nblorp\tv\tapproved\t\nfrell\tv\tnot approved\tMAKE SURE (v)\nglarf\tadj\tnot approved\tFULL (adj), WHOLE (adj)\nquantle\tv\tapproved\t\nzipple\tn\tapproved\t\nzorbit\tv\tnot approved\tTURN (v)\n')
 
 # --- Case 1: the invented input gives the expected rows ---
 HOME1="$WORK/home1"
@@ -60,7 +68,7 @@ check "invented input: exit 0 (got $code)" "$(yes_if [ "$code" -eq 0 ])"
 tsv="$HOME1/.claude/wb/wbte-dictionary.tsv"
 check "invented input: the TSV exists" "$(yes_if [ -f "$tsv" ])"
 check "invented input: the TSV has the expected rows" "$(yes_if [ "$(cat "$tsv" 2>/dev/null)" == "$expected" ])"
-check "invented input: the report names the entry count" "$(yes_if grep -q '4 entries' <<<"$out")"
+check "invented input: the report names the entry count" "$(yes_if grep -q '6 entries' <<<"$out")"
 
 # --- Case 2: output lands only under the temporary HOME ---
 before=$(cd "$WORK" && find . -type f -not -path './home*' | sort)
