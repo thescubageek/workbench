@@ -73,7 +73,7 @@ this template, silently, from the moment of creation.
 ## 2026-09-30 08:06 — P5-T5 (open)
 
 - **Task/phase**: P5-T5 — a larger fixture, `evals/fixture-large/`, that makes the stages spawn sub-agents, plus `--fixture` support and the Phase 4 before-run on it
-- **Next action**: read the create_research, create_design and create_tasks fan-out and skip rules, build the fixture, then run a tracer of `create_research` and look for agent spawns
+- **Next action**: the fixture is built (77 files, 4,178 lines, 19 facts). A tracer run (`20260930T082028Z`) spawned `codebase-locator`, `codebase-analyzer` and `pattern-finder`. Wait for the before-run of the Phase 4 tree `f2c78e8` on it (`20260930T082432Z`, nohup, log `/tmp/wb-p5-before.log`, finished at `done:`). Then record everything in `thoughts/2026-09-30-lite-verdicts.md` and close P5-T5
 - **Started at**: 72af3b1
 
 ## 2026-09-30 06:39 — P4-T9 (closed)

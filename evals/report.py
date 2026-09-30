@@ -6,6 +6,8 @@ token_check.py on each document, and reads the judge verdicts from RUN_DIR/judge
 exist.
 
 Usage: report.py RUN_DIR [--out FILE]
+
+The facts come from the expected.json of the fixture named in the run manifest.
 """
 
 import argparse
@@ -151,7 +153,8 @@ def main(argv):
         print(f"report: no manifest.json in {args.run_dir}", file=sys.stderr)
         return 2
     manifest = json.load(open(manifest_path, encoding="utf-8"))
-    facts = load_facts()
+    fixture = manifest.get("fixture")
+    facts = load_facts(os.path.join(HERE, "..", fixture, "expected.json")) if fixture else load_facts()
     summaries = {t: tree_summary(args.run_dir, t, manifest, facts) for t in manifest["trees"]}
     judge_dir = os.path.join(args.run_dir, "judge")
     verdicts = [json.load(open(os.path.join(judge_dir, f), encoding="utf-8"))

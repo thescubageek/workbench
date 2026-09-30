@@ -12,7 +12,7 @@ Two modes:
   only (thoughts/2026-09-30-judge-calibration.md).
 
 Usage:
-  judge.py --run RUN_DIR --within [--model M]   within-run, every tree and repeat
+  judge.py --run RUN_DIR --within [--fixture DIR] [--model M]   within-run, every tree and repeat
   judge.py --research FILE --doc FILE [--context FILE] [--model M]
   judge.py --run RUN_DIR [--model M]            before/<n> against after/<n>, every n
   judge.py --before FILE --after FILE [--model M]
@@ -100,8 +100,8 @@ Reply with JSON only, no prose, in this shape:
 """
 
 
-def load_facts():
-    with open(EXPECTED, encoding="utf-8") as fh:
+def load_facts(path=EXPECTED):
+    with open(path, encoding="utf-8") as fh:
         data = json.load(fh)
     return data.get("facts", data) if isinstance(data, dict) else data
 
@@ -222,8 +222,9 @@ def main(argv):
     ap.add_argument("--doc", help="the design.md or tasks.md to judge against --research")
     ap.add_argument("--context", help="with --doc tasks.md: the run's design.md, as context")
     ap.add_argument("--model", default="sonnet")
+    ap.add_argument("--fixture", help="fixture directory whose expected.json lists the facts (default evals/fixture)")
     args = ap.parse_args(argv)
-    facts = load_facts()
+    facts = load_facts(os.path.join(args.fixture, "expected.json") if args.fixture else EXPECTED)
     try:
         if args.run and args.within:
             results = judge_run_within(args.run, args.model, facts)

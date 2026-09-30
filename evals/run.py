@@ -5,7 +5,7 @@ Maintainer-only. It follows the probe in
 docs/plans/2026-09-29-asd-ste100-prose/thoughts/2026-09-30-harness-probe.md.
 
 Usage: run.py --before REF_OR_PATH [--after REF_OR_PATH] [--repeats N] [--model M]
-              [--stages research,design,tasks] [--timeout SECONDS]
+              [--stages research,design,tasks] [--timeout SECONDS] [--fixture DIR]
 
 A tree is a git ref (archived with `git archive <ref> plugin`) or a path to a checkout or a
 plugin directory. With no --after, only the before tree runs (a baseline). Each repeat gets a fresh copy of evals/fixture/project with the plan seed at
@@ -69,9 +69,9 @@ def plugin_version(tree):
         return None
 
 
-def fresh_run_copy(dest):
-    shutil.copytree(os.path.join(FIXTURE, "project"), dest)
-    shutil.copytree(os.path.join(FIXTURE, "plan-seed"), os.path.join(dest, PLAN_REL))
+def fresh_run_copy(dest, fixture=FIXTURE):
+    shutil.copytree(os.path.join(fixture, "project"), dest)
+    shutil.copytree(os.path.join(fixture, "plan-seed"), os.path.join(dest, PLAN_REL))
     for cmd in (["git", "init", "-q"], ["git", "add", "-A"],
                 ["git", "-c", "user.name=wb-eval", "-c", "user.email=wb-eval@invalid",
                  "commit", "-qm", "fixture"]):
@@ -112,13 +112,13 @@ def approve_design(path):
     return n == 1
 
 
-def run_stage(name, tree, run_dir, out_dir, model, timeout):
+def run_stage(name, tree, run_dir, out_dir, model, timeout, fixture=FIXTURE):
     stage = STAGES[name]
     doc = os.path.join(run_dir, PLAN_REL, stage["doc"])
     before = read(doc)
     prompt = f"/wb:{stage['skill']} {PLAN_REL}"
     if stage["question"]:
-        prompt += " " + read(os.path.join(FIXTURE, "QUESTION.md")).strip()
+        prompt += " " + read(os.path.join(fixture, "QUESTION.md")).strip()
     plugin = os.path.join(tree, "plugin")
     base = ["claude", "-p", "--plugin-dir", plugin, "--add-dir", plugin,
             "--allowedTools=Skill", "--permission-mode", "acceptEdits",
@@ -158,7 +158,7 @@ def run_repeat(label, tree, repeat, out_root, args):
     os.makedirs(out_dir)
     work = tempfile.mkdtemp(prefix=f"wb-eval-{label}-{repeat}-")
     run_dir = os.path.join(work, "run")
-    fresh_run_copy(run_dir)
+    fresh_run_copy(run_dir, args.fixture)
     stages = []
     for name in args.stages:
         if name == "tasks":
@@ -169,7 +169,7 @@ def run_repeat(label, tree, repeat, out_root, args):
                 continue
             stages.append({"stage": "approve", "approved":
                            approve_design(os.path.join(run_dir, PLAN_REL, "design.md"))})
-        result = run_stage(name, tree, run_dir, out_dir, args.model, args.timeout)
+        result = run_stage(name, tree, run_dir, out_dir, args.model, args.timeout, args.fixture)
         stages.append(result)
         print(f"  {label} #{repeat} {name}: written={result['written']} "
               f"follow_ups={result['follow_ups']} {result['seconds']} s", flush=True)
@@ -190,7 +190,10 @@ def main(argv):
     ap.add_argument("--stages", default="research,design,tasks")
     ap.add_argument("--timeout", type=int, default=1200, help="seconds per claude call")
     ap.add_argument("--out", default=os.path.join(HERE, "runs"))
+    ap.add_argument("--fixture", default=FIXTURE,
+                    help="fixture directory (default evals/fixture)")
     args = ap.parse_args(argv)
+    args.fixture = os.path.abspath(args.fixture)
     args.stages = [s for s in args.stages.split(",") if s]
     unknown = [s for s in args.stages if s not in STAGES]
     if unknown or not args.stages:
@@ -210,6 +213,7 @@ def main(argv):
         trees[label] = (path, info)
     os.makedirs(out_root)
     manifest = {"started": stamp, "model": args.model, "repeats": args.repeats,
+                "fixture": os.path.relpath(args.fixture, REPO),
                 "stages": args.stages, "follow_up": FOLLOW_UP,
                 "trees": {k: v[1] for k, v in trees.items()}, "runs": []}
     print(f"run: {out_root}", flush=True)
