@@ -142,7 +142,7 @@ Based on dependency analysis:
 | Phase 7: Documentation, handoff, and release checks | ✅ Complete | 5/5 | 100% |
 | Phase 8: Validation fixes | ✅ Complete | 7/7 | 100% |
 | Phase 9: PR descriptions and commit messages in WBTE | ✅ Complete | 6/6 | 100% |
-| Phase 10: Manual-check fixes | ✅ Complete | 5/5 | 100% |
+| Phase 10: Manual-check fixes | 🔄 In progress | 5/6 | 83% |
 
 Counts come from the checkboxes below and are reconciled by `/wb:update_status`.
 
@@ -1426,7 +1426,10 @@ Added 2026-09-30 at the user's request.
       a teammate would read it
       *(signed off by the user 2026-09-30: 214 words in 26 lines, the generic template, no rule
       broken. P10-T5 makes the check's five improvements)*
-- [ ] In a repository with a PR template, the draft uses that template's sections
+- [x] In a repository with a PR template, the draft uses that template's sections
+      *(signed off by the user 2026-09-30, on reef `TB-3229/sc-blk_manager_calendar_view`: the 6
+      headings in order, the title shape, and the checklist word for word. The draft cut the
+      existing 1,300-word body to 299 words. P10-T6 makes the two follow-ups)*
 
 ### ⛔ CHECKPOINT: Phase 9 Complete
 
@@ -1445,12 +1448,14 @@ shortened one.
 
 - [x] **(derivable)** Every Phase 9 checkbox is `[x]`
 - [x] **(derivable)** All automated verification passing
-- [ ] **(attestation)** Manual verification confirmed by human
+- [x] **(attestation)** Manual verification confirmed by human
 - [x] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
       only writer of those fields, so do not edit `current_phase` or `completed_tasks` by hand
 
 **Closed 2026-09-30 16:57 UTC.** The attestation stays `[ ]`. Nobody has run `/wb:pr-description` on this
 branch or in a repository with a PR template yet. Both are in the manual checklist.
+
+**Signed off 2026-09-30:** the user ran both Phase 9 manual checks. The attestation is ticked.
 
 **Do not proceed without human confirmation of manual tests** — unless the phase is being run
 under `/wb:implement --auto`, which buys the wait and not the attestation. In that case the
@@ -1485,6 +1490,10 @@ Fix the defects that the manual checks find. Added 2026-09-30 during the checks.
       shipped and non-shipped parts, lead the Summary with what a user notices, say when a number
       comes from an earlier run, write links as full URLs, count words as `wbte_check.py --pr`
       does, and give one Testing line for each kind of check. (completed 2026-09-30 20:39)
+- [ ] **P10-T6** — From the reef PR check: add `--template FILE` to `evals/wbte_check.py --pr`, so
+      the template's fixed lines are neither counted nor flagged, with a planted case. In
+      `/wb:pr-description` update mode, check each claim kept from the old body against the diff,
+      and drop or label a claim that the diff does not show.
 
 ### Success Criteria
 
@@ -1512,7 +1521,7 @@ before, and following it ticks the human sign-off box. **This block, labels and 
 included, is repeated in full at every phase's checkpoint**; a later phase never gets a
 shortened one.
 
-- [x] **(derivable)** Every Phase 10 checkbox is `[x]`
+- [ ] **(derivable)** Every Phase 10 checkbox is `[x]`
 - [x] **(derivable)** All automated verification passing
 - [x] **(attestation)** Manual verification confirmed by human
 - [x] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
