@@ -1,6 +1,8 @@
 # mockup-log.md
 
-Step 8 — `mockups/mockup-log.md`, created once and updated by each iteration.
+Write this output in wb Technical English (WBTE): read [technical-english.md](../../../docs/reference/technical-english.md) and apply it. Keep every exempt token exactly as it is.
+
+Step 8. Write `mockups/mockup-log.md`. Create it once, and update it in each iteration.
 
 ```markdown
 ---
@@ -27,7 +29,7 @@ last_updated: [YYYY-MM-DD]
 
 ## UI Research Reference
 
-_From initial research - apply to all versions:_
+_From the first research. Apply it to all versions._
 
 - **Layout pattern**: [pattern from research]
 - **Component library**: [location]
@@ -38,14 +40,14 @@ _From initial research - apply to all versions:_
 ## Running Requirements
 
 ### Confirmed (KEEP)
-_Requirements confirmed through iteration_
+_Requirements that the iterations confirmed_
 
 ### Rejected (REMOVE)
-_Ideas explored and rejected with rationale_
+_Ideas that were explored and rejected, each with its rationale_
 
 ### Open (DECIDING)
-_Still being discussed. Cite the `UIQ` IDs from the current version's mockup.md rather than
-restating the questions._
+_Still under discussion. Cite the `UIQ` IDs from the mockup.md of the current version. Do not
+repeat the questions._
 
 ## Design Principles Emerging
 

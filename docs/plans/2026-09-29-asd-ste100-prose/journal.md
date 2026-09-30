@@ -51,6 +51,12 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-30 05:27 — P4-T7 (closed)
+
+- **Task/phase**: P4-T7 — WBTE rewrite, with the link line, of the seven `create_mockup` templates, `create_product_research/templates.md`, and the completion line in `create_product_research/SKILL.md`
+- **Landed**: `link_check.py` failed on 9 of 9 before the change and on 0 after it. The registry passes, lint is clean, and the added lines have no semicolons. The semicolon in the fixed completion line became a full stop. `UIQ` IDs, both `Resolved` state strings, the HTML and the ASCII layout did not change
+- **Commits**: see `P4-T7: rewrite the create_mockup and create_product_research templates in WBTE`
+
 ## 2026-09-30 05:25 — P4-T6 (closed)
 
 - **Task/phase**: P4-T6 — WBTE rewrite, with the link line, of `validate_execution/templates.md`, `validate_project/templates/error-message-formats.md`, `resolve_questions/templates.md`, and `create_tasks/templates/plan-presentation-message.md`

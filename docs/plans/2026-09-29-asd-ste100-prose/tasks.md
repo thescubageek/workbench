@@ -717,9 +717,9 @@ change to full stops or commas.
 - [x] **P4-T6** — Rewrite in WBTE, with the link line: `validate_execution/templates.md`,
       `validate_project/templates/error-message-formats.md`, `resolve_questions/templates.md`,
       and `create_tasks/templates/plan-presentation-message.md`. Run both checks. (~30 calls) (completed 2026-09-30 05:26)
-- [ ] **P4-T7** — Rewrite in WBTE, with the link line: `create_mockup/templates/{clarifying-questions,decisions-md,mockup-html,mockup-log-md,mockup-md,presentation-message,ui-research-summary}.md`,
+- [x] **P4-T7** — Rewrite in WBTE, with the link line: `create_mockup/templates/{clarifying-questions,decisions-md,mockup-html,mockup-log-md,mockup-md,presentation-message,ui-research-summary}.md`,
       `create_product_research/templates.md`, and the completion line at
-      `create_product_research/SKILL.md:236-239`. Run both checks. (~35 calls)
+      `create_product_research/SKILL.md:236-239`. Run both checks. (~35 calls) (completed 2026-09-30 05:28)
 - [ ] **P4-T8** — Rewrite in WBTE, with the link line: `forge/templates/{model-plan,output-style}.md`,
       `daily-digest/digest-template.md`, `touch-grass/state-template.md`,
       `implement/templates/incomplete-worker-message.md`,

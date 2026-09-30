@@ -1,6 +1,9 @@
 # mockup.html
 
-Step 6 — `mockups/v00N/mockup.html`. Every class must come from research; no placeholders.
+Write this output in wb Technical English (WBTE): read [technical-english.md](../../../docs/reference/technical-english.md) and apply it. Keep every exempt token exactly as it is.
+
+Step 6. Write `mockups/v00N/mockup.html`. Every class must come from the research. Do not use
+placeholders.
 
 `````html
 <!DOCTYPE html>

@@ -1,7 +1,9 @@
 # mockup.md
 
-Step 5 — `mockups/v00N/mockup.md`. Note the Open Questions table: UI questions live in this
-document with local `UIQ` IDs.
+Write this output in wb Technical English (WBTE): read [technical-english.md](../../../docs/reference/technical-english.md) and apply it. Keep every exempt token exactly as it is.
+
+Step 5. Write `mockups/v00N/mockup.md`. Note the Open Questions table. UI questions live in
+this document, with local `UIQ` IDs.
 
 ````markdown
 ---
@@ -18,7 +20,7 @@ based_on: [similar feature from research]
 
 **Purpose**: [From clarifying questions]
 **User**: [From clarifying questions]
-**Trigger**: [How user gets here]
+**Trigger**: [How the user gets here]
 
 ## Layout
 
@@ -50,9 +52,9 @@ based_on: [similar feature from research]
 ## Content Specifications
 
 ### [Section 1]
-- **Data**: [what's displayed]
-- **Source**: [where data comes from]
-- **Empty state**: [what shows when no data]
+- **Data**: [what the section displays]
+- **Source**: [where the data comes from]
+- **Empty state**: [what shows when there is no data]
 
 ### [Section 2]
 ...
@@ -73,8 +75,8 @@ based_on: [similar feature from research]
 
 ## Styling Notes
 
-- Uses [color tokens] from [file]
-- Follows [spacing system]
+- It uses [color tokens] from [file]
+- It follows [spacing system]
 - Typography: [heading/body styles]
 
 ## Icons
@@ -83,25 +85,25 @@ based_on: [similar feature from research]
 - Usage: [how icons are applied, with examples]
 - Locations: [where icons appear in this mockup]
 
-**If no icon system found but icons needed:** raise it as a `UIQ` row in Open Questions below —
-"no icon system found; options are add a library, text only, or custom SVG" — rather than
-inventing one.
+**If no icon system exists but the mockup needs icons:** add a `UIQ` row in Open Questions below.
+For example: "No icon system exists. The options are a new library, text only, or custom SVG."
+Do not invent an icon system.
 
 ## Open Questions
 
-UI questions that block finalization live **here**, with a short local ID. This table is the
-record — there is no external tracker.
+This table lists the UI questions that block the final version. Each question has a short local
+ID. This table is the record, because there is no external tracker.
 
 | ID | Question | Blocks | State |
 | -- | -------- | ------ | ----- |
-| UIQ1 | [The question, specific enough for the user to answer] | [What can't proceed] | Open |
+| UIQ1 | [The question, specific enough for the user to answer] | [What cannot proceed] | Open |
 | UIQ2 | [Another question] | [What it blocks] | Open |
 
-- **IDs are local and stable.** `UIQ1`, `UIQ2`, … numbered in the order raised, never
-  renumbered — later versions and `mockup-log.md` cite them.
-- **IDs carry across versions.** A question raised in v001 and still open in v003 keeps `UIQ1`;
-  the point is to see how long it stayed open.
-- **A question earns a row only if it blocks.** Otherwise it is a note for `decisions.md`.
-- **Resolving is an edit, not a deletion**: set State to `Resolved YYYY-MM-DD — [the answer]`
-  and move the decision into that version's `decisions.md`. The row stays.
+- **IDs are local and stable.** Number them `UIQ1`, `UIQ2`, and so on, in the order you raise
+  them. Never renumber them, because later versions and `mockup-log.md` cite them.
+- **IDs carry across versions.** A question from v001 that is still open in v003 keeps `UIQ1`.
+  This shows how long the question stayed open.
+- **A question gets a row only if it blocks something.** Otherwise it is a note for `decisions.md`.
+- **Resolving is an edit, not a deletion.** Set State to `Resolved YYYY-MM-DD — [the answer]`,
+  and move the decision into the `decisions.md` of that version. The row stays.
 ````
