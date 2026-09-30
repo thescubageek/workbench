@@ -178,6 +178,10 @@ Morning "catch me up + plan my day" orchestrator. Restores active-project contex
 
 Advises which Claude model + reasoning-effort to run a task at (advice only, never implements). Also runs in **gate mode**: the per-phase "model journey" a `forge` should take and whether switching the main model at a gate is worth the context-reload cost.
 
+### `/wb:wbte-dictionary [path-to-ASD-STE100-Issue-9.pdf]`
+
+Makes a private copy of the ASD-STE100 approved-word dictionary from your own copy of the free Issue 9 PDF. The copy is `~/.claude/wb/wbte-dictionary.tsv`, outside every repository. It is optional. With the copy, the model can look up one word when it is not sure the word is approved in wb Technical English (WBTE). The WBTE rules are in `docs/reference/technical-english.md`, and a short rule card prints at every session start. `WB_TECH_ENGLISH=0` turns the card off.
+
 ## Core Principles
 
 1. **Document, Don't Judge** — Research describes what IS, not what should change

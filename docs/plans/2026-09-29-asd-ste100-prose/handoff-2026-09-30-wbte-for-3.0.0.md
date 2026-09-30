@@ -35,18 +35,19 @@ The version bump and the release checks are P7-T3 to P7-T5.
 
 **The rule for shared files (D-Q3)**: in the 48 `plugin/` files that 3.0.0 also changes, 2.2.0
 adds only a link line, and in `wb-prime.sh` only the rule card. Every prose rewrite of those files
-waits for the first release after 3.0.0.
+waits for the first release after 3.0.0. One exception (D14): `plugin/scripts/README.md` and
+`plugin/skills/help/SKILL.md` each gain a section for the new scripts and skill.
 
 ## New files
 
 - `plugin/docs/reference/technical-english.md` — the single authority for the rules. No other
   file restates them, and `evals/link_check.py` checks that.
-- `plugin/scripts/test-prime` — 40 contract checks for `wb-prime.sh`, including the card.
+- `plugin/scripts/test-prime` — 42 contract checks for `wb-prime.sh`, including the card.
 - `plugin/scripts/wbte-dictionary`, `plugin/scripts/test-wbte-dictionary` — the extractor for
   the user's own dictionary copy, and its test.
 - `plugin/skills/wbte-dictionary/SKILL.md` — `/wb:wbte-dictionary`.
 - `evals/` — the maintainer-only eval harness. It is never shipped. See "Run the harness".
-- `.wblintignore` — keeps lint away from `evals/fixtures/planted/`.
+- `.wblintignore` — keeps lint away from `evals/fixtures/planted/` and `evals/runs/`.
 
 ## The link line
 
@@ -80,12 +81,19 @@ In `create_research/SKILL.md`, the line sits just before the Step 8 completion l
 It has three hunks, and the file auto-merges with 3.0.0 at `2fff76c` (design.md D5):
 
 1. A header bullet, after "exit 0 always":
-   `#   - the WBTE rule card prints on every session start (startup, resume, compact), …`
+   `#   - the WBTE rule card prints on every session start (startup, resume, compact), …`.
+   It also says why the card does not print on PreCompact (D13).
 2. A new `card()` function after `orientation()`. It prints card v3 (141 words) and the path
    `$CLAUDE_PLUGIN_ROOT/docs/reference/technical-english.md`.
 3. Two guarded calls:
-   - In the recovery branch, before `[ "$count" -eq 0 ] && exit 0`:
-     `[ "${WB_TECH_ENGLISH:-1}" = "0" ] || card`
+   - In the recovery branch, before `[ "$count" -eq 0 ] && exit 0`. It skips PreCompact,
+     because a manual `/compact` shows PreCompact's stdout in the next context (P8-T5):
+
+     ```bash
+     echo "$payload" | grep -qE '"hook_event_name" *: *"PreCompact"' ||
+       [ "${WB_TECH_ENGLISH:-1}" = "0" ] || card
+     ```
+
    - In the orientation branch, after the `PRIME.md`/`orientation` choice:
      `[ "${WB_TECH_ENGLISH:-1}" = "0" ] || { echo ""; card; }`
 
@@ -104,6 +112,8 @@ the orientation or recovery sections, place the two calls again and run `test-pr
 | `README.md` | both branches edit it (this conflict already exists with 2.1.1) | keep both. 2.2.0 adds the "wb Technical English (WBTE)" section |
 | `.gitignore` | both branches append `__pycache__/` and `*.pyc`. 2.2.0 also adds `evals/runs/` | keep one copy of each line, and keep `evals/runs/` |
 | `.claude/wb/knowledge.md` | both branches append entries | keep both appended entries |
+| `plugin/scripts/README.md` | both branches add script sections after `test-quiet` (D14) | keep both. 2.2.0 adds `wbte-dictionary`, `test-wbte-dictionary` and `test-prime`, and one clause in the `test-lint` entry |
+| `plugin/skills/help/SKILL.md` | both branches add entries after `/wb:model-help` (D14) | keep both. 2.2.0 adds the `/wb:wbte-dictionary` entry |
 
 P7-T4 and P7-T5 run the check again on the final tree and record any other path.
 
@@ -125,7 +135,8 @@ The first release after 3.0.0 (3.0.1 or 3.1.0, design.md D-Q3) must still do the
 
 **The 48 shared files** (`git diff --name-only --diff-filter=M 46ef587 2fff76c -- plugin`,
 limited to the files on `4b32306`). The 13 that 2.2.0 changed are listed above. These are the
-other 35:
+other 35. Two of them, `plugin/scripts/README.md` and `plugin/skills/help/SKILL.md`, gained
+sections in 2.2.0 (D14), but their existing prose is not rewritten:
 
 - `plugin/.claude-plugin/plugin.json`
 - `plugin/agents/pattern-finder.md`
@@ -232,18 +243,26 @@ python3 evals/report.py evals/runs/<timestamp>
   the card. The card has room for 9 more words (`test-prime` limits it to 150).
 - A resumed headless session is refused reads of a `--plugin-dir` stage's own files without
   `--add-dir` (`.claude/wb/knowledge.md`).
-- `wb_lint_ignored` does not ignore a path that is in both `.gitignore` and `.wblintignore`, so
-  `lint --all` lints the gitignored `evals/runs/` (tasks.md, Implementation Notes).
+- `wb_lint_ignored` did not ignore a path that is in both `.gitignore` and `.wblintignore`.
+  P8-T2 fixed it in `plugin/scripts/lint-common.sh`, which 3.0.0 does not have yet (it came in
+  2.1.1). The fix merges with no conflict.
+- A manual `/compact` shows PreCompact's stdout, and that stdout reaches the next context. So
+  PreCompact output is model-visible there, against the `wb-prime.sh` header. The card now skips
+  PreCompact (P8-T5). The recovery text still prints twice when a plan is active (2.1.1
+  behaviour, a follow-up).
+- **Known remainder (D11):** the final Objective 1 run has 2 chat IDs used alone, in one
+  `create_tasks` summary sentence. If this shows up in real use, a 2.2.x patch tightens it.
 
 ## Artifacts and References
 
 ### Project Documents
 
 - Research: `docs/plans/2026-09-29-asd-ste100-prose/research.md`
-- Design: `docs/plans/2026-09-29-asd-ste100-prose/design.md` (D-Q1 to D-Q5, D1 to D10)
+- Design: `docs/plans/2026-09-29-asd-ste100-prose/design.md` (D-Q1 to D-Q5, D1 to D14)
 - Tasks: `docs/plans/2026-09-29-asd-ste100-prose/tasks.md`
 - Measurements: `thoughts/2026-09-30-baseline.md`, `-card-measurement.md`,
   `-link-measurement.md`, `-objective-1-report.md`, `-judge-calibration.md`, `-lite-verdicts.md`
+- Validation: `docs/plans/2026-09-29-asd-ste100-prose/validation-report.md`
 
 ## Handoff Verification
 

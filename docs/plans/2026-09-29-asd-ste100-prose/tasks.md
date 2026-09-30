@@ -1273,10 +1273,10 @@ the user's request, after `/wb:validate_execution`.
       for both `auto` and `manual` triggers (RED). Then skip the card on PreCompact in
       `plugin/hooks/wb-prime.sh`, and correct the header bullet. Run `git merge-tree` again.
       Added 2026-09-30 after resolve_questions. (completed 2026-09-30 16:52)
-- [ ] **P8-T6** — Document `wbte-dictionary`, `test-prime` and `test-wbte-dictionary` in
+- [x] **P8-T6** — Document `wbte-dictionary`, `test-prime` and `test-wbte-dictionary` in
       `plugin/scripts/README.md`, and `/wb:wbte-dictionary` in `plugin/skills/help/SKILL.md`
       (D14). Run `git merge-tree`, and add a resolution note to the handoff for each new
-      conflict. Added 2026-09-30 after resolve_questions.
+      conflict. Added 2026-09-30 after resolve_questions. (completed 2026-09-30 17:04)
 - [ ] **P8-T7** — CHANGELOG and handoff: name the 2 remaining chat IDs as a known remainder
       (D11), add the per-stage token cost (D12), and describe P8-T5 and P8-T6. Tick the
       design.md token-cost criterion. Added 2026-09-30 after resolve_questions.
