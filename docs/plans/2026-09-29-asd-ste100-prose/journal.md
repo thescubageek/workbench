@@ -51,6 +51,12 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-30 06:39 — P4-T9 (open)
+
+- **Task/phase**: P4-T9 — the Objective 1 measurement: 2.1.1 against the P4-T8 tree, 3 repeats, with the design.md targets and the within-run judge
+- **Next action**: blocked on two user decisions. (1) The 4 semicolons from the shared `create_tasks` template: accept them for 2.2.0 or rewrite that template, an exception to D-Q3. (2) Chat IDs on a second mention: accept 5, or add "every mention" wording and measure again. The fixes and the report are committed as WIP. The record is `thoughts/2026-09-30-objective-1-report.md`
+- **Started at**: 8518bf1
+
 ## 2026-09-30 06:35 — P4-T10 (closed)
 
 - **Task/phase**: P4-T10 — the within-run judge mode (D7), with calibration on the 2.1.1 baseline run

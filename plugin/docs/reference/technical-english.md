@@ -42,6 +42,8 @@ Apply these rules to every sentence of output.
 13. Use one word for one meaning. When you name a thing, use the same name every time.
 14. Keep the structure of tables, headings, code blocks, and checklists. Apply the sentence
     rules to the prose inside them.
+15. Keep specific values. Do not replace a number, a name, or a `file:line` from the research
+    with a general phrase. Write "3 attempts (`config.py:4`)", not "the current default".
 
 ## Instruction rules ("lite")
 

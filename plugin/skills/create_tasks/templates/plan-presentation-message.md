@@ -19,6 +19,9 @@ Agent findings used in the plan:
 - Test coverage: [X] unit tests, [Y] integration tests
 - Similar patterns: [reference to pattern agent findings]
 
+Assumptions and pending decisions:
+- [Each ID with its meaning in parentheses, for example "A1 (only checker.py reads MAX_RETRIES)", and its state. Or "none"]
+
 The plan has these features:
 - An implementation order from the dependency analysis
 - Specific code changes, with the state before and after each change
