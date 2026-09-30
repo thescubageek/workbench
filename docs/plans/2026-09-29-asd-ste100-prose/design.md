@@ -422,7 +422,7 @@ execution phase and measured by the harness.
 | -- | ---------- | ---------- |
 | A1 | A short rule card at session start changes the style of chat output in a way the harness can measure. If not, Objective 1 needs a stronger channel for the conversation. | Validated 2026-09-30 |
 | A2 | The model follows a link line at the top of a template when it writes the document. If not, the rules must go into the template text, and the 48 shared templates wait for the post-3.0.0 pass. | Pending |
-| A3 | SessionStart output with `source=compact` reaches the model when no plan is active. The 2026-09-10 measurement covered only the case with an active plan (`wb-prime.sh:12-18`). If not, the card is lost after compaction in repos without plans. | Pending |
+| A3 | SessionStart output with `source=compact` reaches the model when no plan is active. The 2026-09-10 measurement covered only the case with an active plan (`wb-prime.sh:12-18`). If not, the card is lost after compaction in repos without plans. | Validated 2026-09-30 |
 | A4 | Text extraction from the Issue 9 PDF keeps the dictionary entries usable (word, part of speech, approved or not, alternatives). If not, the dictionary skill offers only the approved-word list, or is dropped. | Pending |
 | A5 | 3.0.0 does not restructure the orientation and recovery sections of `wb-prime.sh` before it merges. Today it adds only 4 comment lines. If it does, the card placement must be redone in the handoff. | Pending |
 | A6 | Headless `claude -p --plugin-dir <tree> --allowedTools=Skill` runs the stages well enough for before/after comparison (`.claude/wb/knowledge.md`, headless entry). If not, the harness needs a different driver. | Pending |

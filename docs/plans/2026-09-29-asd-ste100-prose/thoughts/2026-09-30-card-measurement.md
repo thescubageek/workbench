@@ -115,15 +115,18 @@ remove a word for each word it adds.
 
 ## A3: the card after compaction with no active plan
 
-**Partial result, 2026-09-30.** The user ran an interactive session with
-`claude --plugin-dir /Users/scraig/conductor/workspaces/workbench/houston-v2/plugin` in
-`/tmp/wb-a3-noplans`, a new git repo with no plans. The model reported the card in its
-context, from the wb SessionStart hook, with the full-rules path resolved. That shows the
-startup path with 0 plans. `/compact` did not run ("Not enough messages to compact"), so the
-compact path is not tested yet, and A3 stays `Pending`.
+**Result: A3 is validated, 2026-09-30.** The user ran an interactive session with
+`claude --plugin-dir /Users/scraig/conductor/workspaces/workbench/houston-v2/plugin`. The cwd
+was `/tmp/wb-a3-noplans`, a new git repo with no plans.
 
-The remaining step: This is a manual step in the Phase 3 checkpoint. A human runs `/compact` in
-a real interactive session, in a repo with no active plans, with
-`claude --plugin-dir <repo>/plugin`. Then the human confirms that the card is in the next
-context. `test-prime` shows that the hook prints the card on `source=compact` with 0 plans. It
-cannot show that the harness delivers that output to the model.
+1. **Startup.** The model reported the card in its context, from the wb SessionStart hook,
+   with the full-rules path resolved.
+2. **The first `/compact`.** It did not run ("Not enough messages to compact").
+3. **Compaction.** After a few more messages, `/compact` ran. The model reported the card
+   in the new context, labelled `SessionStart:compact hook success`. The PreCompact output of
+   `wb-prime.sh` appeared only in the `/compact` command's stdout, so the SessionStart copy
+   carries the card.
+4. **Finding.** After compaction, the card was in the context twice. Both copies had the same
+   text and the same `SessionStart:compact` label. So the card's token cost after compaction
+   is about double. The cause is not known. It may be the harness, because the plugin
+   registers `wb-prime.sh` once for SessionStart (follow-up, not changed).

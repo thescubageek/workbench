@@ -592,7 +592,7 @@ exit 0 on every path; no file changes (checksums before and after); wall time un
 
 #### Manual Verification
 
-- [ ] A3: in a real interactive session, in a repo with no active plans and the working-tree
+- [x] A3: in a real interactive session, in a repo with no active plans and the working-tree
       plugin (`claude --plugin-dir <repo>/plugin`), run `/compact` and confirm that the card is
       in the next context. Record the cwd and result in `thoughts/2026-09-30-card-measurement.md`,
       and set A3 in design.md
@@ -635,7 +635,7 @@ shortened one.
 
 - [x] **(derivable)** Every Phase 3 checkbox is `[x]`
 - [x] **(derivable)** All automated verification passing
-- [ ] **(attestation)** Manual verification confirmed by human
+- [x] **(attestation)** Manual verification confirmed by human
 - [ ] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
       only writer of those fields, so do not edit `current_phase` or `completed_tasks` by hand
 
@@ -1171,6 +1171,10 @@ Things to determine during implementation:
     words, 30 semicolons) but not the chat IDs (20 used alone, against 17 for 2.1.1). Card v2
     puts the ID rule first and cut chat IDs to 3. It uses 149 of the 150 words that the test
     allows. Both versions and their numbers are in `thoughts/2026-09-30-card-measurement.md`.
+  - [2026-09-30] **A3 validated (the user, interactive).** The card survives `/compact` in a
+    repo with no plans, but it appears **twice** after compaction, both copies labelled
+    `SessionStart:compact`. This doubles the post-compaction card cost (follow-up: find
+    whether the harness fires the hook twice).
   - [2026-09-30] Network outages (`ENOTFOUND`) spoiled two runs. The driver records the
     `API Error` text as the stage output and marks the stage "not written". It does not retry.
     A retry on `API Error` would save a rerun (follow-up, not done).
