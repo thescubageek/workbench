@@ -900,26 +900,38 @@ files. The 3.0.0 handoff (P7-T2) lists them.
 
 #### Automated Verification
 
-- [ ] Every kept rewrite has a 3/3 "no loss" verdict in `thoughts/2026-09-30-lite-verdicts.md`
-- [ ] `python3 evals/token_check.py` and `python3 evals/link_check.py` pass
+- [x] Every kept rewrite has a 3/3 "no loss" verdict in `thoughts/2026-09-30-lite-verdicts.md`
+      *(1 of 1 under D10: the user chose 1 repeat per gate after the spend limit)*
+- [x] `python3 evals/token_check.py` and `python3 evals/link_check.py` pass
 - [ ] `./plugin/scripts/lint --all` is clean
+      *(not ticked: every tracked file is clean. `--all` fails only on gitignored run outputs, because of
+      the `wb_lint_ignored` follow-up)*
 
 #### Manual Verification
 
 - [ ] A human reads the verdict table and one kept rewrite, and confirms that the rewrite did
       not remove meaning
 
-### Modified Files
+### 📝 Modified Files (Phase 5)
 
 #### Code Files
 
-- The kept files from the list in Changes Required §1
-- `docs/plans/2026-09-29-asd-ste100-prose/thoughts/2026-09-30-lite-verdicts.md`
+- `plugin/skills/create_research/{reference,sub-agent-prompts}.md` - lite rewrite, kept (P5-T1)
+- `plugin/skills/create_design/{reference,sub-agent-prompts}.md` - lite rewrite, kept (P5-T2)
+- `plugin/skills/create_tasks/{reference,examples,sub-agent-prompts}.md` - lite rewrite, kept (P5-T3)
+- `plugin/agents/{codebase-analyzer,codebase-locator}.md` - unchanged. The rewrite was restored after the gate found a loss (P5-T4)
+- `evals/fixture-large/`, and `--fixture` in `evals/{run,judge,report}.py` - the large fixture (P5-T5)
+- `thoughts/2026-09-30-lite-verdicts.md` - the verdicts and the token cost (P5-T1 to P5-T5)
 
-**Quick test command for this phase**:
+#### Test Files
+
+- `evals/fixture-large/expected.json` - 19 facts for the within-run judge (P5-T5)
+
+**Quick test commands:**
 
 ```bash
-python3 evals/token_check.py && python3 evals/link_check.py
+# Run all tests for this phase
+python3 evals/token_check.py && python3 evals/link_check.py && ./plugin/scripts/lint $(git ls-files '*.md')
 ```
 
 ### ⛔ CHECKPOINT: Phase 5 Complete
@@ -937,11 +949,16 @@ before, and following it ticks the human sign-off box. **This block, labels and 
 included, is repeated in full at every phase's checkpoint**; a later phase never gets a
 shortened one.
 
-- [ ] **(derivable)** Every Phase 5 checkbox is `[x]`
+- [x] **(derivable)** Every Phase 5 checkbox is `[x]`
 - [ ] **(derivable)** All automated verification passing
 - [ ] **(attestation)** Manual verification confirmed by human
 - [ ] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
       only writer of those fields, so do not edit `current_phase` or `completed_tasks` by hand
+
+**Closed under the full-auto instruction, 2026-09-30 12:35 UTC.** The attestation stays `[ ]`. Nobody has
+performed the manual step: a human reads the verdict table and one kept rewrite, and confirms
+that the rewrite did not remove meaning. "All automated verification passing" stays `[ ]`
+because `lint --all` fails on gitignored run outputs (the `wb_lint_ignored` follow-up).
 
 **Do not proceed without human confirmation of manual tests** — unless the phase is being run
 under `/wb:implement --auto`, which buys the wait and not the attestation. In that case the
@@ -959,7 +976,7 @@ repo and no new requirement for users who do not want it.
 
 ### Prerequisites
 
-- [ ] Phase 5 complete and verified (or run this phase in parallel with Phases 3–5; it depends
+- [x] Phase 5 complete and verified (or run this phase in parallel with Phases 3–5; it depends
       only on P2-T1)
 - [ ] Phase 5 manual testing confirmed — *an attestation, like the checkpoint's. Under
       `/wb:implement --auto` it stays `[ ]` and the phase proceeds anyway; the previous phase's
@@ -1008,9 +1025,9 @@ content); `HOME=$(mktemp -d)`; a `PATH` with no `pdftotext` and no python3.
 
 #### Automated Verification
 
-- [ ] `./plugin/scripts/test-wbte-dictionary` passes
-- [ ] `./plugin/scripts/lint plugin/skills/wbte-dictionary/SKILL.md` is clean
-- [ ] `git ls-files | grep -iE '\.pdf$|wbte-dictionary\.tsv'` prints nothing
+- [x] `./plugin/scripts/test-wbte-dictionary` passes
+- [x] `./plugin/scripts/lint plugin/skills/wbte-dictionary/SKILL.md` is clean
+- [x] `git ls-files | grep -iE '\.pdf$|wbte-dictionary\.tsv'` prints nothing
 
 #### Manual Verification
 
@@ -1019,19 +1036,19 @@ content); `HOME=$(mktemp -d)`; a `PATH` with no `pdftotext` and no python3.
       design.md
 - [ ] The skill works from a fresh session, and the plugin still works with no copy present
 
-### Modified Files
+### 📝 Modified Files (Phase 6)
 
 #### Code Files
 
-- `plugin/scripts/wbte-dictionary` — new extractor
-- `plugin/skills/wbte-dictionary/SKILL.md` — new skill
-- `plugin/docs/reference/technical-english.md` — dictionary section points to the skill
+- `plugin/scripts/wbte-dictionary` - the extractor: pdftotext or pypdf, a refusal inside a git work tree, output only to `~/.claude/wb/` (P6-T2)
+- `plugin/skills/wbte-dictionary/SKILL.md` - `/wb:wbte-dictionary` (P6-T2)
+- `plugin/docs/reference/technical-english.md` - the dictionary section points to the skill (P6-T2)
 
 #### Test Files
 
-- `plugin/scripts/test-wbte-dictionary`
+- `plugin/scripts/test-wbte-dictionary` - 13 checks, invented words only (P6-T1)
 
-**Quick test command for this phase**:
+**Quick test commands:**
 
 ```bash
 ./plugin/scripts/test-wbte-dictionary
@@ -1052,11 +1069,16 @@ before, and following it ticks the human sign-off box. **This block, labels and 
 included, is repeated in full at every phase's checkpoint**; a later phase never gets a
 shortened one.
 
-- [ ] **(derivable)** Every Phase 6 checkbox is `[x]`
-- [ ] **(derivable)** All automated verification passing
+- [x] **(derivable)** Every Phase 6 checkbox is `[x]`
+- [x] **(derivable)** All automated verification passing
 - [ ] **(attestation)** Manual verification confirmed by human
 - [ ] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
       only writer of those fields, so do not edit `current_phase` or `completed_tasks` by hand
+
+**Closed under the full-auto instruction, 2026-09-30 12:35 UTC.** The attestation stays `[ ]`. Nobody has
+performed the manual steps. A4: a human runs `/wb:wbte-dictionary` on the real PDF in a fresh
+session. A development run of the script on the user's own PDF, with a temporary HOME, gave
+1,975 entries (652 approved). That run is evidence for the human, not the attestation.
 
 **Do not proceed without human confirmation of manual tests** — unless the phase is being run
 under `/wb:implement --auto`, which buys the wait and not the attestation. In that case the
@@ -1074,7 +1096,7 @@ and prove the release is ready to merge.
 
 ### Prerequisites
 
-- [ ] Phase 6 complete and verified
+- [x] Phase 6 complete and verified
 - [ ] Phase 6 manual testing confirmed — *an attestation, like the checkpoint's. Under
       `/wb:implement --auto` it stays `[ ]` and the phase proceeds anyway; the previous phase's
       checkpoint records that nobody was asked. Unticked here means deferred, not blocked.*
