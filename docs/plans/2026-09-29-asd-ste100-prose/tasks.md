@@ -1252,9 +1252,9 @@ the user's request, after `/wb:validate_execution`.
 
 ### Tasks
 
-- [ ] **P8-T1** — In `plugin/scripts/test-wbte-dictionary`, add a case where `$HOME/.claude` is
+- [x] **P8-T1** — In `plugin/scripts/test-wbte-dictionary`, add a case where `$HOME/.claude` is
       a git work tree and `$HOME/.claude/wb` does not exist (RED). Pin the refusal exit code
-      to 3. Fix the probe in `plugin/scripts/wbte-dictionary` until the test is green.
+      to 3. Fix the probe in `plugin/scripts/wbte-dictionary` until the test is green. (completed 2026-09-30 16:16)
 - [ ] **P8-T2** — In `plugin/scripts/test-lint`, add a case where a path is in both `.gitignore`
       and `.wblintignore` (RED). Fix `wb_lint_ignored` so the `.wblintignore` match wins. Add
       `evals/runs/` to `.wblintignore`. Confirm that `./plugin/scripts/lint --all` exits 0.

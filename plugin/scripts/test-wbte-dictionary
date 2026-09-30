@@ -5,7 +5,8 @@
 # The extractor turns the user's own copy of the dictionary into
 # ~/.claude/wb/wbte-dictionary.tsv. Every input here is invented: no ASD text is in this
 # repository. The contract: the expected rows for a known input, exit 2 with both tool names
-# when no extractor is present, output under $HOME only, and a refusal inside a git work tree.
+# when no extractor is present, output under $HOME only, and a refusal inside a git work tree,
+# also when only ~/.claude is one.
 
 set -uo pipefail
 
@@ -91,9 +92,20 @@ mkdir -p "$HOME3"
 git -C "$HOME3" init -q
 out=$(HOME="$HOME3" "$TOOL" "$WORK/invented.txt" 2>&1)
 code=$?
-check "inside a git work tree: refused with a non-zero exit (got $code)" "$(yes_if [ "$code" -ne 0 ])"
+check "inside a git work tree: refused with exit 3 (got $code)" "$(yes_if [ "$code" -eq 3 ])"
 check "the refusal says why" "$(yes_if grep -qi 'git work tree' <<<"$out")"
 check "no TSV is written inside the work tree" "$(yes_if [ ! -e "$HOME3/.claude/wb/wbte-dictionary.tsv" ])"
+
+# --- Case 5: a ~/.claude that is its own git work tree is refused ---
+# A dotfiles setup can make ~/.claude a repository while $HOME is not one. The output
+# directory does not exist yet, so the probe must climb to its nearest existing ancestor.
+HOME4="$WORK/home4"
+mkdir -p "$HOME4/.claude"
+git -C "$HOME4/.claude" init -q
+out=$(HOME="$HOME4" "$TOOL" "$WORK/invented.txt" 2>&1)
+code=$?
+check "a HOME whose .claude is a git work tree: refused with exit 3 (got $code)" "$(yes_if [ "$code" -eq 3 ])"
+check "no TSV is written inside that .claude" "$(yes_if [ ! -e "$HOME4/.claude/wb/wbte-dictionary.tsv" ])"
 
 echo ""
 echo "test-wbte-dictionary: $PASS passed, $FAIL failed"

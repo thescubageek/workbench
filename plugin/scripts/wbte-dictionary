@@ -26,8 +26,8 @@ fi
 out_dir="${HOME}/.claude/wb"
 out="$out_dir/wbte-dictionary.tsv"
 
-probe="$HOME"
-[ -d "$out_dir" ] && probe="$out_dir"
+probe="$out_dir"
+while [ ! -d "$probe" ] && [ "$probe" != "/" ]; do probe="$(dirname "$probe")"; done
 if command -v git >/dev/null 2>&1 &&
    [ "$(git -C "$probe" rev-parse --is-inside-work-tree 2>/dev/null)" = "true" ]; then
   echo "wbte-dictionary: refused. $out_dir is inside a git work tree, and the dictionary copy must stay out of every repository." >&2
