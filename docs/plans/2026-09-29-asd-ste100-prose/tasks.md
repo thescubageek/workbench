@@ -6,11 +6,11 @@ status: in-progress
 last_updated: 2026-09-30
 current_phase: 7
 total_tasks: 40
-completed_tasks: 36
+completed_tasks: 40
 task_tracking: markdown-checkboxes
 depends_on: [research.md, design.md]
 assignee: scraig
-git_commit: 85e1507
+git_commit: d0f8441
 git_branch: wb-2.2.0/asd_ste100_prose
 repository: thescubageek/workbench
 tags: [tasks, tracking, asd-ste100-prose]
@@ -139,7 +139,7 @@ Based on dependency analysis:
 | Phase 4: Objective 1 — link lines and template rewrites | ✅ Complete | 10/10 | 100% |
 | Phase 5: Objective 2 — gated "lite" rewrite | ✅ Complete | 5/5 | 100% |
 | Phase 6: Dictionary skill | ✅ Complete | 2/2 | 100% |
-| Phase 7: Documentation, handoff, and release checks | 🔄 In Progress | 1/5 | 20% |
+| Phase 7: Documentation, handoff, and release checks | ✅ Complete | 5/5 | 100% |
 
 Counts come from the checkboxes below and are reconciled by `/wb:update_status`.
 
@@ -1153,10 +1153,13 @@ for the post-3.0.0 pass; how to run `evals/` and the gate; the expected merge co
 #### Automated Verification
 
 - [ ] Every command in P7-T4 exits 0, except `git merge-tree`, whose conflicts are only in the
+      *(not ticked: `lint --all` exits 1, only on gitignored `evals/runs/` output, because of the
+      `wb_lint_ignored` follow-up. Every other command exits 0. The one conflict outside the expected paths,
+      `.claude/wb/knowledge.md`, has a resolution note in the handoff)*
       expected paths
-- [ ] `grep -h '"version"' plugin/.claude-plugin/plugin.json .claude-plugin/marketplace.json`
+- [x] `grep -h '"version"' plugin/.claude-plugin/plugin.json .claude-plugin/marketplace.json`
       shows `2.2.0` twice
-- [ ] `git ls-files docs/plans/2026-09-29-asd-ste100-prose/` lists the handoff
+- [x] `git ls-files docs/plans/2026-09-29-asd-ste100-prose/` lists the handoff
 
 #### Manual Verification
 
@@ -1165,15 +1168,21 @@ for the post-3.0.0 pass; how to run `evals/` and the gate; the expected merge co
 - [ ] A smoke session with `claude --plugin-dir <repo>/plugin` shows the card, and one stage
       produces WBTE output
 
-### Modified Files
+### 📝 Modified Files (Phase 7)
 
 #### Code Files
 
-- `README.md`, `CLAUDE.md`, `CHANGELOG.md`
-- `plugin/.claude-plugin/plugin.json`, `.claude-plugin/marketplace.json`
-- `docs/plans/2026-09-29-asd-ste100-prose/handoff-2026-09-30-wbte-for-3.0.0.md`
+- `README.md` - the "wb Technical English (WBTE)" section (P7-T1)
+- `CLAUDE.md` - Working with Commands item 8, and the Eval harness line (P7-T1)
+- `docs/plans/2026-09-29-asd-ste100-prose/handoff-2026-09-30-wbte-for-3.0.0.md` - the 3.0.0 handoff (P7-T2)
+- `CHANGELOG.md`, `plugin/.claude-plugin/plugin.json`, `.claude-plugin/marketplace.json` - the 2.2.0 entry and the version bump (P7-T3)
+- `thoughts/2026-09-30-release-checks.md` - the release checks and the conflict comparison (P7-T4, P7-T5)
 
-**Quick test command for this phase**:
+#### Test Files
+
+- none (the release checks run the existing tests)
+
+**Quick test commands:**
 
 ```bash
 ./plugin/scripts/lint --all && ./plugin/scripts/test-prime && python3 evals/link_check.py
@@ -1194,11 +1203,20 @@ before, and following it ticks the human sign-off box. **This block, labels and 
 included, is repeated in full at every phase's checkpoint**; a later phase never gets a
 shortened one.
 
-- [ ] **(derivable)** Every Phase 7 checkbox is `[x]`
+- [x] **(derivable)** Every Phase 7 checkbox is `[x]`
 - [ ] **(derivable)** All automated verification passing
 - [ ] **(attestation)** Manual verification confirmed by human
-- [ ] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
+- [x] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
       only writer of those fields, so do not edit `current_phase` or `completed_tasks` by hand
+
+**Closed under the full-auto instruction, 2026-09-30 12:42 UTC.** The attestation stays `[ ]`. Nobody has
+performed the manual steps. A human reads the README section, the CHANGELOG entry and the
+handoff, and confirms that they describe the release. A smoke session with
+`claude --plugin-dir <repo>/plugin` shows the card, and one stage writes WBTE output.
+"All automated verification passing" stays `[ ]` because of `lint --all` (see above).
+
+**The plan cannot close itself.** Every task is `[x]`, but `status: complete` is a
+judgment-bearing change behind `/wb:update_status`'s own barrier. It waits for a person.
 
 **Do not proceed without human confirmation of manual tests** — unless the phase is being run
 under `/wb:implement --auto`, which buys the wait and not the attestation. In that case the
@@ -1312,6 +1330,12 @@ resolved, leaving a dated line saying how.
   the path is linted. So `lint --all` lints the gitignored `evals/runs/` output, where
   generated `tasks.md` files have MD024 duplicate headings (`#### Testing`, `#### Implementation`
   in each phase). Both issues predate 2.2.0 and are not fixed in this plan.
+- [2026-09-30] **Phases 5 to 7 complete (inline, closed under the full-auto instruction).**
+  Phase 5 kept 7 lite rewrites and restored the 2 agent files. The gate was 1 repeat each (D10),
+  on the new large fixture. Phase 6 added the dictionary extractor and skill. Phase 7 added the
+  README and CLAUDE.md docs, the 3.0.0 handoff, the CHANGELOG entry, the 2.2.0 bump, and the
+  release checks. Open for a human: the attestations of Phases 2 and 4 to 7, and `status:
+  complete`.
 - **Planned against 2.1.1** (`4b32306`). If `main` moves before Phase 7, rebase and repeat the
   P7-T4 checks.
 - [2026-09-30] **Follow-up from P1-T2: three 2.1.1 templates fail markdownlint as written.**
