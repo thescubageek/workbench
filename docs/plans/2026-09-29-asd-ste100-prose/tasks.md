@@ -140,6 +140,7 @@ Based on dependency analysis:
 | Phase 5: Objective 2 — gated "lite" rewrite | ✅ Complete | 5/5 | 100% |
 | Phase 6: Dictionary skill | ✅ Complete | 2/2 | 100% |
 | Phase 7: Documentation, handoff, and release checks | ✅ Complete | 5/5 | 100% |
+| Phase 8: Validation fixes | 🔄 In progress | 0/4 | 0% |
 
 Counts come from the checkboxes below and are reconciled by `/wb:update_status`.
 
@@ -1217,6 +1218,85 @@ handoff, and confirms that they describe the release. A smoke session with
 
 **The plan cannot close itself.** Every task is `[x]`, but `status: complete` is a
 judgment-bearing change behind `/wb:update_status`'s own barrier. It waits for a person.
+
+**Do not proceed without human confirmation of manual tests** — unless the phase is being run
+under `/wb:implement --auto`, which buys the wait and not the attestation. In that case the
+attestation stays `[ ]`, the checkpoint records that the phase closed unattended and names the
+manual steps nobody performed, and the confirmation is **deferred, not obtained.**
+
+---
+
+## Phase 8: Validation fixes
+
+### Objective
+
+Fix the issues that `validation-report.md` found before the release ships. Added 2026-09-30 at
+the user's request, after `/wb:validate_execution`.
+
+### Prerequisites
+
+- [x] `validation-report.md` is committed (`e8c073e`)
+
+### Changes Required
+
+- `plugin/scripts/wbte-dictionary:29-30` probes `$HOME` when `~/.claude/wb` does not exist. If
+  `~/.claude` is a git work tree, the probe misses it. Probe the nearest existing ancestor of
+  the output directory instead.
+- `plugin/scripts/lint-common.sh`, `wb_lint_ignored`: a `.gitignore` match hides a
+  `.wblintignore` match, so a path in both is linted. 3.0.0 does not have this file (it came in
+  2.1.1), so the fix adds no merge conflict. Add `evals/runs/` to `.wblintignore`.
+- `plugin/skills/create_design/templates/design-md-template.md:125` has a prose semicolon in a
+  placeholder.
+- The plan records that the validation found out of date: A6, D6 and D7 in `design.md`, the
+  Phase 2 ASD-STE100 criterion, and the `wb_lint_ignored` note.
+
+### Tasks
+
+- [ ] **P8-T1** — In `plugin/scripts/test-wbte-dictionary`, add a case where `$HOME/.claude` is
+      a git work tree and `$HOME/.claude/wb` does not exist (RED). Pin the refusal exit code
+      to 3. Fix the probe in `plugin/scripts/wbte-dictionary` until the test is green.
+- [ ] **P8-T2** — In `plugin/scripts/test-lint`, add a case where a path is in both `.gitignore`
+      and `.wblintignore` (RED). Fix `wb_lint_ignored` so the `.wblintignore` match wins. Add
+      `evals/runs/` to `.wblintignore`. Confirm that `./plugin/scripts/lint --all` exits 0.
+- [ ] **P8-T3** — Replace the semicolon in `create_design/templates/design-md-template.md:125`.
+      Run `evals/link_check.py` and `evals/token_check.py`.
+- [ ] **P8-T4** — Correct the plan records: A6, D6 and D7 in `design.md`, the Phase 2
+      ASD-STE100 criterion, and the `wb_lint_ignored` note. Add the fixes to the CHANGELOG
+      2.2.0 entry.
+
+### Success Criteria
+
+#### Automated Verification
+
+- [ ] `./plugin/scripts/test-wbte-dictionary` and `./plugin/scripts/test-lint` pass
+- [ ] `./plugin/scripts/lint --all` exits 0
+- [ ] `./plugin/scripts/test-prime`, `./plugin/scripts/test-quiet`, `python3 evals/link_check.py`
+      and `python3 evals/token_check.py` pass
+
+#### Manual Verification
+
+- [ ] A human reads the corrected records and the CHANGELOG lines
+
+### ⛔ CHECKPOINT: Phase 8 Complete
+
+These are the conditions to meet before the plan closes — **not a record of having met them.**
+Tick each one as it is actually satisfied.
+
+Each box below is labelled **(derivable)** or **(attestation)**. A derivable condition is one a
+tool can establish, and `/wb:implement` ticks those at its Step 8 checkpoint. An attestation
+records that a *person* looked, so only a person ticks it, and an unticked attestation beside
+finished work means *"done, sign-off pending"* rather than a contradiction.
+
+**Go by the label, never by position** — a positional reading of these boxes has been wrong
+before, and following it ticks the human sign-off box. **This block, labels and this sentence
+included, is repeated in full at every phase's checkpoint**; a later phase never gets a
+shortened one.
+
+- [ ] **(derivable)** Every Phase 8 checkbox is `[x]`
+- [ ] **(derivable)** All automated verification passing
+- [ ] **(attestation)** Manual verification confirmed by human
+- [ ] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
+      only writer of those fields, so do not edit `current_phase` or `completed_tasks` by hand
 
 **Do not proceed without human confirmation of manual tests** — unless the phase is being run
 under `/wb:implement --auto`, which buys the wait and not the attestation. In that case the

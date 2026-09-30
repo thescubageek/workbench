@@ -51,6 +51,12 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-30 16:12 — Phase 8 (open)
+
+- **Task/phase**: P8-T1 to P8-T4 — the validation fixes
+- **Next action**: P8-T1, the RED test for the `wbte-dictionary` probe gap. Then P8-T2 to P8-T4, then `/wb:resolve_questions`
+- **Started at**: e8c073e
+
 ## 2026-09-30 12:41 — P7-T5 (closed)
 
 - **Task/phase**: P7-T5 — compare the conflicted paths with the expected set
