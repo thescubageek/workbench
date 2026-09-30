@@ -51,6 +51,13 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-30 12:22 — P5-T1 (closed)
+
+- **Task/phase**: P5-T1 — the gated lite rewrite of `create_research/reference.md`, `create_research/sub-agent-prompts.md`
+- **Landed**: kept. The gate run is `20260930T082512Z`, 1 repeat (D10). Every rewritten file was exercised (both files read by `create_research`, 4 agents spawned). The within-run judge found no loss in `design.md` or `tasks.md`. `token_check.py` found only the known missing git keys. The run cited 5 of the 19 facts (the before-run cited 5). Cost $4.52
+- **Commits**: see `P5-T1: keep the lite rewrite of create_research/reference.md, create_research/sub-agent-prompts.md`
+- **Learned**: the gate ran before this entry was written, in the overnight batch. This entry was opened and closed in one step
+
 ## 2026-09-30 08:11 — P7-T1 (closed)
 
 - **Task/phase**: P7-T1 — the README section on WBTE, and the two `CLAUDE.md` lines. This runs ahead of the Phase 5 gates (the user's full-auto instruction), because it does not depend on their results
