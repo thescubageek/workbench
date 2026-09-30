@@ -774,7 +774,9 @@ change to full stops or commas.
       summary from P4-T9, and confirms they are easier to follow than the baseline samples
       *(signed off by the user 2026-09-30, from a read-only side-by-side of repeat 1 of both runs.
       The precision findings are follow-ups, see the Implementation Notes)*
-- [ ] A human confirms the judge verdicts in the report match a spot check
+- [x] A human confirms the judge verdicts in the report match a spot check
+      *(signed off by the user 2026-09-30: the P4-T8 "loss" verdict and a final-run "no-loss"
+      verdict both hold, and the report rows match the verdict files)*
 
 ### 📝 Modified Files (Phase 4)
 
@@ -822,7 +824,7 @@ shortened one.
 
 - [x] **(derivable)** Every Phase 4 checkbox is `[x]`
 - [ ] **(derivable)** All automated verification passing
-- [ ] **(attestation)** Manual verification confirmed by human
+- [x] **(attestation)** Manual verification confirmed by human
 - [x] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
       only writer of those fields, so do not edit `current_phase` or `completed_tasks` by hand
 
@@ -830,6 +832,10 @@ shortened one.
 did not confirm the manual reads: the sample documents and chat summary against 2.1.1, and the
 judge spot check. The 2 remaining chat IDs (one sentence in a `create_tasks` summary) stand as
 reported in `thoughts/2026-09-30-objective-1-report.md`.
+
+**Signed off 2026-09-30:** the user confirmed both Phase 4 manual reads, so the attestation is
+ticked. "All automated verification passing" stays `[ ]`, because the `wbte_check.py`
+criterion stays open under D11.
 
 **Do not proceed without human confirmation of manual tests** — unless the phase is being run
 under `/wb:implement --auto`, which buys the wait and not the attestation. In that case the
@@ -848,7 +854,7 @@ keep each rewrite only if the harness shows no loss.
 ### Prerequisites
 
 - [x] Phase 4 complete and verified
-- [ ] Phase 4 manual testing confirmed — *an attestation, like the checkpoint's. Under
+- [x] Phase 4 manual testing confirmed (2026-09-30, after the phase ran) — *an attestation, like the checkpoint's. Under
       `/wb:implement --auto` it stays `[ ]` and the phase proceeds anyway; the previous phase's
       checkpoint records that nobody was asked. Unticked here means deferred, not blocked.*
 
@@ -1543,7 +1549,9 @@ resolved, leaving a dated line saying how.
 - [2026-09-30] **Follow-up from the Phase 2 sign-off: the judge can file a removed `file:line`
   under `other_losses`, not `lost_refs`.** `altered-1.json` did this. The gate reads only the
   `verdict` field, so no gate result is wrong. A tool that counts `lost_refs` would undercount.
-  Tighten the judge prompt and recalibrate in the post-3.0.0 pass.
+  Tighten the judge prompt and recalibrate in the post-3.0.0 pass. The Phase 4 spot check found
+  the same kind of gap in the other direction: the mechanical match counts a fact as carried when
+  its `file:line` is cited without its value (P4-T8, repeat 3). The model read caught it.
 - [2026-09-30] **Follow-up from P8-T5: the recovery text also appears twice after a manual
   `/compact`** when a plan is active, for the same reason as the card. That is 2.1.1 behaviour in
   a shared part of `wb-prime.sh`, so this plan does not change it.
