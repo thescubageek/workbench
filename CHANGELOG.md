@@ -42,7 +42,7 @@ Measured on the harness fixture (3 repeats, `sonnet`), 2.1.1 against the final t
   - They make a private copy of the approved-word dictionary from the user's own free copy of
     the Issue 9 PDF.
   - The copy is `~/.claude/wb/wbte-dictionary.tsv`, outside every repository. The script
-    refuses to write inside a git work tree.
+    refuses to write inside a git work tree, also when only `~/.claude` is one.
   - It needs `pdftotext` or python3 with `pypdf`, and the plugin works without it.
   - `plugin/scripts/test-wbte-dictionary` tests it with invented words only.
 - **Repository terms.** A repository can list its own technical nouns in
@@ -65,6 +65,13 @@ Measured on the harness fixture (3 repeats, `sonnet`), 2.1.1 against the final t
   the planned 3.
 - **The `plan-presentation-message.md` summary** lists assumptions and pending decisions with
   their meanings.
+
+### Fixed
+
+- **A `.wblintignore` entry now wins over a `.gitignore` entry for the same path.** Before,
+  `git check-ignore` gave the match to `.gitignore`, so `wb_lint_ignored` linted the path. The
+  bug came in 2.1.1. `.wblintignore` also gains `evals/runs/`, so `./plugin/scripts/lint --all`
+  skips the generated harness output. `test-lint` has 3 new checks.
 
 ### Not changed, deliberately
 

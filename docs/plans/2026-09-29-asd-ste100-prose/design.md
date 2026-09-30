@@ -375,6 +375,8 @@ execution phase and measured by the harness.
     that users run on a real codebase.
   - Trade-off: the Phase 4 and Phase 5 measurements rest on a partly validated driver. A
     larger fixture is a follow-up (tasks.md, Implementation Notes). It is not a new task.
+  - Update 2026-09-30: the user added the larger fixture as P5-T5. On it, every stage spawned
+    its agents, so A6 is validated.
   - Source: design.md A6 · Decided 2026-09-30
 
 - **D7 — The "no loss" gate judges each run against its own `research.md`.**
@@ -389,6 +391,7 @@ execution phase and measured by the harness.
   - Trade-off: `judge.py` needs a new within-run mode, and that mode needs calibration: a
     planted loss is found 3 of 3, and a real run on 2.1.1 shows no loss. This work is not in
     the task list yet. It must land before P4-T9 and Phase 5.
+  - Update 2026-09-30: P4-T10 added and calibrated the within-run mode, before P4-T9.
   - Source: tasks.md, Implementation Discoveries (the P2-T7 finding) · Decided 2026-09-30
 
 - **D8 — Accept the semicolons in the shared `tasks.md` boilerplate for 2.2.0.**
@@ -515,7 +518,7 @@ execution phase and measured by the harness.
 | A3 | SessionStart output with `source=compact` reaches the model when no plan is active. The 2026-09-10 measurement covered only the case with an active plan (`wb-prime.sh:12-18`). If not, the card is lost after compaction in repos without plans. | Validated 2026-09-30 |
 | A4 | Text extraction from the Issue 9 PDF keeps the dictionary entries usable (word, part of speech, approved or not, alternatives). If not, the dictionary skill offers only the approved-word list, or is dropped. | Validated 2026-09-30 — for word, part of speech and status. Alternatives are best-effort (see D4) |
 | A5 | 3.0.0 does not restructure the orientation and recovery sections of `wb-prime.sh` before it merges. Today it adds only 4 comment lines. If it does, the card placement must be redone in the handoff. | Validated 2026-09-30 — for `adversarial-loop-skill-research` at `2fff76c`. P7-T4 checks again (see D5) |
-| A6 | Headless `claude -p --plugin-dir <tree> --allowedTools=Skill` runs the stages well enough for before/after comparison (`.claude/wb/knowledge.md`, headless entry). If not, the harness needs a different driver. | Pending |
+| A6 | Headless `claude -p --plugin-dir <tree> --allowedTools=Skill` runs the stages well enough for before/after comparison (`.claude/wb/knowledge.md`, headless entry). If not, the harness needs a different driver. | Validated 2026-09-30 — with `--add-dir <tree>/plugin` and one fixed reply to `create_design`. On the large fixture, every stage spawned its agents (`thoughts/2026-09-30-lite-verdicts.md`, see D6) |
 
 ## Rejected Alternatives
 

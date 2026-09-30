@@ -140,7 +140,7 @@ Based on dependency analysis:
 | Phase 5: Objective 2 — gated "lite" rewrite | ✅ Complete | 5/5 | 100% |
 | Phase 6: Dictionary skill | ✅ Complete | 2/2 | 100% |
 | Phase 7: Documentation, handoff, and release checks | ✅ Complete | 5/5 | 100% |
-| Phase 8: Validation fixes | 🔄 In progress | 0/4 | 0% |
+| Phase 8: Validation fixes | ✅ Complete | 4/4 | 100% |
 
 Counts come from the checkboxes below and are reconciled by `/wb:update_status`.
 
@@ -431,6 +431,9 @@ user requirement.
 - [x] `./plugin/scripts/lint plugin/docs/reference/technical-english.md` is clean
 - [x] `./plugin/scripts/lint --all` is clean, and planted fixtures are skipped
 - [x] `grep -ril 'ASD-STE100' plugin/` lists only `technical-english.md` (the credit line)
+      *(true when ticked. Phase 6 added `plugin/scripts/wbte-dictionary` and
+      `plugin/skills/wbte-dictionary/SKILL.md`, which name the standard in usage text and link
+      the free PDF. Neither holds ASD rules text. Corrected in P8-T4)*
 
 #### Manual Verification
 
@@ -755,9 +758,9 @@ change to full stops or commas.
       *(only the known missing `git_commit`/`git_branch` keys remain, 4 in the final run. See the Implementation Discoveries)*
 - [ ] `python3 evals/wbte_check.py` meets the design.md thresholds on the P4-T9 outputs
       *(not ticked: sentence length and fidelity are met. The semicolons are accepted under D8. 2 chat IDs remain in one sentence, and the user decides)*
-- [ ] `./plugin/scripts/lint --all` is clean
-      *(not ticked: every tracked file is clean. `--all` fails only on gitignored run outputs in
-      `evals/runs/`, because of a `wb_lint_ignored` bug. See the Implementation Notes)*
+- [x] `./plugin/scripts/lint --all` is clean
+      *(ticked 2026-09-30 after P8-T2. Before that fix, `--all` failed only on the gitignored
+      run outputs in `evals/runs/`)*
 
 #### Manual Verification
 
@@ -904,9 +907,9 @@ files. The 3.0.0 handoff (P7-T2) lists them.
 - [x] Every kept rewrite has a 3/3 "no loss" verdict in `thoughts/2026-09-30-lite-verdicts.md`
       *(1 of 1 under D10: the user chose 1 repeat per gate after the spend limit)*
 - [x] `python3 evals/token_check.py` and `python3 evals/link_check.py` pass
-- [ ] `./plugin/scripts/lint --all` is clean
-      *(not ticked: every tracked file is clean. `--all` fails only on gitignored run outputs, because of
-      the `wb_lint_ignored` follow-up)*
+- [x] `./plugin/scripts/lint --all` is clean
+      *(ticked 2026-09-30 after P8-T2. Before that fix, `--all` failed only on the gitignored
+      run outputs)*
 
 #### Manual Verification
 
@@ -951,15 +954,15 @@ included, is repeated in full at every phase's checkpoint**; a later phase never
 shortened one.
 
 - [x] **(derivable)** Every Phase 5 checkbox is `[x]`
-- [ ] **(derivable)** All automated verification passing
+- [x] **(derivable)** All automated verification passing
 - [ ] **(attestation)** Manual verification confirmed by human
 - [x] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
       only writer of those fields, so do not edit `current_phase` or `completed_tasks` by hand
 
 **Closed under the full-auto instruction, 2026-09-30 12:35 UTC.** The attestation stays `[ ]`. Nobody has
 performed the manual step: a human reads the verdict table and one kept rewrite, and confirms
-that the rewrite did not remove meaning. "All automated verification passing" stays `[ ]`
-because `lint --all` fails on gitignored run outputs (the `wb_lint_ignored` follow-up).
+that the rewrite did not remove meaning. "All automated verification passing" stayed `[ ]`
+because `lint --all` failed on gitignored run outputs. It is ticked 2026-09-30 after P8-T2.
 
 **Do not proceed without human confirmation of manual tests** — unless the phase is being run
 under `/wb:implement --auto`, which buys the wait and not the attestation. In that case the
@@ -1153,11 +1156,11 @@ for the post-3.0.0 pass; how to run `evals/` and the gate; the expected merge co
 
 #### Automated Verification
 
-- [ ] Every command in P7-T4 exits 0, except `git merge-tree`, whose conflicts are only in the
-      *(not ticked: `lint --all` exits 1, only on gitignored `evals/runs/` output, because of the
-      `wb_lint_ignored` follow-up. Every other command exits 0. The one conflict outside the expected paths,
-      `.claude/wb/knowledge.md`, has a resolution note in the handoff)*
+- [x] Every command in P7-T4 exits 0, except `git merge-tree`, whose conflicts are only in the
       expected paths
+      *(ticked 2026-09-30 after P8-T2, which made `lint --all` exit 0. The one conflict outside the
+      expected paths, `.claude/wb/knowledge.md`, has a resolution note in the handoff. A new
+      `git merge-tree` run after Phase 8 gives the same 5 paths)*
 - [x] `grep -h '"version"' plugin/.claude-plugin/plugin.json .claude-plugin/marketplace.json`
       shows `2.2.0` twice
 - [x] `git ls-files docs/plans/2026-09-29-asd-ste100-prose/` lists the handoff
@@ -1205,7 +1208,7 @@ included, is repeated in full at every phase's checkpoint**; a later phase never
 shortened one.
 
 - [x] **(derivable)** Every Phase 7 checkbox is `[x]`
-- [ ] **(derivable)** All automated verification passing
+- [x] **(derivable)** All automated verification passing
 - [ ] **(attestation)** Manual verification confirmed by human
 - [x] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
       only writer of those fields, so do not edit `current_phase` or `completed_tasks` by hand
@@ -1214,7 +1217,8 @@ shortened one.
 performed the manual steps. A human reads the README section, the CHANGELOG entry and the
 handoff, and confirms that they describe the release. A smoke session with
 `claude --plugin-dir <repo>/plugin` shows the card, and one stage writes WBTE output.
-"All automated verification passing" stays `[ ]` because of `lint --all` (see above).
+"All automated verification passing" stayed `[ ]` because of `lint --all`. It is ticked
+2026-09-30 after P8-T2.
 
 **The plan cannot close itself.** Every task is `[x]`, but `status: complete` is a
 judgment-bearing change behind `/wb:update_status`'s own barrier. It waits for a person.
@@ -1260,17 +1264,17 @@ the user's request, after `/wb:validate_execution`.
       `evals/runs/` to `.wblintignore`. Confirm that `./plugin/scripts/lint --all` exits 0. (completed 2026-09-30 16:20)
 - [x] **P8-T3** — Replace the semicolon in `create_design/templates/design-md-template.md:125`.
       Run `evals/link_check.py` and `evals/token_check.py`. (completed 2026-09-30 16:21)
-- [ ] **P8-T4** — Correct the plan records: A6, D6 and D7 in `design.md`, the Phase 2
+- [x] **P8-T4** — Correct the plan records: A6, D6 and D7 in `design.md`, the Phase 2
       ASD-STE100 criterion, and the `wb_lint_ignored` note. Add the fixes to the CHANGELOG
-      2.2.0 entry.
+      2.2.0 entry. (completed 2026-09-30 16:27)
 
 ### Success Criteria
 
 #### Automated Verification
 
-- [ ] `./plugin/scripts/test-wbte-dictionary` and `./plugin/scripts/test-lint` pass
-- [ ] `./plugin/scripts/lint --all` exits 0
-- [ ] `./plugin/scripts/test-prime`, `./plugin/scripts/test-quiet`, `python3 evals/link_check.py`
+- [x] `./plugin/scripts/test-wbte-dictionary` and `./plugin/scripts/test-lint` pass
+- [x] `./plugin/scripts/lint --all` exits 0
+- [x] `./plugin/scripts/test-prime`, `./plugin/scripts/test-quiet`, `python3 evals/link_check.py`
       and `python3 evals/token_check.py` pass
 
 #### Manual Verification
@@ -1292,8 +1296,8 @@ before, and following it ticks the human sign-off box. **This block, labels and 
 included, is repeated in full at every phase's checkpoint**; a later phase never gets a
 shortened one.
 
-- [ ] **(derivable)** Every Phase 8 checkbox is `[x]`
-- [ ] **(derivable)** All automated verification passing
+- [x] **(derivable)** Every Phase 8 checkbox is `[x]`
+- [x] **(derivable)** All automated verification passing
 - [ ] **(attestation)** Manual verification confirmed by human
 - [ ] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
       only writer of those fields, so do not edit `current_phase` or `completed_tasks` by hand
@@ -1404,12 +1408,16 @@ resolved, leaving a dated line saying how.
   user accepted the shared `tasks.md` boilerplate semicolons for 2.2.0 (D8). The final run,
   `20260930T073357Z`, meets every target except 2 chat IDs in one sentence. The record is
   `thoughts/2026-09-30-objective-1-report.md`.
-- [2026-09-30] **Follow-up: `wb_lint_ignored` does not ignore a path that is in both
-  `.gitignore` and `.wblintignore`.** `git check-ignore -v` reports the first matching source,
-  and that is `.gitignore`. The predicate accepts only a match from the lint-ignore file, so
-  the path is linted. So `lint --all` lints the gitignored `evals/runs/` output, where
-  generated `tasks.md` files have MD024 duplicate headings (`#### Testing`, `#### Implementation`
-  in each phase). Both issues predate 2.2.0 and are not fixed in this plan.
+- [2026-09-30] **Resolved in P8-T2: `wb_lint_ignored` did not ignore a path that is in both
+  `.gitignore` and `.wblintignore`.** `git check-ignore -v` reports only the winning source,
+  and a `.gitignore` match outranks the lint-ignore file. The predicate accepted only a match
+  from the lint-ignore file, so the path was linted. *Correction from the validation:* the
+  original note said `evals/runs/` was in both files. It was only in `.gitignore`, so
+  `lint --all` linted it because `wb_lint_ignored` does not honour `.gitignore`, by design.
+  Adding it to `.wblintignore` alone would still have failed, because of the bug above. P8-T2
+  fixed the predicate and added `evals/runs/` to `.wblintignore`. The generated `tasks.md`
+  files keep their MD024 duplicate headings (`#### Testing`, `#### Implementation` in each
+  phase), which come from the shared template.
 - [2026-09-30] **Phases 5 to 7 complete (inline, closed under the full-auto instruction).**
   Phase 5 kept 7 lite rewrites and restored the 2 agent files. The gate was 1 repeat each (D10),
   on the new large fixture. Phase 6 added the dictionary extractor and skill. Phase 7 added the
