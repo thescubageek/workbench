@@ -1,14 +1,16 @@
 # Design presentation message
 
-Step 6 — emitted once, when `design.md` is ready for approval: freshly written, or found
-complete on a resumed run.
+Write this output in wb Technical English (WBTE): read [technical-english.md](../../../docs/reference/technical-english.md) and apply it. Keep every exempt token exactly as it is.
+
+Step 6. Emit this once, when `design.md` is ready for approval. The file is new, or a resumed
+run found it complete.
 
 ```
-✅ Design document ready for approval at: [path]/design.md
+✅ The design document is ready for approval: [path]/design.md
 
 Design approach: [selected approach name]
 
-Key decisions made:
+Key decisions:
 
 - [Major decision 1]
 - [Major decision 2]
@@ -16,22 +18,22 @@ Key decisions made:
 
 Pending decisions: [count]
 
-Agent findings incorporated:
+Agent findings used in the design:
 
 - [Finding 1 from verification agents]
 - [Finding 2 from integration analysis]
 
-The design document includes:
+The design document contains:
 
 - Problem statement and success metrics
 - Technical architecture decisions
-- Clear scope boundaries
+- Scope boundaries
 - Risk analysis and mitigation
 
-Please review and provide feedback:
+Review the design, and answer these questions:
 
 - Are the success criteria appropriate?
-- Do the technical decisions align with your vision?
-- Are there risks we haven't considered?
-- Should any out-of-scope items be included?
+- Do the technical decisions match your intent?
+- Is a risk missing?
+- Should an out-of-scope item move into scope?
 ```

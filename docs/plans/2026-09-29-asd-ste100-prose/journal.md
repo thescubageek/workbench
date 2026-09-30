@@ -51,6 +51,11 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-30 05:30 — P4-T4 (closed)
+
+- **Task/phase**: P4-T4 — WBTE rewrite, with the link line, of `create_research/templates.md` and the four `create_design` templates
+- **Landed**: `link_check.py` failed on 5 of 5 before the change and on 0 after it. The registry passes, lint is clean, and the added prose has 0 semicolons and a longest sentence of 25 words. A `design.md` and a `research.md` filled from the new templates pass `token_check.py`
+- **Commits**: see `P4-T4: rewrite the create_research and create_design templates in WBTE`
 ## 2026-09-30 05:25 — P4-T3 (closed)
 
 - **Task/phase**: P4-T3 — WBTE rewrite, with the link line, of the four `create_project` document templates and the Step 5 output block in `create_project/SKILL.md`

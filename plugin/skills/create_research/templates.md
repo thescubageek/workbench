@@ -1,8 +1,10 @@
 # create_research — output template
 
-Read this when Step 6 directs you to. Write `research.md` in this shape. Never paraphrase the
-template from memory; every bracketed placeholder must be replaced with real content from the
-codebase before the file is written.
+Write this output in wb Technical English (WBTE): read [technical-english.md](../../docs/reference/technical-english.md) and apply it. Keep every exempt token exactly as it is.
+
+Read this when Step 6 directs you to. Write `research.md` in this shape. Do not paraphrase the
+template from memory. Replace every bracketed placeholder with real content from the codebase
+before you write the file.
 
 ````markdown
 ---
@@ -76,7 +78,7 @@ last_updated: [YYYY-MM-DD]
 
 ## Code References
 
-Quick reference list:
+These are the key references:
 
 - `path/to/file1.ext:123` - Main entry point for X
 - `path/to/file2.ext:45-67` - Core validation logic
@@ -85,7 +87,7 @@ Quick reference list:
 
 ## Similar Implementations
 
-Existing patterns in the codebase that might be relevant:
+These existing patterns in the codebase may be relevant:
 
 **Example from `path/to/example.ext:100-120`**:
 
@@ -100,8 +102,8 @@ This pattern is also used in:
 
 ## Open Questions
 
-Questions that must be resolved before the next phase live **here**, in this document, with a
-short local ID. This section is the record — there is no external tracker.
+This table lists the questions to resolve before the next phase. Each question has a short
+local ID. This section is the record, because there is no external tracker.
 
 | ID | Question | Blocks | State |
 | -- | -------- | ------ | ----- |
@@ -110,23 +112,23 @@ short local ID. This section is the record — there is no external tracker.
 
 Rules for this table:
 
-- **IDs are local and stable.** `Q1`, `Q2`, … numbered in the order raised, never renumbered
-  when one is resolved. The ID is the handle another document cites.
-- **A question is only a question if something is blocked by it.** If nothing is blocked, it is
-  a note, not an open question — put it in the findings.
-- **Resolving is a two-part act.** `/wb:resolve_questions` sets the State cell to
-  `Resolved YYYY-MM-DD → design.md (## Technical Decisions)` and writes the decision, with its
-  rationale, into `design.md`. The decision itself does **not** get recorded here: research
-  documents facts, and a decision is not a fact about the codebase.
-- **Keep resolved rows in place.** The audit trail is the point.
+- **IDs are local and stable.** Number them `Q1`, `Q2`, and so on, in the order you raise them.
+  Do not renumber them when a question is resolved. Other documents cite the ID.
+- **A question needs something that it blocks.** If it blocks nothing, it is a note and not an
+  open question. Put it in the findings.
+- **Resolving has two parts.** `/wb:resolve_questions` sets the State cell to
+  `Resolved YYYY-MM-DD → design.md (## Technical Decisions)`. It also writes the decision and
+  its rationale into `design.md`. Do **not** record the decision here. Research records facts,
+  and a decision is not a fact about the codebase.
+- **Keep resolved rows in place.** They are the audit trail.
 
 ## Next Steps
 
-Based on the research findings:
+These steps follow from the findings:
 
 1. [Suggested next action based on findings]
 2. [Another logical next step]
 3. Review the research document
-4. Run `/wb:create_design` to create design decisions
+4. Run `/wb:create_design` to write the design decisions
 
 ````
