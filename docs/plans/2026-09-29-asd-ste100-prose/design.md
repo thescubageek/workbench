@@ -427,6 +427,46 @@ execution phase and measured by the harness.
     the post-3.0.0 pass can measure again with 3 repeats.
   - Source: P5-T5 · Decided 2026-09-30
 
+- **D11 — Accept the 2 remaining chat IDs for 2.2.0, as a known remainder.**
+  - In the final P4-T9 run, one `create_tasks` summary sentence has 2 IDs used alone. The
+    CHANGELOG and the 3.0.0 handoff name this remainder.
+  - Rationale (the user's words): accept it, "but with notes that if it occurs I will come back
+    for a patch fix to tighten it up". The count is within run-to-run variance (1 to 7).
+  - Trade-off: the "no ID used alone in chat" target is met everywhere except this sentence. A
+    report of it in real use starts a 2.2.x patch.
+  - Source: design.md PD1 · Decided 2026-09-30
+
+- **D12 — Tick each design.md success criterion that the evidence supports.**
+  - Each ticked box names its evidence. A box met with an exception names the decision (D5,
+    D8, D10, D11). The `validate_project` criterion and the dictionary-skill criterion stay open,
+    because no run or person has shown them yet. The token-cost criterion waits for the
+    per-stage line in the CHANGELOG.
+  - Rationale: a reader of the design sees what is met and where the proof is.
+  - Trade-off: a ticked box with an exception reads as "met" at a glance. The note carries the
+    exception.
+  - Source: design.md PD2 · Decided 2026-09-30
+
+- **D13 — Find the cause of the duplicate card after `/compact` before 2.2.0 ships.**
+  - First, read the A3 session transcript. Each card prints its own plugin root in the
+    `Full rules:` line, so two different roots mean two loaded copies of wb. If the transcript
+    does not settle it, the user runs an interactive session with only `--plugin-dir` and runs
+    `/compact`. A duplicate that remains goes upstream. A duplicate that goes away was the
+    double load.
+  - Rationale (the user's choice): know the cause before the release ships, not after.
+  - Trade-off: a manual interactive step before release, for a cost of about 190 tokens after
+    each compaction.
+  - Source: design.md PD3 · Decided 2026-09-30
+
+- **D14 — Document the new scripts and skill now, in two files shared with 3.0.0.**
+  - `plugin/scripts/README.md` gets `wbte-dictionary`, `test-prime` and `test-wbte-dictionary`.
+    `plugin/skills/help/SKILL.md` gets `/wb:wbte-dictionary`. This is an exception to D-Q3,
+    which allows only link lines in the shared files.
+  - Rationale (the user's choice): a user who reads `/wb:help` or the scripts README must find
+    the new parts in 2.2.0, even at the cost of a merge conflict.
+  - Trade-off: up to two new merge conflicts. The handoff gets a resolution note for each file
+    that conflicts.
+  - Source: design.md PD4 · Decided 2026-09-30
+
 ## Scope Definition
 
 ### In Scope
@@ -461,36 +501,58 @@ execution phase and measured by the harness.
 
 ### Functional Requirements
 
-- [ ] Every session start prints the rule card. This includes startup, resume, and compact,
+- [x] Every session start prints the rule card. This includes startup, resume, and compact,
   with and without active plans, and with and without `.claude/wb/PRIME.md`.
-- [ ] `WB_TECH_ENGLISH=0` stops the card and changes nothing else in the hook output.
-- [ ] Every output template and inline output step links to `technical-english.md`, and no
+  *(Evidence: `plugin/scripts/test-prime:81-113`, and A3 in an interactive session)*
+- [x] `WB_TECH_ENGLISH=0` stops the card and changes nothing else in the hook output.
+  *(Evidence: `test-prime:124-130`. The output is byte-identical to 2.1.1 in 8 payload cases,
+  `validation-report.md`)*
+- [x] Every output template and inline output step links to `technical-english.md`, and no
   other file restates the rules.
-- [ ] Generated documents from the harness fixture have no semicolons in prose.
-- [ ] Chat summaries from the harness fixture never use a task, question, or decision ID alone.
-- [ ] The share of generated sentences over 25 words is lower than the 2.1.1 baseline on the
+  *(Evidence: `python3 evals/link_check.py` passes on 43 templates and 4 inline steps)*
+- [x] Generated documents from the harness fixture have no semicolons in prose.
+  *(Met with the D8 exception: 9 remain, all from the shared `tasks.md` boilerplate.
+  `thoughts/2026-09-30-objective-1-report.md`)*
+- [x] Chat summaries from the harness fixture never use a task, question, or decision ID alone.
+  *(Met with the D11 exception: 2 IDs in one sentence of the final run.
+  `thoughts/2026-09-30-objective-1-report.md`)*
+- [x] The share of generated sentences over 25 words is lower than the 2.1.1 baseline on the
   same fixture, and at most 5%.
+  *(Evidence: 2.9% against 7.0% for 2.1.1, `thoughts/2026-09-30-objective-1-report.md`)*
 - [ ] Documents generated after the change pass `validate_project`, and every parser pattern
   listed under Integration Points still matches.
+  *(Open: `token_check.py` checks the parser patterns, and only the known missing git keys fail.
+  No run has used the `validate_project` stage itself)*
 - [ ] The dictionary skill produces a local copy from a user-supplied Issue 9 PDF, or says
   clearly which tool is missing.
-- [ ] The fidelity judge finds no lost facts, `file:line` references, IDs, or barriers in each
+  *(Open until the Phase 6 attestation. `test-wbte-dictionary` passes, and a development run of
+  the script on the user's PDF gave 1,975 entries. Nobody has run the skill in a fresh session)*
+- [x] The fidelity judge finds no lost facts, `file:line` references, IDs, or barriers in each
   accepted skill rewrite, over repeated runs.
-- [ ] The 3.0.0 handoff document exists and lists every item named under Integration Points.
+  *(Met with the D10 exception: 1 repeat for each gate, not 3.
+  `thoughts/2026-09-30-lite-verdicts.md`)*
+- [x] The 3.0.0 handoff document exists and lists every item named under Integration Points.
+  *(Evidence: `handoff-2026-09-30-wbte-for-3.0.0.md` has a section for each item)*
 
 ### Non-Functional Requirements
 
 - [ ] Token cost: the rule card adds at most about 200 tokens to each session. The change in
   per-stage cost is measured with `claude --plugin-dir plugin plugin details wb` and reported
   in the CHANGELOG.
-- [ ] Reliability: the hook contract is unchanged. It only reads, it always exits 0, and it
+- [x] Reliability: the hook contract is unchanged. It only reads, it always exits 0, and it
   stays inside the 5-second timeout.
-- [ ] Compatibility: no new user requirement. The plugin works without python3, `pdftotext`,
+  *(Evidence: `test-prime:152-172`. 200 plan directories take about 2.5 s, the same as 2.1.1)*
+- [x] Compatibility: no new user requirement. The plugin works without python3, `pdftotext`,
   or the dictionary copy.
-- [ ] Merge: `git merge-tree` of 2.2.0 and the 3.0.0 branch shows conflicts only in link lines,
+  *(Evidence: only the dictionary script and skill name python3 or `pdftotext`. Every harness
+  run worked with no dictionary copy present)*
+- [x] Merge: `git merge-tree` of 2.2.0 and the 3.0.0 branch shows conflicts only in link lines,
   `wb-prime.sh`, the manifests, `README.md`, and `CHANGELOG.md`.
-- [ ] Legal: the repo contains no ASD rules text and no dictionary content. The name does not
+  *(Met with the D5 exception: `.gitignore` and `.claude/wb/knowledge.md` also conflict. Both are
+  append-only, and the handoff has their resolution notes)*
+- [x] Legal: the repo contains no ASD rules text and no dictionary content. The name does not
   use the registered mark.
+  *(Evidence: `link_check.py` finds no PDF or dictionary text. No `.pdf` or `.tsv` is tracked)*
 
 ## Risk Analysis
 
@@ -563,10 +625,10 @@ execution phase and measured by the harness.
 
 | ID | Decision Needed | Blocks | State |
 | -- | --------------- | ------ | ----- |
-| PD1 | In the final P4-T9 run, 2 chat IDs are still used alone, in one `create_tasks` summary sentence. Accept this for 2.2.0, or change the card or `plan-presentation-message.md` and measure again (about $4.50 and 15 minutes a run)? | the Phase 4 attestation | Open |
-| PD2 | Every box under Success Criteria in this document is `[ ]`. Tick each box that the evidence supports, with a pointer to the evidence, and leave the rest open? Or leave all of them as they are? | closing the plan | Open |
-| PD3 | After `/compact`, the card is in the context twice (the A3 finding). `plugin.json` registers `wb-prime.sh` once for SessionStart, so the cause is probably in the harness. Investigate before 2.2.0 ships, or keep it as a follow-up? | none (post-compaction token cost only) | Open |
-| PD4 | `plugin/scripts/README.md` does not document `wbte-dictionary`, `test-prime` or `test-wbte-dictionary`, and `help/SKILL.md` does not name `/wb:wbte-dictionary`. Both files are shared with 3.0.0. Add the lines now, with a new merge conflict, or list them in the 3.0.0 handoff for the post-3.0.0 pass? | none | Open |
+| PD1 | In the final P4-T9 run, 2 chat IDs are still used alone, in one `create_tasks` summary sentence. Accept this for 2.2.0, or change the card or `plan-presentation-message.md` and measure again (about $4.50 and 15 minutes a run)? | the Phase 4 attestation | Resolved 2026-09-30 → design.md (## Technical Decisions) |
+| PD2 | Every box under Success Criteria in this document is `[ ]`. Tick each box that the evidence supports, with a pointer to the evidence, and leave the rest open? Or leave all of them as they are? | closing the plan | Resolved 2026-09-30 → design.md (## Technical Decisions) |
+| PD3 | After `/compact`, the card is in the context twice (the A3 finding). `plugin.json` registers `wb-prime.sh` once for SessionStart, so the cause is probably in the harness. Investigate before 2.2.0 ships, or keep it as a follow-up? | none (post-compaction token cost only) | Resolved 2026-09-30 → design.md (## Technical Decisions) |
+| PD4 | `plugin/scripts/README.md` does not document `wbte-dictionary`, `test-prime` or `test-wbte-dictionary`, and `help/SKILL.md` does not name `/wb:wbte-dictionary`. Both files are shared with 3.0.0. Add the lines now, with a new merge conflict, or list them in the 3.0.0 handoff for the post-3.0.0 pass? | none | Resolved 2026-09-30 → design.md (## Technical Decisions) |
 
 The version number of the post-3.0.0 pass (3.0.1 or 3.1.0) is still open (D-Q3). It blocks
 nothing in 2.2.0, so it is a note and not a pending decision. The handoff document calls it
