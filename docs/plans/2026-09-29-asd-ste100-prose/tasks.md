@@ -142,6 +142,7 @@ Based on dependency analysis:
 | Phase 7: Documentation, handoff, and release checks | ✅ Complete | 5/5 | 100% |
 | Phase 8: Validation fixes | ✅ Complete | 7/7 | 100% |
 | Phase 9: PR descriptions and commit messages in WBTE | ✅ Complete | 6/6 | 100% |
+| Phase 10: Manual-check fixes | 🔄 In progress | 0/1 | 0% |
 
 Counts come from the checkboxes below and are reconciled by `/wb:update_status`.
 
@@ -1426,6 +1427,59 @@ shortened one.
 
 **Closed 2026-09-30 16:57 UTC.** The attestation stays `[ ]`. Nobody has run `/wb:pr-description` on this
 branch or in a repository with a PR template yet. Both are in the manual checklist.
+
+**Do not proceed without human confirmation of manual tests** — unless the phase is being run
+under `/wb:implement --auto`, which buys the wait and not the attestation. In that case the
+attestation stays `[ ]`, the checkpoint records that the phase closed unattended and names the
+manual steps nobody performed, and the confirmation is **deferred, not obtained.**
+
+---
+
+## Phase 10: Manual-check fixes
+
+### Objective
+
+Fix the defects that the manual checks find. Added 2026-09-30 during the checks.
+
+### Tasks
+
+- [ ] **P10-T1** — Fix the dictionary extractor (found by the A4 check). It skips an approved
+      headword that has a comma after its part of speech (`ADAPT (v),`, 205 lines) and a
+      headword indented by one or two spaces (39 lines). It also cuts an alternative of more than
+      one word ("MAKE SURE (v)" becomes "SURE (v)"). In `plugin/scripts/test-wbte-dictionary`,
+      add invented entries of each shape (RED). Fix `plugin/scripts/wbte-dictionary` until the
+      test is green. Then run it on the user's PDF with a temporary `HOME` and compare the counts.
+
+### Success Criteria
+
+#### Automated Verification
+
+- [ ] `./plugin/scripts/test-wbte-dictionary` passes, and `shellcheck` is clean
+
+#### Manual Verification
+
+- [ ] The user rebuilds the copy, and the A4 lookups give full alternatives and a `start (v)` row
+
+### ⛔ CHECKPOINT: Phase 10 Complete
+
+These are the conditions to meet before the plan closes — **not a record of having met them.**
+Tick each one as it is actually satisfied.
+
+Each box below is labelled **(derivable)** or **(attestation)**. A derivable condition is one a
+tool can establish, and `/wb:implement` ticks those at its Step 8 checkpoint. An attestation
+records that a *person* looked, so only a person ticks it, and an unticked attestation beside
+finished work means *"done, sign-off pending"* rather than a contradiction.
+
+**Go by the label, never by position** — a positional reading of these boxes has been wrong
+before, and following it ticks the human sign-off box. **This block, labels and this sentence
+included, is repeated in full at every phase's checkpoint**; a later phase never gets a
+shortened one.
+
+- [ ] **(derivable)** Every Phase 10 checkbox is `[x]`
+- [ ] **(derivable)** All automated verification passing
+- [ ] **(attestation)** Manual verification confirmed by human
+- [ ] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
+      only writer of those fields, so do not edit `current_phase` or `completed_tasks` by hand
 
 **Do not proceed without human confirmation of manual tests** — unless the phase is being run
 under `/wb:implement --auto`, which buys the wait and not the attestation. In that case the
