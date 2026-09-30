@@ -4,13 +4,13 @@ ticket: null
 created: 2026-09-29
 status: in-progress
 last_updated: 2026-09-29
-current_phase: 3
+current_phase: 4
 total_tasks: 38
-completed_tasks: 15
+completed_tasks: 18
 task_tracking: markdown-checkboxes
 depends_on: [research.md, design.md]
 assignee: scraig
-git_commit: 8db0854
+git_commit: d464bd7
 git_branch: wb-2.2.0/asd_ste100_prose
 repository: thescubageek/workbench
 tags: [tasks, tracking, asd-ste100-prose]
@@ -135,8 +135,8 @@ Based on dependency analysis:
 | Phase 0: Planning | ✅ Complete | 4/4 | 100% |
 | Phase 1: Tracer bullet — prove the harness driver | ✅ Complete | 3/3 | 100% |
 | Phase 2: Rules authority, harness, and baseline | ✅ Complete | 8/8 | 100% |
-| Phase 3: Rule card | 🔄 In Progress | 0/3 | 0% |
-| Phase 4: Objective 1 — link lines and template rewrites | ⏸️ Not Started | 0/9 | 0% |
+| Phase 3: Rule card | ✅ Complete | 3/3 | 100% |
+| Phase 4: Objective 1 — link lines and template rewrites | 🔄 In Progress | 0/9 | 0% |
 | Phase 5: Objective 2 — gated "lite" rewrite | ⏸️ Not Started | 0/4 | 0% |
 | Phase 6: Dictionary skill | ⏸️ Not Started | 0/2 | 0% |
 | Phase 7: Documentation, handoff, and release checks | ⏸️ Not Started | 0/5 | 0% |
@@ -636,7 +636,7 @@ shortened one.
 - [x] **(derivable)** Every Phase 3 checkbox is `[x]`
 - [x] **(derivable)** All automated verification passing
 - [x] **(attestation)** Manual verification confirmed by human
-- [ ] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
+- [x] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
       only writer of those fields, so do not edit `current_phase` or `completed_tasks` by hand
 
 **Do not proceed without human confirmation of manual tests** — unless the phase is being run
