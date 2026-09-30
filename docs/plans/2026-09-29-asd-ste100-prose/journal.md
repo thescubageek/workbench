@@ -51,11 +51,18 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
-## 2026-09-30 00:32 — P2-T1 (open)
+## 2026-09-30 00:36 — P2-T2 (closed)
+
+- **Task/phase**: P2-T2 — ignore rules: `.gitignore` gains `evals/runs/`, `__pycache__/`, `*.pyc`; new `.wblintignore` with `evals/fixtures/planted/`
+- **Landed**: before the change, `lint --all` flagged a temporary planted file (MD022). After it, lint skipped the file and `lint --all` was clean. `test-lint` passed 15 of 15. The temporary file was removed
+- **Commits**: see `P2-T2: ignore harness runs, bytecode, and planted fixtures`
+
+## 2026-09-30 00:32 — P2-T1 (closed)
 
 - **Task/phase**: P2-T1 — write `plugin/docs/reference/technical-english.md` (nine sections, exempt tokens copied from the parsers)
-- **Next action**: write the doc, lint it, check it with a sentence-length and semicolon count, then commit
-- **Started at**: 11081d6
+- **Landed**: the WBTE reference doc. Lint is clean, the prose has no semicolons, and no sentence has more than 20 words
+- **Commits**: cdee6d5
+- **Learned**: lint `--fix` (MD010) turns a literal tab inside a code block into spaces. The dictionary lookup uses `$'\t'` for that reason
 
 ## 2026-09-30 00:24 — P1-T3 (closed)
 

@@ -8,3 +8,10 @@ docs/plans/
 
 # Claude Code local, per-developer config (permission allowlist etc.) — not shipped.
 .claude/settings.local.json
+
+# Eval harness run output — maintainer-only, regenerated on every run.
+evals/runs/
+
+# Python bytecode.
+__pycache__/
+*.pyc

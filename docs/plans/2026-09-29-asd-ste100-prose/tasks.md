@@ -387,9 +387,9 @@ user requirement.
 - [x] **P2-T1** — Write `plugin/docs/reference/technical-english.md` with all nine sections
       from design.md Data Model, and the exempt-token list copied from the parser lines listed
       above. Lint it. (~25 calls) (completed 2026-09-30 00:33)
-- [ ] **P2-T2** — Add `evals/runs/`, `__pycache__/` and `*.pyc` to `.gitignore`. Create
+- [x] **P2-T2** — Add `evals/runs/`, `__pycache__/` and `*.pyc` to `.gitignore`. Create
       `.wblintignore` with `evals/fixtures/planted/`. Confirm with
-      `./plugin/scripts/lint --all` that planted files are skipped. (~6 calls)
+      `./plugin/scripts/lint --all` that planted files are skipped. (~6 calls) (completed 2026-09-30 00:34)
 
 #### Implementation
 
