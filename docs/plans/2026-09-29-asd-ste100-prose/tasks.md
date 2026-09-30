@@ -873,7 +873,7 @@ files. The 3.0.0 handoff (P7-T2) lists them.
 
 ### Tasks
 
-- [ ] **P5-T5** — Build a larger fixture, `evals/fixture-large/`, so that the stages spawn their
+- [x] **P5-T5** — Build a larger fixture, `evals/fixture-large/`, so that the stages spawn their
       sub-agents (the D6 follow-up). Added 2026-09-30 at the user's request: on the small
       fixture, no stage spawned an agent in 12 sessions, so 5 of the 9 Phase 5 files cannot
       show "no loss".
@@ -888,7 +888,7 @@ files. The 3.0.0 handoff (P7-T2) lists them.
       - Then run the Phase 4 tree (`f2c78e8`) on the new fixture with 3 repeats. That run is
         the "before" side of every Phase 5 gate.
       - Record the fixture size, the spawn evidence, and the before run in
-        `thoughts/2026-09-30-lite-verdicts.md`. (~40 calls)
+        `thoughts/2026-09-30-lite-verdicts.md`. (~40 calls) (completed 2026-09-30 12:22)
 - [ ] **P5-T1** — Gate `create_research/{reference,sub-agent-prompts}.md`. Depends on: P5-T5. (~30 calls)
 - [ ] **P5-T2** — Gate `create_design/{reference,sub-agent-prompts}.md`. Depends on: P5-T5. (~30 calls)
 - [ ] **P5-T3** — Gate `create_tasks/{reference,examples,sub-agent-prompts}.md`. Depends on: P5-T5. (~30 calls)

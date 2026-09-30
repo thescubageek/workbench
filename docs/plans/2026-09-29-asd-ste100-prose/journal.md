@@ -70,11 +70,12 @@ this template, silently, from the moment of creation.
 - **Landed**: 13 checks over the four cases in the task. With no extractor, the 9 positive checks fail with exit 127, and the 4 "nothing written" checks pass trivially
 - **Commits**: see `P6-T1: add the wbte-dictionary contract test (RED)`
 
-## 2026-09-30 08:06 — P5-T5 (open)
+## 2026-09-30 08:06 — P5-T5 (closed)
 
 - **Task/phase**: P5-T5 — a larger fixture, `evals/fixture-large/`, that makes the stages spawn sub-agents, plus `--fixture` support and the Phase 4 before-run on it
-- **Next action**: BLOCKED on the user's spend limit. At about 01:38, four parallel runs on the large fixture hit the individual spend limit (`You've hit your individual spend limit`), and every later stage failed in about 10 s. Complete: repeat 1 of the before-run `20260930T082432Z` ($4.88), of the P5-T1 gate `20260930T082512Z` ($4.52), and of the P5-T2 gate `20260930T082458Z` ($6.37). The P5-T3 gate `20260930T083648Z` has no usable repeat, and P5-T4 has not started. Finishing needs 12 more repeats (about $60 and 2.5 h in sequence). The user decides the budget. The gate trees are in `/tmp/wb-gate-trees/`, and the drafts are in `.context/lite/`
-- **Started at**: 72af3b1
+- **Landed**: `evals/fixture-large/` (77 Python files, 4,178 lines, 19 facts) and `--fixture` support. The tracer `20260930T082028Z` spawned all three agent types. The before-run is `20260930T082432Z`, repeat 1 (Phase 4 tree `f2c78e8`, $4.88, within-run judge: no loss). The record is `thoughts/2026-09-30-lite-verdicts.md`
+- **Commits**: 82564d8 (WIP), then `P5-T5: record the large fixture and the Phase 5 before-run`
+- **Learned**: four parallel runs on the large fixture hit the individual spend limit. Run them one at a time. The user chose 1 repeat per gate (D10)
 
 ## 2026-09-30 06:39 — P4-T9 (closed)
 

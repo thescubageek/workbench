@@ -414,6 +414,16 @@ execution phase and measured by the harness.
     and every run is scored again with the corrected detector.
   - Source: P4-T9 · Decided 2026-09-30
 
+- **D10 — The Phase 5 gates use 1 repeat each, not 3.**
+  - At about 01:38 on 2026-09-30, four parallel runs on the large fixture hit the user's
+    individual spend limit. The later stages failed with no output. Each repeat on the large
+    fixture costs about $5 and takes 12 minutes.
+  - Rationale (the user's choice): finishing 3 repeats for each gate needed about $60 more.
+    Objective 2 is secondary (D-Q1).
+  - Trade-off: a verdict is "no loss in 1 of 1", not "3 of 3". The verdict table says so, and
+    the post-3.0.0 pass can measure again with 3 repeats.
+  - Source: P5-T5 · Decided 2026-09-30
+
 ## Scope Definition
 
 ### In Scope
