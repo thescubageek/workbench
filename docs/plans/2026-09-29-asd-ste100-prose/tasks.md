@@ -396,9 +396,9 @@ user requirement.
 - [x] **P2-T3** — Write `evals/wbte_check.py` and its planted-failure inputs (semicolons, a
       40-word sentence, a chat summary with `P1-T3` alone, a 5-word noun cluster) plus clean
       siblings. Each planted input must exit 1, and each clean sibling must exit 0. (~35 calls) (completed 2026-09-30 00:37)
-- [ ] **P2-T4** — Write `evals/tokens.json` and `evals/token_check.py`. Planted inputs: a task
+- [x] **P2-T4** — Write `evals/tokens.json` and `evals/token_check.py`. Planted inputs: a task
       ID with no digit, a journal heading with no `(open)` or `(closed)`, a checkpoint block
-      without `Go by the label, never by position`. Each must exit 1. (~30 calls)
+      without `Go by the label, never by position`. Each must exit 1. (~30 calls) (completed 2026-09-30 00:39)
 - [ ] **P2-T5** — Write `evals/link_check.py`. Planted inputs: a template with no link line, a
       file that restates a rule phrase, a tracked `.pdf`. Each must exit 1. Today the check is
       expected to fail on every template, because no link lines exist yet. Record that as the

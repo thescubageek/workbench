@@ -51,6 +51,13 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-30 00:47 — P2-T4 (closed)
+
+- **Task/phase**: P2-T4 — `evals/tokens.json` and `evals/token_check.py`, with planted inputs (task ID with no digit, journal heading with no suffix, checkpoint without the label sentence)
+- **Landed**: the registry and the checker. With no arguments, it checks that every exempt token is still in each template listed for it. With file arguments, it runs the parser patterns on generated documents. Before the checker existed, every planted input exited 2. Now the 3 bad inputs exit 1 and the 2 clean ones exit 0. A temporary tree with one token removed made the registry check exit 1
+- **Commits**: see `P2-T4: add the exempt-token registry and checker`
+- **Learned**: the task-ID check uses the validator's own pattern, `[A-Z0-9-]+`. So a mixed-case bold lead-in such as `**Setup**` is not seen as a task line, which matches how the validator behaves
+
 ## 2026-09-30 00:39 — P2-T3 (closed)
 
 - **Task/phase**: P2-T3 — `evals/wbte_check.py` and its planted-failure inputs with clean siblings
