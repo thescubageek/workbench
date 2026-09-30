@@ -711,9 +711,9 @@ change to full stops or commas.
 - [x] **P4-T4** — Rewrite in WBTE, with the link line: `create_research/templates.md` and
       `create_design/templates/{design-md-template,design-options-message,design-presentation-message,recorded-decision-confirmation-message}.md`.
       Run both checks. (~30 calls) (completed 2026-09-30 05:24)
-- [ ] **P4-T5** — Rewrite in WBTE, with the link line: `create_handoff/templates/{handoff-document,completion-message}.md`,
+- [x] **P4-T5** — Rewrite in WBTE, with the link line: `create_handoff/templates/{handoff-document,completion-message}.md`,
       `resume_handoff/templates.md`, and `explore_design/templates/{exploration-document,completion-message}.md`.
-      Run both checks. (~30 calls)
+      Run both checks. (~30 calls) (completed 2026-09-30 05:25)
 - [ ] **P4-T6** — Rewrite in WBTE, with the link line: `validate_execution/templates.md`,
       `validate_project/templates/error-message-formats.md`, `resolve_questions/templates.md`,
       and `create_tasks/templates/plan-presentation-message.md`. Run both checks. (~30 calls)

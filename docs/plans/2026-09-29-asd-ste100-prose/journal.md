@@ -51,6 +51,11 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-30 05:36 — P4-T5 (closed)
+
+- **Task/phase**: P4-T5 — WBTE rewrite, with the link line, of the `create_handoff` templates, `resume_handoff/templates.md`, and the `explore_design` templates
+- **Landed**: `link_check.py` failed on 5 of 5 before the change and on 0 after it. The registry passes, lint is clean, and the added prose has 0 semicolons. `## Decision Record`, the `OPEN`/`CLOSED` journal words and `UIQ[n]` did not change
+- **Commits**: see `P4-T5: rewrite the handoff and explore_design templates in WBTE`
 ## 2026-09-30 05:30 — P4-T4 (closed)
 
 - **Task/phase**: P4-T4 — WBTE rewrite, with the link line, of `create_research/templates.md` and the four `create_design` templates
