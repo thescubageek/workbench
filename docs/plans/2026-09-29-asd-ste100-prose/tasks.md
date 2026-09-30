@@ -136,7 +136,7 @@ Based on dependency analysis:
 | Phase 1: Tracer bullet — prove the harness driver | ✅ Complete | 3/3 | 100% |
 | Phase 2: Rules authority, harness, and baseline | ✅ Complete | 8/8 | 100% |
 | Phase 3: Rule card | ✅ Complete | 3/3 | 100% |
-| Phase 4: Objective 1 — link lines and template rewrites | 🔄 In Progress | 0/9 | 0% |
+| Phase 4: Objective 1 — link lines and template rewrites | 🔄 In Progress | 8/10 | 80% |
 | Phase 5: Objective 2 — gated "lite" rewrite | ⏸️ Not Started | 0/4 | 0% |
 | Phase 6: Dictionary skill | ⏸️ Not Started | 0/2 | 0% |
 | Phase 7: Documentation, handoff, and release checks | ⏸️ Not Started | 0/5 | 0% |
@@ -729,12 +729,21 @@ change to full stops or commas.
 
 #### Integration
 
+- [ ] **P4-T10** — Add the within-run mode to `evals/judge.py` that design.md D7 requires. For
+      each repeat, the judge asks whether that run's `design.md` and `tasks.md` carry forward
+      the facts, `file:line` references, IDs and barriers of that run's own `research.md`.
+      `--run` judges both trees in this way. Calibrate it on the 2.1.1 baseline run
+      (`evals/runs/20260930T013327Z`). A copy of a real `design.md` with one research fact and its
+      `file:line` removed must be flagged in 3 of 3 runs. The real run must show no loss in 3 of
+      3 repeats. Record the result in `thoughts/2026-09-30-judge-calibration.md`. Added
+      2026-09-30 at the user's request (resolve_questions, D7). (~35 calls)
 - [ ] **P4-T9** — Run `evals/run.py` with 3 repeats, comparing `4b32306` with the P4-T8 tree.
       Run `wbte_check.py`, `token_check.py` and the judge on every output, then `report.py`.
       Check the design.md targets: no prose semicolons, no lone IDs in chat, at most 5% of
       sentences over 25 words and fewer than the baseline, no lost facts. Save the report as
       `thoughts/2026-09-30-objective-1-report.md`. If a target fails, name the template that
-      caused it and fix it in this task. (~35 calls)
+      caused it and fix it in this task. Use the P4-T10 within-run judge for "no lost facts".
+      Depends on: P4-T10. (~35 calls)
 
 ### Success Criteria
 
