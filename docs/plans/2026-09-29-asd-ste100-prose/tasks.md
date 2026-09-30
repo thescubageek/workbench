@@ -399,10 +399,10 @@ user requirement.
 - [x] **P2-T4** — Write `evals/tokens.json` and `evals/token_check.py`. Planted inputs: a task
       ID with no digit, a journal heading with no `(open)` or `(closed)`, a checkpoint block
       without `Go by the label, never by position`. Each must exit 1. (~30 calls) (completed 2026-09-30 00:39)
-- [ ] **P2-T5** — Write `evals/link_check.py`. Planted inputs: a template with no link line, a
+- [x] **P2-T5** — Write `evals/link_check.py`. Planted inputs: a template with no link line, a
       file that restates a rule phrase, a tracked `.pdf`. Each must exit 1. Today the check is
       expected to fail on every template, because no link lines exist yet. Record that as the
-      RED state. (~25 calls)
+      RED state. (~25 calls) (completed 2026-09-30 00:41)
 - [ ] **P2-T6** — Write `evals/run.py` from the P1-T3 probe: two trees from git refs, a fresh
       fixture copy per repeat, the three stages in order, the `status: approved` step, the model
       pinned with `--model`, and outputs under `evals/runs/`. Run it once with 1 repeat on

@@ -51,6 +51,13 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-30 00:53 — P2-T5 (closed)
+
+- **Task/phase**: P2-T5 — `evals/link_check.py` with planted inputs (template without a link line, a file that restates a rule, a tracked `.pdf`)
+- **Landed**: the checker and 4 planted case directories. The 3 bad cases exit 1 and the clean case exits 0. The RED state on the repo is exit 1: 43 of 43 templates and 4 of 4 inline steps have no link line. No file restates a rule, and no PDF or dictionary is tracked
+- **Commits**: see `P2-T5: add the link-line and single-authority checker`
+- **Learned**: the planted PDF case is simulated with a `.tracked` list, so no `.pdf` is committed. A committed `.pdf` would break the Phase 6 check that `git ls-files` lists none
+
 ## 2026-09-30 00:47 — P2-T4 (closed)
 
 - **Task/phase**: P2-T4 — `evals/tokens.json` and `evals/token_check.py`, with planted inputs (task ID with no digit, journal heading with no suffix, checkpoint without the label sentence)
