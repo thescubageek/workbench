@@ -470,6 +470,40 @@ execution phase and measured by the harness.
     that conflicts.
   - Source: design.md PD4 · Decided 2026-09-30
 
+- **D15 — PR descriptions follow WBTE through three channels: the card, a reference section, and
+  `/wb:pr-description`.**
+  - No stage writes a PR description today. The harness default writes it, and only the card is
+    in context at that moment. So a card rule names PR descriptions and commit messages and
+    points to a new section, "Pull requests and commit messages", in `technical-english.md`.
+  - The new skill `/wb:pr-description` drafts the title and body from the branch. It runs
+    `gh pr create` or `gh pr edit` only after the user confirms, because a PR is outward-facing.
+  - Rationale (the user's words): a teammate asked "Please stop sending me long AI diatribes
+    for me to parse". PR descriptions must use WBTE and be "designed for brevity, simplicity
+    and human consumption".
+  - Trade-off: the card has 9 free words, so other card wording gets shorter. The card changes
+    again after the A1 measurement.
+  - Source: user request, 2026-09-30 · Decided 2026-09-30
+- **D16 — The rule covers PR descriptions and commit messages.**
+  - A commit subject has at most 72 characters and uses the imperative. A body is optional,
+    has a few short lines, and says why.
+  - Rationale: a long commit body is the same problem in a smaller place.
+  - Source: user request, 2026-09-30 · Decided 2026-09-30
+- **D17 — The repository's PR template sets the sections. Each section gets only as much text
+  as its content needs, and the whole body aims to fit on one screen.**
+  - The skill finds the repository's PR template in the places GitHub reads. If there is none,
+    it uses a generic template that ships with the skill.
+  - Each section is scoped to what a reviewer needs from it. A section with nothing to say is
+    left out, or gets "None" if the template requires it. Detail goes behind a link to the plan
+    or handoff, not into the body.
+  - The target is one screen, about 150 to 250 words. It is a soft target: a complex change can
+    be longer.
+  - Rationale (the user's words): "per-section based on the existing pull request template per
+    the repo we are in … Ideally the entire PR description with all sections fits inside a
+    single fold of the screen (but not hard rule because some stuff is more complex)".
+  - Trade-off: a soft target cannot be enforced exactly. The harness checker warns above the
+    target and fails only on a clear diatribe.
+  - Source: user request, 2026-09-30 · Decided 2026-09-30
+
 ## Scope Definition
 
 ### In Scope
@@ -483,6 +517,8 @@ execution phase and measured by the harness.
   kept only where the harness shows no loss.
 - Support for repo technical nouns in `.claude/wb/technical-nouns.md`.
 - A user-invocable skill that helps the user extract their own dictionary copy.
+- PR descriptions and commit messages in WBTE: a card rule, a reference section, and the
+  `/wb:pr-description` skill (D15 to D17).
 - The eval harness under `evals/`: fixture, stage prompts, STE metric checker, fidelity judge,
   and a before/after report.
 - The 3.0.0 handoff document, the README section, the CHANGELOG 2.2.0 entry, and the version

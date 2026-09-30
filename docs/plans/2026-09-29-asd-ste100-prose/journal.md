@@ -51,6 +51,12 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-30 16:47 — Phase 9 (open)
+
+- **Task/phase**: P9-T1 to P9-T6 — PR descriptions and commit messages in WBTE (D15 to D17)
+- **Next action**: P9-T1, the reference section. Manual check 1 (the Phase 2 judge and baseline read) is with the user in a test session
+- **Started at**: 6757ff4
+
 ## 2026-09-30 16:33 — Phase 8 (closed)
 
 - **Task/phase**: P8-T1 to P8-T7 — the validation fixes, then PD1 to PD4 through resolve_questions (D11 to D14)

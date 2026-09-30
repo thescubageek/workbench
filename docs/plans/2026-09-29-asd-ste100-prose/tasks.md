@@ -141,6 +141,7 @@ Based on dependency analysis:
 | Phase 6: Dictionary skill | ✅ Complete | 2/2 | 100% |
 | Phase 7: Documentation, handoff, and release checks | ✅ Complete | 5/5 | 100% |
 | Phase 8: Validation fixes | ✅ Complete | 7/7 | 100% |
+| Phase 9: PR descriptions and commit messages in WBTE | 🔄 In progress | 0/6 | 0% |
 
 Counts come from the checkboxes below and are reconciled by `/wb:update_status`.
 
@@ -1318,6 +1319,93 @@ shortened one.
 **Closed 2026-09-30 16:33 UTC, at the user's request (fix, resolve the questions, then iterate).** The
 attestation stays `[ ]`. Nobody has read the corrected records and the CHANGELOG lines. The
 attestations of Phases 2 and 4 to 7 are also still open, so `status: complete` waits.
+
+**Do not proceed without human confirmation of manual tests** — unless the phase is being run
+under `/wb:implement --auto`, which buys the wait and not the attestation. In that case the
+attestation stays `[ ]`, the checkpoint records that the phase closed unattended and names the
+manual steps nobody performed, and the confirmation is **deferred, not obtained.**
+
+---
+
+## Phase 9: PR descriptions and commit messages in WBTE
+
+### Objective
+
+Make every PR description and commit message short, plain, and in WBTE (design.md D15 to D17).
+Added 2026-09-30 at the user's request.
+
+### Prerequisites
+
+- [x] D15, D16 and D17 recorded in design.md
+
+### Changes Required
+
+- `plugin/docs/reference/technical-english.md` — a "Pull requests and commit messages" section:
+  the template order, the section scoping, the one-screen target, the commit shape, and what
+  stays exact (attribution lines, closing keywords, template checklists).
+- `plugin/scripts/pr-template` (new) — prints the repository's PR template path in GitHub's
+  order, or the generic template path. It lists every file when the repository has a template
+  directory. `plugin/scripts/test-pr-template` (new) is its contract test.
+- `plugin/skills/pr-description/` (new) — `SKILL.md` and `templates/pr-description.md`, the
+  generic template with the link line.
+- `plugin/hooks/wb-prime.sh` — a card rule that names PR descriptions and commit messages, within
+  150 words.
+- `evals/wbte_check.py` — a `--pr` mode: warn above 250 words, fail above 400 words or on a
+  section over its limit. Planted inputs: a long PR body and a clean one.
+- README, CHANGELOG, `/wb:help`, and the 3.0.0 handoff.
+
+### Tasks
+
+- [ ] **P9-T1** — Write the "Pull requests and commit messages" section in
+      `technical-english.md`. Run `link_check.py` and `token_check.py`.
+- [ ] **P9-T2** — Write `plugin/scripts/test-pr-template` (RED), then `plugin/scripts/pr-template`
+      until it is green. Cases: each GitHub location, case-insensitive names, a template
+      directory, no template (the generic path), and a run from a subdirectory.
+- [ ] **P9-T3** — Write `plugin/skills/pr-description/SKILL.md` and
+      `templates/pr-description.md`. `link_check.py` must pass.
+- [ ] **P9-T4** — In `test-prime`, require that the card names PR descriptions and commit
+      messages (RED). Change the card, within 150 words, until `test-prime` is green.
+- [ ] **P9-T5** — Add `--pr` to `evals/wbte_check.py`, with a planted long PR body (exit 1) and a
+      clean sibling (exit 0).
+- [ ] **P9-T6** — Document the skill in README, CHANGELOG, `/wb:help` and the handoff. Run
+      `git merge-tree` and add a note for any new conflict.
+
+### Success Criteria
+
+#### Automated Verification
+
+- [ ] `./plugin/scripts/test-pr-template`, `./plugin/scripts/test-prime`, `./plugin/scripts/test-lint`
+      and `./plugin/scripts/test-quiet` pass
+- [ ] `python3 evals/link_check.py` and `python3 evals/token_check.py` pass
+- [ ] Each planted PR body gives its expected exit code from `wbte_check.py --pr`
+- [ ] `./plugin/scripts/lint --all` exits 0, and `claude plugin validate plugin/` passes
+
+#### Manual Verification
+
+- [ ] `/wb:pr-description` on this branch drafts a 2.2.0 PR body that fits about one screen, and
+      a teammate would read it
+- [ ] In a repository with a PR template, the draft uses that template's sections
+
+### ⛔ CHECKPOINT: Phase 9 Complete
+
+These are the conditions to meet before the plan closes — **not a record of having met them.**
+Tick each one as it is actually satisfied.
+
+Each box below is labelled **(derivable)** or **(attestation)**. A derivable condition is one a
+tool can establish, and `/wb:implement` ticks those at its Step 8 checkpoint. An attestation
+records that a *person* looked, so only a person ticks it, and an unticked attestation beside
+finished work means *"done, sign-off pending"* rather than a contradiction.
+
+**Go by the label, never by position** — a positional reading of these boxes has been wrong
+before, and following it ticks the human sign-off box. **This block, labels and this sentence
+included, is repeated in full at every phase's checkpoint**; a later phase never gets a
+shortened one.
+
+- [ ] **(derivable)** Every Phase 9 checkbox is `[x]`
+- [ ] **(derivable)** All automated verification passing
+- [ ] **(attestation)** Manual verification confirmed by human
+- [ ] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
+      only writer of those fields, so do not edit `current_phase` or `completed_tasks` by hand
 
 **Do not proceed without human confirmation of manual tests** — unless the phase is being run
 under `/wb:implement --auto`, which buys the wait and not the attestation. In that case the
