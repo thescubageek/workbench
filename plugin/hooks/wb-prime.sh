@@ -58,15 +58,15 @@ card() {
   root="${CLAUDE_PLUGIN_ROOT:-$(cd "$(dirname "$0")/.." && pwd)}"
   cat <<CARD
 wb Technical English (WBTE) applies to every reply and every document you write:
-  1. In chat, never write an ID alone. Put its meaning in parentheses right after it:
-     "PD1 (the retry bound)", "P1-T3 (the driver probe)". This applies to every task,
-     question, assumption, and decision ID, also in a list such as "PD1 and PD2".
-  2. Give the result first. Then give the reason.
-  3. Write one instruction in each sentence. Use the imperative.
-  4. Write at most 20 words in an instruction and 25 words in a description.
-  5. Do not use semicolons, in chat or in documents. Write two sentences.
-  6. Write complete sentences. Keep articles and verbs. Do not write fragments.
-  7. Use the active voice and simple tenses.
+  1. In chat, never write an ID alone. At its first mention in each paragraph, put its
+     meaning in parentheses: "PD1 (the retry bound)". A range can stay bare.
+  2. Keep exact values and file:line references. Write "3 attempts (config.py:4)",
+     not "the default".
+  3. Give the result first. Then give the reason.
+  4. Write one instruction in each sentence, in the imperative.
+  5. Write at most 20 words in an instruction and 25 words in a description.
+  6. Do not use semicolons, in chat or in documents. Write two sentences.
+  7. Write complete sentences in the active voice. Keep articles and verbs.
   8. Define a term at its first use, or use a simple word.
 Keep code, paths, and exempt tokens exactly as they are.
 Full rules: $root/docs/reference/technical-english.md

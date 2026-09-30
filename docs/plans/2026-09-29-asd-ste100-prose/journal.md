@@ -51,11 +51,12 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
-## 2026-09-30 06:39 — P4-T9 (open)
+## 2026-09-30 06:39 — P4-T9 (closed)
 
 - **Task/phase**: P4-T9 — the Objective 1 measurement: 2.1.1 against the P4-T8 tree, 3 repeats, with the design.md targets and the within-run judge
-- **Next action**: blocked on two user decisions. (1) The 4 semicolons from the shared `create_tasks` template: accept them for 2.2.0 or rewrite that template, an exception to D-Q3. (2) Chat IDs on a second mention: accept 5, or add "every mention" wording and measure again. The fixes and the report are committed as WIP. The record is `thoughts/2026-09-30-objective-1-report.md`
-- **Started at**: 8518bf1
+- **Landed**: the final tree (card v3, run `20260930T073357Z`) against 2.1.1 (`20260930T013327Z`). Sentences over 25 words: 7.0% to 2.9%. The within-run judge found no loss in 3 of 3 repeats. Document semicolons: 82 to 9, all in the shared `tasks.md` boilerplate (D8). Chat IDs used alone: 25 to 2 (D9 rule). Fixes: rule 15, the Assumptions line, the D9 ID rule, and card v3
+- **Commits**: 91bebc8 (WIP), then `P4-T9: meet the Objective 1 targets on the final tree`
+- **Learned**: a rule that lives only in the reference doc applies in about two runs of three. A rule that must always hold belongs on the card. Metrics that come from chat vary a lot between repeats
 
 ## 2026-09-30 06:35 — P4-T10 (closed)
 

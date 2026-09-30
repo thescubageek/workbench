@@ -85,8 +85,14 @@ Define any other term at its first use, or replace it with a simple word.
 short meaning. Write "P1-T3 (the driver probe) passed", not "P1-T3 passed". This applies to
 `P1-T3`, `Q2`, `A1`, `PD1`, `D-Q3`, `UIQ2`, and every other ID shape.
 
-**In documents, keep IDs.** Parsers and validators depend on them. Give each ID a meaning where
-the document first uses it, for example in a table row.
+- Give the meaning once in each paragraph, at the first mention. A later mention in the same
+  paragraph does not repeat it. A new paragraph gives it again.
+- An ID inside the meaning of another ID needs no meaning of its own, for example
+  "P1-T2 (the A1 check)".
+- An ID range can stay bare, for example "P0-T1 to P0-T4" or "A1–A3".
+
+**In documents, keep IDs.** Parsers and validators depend on them. A document does not explain
+an ID at each use. The table or list that defines the ID gives its meaning.
 
 **Do not use unexplained shorthand in prose.** This includes these forms:
 

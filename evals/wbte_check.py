@@ -20,6 +20,8 @@ import sys
 ID_RE = re.compile(r"\b(P\d+-T\d+|Q\d+|A\d+|PD\d+|D-Q\d+|UIQ\d+)\b")
 PAIRED_AFTER = re.compile(r"^[*`]*(\s*\(|\s[—–-]\s|:)")
 PAIRED_BEFORE = re.compile(r"\(\s*[*`]*$")
+RANGE_BEFORE = re.compile(r"\b(P\d+-T\d+|Q\d+|A\d+|PD\d+|D-Q\d+|UIQ\d+)[*`]*\s*(to|–|-)\s*[*`]*$")
+RANGE_AFTER = re.compile(r"^[*`]*\s*(to|–|-)\s*[*`]*(P\d+-T\d+|Q\d+|A\d+|PD\d+|D-Q\d+|UIQ\d+)\b")
 
 STOP_WORDS = set("""
 a an the this that these those each every any all some no not none both either neither
@@ -135,14 +137,29 @@ def noun_clusters(sentence, max_cluster):
 
 
 def lone_ids(raw):
+    """IDs with no meaning nearby, by the rule in technical-english.md (Shorthand and IDs).
+
+    Within one paragraph, an ID needs its meaning once. An ID inside another ID's meaning and
+    an ID in a range ("P0-T1 to P0-T4") need none.
+    """
     text = re.sub(r"^(```|~~~).*?^\1[^\n]*$", "", raw, flags=re.S | re.M)
     hits = []
-    for m in ID_RE.finditer(text):
-        before = text[max(0, m.start() - 3):m.start()]
-        after = text[m.end():m.end() + 5]
-        if PAIRED_AFTER.match(after) or PAIRED_BEFORE.search(before):
-            continue
-        hits.append(m.group(0))
+    for para in re.split(r"\n\s*\n", text):
+        paired = set()
+        for m in ID_RE.finditer(para):
+            ident = m.group(0)
+            before = para[max(0, m.start() - 3):m.start()]
+            after = para[m.end():m.end() + 5]
+            head = para[:m.start()]
+            if PAIRED_AFTER.match(after) or PAIRED_BEFORE.search(before):
+                paired.add(ident)
+                continue
+            nested = head.count("(") > head.count(")")
+            in_range = (RANGE_BEFORE.search(para[max(0, m.start() - 16):m.start()])
+                        or RANGE_AFTER.match(para[m.end():m.end() + 16]))
+            if nested or in_range or ident in paired:
+                continue
+            hits.append(ident)
     return hits
 
 

@@ -737,13 +737,13 @@ change to full stops or commas.
       `file:line` removed must be flagged in 3 of 3 runs. The real run must show no loss in 3 of
       3 repeats. Record the result in `thoughts/2026-09-30-judge-calibration.md`. Added
       2026-09-30 at the user's request (resolve_questions, D7). (~35 calls) (completed 2026-09-30 06:39)
-- [ ] **P4-T9** — Run `evals/run.py` with 3 repeats, comparing `4b32306` with the P4-T8 tree.
+- [x] **P4-T9** — Run `evals/run.py` with 3 repeats, comparing `4b32306` with the P4-T8 tree.
       Run `wbte_check.py`, `token_check.py` and the judge on every output, then `report.py`.
       Check the design.md targets: no prose semicolons, no lone IDs in chat, at most 5% of
       sentences over 25 words and fewer than the baseline, no lost facts. Save the report as
       `thoughts/2026-09-30-objective-1-report.md`. If a target fails, name the template that
       caused it and fix it in this task. Use the P4-T10 within-run judge for "no lost facts".
-      Depends on: P4-T10. (~35 calls)
+      Depends on: P4-T10. (~35 calls) (completed 2026-09-30 07:50)
 
 ### Success Criteria
 
@@ -1234,6 +1234,12 @@ resolved, leaving a dated line saying how.
   P3-T1, P3-T2, and P4-T1 to P4-T6) had estimated times, not times from `date -u`. Ten were later
   than the commit that closed the entry. Each heading now carries the time of the commit that
   came just before the entry opened. That time is a lower bound on the real open time.
+- [2026-09-30] **P4-T9 needed four measurement runs.** The fixes were output rule 15 (keep
+  specific values), an Assumptions line in `plan-presentation-message.md`, the D9 ID rule (in
+  the reference doc, card rule 1 and the detector), and card v3 (rule 15 on the card). The
+  user accepted the shared `tasks.md` boilerplate semicolons for 2.2.0 (D8). The final run,
+  `20260930T073357Z`, meets every target except 2 chat IDs in one sentence. The record is
+  `thoughts/2026-09-30-objective-1-report.md`.
 - **Planned against 2.1.1** (`4b32306`). If `main` moves before Phase 7, rebase and repeat the
   P7-T4 checks.
 - [2026-09-30] **Follow-up from P1-T2: three 2.1.1 templates fail markdownlint as written.**

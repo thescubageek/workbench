@@ -391,6 +391,29 @@ execution phase and measured by the harness.
     the task list yet. It must land before P4-T9 and Phase 5.
   - Source: tasks.md, Implementation Discoveries (the P2-T7 finding) · Decided 2026-09-30
 
+- **D8 — Accept the semicolons in the shared `tasks.md` boilerplate for 2.2.0.**
+  - The remaining document semicolons come from fixed text in
+    `create_tasks/templates/tasks-md-template.md`: the checkpoint block, the ID-shape rule, the
+    "Tasks run in document order" note, and the prerequisites line. The model copies this
+    text into every plan.
+  - Rationale (the user's choice): the template is shared with 3.0.0, and D-Q3 allows only the
+    link line there. The post-3.0.0 pass rewrites it.
+  - Trade-off: the "no semicolons in prose" target is met everywhere except in this
+    boilerplate. The 3.0.0 handoff (P7-T2) names it.
+  - Source: P4-T9, thoughts/2026-09-30-objective-1-report.md · Decided 2026-09-30
+- **D9 — The chat ID rule works per paragraph.**
+  - Give an ID its meaning once in each paragraph, at the first mention. A later mention in
+    the same paragraph does not repeat it. An ID inside another ID's meaning needs no meaning
+    of its own. A range such as "P0-T1 to P0-T4" can stay bare. A document does not explain
+    an ID at each use.
+  - Rationale (the user's words): "avoid redundancy within the same paragraph on IDs but not
+    across the entire prose of an output. We do not need the rule inside of output docs to
+    fully explain each abbreviation."
+  - Trade-off: a long message repeats a meaning in each paragraph. Card rule 1,
+    `technical-english.md` (Shorthand and IDs) and `wbte_check.py` all state the same rule,
+    and every run is scored again with the corrected detector.
+  - Source: P4-T9 · Decided 2026-09-30
+
 ## Scope Definition
 
 ### In Scope

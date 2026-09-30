@@ -113,6 +113,41 @@ Full rules: $root/docs/reference/technical-english.md
 Card v2 is at 149 of the 150 words that `test-prime` allows. A later wording change must
 remove a word for each word it adds.
 
+## Card v3 (P4-T9)
+
+P4-T9 changed the card twice more, as the P3-T3 task allows ("at most 2 more times"):
+
+- **v2b** changes only rule 1, to the per-paragraph ID rule that the user chose (D9).
+- **v3** adds "Keep exact values and file:line references" (output rule 15) as rule 2.
+  - In the v2b run (`evals/runs/20260930T071741Z`), repeat 1 lost the 10-second timeout
+    value. Rule 15 was only in the reference doc, and the model reads that doc in about two
+    runs of three (P4-T2).
+  - To make room, v3 merges "active voice" and "simple tenses" into one rule, and it drops
+    "simple tenses". It has 141 words.
+
+| Run | Card | Sentences over 25 words | Within-run judge | Chat IDs used alone |
+| --- | ---- | ----------------------- | ---------------- | ------------------- |
+| `20260930T071741Z` | v2b | 3.1% | loss in 1 of 3 (F1) | 7, all in repeat 1 |
+| `20260930T073357Z` | v3 | 2.9% | no loss in 3 of 3 | 2, in one sentence |
+
+Card v3 is the released card:
+
+```text
+wb Technical English (WBTE) applies to every reply and every document you write:
+  1. In chat, never write an ID alone. At its first mention in each paragraph, put its
+     meaning in parentheses: "PD1 (the retry bound)". A range can stay bare.
+  2. Keep exact values and file:line references. Write "3 attempts (config.py:4)",
+     not "the default".
+  3. Give the result first. Then give the reason.
+  4. Write one instruction in each sentence, in the imperative.
+  5. Write at most 20 words in an instruction and 25 words in a description.
+  6. Do not use semicolons, in chat or in documents. Write two sentences.
+  7. Write complete sentences in the active voice. Keep articles and verbs.
+  8. Define a term at its first use, or use a simple word.
+Keep code, paths, and exempt tokens exactly as they are.
+Full rules: $root/docs/reference/technical-english.md
+```
+
 ## A3: the card after compaction with no active plan
 
 **Result: A3 is validated, 2026-09-30.** The user ran an interactive session with
