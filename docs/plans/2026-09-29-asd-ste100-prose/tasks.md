@@ -4,13 +4,13 @@ ticket: null
 created: 2026-09-29
 status: in-progress
 last_updated: 2026-09-29
-current_phase: 2
+current_phase: 3
 total_tasks: 38
-completed_tasks: 7
+completed_tasks: 15
 task_tracking: markdown-checkboxes
 depends_on: [research.md, design.md]
 assignee: scraig
-git_commit: b2ddce8
+git_commit: 8db0854
 git_branch: wb-2.2.0/asd_ste100_prose
 repository: thescubageek/workbench
 tags: [tasks, tracking, asd-ste100-prose]
@@ -134,8 +134,8 @@ Based on dependency analysis:
 |-------|--------|-------|----------|
 | Phase 0: Planning | ✅ Complete | 4/4 | 100% |
 | Phase 1: Tracer bullet — prove the harness driver | ✅ Complete | 3/3 | 100% |
-| Phase 2: Rules authority, harness, and baseline | 🔄 In Progress | 0/8 | 0% |
-| Phase 3: Rule card | ⏸️ Not Started | 0/3 | 0% |
+| Phase 2: Rules authority, harness, and baseline | ✅ Complete | 8/8 | 100% |
+| Phase 3: Rule card | 🔄 In Progress | 0/3 | 0% |
 | Phase 4: Objective 1 — link lines and template rewrites | ⏸️ Not Started | 0/9 | 0% |
 | Phase 5: Objective 2 — gated "lite" rewrite | ⏸️ Not Started | 0/4 | 0% |
 | Phase 6: Dictionary skill | ⏸️ Not Started | 0/2 | 0% |
@@ -423,13 +423,13 @@ user requirement.
 
 #### Automated Verification
 
-- [ ] `python3 evals/wbte_check.py evals/fixtures/planted/<each bad file>` exits 1, and each
+- [x] `python3 evals/wbte_check.py evals/fixtures/planted/<each bad file>` exits 1, and each
       clean sibling exits 0
-- [ ] `python3 evals/token_check.py` and `python3 evals/link_check.py` fire on every planted
+- [x] `python3 evals/token_check.py` and `python3 evals/link_check.py` fire on every planted
       input
-- [ ] `./plugin/scripts/lint plugin/docs/reference/technical-english.md` is clean
-- [ ] `./plugin/scripts/lint --all` is clean, and planted fixtures are skipped
-- [ ] `grep -ril 'ASD-STE100' plugin/` lists only `technical-english.md` (the credit line)
+- [x] `./plugin/scripts/lint plugin/docs/reference/technical-english.md` is clean
+- [x] `./plugin/scripts/lint --all` is clean, and planted fixtures are skipped
+- [x] `grep -ril 'ASD-STE100' plugin/` lists only `technical-english.md` (the credit line)
 
 #### Manual Verification
 
@@ -437,23 +437,34 @@ user requirement.
       every design.md Data Model section
 - [ ] A human reads one judge verdict and one baseline report and confirms they make sense
 
-### Modified Files
+### 📝 Modified Files (Phase 2)
 
 #### Code Files
 
-- `plugin/docs/reference/technical-english.md` — new authority
-- `evals/wbte_check.py`, `evals/token_check.py`, `evals/tokens.json`, `evals/link_check.py`,
-  `evals/run.py`, `evals/judge.py`, `evals/report.py`, `evals/README.md` — new harness
-- `.gitignore`, `.wblintignore`
+- `plugin/docs/reference/technical-english.md` - the single WBTE authority, with nine sections and the exempt-token list (P2-T1)
+- `.gitignore`, `.wblintignore` - ignore `evals/runs/` and bytecode, and keep lint away from `evals/fixtures/planted/` (P2-T2)
+- `evals/wbte_check.py` - the WBTE metric checker (P2-T3, with two fixes in P2-T7)
+- `evals/tokens.json`, `evals/token_check.py` - the exempt-token registry and the parser-pattern checker (P2-T4)
+- `evals/link_check.py` - the link-line, single-authority, and no-ASD-content checker (P2-T5)
+- `evals/run.py` - the before/after driver (P2-T6, with `--add-dir` and the skip rule added in P2-T8)
+- `evals/judge.py`, `evals/report.py`, `evals/README.md` - the fidelity judge, the report, and the usage guide (P2-T7)
+- `.claude/wb/knowledge.md` - the resumed-session read refusal (P2-T8)
+- `thoughts/2026-09-30-judge-calibration.md`, `thoughts/2026-09-30-baseline.md` - the calibration and baseline records (P2-T7, P2-T8)
 
 #### Test Files
 
-- `evals/fixtures/planted/*` — planted failures and clean siblings
+- `evals/fixtures/planted/{bad,clean}-*` - `wbte_check.py` inputs: semicolon, long sentence, lone ID, noun cluster (P2-T3)
+- `evals/fixtures/planted/tokens/*` - `token_check.py` inputs: task ID without a digit, journal heading without a suffix, checkpoint without the label sentence (P2-T4)
+- `evals/fixtures/planted/links/*/` - `link_check.py` case directories: no link line, a restated rule, a tracked PDF (P2-T5)
 
-**Quick test command for this phase**:
+**Quick test commands:**
 
 ```bash
-for f in evals/fixtures/planted/bad-*; do python3 evals/wbte_check.py "$f" && echo "MISSED $f"; done
+# Run all tests for this phase
+for f in evals/fixtures/planted/bad-*; do python3 evals/wbte_check.py "$f" >/dev/null && echo "MISSED $f"; done
+for f in evals/fixtures/planted/tokens/bad-*; do python3 evals/token_check.py "$f" >/dev/null && echo "MISSED $f"; done
+for d in evals/fixtures/planted/links/bad-*/; do python3 evals/link_check.py --root "$d" >/dev/null && echo "MISSED $d"; done
+python3 evals/token_check.py
 ```
 
 ### ⛔ CHECKPOINT: Phase 2 Complete
@@ -471,11 +482,17 @@ before, and following it ticks the human sign-off box. **This block, labels and 
 included, is repeated in full at every phase's checkpoint**; a later phase never gets a
 shortened one.
 
-- [ ] **(derivable)** Every Phase 2 checkbox is `[x]`
-- [ ] **(derivable)** All automated verification passing
+- [x] **(derivable)** Every Phase 2 checkbox is `[x]`
+- [x] **(derivable)** All automated verification passing
 - [ ] **(attestation)** Manual verification confirmed by human
-- [ ] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
+- [x] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
       only writer of those fields, so do not edit `current_phase` or `completed_tasks` by hand
+
+**Closed unattended, 2026-09-30 01:50 UTC.** The user asked for a full-auto run while away. The
+attestation stays `[ ]`. Nobody performed the Phase 2 manual steps: a human reads
+`technical-english.md` (WBTE, no ASD text, every Data Model section), and a human reads one
+judge verdict and one baseline report. The judge-calibration finding needs a human decision
+before P4-T9 and Phase 5.
 
 **Do not proceed without human confirmation of manual tests** — unless the phase is being run
 under `/wb:implement --auto`, which buys the wait and not the attestation. In that case the
@@ -1176,6 +1193,11 @@ resolved, leaving a dated line saying how.
 - **Pushing, opening the pull request, and tagging are not in this plan.** They are
   outward-facing and need the user's go-ahead. The tag follows the merge, with
   `claude plugin tag plugin/` on a clean tree (`.claude/wb/knowledge.md`).
+- [2026-09-30] **Phase 2 complete (inline, closed unattended):** 8 tasks, 8 commits. The WBTE
+  reference doc, the three checkers with planted failures, the driver, the judge, the report,
+  and the 2.1.1 baseline. Two driver fixes came from real runs: `--add-dir` on every call, and
+  skipping `create_tasks` after an unwritten design. The judge-calibration finding needs a
+  human decision before P4-T9 and Phase 5.
 - **Planned against 2.1.1** (`4b32306`). If `main` moves before Phase 7, rebase and repeat the
   P7-T4 checks.
 - [2026-09-30] **Follow-up from P1-T2: three 2.1.1 templates fail markdownlint as written.**
