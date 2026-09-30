@@ -1221,6 +1221,10 @@ resolved, leaving a dated line saying how.
 - [2026-09-30] **Follow-up (D6): a larger fixture that makes the stages spawn their
   sub-agents.** A6 stays `Pending` until a headless run shows the fan-out. This is not a new
   task in this plan, because the task list does not change without a replan.
+- [2026-09-30] **Journal timestamps corrected.** Twelve entry headings (P2-T2 to P2-T5,
+  P3-T1, P3-T2, and P4-T1 to P4-T6) had estimated times, not times from `date -u`. Ten were later
+  than the commit that closed the entry. Each heading now carries the time of the commit that
+  came just before the entry opened. That time is a lower bound on the real open time.
 - **Planned against 2.1.1** (`4b32306`). If `main` moves before Phase 7, rebase and repeat the
   P7-T4 checks.
 - [2026-09-30] **Follow-up from P1-T2: three 2.1.1 templates fail markdownlint as written.**

@@ -51,33 +51,33 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
-## 2026-09-30 05:40 — P4-T6 (closed)
+## 2026-09-30 05:25 — P4-T6 (closed)
 
 - **Task/phase**: P4-T6 — WBTE rewrite, with the link line, of `validate_execution/templates.md`, `validate_project/templates/error-message-formats.md`, `resolve_questions/templates.md`, and `create_tasks/templates/plan-presentation-message.md`
 - **Landed**: `link_check.py` failed on 4 of 4 before the change and on 0 after it. The registry passes (including `[To be added]` and the three tracking-table headings), lint is clean, and the added lines have no semicolons. The report status words and the error titles did not change
 - **Commits**: see `P4-T6: rewrite the validation, resolve_questions and plan-presentation templates in WBTE`
-## 2026-09-30 05:36 — P4-T5 (closed)
+## 2026-09-30 05:24 — P4-T5 (closed)
 
 - **Task/phase**: P4-T5 — WBTE rewrite, with the link line, of the `create_handoff` templates, `resume_handoff/templates.md`, and the `explore_design` templates
 - **Landed**: `link_check.py` failed on 5 of 5 before the change and on 0 after it. The registry passes, lint is clean, and the added prose has 0 semicolons. `## Decision Record`, the `OPEN`/`CLOSED` journal words and `UIQ[n]` did not change
 - **Commits**: see `P4-T5: rewrite the handoff and explore_design templates in WBTE`
-## 2026-09-30 05:30 — P4-T4 (closed)
+## 2026-09-30 05:22 — P4-T4 (closed)
 
 - **Task/phase**: P4-T4 — WBTE rewrite, with the link line, of `create_research/templates.md` and the four `create_design` templates
 - **Landed**: `link_check.py` failed on 5 of 5 before the change and on 0 after it. The registry passes, lint is clean, and the added prose has 0 semicolons and a longest sentence of 25 words. A `design.md` and a `research.md` filled from the new templates pass `token_check.py`
 - **Commits**: see `P4-T4: rewrite the create_research and create_design templates in WBTE`
-## 2026-09-30 05:25 — P4-T3 (closed)
+## 2026-09-30 05:17 — P4-T3 (closed)
 
 - **Task/phase**: P4-T3 — WBTE rewrite, with the link line, of the four `create_project` document templates and the Step 5 output block in `create_project/SKILL.md`
 - **Landed**: `link_check.py` failed on the 5 `create_project` locations before the change and passes on all 5 after it. The prose changed and the placeholders did not. The token registry passes. The new prose has 0 semicolons and no sentence over 25 words. A `tasks.md`, `research.md` and `design.md` filled from the new templates pass `token_check.py`
 - **Commits**: see `P4-T3: rewrite the create_project templates in WBTE`
-## 2026-09-30 05:21 — P4-T2 (open)
+## 2026-09-30 05:17 — P4-T2 (open)
 
 - **Task/phase**: P4-T2 — measure A2: does the model follow the link line? The Phase 3 tree against the P4-T1 tree, 3 repeats
 - **Next action**: wait for the P4-T1-tree run (`evals/run.py --before 442e862`, nohup, log `/tmp/wb-run-p4t2.log`, finished at `done:`). Compare it with the Phase 3 tree run `evals/runs/20260930T043113Z` (the same plugin as 32912a2). Then write `thoughts/2026-09-30-link-measurement.md` and set A2
 - **Started at**: 442e862
 
-## 2026-09-30 05:18 — P4-T1 (closed)
+## 2026-09-30 05:16 — P4-T1 (closed)
 
 - **Task/phase**: P4-T1 — add the link line to the 12 locations shared with 3.0.0 (11 templates and the `create_research` Step 8 completion line)
 - **Landed**: `link_check.py` failed on 12 of 12 before the change and fails on 0 of 12 after it. Each file gained exactly 2 lines (the link line and a blank line) and lost none. Lint is clean, and the token registry passes
@@ -89,14 +89,14 @@ this template, silently, from the moment of creation.
 - **Landed**: A1 validated with card v2. Across 3 repeats, 4.3% of document sentences had more than 25 words (2.1.1: 10.4%). Document semicolons fell from 120 to 16, and chat IDs used alone fell from 17 to 3. No expected fact was lost. The record is `thoughts/2026-09-30-card-measurement.md`
 - **Commits**: see `P3-T3: measure the rule card (A1 validated with card v2)`
 - **Learned**: card v1 did not move the chat IDs. Putting the ID rule first, with examples, did. Two runs were lost to network outages, and the driver does not retry on `API Error`
-## 2026-09-30 01:55 — P3-T2 (closed)
+## 2026-09-30 01:49 — P3-T2 (closed)
 
 - **Task/phase**: P3-T2 — `card()` and two guarded calls in `plugin/hooks/wb-prime.sh`, a header bullet, and a `CLAUDE.md` line for `test-prime`
 - **Landed**: the card (8 imperatives, the ID rule, and the path, 118 words). `test-prime` passes 40 of 40, `test-lint` passes 15 of 15, and `test-quiet` passes 9 of 9. With `WB_TECH_ENGLISH=0`, the output is byte-identical to the 2.1.1 hook for startup, compact and PreCompact
 - **Commits**: see `P3-T2: print the WBTE rule card at every session start`
 - **Learned**: the orientation path prints one blank line before the card, inside the guard. So the test's `strip_card` also removes that line
 
-## 2026-09-30 01:53 — P3-T1 (closed)
+## 2026-09-30 01:49 — P3-T1 (closed)
 
 - **Task/phase**: P3-T1 — `plugin/scripts/test-prime`, the contract test for `wb-prime.sh`, RED against the current hook
 - **Landed**: 40 cases. Against the current hook, the 15 card cases fail and the 25 others pass
@@ -124,28 +124,28 @@ this template, silently, from the moment of creation.
 - **Commits**: see `P2-T6: add the before/after stage driver`
 - **Learned**: `create_design` stops at Step 4 to ask which option to design, because the fixture plan names no goal. One fixed follow-up reply ("take the option you recommend") gets it to write `design.md`. `create_tasks` accepted the driver-set `status: approved` and did not wait for input. The stages skipped their sub-agent fan-out, because the fixture is small. The session was interrupted once (a change of location), and the tree held only the open journal entry.
 
-## 2026-09-30 00:53 — P2-T5 (closed)
+## 2026-09-30 00:39 — P2-T5 (closed)
 
 - **Task/phase**: P2-T5 — `evals/link_check.py` with planted inputs (template without a link line, a file that restates a rule, a tracked `.pdf`)
 - **Landed**: the checker and 4 planted case directories. The 3 bad cases exit 1 and the clean case exits 0. The RED state on the repo is exit 1: 43 of 43 templates and 4 of 4 inline steps have no link line. No file restates a rule, and no PDF or dictionary is tracked
 - **Commits**: see `P2-T5: add the link-line and single-authority checker`
 - **Learned**: the planted PDF case is simulated with a `.tracked` list, so no `.pdf` is committed. A committed `.pdf` would break the Phase 6 check that `git ls-files` lists none
 
-## 2026-09-30 00:47 — P2-T4 (closed)
+## 2026-09-30 00:37 — P2-T4 (closed)
 
 - **Task/phase**: P2-T4 — `evals/tokens.json` and `evals/token_check.py`, with planted inputs (task ID with no digit, journal heading with no suffix, checkpoint without the label sentence)
 - **Landed**: the registry and the checker. With no arguments, it checks that every exempt token is still in each template listed for it. With file arguments, it runs the parser patterns on generated documents. Before the checker existed, every planted input exited 2. Now the 3 bad inputs exit 1 and the 2 clean ones exit 0. A temporary tree with one token removed made the registry check exit 1
 - **Commits**: see `P2-T4: add the exempt-token registry and checker`
 - **Learned**: the task-ID check uses the validator's own pattern, `[A-Z0-9-]+`. So a mixed-case bold lead-in such as `**Setup**` is not seen as a task line, which matches how the validator behaves
 
-## 2026-09-30 00:39 — P2-T3 (closed)
+## 2026-09-30 00:34 — P2-T3 (closed)
 
 - **Task/phase**: P2-T3 — `evals/wbte_check.py` and its planted-failure inputs with clean siblings
 - **Landed**: the checker, with 4 bad inputs and 4 clean siblings in `evals/fixtures/planted/`. Before the checker existed, every input exited 2. Now each bad input exits 1 and each clean sibling exits 0. The reference doc passes. Files that end in `.txt` are chat output. The limits apply to all given files together
 - **Commits**: see `P2-T3: add the WBTE metric checker`
 - **Learned**: the first noun-cluster heuristic flagged verbs and names in real documents. It now treats words that end in -s as breaks, joins runs of capitalized words, and counts multi-word technical nouns from the reference doc as one word. A few false positives remain ("want lower skill quality"), so cluster counts are a trend signal, not a hard gate
 
-## 2026-09-30 00:36 — P2-T2 (closed)
+## 2026-09-30 00:33 — P2-T2 (closed)
 
 - **Task/phase**: P2-T2 — ignore rules: `.gitignore` gains `evals/runs/`, `__pycache__/`, `*.pyc`; new `.wblintignore` with `evals/fixtures/planted/`
 - **Landed**: before the change, `lint --all` flagged a temporary planted file (MD022). After it, lint skipped the file and `lint --all` was clean. `test-lint` passed 15 of 15. The temporary file was removed
