@@ -56,21 +56,25 @@ this template, silently, from the moment of creation.
 - **Task/phase**: P4-T6 — WBTE rewrite, with the link line, of `validate_execution/templates.md`, `validate_project/templates/error-message-formats.md`, `resolve_questions/templates.md`, and `create_tasks/templates/plan-presentation-message.md`
 - **Landed**: `link_check.py` failed on 4 of 4 before the change and on 0 after it. The registry passes (including `[To be added]` and the three tracking-table headings), lint is clean, and the added lines have no semicolons. The report status words and the error titles did not change
 - **Commits**: see `P4-T6: rewrite the validation, resolve_questions and plan-presentation templates in WBTE`
+
 ## 2026-09-30 05:24 — P4-T5 (closed)
 
 - **Task/phase**: P4-T5 — WBTE rewrite, with the link line, of the `create_handoff` templates, `resume_handoff/templates.md`, and the `explore_design` templates
 - **Landed**: `link_check.py` failed on 5 of 5 before the change and on 0 after it. The registry passes, lint is clean, and the added prose has 0 semicolons. `## Decision Record`, the `OPEN`/`CLOSED` journal words and `UIQ[n]` did not change
 - **Commits**: see `P4-T5: rewrite the handoff and explore_design templates in WBTE`
+
 ## 2026-09-30 05:22 — P4-T4 (closed)
 
 - **Task/phase**: P4-T4 — WBTE rewrite, with the link line, of `create_research/templates.md` and the four `create_design` templates
 - **Landed**: `link_check.py` failed on 5 of 5 before the change and on 0 after it. The registry passes, lint is clean, and the added prose has 0 semicolons and a longest sentence of 25 words. A `design.md` and a `research.md` filled from the new templates pass `token_check.py`
 - **Commits**: see `P4-T4: rewrite the create_research and create_design templates in WBTE`
+
 ## 2026-09-30 05:17 — P4-T3 (closed)
 
 - **Task/phase**: P4-T3 — WBTE rewrite, with the link line, of the four `create_project` document templates and the Step 5 output block in `create_project/SKILL.md`
 - **Landed**: `link_check.py` failed on the 5 `create_project` locations before the change and passes on all 5 after it. The prose changed and the placeholders did not. The token registry passes. The new prose has 0 semicolons and no sentence over 25 words. A `tasks.md`, `research.md` and `design.md` filled from the new templates pass `token_check.py`
 - **Commits**: see `P4-T3: rewrite the create_project templates in WBTE`
+
 ## 2026-09-30 05:17 — P4-T2 (open)
 
 - **Task/phase**: P4-T2 — measure A2: does the model follow the link line? The Phase 3 tree against the P4-T1 tree, 3 repeats
@@ -89,6 +93,7 @@ this template, silently, from the moment of creation.
 - **Landed**: A1 validated with card v2. Across 3 repeats, 4.3% of document sentences had more than 25 words (2.1.1: 10.4%). Document semicolons fell from 120 to 16, and chat IDs used alone fell from 17 to 3. No expected fact was lost. The record is `thoughts/2026-09-30-card-measurement.md`
 - **Commits**: see `P3-T3: measure the rule card (A1 validated with card v2)`
 - **Learned**: card v1 did not move the chat IDs. Putting the ID rule first, with examples, did. Two runs were lost to network outages, and the driver does not retry on `API Error`
+
 ## 2026-09-30 01:49 — P3-T2 (closed)
 
 - **Task/phase**: P3-T2 — `card()` and two guarded calls in `plugin/hooks/wb-prime.sh`, a header bullet, and a `CLAUDE.md` line for `test-prime`
