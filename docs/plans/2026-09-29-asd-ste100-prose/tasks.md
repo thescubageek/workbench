@@ -304,11 +304,11 @@ and record the 2.1.1 baseline.
 
 ### Prerequisites
 
-- [ ] Phase 1 complete and verified
-- [ ] Phase 1 manual testing confirmed — *an attestation, like the checkpoint's. Under
+- [x] Phase 1 complete and verified
+- [x] Phase 1 manual testing confirmed — *an attestation, like the checkpoint's. Under
       `/wb:implement --auto` it stays `[ ]` and the phase proceeds anyway; the previous phase's
       checkpoint records that nobody was asked. Unticked here means deferred, not blocked.*
-- [ ] A6 is not `Invalid` in design.md
+- [x] A6 is not `Invalid` in design.md
 
 ### Changes Required
 
@@ -384,9 +384,9 @@ user requirement.
 
 #### Setup
 
-- [ ] **P2-T1** — Write `plugin/docs/reference/technical-english.md` with all nine sections
+- [x] **P2-T1** — Write `plugin/docs/reference/technical-english.md` with all nine sections
       from design.md Data Model, and the exempt-token list copied from the parser lines listed
-      above. Lint it. (~25 calls)
+      above. Lint it. (~25 calls) (completed 2026-09-30 00:33)
 - [ ] **P2-T2** — Add `evals/runs/`, `__pycache__/` and `*.pyc` to `.gitignore`. Create
       `.wblintignore` with `evals/fixtures/planted/`. Confirm with
       `./plugin/scripts/lint --all` that planted files are skipped. (~6 calls)

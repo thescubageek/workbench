@@ -51,6 +51,12 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-30 00:32 — P2-T1 (open)
+
+- **Task/phase**: P2-T1 — write `plugin/docs/reference/technical-english.md` (nine sections, exempt tokens copied from the parsers)
+- **Next action**: write the doc, lint it, check it with a sentence-length and semicolon count, then commit
+- **Started at**: 11081d6
+
 ## 2026-09-30 00:24 — P1-T3 (closed)
 
 - **Task/phase**: P1-T3 — run the headless driver probe against the 2.1.1 tree (tests assumption A6)

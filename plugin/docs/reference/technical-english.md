@@ -1,0 +1,199 @@
+# wb Technical English (WBTE) — the shipped writing rule
+
+**Read this when a step directs you to.** It is the plugin's single authority on how workbench
+output must read. Skills and templates link here. They do not restate these rules.
+
+## Credit and scope
+
+Adapted from the principles of ASD-STE100 Issue 9. Not endorsed by ASD, and not ASD-STE100
+compliant.
+
+WBTE is a workbench variant. It keeps the aims of the source standard: one meaning for each
+word, short sentences, and no ambiguity. It changes and adds rules where AI-led software
+engineering needs them. This file contains no text from the standard and no part of its
+dictionary.
+
+WBTE applies to two surfaces:
+
+1. **Output.** This is the text that a person reads: plan documents, handoffs, reports, chat
+   summaries, and the conversation. All of the output rules apply.
+2. **Instructions.** This is the text that a model reads: skills, agents, and prompts. Only the
+   "lite" rules apply, and only where a measurement shows no loss.
+
+## Output rules
+
+Apply these rules to every sentence of output.
+
+1. Write one instruction in each sentence. Use the imperative for an instruction.
+2. Put a condition first, then a comma, then the instruction. Example: "If the test fails,
+   stop the phase."
+3. Write at most 20 words in an instruction sentence.
+4. Write at most 25 words in a descriptive sentence.
+5. Count each item in backticks as one word. Count a number with its unit as one word.
+6. Write at most 6 sentences in a paragraph. Give each paragraph one topic.
+7. Use the active voice. Use the passive voice only when the agent is not known.
+8. Use simple tenses: present, past, and future. Do not use perfect or progressive tenses
+   when a simple tense gives the same meaning.
+9. Do not use semicolons in prose. Write two sentences.
+10. Do not omit words. Keep articles and verbs. Do not write telegraphic fragments such as
+    "Done, tests green, next P2".
+11. Do not use a noun cluster of more than 3 words, unless the cluster is a technical noun.
+12. Give the result first. Then give the reason.
+13. Use one word for one meaning. When you name a thing, use the same name every time.
+14. Keep the structure of tables, headings, code blocks, and checklists. Apply the sentence
+    rules to the prose inside them.
+
+## Instruction rules ("lite")
+
+These rules apply to skill, agent, and prompt text. Each rule is optional. Keep the old text
+when the eval harness shows that the change makes a stage worse.
+
+1. Prefer short sentences. Split a sentence of more than 25 words when the split keeps the
+   meaning.
+2. Prefer one instruction in each sentence.
+3. Replace a semicolon with a full stop when the two parts are complete sentences.
+4. Use the active voice and the imperative for steps.
+5. Use one term for one concept in a file.
+6. Keep barriers, checkpoints, "Read [link] NOW" directives, and capitalized scope rules as
+   they are. Measurements showed that trimming them makes results worse.
+
+## Technical nouns
+
+A technical noun is a term that the reader may see without an explanation. Use these wb terms
+as they are:
+
+- WBTE, stage, plan directory, barrier, checkpoint, phase, task, task ID, checkbox
+- frontmatter, counter, journal, journal entry, handoff, knowledge entry
+- research, design, execution plan, template, fragment, worker, verifier
+- skill, agent, hook, rule card, reference doc, exempt token
+- commit, branch, working tree, diff, pull request
+
+Also treat these as technical nouns:
+
+- Text in backticks: code, file paths, commands, flags, and literal values.
+- The names of tools, languages, and file formats, for example Git, Python, and YAML.
+- Common software terms, for example API, database, file, interface, metadata, prompt, and
+  token.
+
+Define any other term at its first use, or replace it with a simple word.
+
+## Shorthand and IDs
+
+**In chat, never use an ID alone.** Pair each task, question, assumption, or decision ID with a
+short meaning. Write "P1-T3 (the driver probe) passed", not "P1-T3 passed". This applies to
+`P1-T3`, `Q2`, `A1`, `PD1`, `D-Q3`, `UIQ2`, and every other ID shape.
+
+**In documents, keep IDs.** Parsers and validators depend on them. Give each ID a meaning where
+the document first uses it, for example in a table row.
+
+**Do not use unexplained shorthand in prose.** This includes these forms:
+
+- An abbreviation that is not a technical noun.
+- A symbol used as a word, for example "→" for "then" or "w/" for "with".
+- A clipped form, for example "impl", "config", or "repo" in running text.
+
+## Exempt tokens
+
+Parsers and validators match the strings below. Keep each one exactly as it is, also when you
+rewrite the prose around it. The sentence rules do not apply to these strings.
+
+**Task lines** (`plugin/hooks/wb-prime.sh:131-136`, `plugin/skills/daily-digest/sources.md:67-68`,
+`plugin/skills/validate_project/reference/validation-rules.md:71,104,116`,
+`plugin/skills/implement/SKILL.md:282`):
+
+- The task-ID shape `[A-Z0-9-]*[0-9][A-Z0-9-]*`. An ID must contain at least one digit.
+- A task line starts `- [ ] **ID**` or `- [x] **ID**`. The patterns are
+  `^- \[x\] \*\*[A-Z0-9-]*[0-9][A-Z0-9-]*\*\*` and `^- \[ \] \*\*[A-Z0-9-]*[0-9][A-Z0-9-]*\*\*`.
+- Any checkbox line matches `^- \[[ x]\] .*$`.
+- The completion stamp `(completed YYYY-MM-DD HH:MM)`. The digest matches
+  `^- \[x\] .*\(completed <date>` (`plugin/skills/daily-digest/sources.md:74`).
+
+**Frontmatter** (`plugin/hooks/wb-prime.sh:83,133`,
+`plugin/skills/validate_project/reference/validation-rules.md:22-23,40-44`):
+
+- The hook reads `status:` and `current_phase:` from the first 30 lines.
+- Every document needs `project`, `created`, `status`, `last_updated`, `git_commit`, and
+  `git_branch`.
+- `tasks.md` also needs `task_tracking`, `current_phase`, `total_tasks`, and `completed_tasks`.
+  The value `task_tracking: markdown-checkboxes` stays as it is.
+- The `status:` values are these:
+  - `research.md`: `draft`, `in-progress`, `complete`
+  - `design.md`: `draft`, `approved`
+  - `tasks.md`: `not-started`, `in-progress`, `complete`
+
+**Journal headings** (`plugin/hooks/wb-prime.sh:154,163-165`,
+`plugin/skills/implement/SKILL.md:242-245`,
+`plugin/skills/validate_project/reference/validation-rules.md:92,98`,
+`plugin/skills/daily-digest/sources.md:77`):
+
+- The shape is `## YYYY-MM-DD HH:MM — <label> (open)` or `## YYYY-MM-DD HH:MM — <label> (closed)`.
+- The heading ends in `(open)` or `(closed)`. The validator matches `\((open|closed)\)\s*$` and
+  `\(open\)\s*$`.
+- The hook reads lines that match `^##`. It skips headings that contain `[YYYY`, `<YYYY`, or
+  `YYYY-MM-DD`. So example headings keep the literal placeholder `YYYY-MM-DD`.
+- The digest searches journals for the literal string `OPEN`.
+
+**Knowledge entries** (`plugin/hooks/wb-prime.sh:195`): each entry has a line that starts
+`- **Verified**`.
+
+**Blockers** (`plugin/skills/daily-digest/sources.md:80`): the section heading
+`### Current Blockers`, which ends at the next `###` heading.
+
+**Checkpoints** (`plugin/skills/validate_project/reference/validation-rules.md:129-140`):
+
+- The heading starts `### ⛔ CHECKPOINT:`.
+- Each block has at least 4 labels, `**(derivable)**` or `**(attestation)**`, and at least one
+  `(attestation)`.
+- Each block contains the sentence `Go by the label, never by position`.
+- A checkpoint block never contains a line with the task-line shape.
+
+**Planning records** (`plugin/skills/validate_project/reference/validation-rules.md:172-178`,
+`plugin/skills/resolve_questions/SKILL.md:190`):
+
+- Question IDs match `^Q\d+$`, in the table under `## Open Questions`.
+- Assumption IDs have the shape `A1`, under `### Assumptions`. Pending-decision IDs have the
+  shape `PD1`, under `## Pending Decisions`. Mockup question IDs have the shape `UIQ1`.
+- A question state is `Open` or starts with `Resolved`. A resolved state names `design.md`:
+  `Resolved YYYY-MM-DD → design.md (## Technical Decisions)`.
+- An assumption state is `Validated YYYY-MM-DD` or `Invalid — <note>`.
+
+**Verifier reports** (`plugin/agents/task-verifier.md:140,158`,
+`plugin/skills/implement/SKILL.md:307,320`): the headings `### Status: PASS`,
+`### Status: FAIL`, and `### Baseline failures`.
+
+**Placeholders** (`plugin/skills/validate_project/reference/validation-rules.md:196`): the
+validator searches for `[To be added]`, `[TBD]`, `[TODO]`, and `[Fill this in]`. Keep these
+strings exact in templates, so that the validator still finds an unfilled section.
+
+**Completion lines**: the shape `✅ <artifact> — <summary>. Next: /wb:<stage>` stays. No parser
+reads it, but users know it. Apply the sentence rules to the words inside the shape.
+
+## WBTE and Output discipline
+
+Output discipline decides how much to say. WBTE decides how to say it. The two rules do not
+conflict:
+
+- A one-line summary stays one line. Write it as a complete sentence, not a fragment.
+- Say only what the user must act on. Say it in plain words, with no unexplained IDs.
+- Do not repeat a document in chat. The document itself follows WBTE.
+
+## Optional dictionary
+
+The source standard has a dictionary of approved words. ASD does not permit redistribution of
+it, so the plugin does not ship it. A user can make a private copy from their own free copy of
+the standard. The copy lives outside every repository, at `~/.claude/wb/wbte-dictionary.tsv`.
+
+If the copy exists and you are not sure about a word, look up that one word:
+
+```bash
+grep -i $'^<word>\t' ~/.claude/wb/wbte-dictionary.tsv
+```
+
+Never load the whole dictionary into context. Never copy entries into a repository. If the
+copy does not exist, apply the rules without it.
+
+## Repo terms
+
+A repository can list its own technical nouns in `.claude/wb/technical-nouns.md`, one term on
+each line. If the file exists, treat those terms as technical nouns. Define any other project
+term at its first use, or replace it with a simple word.
