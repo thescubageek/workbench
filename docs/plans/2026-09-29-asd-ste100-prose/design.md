@@ -539,9 +539,11 @@ execution phase and measured by the harness.
 
 ### Non-Functional Requirements
 
-- [ ] Token cost: the rule card adds at most about 200 tokens to each session. The change in
+- [x] Token cost: the rule card adds at most about 200 tokens to each session. The change in
   per-stage cost is measured with `claude --plugin-dir plugin plugin details wb` and reported
   in the CHANGELOG.
+  *(Evidence: the card is 141 words, about 190 tokens. The CHANGELOG 2.2.0 table reports the
+  always-on and per-stage costs from `thoughts/2026-09-30-lite-verdicts.md`)*
 - [x] Reliability: the hook contract is unchanged. It only reads, it always exits 0, and it
   stays inside the 5-second timeout.
   *(Evidence: `test-prime:152-172`. 200 plan directories take about 2.5 s, the same as 2.1.1)*

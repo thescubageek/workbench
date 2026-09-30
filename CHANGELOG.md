@@ -26,6 +26,10 @@ Measured on the harness fixture (3 repeats, `sonnet`), 2.1.1 against the final t
 | Chat IDs used alone | 25 | 2, in one sentence |
 | Lost facts (the within-run judge) | none in 3 of 3 | none in 3 of 3 |
 | Always-on token cost | ~3,251 | ~3,412, plus the rule card (141 words) |
+| Cost of `create_research`, `create_design`, `create_tasks` on invoke | ~5.2k, ~5.4k, ~3.8k | unchanged |
+
+The 2 chat IDs are a known remainder. If they show up in real use, a 2.2.x patch tightens the
+rule. A stage that follows a link line also reads the reference doc, about 2,100 tokens.
 
 ### Added
 
@@ -35,9 +39,11 @@ Measured on the harness fixture (3 repeats, `sonnet`), 2.1.1 against the final t
   discipline, the optional dictionary, and repository terms.
 - **A rule card at every session start.** `hooks/wb-prime.sh` prints a summary of the rules
   (141 words) on startup, resume and compaction, with or without active plans, and outside the
-  `.claude/wb/PRIME.md` override. `WB_TECH_ENGLISH=0` turns it off. With the switch set, the
-  hook output is byte-identical to 2.1.1.
-- **`plugin/scripts/test-prime`**, 40 contract checks for the session-start hook.
+  `.claude/wb/PRIME.md` override. It does not print on PreCompact, because a manual `/compact`
+  shows PreCompact's output in the next context, and the card would be there twice.
+  `WB_TECH_ENGLISH=0` turns it off. With the switch set, the hook output is byte-identical to
+  2.1.1.
+- **`plugin/scripts/test-prime`**, 42 contract checks for the session-start hook.
 - **`/wb:wbte-dictionary`** and `plugin/scripts/wbte-dictionary`.
   - They make a private copy of the approved-word dictionary from the user's own free copy of
     the Issue 9 PDF.
@@ -65,6 +71,8 @@ Measured on the harness fixture (3 repeats, `sonnet`), 2.1.1 against the final t
   the planned 3.
 - **The `plan-presentation-message.md` summary** lists assumptions and pending decisions with
   their meanings.
+- **`/wb:help` and `plugin/scripts/README.md`** describe `/wb:wbte-dictionary`, its script, and
+  the two new contract tests.
 
 ### Fixed
 
@@ -75,8 +83,9 @@ Measured on the harness fixture (3 repeats, `sonnet`), 2.1.1 against the final t
 
 ### Not changed, deliberately
 
-- **The 48 files that the 3.0.0 branch also changes** get a link line or the card only. Their
-  prose waits for the first release after 3.0.0. This includes the `create_tasks` template
+- **The 48 files that the 3.0.0 branch also changes** get a link line or the card only. The
+  exceptions are the new sections in `/wb:help` and `plugin/scripts/README.md`. Their prose
+  waits for the first release after 3.0.0. This includes the `create_tasks` template
   boilerplate that is the source of the remaining semicolons.
 - **The `codebase-analyzer` and `codebase-locator` agents.** Their lite rewrite was restored
   after its gate found a lost fact.

@@ -140,7 +140,7 @@ Based on dependency analysis:
 | Phase 5: Objective 2 — gated "lite" rewrite | ✅ Complete | 5/5 | 100% |
 | Phase 6: Dictionary skill | ✅ Complete | 2/2 | 100% |
 | Phase 7: Documentation, handoff, and release checks | ✅ Complete | 5/5 | 100% |
-| Phase 8: Validation fixes | 🔄 In progress | 4/7 | 57% |
+| Phase 8: Validation fixes | ✅ Complete | 7/7 | 100% |
 
 Counts come from the checkboxes below and are reconciled by `/wb:update_status`.
 
@@ -1277,9 +1277,9 @@ the user's request, after `/wb:validate_execution`.
       `plugin/scripts/README.md`, and `/wb:wbte-dictionary` in `plugin/skills/help/SKILL.md`
       (D14). Run `git merge-tree`, and add a resolution note to the handoff for each new
       conflict. Added 2026-09-30 after resolve_questions. (completed 2026-09-30 17:04)
-- [ ] **P8-T7** — CHANGELOG and handoff: name the 2 remaining chat IDs as a known remainder
+- [x] **P8-T7** — CHANGELOG and handoff: name the 2 remaining chat IDs as a known remainder
       (D11), add the per-stage token cost (D12), and describe P8-T5 and P8-T6. Tick the
-      design.md token-cost criterion. Added 2026-09-30 after resolve_questions.
+      design.md token-cost criterion. Added 2026-09-30 after resolve_questions. (completed 2026-09-30 17:08)
 
 ### Success Criteria
 
@@ -1309,7 +1309,7 @@ before, and following it ticks the human sign-off box. **This block, labels and 
 included, is repeated in full at every phase's checkpoint**; a later phase never gets a
 shortened one.
 
-- [ ] **(derivable)** Every Phase 8 checkbox is `[x]`
+- [x] **(derivable)** Every Phase 8 checkbox is `[x]`
 - [x] **(derivable)** All automated verification passing
 - [ ] **(attestation)** Manual verification confirmed by human
 - [ ] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
