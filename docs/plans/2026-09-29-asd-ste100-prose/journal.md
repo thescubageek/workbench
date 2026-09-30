@@ -88,11 +88,12 @@ this template, silently, from the moment of creation.
 - **Landed**: `link_check.py` failed on the 5 `create_project` locations before the change and passes on all 5 after it. The prose changed and the placeholders did not. The token registry passes. The new prose has 0 semicolons and no sentence over 25 words. A `tasks.md`, `research.md` and `design.md` filled from the new templates pass `token_check.py`
 - **Commits**: see `P4-T3: rewrite the create_project templates in WBTE`
 
-## 2026-09-30 05:17 — P4-T2 (open)
+## 2026-09-30 05:17 — P4-T2 (closed)
 
 - **Task/phase**: P4-T2 — measure A2: does the model follow the link line? The Phase 3 tree against the P4-T1 tree, 3 repeats
-- **Next action**: wait for the P4-T1-tree run (`evals/run.py --before 442e862`, nohup, log `/tmp/wb-run-p4t2.log`, finished at `done:`). Compare it with the Phase 3 tree run `evals/runs/20260930T043113Z` (the same plugin as 32912a2). Then write `thoughts/2026-09-30-link-measurement.md` and set A2
-- **Started at**: 442e862
+- **Landed**: A2 validated with a limit. The model read `technical-english.md` in 4 of the 6 stage runs whose output has a link line. `tasks.md` sentences over 25 words fell from 7.1% to 5.8%, and document semicolons fell from 16 to 9. The record is `thoughts/2026-09-30-link-measurement.md`
+- **Commits**: see `P4-T2: measure the link line (A2 validated, followed in 4 of 6 linked runs)`
+- **Learned**: chat IDs used alone rose from 3 to 8, probably run-to-run variance. P4-T9 measures chat again on the final tree
 
 ## 2026-09-30 05:16 — P4-T1 (closed)
 

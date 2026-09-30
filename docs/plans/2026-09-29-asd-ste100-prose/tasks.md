@@ -701,10 +701,10 @@ change to full stops or commas.
 
 - [x] **P4-T1** — Add the link line to the 12 shared locations listed above. Run
       `python3 evals/link_check.py` and confirm that those 12 now pass. (~20 calls) (completed 2026-09-30 05:17)
-- [ ] **P4-T2** — Measure A2: run `evals/run.py` with 3 repeats, comparing the Phase 3 tree
+- [x] **P4-T2** — Measure A2: run `evals/run.py` with 3 repeats, comparing the Phase 3 tree
       with the P4-T1 tree. Record whether the generated `tasks.md` and chat summaries moved
       towards the targets in `thoughts/2026-09-30-link-measurement.md`. Set A2 in design.md.
-      (~20 calls)
+      (~20 calls) (completed 2026-09-30 05:32)
 - [x] **P4-T3** — Rewrite in WBTE, with the link line: `create_project/templates/{design-md-template,readme-md-template,research-md-template,tasks-md-template}.md`
       and the Step 5 output block in `create_project/SKILL.md:153-181`. Run
       `evals/token_check.py` and `evals/link_check.py`. (~30 calls) (completed 2026-09-30 05:22)
