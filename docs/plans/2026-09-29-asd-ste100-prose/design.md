@@ -563,7 +563,10 @@ execution phase and measured by the harness.
 
 | ID | Decision Needed | Blocks | State |
 | -- | --------------- | ------ | ----- |
-| — | none | — | — |
+| PD1 | In the final P4-T9 run, 2 chat IDs are still used alone, in one `create_tasks` summary sentence. Accept this for 2.2.0, or change the card or `plan-presentation-message.md` and measure again (about $4.50 and 15 minutes a run)? | the Phase 4 attestation | Open |
+| PD2 | Every box under Success Criteria in this document is `[ ]`. Tick each box that the evidence supports, with a pointer to the evidence, and leave the rest open? Or leave all of them as they are? | closing the plan | Open |
+| PD3 | After `/compact`, the card is in the context twice (the A3 finding). `plugin.json` registers `wb-prime.sh` once for SessionStart, so the cause is probably in the harness. Investigate before 2.2.0 ships, or keep it as a follow-up? | none (post-compaction token cost only) | Open |
+| PD4 | `plugin/scripts/README.md` does not document `wbte-dictionary`, `test-prime` or `test-wbte-dictionary`, and `help/SKILL.md` does not name `/wb:wbte-dictionary`. Both files are shared with 3.0.0. Add the lines now, with a new merge conflict, or list them in the 3.0.0 handoff for the post-3.0.0 pass? | none | Open |
 
 The version number of the post-3.0.0 pass (3.0.1 or 3.1.0) is still open (D-Q3). It blocks
 nothing in 2.2.0, so it is a note and not a pending decision. The handoff document calls it
