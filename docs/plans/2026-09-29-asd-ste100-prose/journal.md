@@ -51,6 +51,13 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-30 12:41 — P7-T5 (closed)
+
+- **Task/phase**: P7-T5 — compare the conflicted paths with the expected set
+- **Landed**: 4 of the 5 conflicted paths are in the expected set. The fifth, `.claude/wb/knowledge.md`, is kept (both branches append entries), and the handoff has its resolution note. A second `git merge-tree` run gives the same 5 paths
+- **Commits**: see `P7-T5: compare the merge conflicts with the expected set`
+- **Learned**: the entry was opened and closed in one step, right after the P7-T4 commit
+
 ## 2026-09-30 12:37 — P7-T4 (closed)
 
 - **Task/phase**: P7-T4 — the release checks, recorded in `thoughts/2026-09-30-release-checks.md`

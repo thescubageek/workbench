@@ -33,3 +33,18 @@ box stays `[ ]` with a note.
 
 `plugin/hooks/wb-prime.sh` and all 12 link-line locations merge without a conflict. So does
 `CHANGELOG.md`, which 3.0.0 also changes.
+
+## Compared with the expected set (P7-T5)
+
+The expected set is the link lines, `wb-prime.sh`, the manifests, `README.md`, `CHANGELOG.md`,
+`.gitignore`, and `CLAUDE.md`.
+
+| Path | Expected? | Action |
+| ---- | --------- | ------ |
+| `plugin/.claude-plugin/plugin.json`, `.claude-plugin/marketplace.json` | yes | none. Take the 3.0.0 version |
+| `README.md` | yes | none. Keep both. The resolution is in the handoff |
+| `.gitignore` | yes | none. Keep one copy of each line, plus `evals/runs/` |
+| `.claude/wb/knowledge.md` | **no** | Not reduced: the new entry records a durable fact that the harness depends on. The handoff has the resolution note: keep both appended entries |
+
+A second `git merge-tree` run, after the handoff note, gives the same 5 paths. No path outside
+the expected set is left without a resolution note.

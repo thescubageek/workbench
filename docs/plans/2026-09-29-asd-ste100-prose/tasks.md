@@ -1143,10 +1143,10 @@ for the post-3.0.0 pass; how to run `evals/` and the gate; the expected merge co
       `claude --plugin-dir plugin plugin details wb`, and
       `git merge-tree --write-tree HEAD adversarial-loop-skill-research` (list the conflicted
       paths). (~20 calls) (completed 2026-09-30 12:41)
-- [ ] **P7-T5** — Compare the conflicted paths from P7-T4 with the expected set: link lines,
+- [x] **P7-T5** — Compare the conflicted paths from P7-T4 with the expected set: link lines,
       `wb-prime.sh`, the manifests, `README.md`, `CHANGELOG.md`, `.gitignore`, `CLAUDE.md`.
       For each unexpected path, reduce the 2.2.0 change or add it to the handoff with a
-      resolution note. Run `git merge-tree` again. (~20 calls)
+      resolution note. Run `git merge-tree` again. (~20 calls) (completed 2026-09-30 12:41)
 
 ### Success Criteria
 
