@@ -566,11 +566,11 @@ exit 0 on every path; no file changes (checksums before and after); wall time un
 - [x] **P3-T1** — Write `plugin/scripts/test-prime` with every case above. Run it against the
       current hook. The card cases must fail (RED), and every other case must pass. Record the
       RED output in the commit message. (~35 calls) (completed 2026-09-30 01:49)
-- [ ] **P3-T2** — Add `card()` and its two guarded calls to `plugin/hooks/wb-prime.sh`, and the
+- [x] **P3-T2** — Add `card()` and its two guarded calls to `plugin/hooks/wb-prime.sh`, and the
       header bullet. Write the card text (6–8 short imperatives, the ID rule, the path). Run
       `plugin/scripts/test-prime` until it is green, then run `plugin/scripts/test-lint` and
       `plugin/scripts/test-quiet`. Add `./plugin/scripts/test-prime` to `CLAUDE.md` under
-      Development Tools, next to `test-lint`. (~20 calls)
+      Development Tools, next to `test-lint`. (~20 calls) (completed 2026-09-30 01:50)
 - [ ] **P3-T3** — Measure A1: run `evals/run.py` with 3 repeats, comparing `4b32306` with the
       working tree (the card is the only plugin change). Compare the chat-output metrics with
       the baseline. If the metrics do not improve, change the card wording and run again, at

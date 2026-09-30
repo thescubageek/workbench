@@ -18,6 +18,8 @@
 #     plan. This bullet describes one delivery path, not whether the feature works.
 #   - silent on an empty or unrecognized payload
 #   - exit 0 always. A hook that fails a session start is worse than no hook.
+#   - the WBTE rule card prints on every session start (startup, resume, compact), with or
+#     without active plans, and outside the PRIME.md override. WB_TECH_ENGLISH=0 turns it off.
 #
 # Override: `.claude/wb/PRIME.md` in the cwd replaces the static orientation block
 # (the recovery text and the bootstrap are never overridden — they are facts, not prose).
@@ -50,6 +52,23 @@ Conventions:
   The stages are the workflow. If a /wb: stage cannot be invoked, say so and stop — never reconstruct a stage from this summary.
   Long form: /wb:help. Replace this text for a repository with .claude/wb/PRIME.md (print the default with hooks/wb-prime.sh --export).
 ORIENTATION
+}
+
+card() {
+  root="${CLAUDE_PLUGIN_ROOT:-$(cd "$(dirname "$0")/.." && pwd)}"
+  cat <<CARD
+wb Technical English (WBTE) applies to every reply and every document you write:
+  1. Give the result first. Then give the reason.
+  2. Write one instruction in each sentence. Use the imperative.
+  3. Write at most 20 words in an instruction and 25 words in a description.
+  4. Do not use semicolons. Write two sentences.
+  5. Write complete sentences. Keep articles and verbs. Do not write fragments.
+  6. Use the active voice and simple tenses.
+  7. In chat, never use an ID alone. Write "P1-T3 (the driver probe) passed", not "P1-T3 passed".
+  8. Define a term at its first use, or use a simple word.
+Keep code, paths, and exempt tokens exactly as they are.
+Full rules: $root/docs/reference/technical-english.md
+CARD
 }
 
 # `grep -c` prints `0` AND exits 1 when nothing matches. `|| echo 0` would therefore
@@ -89,6 +108,7 @@ count=$(echo "$candidates" | wc -w | tr -d ' ')
 
 # ---------------------------------------------------------------- recovery mode
 if echo "$payload" | grep -qE '"compact"|PreCompact'; then
+  [ "${WB_TECH_ENGLISH:-1}" = "0" ] || card
   [ "$count" -eq 0 ] && exit 0
   echo "Context was just compacted — any plan-doc summaries above are paraphrase, not verified content."
   if [ "$count" -eq 1 ]; then
@@ -107,6 +127,7 @@ if [ -f .claude/wb/PRIME.md ]; then
 else
   orientation
 fi
+[ "${WB_TECH_ENGLISH:-1}" = "0" ] || { echo ""; card; }
 
 # ------------------------------------------------- bootstrap (D8c), read-only
 if [ "$count" -eq 0 ]; then

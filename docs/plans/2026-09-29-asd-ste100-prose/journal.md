@@ -51,6 +51,13 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-30 01:55 — P3-T2 (closed)
+
+- **Task/phase**: P3-T2 — `card()` and two guarded calls in `plugin/hooks/wb-prime.sh`, a header bullet, and a `CLAUDE.md` line for `test-prime`
+- **Landed**: the card (8 imperatives, the ID rule, and the path, 118 words). `test-prime` passes 40 of 40, `test-lint` passes 15 of 15, and `test-quiet` passes 9 of 9. With `WB_TECH_ENGLISH=0`, the output is byte-identical to the 2.1.1 hook for startup, compact and PreCompact
+- **Commits**: see `P3-T2: print the WBTE rule card at every session start`
+- **Learned**: the orientation path prints one blank line before the card, inside the guard. So the test's `strip_card` also removes that line
+
 ## 2026-09-30 01:53 — P3-T1 (closed)
 
 - **Task/phase**: P3-T1 — `plugin/scripts/test-prime`, the contract test for `wb-prime.sh`, RED against the current hook

@@ -56,6 +56,9 @@ history is marked non-normative at its top, so it cannot be read as current guid
 ```bash
 # Contract tests for lint + lint-hook (run after changing either)
 ./plugin/scripts/test-lint
+
+# Contract tests for hooks/wb-prime.sh, including the WBTE rule card (run after changing it)
+./plugin/scripts/test-prime
 ```
 
 **Automatic Linting**: PostToolUse hooks lint markdown after Write/Edit/Bash. Write and Edit

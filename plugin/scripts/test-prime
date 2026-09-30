@@ -66,7 +66,14 @@ run() {
 has_card() { grep -qF "$CARD_START" <<<"$1" && grep -qF "$CARD_END" <<<"$1"; }
 no_card() { ! grep -qF "$CARD_START" <<<"$1"; }
 rc_zero() { [[ "$(cat "$WORK/rc")" == "0" ]]; }
-strip_card() { awk -v s="$CARD_START" -v e="$CARD_END" 'index($0,s){skip=1} !skip{print} skip&&index($0,e){skip=0}' <<<"$1"; }
+# Remove the card and the one blank line the hook prints before it.
+strip_card() {
+    awk -v s="$CARD_START" -v e="$CARD_END" '
+        index($0, s) { skip = 1; if (held && prev == "") held = 0 }
+        !skip { if (held) print prev; prev = $0; held = 1 }
+        skip && index($0, e) { skip = 0 }
+        END { if (held) print prev }' <<<"$1"
+}
 
 for n in 0 1 2; do make_repo "$WORK/repo$n" "$n"; done
 
