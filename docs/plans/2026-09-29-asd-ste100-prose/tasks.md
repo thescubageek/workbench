@@ -927,8 +927,10 @@ files. The 3.0.0 handoff (P7-T2) lists them.
 
 #### Manual Verification
 
-- [ ] A human reads the verdict table and one kept rewrite, and confirms that the rewrite did
+- [x] A human reads the verdict table and one kept rewrite, and confirms that the rewrite did
       not remove meaning
+      *(signed off by the user 2026-09-30: the table matches the runs and the tree,
+      `create_tasks/reference.md` lost no meaning in 12 changes, and no rule-word count fell)*
 
 ### 📝 Modified Files (Phase 5)
 
@@ -969,7 +971,7 @@ shortened one.
 
 - [x] **(derivable)** Every Phase 5 checkbox is `[x]`
 - [x] **(derivable)** All automated verification passing
-- [ ] **(attestation)** Manual verification confirmed by human
+- [x] **(attestation)** Manual verification confirmed by human
 - [x] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
       only writer of those fields, so do not edit `current_phase` or `completed_tasks` by hand
 
@@ -977,6 +979,8 @@ shortened one.
 performed the manual step: a human reads the verdict table and one kept rewrite, and confirms
 that the rewrite did not remove meaning. "All automated verification passing" stayed `[ ]`
 because `lint --all` failed on gitignored run outputs. It is ticked 2026-09-30 after P8-T2.
+
+**Signed off 2026-09-30:** the user confirmed the Phase 5 manual read. The attestation is ticked.
 
 **Do not proceed without human confirmation of manual tests** — unless the phase is being run
 under `/wb:implement --auto`, which buys the wait and not the attestation. In that case the
@@ -996,7 +1000,7 @@ repo and no new requirement for users who do not want it.
 
 - [x] Phase 5 complete and verified (or run this phase in parallel with Phases 3–5; it depends
       only on P2-T1)
-- [ ] Phase 5 manual testing confirmed — *an attestation, like the checkpoint's. Under
+- [x] Phase 5 manual testing confirmed (2026-09-30, after the phase ran) — *an attestation, like the checkpoint's. Under
       `/wb:implement --auto` it stays `[ ]` and the phase proceeds anyway; the previous phase's
       checkpoint records that nobody was asked. Unticked here means deferred, not blocked.*
 
