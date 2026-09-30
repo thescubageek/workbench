@@ -61,8 +61,10 @@ Read the "Pull requests and commit messages" section of
   changed default, or a new cost. Then give the reason. Name behaviour and decisions, not files
   or commits.
 - Give one testing line for each kind of check, such as "all contract tests pass". Do not list
-  every command. Report as run only the checks you ran in this session. If a number comes from
-  an earlier run or an earlier tree, say which one.
+  every command. Report as run only the checks you ran in this session. If a number, a demo or
+  a manual test comes from an earlier session or an earlier tree, say which one.
+- In an update, check each claim that you keep from the old body against the diff and the
+  commits. Drop a claim that they do not show, or say where it comes from.
 - Write each link as a full URL, because a PR body does not resolve a relative path. Get the
   base URL with `gh repo view --json url -q .url`, then link `<url>/blob/<branch>/<path>`.
 - Keep exact values that matter, such as a limit, a count, or a `file:line`. Link to plans,

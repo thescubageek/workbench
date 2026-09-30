@@ -5,8 +5,8 @@ created: 2026-09-29
 status: in-progress
 last_updated: 2026-09-30
 current_phase: 10
-total_tasks: 58
-completed_tasks: 58
+total_tasks: 59
+completed_tasks: 59
 task_tracking: markdown-checkboxes
 depends_on: [research.md, design.md]
 assignee: scraig
@@ -142,7 +142,7 @@ Based on dependency analysis:
 | Phase 7: Documentation, handoff, and release checks | ✅ Complete | 5/5 | 100% |
 | Phase 8: Validation fixes | ✅ Complete | 7/7 | 100% |
 | Phase 9: PR descriptions and commit messages in WBTE | ✅ Complete | 6/6 | 100% |
-| Phase 10: Manual-check fixes | 🔄 In progress | 5/6 | 83% |
+| Phase 10: Manual-check fixes | ✅ Complete | 6/6 | 100% |
 
 Counts come from the checkboxes below and are reconciled by `/wb:update_status`.
 
@@ -1490,10 +1490,10 @@ Fix the defects that the manual checks find. Added 2026-09-30 during the checks.
       shipped and non-shipped parts, lead the Summary with what a user notices, say when a number
       comes from an earlier run, write links as full URLs, count words as `wbte_check.py --pr`
       does, and give one Testing line for each kind of check. (completed 2026-09-30 20:39)
-- [ ] **P10-T6** — From the reef PR check: add `--template FILE` to `evals/wbte_check.py --pr`, so
+- [x] **P10-T6** — From the reef PR check: add `--template FILE` to `evals/wbte_check.py --pr`, so
       the template's fixed lines are neither counted nor flagged, with a planted case. In
       `/wb:pr-description` update mode, check each claim kept from the old body against the diff,
-      and drop or label a claim that the diff does not show.
+      and drop or label a claim that the diff does not show. (completed 2026-09-30 21:04)
 
 ### Success Criteria
 
@@ -1521,7 +1521,7 @@ before, and following it ticks the human sign-off box. **This block, labels and 
 included, is repeated in full at every phase's checkpoint**; a later phase never gets a
 shortened one.
 
-- [ ] **(derivable)** Every Phase 10 checkbox is `[x]`
+- [x] **(derivable)** Every Phase 10 checkbox is `[x]`
 - [x] **(derivable)** All automated verification passing
 - [x] **(attestation)** Manual verification confirmed by human
 - [x] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the

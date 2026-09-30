@@ -4,12 +4,14 @@
 Maintainer-only. The rules it measures live in
 plugin/docs/reference/technical-english.md.
 
-Usage: wbte_check.py [--json] [--chat | --pr] [--long-share N] [--max-cluster N]
-                     [--dictionary PATH] FILE...
+Usage: wbte_check.py [--json] [--chat | --pr [--template FILE]] [--long-share N]
+                     [--max-cluster N] [--dictionary PATH] FILE...
 
 A file ending in .txt is chat output. Every other file is a document. With --pr, every file
 is a PR description: it also gets a word budget (a warning above 250 words, a failure above
-400, or above 150 in one section) and the ID rule of chat output.
+400, or above 150 in one section) and the ID rule of chat output. --template names the
+repository's PR template: a body line that copies a template line is neither counted nor
+checked, because the skill must keep that text as it is.
 Exit 0 when every threshold holds, 1 when one breaks, 2 on a usage error.
 """
 
@@ -207,8 +209,17 @@ def pr_budget(raw):
     return sum(sections.values()), sections
 
 
-def check_file(path, chat, max_cluster, dictionary, pr=False):
+def template_lines(path):
+    """The fixed prose lines of a PR template: not headings, not inside comments."""
+    text = re.sub(r"<!--.*?-->", "", open(path, encoding="utf-8").read(), flags=re.S)
+    return {l.strip() for l in text.split("\n")
+            if l.strip() and not re.match(r"^#{1,6} ", l.strip())}
+
+
+def check_file(path, chat, max_cluster, dictionary, pr=False, fixed=frozenset()):
     raw = open(path, encoding="utf-8").read()
+    if fixed:
+        raw = "\n".join(l for l in raw.split("\n") if l.strip() not in fixed)
     prose = raw if chat else strip_markdown(raw)
     sents = [s for u in blocks(prose) for s in sentences(u)]
     lengths = [len(words(s)) for s in sents]
@@ -243,6 +254,7 @@ def main(argv):
     ap.add_argument("--json", action="store_true", help="print JSON instead of text")
     ap.add_argument("--chat", action="store_true", help="treat every file as chat output")
     ap.add_argument("--pr", action="store_true", help="treat every file as a PR description")
+    ap.add_argument("--template", help="with --pr: the PR template whose fixed lines to skip")
     ap.add_argument("--long-share", type=float, default=0.05,
                     help="max share of sentences over 25 words (default 0.05)")
     ap.add_argument("--max-cluster", type=int, default=3,
@@ -252,13 +264,21 @@ def main(argv):
     args = ap.parse_args(argv)
 
     dictionary = load_dictionary(args.dictionary)
+    if args.template and not args.pr:
+        print("wbte_check: --template needs --pr", file=sys.stderr)
+        return 2
+    if args.template and not os.path.isfile(args.template):
+        print(f"wbte_check: no such file: {args.template}", file=sys.stderr)
+        return 2
+    fixed = template_lines(args.template) if args.template else frozenset()
     results = []
     for path in args.files:
         if not os.path.isfile(path):
             print(f"wbte_check: no such file: {path}", file=sys.stderr)
             return 2
         chat = not args.pr and (args.chat or path.endswith(".txt"))
-        results.append(check_file(path, chat, args.max_cluster, dictionary, pr=args.pr))
+        results.append(check_file(path, chat, args.max_cluster, dictionary, pr=args.pr,
+                                  fixed=fixed))
 
     total_sents = sum(r["sentences"] for r in results)
     total_long = sum(r["over_25"] for r in results)
