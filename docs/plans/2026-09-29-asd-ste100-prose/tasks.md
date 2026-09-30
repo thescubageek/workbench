@@ -4,13 +4,13 @@ ticket: null
 created: 2026-09-29
 status: in-progress
 last_updated: 2026-09-30
-current_phase: 9
-total_tasks: 53
-completed_tasks: 53
+current_phase: 10
+total_tasks: 54
+completed_tasks: 54
 task_tracking: markdown-checkboxes
 depends_on: [research.md, design.md]
 assignee: scraig
-git_commit: ccf4546
+git_commit: 7c17302
 git_branch: wb-2.2.0/asd_ste100_prose
 repository: thescubageek/workbench
 tags: [tasks, tracking, asd-ste100-prose]
@@ -142,7 +142,7 @@ Based on dependency analysis:
 | Phase 7: Documentation, handoff, and release checks | ✅ Complete | 5/5 | 100% |
 | Phase 8: Validation fixes | ✅ Complete | 7/7 | 100% |
 | Phase 9: PR descriptions and commit messages in WBTE | ✅ Complete | 6/6 | 100% |
-| Phase 10: Manual-check fixes | 🔄 In progress | 0/1 | 0% |
+| Phase 10: Manual-check fixes | ✅ Complete | 1/1 | 100% |
 
 Counts come from the checkboxes below and are reconciled by `/wb:update_status`.
 
@@ -1054,10 +1054,14 @@ content); `HOME=$(mktemp -d)`; a `PATH` with no `pdftotext` and no python3.
 
 #### Manual Verification
 
-- [ ] A4: a human runs `/wb:wbte-dictionary <path-to-real-Issue-9.pdf>` and confirms that the
+- [x] A4: a human runs `/wb:wbte-dictionary <path-to-real-Issue-9.pdf>` and confirms that the
       entries are usable (word, part of speech, approved or not, alternatives). Set A4 in
       design.md
-- [ ] The skill works from a fresh session, and the plugin still works with no copy present
+      *(signed off by the user 2026-09-30, after the P10-T1 fix: 2,120 entries, 796 approved,
+      and full alternatives such as `MAKE SURE (v)`. The first run found the bugs that P10-T1 fixed)*
+- [x] The skill works from a fresh session, and the plugin still works with no copy present
+      *(signed off by the user 2026-09-30, in a fresh `--plugin-dir` session outside any repo:
+      the no-copy lookup fell back to the rules, and the skill stopped cleanly with no argument)*
 
 ### 📝 Modified Files (Phase 6)
 
@@ -1094,7 +1098,7 @@ shortened one.
 
 - [x] **(derivable)** Every Phase 6 checkbox is `[x]`
 - [x] **(derivable)** All automated verification passing
-- [ ] **(attestation)** Manual verification confirmed by human
+- [x] **(attestation)** Manual verification confirmed by human
 - [x] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
       only writer of those fields, so do not edit `current_phase` or `completed_tasks` by hand
 
@@ -1102,6 +1106,9 @@ shortened one.
 performed the manual steps. A4: a human runs `/wb:wbte-dictionary` on the real PDF in a fresh
 session. A development run of the script on the user's own PDF, with a temporary HOME, gave
 1,975 entries (652 approved). That run is evidence for the human, not the attestation.
+
+**Signed off 2026-09-30:** the user ran both Phase 6 manual checks. The first A4 check found
+three extractor bugs, which P10-T1 fixed. The re-test passed, so the attestation is ticked.
 
 **Do not proceed without human confirmation of manual tests** — unless the phase is being run
 under `/wb:implement --auto`, which buys the wait and not the attestation. In that case the
@@ -1120,7 +1127,7 @@ and prove the release is ready to merge.
 ### Prerequisites
 
 - [x] Phase 6 complete and verified
-- [ ] Phase 6 manual testing confirmed — *an attestation, like the checkpoint's. Under
+- [x] Phase 6 manual testing confirmed (2026-09-30, after the phase ran) — *an attestation, like the checkpoint's. Under
       `/wb:implement --auto` it stays `[ ]` and the phase proceeds anyway; the previous phase's
       checkpoint records that nobody was asked. Unticked here means deferred, not blocked.*
 
@@ -1459,7 +1466,8 @@ Fix the defects that the manual checks find. Added 2026-09-30 during the checks.
 
 #### Manual Verification
 
-- [ ] The user rebuilds the copy, and the A4 lookups give full alternatives and a `start (v)` row
+- [x] The user rebuilds the copy, and the A4 lookups give full alternatives and a `start (v)` row
+      *(signed off by the user 2026-09-30)*
 
 ### ⛔ CHECKPOINT: Phase 10 Complete
 
@@ -1476,11 +1484,13 @@ before, and following it ticks the human sign-off box. **This block, labels and 
 included, is repeated in full at every phase's checkpoint**; a later phase never gets a
 shortened one.
 
-- [ ] **(derivable)** Every Phase 10 checkbox is `[x]`
-- [ ] **(derivable)** All automated verification passing
-- [ ] **(attestation)** Manual verification confirmed by human
-- [ ] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
+- [x] **(derivable)** Every Phase 10 checkbox is `[x]`
+- [x] **(derivable)** All automated verification passing
+- [x] **(attestation)** Manual verification confirmed by human
+- [x] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
       only writer of those fields, so do not edit `current_phase` or `completed_tasks` by hand
+
+**Closed 2026-09-30 18:51 UTC.** The user rebuilt the copy and confirmed the lookups.
 
 **Do not proceed without human confirmation of manual tests** — unless the phase is being run
 under `/wb:implement --auto`, which buys the wait and not the attestation. In that case the

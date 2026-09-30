@@ -350,6 +350,9 @@ execution phase and measured by the harness.
   - Rationale: the three reliable columns are enough for a one-word lookup and for the
     harness count of unapproved words. Alternatives add value where parsing works.
   - Trade-off: some rows have an empty alternatives cell. The extractor must not guess.
+  - Update 2026-09-30: the A4 manual check found three extractor bugs. P10-T1 fixed them. The
+    copy now has 2,120 entries (796 approved) of the ~2,149 listed words, and multi-word
+    alternatives such as "MAKE SURE (v)" are whole.
   - Source: design.md A4 · Decided 2026-09-30
 
 - **D5 — A5 is validated at `2fff76c`, and P7-T4 checks it again.**
