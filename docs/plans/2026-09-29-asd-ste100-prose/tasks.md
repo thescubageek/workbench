@@ -440,7 +440,9 @@ user requirement.
 
 - [x] A human reads `technical-english.md` and confirms it is WBTE, has no ASD text, and states
       every design.md Data Model section
-- [ ] A human reads one judge verdict and one baseline report and confirms they make sense
+- [x] A human reads one judge verdict and one baseline report and confirms they make sense
+      *(signed off by the user 2026-09-30, after a read-only test session checked the baseline
+      numbers, 5 facts behind `within-before-1.json`, and the planted loss in `altered-1.json`)*
 
 ### 📝 Modified Files (Phase 2)
 
@@ -489,12 +491,15 @@ shortened one.
 
 - [x] **(derivable)** Every Phase 2 checkbox is `[x]`
 - [x] **(derivable)** All automated verification passing
-- [ ] **(attestation)** Manual verification confirmed by human
+- [x] **(attestation)** Manual verification confirmed by human
 - [x] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
       only writer of those fields, so do not edit `current_phase` or `completed_tasks` by hand
 
 **Update 2026-09-30:** the user confirmed `technical-english.md`. The judge-verdict and
 baseline-report read is still open, so the attestation stays `[ ]`.
+
+**Signed off 2026-09-30:** the user confirmed the judge-verdict and baseline-report read. The
+attestation is ticked. The baseline `report.md` was rebuilt, because it predated the judge run.
 
 **Closed unattended, 2026-09-30 01:50 UTC.** The user asked for a full-auto run while away. The
 attestation stays `[ ]`. Nobody performed the Phase 2 manual steps: a human reads
@@ -519,7 +524,7 @@ whether it changes chat output (A1).
 ### Prerequisites
 
 - [x] Phase 2 complete and verified
-- [ ] Phase 2 manual testing confirmed — *an attestation, like the checkpoint's. Under
+- [x] Phase 2 manual testing confirmed (2026-09-30, after the phase ran) — *an attestation, like the checkpoint's. Under
       `/wb:implement --auto` it stays `[ ]` and the phase proceeds anyway; the previous phase's
       checkpoint records that nobody was asked. Unticked here means deferred, not blocked.*
 - [x] The 2.1.1 baseline is recorded in `thoughts/2026-09-30-baseline.md`
@@ -1516,6 +1521,10 @@ resolved, leaving a dated line saying how.
   user accepted the shared `tasks.md` boilerplate semicolons for 2.2.0 (D8). The final run,
   `20260930T073357Z`, meets every target except 2 chat IDs in one sentence. The record is
   `thoughts/2026-09-30-objective-1-report.md`.
+- [2026-09-30] **Follow-up from the Phase 2 sign-off: the judge can file a removed `file:line`
+  under `other_losses`, not `lost_refs`.** `altered-1.json` did this. The gate reads only the
+  `verdict` field, so no gate result is wrong. A tool that counts `lost_refs` would undercount.
+  Tighten the judge prompt and recalibrate in the post-3.0.0 pass.
 - [2026-09-30] **Follow-up from P8-T5: the recovery text also appears twice after a manual
   `/compact`** when a plan is active, for the same reason as the card. That is 2.1.1 behaviour in
   a shared part of `wb-prime.sh`, so this plan does not change it.
