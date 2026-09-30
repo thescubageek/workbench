@@ -1,0 +1,1 @@
+Research how linkcheck decides that a link is broken: which settings control the request timeout and the number of attempts, where their defaults are defined, how a default can be overridden, what check_url does when every attempt fails, and what exit status the command-line tool returns when a link is broken.

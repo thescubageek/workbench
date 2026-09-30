@@ -51,6 +51,13 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-30 00:17 — P1-T2 (closed)
+
+- **Task/phase**: P1-T2 — build `evals/fixture/` (project, QUESTION.md, expected.json, plan-seed)
+- **Landed**: `linkcheck` fixture project (4 Python files and a README, 6 facts F1–F6), `QUESTION.md`, `expected.json` (id, fact, ref, contains), `plan-seed/` from the 2.1.1 `create_project` templates. Verifier PASS
+- **Commits**: see `P1-T2: build the evals fixture`
+- **Learned**: the 2.1.1 `research`, `design` and `tasks` templates fail markdownlint as written (no blank lines around headings and lists). The seeds were lint-fixed. The templates under `plugin/` were not changed (follow-up)
+
 ## 2026-09-30 00:16 — P1-T1 (closed)
 
 - **Task/phase**: P1-T1 — promote the plan directory into git
