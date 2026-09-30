@@ -1,3 +1,5 @@
 # Paths the wb lint hook and ./plugin/scripts/lint must never touch.
 # Planted-failure inputs for the eval checkers are broken on purpose.
 evals/fixtures/planted/
+# Harness run outputs are generated and gitignored. They are data, not documents.
+evals/runs/

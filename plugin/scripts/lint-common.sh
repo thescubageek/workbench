@@ -55,7 +55,13 @@ wb_lint_ignored() {
                        check-ignore -v --no-index -- "$abs" 2>/dev/null)" || matched=""
         case "$matched" in
             "$ignore":*) return 0 ;;
+            "") continue ;;
         esac
+        # check-ignore reports only the winning source, and a .gitignore match outranks
+        # core.excludesFile. So a path in both files came back attributed to .gitignore.
+        # ls-files with --exclude-from and no --exclude-standard consults $ignore alone.
+        [ -n "$(git -C "$root" ls-files --cached --others --ignored \
+                    --exclude-from="$ignore" -- "$abs" 2>/dev/null)" ] && return 0
     done
 
     return 1

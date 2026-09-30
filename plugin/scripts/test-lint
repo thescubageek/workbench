@@ -119,6 +119,26 @@ before=$(sha plans/x.md)
 check "a gitignored-but-not-lint-ignored path is still fixed" \
     "$([[ "$before" != "$(sha plans/x.md)" ]] && echo 1 || echo 0)"
 
+# A path in BOTH files is lint-ignored. git check-ignore -v reports the .gitignore match
+# first, and that match must not hide the .wblintignore one.
+mkdir -p runs
+dirty runs/x.md
+printf 'plans/\nruns/\n' > .gitignore
+printf 'docs/mirror/\nruns/\n' > .wblintignore
+before=$(sha runs/x.md)
+out=$("$LINT" --fix runs/x.md 2>&1)
+check "a path in both .gitignore and .wblintignore is skipped" \
+    "$([[ "$before" == "$(sha runs/x.md)" ]] && echo 1 || echo 0)"
+check "that path is skipped before markdownlint is spawned" \
+    "$(echo "$out" | grep -q 'Skipped 1 ignored path' && echo 1 || echo 0)"
+dirty plans/x.md
+before=$(sha plans/x.md)
+"$LINT" --fix plans/x.md >/dev/null 2>&1
+check "a path only in .gitignore is still fixed beside it" \
+    "$([[ "$before" != "$(sha plans/x.md)" ]] && echo 1 || echo 0)"
+rm -rf runs .wblintignore
+printf 'plans/\n' > .gitignore
+
 # --- Case 4: Write/Edit still fixes. Don't regress the feature. ---
 before=$(sha authored.md)
 jq -n --arg p "$REPO/authored.md" '{tool_input:{file_path:$p}}' | "$HOOK" >/dev/null 2>&1
