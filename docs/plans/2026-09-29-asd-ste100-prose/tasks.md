@@ -705,9 +705,9 @@ change to full stops or commas.
       with the P4-T1 tree. Record whether the generated `tasks.md` and chat summaries moved
       towards the targets in `thoughts/2026-09-30-link-measurement.md`. Set A2 in design.md.
       (~20 calls)
-- [ ] **P4-T3** — Rewrite in WBTE, with the link line: `create_project/templates/{design-md-template,readme-md-template,research-md-template,tasks-md-template}.md`
+- [x] **P4-T3** — Rewrite in WBTE, with the link line: `create_project/templates/{design-md-template,readme-md-template,research-md-template,tasks-md-template}.md`
       and the Step 5 output block in `create_project/SKILL.md:153-181`. Run
-      `evals/token_check.py` and `evals/link_check.py`. (~30 calls)
+      `evals/token_check.py` and `evals/link_check.py`. (~30 calls) (completed 2026-09-30 05:22)
 - [ ] **P4-T4** — Rewrite in WBTE, with the link line: `create_research/templates.md` and
       `create_design/templates/{design-md-template,design-options-message,design-presentation-message,recorded-decision-confirmation-message}.md`.
       Run both checks. (~30 calls)

@@ -51,6 +51,17 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-30 05:25 — P4-T3 (closed)
+
+- **Task/phase**: P4-T3 — WBTE rewrite, with the link line, of the four `create_project` document templates and the Step 5 output block in `create_project/SKILL.md`
+- **Landed**: `link_check.py` failed on the 5 `create_project` locations before the change and passes on all 5 after it. The prose changed and the placeholders did not. The token registry passes. The new prose has 0 semicolons and no sentence over 25 words. A `tasks.md`, `research.md` and `design.md` filled from the new templates pass `token_check.py`
+- **Commits**: see `P4-T3: rewrite the create_project templates in WBTE`
+## 2026-09-30 05:21 — P4-T2 (open)
+
+- **Task/phase**: P4-T2 — measure A2: does the model follow the link line? The Phase 3 tree against the P4-T1 tree, 3 repeats
+- **Next action**: wait for the P4-T1-tree run (`evals/run.py --before 442e862`, nohup, log `/tmp/wb-run-p4t2.log`, finished at `done:`). Compare it with the Phase 3 tree run `evals/runs/20260930T043113Z` (the same plugin as 32912a2). Then write `thoughts/2026-09-30-link-measurement.md` and set A2
+- **Started at**: 442e862
+
 ## 2026-09-30 05:18 — P4-T1 (closed)
 
 - **Task/phase**: P4-T1 — add the link line to the 12 locations shared with 3.0.0 (11 templates and the `create_research` Step 8 completion line)

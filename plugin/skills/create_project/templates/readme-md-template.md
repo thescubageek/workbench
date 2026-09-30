@@ -1,24 +1,26 @@
 # README.md Template
 
+Write this output in wb Technical English (WBTE): read [technical-english.md](../../../docs/reference/technical-english.md) and apply it. Keep every exempt token exactly as it is.
+
 ````markdown
 # [Project Name]
 
 **Created**: [YYYY-MM-DD]
 **Ticket**: [ticket-reference or N/A]
 
-<!-- Status is not restated here. Each document carries its own `status:` in frontmatter, and a
-     summary copy in the hub is the one nobody remembers to update. -->
+<!-- The status is not repeated here. Each document has its own `status:` field in its
+     frontmatter. A summary copy in this file is the copy that nobody updates. -->
 
 ## Overview
 
-This directory contains documentation for [project-name].
+This directory contains the documentation for [project-name].
 
 ## Documentation Structure
 
 - **[research.md](research.md)** - Codebase research and findings
 - **[design.md](design.md)** - Architectural design decisions
 - **[tasks.md](tasks.md)** - Execution plan and task tracking
-- **[journal.md](journal.md)** - Session journal; entries open when work starts
+- **[journal.md](journal.md)** - Session journal. An entry opens when work starts
 
 ## Workflow
 
@@ -32,19 +34,19 @@ This directory contains documentation for [project-name].
 ## Quick Commands
 
 ```bash
-# Continue with research (analyzes codebase)
+# Research the codebase
 /wb:create_research [this-directory]
 
-# Create design decisions
+# Write the design decisions
 /wb:create_design [this-directory]
 
-# Generate execution plan with tasks
+# Write the execution plan and its tasks
 /wb:create_tasks [this-directory]
 
-# Implement with worker agents (/wb:implement_inline runs it in this session)
+# Implement the plan with worker agents. /wb:implement_inline runs it in this session instead
 /wb:implement [this-directory]
 
-# Update status across all files
+# Update the status in all files
 /wb:update_status [this-directory]
 ```
 

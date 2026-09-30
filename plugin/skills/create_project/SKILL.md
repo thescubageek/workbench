@@ -150,12 +150,14 @@ creating one now buys nothing without also planting a `.gitkeep`. Do not add a s
 
 ### Step 5: Confirm Creation
 
+Write this output in wb Technical English (WBTE): read [technical-english.md](../../docs/reference/technical-english.md) and apply it. Keep every exempt token exactly as it is.
+
 Present the created structure:
 
 ```
-✅ Project documentation initialized successfully!
+✅ The project documentation is ready.
 
-📁 Created at: [full-path-to-directory]
+📁 Location: [full-path-to-directory]
 
 📄 Files created:
 ├── README.md      - Project overview and navigation
@@ -164,9 +166,9 @@ Present the created structure:
 ├── tasks.md       - Execution plan (1/4 tasks complete)
 └── journal.md     - Session journal (no entries yet)
 
-📂 thoughts/ — explorations; created on first use by /wb:explore_design
+📂 thoughts/ - explorations. /wb:explore_design creates it on first use
 
-📊 Metadata captured:
+📊 Metadata recorded:
 - Git commit: [commit-hash]
 - Branch: [branch-name]
 - Repository: [repo-name]
@@ -178,20 +180,20 @@ Present the created structure:
 1. Research the codebase:
    /wb:create_research [directory]
 
-2. Optional — if research surfaces more than one viable approach,
-   air the trade-off before design locks it in:
+2. Optional: if research finds more than one possible approach,
+   discuss the trade-off before the design fixes it:
    /wb:explore_design [directory]      (writes to thoughts/)
 
-3. After research, create design:
+3. After research, write the design:
    /wb:create_design [directory]
 
-4. Then generate execution plan:
+4. Then write the execution plan:
    /wb:create_tasks [directory]
 
-5. Implement with TDD:
+5. Implement it with TDD:
    /wb:implement [directory]
 
-Ready to begin research phase!
+The next step is research.
 ```
 
 ## Important Notes
