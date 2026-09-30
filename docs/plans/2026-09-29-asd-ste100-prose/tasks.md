@@ -814,6 +814,11 @@ shortened one.
 - [ ] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
       only writer of those fields, so do not edit `current_phase` or `completed_tasks` by hand
 
+**Closed on the user's "proceed", 2026-09-30 07:57 UTC.** The attestation stays `[ ]`, because the user
+did not confirm the manual reads: the sample documents and chat summary against 2.1.1, and the
+judge spot check. The 2 remaining chat IDs (one sentence in a `create_tasks` summary) stand as
+reported in `thoughts/2026-09-30-objective-1-report.md`.
+
 **Do not proceed without human confirmation of manual tests** — unless the phase is being run
 under `/wb:implement --auto`, which buys the wait and not the attestation. In that case the
 attestation stays `[ ]`, the checkpoint records that the phase closed unattended and names the
@@ -830,7 +835,7 @@ keep each rewrite only if the harness shows no loss.
 
 ### Prerequisites
 
-- [ ] Phase 4 complete and verified
+- [x] Phase 4 complete and verified
 - [ ] Phase 4 manual testing confirmed — *an attestation, like the checkpoint's. Under
       `/wb:implement --auto` it stays `[ ]` and the phase proceeds anyway; the previous phase's
       checkpoint records that nobody was asked. Unticked here means deferred, not blocked.*
