@@ -51,6 +51,12 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-30 12:37 — P7-T4 (closed)
+
+- **Task/phase**: P7-T4 — the release checks, recorded in `thoughts/2026-09-30-release-checks.md`
+- **Landed**: every command exits 0, except `lint --all` (only gitignored `evals/runs/` output, because of the `wb_lint_ignored` follow-up) and `git merge-tree` (5 conflicted paths). Every tracked file lints clean, and the four test scripts, both checkers and `claude plugin validate` pass
+- **Commits**: see `P7-T4: record the release checks`
+
 ## 2026-09-30 12:37 — P7-T3 (closed)
 
 - **Task/phase**: P7-T3 — the CHANGELOG 2.2.0 entry, and both manifests bumped to 2.2.0

@@ -1135,14 +1135,14 @@ for the post-3.0.0 pass; how to run `evals/` and the gate; the expected merge co
 - [x] **P7-T2** — Write `handoff-2026-09-30-wbte-for-3.0.0.md` with every item in Changes
       Required §2. `git add -f` it. (~20 calls) (completed 2026-09-30 12:36)
 - [x] **P7-T3** — Write the CHANGELOG 2.2.0 entry. Bump both manifests to 2.2.0. (~15 calls) (completed 2026-09-30 12:37)
-- [ ] **P7-T4** — Run the release checks and record the output in
+- [x] **P7-T4** — Run the release checks and record the output in
       `thoughts/2026-09-30-release-checks.md`: `./plugin/scripts/lint --all`,
       `./plugin/scripts/test-lint`, `./plugin/scripts/test-quiet`, `./plugin/scripts/test-prime`,
       `./plugin/scripts/test-wbte-dictionary`, `python3 evals/link_check.py`,
       `python3 evals/token_check.py`, `claude plugin validate plugin/`,
       `claude --plugin-dir plugin plugin details wb`, and
       `git merge-tree --write-tree HEAD adversarial-loop-skill-research` (list the conflicted
-      paths). (~20 calls)
+      paths). (~20 calls) (completed 2026-09-30 12:41)
 - [ ] **P7-T5** — Compare the conflicted paths from P7-T4 with the expected set: link lines,
       `wb-prime.sh`, the manifests, `README.md`, `CHANGELOG.md`, `.gitignore`, `CLAUDE.md`.
       For each unexpected path, reduce the 2.2.0 change or add it to the handoff with a
