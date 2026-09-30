@@ -770,8 +770,10 @@ change to full stops or commas.
 
 #### Manual Verification
 
-- [ ] A human reads one generated `research.md`, one `design.md`, one `tasks.md` and one chat
+- [x] A human reads one generated `research.md`, one `design.md`, one `tasks.md` and one chat
       summary from P4-T9, and confirms they are easier to follow than the baseline samples
+      *(signed off by the user 2026-09-30, from a read-only side-by-side of repeat 1 of both runs.
+      The precision findings are follow-ups, see the Implementation Notes)*
 - [ ] A human confirms the judge verdicts in the report match a spot check
 
 ### 📝 Modified Files (Phase 4)
@@ -1521,6 +1523,23 @@ resolved, leaving a dated line saying how.
   user accepted the shared `tasks.md` boilerplate semicolons for 2.2.0 (D8). The final run,
   `20260930T073357Z`, meets every target except 2 chat IDs in one sentence. The record is
   `thoughts/2026-09-30-objective-1-report.md`.
+- [2026-09-30] **Follow-ups from the Phase 4 readability sign-off.** The side-by-side of repeat 1
+  found these. Each is run-to-run variance, not a template change: neither research template
+  mentions running code, in 2.1.1 or in 2.2.0.
+  - **The D7 gate cannot see a loss inside `research.md`.** The within-run judge compares a
+    run with its own research, so only the expected-facts count covers the research stage.
+    *When:* first in the post-3.0.0 pass, before any gated rewrite of the shared
+    `create_research` files. Fix it together with the `lost_refs` follow-up below, so that
+    `judge.py` is recalibrated once.
+  - **A value became vague.** NEW `research.md:161` says "its own uncaught-exception status"
+    where 2.1.1 said "exit status 1". This goes against card rule 2. *When:* as a 2.2.x patch if
+    it recurs in real use, the same trigger as D11. It does not touch 3.0.0.
+  - **A false claim.** NEW `research.md:30` says "no other source files", but `__init__.py`
+    exists. Watch with the item above.
+  - **Repetition and fragments.** "No task can validate it." three times in a row
+    (`tasks.txt:18-20`), and "None block P1-T1." (`tasks.md:457`). A rule to group repeated
+    statements belongs in `technical-english.md`. *When:* in the post-3.0.0 pass, where the
+    harness can measure it with the shared-file rewrite. It is not urgent enough to stall 3.0.0.
 - [2026-09-30] **Follow-up from the Phase 2 sign-off: the judge can file a removed `file:line`
   under `other_losses`, not `lost_refs`.** `altered-1.json` did this. The gate reads only the
   `verdict` field, so no gate result is wrong. A tool that counts `lost_refs` would undercount.

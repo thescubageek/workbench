@@ -125,18 +125,22 @@ P7-T4 and P7-T5 run the check again on the final tree and record any other path.
 
 The first release after 3.0.0 (3.0.1 or 3.1.0, design.md D-Q3) must still do these:
 
-1. **Rewrite the prose of the shared files in WBTE.** They have the link line only. The rewrite
+1. **Fix the judge first, before any gated rewrite.** The within-run judge (D7) cannot see a
+   loss inside `research.md`. Add a check of each run's `research.md` against the baseline's
+   expected facts and values. Also make the judge file a removed `file:line` under `lost_refs`,
+   not `other_losses`. Recalibrate once for both (tasks.md, Implementation Notes).
+2. **Rewrite the prose of the shared files in WBTE.** They have the link line only. The rewrite
    must keep every exempt token (`technical-english.md`, Exempt tokens), and each change must
    pass the harness gate.
-2. **Rewrite the shared `create_tasks/templates/tasks-md-template.md` boilerplate** (D8). All
+3. **Rewrite the shared `create_tasks/templates/tasks-md-template.md` boilerplate** (D8). All
    the semicolons left in generated plans come from its checkpoint block, its ID-shape rule, its
    "Tasks run in document order" note, and its prerequisites line.
-3. **Gate the agent draft again.** The lite rewrite of `agents/codebase-analyzer.md` and
+4. **Gate the agent draft again.** The lite rewrite of `agents/codebase-analyzer.md` and
    `agents/codebase-locator.md` was restored in P5-T4 after a 1-repeat gate found a loss. The
    draft was in `.context/lite/` on the 2.2.0 machine. Gate it with 3 repeats.
-4. **Gate the remaining non-shared instruction files.** 2.2.0 rewrote the output templates and
+5. **Gate the remaining non-shared instruction files.** 2.2.0 rewrote the output templates and
    the Phase 5 files only.
-5. **Apply the PR rules to 3.0.0's own PR text.** `reply-to-claude` posts PR comments with
+6. **Apply the PR rules to 3.0.0's own PR text.** `reply-to-claude` posts PR comments with
    `gh pr comment`. Give its comment step the link line, so that the "Pull requests and commit
    messages" rules of `technical-english.md` apply there too.
 
