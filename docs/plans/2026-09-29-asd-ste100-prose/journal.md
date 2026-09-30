@@ -51,6 +51,13 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-30 01:14 — P2-T7 (closed)
+
+- **Task/phase**: P2-T7 — `evals/judge.py`, `evals/report.py`, `evals/README.md`, and calibration of the judge on two pairs from the P2-T6 run
+- **Landed**: the judge, the report, and the harness README. The judge flagged the altered copy (F6 and one `file:line` removed) in 3 of 3 runs. It found no loss in the real `research.md` pair in 3 of 3 runs. The record is `thoughts/2026-09-30-judge-calibration.md`
+- **Commits**: see `P2-T7: add the fidelity judge, the report, and the harness README`
+- **Learned**: the judge reports a loss on `design.md` between two runs of the same tree. A human must decide how the Phase 4 and Phase 5 gates use it. See the Implementation Discoveries in tasks.md
+
 ## 2026-09-30 00:58 — P2-T6 (closed)
 
 - **Task/phase**: P2-T6 — `evals/run.py`, the before/after driver (two trees, fresh fixture per repeat, three stages, headless approval step)

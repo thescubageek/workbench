@@ -18,7 +18,7 @@ import re
 import sys
 
 ID_RE = re.compile(r"\b(P\d+-T\d+|Q\d+|A\d+|PD\d+|D-Q\d+|UIQ\d+)\b")
-PAIRED_AFTER = re.compile(r"^[*`]*\s*(\(|—|–|-\s|:)")
+PAIRED_AFTER = re.compile(r"^[*`]*(\s*\(|\s[—–-]\s|:)")
 PAIRED_BEFORE = re.compile(r"\(\s*[*`]*$")
 
 STOP_WORDS = set("""
@@ -28,7 +28,7 @@ of in on at by for from to into onto with without within over under about after 
 between through during against among per via as up down out off
 i you he she it we they me him her us them my your his its our their
 is are was were be been being am has have had do does did can could will would shall
-should may might must
+should may might must cannot
 there here also only just very more most less least much many few such own same other
 one two three four five six seven eight nine ten first second third next last
 never always often still already again even instead however therefore thus hence rather
@@ -139,7 +139,7 @@ def lone_ids(raw):
     hits = []
     for m in ID_RE.finditer(text):
         before = text[max(0, m.start() - 3):m.start()]
-        after = text[m.end():m.end() + 4]
+        after = text[m.end():m.end() + 5]
         if PAIRED_AFTER.match(after) or PAIRED_BEFORE.search(before):
             continue
         hits.append(m.group(0))

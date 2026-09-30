@@ -407,10 +407,10 @@ user requirement.
       fixture copy per repeat, the three stages in order, the `status: approved` step, the model
       pinned with `--model`, and outputs under `evals/runs/`. Run it once with 1 repeat on
       `4b32306` against itself to prove the plumbing. (~40 calls) (completed 2026-09-30 01:13)
-- [ ] **P2-T7** — Write `evals/judge.py` and `evals/report.py`, and `evals/README.md`. Calibrate
+- [x] **P2-T7** — Write `evals/judge.py` and `evals/report.py`, and `evals/README.md`. Calibrate
       the judge on 2 pairs from the P2-T6 run: the real output, and a copy with one `file:line`
       reference and one fact removed. The judge must flag the altered copy in 3 of 3 runs.
-      (~35 calls)
+      (~35 calls) (completed 2026-09-30 01:15)
 
 #### Integration
 
@@ -1118,6 +1118,19 @@ Things to determine during implementation:
   or stages if the cost is too high.
 - **Judge reliability.** Record how often the judge disagrees with itself across repeats
   (P2-T7). If the rate is high, add mechanical checks before trusting its verdicts.
+  - [2026-09-30] **Finding (P2-T7): the verdict on `design.md` is not a fidelity signal as
+    built.** Two runs of the same tree (2.1.1) produced a "loss" verdict on `design.md`,
+    because the runs chose different designs. The `research.md` verdict held in 3 of 3 runs,
+    and a planted loss was flagged in 3 of 3 runs. The metrics also vary between runs: 12.0%
+    and 8.4% of sentences over 25 words, and 6 and 0 lone IDs in chat. **A human decision is
+    needed before P4-T9 and Phase 5** on how the "no loss in 3 of 3" gate uses the judge. Two
+    options: judge only `research.md` before/after, or judge each `design.md` and `tasks.md`
+    against its own run's `research.md`. Record: `thoughts/2026-09-30-judge-calibration.md`.
+- [2026-09-30] **Finding (P2-T6): the 2.1.1 `create_tasks` template has no `git_commit` or
+  `git_branch` key.** The validator requires both on every document, so `token_check.py`
+  reports 2 failures on each generated `tasks.md`, in both trees. The template is shared with
+  3.0.0, so this plan does not change it (follow-up). A P4 criterion says `token_check.py`
+  passes on every generated document. Read it as "no failure beyond this known one".
 - **Headless design approval.** The harness sets `status: approved` before `create_tasks`.
   Confirm that `create_tasks` accepts that and does not wait for input.
 - **Card wording.** P3-T3 may need up to three card versions. Keep each version and its
