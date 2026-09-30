@@ -1147,8 +1147,11 @@ Things to determine during implementation:
     built.** Two runs of the same tree (2.1.1) produced a "loss" verdict on `design.md`,
     because the runs chose different designs. The `research.md` verdict held in 3 of 3 runs,
     and a planted loss was flagged in 3 of 3 runs. The metrics also vary between runs: 12.0%
-    and 8.4% of sentences over 25 words, and 6 and 0 lone IDs in chat. **A human decision is
-    needed before P4-T9 and Phase 5** on how the "no loss in 3 of 3" gate uses the judge. Two
+    and 8.4% of sentences over 25 words, and 6 and 0 lone IDs in chat. **Decided 2026-09-30 →
+    design.md D7:** the gate judges each run's `design.md` and `tasks.md` against that run's
+    own `research.md`. A `judge.py` within-run mode and its calibration must land before P4-T9
+    and Phase 5. They are not a task yet. (Original note:) A human decision was needed on how
+    the "no loss in 3 of 3" gate uses the judge. Two
     options: judge only `research.md` before/after, or judge each `design.md` and `tasks.md`
     against its own run's `research.md`. Record: `thoughts/2026-09-30-judge-calibration.md`.
 - [2026-09-30] **Finding (P2-T6): the 2.1.1 `create_tasks` template has no `git_commit` or
@@ -1215,6 +1218,9 @@ resolved, leaving a dated line saying how.
   and the 2.1.1 baseline. Two driver fixes came from real runs: `--add-dir` on every call, and
   skipping `create_tasks` after an unwritten design. The judge-calibration finding needs a
   human decision before P4-T9 and Phase 5.
+- [2026-09-30] **Follow-up (D6): a larger fixture that makes the stages spawn their
+  sub-agents.** A6 stays `Pending` until a headless run shows the fan-out. This is not a new
+  task in this plan, because the task list does not change without a replan.
 - **Planned against 2.1.1** (`4b32306`). If `main` moves before Phase 7, rebase and repeat the
   P7-T4 checks.
 - [2026-09-30] **Follow-up from P1-T2: three 2.1.1 templates fail markdownlint as written.**

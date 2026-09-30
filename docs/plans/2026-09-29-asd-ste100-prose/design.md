@@ -4,7 +4,7 @@ ticket: null
 created: 2026-09-29
 created_timestamp: 2026-09-29T17:35:59Z
 status: approved
-last_updated: 2026-09-29
+last_updated: 2026-09-30
 designer: scraig
 git_commit: 4b32306
 git_branch: wb-2.2.0/asd_ste100_prose
@@ -334,6 +334,63 @@ execution phase and measured by the harness.
   - Trade-off: the name is less recognizable than "STE" to people who know the standard.
   - Source: create_design Step 4 · Decided 2026-09-29
 
+- **D3 — A2 (does the model follow a link line?) stays open until P4-T2 measures it.**
+  - Rationale: the card already gives most of the document gains. Only a measurement can
+    show what the link line adds.
+  - Trade-off: the Phase 4 rewrites start before A2 is known.
+  - Source: design.md A2 · Decided 2026-09-30
+
+- **D4 — The dictionary copy promises the word, the part of speech and the approved status.
+  Alternatives are best-effort.**
+  - Probe (2026-09-30, the user's own copy, `pdftotext -layout`, cwd outside every repo): the
+    434 pages convert in 0.8 s. A simple pattern finds about 1,926 headword lines with a part
+    of speech, about 90% of the ~2,149 listed words. Approved words are in uppercase (615) and
+    unapproved words in lowercase (1,311), so the status is reliable. 1,850 entries wrap onto
+    a continuation line, so alternatives need column parsing across lines.
+  - Rationale: the three reliable columns are enough for a one-word lookup and for the
+    harness count of unapproved words. Alternatives add value where parsing works.
+  - Trade-off: some rows have an empty alternatives cell. The extractor must not guess.
+  - Source: design.md A4 · Decided 2026-09-30
+
+- **D5 — A5 is validated at `2fff76c`, and P7-T4 checks it again.**
+  - Check (2026-09-30): `git diff 4b32306 adversarial-loop-skill-research -- plugin/hooks/wb-prime.sh`
+    shows the same 4 `shellcheck` comment lines, away from the card's lines.
+    `git merge-tree --write-tree HEAD adversarial-loop-skill-research` auto-merges
+    `wb-prime.sh`.
+  - The merge has 5 conflicts. Three of them already exist between 2.1.1 (`4b32306`) and the
+    3.0.0 branch: both manifests and `README.md`. 2.2.0 adds two: `.gitignore` (both branches
+    append the bytecode lines) and `.claude/wb/knowledge.md` (both append entries).
+  - Rationale: the card placement holds today. The 3.0.0 branch is still moving, so the
+    release check must repeat the test.
+  - Trade-off: `knowledge.md` is not in the P7-T5 expected set, so the 3.0.0 handoff needs a
+    resolution note for it (keep both appended entries).
+  - Source: design.md A5 · Decided 2026-09-30
+
+- **D6 — A6 stays open until a larger fixture tests the sub-agent fan-out.**
+  - Evidence so far: P1-T3 passed. Every run since has written its documents (9 of 9 stages
+    when the network held), with two conditions. The driver passes `--add-dir <tree>/plugin`,
+    and `create_design` gets one fixed follow-up reply. On the small fixture, the stages skip
+    their sub-agent fan-out, so no run has shown that a headless stage can spawn its agents.
+  - Rationale (the user's choice): a stage that never spawns its agents is not the stage
+    that users run on a real codebase.
+  - Trade-off: the Phase 4 and Phase 5 measurements rest on a partly validated driver. A
+    larger fixture is a follow-up (tasks.md, Implementation Notes). It is not a new task.
+  - Source: design.md A6 · Decided 2026-09-30
+
+- **D7 — The "no loss" gate judges each run against its own `research.md`.**
+  - The gate asks whether every fact, `file:line` reference, ID and barrier in a run's
+    `research.md` is carried into that run's `design.md` and `tasks.md`. A rewrite passes when
+    no repeat shows a loss (3 of 3), in both trees.
+  - Why not before/after: two runs of the same tree got a "loss" verdict on `design.md`,
+    because each run chose a different design (`thoughts/2026-09-30-judge-calibration.md`).
+    A check inside one run does not depend on which design the run chose.
+  - Rationale (the user's choice): fidelity is about carrying facts forward, and a run carries
+    its own facts.
+  - Trade-off: `judge.py` needs a new within-run mode, and that mode needs calibration: a
+    planted loss is found 3 of 3, and a real run on 2.1.1 shows no loss. This work is not in
+    the task list yet. It must land before P4-T9 and Phase 5.
+  - Source: tasks.md, Implementation Discoveries (the P2-T7 finding) · Decided 2026-09-30
+
 ## Scope Definition
 
 ### In Scope
@@ -423,8 +480,8 @@ execution phase and measured by the harness.
 | A1 | A short rule card at session start changes the style of chat output in a way the harness can measure. If not, Objective 1 needs a stronger channel for the conversation. | Validated 2026-09-30 |
 | A2 | The model follows a link line at the top of a template when it writes the document. If not, the rules must go into the template text, and the 48 shared templates wait for the post-3.0.0 pass. | Pending |
 | A3 | SessionStart output with `source=compact` reaches the model when no plan is active. The 2026-09-10 measurement covered only the case with an active plan (`wb-prime.sh:12-18`). If not, the card is lost after compaction in repos without plans. | Validated 2026-09-30 |
-| A4 | Text extraction from the Issue 9 PDF keeps the dictionary entries usable (word, part of speech, approved or not, alternatives). If not, the dictionary skill offers only the approved-word list, or is dropped. | Pending |
-| A5 | 3.0.0 does not restructure the orientation and recovery sections of `wb-prime.sh` before it merges. Today it adds only 4 comment lines. If it does, the card placement must be redone in the handoff. | Pending |
+| A4 | Text extraction from the Issue 9 PDF keeps the dictionary entries usable (word, part of speech, approved or not, alternatives). If not, the dictionary skill offers only the approved-word list, or is dropped. | Validated 2026-09-30 — for word, part of speech and status. Alternatives are best-effort (see D4) |
+| A5 | 3.0.0 does not restructure the orientation and recovery sections of `wb-prime.sh` before it merges. Today it adds only 4 comment lines. If it does, the card placement must be redone in the handoff. | Validated 2026-09-30 — for `adversarial-loop-skill-research` at `2fff76c`. P7-T4 checks again (see D5) |
 | A6 | Headless `claude -p --plugin-dir <tree> --allowedTools=Skill` runs the stages well enough for before/after comparison (`.claude/wb/knowledge.md`, headless entry). If not, the harness needs a different driver. | Pending |
 
 ## Rejected Alternatives
