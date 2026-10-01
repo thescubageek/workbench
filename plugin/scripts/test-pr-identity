@@ -133,6 +133,31 @@ build() {
                     git config branch.feature-A.remote ghe ;;
             esac
             fixture "$(pr 42 feature-A "$(oid A1)" false thescubageek)" ;;
+        H3|H4|H5|H6|H7|H10)
+            base_world "$1"; git clone -q parent.git work; cd work || exit 2
+            git checkout -q feature-A; commit L1
+            case $1 in
+                H3) evil="https://evil.example/x@github.com/thescubageek/workbench.git" ;;
+                H4) evil="ssh://evil.example/x@github.com/thescubageek/workbench" ;;
+                H5) evil="evil.example:x@github.com:thescubageek/workbench.git" ;;
+                H6) git init -q --bare "$W/x@github.com/thescubageek/workbench.git"
+                    evil="file://$W/x@github.com/thescubageek/workbench.git" ;;
+                H7) evil="$W/x@github.com:thescubageek/workbench.git"; git init -q --bare "$evil" ;;
+                H10) evil='https://evil.example\@github.com/thescubageek/workbench.git' ;;
+            esac
+            git remote set-url --push origin "$evil"
+            REPOS="$REPOS, \"${evil//\\/\\\\}\": \"someone/workbench\""
+            fixture "$(pr 42 feature-A "$(oid A1)" false thescubageek)"; TARGET=42 ;;
+        H8|H9)
+            base_world "$1"; git clone -q parent.git work; cd work || exit 2
+            git checkout -q feature-A; commit L1
+            git remote set-url origin https://github.com/thescubageek/workbench.git
+            case $1 in
+                H8) git remote set-url --push origin ssh://git@github.com:22/thescubageek/workbench.git/ ;;
+                H9) git remote set-url --push origin https://x-access-token:abc@github.com/thescubageek/workbench ;;
+            esac
+            REPOS="\"https://github.com/thescubageek/workbench.git\": \"thescubageek/workbench\""
+            fixture "$(pr 42 feature-A "$(oid A1)" false thescubageek)"; TARGET=42 ;;
         C1)
             base_world C1; git clone -q parent.git work; cd work || exit 2
             git checkout -q feature-A; commit L1
@@ -191,6 +216,14 @@ E2|refuse|-|-|base|-|-|-|no remote points at the base repository
 E3|refuse|-|-|base|-|-|-|the base remote has no refs/pull/42/head
 H1|elsewhere|no|no|L1|A1|-|-|upstream remote has the same owner/name on another host (https)
 H2|elsewhere|yes|no|L1|L1|-|-|upstream remote has the same owner/name on another host (scp), no target
+H3|elsewhere|no|no|L1|A1|-|-|push url https://evil.example/x@github.com/... has an @ in its path, not its authority
+H4|elsewhere|no|no|L1|A1|-|-|push url ssh://evil.example/x@github.com/... has an @ in its path, not its authority
+H5|elsewhere|no|no|L1|A1|-|-|push url evil.example:x@github.com:... is scp form on evil.example
+H6|elsewhere|no|no|L1|A1|-|-|push url file://.../x@github.com/... is a local repository
+H7|elsewhere|no|no|L1|A1|-|-|push url .../x@github.com:... is a local path, a / comes before its first :
+H8|own|yes|yes|L1|L1|origin|refs/heads/feature-A|push url ssh:// with user, port, .git and a trailing slash
+H9|own|yes|yes|L1|L1|origin|refs/heads/feature-A|push url https:// with credentials in its userinfo
+H10|elsewhere|no|no|L1|A1|-|-|push url with a backslash in its authority is not read locally
 C1|own|yes|yes|L1|L1|origin|refs/heads/feature-A|hosted GitHub URLs, fetch https and push scp
 D1|other|no|no|D1|A1|-|-|gh-resolved=base on origin outranks the name-ranked upstream'
 

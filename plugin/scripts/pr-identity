@@ -25,17 +25,31 @@ case $target in -*) usage ;; esac
 
 lower() { printf '%s' "$1" | tr '[:upper:]' '[:lower:]'; }
 
-# host/owner/name parsed from a hosted URL (https://, ssh://, git@host:); fails for anything else
+AN=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
+
+# host/owner/name parsed by git's rules from https://, ssh:// or user@host: URLs; fails for
+# anything it cannot read with certainty, which then goes to `gh repo view <url>`
 parse_url() {
-  local u=$1 host path
+  local u=$1 scheme="" auth host port path
   u=${u%/}; u=${u%.git}
   case $u in
-    *://*) u=${u#*://}; u=${u#*@}; [[ $u == */* ]] || return 1; host=${u%%/*}; path=${u#*/} ;;
-    *@*:*) u=${u#*@}; host=${u%%:*}; path=${u#*:} ;;
+    https://*/*|ssh://*/*) scheme=${u%%://*}; u=${u#*://}; auth=${u%%/*}; path=${u#*/} ;;
+    *://*) return 1 ;;
+    *:*) auth=${u%%:*}; path=${u#*:}
+         [[ $auth != */* && $auth == *@* ]] || return 1 ;;
     *) return 1 ;;
   esac
-  host=${host%%:*}; path=${path#/}
-  [[ -n $host && $path == */* && $path != */*/* && $path != /* && $path != */ ]] || return 1
+  [[ $auth != *[!${AN}._~%:@-]* && $auth != *@*@* ]] || return 1
+  host=${auth#*@}
+  if [ "$host" != "$auth" ]; then
+    [[ $auth == ?*@* && ( $scheme == https || $auth != *:*@* ) ]] || return 1
+  fi
+  if [ -n "$scheme" ] && [[ $host == *:* ]]; then
+    port=${host##*:}; host=${host%:*}
+    [[ -n $port && $port != *[!0123456789]* ]] || return 1
+  fi
+  [[ -n $host && $host != -* && $host != *[!${AN}.-]* ]] || return 1
+  [[ $path == ?*/?* && $path != */*/* ]] || return 1
   printf '%s/%s\n' "$host" "$path"
 }
 
