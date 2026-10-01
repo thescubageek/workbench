@@ -149,14 +149,14 @@ criterion is run before the fix**. A criterion that passes before the change is 
       **Acceptance (shape 3)**: dual grep — "114" and "15 scan-integrity" absent from both
       READMEs, and 128 and 16 present at a cited line each. (~3 calls) (completed 2026-10-01 13:31)
 
-- [ ] **R11-T13** — `plugin/scripts/test-guards:171` — the must-not-fire branch passes whenever
+- [x] **R11-T13** — `plugin/scripts/test-guards:171` — the must-not-fire branch passes whenever
       `parse_findings` is empty, ignoring exit code, stderr and unmapped labels.
       **Fails when:** a checker that wraps the real one and exits 1 with a traceback whenever the
       real result is clean scores `tp=68 fn=0 fp=0 tn=60` while every negative crashes; a finding
       under a renamed label is dropped by `parse_findings` and also reads as a correct negative.
       **Acceptance (shape 2)**: assert `returncode == 0` and empty stderr for `expect == 0` and
       `returncode == 1` for `expect == 1`, and fail on a finding line that maps to no `SHAPE_OF`
-      key; show in a scratch copy that the crash-on-clean wrapper now fails the suite. (~8 calls)
+      key; show in a scratch copy that the crash-on-clean wrapper now fails the suite. (~8 calls) (completed 2026-10-01 13:47)
 
 - [ ] **R11-T14** — `plugin/scripts/test-quiet:1` — no case asserts the suppressed-line count or
       log retention that `quiet` documents.

@@ -51,6 +51,12 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-10-01 13:31 — R11-T13 (closed)
+
+- **Task/phase**: R11-T13, the must-not-fire corpus branch cannot detect a crash or an unmapped label.
+- **Landed**: run_corpus now asserts exit code (0 on clean, 1 on must-fire), stderr (the zero-file notice excepted) and unmapped finding labels; parse_findings returns the unmapped labels. Old suite scored a crash-on-clean wrapper 131 of 131; the new suite scores it 72 of 131 and names the violation. Real checker 131/131. run_generated's in-process score is unchanged and still drops unmapped shapes.
+- **Started at**: bffb2ae
+
 ## 2026-10-01 13:28 — R11-T12 (closed)
 
 - **Task/phase**: R11-T12, READMEs state 114 corpus cases and 15 integrity checks.

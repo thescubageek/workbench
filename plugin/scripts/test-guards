@@ -131,19 +131,24 @@ SHAPE_OF = {
 
 
 def parse_findings(stdout, root):
-    """-> Counter{(lineno, shape): n} from check-guards' report. A multiset, not a set: a
-    set made a line reported twice indistinguishable from a line reported once."""
-    out, pending = Counter(), None
+    """-> (Counter{(lineno, shape): n}, [unmapped label]) from check-guards' report. A
+    multiset, not a set: a set made a line reported twice indistinguishable from a line
+    reported once. A label that maps to no SHAPE_OF key is returned, not dropped: dropped,
+    a renamed label on a must-not-fire case read as a correct negative."""
+    out, unmapped, pending = Counter(), [], None
     for line in stdout.splitlines():
         m = re.match(r'^(.*):(\d+)$', line.strip())
         if m and (m.group(1).startswith(root) or os.sep in m.group(1)):
             pending = int(m.group(2))
             continue
         key = line.strip()
-        if pending is not None and key in SHAPE_OF:
-            out[(pending, SHAPE_OF[key])] += 1
+        if pending is not None and key:
+            if key in SHAPE_OF:
+                out[(pending, SHAPE_OF[key])] += 1
+            else:
+                unmapped.append(key)
             pending = None
-    return out
+    return out, unmapped
 
 
 def run_corpus(impl):
@@ -159,22 +164,33 @@ def run_corpus(impl):
             if p.endswith('.sh'):
                 os.chmod(p, 0o755)
             r = subprocess.run([sys.executable, impl, d], capture_output=True, text=True)
-            got = parse_findings(r.stdout, d)
+            got, unmapped = parse_findings(r.stdout, d)
             want = Counter((ln, sh) for ln, sh in case.get('expect_at', []))
+            bad = [f'unmapped label {u!r}' for u in unmapped]
             if case['expect'] == 1:
+                if r.returncode != 1:
+                    bad.append(f'exit {r.returncode} on a must-fire case')
                 # Assert WHAT was reported, not merely that something was. Asserting the
                 # exit code alone let mutations that report every finding at line 1, or
                 # under the wrong shape, or truncated to the first one, all score clean.
-                if got == want:
+                if got == want and not bad:
                     tp += 1
                 else:
                     fn += 1
                     misses.append(f"{case['id']} (want {sorted(want.elements())}, "
-                                  f"got {sorted(got.elements())})")
+                                  f"got {sorted(got.elements())}"
+                                  + ''.join(f'; {b}' for b in bad) + ')')
             else:
-                if got:
+                if r.returncode != 0:
+                    bad.append(f'exit {r.returncode} on a clean case')
+                noise = [ln for ln in r.stderr.splitlines()
+                         if not ln.endswith('— nothing to check')]
+                if noise:
+                    bad.append(f'stderr {noise[-1][:80]!r}')
+                if got or bad:
                     fp += 1
-                    falses.append(f"{case['id']} (got {sorted(got.elements())})")
+                    falses.append(f"{case['id']} (got {sorted(got.elements())}"
+                                  + ''.join(f'; {b}' for b in bad) + ')')
                 else:
                     tn += 1
         finally:
