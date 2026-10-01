@@ -51,6 +51,12 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-10-01 04:14 — R10-T1 (closed)
+
+- **Task/phase**: R10-T1, widen the member-ID scrub patterns in daily-digest/sources.md.
+- **Landed**: member-ID scrub patterns widened to colon, slash, dash, NBSP, percent-escape and three-character separators. Eight synthetic must-scrub cases and two glued must-not cases added. test-phi-patterns 28/28, check passes. The general pattern was widened too, beyond the task text.
+- **Started at**: 0dffc0c
+
 ## 2026-09-28 19:30 — Round 10 filed; breaker Blocking on the introduced-rate trend (closed)
 
 - **Task/phase**: second `/wb:adversarial-loop 25` run, stopped after Phase 1 as instructed.

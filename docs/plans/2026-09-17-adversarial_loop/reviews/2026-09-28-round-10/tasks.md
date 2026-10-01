@@ -21,7 +21,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
 
 ## Tasks
 
-- [ ] **R10-T1** — `plugin/skills/daily-digest/sources.md:227` — the member-ID scrub patterns
+- [x] **R10-T1** — `plugin/skills/daily-digest/sources.md:227` — the member-ID scrub patterns
       miss percent-escaped, slash- and colon-separated, three-character-separated, en-dash and
       NBSP-separated IDs.
       **Fails when:** synthetic `member_id%3ABM-CA-12345678`, `path%2FBM-CA-12345678`,
@@ -32,7 +32,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       `plugin/scripts/test-phi-patterns`; RED today (every one unmatched); GREEN after the patterns
       widen, with every existing case still passing. The glued forms (`patientBM-…`, `…12345678v2`)
       stay out of scope — the alphanumeric lookarounds are deliberate (`sources.md:238-240`).
-      (~6 calls)
+      (~6 calls) (completed 2026-10-01 04:15)
 
 - [ ] **R10-T2** — `plugin/skills/adversarial-loop/SKILL.md:234` and `:392` — the ledger is
       staged after every commit that is said to carry it, in Phase 1 step 5 and in Phase 4 step 3.
