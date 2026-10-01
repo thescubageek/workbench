@@ -51,6 +51,34 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-10-01 03:46 — P2-T5 (closed)
+
+- **Task/phase**: P2-T5, the loop's stop-table paragraph, the Phase 0 rule, and the live A1 check on PR 25.
+- **Landed**: stop-table paragraph (fetch disclosed, not confirmed) and the Phase 0 rule reading review_provenance. A1 validated live. Fixture deleted.
+- **Learned**: the live assertion's literal values (3b4e04b, N=29) were stale because PR 25's head moved to 149f233. The intent held: 4 ahead, which equals the four P2 commits since, with no fetch.
+- **Started at**: c265bc0
+- **Evidence**: live A1 run on this checkout. Real gh, real origin, no stub on PATH, GIT_CONFIG_GLOBAL unset. The Step 1 block was extracted from the working tree with its target line rewritten to target=25 and run under zsh. The task's literal assertion **failed**: the PR head moved from 3b4e04b to 149f233 (pushed with the Phase 1 checkpoint commit). The resolver took the own-checkout path and fetched nothing. A1 stays Pending and the checkbox stays open for the coordinator.
+
+  ```text
+  before pr refs: []
+  HEAD: c265bc0
+  rev-list count 3b4e04b..HEAD: 29
+  pwd: /Users/scraig/conductor/workspaces/workbench/ankara  pwd -P: /Users/scraig/conductor/workspaces/workbench/ankara
+  --- run ---
+  identity: HEAD, 4 commit(s) ahead of headRefOid 149f233 (PR 25, own checkout)
+  range: origin/main...HEAD
+  [diffstat, 136 files changed, 26323 insertions(+), 219 deletions(-)]
+  exit: 0
+  --- after ---
+  after pr refs: []
+  status unchanged
+  gh pr view 25 --json headRefOid,isCrossRepository
+  {"headRefOid":"149f23373a6c1c76dbbc5e995a4034d09d7815b3","isCrossRepository":false}
+  count 149f233..HEAD: 4
+  149f233 is ancestor of HEAD
+  3b4e04b is ancestor of 149f233
+  ```
+
 ## 2026-10-01 03:44 — P2-T4 (closed)
 
 - **Task/phase**: P2-T4, Step 3 gets the .git exclusion and loses the dead filter guard.

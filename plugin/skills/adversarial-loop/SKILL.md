@@ -81,6 +81,13 @@ each time, and a confirmation for one is not a confirmation for the next:
 | `gh pr edit --add-label` | Phase 5 | A label is an assertion about the change, and in some repositories it is an input to automation |
 | any force-update of a remote ref | anywhere | It destroys history someone else may hold |
 
+One write is **disclosed, not confirmed**. When the target is a pull request that is not the
+current checkout, `adversarial-review` runs
+`git fetch origin "refs/pull/<N>/head:refs/remotes/origin/pr/<N>"`. It writes exactly one
+remote-tracking ref, `refs/remotes/origin/pr/<N>`. It checks nothing out, creates no branch, and
+leaves the worktree as it was. It is the same class of write as any `git fetch`. The review's
+`identity:` line names the ref it wrote.
+
 This is the repository norm, not a rule invented here: `plugin/docs/reference/branch-naming.md`
 requires confirmation before a git state change, and the root `CLAUDE.md` says work is committed
 but the **push is confirmed with the user**. This skill's own Phase 1 already says *"pushing is
@@ -122,8 +129,9 @@ binding and carries the history of the defect.
 Pass the same `target` through to `adversarial-review` in Phase 1, so the review and the
 publishing phases cannot end up pointed at different changes.
 
-**If `target` does not name the current checkout, the pull-request phases do not run.** Phases 2
-and 4 push the branch you are on; they cannot push a different one. Review the target, report,
+**Read the review's `review_provenance`. If it is not `HEAD`, the pull-request phases do not
+run.** The `identity:` line `adversarial-review` prints in Step 1 shows it: a line that does not
+start with `HEAD` names a target that is not the current checkout. Phases 2 and 4 push the branch you are on; they cannot push a different one. Review the target, report,
 and stop at the end of Phase 1 — saying that the publishing phases were skipped and why.
 Checking the target out yourself is a state change nobody asked for.
 

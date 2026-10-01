@@ -349,7 +349,7 @@ record — there is no external tracker.
 
 | ID | Assumption | Validated? |
 | -- | ---------- | ---------- |
-| A1 | `git merge-base --is-ancestor <headRefOid> HEAD` is the right "own checkout" test on a repository where the PR head branch is checked out with local commits ahead of it. If false, a legitimate local-fix review is refused. | Pending — exercised in the identity bullet only for the non-descendant case; the descendant case is PR #25 itself and is the first thing the implementation runs |
+| A1 | `git merge-base --is-ancestor <headRefOid> HEAD` is the right "own checkout" test on a repository where the PR head branch is checked out with local commits ahead of it. If false, a legitimate local-fix review is refused. | Validated 2026-10-01 — on PR #25 own checkout the resolver printed `identity: HEAD, 4 commit(s) ahead of headRefOid 149f233 (PR 25, own checkout)`, N equal to `git rev-list --count 149f233..HEAD`, no fetch ran. The PR head had moved from 3b4e04b since planning, so the plan's literal SHA and count were stale; the descendant case held. |
 | A2 | The three curated-mutation equivalents written against `lex()` are as strong as the three they replace. If false, the curated suite protects less than before while reporting 25/25. | Pending — checked by planting each break in a scratch copy and watching the corpus fail, the round-4 discipline |
 | A3 | The generated sweep is deterministic across machines, so a CI job and a local run agree. If false, CI fails on a survivor the author cannot reproduce. | Pending — the sweep is in-process AST mutation under a fixed alarm; measured stable across runs on one machine; CI's first run is the cross-machine check |
 

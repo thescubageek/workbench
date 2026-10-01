@@ -481,7 +481,7 @@ provenance that is not `HEAD` means the PR phases do not run").
       `./.git/…` hits; after: none. **RED** for R10-T13 (shape 3): `command grep -c 'FILTER FAILED'
       plugin/skills/adversarial-review/SKILL.md` → 1; after: 0, and the bullet count equals the
       heading's number (R7-T8's criterion). (~8 calls) (completed 2026-10-01 03:45)
-- [ ] **P2-T5** — The loop's row and the live check. In `adversarial-loop/SKILL.md`: add the
+- [x] **P2-T5** — The loop's row and the live check. In `adversarial-loop/SKILL.md`: add the
       disclosed-not-confirmed paragraph after the stop table per Changes Required §3, and
       rewrite the `:125` own-checkout rule to read `review_provenance`. Then **validate A1
       live**: on this checkout of PR #25, run the resolver block with `target=25` as written;
@@ -489,7 +489,7 @@ provenance that is not `HEAD` means the PR phases do not run").
       checkout)` with N equal to `git rev-list --count 3b4e04b..HEAD`, and that no fetch ran
       (`git for-each-ref refs/remotes/origin/pr/` prints nothing). Record the output verbatim
       in the journal, flip A1 to `Validated` with the date in `design.md`. Delete
-      `/tmp/wb-identity-fixture/`. (~10 calls)
+      `/tmp/wb-identity-fixture/`. (~10 calls) (completed 2026-10-01 03:48)
 
 ### Success Criteria
 
