@@ -123,6 +123,18 @@ build() {
             base_world G1; git clone -q parent.git work; cd work || exit 2
             git checkout -q --detach main
             fixture "$(pr 42 feature-A "$(oid A1)" false thescubageek)" ;;
+        E1)
+            base_world E1; git clone -q parent.git work; cd work || exit 2
+            fixture "$(pr 42 feature-A "$(oid A1)" false thescubageek)"; TARGET=99 ;;
+        E2)
+            base_world E2; git clone -q parent.git work; cd work || exit 2
+            git remote set-url origin "https://example.invalid/other/name.git"
+            REPOS="$REPOS, \"https://example.invalid/other/name.git\": \"thescubageek/workbench\""
+            fixture "$(pr 42 feature-A "$(oid A1)" false thescubageek)"; TARGET=42 ;;
+        E3)
+            base_world E3; git -C parent.git update-ref -d refs/pull/42/head
+            git clone -q parent.git work; cd work || exit 2
+            fixture "$(pr 42 feature-A "$(oid A1)" false thescubageek)"; TARGET=42 ;;
     esac
     [ "$1" = S9 ] || [ "$1" = N1 ] || [ "$1" = G1 ] || HAS_TARGET=1
     export GH_FIXTURE="$W/fixture.json" GH_LOG="$W/gh.log"
@@ -145,7 +157,18 @@ N1|none|yes|no|base|base|-|-|current checkout with no PR
 O1|other|no|no|O1|A1|-|-|HEAD does not contain the PR head
 B1|refuse|-|-|X1|-|-|-|refs/pull/42/head on the base remote is not the PR head
 P1|elsewhere|no|no|L1|A1|-|-|push url of the upstream remote points elsewhere
-G1|refuse|-|-|base|-|-|-|no target and gh could not answer (detached HEAD)'
+G1|refuse|-|-|base|-|-|-|no target and gh could not answer (detached HEAD)
+E1|refuse|-|-|base|-|-|-|gh has no such PR
+E2|refuse|-|-|base|-|-|-|no remote points at the base repository
+E3|refuse|-|-|base|-|-|-|the base remote has no refs/pull/42/head'
+
+err_pattern() {
+    case $1 in
+        E1) echo 'could not resolve PR 99 via gh' ;;
+        E2) echo 'no remote here points at the base repository' ;;
+        E3) echo 'could not fetch refs/pull/42/head' ;;
+    esac
+}
 
 val() { printf '%s\n' "$OUT" | sed -n "s/^$1=//p" | head -1; }
 
@@ -171,6 +194,9 @@ while IFS='|' read -r id rel fix publish headname revname premote pref why; do
         problems=""
         [[ $rc -eq 1 ]] || problems="$problems exit=$rc want 1;"
         grep -q -- '— NOT reviewing$' "$W/err" || problems="$problems stderr lacks 'NOT reviewing';"
+        pat=$(err_pattern "$id")
+        [[ -z "$pat" ]] || grep -q -- "$pat" "$W/err" || problems="$problems stderr lacks '$pat';"
+        [[ "$id" != E3 ]] || [[ -z "$(git for-each-ref 'refs/remotes/*/pr/*')" ]] || problems="$problems a pr ref was left behind;"
         if [[ -z "$problems" ]]; then echo "  ✓ $id $rel: $why"; PASS=$((PASS + 1)); else fail "$id" "$why:$problems"; fi
         cd "$SCRIPT_DIR" || exit 2; continue
     fi
@@ -190,6 +216,49 @@ while IFS='|' read -r id rel fix publish headname revname premote pref why; do
     fi
     cd "$SCRIPT_DIR" || exit 2
 done <<<"$TABLE"
+
+ONE_WRITE='S2|origin/pr/42
+S4|origin/pr/42
+S5|origin/pr/57
+O1|origin/pr/42
+S11|upstream/pr/42
+S1|
+S3|'
+
+while IFS='|' read -r id written; do
+    build "$id" >/dev/null 2>&1
+    cd "$W/work" || exit 2
+    if [[ $MISSING -eq 1 ]]; then
+        fail "$id" "plugin/scripts/pr-identity not found (one-write check)"
+        cd "$SCRIPT_DIR" || exit 2; continue
+    fi
+    git for-each-ref --format='%(refname) %(objectname)' >"$W/refs.before"
+    "$PRID" "$TARGET" >"$W/out" 2>"$W/err"; rc=$?
+    git for-each-ref --format='%(refname) %(objectname)' >"$W/refs.after"
+    added=$(comm -13 "$W/refs.before" "$W/refs.after" | cut -d' ' -f1)
+    removed=$(comm -23 "$W/refs.before" "$W/refs.after")
+    want=""; [[ -z "$written" ]] || want="refs/remotes/$written"
+    problems=""
+    [[ $rc -eq 0 ]] || problems="$problems exit=$rc;"
+    [[ "$added" == "$want" ]] || problems="$problems new refs '${added//$'\n'/ }' want '$want';"
+    [[ -z "$removed" ]] || problems="$problems refs changed or removed: ${removed//$'\n'/ };"
+    if [[ -z "$problems" ]]; then echo "  ✓ $id one write: ${want:-no new ref}"; PASS=$((PASS + 1)); else fail "$id" "one write:$problems"; fi
+    cd "$SCRIPT_DIR" || exit 2
+done <<<"$ONE_WRITE"
+
+usage_case() { # name args...
+    local name=$1; shift
+    "$PRID" "$@" >"$W/out" 2>"$W/err"; rc=$?
+    if [[ $rc -eq 2 && ! -s "$W/out" ]]; then echo "  ✓ $name: exit 2"; PASS=$((PASS + 1)); else fail "$name" "exit=$rc want 2 with no stdout"; fi
+}
+
+if [[ $MISSING -eq 0 ]]; then
+    build N1 >/dev/null 2>&1; cd "$W/work" || exit 2
+    usage_case "U1 unknown option" --bogus
+    usage_case "U2 unknown option after a target" 42 --bogus
+    usage_case "U3 two targets" 42 feature-A
+    cd "$SCRIPT_DIR" || exit 2
+fi
 
 echo "test-pr-identity: $PASS passed, $FAIL failed"
 [[ $FAIL -eq 0 && $MISSING -eq 0 ]]
