@@ -64,7 +64,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       and is re-typed as the first line of every block that reads `$target`, and Phases 2 and 5 for
       a comment or line that does so; negative control: both absent today. (~4 calls) (completed 2026-10-01 13:10)
 
-- [ ] **R11-T4** — `plugin/skills/adversarial-loop/SKILL.md:301` — the review baseline is recorded
+- [x] **R11-T4** — `plugin/skills/adversarial-loop/SKILL.md:301` — the review baseline is recorded
       once, in Phase 2, and never again before a Phase 4 re-summon.
       **Fails when:** the round-1 bot review arrives (id B1, `updated_at` T1 later than the Phase 2
       baseline); Phase 4 fixes, pushes and re-summons `@claude`; Phase 3 reruns against the same
@@ -74,7 +74,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       **Acceptance (shape 4)**: grep Phase 4 for an instruction to re-record the newest
       `claude[bot]` comment id and `updated_at` immediately before each re-summon and to compare
       Phase 3 arrivals against the latest one; negative control: `baseline` appears nowhere in
-      Phase 4 today. (~3 calls)
+      Phase 4 today. (~3 calls) (completed 2026-10-01 13:10)
 
 - [ ] **R11-T5** — `plugin/skills/daily-digest/sources.md:227` — the member-ID scrub patterns do
       not match a form-encoded space.

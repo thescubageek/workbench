@@ -407,7 +407,7 @@ harder:**
 3. **Confirm each poll could have seen something.** Per `reference.md`, a filter on `claude`
    rather than `claude[bot]` matches nothing and returns success, and the bot **edits its comment
    in place** — so compare `updated_at` or the newest comment id, never "is there a new comment".
-   Count as arrival only a change against the Phase 2 baseline: a newest comment id that differs
+   Count as arrival only a change against the latest baseline (Phase 2's, or the one Phase 4 re-recorded before the last re-summon): a newest comment id that differs
    from the baseline id, or an `updated_at` later than the baseline's. A baseline-era comment is
    not an arrival. A poll that cannot distinguish "no findings" from "no filter match" has not polled. A poll
    whose `gh` command exits non-zero is a **failed poll**, not an empty one — report its exit
@@ -454,7 +454,7 @@ not an authority.
 5. **Before re-summoning `@claude`, evaluate
    [review-ledger.md](../../docs/reference/review-ledger.md)'s triggers on the rows just
    written.** A Blocking trigger stops and surfaces to the user rather than posting the reply.
-6. **Confirm, then** invoke `reply-to-claude`. The reply maps one-to-one to the findings and
+6. **Confirm, then** re-record the baseline and invoke `reply-to-claude`. Immediately before each re-summon, re-record the newest `claude[bot]` comment's `id` and `updated_at` as the new baseline, with the same author filter Phase 3 polls with, or "none" if there is no such comment. Phase 3 compares arrivals against that latest baseline. The reply maps one-to-one to the findings and
    states the pushback explicitly — which were rejected, why, and what was verified. A leading
    `@claude` re-summons it. Posting is publishing: it is in the table above, and each round is a
    separate confirmation.

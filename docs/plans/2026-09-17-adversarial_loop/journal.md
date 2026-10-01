@@ -51,6 +51,12 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-10-01 13:10 — R11-T4 (closed)
+
+- **Task/phase**: R11-T4, re-record the review baseline before each re-summon (Phase 4).
+- **Landed**: Phase 4 step 6 re-records the newest claude[bot] comment id and updated_at before each re-summon; Phase 3 rule 3 counts arrival against the latest baseline. Prose only; the negative-control grep showed no baseline hit in Phase 4 before.
+- **Started at**: b99abb5
+
 ## 2026-10-01 13:09 — R11-T3 (closed)
 
 - **Task/phase**: R11-T3, re-state target in the loop's Phase 2 and Phase 5 blocks and say so in Phase 0.
