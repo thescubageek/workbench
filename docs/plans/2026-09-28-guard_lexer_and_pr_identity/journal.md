@@ -51,6 +51,30 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-09-29 05:38 — P1-T5 (closed)
+
+- **Task/phase**: P1-T5 — R10-T21: every unclosed fence is reported as an "unclosed shell
+  fence" whatever its language, so a reader chasing the finding looks for a shell block that
+  is not there. Last task of Phase 1.
+- **Next action**: worker adds the corpus case (an unclosed `text` fence, expect 1, shape
+  `fence`, provenance R10-T21) and integrity claim 16 asserting the finding text for it does
+  not contain the word `shell`; records RED; then relabels the FIXES key
+  (`check-guards:419`) and the `findings.append` (`:460`) to `unclosed fence`, gives the hint
+  the fence's own language, and renames the `SHAPE_OF` key in `test-guards:121-129` so every
+  existing `fence` case still parses. Check for a curated mutation anchored on the relabelled
+  lines — P1-T3 broke one exactly this way.
+- **Started at**: 2fff76c
+- **Landed**: the finding is now `unclosed fence`, and its detail names the fence's own
+  language (`text fence opened at line 3`, or `unlabelled` for a bare fence).
+  `md_shell_lines` returns the opener's info string as a third value. One corpus case
+  `r10-t21-unclosed-text-fence` (127 to 128) and integrity claim 16. No curated mutation
+  anchored on the relabelled lines. Corpus 128/128, integrity 16/16, mutations 25/25.
+  The scanner is clean at 146 files.
+- **Commits**: this commit.
+- **Learned**: the corpus cannot test label wording, because it compares shapes through
+  `SHAPE_OF`. Only an integrity claim can pin a finding's text.
+- **Blocked by**: nothing. Phase 1 is complete, so the checkpoint is next.
+
 ## 2026-09-29 05:28 — P1-T4 (closed)
 
 - **Task/phase**: P1-T4 — R10-T5: the shape-6 fix hint recommended a loop variable that
@@ -68,6 +92,7 @@ this template, silently, from the moment of creation.
   carry no anchors — but checking cost one grep and the failure it prevents is a suite
   reporting 25/25 with an entry protecting nothing.
 - **Blocked by**: nothing.
+
 ## 2026-09-29 05:10 — P1-T3 (closed)
 
 - **Task/phase**: P1-T3 — R10-T12: `|| echo` stops counting as a status guard.

@@ -1295,6 +1295,20 @@
   ]
  },
  {
+  "id": "r10-t21-unclosed-text-fence",
+  "shape": "fence",
+  "expect": 1,
+  "path": "doc-r10t21.md",
+  "content": "# D\n\n```text\nan example left open, nothing shell about it\n",
+  "provenance": "R10-T21 \u2014 the only unclosed-fence case whose fence is not shell: the finding is reported for every language, so its text may not name one the reader will then go looking for.",
+  "expect_at": [
+   [
+    3,
+    "fence"
+   ]
+  ]
+ },
+ {
   "id": "r10-t10-escaped-dollar-paren",
   "shape": "capture",
   "expect": 0,

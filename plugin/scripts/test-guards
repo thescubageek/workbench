@@ -122,7 +122,7 @@ SHAPE_OF = {
     'grep -c captured without a status guard': 'capture',
     'unquoted --include glob': 'include',
     'for over a glob with no existence test': 'glob',
-    'unclosed shell fence': 'fence',
+    'unclosed fence': 'fence',
     'publish action not chained to the one before it': 'chain',
     'bash-only construct in a block this harness runs under zsh': 'bashism',
     'positional token in a skill block the harness substitutes': 'positional',
@@ -330,6 +330,22 @@ def run_integrity(impl):
                            cwd=tempfile.gettempdir())
         checks.append(('with no target it scans the plugin tree beside it',
                        r.returncode == 1 and 'bad.sh' in r.stdout))
+    finally:
+        shutil.rmtree(d, ignore_errors=True)
+
+    # CLAIM: the unclosed-fence finding does not call every fence a shell fence. The tool
+    # follows EVERY fence, not only shell ones, so this finding fires on a ```text block as
+    # readily as a ```bash one, and its text has to name the language it actually found --
+    # a reader told "shell" goes looking for a block that is not in the file. The corpus
+    # cannot reach this: it compares (line, shape) pairs resolved through SHAPE_OF, so the
+    # wording of the label is the dict key and is never itself read.
+    d = tempfile.mkdtemp()
+    try:
+        open(os.path.join(d, 'doc.md'), 'w').write('# D\n\n```text\nleft open\n')
+        r = run(d)
+        checks.append(('an unclosed text fence is reported as one, without the word shell',
+                       r.returncode == 1 and 'text fence' in r.stdout
+                       and 'shell' not in r.stdout.lower()))
     finally:
         shutil.rmtree(d, ignore_errors=True)
 

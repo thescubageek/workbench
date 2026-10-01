@@ -89,7 +89,7 @@ def md_shell_lines(text):
     treating it as unclosed leaks the scanner into prose.
     """
     out, inb, ch, ln = [], False, '', 0
-    shell, unclosed_at = False, None
+    shell, unclosed_at, unclosed_info = False, None, ''
     for i, line in enumerate(text.splitlines(), 1):
         m = FENCE.match(line)
         if not inb:
@@ -99,14 +99,14 @@ def md_shell_lines(text):
                 # prescribed way to show a counter-example — was entered as live shell.
                 inb, ch, ln = True, m.group('f')[0], len(m.group('f'))
                 shell = m.group('info').lower() in SHELL_INFO
-                unclosed_at = i
+                unclosed_at, unclosed_info = i, m.group('info')
             continue
         if m and m.group('f')[0] == ch and len(m.group('f')) >= ln and not m.group('info'):
             inb, shell, unclosed_at = False, False, None
             continue
         if shell:
             out.append((i, line))
-    return out, unclosed_at
+    return out, unclosed_at, unclosed_info
 
 
 def lex(line):
@@ -416,7 +416,7 @@ FIXES = {
     'positional token in a skill block the harness substitutes':
         'use no positional token at all — `cut -d: -f1`, `while IFS=: read -r file _`, or '
         'describe the argument slot in prose',
-    'unclosed shell fence':
+    'unclosed fence':
         'close the fence; a later ```bash opener is otherwise read as its content and never scanned',
 }
 
@@ -455,10 +455,10 @@ def collect(targets):
                 print(f'❌ check-guards: cannot read {path}: {exc}', file=sys.stderr)
                 raise SystemExit(2)
             if is_md:
-                lines, unclosed = md_shell_lines(text)
+                lines, unclosed, info = md_shell_lines(text)
                 if unclosed:
-                    findings.append((path, unclosed, 'unclosed shell fence',
-                                     f'fence opened at line {unclosed}'))
+                    findings.append((path, unclosed, 'unclosed fence',
+                                     f'{info or "unlabelled"} fence opened at line {unclosed}'))
             else:
                 lines, unclosed = list(enumerate(text.splitlines(), 1)), None
             # Counted here — after the file is actually fed to the scanner, not from the

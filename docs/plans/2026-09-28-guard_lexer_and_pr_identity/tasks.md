@@ -241,14 +241,14 @@ P1-T2 and at the checkpoint, backgrounded.
       module docstring's shape-6 paragraph that `path` is tied to `PATH` under zsh. **RED**
       (shape 3): `command grep -c 'read -r path' plugin/scripts/check-guards` → 1; after: 0 and
       `command grep -c 'read -r file' …` → 1. (~3 calls) (completed 2026-09-29 05:32)
-- [ ] **P1-T5** — R10-T21: relabel the unclosed-fence finding from `'unclosed shell fence'` to
+- [x] **P1-T5** — R10-T21: relabel the unclosed-fence finding from `'unclosed shell fence'` to
       `'unclosed fence'` at `check-guards:391` (FIXES key) and `:432` (the `findings.append`),
       with a hint that names the language of the fence left open; map the new label in
       `test-guards`' `SHAPE_OF` to `'fence'` so every existing `fence` case still parses. Corpus
       first: a case whose only content is an unclosed `text` fence, `expect 1`, `expect_at`
       shape `fence`, with provenance R10-T21 — **and** a `test-guards` assertion (integrity claim
       16, in `run_integrity`) that the finding text for that case does not contain the word
-      `shell`. **RED**: the new claim fails; **GREEN**: 16/16 integrity. (~8 calls)
+      `shell`. **RED**: the new claim fails; **GREEN**: 16/16 integrity. (~8 calls) (completed 2026-09-29 05:45)
 
 ### Success Criteria
 
