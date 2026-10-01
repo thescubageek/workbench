@@ -131,3 +131,50 @@ Dropped by verification (REFUTED, not ledgered as findings):
   - It fires for `plugin/skills/adversarial-review/SKILL.md`, which was touched by rounds 8 (R8-T2) and 9 and carries findings in round 10.
   - `plugin/skills/adversarial-loop/SKILL.md` and `plugin/scripts/check-guards` do **not** meet it. `git log` shows fix commits from R4, R5, R7 and R9 on each, and none from R8, so rounds 9 and 10 are only two consecutive.
 - **Escalation landed, 2026-10-01:** `docs/plans/2026-09-28-guard_lexer_and_pr_identity/` (design: `design.md` there) closed the ten held round-10 tasks (T3, T4, T5, T7, T10, T11, T12, T13, T21, T29), each recorded by pointer in the round's `tasks.md`. R10-T3 is resolved by commit, not refusal: a cross-repository PR is fetched and reviewed at its own head with disclosed provenance. The fifteen ordinary tasks are now unblocked.
+
+## Round 11 — 2026-10-01 — PR #25 at `cc331f8` (own checkout, `origin/main...HEAD`)
+
+`introduced_by` derived from `git log --first-parent --no-merges --name-only 3b4e04b..HEAD` (round 10's
+fix surface plus the guard_lexer_and_pr_identity plan, 45 files). Three of nineteen paths are outside it:
+`plugin/skills/implement/SKILL.md`, `plugin/docs/reference/technical-english.md` and `plugin/scripts/test-quiet`.
+
+| round | file:line | class | verdict | disposition | evidence | introduced_by |
+| ----- | --------- | ----- | ------- | ----------- | -------- | ------------- |
+| 11 | `plugin/skills/adversarial-loop/SKILL.md:323` | stacked-branch-identity | CONFIRMED | Valid | scratch repo: is-ancestor passes on a stacked branch; push went to feature-B, origin/feature-A unchanged; `@{push}` would catch it | prev-fix |
+| 11 | `plugin/skills/implement/SKILL.md:365` | round-journal-staging | CONFIRMED | Valid | throwaway repo: `git add -f r/tasks.md r/journal.md` exits 128 and stages nothing, so the commit is skipped | pre-existing |
+| 11 | `plugin/skills/adversarial-loop/SKILL.md:318` | target-not-restated | CONFIRMED | Valid | Phase 2 and 5 blocks carry no `target=` and Phase 0 has no re-state sentence; adversarial-review `:77` and reply-to-claude `:36` do | prev-fix |
+| 11 | `plugin/skills/adversarial-loop/SKILL.md:301` | baseline-not-rerecorded | CONFIRMED | Valid | `baseline` appears only in Phase 2 and Phase 3; Phase 4 never re-records before a re-summon | prev-fix |
+| 11 | `plugin/skills/daily-digest/sources.md:227` | phi-separator-gap | CONFIRMED | Valid | `BM+CA+12345678` matches neither pattern (Python re.search); the `%20` form is pinned and scrubbed | prev-fix |
+| 11 | `plugin/skills/adversarial-loop/SKILL.md:244` | ledger-commit-pathspec | PLAUSIBLE | Valid | commit has no pathspec so it commits the whole index; Phase 1 has no clean-tree precondition | prev-fix |
+| 11 | `plugin/scripts/fixtures/mutation-waivers.json:99` | non-equivalent-waivers | CONFIRMED | Valid | scratch checker: two captures on one line reported twice with the break deleted, a glob loop seven times; parse_findings is a set | prev-fix |
+| 11 | `plugin/scripts/test-guards:528` | ratchet-boundary-untested | CONFIRMED | Valid | `<=` mutant leaves all four verdict checks green; probe with equal totals returns the shrunk message | prev-fix |
+| 11 | `plugin/scripts/check-guards:206` | strip-comment-backtick | CONFIRMED | Pre-existing | known follow-up since P1-T2; valid only for a `#` after whitespace inside a backtick span followed by a second capture; reachability unchanged by this round | prev-fix |
+| 11 | `plugin/skills/adversarial-loop/SKILL.md:458` | stale-citations | CONFIRMED | Valid | `SKILL.md:273` is blank-adjacent prose (text at 289); `:299` should be 349; hook sentence contradicts CLAUDE.md | prev-fix |
+| 11 | `plugin/docs/reference/technical-english.md:133` | stale-citations | CONFIRMED | Valid | `implement/SKILL.md:242-245` is now BARRIER 2; Status headings at 342-343 | pre-existing |
+| 11 | `plugin/scripts/README.md:241` | readme-counts | CONFIRMED | Valid | `jq length fixtures/guard-corpus.json` returns 128; READMEs say 114 and 15 | prev-fix |
+| 11 | `plugin/scripts/test-guards:171` | negatives-hide-crash | CONFIRMED | Valid | wrapper that exits 1 with a traceback on clean input scores tn=60 fp=0 | prev-fix |
+| 11 | `plugin/scripts/test-quiet:1` | test-quiet-gaps | CONFIRMED | Valid | `lines=99` and delete-log-on-success mutants both leave 9 passed | pre-existing |
+| 11 | `plugin/scripts/test-guards:528` | shrunk-branch-drop-size | PLAUSIBLE | Valid | branch fires on any killed fall with a smaller total; needs an idle waiver to absorb the lost kill | prev-fix |
+| 11 | `plugin/skills/reply-to-claude/SKILL.md:54` | identity-polarity-drift | PLAUSIBLE | Real but disproportionate | review `:115` uses `!= true`, reply `:54` and loop `:323` use `= false`; no realistic trigger; fix the prose, not the blocks | prev-fix |
+| 11 | `plugin/skills/adversarial-loop/SKILL.md:466` | phase5-gate-unmeetable | PLAUSIBLE | Over-fitted | depends on an unobserved workflow trigger; the skill marks it provisional and gives the explicit exit at `:476-478` | prev-fix |
+| 11 | `plugin/scripts/test-guards:665` | stored-total-stale | PLAUSIBLE | Over-fitted | pass or fail depends only on `killed < prev`; a stale `of` changes the message wording only | prev-fix |
+| 11 | `.github/workflows/checks.yml:57` | sweep-timeout | PLAUSIBLE | Real but disproportionate | no hang input found; add `timeout-minutes` only, skip the subprocess timeout | prev-fix |
+
+Dropped by verification (REFUTED, not ledgered as findings):
+
+- `{owner}/{repo}` in the Phase 5 lookup. `gh api` resolves it with the same base-repo logic as `gh repo view`; this checkout agrees (`thescubageek/workbench`).
+- Refusal when `headRefOid` is not fetched. `--is-ancestor` exits 128 and the refusal is the correct fail-closed outcome; only the message is thin.
+- Ledger and plan commits after a clean pass. The gate text is about reviewable content, and Phase 1 step 3 already says the pass still certifies the tree.
+- An attestation task pinning `current_phase`. Checkpoint boxes are not ID'd task lines, and a round has no phase.
+- No PHI rule in the review path. A policy preference, and the operator layer already applies; the plugin creates no PHI.
+- CI Python version drift. CI ran 3.12.3 and reproduced 378/421, 43 waived, 0 survived.
+- The `test-count` pre-checks. Only the exit status and empty stdout are a documented contract.
+
+Two further candidates were preferences, not defects: the comment-density rule for `test-check`, and force-adding plan files against the plan-promotion convention.
+
+### Breaker, after round 11
+
+- **Introduced-rate trend: not Blocking.** 16 of 19 `prev-fix` (84%), against round 10's 29 of 31 (94%). The rate fell. Both rounds are above the three-finding floor.
+  - **Caveat, per `review-ledger.md`:** the fix surface is 45 files and covers 16 of 19 finding paths, so path intersection is a weak proxy here. Read the fall as modest.
+- **Mirror-image regression: none.** R11-T1 tightens the ancestry test R10-T3 introduced, and R11-T3 and R11-T4 extend R10-T8 and R10-T25; none is the inverse of an earlier fix.
+- **Same file three consecutive rounds (advisory):** `plugin/skills/adversarial-loop/SKILL.md` carries findings in rounds 9, 10 and 11. Treat further Phase edits there as one change set.
