@@ -51,6 +51,12 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-10-01 05:03 — Round 10 checkpoint (closed)
+
+- **Task/phase**: the Round 10 checkpoint, run unattended under `--auto`. All fifteen ordinary tasks are done.
+- **Landed**: R10-T1, T2, T6, T8, T9, T14, T16, T17, T18, T19, T23, T24, T25, T26 and T28, one commit each. Counters read 25 of 25 (the file has 25 task lines, not the 29 its frontmatter claimed). No round-11 review was run.
+- **Learned**: eight follow-ups are in the round's Implementation notes. The largest are the unpushed ledger commit on an all-rejected bot round (R10-T2) and fork PRs that `reply-to-claude` can never serve (R10-T9).
+
 ## 2026-10-01 05:01 — R10-T28 (closed)
 
 - **Task/phase**: R10-T28, test-phi-patterns has no BC or BA no-separator case.

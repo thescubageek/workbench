@@ -4,8 +4,8 @@ reviews: docs/plans/2026-09-17-adversarial_loop
 round: 10
 created: 2026-09-28
 status: in-progress
-total_tasks: 29
-completed_tasks: 0
+total_tasks: 25
+completed_tasks: 25
 task_tracking: markdown-checkboxes
 ---
 
@@ -267,3 +267,14 @@ criterion is run before the fix**. A criterion that passes before the change is 
   cross-repository PR is fetched and reviewed at the fork's commit with disclosed provenance, and
   a same-name fork PR is no longer reviewed as local HEAD. R10-T13 is closed by removing the dead
   guard, not by making it fire. The fifteen ordinary tasks stay open and are worked next.
+- **[2026-10-01] Round 10 complete using coordinated workers, closed unattended (`--auto`).** The fifteen ordinary tasks were worked as 15 sequential workers, one commit each, with 0 escalations and 0 truncations. Manual steps nobody performed: none of these tasks has an attestation, but a human has not read the prose edits in R10-T2, T8, T9, T23 and T25 (adversarial-loop, reply-to-claude) as an agent would. No round-11 review was run.
+- **[2026-10-01] Verification note.** Each task's worker ran its own RED and GREEN, and the coordinator re-ran the grep or test and the gate before each commit. The coordinator did not spawn a verifier agent for these fifteen tasks, which is a departure from `implement` Step 6b. The two plan tasks that depend on a literal measurement were checked the same way.
+- **[2026-10-01] FOLLOW-UPS, found and not fixed.**
+  - **R10-T2:** an all-rejected bot round leaves an unpushed ledger commit, and Phase 5 compares the check-run `head_sha` with `HEAD`. Decide whether that commit is pushed (with confirmation) or Phase 5 compares with the remote head. `review-ledger.md:27` still says the ledger is staged only.
+  - **R10-T8:** Phase 2's baseline paragraph names no concrete `gh` command, because the PR number is bound only inside the Phase 2 block.
+  - **R10-T9:** a cross-repository PR can never pass `reply-to-claude`'s head check, so that skill cannot reply to fork PRs. "Check out its branch" is wrong advice there.
+  - **R10-T17:** `--generated` rewrites the ratchet only when `killed` rises, so a changed total at equal `killed` leaves the stored `of` stale.
+  - **R10-T23:** nothing tells a session how to rebuild `<k>` for bot rounds beyond "counts". The plan's shape-3 grep for the old phrase could not fail, because the phrase wrapped across two lines.
+  - **R10-T28:** the task text says "18 of 18". The suite was 28 before and is 30 now.
+  - **Stop table:** the lead-in says "Four actions stop" above five rows (`adversarial-loop/SKILL.md`, about line 74).
+  - **`check` does not run the 2.2.0 tests** (carried from the guard_lexer_and_pr_identity plan).
