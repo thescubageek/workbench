@@ -51,6 +51,15 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-10-01 02:55 — Phase 1 checkpoint [blocked] (open)
+
+- **Task/phase**: close the Phase 1 checkpoint, then start P2-T1 (the identity fixture and
+  RED for R10-T3 and R10-T4).
+- **Next action**: wait for the user's two Phase 1 attestations (the `lex()` docstring, and
+  the waiver deletions in `b1640d7`). Then run `/wb:update_status` and start P2-T1. All
+  derivable checks pass after `93d5a3b` re-keyed a stale `GUARD` waiver.
+- **Started at**: `a03efec`
+
 ## 2026-10-01 02:43 — handoff for the branch plugin (closed)
 
 - **Task/phase**: a handoff at the Phase 1 checkpoint. The merge of `main` (wb 2.2.0) at

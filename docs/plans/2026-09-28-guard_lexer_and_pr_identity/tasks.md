@@ -254,20 +254,20 @@ P1-T2 and at the checkpoint, backgrounded.
 
 #### Automated Verification
 
-- [ ] `./plugin/scripts/test-guards` → corpus 128/128, integrity 16/16, mutations 25/25 — PASS
+- [x] `./plugin/scripts/test-guards` → corpus 128/128, integrity 16/16, mutations 25/25 — PASS
       (was 122/122 when planned: P1-T2 was assumed to add no corpus cases and added six, each
       the sole killer of a named survivor — see Implementation Notes)
-- [ ] `./plugin/scripts/test-guards --generated` (backgrounded) → 0 unwaived survivors, 0 stale
-      waivers, ratchet held at the re-based value
-- [ ] `./plugin/scripts/check-guards plugin/` → clean (shape 6 sees `zsh` fences now; none
+- [x] `./plugin/scripts/test-guards --generated` (backgrounded) → 0 unwaived survivors, 0 stale
+      waivers, ratchet held at the re-based value (378/421 after `93d5a3b`; see Implementation Notes)
+- [x] `./plugin/scripts/check-guards plugin/` → clean (shape 6 sees `zsh` fences now; none
       shipped carry a positional token)
-- [ ] `./plugin/scripts/check` → all gates pass
-- [ ] The lexer imports nothing new:
+- [x] `./plugin/scripts/check` → all gates pass
+- [x] The lexer imports nothing new:
       `command grep -nE '^(import|from) ' plugin/scripts/check-guards` → exactly `os`, `re`, `sys`
-- [ ] The three replaced curated mutations are gone and their equivalents present:
+- [x] The three replaced curated mutations are gone and their equivalents present:
       `command grep -c 'quote-aware comment strip\|sh/shell fences\|quote-blind again' plugin/scripts/test-guards` → 0,
       and each new label appears once
-- [ ] The context tuple carries three fields: `command grep -c 'ctx\[i\] = (.*, .*, .*, ' plugin/scripts/check-guards` → 0
+- [x] The context tuple carries three fields: `command grep -c 'ctx\[i\] = (.*, .*, .*, ' plugin/scripts/check-guards` → 0
 
 #### Manual Verification
 
@@ -313,8 +313,8 @@ before, and following it ticks the human sign-off box. **This block, labels and 
 included, is repeated in full at every phase's checkpoint**; a later phase never gets a
 shortened one.
 
-- [ ] **(derivable)** Every Phase 1 checkbox is `[x]`
-- [ ] **(derivable)** All automated verification passing
+- [x] **(derivable)** Every Phase 1 checkbox is `[x]`
+- [x] **(derivable)** All automated verification passing
 - [ ] **(attestation)** Manual verification confirmed by human
 - [ ] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
       only writer of those fields, so do not edit `current_phase` or `completed_tasks` by hand
@@ -772,6 +772,12 @@ resolved, leaving a dated line saying how.
 - **[2026-09-30] P3-T2's RED cannot fail.** `command grep -c '80 seconds' plugin/scripts/README.md`
   returns 0 today, because `~80` ends `plugin/scripts/README.md:249` and `seconds` starts the next
   line. `README.md` has no runtime figure since the merge. Rewrite P3-T2's RED before it runs.
+- **[2026-10-01] The Phase 1 checkpoint's sweep found a waiver that P1-T3 left stale.** P1-T3
+  removed `echo` from `GUARD` and ran only the plain suite, so the "regex drop word boundaries"
+  waiver kept the old key. `--generated` reported 1 stale waiver and 1 survivor. `93d5a3b`
+  re-keys the waiver and removes `echo` from its reason. The sweep now reports 378/421 killed,
+  43 waived and 0 survived. The ratchet rose from 377/420. A task that edits a statement in
+  `check-guards` must re-key any waiver on that statement, even if the plain suite passes.
 
 ---
 
