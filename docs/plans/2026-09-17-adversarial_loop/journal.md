@@ -51,10 +51,10 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
-## 2026-10-01 04:58 — R10-T24 (open)
+## 2026-10-01 04:58 — R10-T24 (closed)
 
 - **Task/phase**: R10-T24, reply body must not reproduce an @ mention from relayed bot text.
-- **Next action**: spawn a worker to edit reply-to-claude SKILL.md body rules.
+- **Landed**: reply-to-claude body rules gain a fourth: restate each finding in your own words and never reproduce an @ mention from relayed text. The old grep found nothing before the edit.
 - **Started at**: 32ab05b
 
 ## 2026-10-01 04:56 — R10-T23 (closed)
