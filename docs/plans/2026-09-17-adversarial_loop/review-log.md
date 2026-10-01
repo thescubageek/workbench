@@ -130,3 +130,4 @@ Dropped by verification (REFUTED, not ledgered as findings):
 - **Same file three consecutive rounds (advisory):**
   - It fires for `plugin/skills/adversarial-review/SKILL.md`, which was touched by rounds 8 (R8-T2) and 9 and carries findings in round 10.
   - `plugin/skills/adversarial-loop/SKILL.md` and `plugin/scripts/check-guards` do **not** meet it. `git log` shows fix commits from R4, R5, R7 and R9 on each, and none from R8, so rounds 9 and 10 are only two consecutive.
+- **Escalation landed, 2026-10-01:** `docs/plans/2026-09-28-guard_lexer_and_pr_identity/` (design: `design.md` there) closed the ten held round-10 tasks (T3, T4, T5, T7, T10, T11, T12, T13, T21, T29), each recorded by pointer in the round's `tasks.md`. R10-T3 is resolved by commit, not refusal: a cross-repository PR is fetched and reviewed at its own head with disclosed provenance. The fifteen ordinary tasks are now unblocked.

@@ -45,7 +45,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       one is already happening" absent, and a named step that commits the staged ledger after it
       is written present in both Phase 1 and Phase 4, at a cited `file:line`. (~5 calls)
 
-- [ ] **R10-T3** — `plugin/skills/adversarial-review/SKILL.md:125` — the own-checkout test
+- [x] **R10-T3** — `plugin/skills/adversarial-review/SKILL.md:125` — the own-checkout test
       compares only `headRefName` with the current branch, so a fork PR is resolved against the
       wrong commits.
       **Fails when:** a maintainer on local `patch-1` runs `/wb:adversarial-review 57`, where #57 is
@@ -54,24 +54,25 @@ criterion is run before the fix**. A criterion that passes before the change is 
       **Acceptance (shape 1)**: execute the Step 1 and Step 2 blocks with `gh` stubbed to return
       `isCrossRepository: true` and a `headRefName` equal to the current branch; assert the block
       refuses with a named reason rather than printing `...HEAD`. RED today: it prints
-      `origin/main...HEAD`. (~6 calls)
+      `origin/main...HEAD`. (~6 calls) (closed by docs/plans/2026-09-28-guard_lexer_and_pr_identity P2-T2 (also P2-T3 for Step 2), 2026-10-01)
+      Closed by commit resolution, not refusal: a cross-repository PR is fetched and reviewed at its own head with disclosed provenance, and a same-name fork PR is no longer reviewed as local HEAD.
 
-- [ ] **R10-T4** — `plugin/skills/adversarial-review/SKILL.md:121` — a PR target that is not the
+- [x] **R10-T4** — `plugin/skills/adversarial-review/SKILL.md:121` — a PR target that is not the
       current checkout resolves to `origin/<headRefName>` with no fetch and no comparison to the
       PR's `headRefOid`.
       **Fails when:** PR 42 received commits after the last fetch; `origin/feature` points at the
       old head, the endpoint check passes, and the review certifies code that is not PR 42's head.
       **Acceptance (shape 1)**: in a scratch clone whose `origin/<head>` is one commit behind the
       stubbed `headRefOid`, run Step 1's block; assert it fetches or refuses and names the gap.
-      RED today: it prints the stale range. (~5 calls)
+      RED today: it prints the stale range. (~5 calls) (closed by docs/plans/2026-09-28-guard_lexer_and_pr_identity P2-T2, 2026-10-01)
 
-- [ ] **R10-T5** — `plugin/scripts/check-guards:389` — shape 6's fix hint recommends
+- [x] **R10-T5** — `plugin/scripts/check-guards:389` — shape 6's fix hint recommends
       `while IFS=: read -r path _`, and zsh ties `path` to `PATH`.
       **Fails when:** a model rewrites a flagged block as the hint says and the Bash tool runs it
       under zsh; PATH is emptied and every later external command in that call exits 127 (probe:
       `command -v sed` printed nothing).
       **Acceptance (shape 3)**: dual grep — `read -r path` absent from `plugin/scripts/check-guards`,
-      and `read -r file` present in the shape-6 FIXES entry. (~2 calls)
+      and `read -r file` present in the shape-6 FIXES entry. (~2 calls) (closed by docs/plans/2026-09-28-guard_lexer_and_pr_identity P1-T4, 2026-10-01)
 
 - [ ] **R10-T6** — `plugin/skills/adversarial-review/SKILL.md:87` (also
       `plugin/skills/adversarial-loop/SKILL.md:117`, `plugin/skills/reply-to-claude/SKILL.md:38`) —
@@ -84,13 +85,13 @@ criterion is run before the fix**. A criterion that passes before the change is 
       with a negative control that the same grep finds the line in the current tree; each warning
       is rephrased without a positional token. (~4 calls)
 
-- [ ] **R10-T7** — `plugin/scripts/check-guards:58` — shape 6 reads only `bash`, `sh` and `shell`
+- [x] **R10-T7** — `plugin/scripts/check-guards:58` — shape 6 reads only `bash`, `sh` and `shell`
       fences, so a positional token in a `zsh` fence of a shipped `SKILL.md` passes clean.
       **Fails when:** a scratch `SKILL.md` with a `zsh` fence holding `t=$1` and a `bash` fence
       holding `u=$1` — check-guards flags only the bash line.
       **Acceptance (shape 2)**: a must-fire corpus case with `$1` in a `zsh` fence; RED today;
       GREEN once `zsh` joins the scanned fence set. Prose stays unscanned — `implement`'s
-      "Use `$1`" lines are intended substitutions. (~4 calls)
+      "Use `$1`" lines are intended substitutions. (~4 calls) (closed by docs/plans/2026-09-28-guard_lexer_and_pr_identity P1-T1, 2026-10-01)
 
 - [ ] **R10-T8** — `plugin/skills/adversarial-loop/SKILL.md:353` — the Phase 3 poll has no
       baseline taken before the `@claude` summons.
@@ -110,30 +111,30 @@ criterion is run before the fix**. A criterion that passes before the change is 
       **Acceptance (shape 4)**: grep Step 1 for a check of the PR's `headRefName` or `headRefOid`
       against the checkout that refuses on mismatch; negative control: absent today. (~3 calls)
 
-- [ ] **R10-T10** — `plugin/scripts/check-guards:174` — R9-T15 made double quotes non-suppressing
+- [x] **R10-T10** — `plugin/scripts/check-guards:174` — R9-T15 made double quotes non-suppressing
       without exempting a backslash-escaped `\$(`.
       **Fails when:** a fenced bash line `f="cost \$(grep -c q f)"` makes check-guards exit 1 with
       "grep -c captured without a status guard" on a line with no substitution; pre-R9-T15 exited 0.
       **Acceptance (shape 2)**: a must-not-fire corpus case for that line; RED today; GREEN after
-      the fix, with every `s1-dq-*` case still firing. (~3 calls)
+      the fix, with every `s1-dq-*` case still firing. (~3 calls) (closed by docs/plans/2026-09-28-guard_lexer_and_pr_identity P1-T1, 2026-10-01)
 
-- [ ] **R10-T11** — `plugin/scripts/check-guards:180` — `substitutions()` returns only the
+- [x] **R10-T11** — `plugin/scripts/check-guards:180` — `substitutions()` returns only the
       outermost `$( )` span, so a guard anywhere in it excuses an unguarded grep nested inside.
       **Fails when:** `n=$(echo "$(grep -c a f || true) $(grep -c b g)")` prints "no unguarded
       measurements" and exits 0; the control without `|| true` is flagged.
       **Acceptance (shape 2)**: a must-fire corpus case for that line; RED today; GREEN after nested
-      spans are recorded. (~4 calls)
+      spans are recorded. (~4 calls) (closed by docs/plans/2026-09-28-guard_lexer_and_pr_identity P1-T1, 2026-10-01)
 
-- [ ] **R10-T12** — `plugin/scripts/check-guards:62` — GUARD accepts `|| echo` inside the
+- [x] **R10-T12** — `plugin/scripts/check-guards:62` — GUARD accepts `|| echo` inside the
       substitution, which is the double-output bug the docstring's `|| true` plus `${n:-0}` exists
       to avoid.
       **Fails when:** `n=$(grep -c foo f.txt || echo 0)` scans clean (rc 0), and at run time `n` is
       "0\n0" and `[ "$n" -eq 0 ]` errors "integer expression expected".
       **Acceptance (shape 2)**: a must-fire corpus case for that line; RED today; GREEN after the
       `echo` alternative is removed from GUARD, with `check-guards plugin/` still clean or every
-      newly flagged shipped line fixed in the same task. (~4 calls)
+      newly flagged shipped line fixed in the same task. (~4 calls) (closed by docs/plans/2026-09-28-guard_lexer_and_pr_identity P1-T3, 2026-10-01)
 
-- [ ] **R10-T13** — `plugin/skills/adversarial-review/SKILL.md:321` — `filter=$?` reads the
+- [x] **R10-T13** — `plugin/skills/adversarial-review/SKILL.md:321` — `filter=$?` reads the
       while-loop's status, which is always 0, yet the prose says it makes a failed filter announce
       itself.
       **Fails when:** every probed input (empty, changed-file-last, caller-last, under `pipefail`)
@@ -141,7 +142,8 @@ criterion is run before the fix**. A criterion that passes before the change is 
       not exist.
       **Acceptance (shape 1)**: execute the Step 3 block with an input that makes the filter fail
       and assert the diagnostic prints; if no such input exists, remove the guard and its prose
-      claim and assert both are absent by dual grep. (~4 calls)
+      claim and assert both are absent by dual grep. (~4 calls) (closed by docs/plans/2026-09-28-guard_lexer_and_pr_identity P2-T4, 2026-10-01)
+      Closed by removing the dead `filter=$?` guard and its prose claim, the criterion's second branch.
 
 - [ ] **R10-T14** — `plugin/scripts/check:42` — `require()` passes when `--version` yields no
       `x.y` token.
@@ -183,13 +185,13 @@ criterion is run before the fix**. A criterion that passes before the change is 
       **Acceptance (shape 3)**: dual grep — "three shapes" and "Four shapes" absent, and both
       READMEs name the positional-token shape at a cited line. (~3 calls)
 
-- [ ] **R10-T21** — `plugin/scripts/check-guards:430` — an unclosed fence of any language is
+- [x] **R10-T21** — `plugin/scripts/check-guards:430` — an unclosed fence of any language is
       labelled "unclosed shell fence", with advice about a later bash opener.
       **Fails when:** a file holding only an unclosed `text` fence fails with "unclosed shell fence:
       … a later bash opener is otherwise read as its content" — the right failure, with the wrong
       label and advice.
       **Acceptance (shape 2)**: a corpus case with a lone unclosed `text` fence, asserting the
-      finding label no longer says "shell"; RED today. (~3 calls)
+      finding label no longer says "shell"; RED today. (~3 calls) (closed by docs/plans/2026-09-28-guard_lexer_and_pr_identity P1-T5, 2026-10-01)
 
 - [ ] **R10-T23** — `plugin/skills/adversarial-loop/SKILL.md:393` — a bot round is ledgered "as the
       next round number" but creates no `reviews/` directory, from which `<N>` is derived.
@@ -235,13 +237,13 @@ criterion is run before the fix**. A criterion that passes before the change is 
       **Acceptance (shape 4)**: add BC and BA no-separator cases; negative control — against a
       scratch copy with a BM-only first pattern, the suite goes red. (~3 calls)
 
-- [ ] **R10-T29** — `plugin/skills/adversarial-review/SKILL.md:313` — the blast-radius search
+- [x] **R10-T29** — `plugin/skills/adversarial-review/SKILL.md:313` — the blast-radius search
       excludes `.context` but not `.git`.
       **Fails when:** in a normal clone after a local commit naming `shellcheck-gate`,
       `./.git/logs/HEAD`, `./.git/COMMIT_EDITMSG` and "Binary file ./.git/index matches" land in
       callers and inflate the blast radius.
       **Acceptance (shape 1)**: in a scratch clone with such a commit, execute the Step 3 block and
-      assert no `./.git/` hit prints. RED today: four do. (~4 calls)
+      assert no `./.git/` hit prints. RED today: four do. (~4 calls) (closed by docs/plans/2026-09-28-guard_lexer_and_pr_identity P2-T4, 2026-10-01)
 
 ## Implementation notes
 
@@ -256,3 +258,10 @@ criterion is run before the fix**. A criterion that passes before the change is 
     T29 (target resolution); T5, T7, T10, T11, T12, T21 (lexer).
   - **Ordinary tasks, worked after the escalation lands**: T1, T2, T6, T8, T9, T14, T16, T17,
     T18, T19, T23, T24, T25, T26, T28.
+- **[2026-10-01] The escalation landed.** The ten held tasks (T3, T4, T5, T7, T10, T11, T12, T13,
+  T21, T29) are closed by pointer to `docs/plans/2026-09-28-guard_lexer_and_pr_identity` (design:
+  `docs/plans/2026-09-28-guard_lexer_and_pr_identity/design.md`), each naming the task that
+  closed it. R10-T3 is closed by resolving the PR's head by commit, not by refusal: a
+  cross-repository PR is fetched and reviewed at the fork's commit with disclosed provenance, and
+  a same-name fork PR is no longer reviewed as local HEAD. R10-T13 is closed by removing the dead
+  guard, not by making it fire. The fifteen ordinary tasks stay open and are worked next.

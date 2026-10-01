@@ -617,14 +617,14 @@ minutes on the maintainer's machine and has been measured at twelve; still not p
       wraps across two lines): `command grep -c -- '~80' plugin/scripts/README.md` → 1; after: 0.
       `command grep -c 'CI' plugin/scripts/README.md` rises by at least one, and
       `command grep -c 'CI' README.md` rises by at least one. (~6 calls)
-- [ ] **P3-T3** — Close the ten held round-10 tasks by pointer. In
+- [x] **P3-T3** — Close the ten held round-10 tasks by pointer. In
       `docs/plans/2026-09-17-adversarial_loop/reviews/2026-09-28-round-10/tasks.md`, flip
       R10-T3, T4, T5, T7, T10, T11, T12, T13, T21, T29 to `[x]` with
       `(closed by docs/plans/2026-09-28-guard_lexer_and_pr_identity <task-id>, YYYY-MM-DD)`
       naming the P1/P2 task that closed each; add a dated line to that round's Implementation
       notes and to `review-log.md`'s round-10 breaker section saying the escalation landed and
       naming this plan's design. Do not touch the fifteen ordinary round-10 tasks. Stage with
-      `git add -f`. (~8 calls)
+      `git add -f`. (~8 calls) (completed 2026-10-01 03:55)
 - [ ] **P3-T4** — Observe CI's first run (A3). **Push is confirmed with the user first** — this
       is the one outward-facing action in the plan. After the push, read the `mutation-sweep`
       job's log on PR #25: assert its `killed`/`of` equals the local re-based ratchet and it

@@ -51,6 +51,12 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-10-01 03:55 — P3-T3 (closed)
+
+- **Task/phase**: P3-T3, close the ten held round-10 tasks by pointer.
+- **Landed**: R10-T3, T4, T5, T7, T10, T11, T12, T13, T21 and T29 are closed by pointer in round-10 tasks.md. Dated notes are in that round and in review-log.md. The fifteen ordinary tasks are untouched.
+- **Started at**: 0679502
+
 ## 2026-10-01 03:54 — P3-T2 (closed)
 
 - **Task/phase**: P3-T2, correct the sweep's runtime and CI wording in the two READMEs.
