@@ -445,7 +445,7 @@ provenance that is not `HEAD` means the PR phases do not run").
 
 ### Tasks
 
-- [ ] **P2-T1** — Build the identity fixture and record RED for R10-T3 and R10-T4. Recreate the
+- [x] **P2-T1** — Build the identity fixture and record RED for R10-T3 and R10-T4. Recreate the
       bullet's fixture under `/tmp/wb-identity-fixture/` per
       `thoughts/2026-09-28-identity-tracer-bullet.md` → Fixture (local `patch-1` at commit X;
       fork commit Y as `refs/pull/57/head`, **pushed** to a bare origin; stub `gh` on `PATH`
@@ -455,7 +455,7 @@ provenance that is not `HEAD` means the PR phases do not run").
       `refs/pull/42/head`). Run the **shipped** Step 1 block as written against both: **RED** —
       R10-T3 prints `origin/main...HEAD`; R10-T4 prints `origin/main...origin/<head>` at the
       stale ref. Record `pwd`, `pwd -P` and both outputs verbatim in the task's journal entry.
-      Keep the fixture for P2-T2 (delete at P2-T5). (~14 calls)
+      Keep the fixture for P2-T2 (delete at P2-T5). (~14 calls) (completed 2026-10-01 03:36)
 - [ ] **P2-T2** — Land the resolver block per Changes Required §1 and rewire Step 1: delete
       `base_ref()` and the four-branch `resolve_range()` body, keep the pathspec handling and the
       endpoint loop, set `range="$review_base...$review_head"`. Update Step 1's prose:

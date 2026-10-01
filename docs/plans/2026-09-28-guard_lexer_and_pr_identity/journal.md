@@ -51,6 +51,18 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-10-01 03:36 — P2-T1 (closed)
+
+- **Task/phase**: P2-T1, build the identity fixture and record RED for R10-T3 and R10-T4.
+- **Landed**: fixture at `/tmp/wb-identity-fixture/`; both REDs reproduced and verified.
+- **Started at**: 149f233
+- **Evidence**: RED recorded for both cases; fixture kept for P2-T2, delete at P2-T5.
+  - cwd of each run: `pwd` = `/tmp/wb-identity-fixture/work`; `pwd -P` = `/private/tmp/wb-identity-fixture/work`. Checked-out branch `patch-1`, HEAD `29e7c50`.
+  - Layout: `origin.git` (bare; `main` c062022, `feature-x` 8c7a69f, `refs/pull/57/head` 876459d, `refs/pull/42/head` 8c7a69f, both pull refs pushed explicitly); `work/` (local `patch-1` X = 29e7c50 "maintainer's own patch-1"; fork Y = 876459d, sibling off `main`, local only as `refs/pull/57/head`; `origin/feature-x` = c5694a3, STALE; Z = 8c7a69f absent from the local object store, `git cat-file -e` exit 1); `shipped-step1.zsh` (SKILL.md lines 98-150, `cmp`-identical to the shipped fence); `bin/gh` (stub, `STUB_MODE=fork|same_repo`, evaluates `--jq` with the real jq, logs to `gh-calls.log`); `run.zsh` (driver).
+  - R10-T3 (`zsh /tmp/wb-identity-fixture/run.zsh fork`, target=57, stub: headRefName patch-1, isCrossRepository true, headRefOid 876459d, baseRefName main), verbatim: `range: origin/main...HEAD`, then `p.txt | 1 +` and `1 file changed, 1 insertion(+)`, exit 0. Wrong for the right reason: the name test matched `patch-1` and the range ends at local X; `git merge-base --is-ancestor 876459d HEAD` exits 1.
+  - R10-T4 (`zsh /tmp/wb-identity-fixture/run.zsh same_repo`, target=42, stub: headRefName feature-x, isCrossRepository false, headRefOid 8c7a69f, baseRefName main), verbatim: `range: origin/main...origin/feature-x`, then `fx.txt | 1 +` and `1 file changed, 1 insertion(+)`, exit 0. Wrong for the right reason: `origin/feature-x` resolves to stale c5694a3 (file content `fx1`), not Z; nothing at Z is read and no refusal is printed.
+  - Stub call log (both runs): `gh pr view <n> --json baseRefName,headRefName --jq ...`; the shipped block never asks for headRefOid or isCrossRepository.
+
 ## 2026-10-01 02:55 — Phase 1 checkpoint (closed)
 
 - **Task/phase**: the Phase 1 checkpoint. Phase 1 is complete, and the next task is P2-T1.
