@@ -110,7 +110,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       the three waivers and run `./plugin/scripts/test-guards --generated` once in the background:
       0 unwaived, 0 stale, ratchet re-based with provenance. (~25 calls, one background sweep) (completed 2026-10-01 13:23)
 
-- [ ] **R11-T8** — `plugin/scripts/test-guards:528` — no unit case pins the equal-size boundary of
+- [x] **R11-T8** — `plugin/scripts/test-guards:528` — no unit case pins the equal-size boundary of
       the shrunk-set guard.
       **Fails when:** changing `total < prev_total` to `<=` keeps all four verdict checks green;
       `ratchet_verdict(330, 344, [], [], total=395, prev_total=395)` then returns "the mutant set
@@ -118,7 +118,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       A shrunk set with a survivor is also unpinned.
       **Acceptance (shape 2)**: add an equal-total case asserting the corpus-case message and a
       shrunk-with-survivor case asserting it fails with the survivor message; plant `<=` in a
-      scratch copy and show the equal-total case goes red while the old suite stays green. (~6 calls)
+      scratch copy and show the equal-total case goes red while the old suite stays green. (~6 calls) (completed 2026-10-01 13:26)
 
 - [ ] **R11-T10** — `plugin/skills/adversarial-loop/SKILL.md:458` (also `:494`, `:346`) — three
       citations point at the wrong text and one rationale contradicts `CLAUDE.md`.

@@ -51,6 +51,18 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-10-01 13:26 — R11-T10 (open)
+
+- **Task/phase**: R11-T10, replace stale line citations in adversarial-loop with text names.
+- **Next action**: spawn a worker to fix the three citations and the hook sentence.
+- **Started at**: 5a3b7d9
+
+## 2026-10-01 13:23 — R11-T8 (closed)
+
+- **Task/phase**: R11-T8, pin the equal-size boundary of the shrunk-set guard.
+- **Landed**: two ratchet_verdict cases added: equal-size set asks for a corpus case, shrunk set with a survivor names the survivor. Shipped passes both; the <= mutant fails the equal-total case while the old four stay green. Plain suite 131/131, 16/16, 25/25.
+- **Started at**: 5a3b7d9
+
 ## 2026-10-01 13:13 — R11-T7 (closed)
 
 - **Task/phase**: R11-T7, three del-Break waivers are not equivalent; compare findings as a multiset.

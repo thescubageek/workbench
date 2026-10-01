@@ -632,9 +632,25 @@ def main():
     print(f"  {'✓' if fell_verdict_ok else '✗'} --generated fails when the kill count fell "
           f"with no shrunk set")
 
+    equal_ok, equal_msgs = ratchet_verdict(330, 344, [], [], total=395, prev_total=395)
+    equal_text = '\n'.join(equal_msgs)
+    equal_verdict_ok = (not equal_ok and 'corpus case' in equal_text
+                        and 'shrank' not in equal_text)
+    print(f"  {'✓' if equal_verdict_ok else '✗'} --generated asks for a corpus case when the "
+          f"mutant set is the same size")
+
+    shrunk_surv_ok, shrunk_surv_msgs = ratchet_verdict(
+        330, 344, [('L1 x', 'k', None)], [], total=380, prev_total=395)
+    shrunk_surv_text = '\n'.join(shrunk_surv_msgs)
+    shrunk_surv_verdict_ok = (not shrunk_surv_ok and 'unwaived survivor' in shrunk_surv_text
+                              and 'shrank' not in shrunk_surv_text)
+    print(f"  {'✓' if shrunk_surv_verdict_ok else '✗'} --generated names the survivor, not the "
+          f"shrunk set, when a survivor remains")
+
     ok = (base['correct'] == base['total'] and caught == len(MUTATIONS)
           and integ_ok == len(integ) and intact and verdict_ok and shrunk_verdict_ok
-          and stale_verdict_ok and fell_verdict_ok)
+          and stale_verdict_ok and fell_verdict_ok and equal_verdict_ok
+          and shrunk_surv_verdict_ok)
     print(f"\ntest-guards: corpus {base['correct']}/{base['total']}, "
           f"integrity {integ_ok}/{len(integ)}, "
           f"mutations {caught}/{len(MUTATIONS)} — {'PASS' if ok else 'FAIL'}")
