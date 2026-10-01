@@ -39,7 +39,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       and logs `gh pr ready 42`. Apply the same check to reply-to-claude Step 1 and to
       adversarial-review's own-checkout branch, and re-run the six R10-T25 cases. (~10 calls) (completed 2026-10-01 13:07)
 
-- [ ] **R11-T2** — `plugin/skills/implement/SKILL.md:365` (also
+- [x] **R11-T2** — `plugin/skills/implement/SKILL.md:365` (also
       `plugin/skills/implement_inline/SKILL.md:313`) — the per-task staging chain names
       `${planDir}/journal.md`, which a remediation round never has.
       **Fails when:** `adversarial-loop` Phase 1 step 3 points `implement` at
@@ -51,7 +51,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       **Acceptance (shape 1)**: execute the staging chain in a scratch repo whose ignored plan
       directory is a round (`tasks.md` only, journal in the parent); assert it exits 0 and creates
       one commit holding `tasks.md` and the parent's `journal.md`. RED today: exit 128, no commit.
-      State the round variant once in each skill. (~8 calls)
+      State the round variant once in each skill. (~8 calls) (completed 2026-10-01 13:09)
 
 - [ ] **R11-T3** — `plugin/skills/adversarial-loop/SKILL.md:318` (also `:488`) — the Phase 2 and
       Phase 5 blocks read `${target:+"$target"}` but nothing re-states `target`, and Phase 0 does

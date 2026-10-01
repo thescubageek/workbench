@@ -51,6 +51,12 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-10-01 13:08 — R11-T2 (closed)
+
+- **Task/phase**: R11-T2, the per-task staging chain names a journal.md a round never has.
+- **Landed**: implement and implement_inline gain a round variant of the staging chain that stages the parent plan's journal.md (../../journal.md from the round directory). The shipped chain exited 128 with nothing staged and no commit; the round variant exits 0 with one commit holding the code, the round tasks.md and the parent journal.
+- **Started at**: 7fa0b2e
+
 ## 2026-10-01 13:05 — R11-T1 (closed)
 
 - **Task/phase**: R11-T1, refuse a branch stacked on the PR head before Phase 2 pushes (and in reply-to-claude, adversarial-review).

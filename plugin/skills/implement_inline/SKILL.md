@@ -314,6 +314,17 @@ git add -f [plan-dir]/tasks.md [plan-dir]/journal.md &&  # plan files — always
 git commit -m "[task-id]: ..."
 ```
 
+On a remediation round (`docs/plans/<plan>/reviews/<date>-round-N/`, which holds only `tasks.md`)
+the journal is the parent plan's, so stage `[plan-dir]/../../journal.md` in its place — naming
+`[plan-dir]/journal.md` exits 128 and the commit never runs (see
+[which file, when the plan directory is nested](../../docs/reference/journal-entries.md)):
+
+```bash
+git add [files this task changed] &&                           # code — by path, no -f
+git add -f [plan-dir]/tasks.md [plan-dir]/../../journal.md &&  # round tasks.md + parent journal
+git commit -m "[task-id]: ..."
+```
+
 **A failed stage hides.** `git status --short` does not list *untracked* ignored files, so an
 unpromoted plan directory's `tasks.md` is invisible there and the tree reads clean over a status
 edit that was never committed. (A *tracked* plan file that is merely modified does show, so the
