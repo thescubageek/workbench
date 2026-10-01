@@ -51,6 +51,18 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-10-01 04:05 — Phase 3 checkpoint (closed)
+
+- **Task/phase**: the Phase 3 checkpoint, run unattended under `--auto`. This is the final phase.
+- **Landed**: all four Phase 3 tasks done. `lint --all` is clean, and CI `check` and `mutation-sweep` both passed on `c6451ff`. The README manual check and the checkpoint attestation are deferred, not obtained.
+- **Learned**: the plan cannot close itself. A person runs `/wb:update_status` to move `status` to `complete`.
+
+## 2026-10-01 03:56 — P3-T4 (closed)
+
+- **Task/phase**: P3-T4, observe CI's first run of mutation-sweep on PR 25 (A3).
+- **Landed**: the user confirmed the push. `c6451ff` went to PR 25 and CI run 36813275478 passed both jobs. The mutation-sweep log reads killed 378/421, waived 43, survived 0, ratchet held at 378. A3 is Validated.
+- **Started at**: c6451ff
+
 ## 2026-10-01 03:55 — P3-T3 (closed)
 
 - **Task/phase**: P3-T3, close the ten held round-10 tasks by pointer.

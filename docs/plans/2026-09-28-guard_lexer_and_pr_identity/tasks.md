@@ -625,28 +625,28 @@ minutes on the maintainer's machine and has been measured at twelve; still not p
       notes and to `review-log.md`'s round-10 breaker section saying the escalation landed and
       naming this plan's design. Do not touch the fifteen ordinary round-10 tasks. Stage with
       `git add -f`. (~8 calls) (completed 2026-10-01 03:55)
-- [ ] **P3-T4** — Observe CI's first run (A3). **Push is confirmed with the user first** — this
+- [x] **P3-T4** — Observe CI's first run (A3). **Push is confirmed with the user first** — this
       is the one outward-facing action in the plan. After the push, read the `mutation-sweep`
       job's log on PR #25: assert its `killed`/`of` equals the local re-based ratchet and it
       reports 0 unwaived survivors. If the numbers differ, A3 is `Invalid` — record the delta in
       `design.md`'s Assumptions row and in Implementation Notes, and stop; do not adjust the
-      ratchet to match CI. If they agree, flip A3 to `Validated`. (~6 calls, plus the CI wait)
+      ratchet to match CI. If they agree, flip A3 to `Validated`. (~6 calls, plus the CI wait) (completed 2026-10-01 04:05)
 
 ### Success Criteria
 
 #### Automated Verification
 
-- [ ] `command grep -c 'test-guards --generated' .github/workflows/checks.yml` → 1
-- [ ] `./plugin/scripts/lint --all` → clean
-- [ ] `./plugin/scripts/check` → all gates pass
-- [ ] The ten held tasks are `[x]`:
+- [x] `command grep -c 'test-guards --generated' .github/workflows/checks.yml` → 1
+- [x] `./plugin/scripts/lint --all` → clean
+- [x] `./plugin/scripts/check` → all gates pass
+- [x] The ten held tasks are `[x]`:
       `command grep -cE '^- \[x\] \*\*R10-T(3|4|5|7|10|11|12|13|21|29)\*\*' docs/plans/2026-09-17-adversarial_loop/reviews/2026-09-28-round-10/tasks.md` → 10,
       and the fifteen ordinary ones are untouched:
       `command grep -cE '^- \[ \] \*\*R10-T' docs/plans/2026-09-17-adversarial_loop/reviews/2026-09-28-round-10/tasks.md` → 15
 
 #### Manual Verification
 
-- [ ] The `mutation-sweep` job is green on PR #25 with the local ratchet's numbers (A3)
+- [x] The `mutation-sweep` job is green on PR #25 with the local ratchet's numbers (A3) — run 36813275478 on `c6451ff`: 378/421 killed, 43 waived, 0 survived, ratchet held
 - [ ] A human has read the two README edits and agrees they state what the sweep is now, not
       what it was
 
@@ -684,8 +684,8 @@ before, and following it ticks the human sign-off box. **This block, labels and 
 included, is repeated in full at every phase's checkpoint**; a later phase never gets a
 shortened one.
 
-- [ ] **(derivable)** Every Phase 3 checkbox is `[x]`
-- [ ] **(derivable)** All automated verification passing
+- [x] **(derivable)** Every Phase 3 checkbox is `[x]`
+- [x] **(derivable)** All automated verification passing
 - [ ] **(attestation)** Manual verification confirmed by human
 - [ ] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
       only writer of those fields, so do not edit `current_phase` or `completed_tasks` by hand
@@ -694,6 +694,8 @@ shortened one.
 under `/wb:implement --auto`, which buys the wait and not the attestation. In that case the
 attestation stays `[ ]`, the checkpoint records that the phase closed unattended and names the
 manual steps nobody performed, and the confirmation is **deferred, not obtained.**
+
+**Closed unattended (`--auto`), Phase 3, 2026-10-01 04:05 UTC.** Nobody performed the manual step still open: read the two README edits (`plugin/scripts/README.md`, `README.md`) and confirm they state what the sweep is now. The attestation box stays `[ ]`, deferred and not obtained. P3-T4's push was confirmed with the user before it ran. **This is the final phase, and the plan cannot close itself:** `status: in-progress` to `complete` is `/wb:update_status`'s own barrier, which `--auto` does not reach. A person must run it.
 
 ---
 
@@ -806,6 +808,9 @@ resolved, leaving a dated line saying how.
 - **[2026-10-01] P2-T4: the "Seven details" list had no bullet that was only the filter claim.** The claim was the closing sentence of the path-comparison bullet. The worker removed the sentence and folded the short "guard runs before the output is printed" bullet into the status-capture bullet, so the count reads six.
 - **[2026-10-01] P2-T5: A1 validated against a moved PR head.** PR 25's head was 149f233, not 3b4e04b, so the task's literal `3b4e04b` and N=29 could not hold. The resolver printed `HEAD, 4 commit(s) ahead of headRefOid 149f233 (PR 25, own checkout)`, N matched `git rev-list --count`, and no ref was fetched. The four commits are P2-T1 to P2-T4. A1 is marked Validated with that note.
 - **[2026-10-01] FOLLOW-UP, not fixed: the stop-table lead-in says "Four actions stop" above five rows** (`adversarial-loop/SKILL.md:~74`).
+- **[2026-10-01] Phase 3 complete using coordinated workers**: 3 workers spawned (P3-T1 to P3-T3, sequential), 0 escalations, 0 truncations. P3-T4 had no worker: it pushed `c6451ff` (confirmed with the user) and read the CI log. The phase closed unattended under `--auto`.
+- **[2026-10-01] P3-T2: the task's lines had moved and its RED could not match.** The coordinator rewrote the RED before the worker ran (`~80`, and `CI` counts) and extended the task to correct the old totals in the same paragraphs (421 mutants, 378 of 421, 43 waived). `README.md` and `plugin/scripts/README.md` still state 114 corpus cases and 15 integrity claims elsewhere (see the 2026-09-30 note).
+- **[2026-10-01] P3-T4: A3 validated.** The first CI run of `mutation-sweep` matched the local numbers exactly. The `check` job also passed on `c6451ff`.
 
 ---
 
