@@ -470,3 +470,9 @@ we have the in-repo cautionary example for that.
 - **Why it matters**: the eval harness (`evals/run.py`) resumes a stage with `claude -p --resume <id>` when the stage stops to ask. On 2026-09-30, one such follow-up call was refused `Read` of `create_design/templates/design-md-template.md` in a `--plugin-dir` checkout outside the cwd. The first call of the same session had read the stage's files without a refusal. The stage then stopped, as its manifest rule says, and wrote nothing. The refusal did not occur on every run (the P2-T6 run's follow-ups worked), so a harness without the fix fails at random. Pass `--add-dir <plugin-dir>` on every call, first and resumed.
 - **Verified**: 2026-09-30 · `docs/plans/2026-09-29-asd-ste100-prose/` (baseline run `evals/runs/20260930T011540Z`, repeat 3, `design.follow-up-1.json` lists the denials under `permission_denials`)
 - **Check it**: in `evals/run.py`, the `base` command list carries `--add-dir`. Without it, repeat a 3-repeat baseline and look for `permission_denials` on `Read` in any `*.follow-up-*.json`.
+
+## `git add -A` on a promoted plan directory exits 1, so a chained `&& git commit` never runs
+
+- **Why it matters**: `docs/plans/` is gitignored, but a promoted plan's files are tracked. `git add -A docs/plans/<plan> && git commit …` stages the tracked changes, prints `The following paths are ignored by one of your .gitignore files`, and exits 1. The `&&` then skips the commit with no other error, and the changes stay staged. Use `git add -u <plan dir>` for tracked files, and `git add -f <file>` for a new file.
+- **Verified**: 2026-09-30 · `docs/plans/2026-09-28-guard_lexer_and_pr_identity/` (the P1-T5 commit failed this way once)
+- **Check it**: edit a tracked file in a promoted plan, then run `git add -A docs/plans/<plan>; echo "exit=$?"`. It prints the ignore hint and `exit=1`, and `git status --short` shows the file staged.

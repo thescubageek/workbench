@@ -51,6 +51,16 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-10-01 02:43 — handoff for the branch plugin (closed)
+
+- **Task/phase**: a handoff at the Phase 1 checkpoint. The merge of `main` (wb 2.2.0) at
+  `37aa8ef` brought WBTE onto this branch.
+- **Landed**: `handoff-2026-09-30-19-43.md`. The next session launches with
+  `claude --plugin-dir plugin` and resumes from that file.
+- **Commits**: this commit.
+- **Learned**: P3-T2's RED cannot fail as written. `tasks.md` Implementation Notes records it.
+- **Blocked by**: nothing. The Phase 1 checkpoint needs two attestations from the user.
+
 ## 2026-09-29 05:38 — P1-T5 (closed)
 
 - **Task/phase**: P1-T5 — R10-T21: every unclosed fence is reported as an "unclosed shell

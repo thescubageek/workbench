@@ -761,6 +761,17 @@ resolved, leaving a dated line saying how.
   `check-guards` reports nothing. A false negative that blinds the capture detector for the rest
   of the line. Found twice independently during P1-T2 and deliberately left alone: a corpus case
   pinning `expect 0` would pin the bug, and fixing it is not P1-T2's task. Needs its own task.
+- **[2026-09-30] FOLLOW-UP, not fixed: `check` does not run the 2.2.0 tests.** The merge of
+  `main` (wb 2.2.0) at `37aa8ef` added `test-lint`, `test-prime`, `test-wbte-dictionary`,
+  `test-pr-template`, `evals/link_check.py` and `evals/token_check.py`. All six pass, but
+  `plugin/scripts/check` runs none of them, so CI does not run them either. The user has not
+  decided whether to add them. This is outside this plan's scope.
+- **[2026-09-30] FOLLOW-UP, not fixed: `README.md` states old `test-guards` numbers.** It says
+  114 corpus cases, 15 integrity checks and 344 of 395 mutants killed (`README.md:357-368`).
+  Phase 1 left 128, 16 and 377 of 420. P3-T2 does not cover these lines.
+- **[2026-09-30] P3-T2's RED cannot fail.** `command grep -c '80 seconds' plugin/scripts/README.md`
+  returns 0 today, because `~80` ends `plugin/scripts/README.md:249` and `seconds` starts the next
+  line. `README.md` has no runtime figure since the merge. Rewrite P3-T2's RED before it runs.
 
 ---
 
