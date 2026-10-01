@@ -309,9 +309,11 @@ stops for the user*. Resolve the pull request in the same shell that acts on it;
 not inherit variables from the previous one.
 
 **The block refuses unless the pull request's head is this checkout.** It runs the same test as
-[../reply-to-claude/SKILL.md](../reply-to-claude/SKILL.md) Step 1: the PR is same-repository and
-its `headRefOid` is an ancestor of `HEAD`. A branch-name comparison is not enough, because a
-fork or a stale local branch can have the same name. A refusal means Phases 2 and 4 do not run
+[../reply-to-claude/SKILL.md](../reply-to-claude/SKILL.md) Step 1: the PR is same-repository, this
+checkout is on the PR's own branch, and `HEAD` descends from its `headRefOid`. The name alone is
+not enough, because a fork can share it, which `isCrossRepository` rules out. The ancestry alone
+is not enough, because a branch stacked on the PR's head descends from it, which the branch name
+rules out. A refusal means Phases 2 and 4 do not run
 for this target, as in Phase 0.
 
 ```bash
@@ -319,7 +321,14 @@ PR=$(gh pr view ${target:+"$target"} --json number --jq .number) \
   || { echo "no PR for ${target:-the current branch}" >&2; exit 1; }
 oid=$(gh pr view "$PR" --json headRefOid --jq .headRefOid) || exit 1
 cross=$(gh pr view "$PR" --json isCrossRepository --jq .isCrossRepository) || exit 1
+headref=$(gh pr view "$PR" --json headRefName --jq .headRefName) || exit 1
 [ -n "$oid" ] || { echo "PR $PR reported no headRefOid — NOT publishing" >&2; exit 1; }
+[ -n "$headref" ] || { echo "PR $PR reported no headRefName — NOT publishing" >&2; exit 1; }
+branch=$(git branch --show-current)
+[ "$branch" = "$headref" ] || {
+  echo "PR $PR's head branch is '$headref' but this checkout is on '${branch:-detached HEAD}' — NOT publishing" >&2
+  exit 1
+}
 [ "$cross" = false ] && git merge-base --is-ancestor "$oid" HEAD 2>/dev/null || {
   echo "PR $PR's head ($oid, cross-repository: ${cross:-unknown}) is not this checkout — NOT publishing" >&2
   exit 1

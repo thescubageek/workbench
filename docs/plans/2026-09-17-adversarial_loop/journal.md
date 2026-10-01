@@ -51,6 +51,12 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-10-01 13:05 — R11-T1 (closed)
+
+- **Task/phase**: R11-T1, refuse a branch stacked on the PR head before Phase 2 pushes (and in reply-to-claude, adversarial-review).
+- **Landed**: the own-checkout test in loop Phase 2, reply-to-claude Step 1 and adversarial-review resolve_identity now also requires the current branch to equal the PR's headRefName. Eight executed cases against a scratch repo with a local bare origin and a stub gh: the stacked branch pushed and un-drafted PR 42 before and is refused now. Nothing real was pushed.
+- **Started at**: 7248812
+
 ## 2026-10-01 05:03 — Round 10 checkpoint (closed)
 
 - **Task/phase**: the Round 10 checkpoint, run unattended under `--auto`. All fifteen ordinary tasks are done.

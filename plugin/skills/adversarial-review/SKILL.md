@@ -111,8 +111,10 @@ resolve_identity() {
     oid=$(printf '%s' "$json" | jq -r .headRefOid)
     base=$(printf '%s' "$json" | jq -r .baseRefName)
     cross=$(printf '%s' "$json" | jq -r .isCrossRepository)
+    headref=$(printf '%s' "$json" | jq -r '.headRefName // empty')
     review_base="origin/$base"
-    if [ "$cross" != true ] && git merge-base --is-ancestor "$oid" HEAD 2>/dev/null; then
+    if [ "$cross" != true ] && [ -n "$headref" ] && [ "$(git branch --show-current)" = "$headref" ] \
+      && git merge-base --is-ancestor "$oid" HEAD 2>/dev/null; then
       ahead=$(git rev-list --count "$oid..HEAD")
       review_head="HEAD"
       review_provenance="HEAD, $ahead commit(s) ahead of headRefOid $(printf '%s' "$oid" | cut -c1-7) (PR $target, own checkout)"
@@ -184,9 +186,10 @@ report still named the PR.
 
 State the target and its size before reviewing — a wrong target wastes the whole pass.
 
-**A PR target is resolved by its commit, not its branch name.** The block reads `headRefOid`
-and `isCrossRepository`. The range ends at `HEAD` only if the PR is not cross-repository and
-`HEAD` descends from `headRefOid`. Otherwise the block does not review `HEAD`. It fetches the
+**A PR target is resolved by its commit and its branch, not its branch name alone.** The block
+reads `headRefOid`, `headRefName` and `isCrossRepository`. The range ends at `HEAD` only if the
+PR is not cross-repository, this checkout is on the PR's own branch, and `HEAD` descends from
+`headRefOid`. Otherwise the block does not review `HEAD`. It fetches the
 PR's head into `refs/remotes/origin/pr/<N>` and reviews that ref. The `identity:` line names
 the result. Copy that line into the report as it is printed.
 
@@ -195,7 +198,8 @@ outcomes, and the last is dangerous precisely because it wears the first one's c
 
 - **Resolved, and empty** — the range parsed and the stat is blank. If that is genuinely the
   change, or is plainly not what was asked for, stop and say so rather than reviewing nothing.
-- **Fetched** — the PR is cross-repository, or `HEAD` does not descend from its head. The
+- **Fetched** — the PR is cross-repository, this checkout is not on its branch, or `HEAD` does
+  not descend from its head. The
   `identity:` line reads `origin/pr/<N> = <oid>, fetched (…)`. The fetch writes that one
   remote-tracking ref and nothing else. Disclose it in the report. It needs no confirmation.
 - **Refused** — `gh` could not answer for the PR, or the fetch of `refs/pull/<N>/head` failed.

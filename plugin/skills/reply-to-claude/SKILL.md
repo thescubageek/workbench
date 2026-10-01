@@ -50,7 +50,14 @@ PR=$(gh pr view ${target:+"$target"} --json number --jq .number) || exit 1
 [ -n "$REPO" ] && [ -n "$PR" ] || { echo "could not resolve repo/PR" >&2; exit 1; }
 oid=$(gh pr view "$PR" --json headRefOid --jq .headRefOid) || exit 1
 cross=$(gh pr view "$PR" --json isCrossRepository --jq .isCrossRepository) || exit 1
+headref=$(gh pr view "$PR" --json headRefName --jq .headRefName) || exit 1
 [ -n "$oid" ] || { echo "PR $PR reported no headRefOid — NOT replying" >&2; exit 1; }
+[ -n "$headref" ] || { echo "PR $PR reported no headRefName — NOT replying" >&2; exit 1; }
+branch=$(git branch --show-current)
+[ "$branch" = "$headref" ] || {
+  echo "PR $PR's head branch is '$headref' but this checkout is on '${branch:-detached HEAD}' — check out its branch; NOT replying" >&2
+  exit 1
+}
 [ "$cross" = false ] && git merge-base --is-ancestor "$oid" HEAD 2>/dev/null || {
   echo "PR $PR's head ($oid, cross-repository: ${cross:-unknown}) is not this checkout — check out its branch, or run from it; NOT replying" >&2
   exit 1
@@ -65,7 +72,8 @@ broken command.
 each finding against the files on disk. A `<pr#>` can name any PR, so without this check a reply
 could reject a finding by citing a `file:line` the PR does not contain. The test is the one
 [../adversarial-review/SKILL.md](../adversarial-review/SKILL.md) Step 1 uses: the PR is
-same-repository and `HEAD` descends from its `headRefOid`. This skill does not fetch or switch
+same-repository, this checkout is on the PR's own branch, and `HEAD` descends from its
+`headRefOid`. This skill does not fetch or switch
 branches to make the check pass; that is a state change nobody asked for. It runs with no
 argument as well, because a fork branch with the same name fails it.
 
