@@ -104,13 +104,14 @@ criterion is run before the fix**. A criterion that passes before the change is 
       as arrival; negative control: the same grep over the current file returns nothing. (~3 calls)
       (completed 2026-10-01 04:22)
 
-- [ ] **R10-T9** — `plugin/skills/reply-to-claude/SKILL.md:20` — a `<pr#>` argument selects any
+- [x] **R10-T9** — `plugin/skills/reply-to-claude/SKILL.md:20` — a `<pr#>` argument selects any
       PR, but nothing checks that its head is the checkout Step 3 verifies against.
       **Fails when:** on branch B, `/wb:reply-to-claude 42` collects PR 42's findings, adjudicates
       them against B's files, and posts "Rejected — `parser.py:88` already rejects that input"
       citing a tree PR 42 does not contain.
       **Acceptance (shape 4)**: grep Step 1 for a check of the PR's `headRefName` or `headRefOid`
       against the checkout that refuses on mismatch; negative control: absent today. (~3 calls)
+      (completed 2026-10-01 04:24)
 
 - [x] **R10-T10** — `plugin/scripts/check-guards:174` — R9-T15 made double quotes non-suppressing
       without exempting a backslash-escaped `\$(`.

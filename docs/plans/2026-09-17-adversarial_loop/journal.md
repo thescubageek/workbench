@@ -51,6 +51,12 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-10-01 04:22 — R10-T9 (closed)
+
+- **Task/phase**: R10-T9, reply-to-claude must check the PR head against the checkout.
+- **Landed**: reply-to-claude Step 1 refuses unless the PR is same-repository and HEAD descends from its headRefOid, and refuses on an empty headRefOid. The four stubbed-gh cases ran: before the edit all four proceeded, after it cases 2 to 4 refuse. Follow-up: a fork PR can never pass the check.
+- **Started at**: 53aec72
+
 ## 2026-10-01 04:21 — R10-T8 (closed)
 
 - **Task/phase**: R10-T8, Phase 3 poll needs a baseline taken before the @claude summons.

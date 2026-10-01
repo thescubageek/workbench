@@ -17,7 +17,8 @@ and on what evidence. A reply that says "addressed feedback" carries none of tha
 
 ## Preconditions
 
-- `gh` available and authenticated, and a pull request for the current branch.
+- `gh` available and authenticated, and a pull request whose head is the current checkout: the
+  same repository, with `HEAD` at or descended from the PR's head commit.
 - A `claude[bot]` review to reply to. If there is none, say so and stop — this skill answers a
   review; it does not solicit one.
 
@@ -40,17 +41,33 @@ the first positional parameter in a fenced block** — see
 history of that defect.
 
 **Derive the repository rather than assuming it — and bind both values, in every shell that uses
-them.**
+them. Then confirm that the PR's head is this checkout before anything is adjudicated against
+it.**
 
 ```bash
 REPO=$(gh repo view --json nameWithOwner --jq .nameWithOwner) || exit 1
 PR=$(gh pr view ${target:+"$target"} --json number --jq .number) || exit 1
 [ -n "$REPO" ] && [ -n "$PR" ] || { echo "could not resolve repo/PR" >&2; exit 1; }
+oid=$(gh pr view "$PR" --json headRefOid --jq .headRefOid) || exit 1
+cross=$(gh pr view "$PR" --json isCrossRepository --jq .isCrossRepository) || exit 1
+[ -n "$oid" ] || { echo "PR $PR reported no headRefOid — NOT replying" >&2; exit 1; }
+[ "$cross" = false ] && git merge-base --is-ancestor "$oid" HEAD 2>/dev/null || {
+  echo "PR $PR's head ($oid, cross-repository: ${cross:-unknown}) is not this checkout — check out its branch, or run from it; NOT replying" >&2
+  exit 1
+}
 ```
 
 **Check that both are non-empty before using them.** Unbound, the calls below become
 `gh api "repos//pulls//reviews"` — a 404 that reads like a PR with no review rather than like a
 broken command.
+
+**Then check that the PR's head is this checkout, and stop if it is not.** Step 3 adjudicates
+each finding against the files on disk. A `<pr#>` can name any PR, so without this check a reply
+could reject a finding by citing a `file:line` the PR does not contain. The test is the one
+[../adversarial-review/SKILL.md](../adversarial-review/SKILL.md) Step 1 uses: the PR is
+same-repository and `HEAD` descends from its `headRefOid`. This skill does not fetch or switch
+branches to make the check pass; that is a state change nobody asked for. It runs with no
+argument as well, because a fork branch with the same name fails it.
 
 ## Step 2: Collect the findings, from all three surfaces
 
