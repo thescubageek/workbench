@@ -51,6 +51,12 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-10-01 14:28 — Round 12 checkpoint (closed)
+
+- **Task/phase**: the Round 12 checkpoint, run unattended after `/verify`. All seven adjudicated tasks are done.
+- **Landed**: R12-T1 to T7, one commit each. Counters read 7 of 7. `./plugin/scripts/check` passes. Nothing was pushed, un-drafted or commented.
+- **Learned**: round 11's branch-name test sent more targets down the fetch path, and the loop would then have fixed and committed on the wrong branch. Round 12 stops that after the first review. The ledger shows the introduced-rate falling from 94% to 84% to 80%.
+
 ## 2026-10-01 14:24 — R12-T7 (closed)
 
 - **Task/phase**: R12-T7, reorder the 2.1.0 changelog section, mention WBTE in 3.0.0, reword the numbered-2.2.0 note.

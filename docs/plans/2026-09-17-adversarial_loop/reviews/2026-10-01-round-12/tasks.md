@@ -5,7 +5,7 @@ round: 12
 created: 2026-10-01
 status: in-progress
 total_tasks: 7
-completed_tasks: 0
+completed_tasks: 7
 task_tracking: markdown-checkboxes
 ---
 
@@ -120,3 +120,9 @@ criterion is run before the fix**. A criterion that passes before the change is 
   (Over-fitted, needs a regression that also passes two fixtures). The ledger carries all ten.
 - **[2026-10-01] Task 4 absorbs the rename-remedy finding.** It is the same file and the same
   identity prose as the Preconditions finding, so one task holds both.
+- **[2026-10-01] Round 12 complete using coordinated workers, closed unattended.** Seven sequential workers, one commit each, 0 escalations and 1 truncation. R12-T7's worker made every edit and then stopped before reporting (its report read "pending"). The coordinator verified the result with a line-multiset comparison against HEAD and left it as it was. No verifier agent ran. `./plugin/scripts/check` passes on the final tree.
+- **[2026-10-01] Not tasks, by adjudication.** The in-progress bot edit at `adversarial-loop/SKILL.md:410` (Over-fitted), the push destination at `:354` (Pre-existing) and the zero-file count at `plugin/scripts/check:60` (Over-fitted) stay in the ledger only.
+- **[2026-10-01] FOLLOW-UPS, found and not fixed.**
+  - A branch-name target that names the branch you are already on prints `<branch> (branch; …)`, not `HEAD`, so the loop now stops after step 2 for a target it could have fixed (found by the R12-T1 worker). One fix is for `resolve_identity` to print `HEAD` when `target` equals `git branch --show-current`.
+  - R12-T4 reworded the Preconditions bullet to "descended from (or at)" to pass its own absence grep. The meaning is unchanged.
+  - The `check` gate list still omits the 2.2.0 tests, which waits on your decision.
