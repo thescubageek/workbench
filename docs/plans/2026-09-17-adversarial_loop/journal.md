@@ -51,10 +51,16 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
-## 2026-10-01 04:56 — R10-T23 (open)
+## 2026-10-01 04:58 — R10-T24 (open)
+
+- **Task/phase**: R10-T24, reply body must not reproduce an @ mention from relayed bot text.
+- **Next action**: spawn a worker to edit reply-to-claude SKILL.md body rules.
+- **Started at**: 32ab05b
+
+## 2026-10-01 04:56 — R10-T23 (closed)
 
 - **Task/phase**: R10-T23, a bot round is ledgered as the next round number but creates no reviews directory.
-- **Next action**: spawn a worker to edit adversarial-loop Phase 4 step 3.
+- **Landed**: bot rounds are labelled M-b-k in review-ledger.md's round field (never a bare integer, ordered after M and before M plus one); Phase 4 step 3 states it in one sentence and links. The old phrase is gone. A joined-line grep showed the RED, since the plain one could not.
 - **Started at**: 569a035
 
 ## 2026-10-01 04:54 — R10-T19 (closed)

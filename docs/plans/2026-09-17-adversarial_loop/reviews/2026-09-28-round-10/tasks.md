@@ -195,14 +195,14 @@ criterion is run before the fix**. A criterion that passes before the change is 
       **Acceptance (shape 2)**: a corpus case with a lone unclosed `text` fence, asserting the
       finding label no longer says "shell"; RED today. (~3 calls) (closed by docs/plans/2026-09-28-guard_lexer_and_pr_identity P1-T5, 2026-10-01)
 
-- [ ] **R10-T23** — `plugin/skills/adversarial-loop/SKILL.md:393` — a bot round is ledgered "as the
+- [x] **R10-T23** — `plugin/skills/adversarial-loop/SKILL.md:393` — a bot round is ledgered "as the
       next round number" but creates no `reviews/` directory, from which `<N>` is derived.
       **Fails when:** local round 9, then a bot round ledgered as 10, then the next local review
       computes N=10 — two "round 10" row sets, and the introduced-rate trend compares against
       merged rows.
       **Acceptance (shape 3)**: dual grep — "as the next round number" absent from Phase 4 step 3,
       and a bot-round numbering rule that cannot collide with `remediation-plan.md`'s `<N>` present
-      at a cited line. (~3 calls)
+      at a cited line. (~3 calls) (completed 2026-10-01 04:57)
 
 - [ ] **R10-T24** — `plugin/skills/reply-to-claude/SKILL.md:131` — the reply body echoes bot
       findings, which relay PR-body text, and nothing tells the composer to paraphrase or defang an

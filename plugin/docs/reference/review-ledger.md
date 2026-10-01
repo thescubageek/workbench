@@ -31,7 +31,7 @@ One row per finding per round:
 
 | Field | Meaning |
 | ----- | ------- |
-| `round` | which pass raised it |
+| `round` | which pass raised it. A local round is its `reviews/` directory number. A bot round is `<M>b<k>`: `<M>` is the highest `-round-<M>` directory number, and `<k>` counts bot rounds since it, from 1. It is never a bare integer, so it never takes the `<N>` that [remediation-plan.md](remediation-plan.md) derives from directories. Order by `<M>`, then `<k>`: `10b1` falls after `10` and before `11` |
 | `file:line` | where |
 | `class` | a short slug — the same defect in the same place next round is the same class |
 | `verdict` | the reviewer's label: `CONFIRMED` or `PLAUSIBLE` |

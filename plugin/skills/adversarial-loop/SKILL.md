@@ -414,8 +414,9 @@ not an authority.
    that prose on purpose, which is what makes the ordering load-bearing rather than tidy.
 2. **Verify each finding against real source**, not memory. When one turns on a library's
    behaviour, read the installed version of that library.
-3. **Record each finding's disposition in the same ledger Phase 1 step 5 writes**, as the next
-   round number — a bot round is a round.
+3. **Record each finding's disposition in the same ledger Phase 1 step 5 writes**. A bot round
+   is a round, but it creates no `reviews/` directory, so label its rows `<M>b<k>` per
+   [review-ledger.md](../../docs/reference/review-ledger.md)'s `round` field.
 
    **Commit the ledger in this step, after the rows are written**, with the same chained
    `git add -f … && git commit` that Phase 1 step 5 shows. Do it before step 4's push, so the
