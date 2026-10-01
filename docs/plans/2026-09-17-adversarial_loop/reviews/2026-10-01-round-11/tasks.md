@@ -76,7 +76,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       Phase 3 arrivals against the latest one; negative control: `baseline` appears nowhere in
       Phase 4 today. (~3 calls) (completed 2026-10-01 13:10)
 
-- [ ] **R11-T5** — `plugin/skills/daily-digest/sources.md:227` — the member-ID scrub patterns do
+- [x] **R11-T5** — `plugin/skills/daily-digest/sources.md:227` — the member-ID scrub patterns do
       not match a form-encoded space.
       **Fails when:** a Sentry, Jira or Gmail URL containing the synthetic `?q=BM+CA+12345678`
       matches neither pattern (Python `re.search`, both False), so the ID is written into the
@@ -85,7 +85,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       `plugin/scripts/test-phi-patterns`; RED today (unmatched); GREEN after the separator class
       gains `+`, with every existing case (including the glued-prefix and glued-suffix must-not
       cases) still passing. Tabs, wrapped lines and U+2011 or U+2212 hyphens stay out of scope.
-      (~5 calls)
+      (~5 calls) (completed 2026-10-01 13:11)
 
 - [ ] **R11-T6** — `plugin/skills/adversarial-loop/SKILL.md:244` (also `:411`) — the ledger commit
       is `git add -f <ledger> && git commit -m ...` with no pathspec.

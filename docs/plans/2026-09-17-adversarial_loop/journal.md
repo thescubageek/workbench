@@ -51,6 +51,12 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-10-01 13:11 — R11-T5 (closed)
+
+- **Task/phase**: R11-T5, scrub the form-encoded space in member-ID patterns.
+- **Landed**: the member-ID scrub separator class gains plus (a form-encoded space) in both patterns. RED was 31 of 33 on exactly the two plus cases; test-phi-patterns now 33 of 33 with the glued must-not cases and the 4-digit floor still holding. Synthetic IDs only.
+- **Started at**: 28ab95c
+
 ## 2026-10-01 13:10 — R11-T4 (closed)
 
 - **Task/phase**: R11-T4, re-record the review baseline before each re-summon (Phase 4).

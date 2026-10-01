@@ -224,8 +224,8 @@ Scrub anything matching either pattern, plus obvious variants — lowercase, mis
 separators, surrounding punctuation:
 
 ```text
-(?i)(?:(?<![A-Z0-9])|(?<=%[0-9A-F]{2}))(?:BM|BC|BA)(?:[-_ .:/–—\xA0]|%[0-9A-F]{2}){0,3}[A-Z]{2}(?:[-_ .:/–—\xA0]|%[0-9A-F]{2}){0,3}\d{8}(?![A-Z0-9])      # canonical, plus the variants below
-(?i)(?:(?<![A-Z0-9])|(?<=%[0-9A-F]{2}))[A-Z]{2}(?:[-_ .:/–—\xA0]|%[0-9A-F]{2}){1,3}[A-Z]{2}(?:[-_ .:/–—\xA0]|%[0-9A-F]{2}){1,3}\d{6,10}(?![A-Z0-9])  # the general shape, separators required
+(?i)(?:(?<![A-Z0-9])|(?<=%[0-9A-F]{2}))(?:BM|BC|BA)(?:[-_ .:/+–—\xA0]|%[0-9A-F]{2}){0,3}[A-Z]{2}(?:[-_ .:/+–—\xA0]|%[0-9A-F]{2}){0,3}\d{8}(?![A-Z0-9])      # canonical, plus the variants below
+(?i)(?:(?<![A-Z0-9])|(?<=%[0-9A-F]{2}))[A-Z]{2}(?:[-_ .:/+–—\xA0]|%[0-9A-F]{2}){1,3}[A-Z]{2}(?:[-_ .:/+–—\xA0]|%[0-9A-F]{2}){1,3}\d{6,10}(?![A-Z0-9])  # the general shape, separators required
 ```
 
 **The variants are in the patterns, not in the prose.** An earlier version described them —
@@ -234,8 +234,8 @@ and the line above tells you to match rather than paraphrase. A collector obeyin
 instruction literally could not produce the coverage the instruction demanded, and
 `bm-ca-12345678` — the most common hand-typed form — went through unscrubbed.
 
-`(?i)` covers case. The separator unit is one of hyphen, underscore, space, dot, colon, slash,
-en dash, em dash, NBSP (`\xA0`), or a percent-escape (`%20`, `%2F`). The first pattern allows
+`(?i)` covers case. The separator unit is one of hyphen, underscore, space, dot, colon, slash, plus (a
+form-encoded space), en dash, em dash, NBSP (`\xA0`), or a percent-escape (`%20`, `%2F`). The first pattern allows
 zero to three units, which covers absent, single, doubled and ` - ` separators; the second
 requires one to three, because without one `[A-Z]{2}[A-Z]{2}\d{6,10}` would swallow ordinary
 alphanumeric tokens. The edges are alphanumeric lookarounds, not `\b`: `_` is a word character,

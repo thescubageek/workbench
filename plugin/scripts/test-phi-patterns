@@ -41,6 +41,8 @@ cases = [
     ("member_id%3ABM-CA-12345678", True, "percent-escaped colon before the ID"),
     ("path%2FBM-CA-12345678",     True, "percent-escaped slash before the ID"),
     ("BM%20CA%2012345678",        True, "percent-escaped space separators"),
+    ("BM+CA+12345678",            True, "form-encoded space"),
+    ("bm+ca+12345678",            True, "form-encoded space, lowercase"),
     ("BM/CA/12345678",            True, "slash separators"),
     ("BM:CA:12345678",            True, "colon separators"),
     ("BM - CA - 12345678",        True, "three-character separators"),
@@ -63,6 +65,7 @@ cases = [
     # widen to swallow them.
     ("AB-CD-1234",      False, "4 digits — below the member-ID floor"),
     ("US-EN-123",       False, "3 digits"),
+    ("AB+CD+1234",      False, "plus-joined, 4 digits — below the member-ID floor"),
 ]
 bad = 0
 for s, want, why in cases:
