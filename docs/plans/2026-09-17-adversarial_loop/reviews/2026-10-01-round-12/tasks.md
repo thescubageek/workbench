@@ -39,7 +39,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       negative control: neither exists today (`command grep -n 'stop at the end of Phase 1'` finds
       only the old sentence). (~4 calls) (completed 2026-10-01 14:18)
 
-- [ ] **R12-T2** — `plugin/skills/adversarial-loop/SKILL.md:253` — the scoped ledger block exits
+- [x] **R12-T2** — `plugin/skills/adversarial-loop/SKILL.md:253` — the scoped ledger block exits
       128 when `review-log.md` does not exist, which contradicts the sentence that a round with no
       rows commits nothing and exits 0.
       **Fails when:** round 1 of a run verifies zero findings: Step 8 writes no `tasks.md`, the
@@ -49,7 +49,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       run the block on every round. From round 2 on the file exists.
       **Acceptance (shape 1)**: execute the block in a scratch repo with `docs/plans/` ignored and
       no ledger file; assert exit 0 and no new commit; then with a ledger row present assert it
-      still commits only the ledger. RED today: exit 128. (~5 calls)
+      still commits only the ledger. RED today: exit 128. (~5 calls) (completed 2026-10-01 14:19)
 
 - [ ] **R12-T3** — `plugin/docs/reference/technical-english.md:109` — the "Task lines" citation
       points at implement Step 6a, which holds no task-ID parser or line pattern.

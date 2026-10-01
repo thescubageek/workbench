@@ -51,6 +51,12 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-10-01 14:19 — R12-T2 (closed)
+
+- **Task/phase**: R12-T2, the ledger commit block exits 128 when review-log.md does not exist.
+- **Landed**: the ledger block is wrapped in an existence test, so a missing review-log.md commits nothing and exits 0 (RED was exit 128). Executed in a scratch repo in four states: missing, unchanged, changed with an unrelated file staged, first-ever ledger.
+- **Started at**: 0919b8b
+
 ## 2026-10-01 14:17 — R12-T1 (closed)
 
 - **Task/phase**: R12-T1, a fetched PR target must stop after the first review (Phase 0 and Phase 1 step 3).

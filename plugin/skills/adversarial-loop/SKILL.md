@@ -255,16 +255,18 @@ Checking the target out yourself is a state change nobody asked for.
    chain the commit to the stage:
 
    ```bash
-   git add -f "docs/plans/<plan>/review-log.md" \
-     && { git diff --cached --quiet -- "docs/plans/<plan>/review-log.md" \
-          || git commit -m "ledger: round <N> dispositions" -- "docs/plans/<plan>/review-log.md"; }
+   L="docs/plans/<plan>/review-log.md"
+   if [ -f "$L" ]; then
+     git add -f "$L" \
+       && { git diff --cached --quiet -- "$L" || git commit -m "ledger: round <N> dispositions" -- "$L"; }
+   fi
    ```
 
    Do this on every round, including a clean one, so Phase 2's clean-tree precondition reads the
    state this loop calls success. A no-plan ledger outside `docs/plans/` is committed the same
    way, at whatever path was picked above. The commit is scoped to the ledger, so work already
-   staged stays staged for its own task's commit. A round that wrote no rows commits nothing and
-   exits 0.
+   staged stays staged for its own task's commit. A round that wrote no rows, or never created
+   the ledger because it verified no findings, commits nothing and exits 0.
 
    **A breaker that cannot fire is worse than none**, because its presence is what licenses
    proceeding. Both Blocking triggers in
