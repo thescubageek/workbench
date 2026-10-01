@@ -51,6 +51,12 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-10-01 13:12 — R11-T6 (closed)
+
+- **Task/phase**: R11-T6, the ledger commit has no pathspec.
+- **Landed**: the ledger commit is scoped to the ledger path with a diff-cached guard, so staged work stays staged and a round with no rows commits nothing and exits 0. Executed in a scratch repo: the shipped block committed both files, the new block commits only the ledger.
+- **Started at**: 5178e49
+
 ## 2026-10-01 13:11 — R11-T5 (closed)
 
 - **Task/phase**: R11-T5, scrub the form-encoded space in member-ID patterns.

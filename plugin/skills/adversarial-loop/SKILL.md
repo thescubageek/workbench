@@ -251,13 +251,15 @@ Checking the target out yourself is a state change nobody asked for.
 
    ```bash
    git add -f "docs/plans/<plan>/review-log.md" \
-     && git commit -m "ledger: round <N> dispositions"
+     && { git diff --cached --quiet -- "docs/plans/<plan>/review-log.md" \
+          || git commit -m "ledger: round <N> dispositions" -- "docs/plans/<plan>/review-log.md"; }
    ```
 
    Do this on every round, including a clean one, so Phase 2's clean-tree precondition reads the
    state this loop calls success. A no-plan ledger outside `docs/plans/` is committed the same
-   way, at whatever path was picked above. If the round wrote no rows, `git commit` exits 1 with
-   "nothing to commit": the tree is already clean, and there is nothing to carry.
+   way, at whatever path was picked above. The commit is scoped to the ledger, so work already
+   staged stays staged for its own task's commit. A round that wrote no rows commits nothing and
+   exits 0.
 
    **A breaker that cannot fire is worse than none**, because its presence is what licenses
    proceeding. Both Blocking triggers in
@@ -446,8 +448,8 @@ not an authority.
    is a round, but it creates no `reviews/` directory, so label its rows `<M>b<k>` per
    [review-ledger.md](../../docs/reference/review-ledger.md)'s `round` field.
 
-   **Commit the ledger in this step, after the rows are written**, with the same chained
-   `git add -f … && git commit` that Phase 1 step 5 shows. Do it before step 4's push, so the
+   **Commit the ledger in this step, after the rows are written**, with the same scoped
+   commit that Phase 1 step 5 shows. Do it before step 4's push, so the
    push carries the rows. Do it also on a round where every finding was rejected and step 4 has
    nothing to fix. Rows that are only staged are in no commit when Phase 5 labels the head.
 4. Fix what holds. **Confirm, then push.**

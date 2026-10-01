@@ -87,13 +87,13 @@ criterion is run before the fix**. A criterion that passes before the change is 
       cases) still passing. Tabs, wrapped lines and U+2011 or U+2212 hyphens stay out of scope.
       (~5 calls) (completed 2026-10-01 13:11)
 
-- [ ] **R11-T6** — `plugin/skills/adversarial-loop/SKILL.md:244` (also `:411`) — the ledger commit
+- [x] **R11-T6** — `plugin/skills/adversarial-loop/SKILL.md:244` (also `:411`) — the ledger commit
       is `git add -f <ledger> && git commit -m ...` with no pathspec.
       **Fails when:** unrelated files are staged when Phase 1 step 5 or Phase 4 step 3 runs;
       `git commit` with no pathspec commits the whole index under "ledger: round N dispositions".
       **Acceptance (shape 1)**: execute the block in a scratch repo with an unrelated staged file;
       assert the resulting commit holds only the ledger path. RED today: it holds both. A round
-      with no new rows must still end with a clean tree, without a failing exit. (~5 calls)
+      with no new rows must still end with a clean tree, without a failing exit. (~5 calls) (completed 2026-10-01 13:12)
 
 - [ ] **R11-T7** — `plugin/scripts/fixtures/mutation-waivers.json:99` (also `:107`, `:111`) —
       three waivers (`del Break` in the shape-1 loop, `del Break` in the shape-2 loop, and the
