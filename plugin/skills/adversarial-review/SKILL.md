@@ -80,9 +80,8 @@ prints `UNSET` in the next. An earlier version of this note said to export it "i
 you run the block in", but there is no "the shell" — there is one per tool call, and Step 2's is
 not Step 1's. So when an argument was given, type the binding literally at the top of each block
 below — `target=42`, `target=some-branch` — and when none was given type nothing and let the
-expansion stay empty. Bound in one call only, Step 2 takes its `else` branch, `head_ref` becomes
-`HEAD`, and `REVIEW.md` is read from whatever branch happens to be checked out: the fourth
-outcome there, the one with no error to show for it.
+expansion stay empty. Step 2 does not read `$target`. It re-states the two refs Step 1 resolved,
+in the same way, and its block says how.
 
 **Do not write `target=$1` in a fenced block.** The harness substitutes positional parameters
 before this text reaches you, so the block would arrive with the value already spliced in — the
@@ -213,10 +212,10 @@ outcomes, and the last is dangerous precisely because it wears the first one's c
   turns both into the second outcome before any stat is printed.
 
 **The base is asked for, not assumed.** `origin/main` is this repository's default, not every
-repository's, and it was hardcoded in three of the four branches above while
-`git diff --stat origin/nonexistent...HEAD` exits 128 onto stderr — measured, and nothing in the
-old block read it. The block now asks `gh` for the target's base branch, exactly as Step 2 does,
-and falls back to `origin/main` only when that returns nothing. What breaks a hardcoded base —
+repository's, and an earlier version of this block hardcoded it in three of its four branches
+while `git diff --stat origin/nonexistent...HEAD` exits 128 onto stderr — measured, and nothing in
+the old block read it. The block now asks `gh` for the target's base branch and falls back to
+`origin/main` only when that returns nothing. Step 2 reads `REVIEW.md` from the same base. What breaks a hardcoded base —
 `master`, `develop`, a shallow or single-branch clone, a fork checkout — is enumerated once, in
 Step 2's ⛔ note; it is not restated here.
 
@@ -229,38 +228,33 @@ Read `REVIEW.md` **from the base ref, never the working tree**. Resolve the ref 
 first and stop if it is empty — the one-liner that interpolates the substitution directly is the
 version of this step that fails open:
 
+**Run this block only if Step 1's resolver returned 0.** If Step 1 printed `NOT reviewing` — `gh`
+could not answer for the PR, the fetch failed, or an endpoint did not resolve — Step 2 does not
+run. The base comes from Step 1's two refs, not from a second lookup. Step 1's `range:` line reads
+`range: <review_base>...<review_head>`, and this block re-states both values from that line.
+
 ```bash
-# Re-state Step 1's binding: this is a fresh shell and does not carry it. An argument was given
-# → make the next line read `target=<it>`. None was given → leave the line exactly as it is.
-target=""
+# Re-state Step 1's refs: this is a fresh shell and does not carry them. Copy them from Step 1's
+# `range: <review_base>...<review_head>` line, e.g. `review_base="origin/main"`.
+review_base=""
+review_head=""
 
-# Resolve the base OF THE TARGET, not of whatever branch happens to be checked out.
-if [ -z "${target:-}" ] || [ -e "$target" ]; then
-  base_branch=$(gh pr view --json baseRefName --jq .baseRefName 2>/dev/null)
-  head_ref="HEAD"
-elif printf '%s' "$target" | grep -qE '^[0-9]+$'; then
-  base_branch=$(gh pr view "$target" --json baseRefName --jq .baseRefName 2>/dev/null)
-  head_ref=$(gh pr view "$target" --json headRefName --jq .headRefName 2>/dev/null)
-  if [ "$head_ref" = "$(git branch --show-current)" ]; then
-    head_ref="HEAD"
-  else
-    head_ref="origin/${head_ref:-}"
+load_review_md() {
+  if [ -z "$review_base" ] || [ -z "$review_head" ]; then
+    echo "REVIEW.md NOT READ: review_base/review_head not re-stated from Step 1's range line" >&2
+    return 1
   fi
-else
-  base_branch=$(gh pr view "$target" --json baseRefName --jq .baseRefName 2>/dev/null)
-  head_ref="$target"
-fi
-[ -n "$base_branch" ] && base_branch="origin/$base_branch"
-base_branch=${base_branch:-origin/main}
 
-base=$(git merge-base "$head_ref" "$base_branch" 2>/dev/null)
+  base=$(git merge-base "$review_head" "$review_base" 2>/dev/null)
 
-if [ -z "$base" ]; then
-  echo "REVIEW.md NOT READ: no base ref resolved from '$base_branch' (head $head_ref)" >&2
-else
-  echo "REVIEW.md read from $base_branch (merge-base $base, head $head_ref)" >&2
-  git show "$base:REVIEW.md"
-fi
+  if [ -z "$base" ]; then
+    echo "REVIEW.md NOT READ: no base ref resolved from '$review_base' (head $review_head)" >&2
+  else
+    echo "REVIEW.md read from $review_base (merge-base $base, head $review_head)" >&2
+    git show "$base:REVIEW.md"
+  fi
+}
+load_review_md
 ```
 
 ⛔ **Never write `git show "$(git merge-base HEAD origin/main)":REVIEW.md`.** When the merge-base
@@ -278,13 +272,14 @@ absent-case tell below never fires.
 - **Absent** — `git show` exits non-zero with `does not exist in`. That is the normal case, not a
   failure. Fall through; the built-in's conventions angle already reads every governing
   `CLAUDE.md`.
-- **Base ref unresolved** — the branch above printed `REVIEW.md NOT READ`. This is neither of the
+- **Base ref unresolved** — the block printed `REVIEW.md NOT READ`. This is neither of the
   first two. Say in the report that the repository's own review instructions were not loaded; do
   not treat it as absent.
 - **Read from the wrong branch** — the fourth outcome, and the one with no error to show for it.
-  The block echoes which base it used; **state that base in the report**. Resolving from the
-  current checkout rather than from the target is how a review loads another change's rules and
-  reports them as Present.
+  The block echoes the base and head it used. Compare them with `review_provenance`, the line
+  Step 1 printed as `identity:`, and **state the base in the report**. A head that differs from
+  the one the `identity:` line names is how a review loads another change's rules and reports
+  them as Present.
 
 **What this boundary does and does not buy.** It stops a change from editing the working-tree
 `REVIEW.md` to excuse itself. It does **not** make the base trustworthy in general: on a stacked

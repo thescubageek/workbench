@@ -465,14 +465,14 @@ provenance that is not `HEAD` means the PR phases do not run").
       `origin/pr/42 = <oid>, fetched`, and `git status --porcelain` in the fixture is empty
       afterwards. Then `./plugin/scripts/check-guards plugin/skills/adversarial-review/` → clean.
       (~22 calls) (completed 2026-10-01 03:40)
-- [ ] **P2-T3** — Rewire Step 2 to the resolver: replace the `head_ref`/`base_branch` block
+- [x] **P2-T3** — Rewire Step 2 to the resolver: replace the `head_ref`/`base_branch` block
       (`SKILL.md:209-231` today) with `base=$(git merge-base "$review_head" "$review_base"
       2>/dev/null)` and the existing `REVIEW.md` read; update the four-outcomes prose so "read
       from the wrong branch" cites `review_provenance`. **RED** (shape 3):
       `command grep -c 'headRefName' plugin/skills/adversarial-review/SKILL.md` → 2 today (Step 1
       and Step 2); after: 1, the resolver's own read. Against P2-T1's fixture in R10-T3 mode,
       Step 2 never runs because the resolver returned 1; in R10-T4 mode it prints
-      `REVIEW.md read from origin/main (merge-base …, head origin/pr/42)`. (~10 calls)
+      `REVIEW.md read from origin/main (merge-base …, head origin/pr/42)`. (~10 calls) (completed 2026-10-01 03:43)
 - [ ] **P2-T4** — Step 3: add `--exclude-dir=.git` beside `--exclude-dir=.context`
       (R10-T29), and remove the `filter=$?` line, its `FILTER FAILED` echo, and the "details"
       bullet that claims a failed filter announces itself (R10-T13) — the count in the "Seven

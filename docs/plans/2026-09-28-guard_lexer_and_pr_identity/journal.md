@@ -51,6 +51,13 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-10-01 03:41 — P2-T3 (closed)
+
+- **Task/phase**: P2-T3, rewire Step 2 to the resolver's refs.
+- **Landed**: Step 2 re-states review_base and review_head from Step 1's range line, guards on empty, and reads REVIEW.md at their merge-base. No gh call remains in Step 2. Fixture GREEN in same_repo, fork, none and fail modes.
+- **Learned**: the fork fixture fetches, so Step 2 runs there. The task text saying Step 2 never runs for R10-T3 is stale.
+- **Started at**: 7ede80f
+
 ## 2026-10-01 03:37 — P2-T2 (closed)
 
 - **Task/phase**: P2-T2, land the resolver block and rewire Step 1.
