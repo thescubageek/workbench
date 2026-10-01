@@ -12,6 +12,7 @@ Acceptance bar, pre-registered: 100% of the corpus, and every planted mutation c
 Usage: plugin/scripts/test-guards [path-to-check-guards]
 """
 import contextlib
+from collections import Counter
 import hashlib
 import importlib.util
 import io
@@ -130,8 +131,9 @@ SHAPE_OF = {
 
 
 def parse_findings(stdout, root):
-    """-> {(lineno, shape)} from check-guards' report."""
-    out, pending = set(), None
+    """-> Counter{(lineno, shape): n} from check-guards' report. A multiset, not a set: a
+    set made a line reported twice indistinguishable from a line reported once."""
+    out, pending = Counter(), None
     for line in stdout.splitlines():
         m = re.match(r'^(.*):(\d+)$', line.strip())
         if m and (m.group(1).startswith(root) or os.sep in m.group(1)):
@@ -139,7 +141,7 @@ def parse_findings(stdout, root):
             continue
         key = line.strip()
         if pending is not None and key in SHAPE_OF:
-            out.add((pending, SHAPE_OF[key]))
+            out[(pending, SHAPE_OF[key])] += 1
             pending = None
     return out
 
@@ -158,7 +160,7 @@ def run_corpus(impl):
                 os.chmod(p, 0o755)
             r = subprocess.run([sys.executable, impl, d], capture_output=True, text=True)
             got = parse_findings(r.stdout, d)
-            want = {(ln, sh) for ln, sh in case.get('expect_at', [])}
+            want = Counter((ln, sh) for ln, sh in case.get('expect_at', []))
             if case['expect'] == 1:
                 # Assert WHAT was reported, not merely that something was. Asserting the
                 # exit code alone let mutations that report every finding at line 1, or
@@ -167,11 +169,12 @@ def run_corpus(impl):
                     tp += 1
                 else:
                     fn += 1
-                    misses.append(f"{case['id']} (want {sorted(want)}, got {sorted(got)})")
+                    misses.append(f"{case['id']} (want {sorted(want.elements())}, "
+                                  f"got {sorted(got.elements())})")
             else:
                 if got:
                     fp += 1
-                    falses.append(f"{case['id']} (got {sorted(got)})")
+                    falses.append(f"{case['id']} (got {sorted(got.elements())})")
                 else:
                     tn += 1
         finally:
@@ -419,8 +422,8 @@ def run_generated(impl):
                 return -1                      # crash or hang counts as a failing mutant
             finally:
                 signal.setitimer(signal.ITIMER_REAL, 0)
-            got = {(no, SHAPE_OF[shape]) for _, no, shape, _ in findings if shape in SHAPE_OF}
-            want = {(ln, sh) for ln, sh in case.get('expect_at', [])}
+            got = Counter((no, SHAPE_OF[shape]) for _, no, shape, _ in findings if shape in SHAPE_OF)
+            want = Counter((ln, sh) for ln, sh in case.get('expect_at', []))
             if (got == want) if case['expect'] == 1 else (not got):
                 correct += 1
         return correct
@@ -480,7 +483,7 @@ def run_generated(impl):
     # The full list, written every run. A survivor set that exists only in terminal
     # scrollback is not a backlog — it is a number you read once. Grouped by source line,
     # because that is the unit someone fixes.
-    from collections import Counter, defaultdict
+    from collections import defaultdict
     grouped = defaultdict(list)
     for lb, key, _ in survivors:
         grouped[lb.split(' ')[0]].append((lb.split(' ', 1)[1], key))

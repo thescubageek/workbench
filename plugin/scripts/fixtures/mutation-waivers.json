@@ -96,20 +96,8 @@
   "reason": "EQUIVALENT. Deletes a docstring. A docstring is a string expression nothing evaluates: `collect()` returns the same findings and the CLI prints the same output, so no corpus case and no integrity claim can observe it. The generator walks the syntax tree and cannot tell a docstring from a statement \u2014 that is the price of it having no blind spot correlated with the author's, and it is worth paying."
  },
  {
-  "match": "analyse | for a, b in substitutions(line): | break | del Break",
-  "reason": "EQUIVALENT under the comparison this suite makes. The statement stops the same finding being appended more than once for one line, and findings are compared as a set of `(line, shape)`, so repetition is invisible to every case. Recorded honestly: a MULTISET comparison would kill all three of these, and duplicate output IS a real defect \u2014 this is a gap in the scoring, not a property of the code, and the scoring is the cheaper thing to change if it ever matters."
- },
- {
   "match": "analyse | for idx, (no, raw) in enumerate(lines): | for m in re.finditer(r'--include=(\\S+)', line): | regex make + lazy-optional: --include=(\\S+)",
   "reason": "EQUIVALENT for any working command. `--include=(\\S+)` and `(\\S*)` differ only when `--include=` is followed immediately by whitespace or end of line: the flag with no value, which matches nothing and is a broken invocation. Prose mentioning the flag with its value separated by a space would distinguish them, and prose is deliberately not scanned."
- },
- {
-  "match": "analyse | if not m.group(1).startswith(('\"', \"'\")): | break | del Break",
-  "reason": "EQUIVALENT under the comparison this suite makes. The statement stops the same finding being appended more than once for one line, and findings are compared as a set of `(line, shape)`, so repetition is invisible to every case. Recorded honestly: a MULTISET comparison would kill all three of these, and duplicate output IS a real defect \u2014 this is a gap in the scoring, not a property of the code, and the scoring is the cheaper thing to change if it ever matters."
- },
- {
-  "match": "analyse | if pending_glob[1] >= GLOB_WINDOW: | pending_glob = None | del Assign",
-  "reason": "EQUIVALENT under the comparison this suite makes. The statement stops the same finding being appended more than once for one line, and findings are compared as a set of `(line, shape)`, so repetition is invisible to every case. Recorded honestly: a MULTISET comparison would kill all three of these, and duplicate output IS a real defect \u2014 this is a gap in the scoring, not a property of the code, and the scoring is the cheaper thing to change if it ever matters."
  },
  {
   "match": "analyse | for idx, (no, raw) in enumerate(lines): | m = re.match(r'^\\s*for\\s+[A-Za-z_]\\w*\\s+in\\s+(.*?)(?:;\\s*do\\b(?P... | regex drop the leading anchor: ^\\s*for\\s+[A-Za-z_]\\w*\\s+in\\s+(.*?)(",

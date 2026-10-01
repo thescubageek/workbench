@@ -51,6 +51,12 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-10-01 13:13 — R11-T7 (closed)
+
+- **Task/phase**: R11-T7, three del-Break waivers are not equivalent; compare findings as a multiset.
+- **Landed**: findings are compared as a multiset in test-guards (corpus runner and generated score); three corpus cases pin the single-report count (corpus 128 to 131); the three del-Break waivers are deleted (43 to 40). Each of the three mutants fails a new case in a scratch copy. --generated run once in the background: 381/421 killed, 40 waived, 0 survived, 0 stale; ratchet raised 378 to 381.
+- **Started at**: 989e04f
+
 ## 2026-10-01 13:12 — R11-T6 (closed)
 
 - **Task/phase**: R11-T6, the ledger commit has no pathspec.

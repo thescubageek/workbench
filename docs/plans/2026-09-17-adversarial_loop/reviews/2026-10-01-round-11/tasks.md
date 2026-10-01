@@ -95,7 +95,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       assert the resulting commit holds only the ledger path. RED today: it holds both. A round
       with no new rows must still end with a clean tree, without a failing exit. (~5 calls) (completed 2026-10-01 13:12)
 
-- [ ] **R11-T7** — `plugin/scripts/fixtures/mutation-waivers.json:99` (also `:107`, `:111`) —
+- [x] **R11-T7** — `plugin/scripts/fixtures/mutation-waivers.json:99` (also `:107`, `:111`) —
       three waivers (`del Break` in the shape-1 loop, `del Break` in the shape-2 loop, and the
       `pending_glob = None` reset) claim equivalence that holds only because findings are compared
       as a set.
@@ -108,7 +108,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       with two captures on one line (`expect_at` lists the line twice) and a glob-loop case; show
       in a scratch copy of `check-guards` that each of the three mutants now fails a case; delete
       the three waivers and run `./plugin/scripts/test-guards --generated` once in the background:
-      0 unwaived, 0 stale, ratchet re-based with provenance. (~25 calls, one background sweep)
+      0 unwaived, 0 stale, ratchet re-based with provenance. (~25 calls, one background sweep) (completed 2026-10-01 13:23)
 
 - [ ] **R11-T8** — `plugin/scripts/test-guards:528` — no unit case pins the equal-size boundary of
       the shrunk-set guard.

@@ -1468,5 +1468,47 @@
     "capture"
    ]
   ]
+ },
+ {
+  "id": "s1-two-captures-one-line",
+  "shape": "capture",
+  "expect": 1,
+  "path": "scripts/two.sh",
+  "content": "#!/usr/bin/env bash\na=$(grep -c x f); b=$(grep -c y g)\necho \"$a $b\"\n",
+  "provenance": "R11-T7 \u2014 two unguarded captures on one line are ONE finding for that line. Pinned as a multiset: with the shape-1 `break` deleted (`analyse | for a, b in substitutions(line): | break | del Break`) the line is reported twice, which a set comparison could not see.",
+  "expect_at": [
+   [
+    2,
+    "capture"
+   ]
+  ]
+ },
+ {
+  "id": "s3-unguarded-loop-long-body",
+  "shape": "glob",
+  "expect": 1,
+  "path": "scripts/loop.sh",
+  "content": "#!/usr/bin/env bash\nfor f in *.md; do\n  echo \"$f\"\n  wc -l \"$f\"\n  head -n1 \"$f\"\n  tail -n1 \"$f\"\n  cat \"$f\"\n  ls -l \"$f\"\ndone\n",
+  "provenance": "R11-T7 \u2014 an unguarded glob loop whose body runs past GLOB_WINDOW is ONE finding, at the `for` line. With the reset after the window report deleted (`analyse | if pending_glob[1] >= GLOB_WINDOW: | pending_glob = None | del Assign`) it is re-reported on every following line; only a multiset comparison sees that.",
+  "expect_at": [
+   [
+    2,
+    "glob"
+   ]
+  ]
+ },
+ {
+  "id": "s2-two-includes-one-line",
+  "shape": "include",
+  "expect": 1,
+  "path": "scripts/inc.sh",
+  "content": "#!/usr/bin/env bash\ngrep -r --include=*.py --include=*.sh foo .\n",
+  "provenance": "R11-T7 \u2014 two unquoted `--include=` flags on one line are ONE finding. With the shape-2 `break` deleted (`analyse | if not m.group(1).startswith(('\"', \"'\")): | break | del Break`) the line is reported twice; only a multiset comparison sees that.",
+  "expect_at": [
+   [
+    2,
+    "include"
+   ]
+  ]
  }
 ]
