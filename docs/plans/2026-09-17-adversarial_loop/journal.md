@@ -51,6 +51,12 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-10-01 14:53 — Round 13 review, breaker Blocking (closed)
+
+- **Task/phase**: round 13, a re-review of round 12's fixes after `/verify`.
+- **Landed**: twelve findings ledgered, seven Valid and held as `reviews/2026-10-01-round-13/tasks.md`. The introduced-rate rose from 80% to 83%, so the breaker is Blocking. No task was worked and no round 14 ran.
+- **Learned**: round 12's stop rule keys on a `HEAD` prefix that misreads a branch named `HEAD-fix` and a branch target naming the current branch. The loop's fixes keep landing in the same three files. See the ledger's round-13 breaker section.
+
 ## 2026-10-01 14:28 — Round 12 checkpoint (closed)
 
 - **Task/phase**: the Round 12 checkpoint, run unattended after `/verify`. All seven adjudicated tasks are done.

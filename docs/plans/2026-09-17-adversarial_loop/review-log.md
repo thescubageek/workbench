@@ -210,3 +210,38 @@ Dropped by verification (REFUTED or out of range, not ledgered as findings):
   - **Caveat, per `review-ledger.md`:** round 11's fix surface is 20 files and covers 8 of 10 finding paths, so path intersection is a weak proxy. Read the fall as modest.
 - **Mirror-image regression: none.** R12-T1 follows from R11-T1's added branch-name test sending more targets down the fetch path. Fixing it adds a stop rule and does not invert R11-T1.
 - **Same file three consecutive rounds (advisory):** `plugin/skills/adversarial-loop/SKILL.md` carries findings in rounds 9, 10, 11 and 12, and `plugin/skills/reply-to-claude/SKILL.md` in rounds 10, 11 and 12. Treat further edits to either as one change set.
+
+## Round 13 — 2026-10-01 — PR #25 at `72f8210` (own checkout, `origin/main...HEAD`)
+
+`introduced_by` derived from `git log --first-parent --no-merges --name-only 6cd1d71..HEAD` (round 12's
+fix surface, 11 commits and 5 files). Two of twelve paths are outside it: `plugin/skills/adversarial-review/SKILL.md` (no finding) and `plugin/scripts/test-guards`.
+
+| round | file:line | class | verdict | disposition | evidence | introduced_by |
+| ----- | --------- | ----- | ------- | ----------- | -------- | ------------- |
+| 13 | `plugin/skills/adversarial-loop/SKILL.md:136` | stop-rule-head-prefix | CONFIRMED | Valid | scratch run: a branch target HEAD-fix prints `identity: HEAD-fix (branch; …)` and passes a starts-with-HEAD test; a branch target naming the current branch prints `<branch> (branch; …)` and stops the loop | prev-fix |
+| 13 | `plugin/skills/adversarial-loop/SKILL.md:139` | stopped-run-staged-plan | CONFIRMED | Valid | Step 8 stages the round plan under --plan before the stop rule applies; step 3's pruning is skipped; step-2 dispositions reach no ledger | prev-fix |
+| 13 | `plugin/skills/adversarial-loop/SKILL.md:258` | ledger-guard-silent-skip | CONFIRMED | Valid | the [ -f ] guard checks nothing about a zero-finding round, so a mistyped or unwritten ledger exits 0 where the old block exited 128 | prev-fix |
+| 13 | `plugin/skills/reply-to-claude/SKILL.md:58` | refusal-remedies | CONFIRMED | Valid | branch refusal tells the model to push and reopen the PR with no confirmation; ancestry refusal says check out its branch after the branch already matched | prev-fix |
+| 13 | `plugin/skills/reply-to-claude/SKILL.md:92` | step2-dates-outdated | PLAUSIBLE | Valid | filter prints no dates and shows an outdated comment's original_line unmarked | prev-fix |
+| 13 | `plugin/scripts/test-phi-patterns:44` | separator-members-unpinned | CONFIRMED | Valid | in-process: 17 single-pattern separator deletions and the {0,3}/{1,3} bounds pass all 35 cases; em dash has no case | prev-fix |
+| 13 | `plugin/docs/reference/technical-english.md:110` | task-lines-citation | CONFIRMED | Valid | BARRIER 2 has no ID shape or [x] pattern; the other three citations name the real homes | prev-fix |
+| 13 | `plugin/scripts/test-guards:544` | shrink-excuse-heuristic | PLAUSIBLE | Over-fitted | the verdict still fails and the maintainer lowers the count by hand; only the message wording is at stake | pre-existing |
+| 13 | `plugin/skills/adversarial-loop/SKILL.md:175` | identity-guard-copies | PLAUSIBLE | Over-fitted | three copies of one guard is a maintainability preference; the asymmetry is already documented and no wrong outcome was shown | prev-fix |
+| 13 | `plugin/scripts/test-guards:142` | found-line-header-match | PLAUSIBLE | Over-fitted | needs a finding whose raw statement ends in colon and digits while containing a slash; a capture statement ends in a closing parenthesis | pre-existing |
+| 13 | `CHANGELOG.md:14` | unreleased-date | PLAUSIBLE | Over-fitted | 3.0.0 is untagged, so its date is the planned release date and is set at release | prev-fix |
+| 13 | `plugin/skills/adversarial-loop/SKILL.md:258` | changed-blocks-untested | PLAUSIBLE | Over-fitted | check-guards flags only publish-class commands, which the ledger block has none of; the blocks were executed in scratch repos each round | prev-fix |
+
+Dropped (REFUTED or already adjudicated, not ledgered as findings):
+
+- The PHI separator variants (digit groups, tab, U+2011). Adjudicated Over-fitted in round 11.
+- The literal `target=""` re-statement. Refuted in round 12.
+- The stale `of` in the ratchet file. Adjudicated Over-fitted in round 11.
+- Deleted waivers justified only by the ratchet number. The three corpus cases (`s1-two-captures-one-line`, `s2-two-includes-one-line`, `s3-unguarded-loop-long-body`) exist, and each mutant was shown to fail one in a scratch copy.
+
+### Breaker, after round 13
+
+- **Introduced-rate trend: Blocking.** 10 of 12 `prev-fix` (83%), against round 12's 8 of 10 (80%) and round 11's 16 of 19 (84%). The rate did not fall from round 12 to round 13. Both rounds are above the three-finding floor.
+  - **Caveat, per `review-ledger.md`:** round 12's fix surface is 5 files and every confirmed finding sits in three of them (`adversarial-loop/SKILL.md`, `reply-to-claude/SKILL.md`, `test-phi-patterns`). Path intersection is a weak proxy on a surface this small. Read the trip as "the breaker cannot tell", but the ledger rule is mechanical and does not wait for that judgement.
+- **Mirror-image regression: candidate, surfaced for a decision.** `stop-rule-head-prefix` follows from R12-T1: the stop rule it added keys on the same `HEAD` prefix that already misread a branch target naming the current branch, and now also misreads a branch named `HEAD-fix`. It is the same axis (which identity lines count as the current checkout) fixed in round 12 and broken both ways in round 13. If it counts, the breaker is Blocking on that trigger too.
+- **Same file three consecutive rounds (advisory):** `plugin/skills/adversarial-loop/SKILL.md` carries findings in rounds 9, 10, 11, 12 and 13, and `plugin/skills/reply-to-claude/SKILL.md` in rounds 10 to 13.
+- **Held 2026-10-01 (surfaced to the user):** no round-13 task is worked and no round 14 runs. The seven Valid findings are in `reviews/2026-10-01-round-13/tasks.md`, held for the decision.
