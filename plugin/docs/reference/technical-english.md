@@ -107,7 +107,7 @@ rewrite the prose around it. The sentence rules do not apply to these strings.
 
 **Task lines** (`plugin/hooks/wb-prime.sh:131-136`, `plugin/skills/daily-digest/sources.md:67-68`,
 `plugin/skills/validate_project/reference/validation-rules.md:71,104,116`,
-`plugin/skills/implement/SKILL.md:282`):
+`plugin/skills/implement/SKILL.md`, Step 6a, the checkbox check):
 
 - The task-ID shape `[A-Z0-9-]*[0-9][A-Z0-9-]*`. An ID must contain at least one digit.
 - A task line starts `- [ ] **ID**` or `- [x] **ID**`. The patterns are
@@ -130,7 +130,7 @@ rewrite the prose around it. The sentence rules do not apply to these strings.
   - `tasks.md`: `not-started`, `in-progress`, `complete`
 
 **Journal headings** (`plugin/hooks/wb-prime.sh:154,163-165`,
-`plugin/skills/implement/SKILL.md:242-245`,
+`plugin/skills/implement/SKILL.md`, Step 5, *Open a journal entry first*,
 `plugin/skills/validate_project/reference/validation-rules.md:92,98`,
 `plugin/skills/daily-digest/sources.md:77`):
 
@@ -166,7 +166,7 @@ rewrite the prose around it. The sentence rules do not apply to these strings.
 - An assumption state is `Validated YYYY-MM-DD` or `Invalid — <note>`.
 
 **Verifier reports** (`plugin/agents/task-verifier.md:140,158`,
-`plugin/skills/implement/SKILL.md:307,320`): the headings `### Status: PASS`,
+`plugin/skills/implement/SKILL.md`, Step 6b, the status parse): the headings `### Status: PASS`,
 `### Status: FAIL`, and `### Baseline failures`.
 
 **Placeholders** (`plugin/skills/validate_project/reference/validation-rules.md:196`): the

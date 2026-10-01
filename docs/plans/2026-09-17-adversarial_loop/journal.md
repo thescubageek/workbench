@@ -51,6 +51,12 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-10-01 13:27 — R11-T11 (closed)
+
+- **Task/phase**: R11-T11, technical-english.md cites implement/SKILL.md lines that moved.
+- **Landed**: technical-english.md cites implement Step 5, 6a and 6b by name instead of line number (grep 3 to 0). test-prime 44 of 44 and link_check pass. The old line 282 pointed at the journal rule, so the task-lines citation now names Step 6a.
+- **Started at**: 6277622
+
 ## 2026-10-01 13:26 — R11-T10 (closed)
 
 - **Task/phase**: R11-T10, replace stale line citations in adversarial-loop with text names.

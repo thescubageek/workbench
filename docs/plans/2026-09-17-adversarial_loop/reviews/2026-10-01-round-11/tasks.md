@@ -133,14 +133,14 @@ criterion is run before the fix**. A criterion that passes before the change is 
       phrase) rather than a line number; the hook sentence says Write and Edit fix and Bash
       reports. (~4 calls) (completed 2026-10-01 13:27)
 
-- [ ] **R11-T11** — `plugin/docs/reference/technical-english.md:133` (also `:169`) — citations
+- [x] **R11-T11** — `plugin/docs/reference/technical-english.md:133` (also `:169`) — citations
       into `plugin/skills/implement/SKILL.md` point at lines that moved.
       **Fails when:** line 133 cites `implement/SKILL.md:242-245` for the journal headings (now
       the BARRIER 2 text) and line 169 cites `:307,320` for the `### Status: PASS` headings (now
       at 342-343), so a WBTE reviewer lands on unrelated prose. Line 110 (`:282`) lands on the
       intended text only by coincidence.
       **Acceptance (shape 3)**: dual grep — `implement/SKILL.md:242-245` and `:307,320` absent,
-      and each citation names the heading or phrase instead of a line. (~3 calls)
+      and each citation names the heading or phrase instead of a line. (~3 calls) (completed 2026-10-01 13:28)
 
 - [ ] **R11-T12** — `plugin/scripts/README.md:241` (also `README.md:360-361`) — both READMEs state
       a 114-case corpus and 15 integrity checks.
