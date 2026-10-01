@@ -498,6 +498,7 @@ we have the in-repo cautionary example for that.
 ## With no `gh repo set-default`, `gh` resolves the repository from a remote named `upstream` before `origin`
 
 - **Why it matters**: in a clone with `origin` = the user's fork and `upstream` = the parent, `gh pr view <N>` answers for the parent, while a bare `git push` goes to the branch's upstream, usually the fork. A guard that checks only the PR's facts then approves a push that never reaches the PR. `gh` does not fall back when the `upstream` repository does not exist: it fails.
+- **Also (2026-10-01)**: the ranking is not the whole story. With two remotes that both exist (`origin` = `thescubageek/workbench`, `upstream` = `cli/cli`) and no default, a headless run answered for `cli/cli`, and the user's interactive terminal run failed with `No default remote repository has been set` for both `gh repo view` and `gh pr view`. Whether interactive versus headless is the cause was not isolated. After `gh repo set-default thescubageek/workbench`, `gh repo view` answered for `thescubageek/workbench` in both. Do not assume `gh` picks a repository in a clone with two live remotes.
 - **Verified**: 2026-10-01 · `docs/plans/2026-10-01-pr_identity_contract/` (`gh` 2.86.0)
 - **Check it**: in a scratch `git init` with `origin` = `https://github.com/thescubageek/workbench.git` and `upstream` = a nonexistent repository, `gh repo view --json nameWithOwner` fails with `Could not resolve to a Repository`. Rename `upstream` to `fork` and it prints `thescubageek/workbench`.
 
