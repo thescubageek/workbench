@@ -178,3 +178,35 @@ Two further candidates were preferences, not defects: the comment-density rule f
   - **Caveat, per `review-ledger.md`:** the fix surface is 45 files and covers 16 of 19 finding paths, so path intersection is a weak proxy here. Read the fall as modest.
 - **Mirror-image regression: none.** R11-T1 tightens the ancestry test R10-T3 introduced, and R11-T3 and R11-T4 extend R10-T8 and R10-T25; none is the inverse of an earlier fix.
 - **Same file three consecutive rounds (advisory):** `plugin/skills/adversarial-loop/SKILL.md` carries findings in rounds 9, 10 and 11. Treat further Phase edits there as one change set.
+
+## Round 12 — 2026-10-01 — PR #25 at `6cd1d71` (own checkout, `origin/main...HEAD`)
+
+`introduced_by` derived from `git log --first-parent --no-merges --name-only cc331f8..HEAD` (round 11's
+fix surface, 20 files). Two of ten paths are outside it: `plugin/scripts/check` and `CHANGELOG.md`.
+
+| round | file:line | class | verdict | disposition | evidence | introduced_by |
+| ----- | --------- | ----- | ------- | ----------- | -------- | ------------- |
+| 12 | `plugin/skills/adversarial-loop/SKILL.md:136` | fetched-target-fixes-here | CONFIRMED | Valid | Phase 0 stops at 'the end of Phase 1' and Phase 1 steps 3-6 run implement, commit the ledger and re-review on the current checkout; nothing there reads review_provenance | prev-fix |
+| 12 | `plugin/skills/adversarial-loop/SKILL.md:253` | ledger-missing-exit-128 | CONFIRMED | Valid | block run under zsh with no review-log.md exits 128; the ledger is one row per finding so a zero-finding first round never creates it | prev-fix |
+| 12 | `plugin/docs/reference/technical-english.md:109` | task-lines-citation | CONFIRMED | Valid | Step 6a holds no [A-Z0-9-]*[0-9][A-Z0-9-]* parser; the first-unchecked rule is Step 4 BARRIER 2 | prev-fix |
+| 12 | `plugin/skills/reply-to-claude/SKILL.md:20` | preconditions-stale-remedy | CONFIRMED | Valid | bullet says 'at or descended from' while Step 1 requires the PR's own branch; remedy 'check out its branch' is wrong after a rename (smaller change: this skill only) | prev-fix |
+| 12 | `plugin/skills/reply-to-claude/SKILL.md:92` | inline-line-null | PLAUSIBLE | Valid | jq on a synthetic sample prints `a.py:null` for line null; no round scoping in Step 2 | prev-fix |
+| 12 | `plugin/skills/adversarial-loop/SKILL.md:410` | in-progress-arrival | PLAUSIBLE | Over-fitted | depends on unobserved bot behaviour; the skill marks the check-run provisional and Phase 5 requires a completed check-run | prev-fix |
+| 12 | `plugin/scripts/test-phi-patterns:44` | plus-cases-not-discriminating | CONFIRMED | Valid | both + cases match both patterns (re.search per pattern); BM+CA+1234567 and BMCA+12345678 each match one | prev-fix |
+| 12 | `plugin/skills/adversarial-loop/SKILL.md:354` | push-destination | PLAUSIBLE | Pre-existing | bare git push predates round 11; needs two remotes with a same-repo PR in the parent; gh remote ranking unverified | prev-fix |
+| 12 | `plugin/scripts/check:60` | zero-files-floor | PLAUSIBLE | Over-fitted | exit 0 on zero files is documented and tested; dispatch and default-target wiring are covered by fixtures | pre-existing |
+| 12 | `CHANGELOG.md:175` | changelog-order | CONFIRMED | Valid | 2.1.0 section added by this PR sits above released 2.2.0 and 2.1.1; 3.0.0 section never mentions WBTE | pre-existing |
+
+Dropped by verification (REFUTED or out of range, not ledgered as findings):
+
+- The literal `target=""` re-statement. Phase 0 only lets Phases 2 and 5 run when the identity line starts with `HEAD`, and then the current-branch PR is the target PR.
+- `lint-common.sh`, `evals/judge.py`, `evals/wbte_check.py` and `evals/run.py`. None is in `origin/main...HEAD`.
+- `plugin/scripts/check` omitting the 2.2.0 tests. Known; the user has not decided.
+- The PHI digit-group variants. Already adjudicated in round 11.
+
+### Breaker, after round 12
+
+- **Introduced-rate trend: not Blocking.** 8 of 10 `prev-fix` (80%), against round 11's 16 of 19 (84%). The rate fell. Both rounds are above the three-finding floor.
+  - **Caveat, per `review-ledger.md`:** round 11's fix surface is 20 files and covers 8 of 10 finding paths, so path intersection is a weak proxy. Read the fall as modest.
+- **Mirror-image regression: none.** R12-T1 follows from R11-T1's added branch-name test sending more targets down the fetch path. Fixing it adds a stop rule and does not invert R11-T1.
+- **Same file three consecutive rounds (advisory):** `plugin/skills/adversarial-loop/SKILL.md` carries findings in rounds 9, 10, 11 and 12, and `plugin/skills/reply-to-claude/SKILL.md` in rounds 10, 11 and 12. Treat further edits to either as one change set.
