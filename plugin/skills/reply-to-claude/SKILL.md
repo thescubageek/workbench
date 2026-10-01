@@ -18,7 +18,7 @@ and on what evidence. A reply that says "addressed feedback" carries none of tha
 ## Preconditions
 
 - `gh` available and authenticated, and a pull request whose head is the current checkout: the
-  same repository, with `HEAD` at or descended from the PR's head commit.
+  same repository, on the PR's own branch, with `HEAD` descended from (or at) the PR's head commit.
 - A `claude[bot]` review to reply to. If there is none, say so and stop — this skill answers a
   review; it does not solicit one.
 
@@ -55,7 +55,7 @@ headref=$(gh pr view "$PR" --json headRefName --jq .headRefName) || exit 1
 [ -n "$headref" ] || { echo "PR $PR reported no headRefName — NOT replying" >&2; exit 1; }
 branch=$(git branch --show-current)
 [ "$branch" = "$headref" ] || {
-  echo "PR $PR's head branch is '$headref' but this checkout is on '${branch:-detached HEAD}' — check out its branch; NOT replying" >&2
+  echo "PR $PR's head branch is '$headref' but this checkout is on '${branch:-detached HEAD}' — switch to '$headref', or push this branch (git push -u origin <this branch>) and reopen the PR from it; NOT replying" >&2
   exit 1
 }
 [ "$cross" = false ] && git merge-base --is-ancestor "$oid" HEAD 2>/dev/null || {

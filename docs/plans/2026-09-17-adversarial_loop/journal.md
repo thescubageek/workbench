@@ -51,6 +51,12 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-10-01 14:21 — R12-T4 (closed)
+
+- **Task/phase**: R12-T4, reply-to-claude Preconditions state the old test; the rename remedy points at the wrong branch.
+- **Landed**: reply-to-claude Preconditions now say on the PR's own branch, and the branch refusal says to switch to the PR's branch or push this branch and reopen the PR from it. Executed on a renamed branch with a stub gh: the shipped text said check out its branch; the new text names both branches and the remedy; the matching-branch run still exits 0.
+- **Started at**: af3af8b
+
 ## 2026-10-01 14:20 — R12-T3 (closed)
 
 - **Task/phase**: R12-T3, technical-english cites implement Step 6a for the task-line parser.

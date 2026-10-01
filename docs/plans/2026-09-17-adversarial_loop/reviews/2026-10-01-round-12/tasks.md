@@ -62,7 +62,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       the citation names Step 4's BARRIER 2 rule (the first `- [ ]` line in the current phase) at a
       cited line. (~3 calls) (completed 2026-10-01 14:21)
 
-- [ ] **R12-T4** — `plugin/skills/reply-to-claude/SKILL.md:20` (also `:58`) — the Preconditions
+- [x] **R12-T4** — `plugin/skills/reply-to-claude/SKILL.md:20` (also `:58`) — the Preconditions
       bullet still states the old ancestry-only test, and the refusal's remedy "check out its
       branch" points at the wrong branch after a local rename.
       **Fails when:** a checkout that descends from the PR head but is on another branch satisfies
@@ -74,7 +74,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       **Acceptance (shape 3)**: dual grep — "at or descended from the PR's head commit" absent, and
       the bullet says "on the PR's own branch" at a cited line; execute Step 1's block in a scratch
       repo on a renamed branch with a stub `gh` and assert the refusal text names both branches and
-      says to push the renamed branch or switch back. (~5 calls)
+      says to push the renamed branch or switch back. (~5 calls) (completed 2026-10-01 14:22)
 
 - [ ] **R12-T5** — `plugin/skills/reply-to-claude/SKILL.md:92` — Step 2's inline-comment jq prints
       `path:null` for an outdated comment, and nothing scopes the collected findings to those new
