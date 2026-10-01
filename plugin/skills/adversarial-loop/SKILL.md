@@ -121,7 +121,7 @@ pushes, un-drafts and labels **#57**.
 - no argument → leave it unset; resolving from the current branch is then correct rather than
   accidental
 
-**Do not write `target=$1` in a fenced block.** The harness substitutes positional parameters
+**Do not bind `target` from the first positional parameter in a fenced block.** The harness substitutes positional parameters
 before this text reaches you, so the block would arrive with the value already spliced in — see
 [../adversarial-review/SKILL.md](../adversarial-review/SKILL.md) Step 1, which is the same
 binding and carries the history of the defect.

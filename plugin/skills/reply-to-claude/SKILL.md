@@ -34,8 +34,8 @@ resolves the current branch's PR while the report names the one that was asked f
 
 **The binding lives in you, not in the shell — re-state it as the first line of every block below
 that reads `$target`.** A Bash call starts a fresh shell, so an assignment made in one call is
-gone by the next; each snippet below re-derives rather than inheriting. **Do not write
-`target=$1` in a fenced block** — see
+gone by the next; each snippet below re-derives rather than inheriting. **Do not bind `target` from
+the first positional parameter in a fenced block** — see
 [../adversarial-review/SKILL.md](../adversarial-review/SKILL.md) Step 1, which carries the
 history of that defect.
 

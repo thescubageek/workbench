@@ -83,7 +83,7 @@ below — `target=42`, `target=some-branch` — and when none was given type not
 expansion stay empty. Step 2 does not read `$target`. It re-states the two refs Step 1 resolved,
 in the same way, and its block says how.
 
-**Do not write `target=$1` in a fenced block.** The harness substitutes positional parameters
+**Do not bind `target` from the first positional parameter in a fenced block.** The harness substitutes positional parameters
 before this text reaches you, so the block would arrive with the value already spliced in — the
 defect this repository fixed across eight stages in 2.0.1, and the reason argument slots are
 described in prose here rather than as shell.

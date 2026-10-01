@@ -51,6 +51,12 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-10-01 04:20 — R10-T6 (closed)
+
+- **Task/phase**: R10-T6, rephrase the prose warnings that carry a bare dollar-one.
+- **Landed**: the three target-equals-first-positional warnings now read: do not bind target from the first positional parameter in a fenced block. The grep for the old text finds nothing and check-guards is clean.
+- **Started at**: 69e18a3
+
 ## 2026-10-01 04:18 — R10-T2 (closed)
 
 - **Task/phase**: R10-T2, the ledger is staged after the commits said to carry it (adversarial-loop Phase 1 step 5, Phase 4 step 3).

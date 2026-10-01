@@ -74,7 +74,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       **Acceptance (shape 3)**: dual grep — `read -r path` absent from `plugin/scripts/check-guards`,
       and `read -r file` present in the shape-6 FIXES entry. (~2 calls) (closed by docs/plans/2026-09-28-guard_lexer_and_pr_identity P1-T4, 2026-10-01)
 
-- [ ] **R10-T6** — `plugin/skills/adversarial-review/SKILL.md:87` (also
+- [x] **R10-T6** — `plugin/skills/adversarial-review/SKILL.md:87` (also
       `plugin/skills/adversarial-loop/SKILL.md:117`, `plugin/skills/reply-to-claude/SKILL.md:38`) —
       the prose warning "Do not write `target=$1` in a fenced block" carries a bare `$1`, which the
       harness substitutes.
@@ -83,7 +83,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       this round's run in both skill bodies.
       **Acceptance (shape 4)**: `command grep -rn 'target=\$1' plugin/skills/` returns nothing,
       with a negative control that the same grep finds the line in the current tree; each warning
-      is rephrased without a positional token. (~4 calls)
+      is rephrased without a positional token. (~4 calls) (completed 2026-10-01 04:20)
 
 - [x] **R10-T7** — `plugin/scripts/check-guards:58` — shape 6 reads only `bash`, `sh` and `shell`
       fences, so a positional token in a `zsh` fence of a shipped `SKILL.md` passes clean.
