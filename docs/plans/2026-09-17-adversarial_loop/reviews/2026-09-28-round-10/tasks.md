@@ -180,12 +180,12 @@ criterion is run before the fix**. A criterion that passes before the change is 
       asserting `ok is False` and its message; mutate each branch in a scratch copy and show the
       matching case goes red. (~4 calls) (completed 2026-10-01 04:54)
 
-- [ ] **R10-T19** — `README.md:305` and `plugin/scripts/README.md:142` — the READMEs list three
+- [x] **R10-T19** — `README.md:305` and `plugin/scripts/README.md:142` — the READMEs list three
       and four check-guards shapes; the script's header lists six.
       **Fails when:** a maintainer reads either README to learn what check-guards enforces and does
       not learn that `$1` or `$ARGUMENTS` in a SKILL.md fence now fails `check`, nor shape 5.
       **Acceptance (shape 3)**: dual grep — "three shapes" and "Four shapes" absent, and both
-      READMEs name the positional-token shape at a cited line. (~3 calls)
+      READMEs name the positional-token shape at a cited line. (~3 calls) (completed 2026-10-01 04:55)
 
 - [x] **R10-T21** — `plugin/scripts/check-guards:430` — an unclosed fence of any language is
       labelled "unclosed shell fence", with advice about a later bash opener.

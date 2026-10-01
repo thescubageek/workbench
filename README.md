@@ -348,9 +348,12 @@ and **reports without rewriting** on `Bash`, where it cannot tell a write from a
 | `WB_LINT_HOOK=0` | Disable the hook entirely |
 | `WB_LINT_FIX_ON_BASH=1` | Opt back into auto-fixing on the Bash route |
 
-`check-guards` scans shipped shell and fenced `bash` blocks for three shapes whose failure is
+`check-guards` scans shipped shell and fenced `bash` blocks (`bash`, `sh`, `shell`, `zsh`) for six shapes whose failure is
 indistinguishable from "nothing matched": a `grep -c` captured without a status guard, an unquoted
-`--include` glob, and a `for` over a glob with no existence test. Prose and tables are not scanned,
+`--include` glob, a `for` over a glob with no existence test, an outward-facing action de-chained
+from the one it depends on, a bash-only `PIPESTATUS` in a markdown fence, and a bare positional
+token (`$1`, `$ARGUMENTS`) in a fence of a shipped `SKILL.md`, which the harness substitutes before
+the block runs. Prose and tables are not scanned,
 so a document may describe a bad pattern freely — a deliberate counter-example belongs in a `text`
 fence rather than a `bash` one.
 

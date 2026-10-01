@@ -181,7 +181,7 @@ passed — the defect class this whole directory exists to catch, one level up.
 
 Finds measurements whose failure is indistinguishable from a clean result — the class where a
 broken command and a genuinely empty result produce the same output, and the error always points
-toward believing things are fine. Four shapes:
+toward believing things are fine. Six shapes:
 
 1. A counting `grep` captured in a substitution **whose exit status is never tested**. grep exits
    1 on no match and 2 on **error**, so a missing file and a clean file both yield something that
@@ -196,6 +196,12 @@ toward believing things are fine. Four shapes:
    the label, which reads exactly like the label landing. `&&` is the whole remedy, and
    de-chaining is a one-character edit nothing else here can see — `shellcheck-gate` skips
    `*.md`, and `lint` is markdownlint.
+5. A bash-only `${PIPESTATUS[0]}` inside a markdown fence. The Bash tool runs zsh, where it expands
+   to nothing, so `[ "" -le 1 ]` is true and a grep that exited 2 passes its own guard. Markdown
+   only: in a `.sh` file with a bash shebang it is correct.
+6. A bare positional token (`$1`, `$ARGUMENTS`) inside a fence of a shipped `SKILL.md`. The harness
+   substitutes it with the invocation's arguments, so `awk -F: '$1 != …'` arrives as
+   `awk -F: '--plan != …'`. `SKILL.md` only, `clip` is exempt, and `${1:-…}` is not matched.
 
 ```bash
 ./plugin/scripts/check-guards            # defaults to plugin/
@@ -207,7 +213,7 @@ could not read. That third state matters: a checker that reports clean because i
 is the defect it exists to catch.
 
 It scans shell scripts and the fenced shell blocks inside markdown, including **indented** fences
-and `sh`/`shell` as well as `bash` — a block nested in a numbered step is still an instruction a
+and `sh`/`shell`/`zsh` as well as `bash` — a block nested in a numbered step is still an instruction a
 model executes. Prose and tables are not scanned, so a document may describe a bad pattern freely.
 **A deliberate counter-example belongs in a `text` fence rather than a `bash` one**; that is the
 convention instead of a suppression marker, because a marker can silence a real finding and a

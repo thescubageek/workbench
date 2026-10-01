@@ -51,6 +51,18 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-10-01 04:56 — R10-T23 (open)
+
+- **Task/phase**: R10-T23, a bot round is ledgered as the next round number but creates no reviews directory.
+- **Next action**: spawn a worker to edit adversarial-loop Phase 4 step 3.
+- **Started at**: 569a035
+
+## 2026-10-01 04:54 — R10-T19 (closed)
+
+- **Task/phase**: R10-T19, READMEs list three and four check-guards shapes; the script lists six.
+- **Landed**: README.md and plugin/scripts/README.md now describe six check-guards shapes, including the PIPESTATUS shape and the positional-token shape, and the zsh fence. The three-shapes and Four-shapes phrases are gone.
+- **Started at**: 569a035
+
 ## 2026-10-01 04:41 — R10-T18 (closed)
 
 - **Task/phase**: R10-T18, the plain suite's one ratchet_verdict call covers only the survivors branch.
