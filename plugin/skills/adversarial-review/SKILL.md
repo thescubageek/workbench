@@ -95,50 +95,62 @@ not announce itself in one voice: one spelling is fatal on stderr, another print
 exits 0.
 
 ```bash
+# Re-state Step 1's binding: an argument was given → `target=<it>`; none → leave as is.
+target=""
+review_head=""; review_base=""; review_provenance=""
+
+resolve_identity() {
+  if [ -z "${target:-}" ] || [ -e "$target" ]; then
+    b=$(gh pr view --json baseRefName --jq .baseRefName 2>/dev/null)
+    review_base="origin/${b:-main}"; review_head="HEAD"
+    review_provenance="HEAD (current branch; base ${review_base})"
+    return 0
+  fi
+  if printf '%s' "$target" | grep -qE '^[0-9]+$'; then
+    json=$(gh pr view "$target" --json headRefOid,headRefName,baseRefName,isCrossRepository) \
+      || { echo "could not resolve PR $target via gh — NOT reviewing" >&2; return 1; }
+    oid=$(printf '%s' "$json" | jq -r .headRefOid)
+    base=$(printf '%s' "$json" | jq -r .baseRefName)
+    cross=$(printf '%s' "$json" | jq -r .isCrossRepository)
+    review_base="origin/$base"
+    if [ "$cross" != true ] && git merge-base --is-ancestor "$oid" HEAD 2>/dev/null; then
+      ahead=$(git rev-list --count "$oid..HEAD")
+      review_head="HEAD"
+      review_provenance="HEAD, $ahead commit(s) ahead of headRefOid $(printf '%s' "$oid" | cut -c1-7) (PR $target, own checkout)"
+      return 0
+    fi
+    git fetch origin "refs/pull/$target/head:refs/remotes/origin/pr/$target" \
+      || { echo "could not fetch refs/pull/$target/head — NOT reviewing" >&2; return 1; }
+    review_head="origin/pr/$target"
+    review_provenance="origin/pr/$target = $(printf '%s' "$oid" | cut -c1-7), fetched (PR $target is not the current checkout$([ "$cross" = true ] && printf ', cross-repository'))"
+    return 0
+  fi
+  b=$(gh pr view "$target" --json baseRefName --jq .baseRefName 2>/dev/null)
+  review_base="origin/${b:-main}"; review_head="$target"
+  review_provenance="$target (branch; base ${review_base})"
+}
+
 # Revisions and pathspec are held apart, because they cannot survive one variable: quoted,
 # "origin/main...HEAD -- some/path" reaches git as a single argument; unquoted, it depends on
 # the shell splitting it. See the shell note below — that dependency is what broke here.
 pathspec=""
 
-# The base is asked for, not assumed: `origin/main` is a last-resort fallback, and the endpoint
-# check below is what keeps it from being a silent one.
-base_ref() {
-  b=$(gh pr view "$@" --json baseRefName --jq .baseRefName 2>/dev/null)
-  printf 'origin/%s' "${b:-main}"
-}
-
 # A function, so a failure can `return`. See the exit note below — `exit` here ends the tool call.
 resolve_range() {
-  if [ -z "${target:-}" ]; then
-    # This branch's own range. NOT a bare `git diff`, which shows only uncommitted work and is
-    # empty in the loop's normal state, between a fix commit and the next round.
-    range="$(base_ref)...HEAD"
-  elif [ -e "$target" ]; then
-    range="$(base_ref)...HEAD"
+  resolve_identity || return 1
+  if [ -n "${target:-}" ] && [ -e "$target" ]; then
     pathspec="$target"
-  elif printf '%s' "$target" | grep -qE '^[0-9]+$'; then
-    # A PR number. `git diff --stat 25` is `fatal: ambiguous argument`, so convert it first.
-    range=$(gh pr view "$target" --json baseRefName,headRefName \
-              --jq '"origin/" + .baseRefName + "...origin/" + .headRefName') \
-      || { echo "could not resolve PR $target via gh — NOT reviewing the current branch" >&2; return 1; }
-    # The PR's own checkout: end at HEAD, not the pushed head, or local fix commits go unread.
-    if [ "${range##*...origin/}" = "$(git branch --show-current)" ]; then
-      range="${range%...*}...HEAD"
-    fi
-  else
-    # A branch — three dots, against its base. Two dots answers a different question.
-    range="$(base_ref "$target")...$target"
   fi
 
   # Both endpoints, before the range is believed or printed as a finding-free diff.
-  left="${range%%...*}"
-  right="${range##*...}"
-  for ref in "$left" "$right"; do
+  for ref in "$review_base" "$review_head"; do
     git rev-parse --verify --quiet "$ref^{commit}" >/dev/null && continue
     echo "range did not resolve: '$ref' is not a revision here — NOT reviewing" >&2
     return 1
   done
+  echo "identity: $review_provenance"
 
+  range="$review_base...$review_head"
   if [ -n "$pathspec" ]; then
     echo "range: $range -- $pathspec"
     git diff --stat "$range" -- "$pathspec"
@@ -173,14 +185,25 @@ report still named the PR.
 
 State the target and its size before reviewing — a wrong target wastes the whole pass.
 
-**An empty range and an unresolvable one are different, and only one of them is a stop.** Three
-outcomes, and the third is dangerous precisely because it wears the first one's clothes:
+**A PR target is resolved by its commit, not its branch name.** The block reads `headRefOid`
+and `isCrossRepository`. The range ends at `HEAD` only if the PR is not cross-repository and
+`HEAD` descends from `headRefOid`. Otherwise the block does not review `HEAD`. It fetches the
+PR's head into `refs/remotes/origin/pr/<N>` and reviews that ref. The `identity:` line names
+the result. Copy that line into the report as it is printed.
+
+**An empty range and an unresolvable one are different, and only one of them is a stop.** Five
+outcomes, and the last is dangerous precisely because it wears the first one's clothes:
 
 - **Resolved, and empty** — the range parsed and the stat is blank. If that is genuinely the
   change, or is plainly not what was asked for, stop and say so rather than reviewing nothing.
-- **Not resolved** — `gh` could not answer for the PR, or an endpoint is not a revision here. The
-  block says which, on stderr, and returns. Say that in the report; do not report it as a change
-  with no content.
+- **Fetched** — the PR is cross-repository, or `HEAD` does not descend from its head. The
+  `identity:` line reads `origin/pr/<N> = <oid>, fetched (…)`. The fetch writes that one
+  remote-tracking ref and nothing else. Disclose it in the report. It needs no confirmation.
+- **Refused** — `gh` could not answer for the PR, or the fetch of `refs/pull/<N>/head` failed.
+  The block names the cause on stderr and returns 1. The review did not run. Say that in the
+  report, and do not review the current branch in its place.
+- **Not resolved** — an endpoint is not a revision here. The block says which, on stderr, and
+  returns. Say that in the report; do not report it as a change with no content.
 - **Resolved to something git cannot parse** — the outcome with no error to show for it. Measured
   in this repository: `git diff --stat "origin/main...plugin/skills/adversarial-review/*.md"`
   exits **0 printing nothing**, indistinguishable from an empty diff, because git takes a

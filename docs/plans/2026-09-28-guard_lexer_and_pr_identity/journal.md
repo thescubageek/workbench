@@ -51,6 +51,13 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-10-01 03:37 — P2-T2 (closed)
+
+- **Task/phase**: P2-T2, land the resolver block and rewire Step 1.
+- **Landed**: resolver block in adversarial-review Step 1; fixture GREEN. Cross-repository PR fetches and reviews the fork head with disclosed provenance rather than returning 1 (spec block and design decision agree; task GREEN wording and design 'refused by name' phrasing differ). Resolver call and endpoint loop sit inside resolve_range() because a top-level return ends zsh -c.
+- **Learned**: Step 2 runs in a fresh shell, so it cannot read review_head and review_base from Step 1.
+- **Started at**: eca7d5c
+
 ## 2026-10-01 03:36 — P2-T1 (closed)
 
 - **Task/phase**: P2-T1, build the identity fixture and record RED for R10-T3 and R10-T4.

@@ -456,7 +456,7 @@ provenance that is not `HEAD` means the PR phases do not run").
       R10-T3 prints `origin/main...HEAD`; R10-T4 prints `origin/main...origin/<head>` at the
       stale ref. Record `pwd`, `pwd -P` and both outputs verbatim in the task's journal entry.
       Keep the fixture for P2-T2 (delete at P2-T5). (~14 calls) (completed 2026-10-01 03:36)
-- [ ] **P2-T2** — Land the resolver block per Changes Required §1 and rewire Step 1: delete
+- [x] **P2-T2** — Land the resolver block per Changes Required §1 and rewire Step 1: delete
       `base_ref()` and the four-branch `resolve_range()` body, keep the pathspec handling and the
       endpoint loop, set `range="$review_base...$review_head"`. Update Step 1's prose:
       the "three outcomes" paragraph gains the refusal and the fetch as named outcomes, and the
@@ -464,7 +464,7 @@ provenance that is not `HEAD` means the PR phases do not run").
       prints a refusal naming cross-repository and no `...HEAD`; R10-T4 fetches and prints
       `origin/pr/42 = <oid>, fetched`, and `git status --porcelain` in the fixture is empty
       afterwards. Then `./plugin/scripts/check-guards plugin/skills/adversarial-review/` → clean.
-      (~22 calls)
+      (~22 calls) (completed 2026-10-01 03:40)
 - [ ] **P2-T3** — Rewire Step 2 to the resolver: replace the `head_ref`/`base_branch` block
       (`SKILL.md:209-231` today) with `base=$(git merge-base "$review_head" "$review_base"
       2>/dev/null)` and the existing `REVIEW.md` read; update the four-outcomes prose so "read
@@ -698,6 +698,8 @@ Things to determine during implementation:
 - Whether `jq` is on `PATH` in every environment the review runs in. The resolver block calls
   it directly to split one JSON read into three values; if absent, three `gh --jq` calls do the
   same. Note which spelling landed.
+  - P2-T2: the `jq` spelling landed. There is one `gh pr view --json` read and three
+    `jq -r` reads of its output. `jq` was `/opt/homebrew/bin/jq` on the fixture machine.
 - Whether A3 holds on the first CI run — the sweep has been measured stable on one machine only.
 
 Note: Update this section with findings as you implement.
