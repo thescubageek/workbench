@@ -6,12 +6,12 @@ created_timestamp: 2026-09-28T20:05:58Z
 status: in-progress
 last_updated: 2026-10-01
 assignee: scraig
-current_phase: 2
+current_phase: 3
 total_tasks: 18
-completed_tasks: 9
+completed_tasks: 14
 task_tracking: markdown-checkboxes
 depends_on: [research.md, design.md]
-git_commit: 64ea2d2
+git_commit: f0704fe
 git_branch: adversarial-loop-skill-research
 repository: thescubageek/workbench
 tags: [tasks, tracking, guard_lexer_and_pr_identity]
@@ -111,7 +111,7 @@ fan-out; `pwd` and `pwd -P` recorded at every fixture.
 | ----- | ------ | ----- | -------- |
 | Phase 0: Planning | ✅ Complete | 4/4 | 100% |
 | Phase 1: One lexer | ✅ Complete | 5/5 | 100% |
-| Phase 2: One resolver | ⏸️ Not Started | 0/5 | 0% |
+| Phase 2: One resolver | ✅ Complete (manual verification deferred) | 5/5 | 100% |
 | Phase 3: CI and close-out | ⏸️ Not Started | 0/4 | 0% |
 
 Counts come from the checkboxes below and are reconciled by `/wb:update_status`.
@@ -495,16 +495,16 @@ provenance that is not `HEAD` means the PR phases do not run").
 
 #### Automated Verification
 
-- [ ] `./plugin/scripts/check-guards plugin/` → clean (every edited fence: no bare `$1`, no
+- [x] `./plugin/scripts/check-guards plugin/` → clean (every edited fence: no bare `$1`, no
       `PIPESTATUS`, chained publishes)
-- [ ] `./plugin/scripts/lint plugin/skills/adversarial-review/*.md plugin/skills/adversarial-loop/*.md` → clean
-- [ ] One resolution, not two: `command grep -c 'headRefName' plugin/skills/adversarial-review/SKILL.md` → 1;
+- [x] `./plugin/scripts/lint plugin/skills/adversarial-review/*.md plugin/skills/adversarial-loop/*.md` → clean
+- [x] One resolution, not two: `command grep -c 'headRefName' plugin/skills/adversarial-review/SKILL.md` → 1;
       `command grep -c 'git branch --show-current' plugin/skills/adversarial-review/SKILL.md` → 0
-- [ ] The fetch writes one ref: `command grep -c 'refs/pull/\$target/head:refs/remotes/origin/pr/' plugin/skills/adversarial-review/SKILL.md` → 1,
+- [x] The fetch writes one ref: `command grep -c 'refs/pull/\$target/head:refs/remotes/origin/pr/' plugin/skills/adversarial-review/SKILL.md` → 1,
       and no `git checkout`, `git switch` or `git branch -` appears in the skill
-- [ ] The dead guard is gone: `command grep -c 'FILTER FAILED' plugin/skills/adversarial-review/SKILL.md` → 0
-- [ ] `.git` is excluded: `command grep -c -- '--exclude-dir=.git' plugin/skills/adversarial-review/SKILL.md` → 1
-- [ ] `./plugin/scripts/check` → all gates pass
+- [x] The dead guard is gone: `command grep -c 'FILTER FAILED' plugin/skills/adversarial-review/SKILL.md` → 0
+- [x] `.git` is excluded: `command grep -c -- '--exclude-dir=.git' plugin/skills/adversarial-review/SKILL.md` → 1
+- [x] `./plugin/scripts/check` → all gates pass
 
 #### Manual Verification
 
@@ -547,16 +547,18 @@ before, and following it ticks the human sign-off box. **This block, labels and 
 included, is repeated in full at every phase's checkpoint**; a later phase never gets a
 shortened one.
 
-- [ ] **(derivable)** Every Phase 2 checkbox is `[x]`
-- [ ] **(derivable)** All automated verification passing
+- [x] **(derivable)** Every Phase 2 checkbox is `[x]`
+- [x] **(derivable)** All automated verification passing
 - [ ] **(attestation)** Manual verification confirmed by human
-- [ ] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
+- [x] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
       only writer of those fields, so do not edit `current_phase` or `completed_tasks` by hand
 
 **Do not proceed without human confirmation of manual tests** — unless the phase is being run
 under `/wb:implement --auto`, which buys the wait and not the attestation. In that case the
 attestation stays `[ ]`, the checkpoint records that the phase closed unattended and names the
 manual steps nobody performed, and the confirmation is **deferred, not obtained.**
+
+**Closed unattended (`--auto`), Phase 2, 2026-10-01 03:52 UTC.** Nobody performed the two manual steps: (1) read the resolver block as an agent would and confirm each of its four exits names what happened; (2) read the stop table's new paragraph and confirm "disclosed, not confirmed" is the right class for a fetch. Confirmation is deferred, not obtained. Two items for that reader: a cross-repository PR is fetched and reviewed, not refused, while design.md says "refused by name" in three places and P2-T2's GREEN wording says "refusal"; and the stop-table lead-in says "Four actions stop" above five rows (pre-existing).
 
 ---
 
@@ -791,6 +793,13 @@ resolved, leaving a dated line saying how.
   generated from the code before `b1640d7`, at it, or today. The 5 added keys all match a
   mutant today, and the sweep reports 0 survivors. The commit message says 14 deletions. The
   measured count is 13. The user signed off on both.
+- **[2026-10-01] Phase 2 complete using coordinated workers**: 5 workers spawned (sequential), 0 escalations, 0 truncations. The phase closed unattended under `--auto`; the two manual-verification boxes and the checkpoint attestation stay `[ ]`.
+- **[2026-10-01] P2-T2: a cross-repository PR is fetched, not refused.** The resolver block in Changes Required §1, the design's Resolved Decisions and the tracer bullet agree on the fetch. P2-T2's GREEN wording ("prints a refusal"), P2-T3's ("Step 2 never runs") and the design's phrase "refused by name" (three places) do not. Only a `gh` failure or a failed fetch returns 1. Reconcile the wording, or change the block, before the plan closes.
+- **[2026-10-01] P2-T2: a top-level `return` ends a `zsh -c` call.** The resolver call and the endpoint loop therefore sit inside `resolve_range()`, not at block level as the spec block had them. `jq` spelling landed: one `gh --json` read and three `jq -r` reads.
+- **[2026-10-01] P2-T3: Step 2 cannot read `review_head` and `review_base` from Step 1.** Each block runs in a fresh shell. Step 2 re-states both from Step 1's `range:` line, as `target` is re-stated, and stops with `REVIEW.md NOT READ` if either is empty. The design's "neither step re-reads `gh`" holds; "reads the resolver's variables" holds only by that re-statement. A branch target containing `...` would break the by-eye split (unchecked).
+- **[2026-10-01] P2-T4: the "Seven details" list had no bullet that was only the filter claim.** The claim was the closing sentence of the path-comparison bullet. The worker removed the sentence and folded the short "guard runs before the output is printed" bullet into the status-capture bullet, so the count reads six.
+- **[2026-10-01] P2-T5: A1 validated against a moved PR head.** PR 25's head was 149f233, not 3b4e04b, so the task's literal `3b4e04b` and N=29 could not hold. The resolver printed `HEAD, 4 commit(s) ahead of headRefOid 149f233 (PR 25, own checkout)`, N matched `git rev-list --count`, and no ref was fetched. The four commits are P2-T1 to P2-T4. A1 is marked Validated with that note.
+- **[2026-10-01] FOLLOW-UP, not fixed: the stop-table lead-in says "Four actions stop" above five rows** (`adversarial-loop/SKILL.md:~74`).
 
 ---
 

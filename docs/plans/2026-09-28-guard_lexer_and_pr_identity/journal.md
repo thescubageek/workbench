@@ -51,6 +51,13 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-10-01 03:51 — Phase 2 checkpoint (closed)
+
+- **Task/phase**: the Phase 2 checkpoint, run unattended under `--auto`. The next task is P3-T1.
+- **Landed**: all five Phase 2 tasks committed. `./plugin/scripts/check` passes. The counters read 14 of 18 and `current_phase: 3`. Manual verification and the attestation are deferred, not obtained.
+- **Commits**: the five P2 task commits and this checkpoint commit.
+- **Learned**: a cross-repository PR is fetched, not refused, and the design's wording says otherwise. P2-T5's literal SHA went stale when the PR head moved. See Implementation Notes.
+
 ## 2026-10-01 03:46 — P2-T5 (closed)
 
 - **Task/phase**: P2-T5, the loop's stop-table paragraph, the Phase 0 rule, and the live A1 check on PR 25.
