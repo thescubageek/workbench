@@ -600,12 +600,12 @@ minutes on the maintainer's machine and has been measured at twelve; still not p
 
 ### Tasks
 
-- [ ] **P3-T1** — Add the `mutation-sweep` job to `.github/workflows/checks.yml` per Changes
+- [x] **P3-T1** — Add the `mutation-sweep` job to `.github/workflows/checks.yml` per Changes
       Required §1, with a comment stating why it is a separate job (the sweep is minutes; `check`
       is seconds; Q4). **RED** (shape 4): `command grep -c 'test-guards --generated' .github/workflows/checks.yml`
       → 0 today; after: 1. Validate the YAML with whichever parser is present:
       `python3 -c "import yaml; yaml.safe_load(open('.github/workflows/checks.yml'))"`, or
-      `ruby -ryaml -e 'YAML.load_file(".github/workflows/checks.yml")'`. (~6 calls)
+      `ruby -ryaml -e 'YAML.load_file(".github/workflows/checks.yml")'`. (~6 calls) (completed 2026-10-01 03:53)
 - [ ] **P3-T2** — Correct the runtime figure and the "not part of check" wording in
       `plugin/scripts/README.md:211` and `README.md:319` per Changes Required §2, and add one
       sentence to each that the ratchet was re-based on the lexer rewrite with the date.

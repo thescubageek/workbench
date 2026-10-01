@@ -51,6 +51,12 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-10-01 03:53 — P3-T1 (closed)
+
+- **Task/phase**: P3-T1, add the mutation-sweep job to the checks workflow.
+- **Landed**: mutation-sweep job in checks.yml, 20 lines added, check job untouched. The coordinator verified the diff, grep and YAML parse directly.
+- **Started at**: ee9fed7
+
 ## 2026-10-01 03:51 — Phase 2 checkpoint (closed)
 
 - **Task/phase**: the Phase 2 checkpoint, run unattended under `--auto`. The next task is P3-T1.

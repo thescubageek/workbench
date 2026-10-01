@@ -49,3 +49,23 @@ jobs:
 
       - name: Run every gate
         run: ./plugin/scripts/check
+
+  # A separate job because the sweep takes minutes and `check` takes seconds: folded into
+  # `check` it would hold every pull request's fast gate behind the slow one. It runs in CI
+  # only, not in the local `check`, and after the generated sweep became the only gate that
+  # fails on an unwaived survivor, leaving it manual made that invariant depend on memory.
+  mutation-sweep:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      # python3 is preinstalled on ubuntu-latest; asserted rather than assumed, because a
+      # missing interpreter would make test-guards fail in a way that reads as a gate failure
+      # rather than a missing dependency.
+      - name: Assert python3
+        run: python3 --version
+
+      - name: Run the generated mutation sweep
+        run: ./plugin/scripts/test-guards --generated
