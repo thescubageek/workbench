@@ -51,6 +51,12 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-10-01 04:21 — R10-T8 (closed)
+
+- **Task/phase**: R10-T8, Phase 3 poll needs a baseline taken before the @claude summons.
+- **Landed**: Phase 2 records the newest claude[bot] comment id and updated_at before any summons; Phase 3 rules 3 and 4 count only a change against it as arrival. Prose only. Follow-up: no concrete gh command for the baseline read.
+- **Started at**: 57966fe
+
 ## 2026-10-01 04:20 — R10-T6 (closed)
 
 - **Task/phase**: R10-T6, rephrase the prose warnings that carry a bare dollar-one.

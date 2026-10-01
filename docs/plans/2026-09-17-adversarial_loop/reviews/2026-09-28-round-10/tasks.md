@@ -93,7 +93,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       GREEN once `zsh` joins the scanned fence set. Prose stays unscanned — `implement`'s
       "Use `$1`" lines are intended substitutions. (~4 calls) (closed by docs/plans/2026-09-28-guard_lexer_and_pr_identity P1-T1, 2026-10-01)
 
-- [ ] **R10-T8** — `plugin/skills/adversarial-loop/SKILL.md:353` — the Phase 3 poll has no
+- [x] **R10-T8** — `plugin/skills/adversarial-loop/SKILL.md:353` — the Phase 3 poll has no
       baseline taken before the `@claude` summons.
       **Fails when:** an already-open PR carries an old `claude[bot]` review; the user posts the
       summons, poll 1 sees the old comment and reads it as the arrival, and Phase 4 adjudicates
@@ -102,6 +102,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       **Acceptance (shape 4)**: grep Phase 2/3 for an instruction to record the newest
       `claude[bot]` comment id and `updated_at` before the summons and to count only a later change
       as arrival; negative control: the same grep over the current file returns nothing. (~3 calls)
+      (completed 2026-10-01 04:22)
 
 - [ ] **R10-T9** — `plugin/skills/reply-to-claude/SKILL.md:20` — a `<pr#>` argument selects any
       PR, but nothing checks that its head is the checkout Step 3 verifies against.

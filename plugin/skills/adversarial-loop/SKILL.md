@@ -298,6 +298,12 @@ made after everyone stopped looking.
 
 Only when a pull request exists. Run the repository's own lint and checks first.
 
+**Record the review baseline before any summons.** Before the un-draft below and before any
+`@claude` comment, read the newest `claude[bot]` comment with the same `claude[bot]` author filter
+Phase 3 polls with. Record its id and its `updated_at`. If there is no such comment, record the
+baseline as "none". An already-open pull request can carry an old bot review, and without a
+baseline Phase 3 reads that old review as the new one.
+
 **Then confirm the push and the un-draft with the user** — two outward-facing changes, per *What
 stops for the user*. Resolve the pull request in the same shell that acts on it; a Bash call does
 not inherit variables from the previous one:
@@ -373,12 +379,15 @@ harder:**
 3. **Confirm each poll could have seen something.** Per `reference.md`, a filter on `claude`
    rather than `claude[bot]` matches nothing and returns success, and the bot **edits its comment
    in place** — so compare `updated_at` or the newest comment id, never "is there a new comment".
-   A poll that cannot distinguish "no findings" from "no filter match" has not polled. A poll
+   Count as arrival only a change against the Phase 2 baseline: a newest comment id that differs
+   from the baseline id, or an `updated_at` later than the baseline's. A baseline-era comment is
+   not an arrival. A poll that cannot distinguish "no findings" from "no filter match" has not polled. A poll
    whose `gh` command exits non-zero is a **failed poll**, not an empty one — report its exit
    status and stderr (rate limit, expired token) rather than counting it toward "nothing
    arrived".
-4. **At the bound, stop and surface.** Say what did arrive — the rollup state, whether any
-   `claude[bot]` comment exists at all, and its `updated_at` — and name the two ordinary causes
+4. **At the bound, stop and surface.** Say what did arrive — the rollup state, the baseline, and
+   whether any `claude[bot]` comment newer than the baseline arrived, with its `updated_at`. Never
+   report "a comment exists" on the strength of a baseline-era comment. Name the two ordinary causes
    above, plus any failed polls separately (so a rate-limited or expired token reads as its own
    cause, not as a slow or broken bot). Then let the user decide.
 
