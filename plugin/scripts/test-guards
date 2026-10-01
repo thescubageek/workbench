@@ -545,7 +545,7 @@ def ratchet_verdict(killed, prev, survivors, stale, total=None, prev_total=None)
         msgs.append(f'❌ {len(survivors)} unwaived survivor(s). Kill each with a corpus case, or '
                     f'waive it with an argument —\n   keys in fixtures/mutation-survivors.txt.')
     if killed < prev and not survivors and total is not None and prev_total is not None \
-            and total < prev_total:
+            and total < prev_total and prev - killed <= prev_total - total:
         msgs.append(f'❌ ratchet: killed fell from {prev} to {killed}, but the mutant set shrank '
                     f'from {prev_total} to {total}\n   with no survivor, so check-guards was '
                     f'simplified. If that is intended, lower the stored count\n   by hand: set '
@@ -663,10 +663,30 @@ def main():
     print(f"  {'✓' if shrunk_surv_verdict_ok else '✗'} --generated names the survivor, not the "
           f"shrunk set, when a survivor remains")
 
+    idle_ok, idle_msgs = ratchet_verdict(342, 344, [], [], total=394, prev_total=395)
+    idle_text = '\n'.join(idle_msgs)
+    idle_verdict_ok = (not idle_ok and 'corpus case' in idle_text and 'shrank' not in idle_text)
+    print(f"  {'✓' if idle_verdict_ok else '✗'} --generated asks for a corpus case when killed "
+          f"fell by more than the set shrank")
+
+    big_ok, big_msgs = ratchet_verdict(300, 344, [], [], total=380, prev_total=395)
+    big_text = '\n'.join(big_msgs)
+    big_verdict_ok = (not big_ok and 'corpus case' in big_text and 'shrank' not in big_text)
+    print(f"  {'✓' if big_verdict_ok else '✗'} --generated asks for a corpus case when the "
+          f"drop exceeds what the shrink explains")
+
+    edge_ok, edge_msgs = ratchet_verdict(343, 344, [], [], total=394, prev_total=395)
+    edge_text = '\n'.join(edge_msgs)
+    edge_verdict_ok = (not edge_ok and 'shrank' in edge_text
+                       and 'mutation-ratchet.json' in edge_text)
+    print(f"  {'✓' if edge_verdict_ok else '✗'} --generated names lowering the stored count when "
+          f"the drop equals the shrink")
+
     ok = (base['correct'] == base['total'] and caught == len(MUTATIONS)
           and integ_ok == len(integ) and intact and verdict_ok and shrunk_verdict_ok
           and stale_verdict_ok and fell_verdict_ok and equal_verdict_ok
-          and shrunk_surv_verdict_ok)
+          and shrunk_surv_verdict_ok and idle_verdict_ok and big_verdict_ok
+          and edge_verdict_ok)
     print(f"\ntest-guards: corpus {base['correct']}/{base['total']}, "
           f"integrity {integ_ok}/{len(integ)}, "
           f"mutations {caught}/{len(MUTATIONS)} — {'PASS' if ok else 'FAIL'}")

@@ -51,6 +51,12 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-10-01 13:49 — R11-T15 (closed)
+
+- **Task/phase**: R11-T15, the shrunk-set advice ignores how far killed fell.
+- **Landed**: the shrunk-set branch now also requires killed's fall to be no larger than the total's fall; three cases pin it (idle waiver 342 of 394 gets the corpus-case message, a large drop gets it, the equal boundary gets the lowering message). Both greps on the old function fail the first two. Plain suite 131/131, 16/16, 25/25.
+- **Started at**: 80773f6
+
 ## 2026-10-01 13:48 — R11-T14 (closed)
 
 - **Task/phase**: R11-T14, test-quiet misses the suppressed-line count and log retention.

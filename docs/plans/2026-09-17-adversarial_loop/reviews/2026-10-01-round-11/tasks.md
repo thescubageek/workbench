@@ -166,7 +166,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       the printed log path exists; show both scratch mutations now fail, and remove the test's own
       leaked temp logs. (~6 calls) (completed 2026-10-01 13:49)
 
-- [ ] **R11-T15** — `plugin/scripts/test-guards:528` — the shrunk-set branch ignores how far
+- [x] **R11-T15** — `plugin/scripts/test-guards:528` — the shrunk-set branch ignores how far
       `killed` fell compared with the total.
       **Fails when:** an idle waiver matches a newly unkilled mutant (survivors empty), so killed
       344 to 342 with total 395 to 394 gets "the mutant set shrank, lower the stored count by
@@ -175,7 +175,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       returns the corpus-case message; `(300, 344, [], [], total=380, prev_total=395)` where the
       drop exceeds what the shrink explains also returns it; RED today; the existing shrunk case
       (330, 344, 380, 395 with a drop explained by the shrink) still returns the lowering message
-      only when `prev - killed <= prev_total - total`. (~5 calls)
+      only when `prev - killed <= prev_total - total`. (~5 calls) (completed 2026-10-01 13:52)
 
 - [ ] **R11-T16** — `plugin/skills/reply-to-claude/SKILL.md:54` (also
       `plugin/skills/adversarial-loop/SKILL.md:311`) — the prose says all three identity blocks run
