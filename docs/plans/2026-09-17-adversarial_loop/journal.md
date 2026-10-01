@@ -51,6 +51,12 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-10-01 13:09 — R11-T3 (closed)
+
+- **Task/phase**: R11-T3, re-state target in the loop's Phase 2 and Phase 5 blocks and say so in Phase 0.
+- **Landed**: adversarial-loop Phase 0 says the target binding lives in the session and is re-typed per block; the Phase 2 and Phase 5 blocks now open with the target re-statement copied from adversarial-review. Both greps were empty before. zsh -n passes on both extracted blocks; the blocks were not executed.
+- **Started at**: c428b6f
+
 ## 2026-10-01 13:08 — R11-T2 (closed)
 
 - **Task/phase**: R11-T2, the per-task staging chain names a journal.md a round never has.

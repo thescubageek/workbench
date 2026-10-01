@@ -53,7 +53,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       one commit holding `tasks.md` and the parent's `journal.md`. RED today: exit 128, no commit.
       State the round variant once in each skill. (~8 calls) (completed 2026-10-01 13:09)
 
-- [ ] **R11-T3** — `plugin/skills/adversarial-loop/SKILL.md:318` (also `:488`) — the Phase 2 and
+- [x] **R11-T3** — `plugin/skills/adversarial-loop/SKILL.md:318` (also `:488`) — the Phase 2 and
       Phase 5 blocks read `${target:+"$target"}` but nothing re-states `target`, and Phase 0 does
       not say to.
       **Fails when:** run as written in a fresh shell, `target` is unset, so `gh pr view` resolves
@@ -62,7 +62,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       `adversarial-review/SKILL.md:77` and `reply-to-claude/SKILL.md:36` both say to re-state it.
       **Acceptance (shape 4)**: grep Phase 0 for a sentence that the binding lives in the session
       and is re-typed as the first line of every block that reads `$target`, and Phases 2 and 5 for
-      a comment or line that does so; negative control: both absent today. (~4 calls)
+      a comment or line that does so; negative control: both absent today. (~4 calls) (completed 2026-10-01 13:10)
 
 - [ ] **R11-T4** — `plugin/skills/adversarial-loop/SKILL.md:301` — the review baseline is recorded
       once, in Phase 2, and never again before a Phase 4 re-summon.

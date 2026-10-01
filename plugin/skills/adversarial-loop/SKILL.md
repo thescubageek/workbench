@@ -126,6 +126,10 @@ before this text reaches you, so the block would arrive with the value already s
 [../adversarial-review/SKILL.md](../adversarial-review/SKILL.md) Step 1, which is the same
 binding and carries the history of the defect.
 
+The binding lives in the session, not the shell. Each Bash call starts a fresh shell. Re-state it
+as the first line of every block below that reads `$target` (Phases 2 and 5). The history is in
+[../adversarial-review/SKILL.md](../adversarial-review/SKILL.md) Step 1.
+
 Pass the same `target` through to `adversarial-review` in Phase 1, so the review and the
 publishing phases cannot end up pointed at different changes.
 
@@ -317,6 +321,8 @@ rules out. A refusal means Phases 2 and 4 do not run
 for this target, as in Phase 0.
 
 ```bash
+# Re-state Step 1's binding: an argument was given → `target=<it>`; none → leave as is.
+target=""
 PR=$(gh pr view ${target:+"$target"} --json number --jq .number) \
   || { echo "no PR for ${target:-the current branch}" >&2; exit 1; }
 oid=$(gh pr view "$PR" --json headRefOid --jq .headRefOid) || exit 1
@@ -494,6 +500,8 @@ the check-run's name and shape are unconfirmed. Revisit once a real run exists.
 whether it drives automation.
 
 ```bash
+# Re-state Step 1's binding: an argument was given → `target=<it>`; none → leave as is.
+target=""
 PR=$(gh pr view ${target:+"$target"} --json number --jq .number) \
   || { echo "no PR for ${target:-the current branch}" >&2; exit 1; }
 gh pr edit "$PR" --add-label "<the repository's ready-for-review label>" \
