@@ -4,8 +4,8 @@ reviews: docs/plans/2026-09-17-adversarial_loop
 round: 11
 created: 2026-10-01
 status: in-progress
-total_tasks: 19
-completed_tasks: 0
+total_tasks: 16
+completed_tasks: 16
 task_tracking: markdown-checkboxes
 ---
 
@@ -211,3 +211,12 @@ criterion is run before the fix**. A criterion that passes before the change is 
   not tasks. The seven refuted candidates are in the review report.
 - **[2026-10-01] Tasks 1, 3 and 16 edit the same three identity blocks.** Work them in that order
   and re-run the six R10-T25 cases after the last.
+- **[2026-10-01] Round 11 complete using coordinated workers, closed unattended.** Sixteen sequential workers, one commit each, 0 escalations, 0 truncations. The counters read 16 of 16: the three pruned tasks (T9, T17, T18) are deleted lines, so the frontmatter's 19 was a count of findings. The coordinator re-ran the grep, test or gate before each commit and spawned no verifier agent, as in round 10. `./plugin/scripts/check` passes on the final tree.
+- **[2026-10-01] Measured differences from the task text.** R11-T7: the two-captures case lists its line once, because the checker reports it once and the multiset comparison is what catches a second report. The corpus is 131 and the sweep is 381 of 421 with 40 waived, so R11-T12 used measured figures. R11-T11: the old `:282` citation pointed at the journal rule, and the worker mapped the task-lines citation to implement Step 6a. R11-T13: the clean-case stderr check ignores the documented zero-file notice, because corpus case `ok-json-under-scripts` scans only a `.json` file.
+- **[2026-10-01] FOLLOW-UPS, found and not fixed.**
+  - `run_generated`'s in-process `score()` still drops findings whose label is not in `SHAPE_OF`, so the sweep is blind to a renamed or new label (R11-T13).
+  - The `strip_comment` false negative after a `#` inside a backtick span (ledgered Pre-existing) still has no corpus case and no fix.
+  - Phase 5's gate on a completed check-run for `HEAD` (ledgered Over-fitted) may be unmeetable if the target repository's claude workflow is comment-triggered.
+  - The `rtk` hook truncated `git log --name-only` output, which understated the fix surface until re-run with `rtk proxy`.
+  - R10-T2 follow-up still open: an all-rejected bot round leaves an unpushed ledger commit that Phase 5's head comparison will not match.
+

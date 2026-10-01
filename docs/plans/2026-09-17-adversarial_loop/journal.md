@@ -51,6 +51,12 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-10-01 13:58 — Round 11 checkpoint (closed)
+
+- **Task/phase**: the Round 11 checkpoint, run unattended. All sixteen adjudicated tasks are done.
+- **Landed**: R11-T1 to T8, T10 to T16 and T19, one commit each. Counters read 16 of 16. `./plugin/scripts/check` passes. The loop has not run `/verify`, re-reviewed, pushed or touched the PR.
+- **Learned**: the five-lens review found a stacked-branch publish hole in the identity blocks that round 10's own fix had left open, and a round could never commit its tasks because the staging chain named a journal it lacks. Nineteen findings, 16 fixed.
+
 ## 2026-10-01 13:54 — R11-T19 (closed)
 
 - **Task/phase**: R11-T19, add timeout-minutes to the mutation-sweep job.
