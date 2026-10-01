@@ -328,7 +328,7 @@ and confirm it ran — a search that errored returns the same emptiness as a gen
 change, and that error direction is toward believing the change is safe.
 
 ```bash
-hits=$(command grep -rnF --exclude-dir=.context -- "<changed symbol>" .)
+hits=$(command grep -rnF --exclude-dir=.context --exclude-dir=.git -- "<changed symbol>" .)
 search=$?
 [ "$search" -le 1 ] || echo "SEARCH FAILED (grep exit $search) — NOT an isolated change" >&2
 changed="<the changed file>"
@@ -336,12 +336,10 @@ callers=$(printf '%s\n' "$hits" | while IFS= read -r hit; do
   file=${hit%%:*}
   [ "$file" = "$changed" ] || [ "$file" = "./$changed" ] || printf '%s\n' "$hit"
 done)
-filter=$?
-[ "$filter" -eq 0 ] || echo "FILTER FAILED (exit $filter) — NOT an isolated change" >&2
 [ -n "$callers" ] && printf '%s\n' "$callers" | sed 's/^/  /'
 ```
 
-Seven details in that command are the difference between a measurement and a guess:
+Six details in that command are the difference between a measurement and a guess:
 
 - **`command grep` pins the engine.** In a top-level Bash-tool call bare `grep` is a shell
   function from `~/.claude/shell-snapshots/` that re-execs as ugrep honouring `.gitignore`, so a
@@ -356,7 +354,7 @@ Seven details in that command are the difference between a measurement and a gue
 - **`--`** terminates the options. Without it a symbol beginning with `-` is consumed as a flag,
   which fails in the other direction and returns a flood.
 - **`--exclude-dir` keeps the search on the repository's sources** and off the session's own
-  working artifacts. `grep -r .` recurses everything under the working directory, and a session
+  working artifacts, and off `.git`, whose logs and commit message file name the symbol in prose. `grep -r .` recurses everything under the working directory, and a session
   transcript names files and symbols in prose without calling any of them. Measured 2026-09-28
   with the block's own `command grep` on `review-ledger.md`: 56 hits, **22 of them (39%) lines in
   `.context/attachments/*.txt` session transcripts**; on `check-guards`, 32 of 207. Since the
@@ -377,8 +375,8 @@ Seven details in that command are the difference between a measurement and a gue
   true, and a grep that exited 2 passed the guard in silence. Measured: with the old line, a
   search against a nonexistent path printed no diagnostic at all. Do not send grep's stderr to
   `/dev/null` either: the diagnostic is the only thing distinguishing a broken search from a
-  clean one, and this measurement's errors all point toward believing the change is safe.
-- **The guard runs before the output is printed**, so a failed search is announced ahead of the
+  clean one, and this measurement's errors all point toward believing the change is safe. The
+  guard runs before the output is printed, so a failed search is announced ahead of the
   emptiness that would otherwise read as "no callers".
 - **The exclusion compares the path field literally**, and not as a pattern. The loop cuts
   each `path:line:text` hit at its first `:` and tests that path with `[ = ]`, string equality,
@@ -401,9 +399,7 @@ Seven details in that command are the difference between a measurement and a gue
   `app/[id].tsx`, `[id]` became a character class, the changed file's own lines were no longer
   excluded and `app/i_tsx:9` — a real caller — was dropped in their place; for `app/[id.tsx`
   the pattern was invalid, grep exited 2 printing nothing, and the empty output read as "no
-  callers". `filter=$?` is what closes that last one: a filter that could not run now announces
-  itself, because the errors this block guards against all point toward believing the change is
-  safe.
+  callers".
 
 Then choose the built-in's effort token. Read
 [../../docs/reference/code-review-integration.md](../../docs/reference/code-review-integration.md)

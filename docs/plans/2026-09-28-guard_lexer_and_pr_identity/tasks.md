@@ -473,14 +473,14 @@ provenance that is not `HEAD` means the PR phases do not run").
       and Step 2); after: 1, the resolver's own read. Against P2-T1's fixture in R10-T3 mode,
       Step 2 never runs because the resolver returned 1; in R10-T4 mode it prints
       `REVIEW.md read from origin/main (merge-base …, head origin/pr/42)`. (~10 calls) (completed 2026-10-01 03:43)
-- [ ] **P2-T4** — Step 3: add `--exclude-dir=.git` beside `--exclude-dir=.context`
+- [x] **P2-T4** — Step 3: add `--exclude-dir=.git` beside `--exclude-dir=.context`
       (R10-T29), and remove the `filter=$?` line, its `FILTER FAILED` echo, and the "details"
       bullet that claims a failed filter announces itself (R10-T13) — the count in the "Seven
       details" heading drops to six and the heading says so. **RED** for R10-T29: in a scratch
       clone with a commit message naming `shellcheck-gate`, the block as written prints
       `./.git/…` hits; after: none. **RED** for R10-T13 (shape 3): `command grep -c 'FILTER FAILED'
       plugin/skills/adversarial-review/SKILL.md` → 1; after: 0, and the bullet count equals the
-      heading's number (R7-T8's criterion). (~8 calls)
+      heading's number (R7-T8's criterion). (~8 calls) (completed 2026-10-01 03:45)
 - [ ] **P2-T5** — The loop's row and the live check. In `adversarial-loop/SKILL.md`: add the
       disclosed-not-confirmed paragraph after the stop table per Changes Required §3, and
       rewrite the `:125` own-checkout rule to read `review_provenance`. Then **validate A1

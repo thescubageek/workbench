@@ -51,6 +51,12 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-10-01 03:44 — P2-T4 (closed)
+
+- **Task/phase**: P2-T4, Step 3 gets the .git exclusion and loses the dead filter guard.
+- **Landed**: Step 3 excludes .git and drops the dead filter guard. The details list reads six bullets after one was folded into another.
+- **Started at**: d57a2c2
+
 ## 2026-10-01 03:41 — P2-T3 (closed)
 
 - **Task/phase**: P2-T3, rewire Step 2 to the resolver's refs.
