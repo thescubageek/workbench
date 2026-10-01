@@ -16,7 +16,7 @@ trap 'rm -rf "$ROOT"' EXIT
 mkdir -p "$ROOT/bin"
 ln -s "$STUB" "$ROOT/bin/gh"
 export PATH="$ROOT/bin:$PATH"
-export GIT_CONFIG_GLOBAL="$ROOT/gitconfig" GIT_CONFIG_NOSYSTEM=1
+export GIT_CONFIG_GLOBAL="$ROOT/gitconfig" GIT_CONFIG_NOSYSTEM=1 GIT_ALLOW_PROTOCOL=file
 printf '[user]\n\tname = t\n\temail = t@example.invalid\n[init]\n\tdefaultBranch = main\n[advice]\n\tdetachedHead = false\n' >"$GIT_CONFIG_GLOBAL"
 
 PASS=0
@@ -123,6 +123,34 @@ build() {
             base_world G1; git clone -q parent.git work; cd work || exit 2
             git checkout -q --detach main
             fixture "$(pr 42 feature-A "$(oid A1)" false thescubageek)" ;;
+        H1|H2)
+            base_world "$1"; git clone -q parent.git work; cd work || exit 2
+            git checkout -q feature-A; commit L1
+            case $1 in
+                H1) git remote add gitlab https://gitlab.com/thescubageek/workbench.git
+                    git config branch.feature-A.remote gitlab; TARGET=42 ;;
+                H2) git remote add ghe git@github.example.com:thescubageek/workbench.git
+                    git config branch.feature-A.remote ghe ;;
+            esac
+            fixture "$(pr 42 feature-A "$(oid A1)" false thescubageek)" ;;
+        C1)
+            base_world C1; git clone -q parent.git work; cd work || exit 2
+            git checkout -q feature-A; commit L1
+            git remote set-url origin https://github.com/thescubageek/workbench.git
+            git remote set-url --push origin git@github.com:thescubageek/workbench.git
+            REPOS="\"https://github.com/thescubageek/workbench.git\": \"thescubageek/workbench\""
+            fixture "$(pr 42 feature-A "$(oid A1)" false thescubageek)"; TARGET=42 ;;
+        D1)
+            base_world D1; git clone -q --bare parent.git other.git
+            cd seed || exit 2; git checkout -qb u main; commit U1
+            must git push -q "$W/other.git" "+$(oid U1):refs/pull/42/head"
+            git checkout -q main; cd "$W" || exit 2
+            REPOS="$REPOS, \"$W/other.git\": \"someone/other\""
+            git clone -q parent.git work; cd work || exit 2
+            git remote add upstream "$W/other.git"
+            git config remote.origin.gh-resolved base
+            git checkout -qb side main; commit D1
+            fixture "$(pr 42 feature-A "$(oid A1)" false thescubageek)"; TARGET=42 ;;
         E1)
             base_world E1; git clone -q parent.git work; cd work || exit 2
             fixture "$(pr 42 feature-A "$(oid A1)" false thescubageek)"; TARGET=99 ;;
@@ -136,7 +164,7 @@ build() {
             git clone -q parent.git work; cd work || exit 2
             fixture "$(pr 42 feature-A "$(oid A1)" false thescubageek)"; TARGET=42 ;;
     esac
-    [ "$1" = S9 ] || [ "$1" = N1 ] || [ "$1" = G1 ] || HAS_TARGET=1
+    [ "$1" = S9 ] || [ "$1" = N1 ] || [ "$1" = G1 ] || [ "$1" = H2 ] || HAS_TARGET=1
     export GH_FIXTURE="$W/fixture.json" GH_LOG="$W/gh.log"
     : >"$GH_LOG"
 }
@@ -160,7 +188,11 @@ P1|elsewhere|no|no|L1|A1|-|-|push url of the upstream remote points elsewhere
 G1|refuse|-|-|base|-|-|-|no target and gh could not answer (detached HEAD)
 E1|refuse|-|-|base|-|-|-|gh has no such PR
 E2|refuse|-|-|base|-|-|-|no remote points at the base repository
-E3|refuse|-|-|base|-|-|-|the base remote has no refs/pull/42/head'
+E3|refuse|-|-|base|-|-|-|the base remote has no refs/pull/42/head
+H1|elsewhere|no|no|L1|A1|-|-|upstream remote has the same owner/name on another host (https)
+H2|elsewhere|yes|no|L1|L1|-|-|upstream remote has the same owner/name on another host (scp), no target
+C1|own|yes|yes|L1|L1|origin|refs/heads/feature-A|hosted GitHub URLs, fetch https and push scp
+D1|other|no|no|D1|A1|-|-|gh-resolved=base on origin outranks the name-ranked upstream'
 
 err_pattern() {
     case $1 in
@@ -222,6 +254,8 @@ S4|origin/pr/42
 S5|origin/pr/57
 O1|origin/pr/42
 S11|upstream/pr/42
+H1|origin/pr/42
+D1|origin/pr/42
 S1|
 S3|'
 
@@ -253,6 +287,14 @@ usage_case() { # name args...
 }
 
 if [[ $MISSING -eq 0 ]]; then
+    build C1 >/dev/null 2>&1; cd "$W/work" || exit 2
+    GIT_TRACE="$W/trace" "$PRID" "$TARGET" >"$W/out" 2>"$W/err"; rc=$?
+    calls=$("$SCRIPT_DIR/count" '^gh ' "$GH_LOG") || calls=unmeasured
+    fetches=$("$SCRIPT_DIR/count" 'built-in: git fetch' "$W/trace") || fetches=unmeasured
+    if [[ $rc -eq 0 && $calls == 2 && ($fetches == 0 || $fetches == 1) ]]; then echo "  ✓ C1 call budget: 2 gh calls, $fetches fetch"; PASS=$((PASS + 1))
+    else fail "C1" "call budget: exit=$rc, $calls gh calls want 2, $fetches fetches want at most 1"; fi
+    cd "$SCRIPT_DIR" || exit 2
+
     build N1 >/dev/null 2>&1; cd "$W/work" || exit 2
     usage_case "U1 unknown option" --bogus
     usage_case "U2 unknown option after a target" 42 --bogus

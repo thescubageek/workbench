@@ -25,18 +25,26 @@ case $target in -*) usage ;; esac
 
 lower() { printf '%s' "$1" | tr '[:upper:]' '[:lower:]'; }
 
-# owner/name parsed from a hosted URL (https://, ssh://, git@host:); fails for anything else
+# host/owner/name parsed from a hosted URL (https://, ssh://, git@host:); fails for anything else
 parse_url() {
-  local u=$1 path
+  local u=$1 host path
   u=${u%/}; u=${u%.git}
   case $u in
-    *://*) u=${u#*://}; u=${u#*@}; [[ $u == */* ]] || return 1; path=${u#*/} ;;
-    *@*:*) u=${u#*@}; path=${u#*:} ;;
+    *://*) u=${u#*://}; u=${u#*@}; [[ $u == */* ]] || return 1; host=${u%%/*}; path=${u#*/} ;;
+    *@*:*) u=${u#*@}; host=${u%%:*}; path=${u#*:} ;;
     *) return 1 ;;
   esac
-  path=${path#/}
-  [[ $path == */* && $path != */*/* && $path != /* && $path != */ ]] || return 1
-  printf '%s\n' "$path"
+  host=${host%%:*}; path=${path#/}
+  [[ -n $host && $path == */* && $path != */*/* && $path != /* && $path != */ ]] || return 1
+  printf '%s/%s\n' "$host" "$path"
+}
+
+gh_repo() { # [url]; sets REPO to host/owner/name from gh's url and nameWithOwner
+  local a nwo
+  a=$(gh repo view "$@" --json nameWithOwner,url --jq '.url + " " + .nameWithOwner' 2>/dev/null) || return 1
+  nwo=${a#* }
+  [[ $nwo == */* ]] && REPO=$(parse_url "${a%% *}") || return 1
+  REPO="${REPO%%/*}/$nwo"
 }
 
 REPO=""; URL_CACHE=""
@@ -46,7 +54,7 @@ repo_of_url() { # sets REPO; one gh call per distinct URL that parse_url cannot 
   while IFS= read -r line; do
     [ "${line%%	*}" = "$u" ] && { REPO=${line#*	}; return 0; }
   done <<<"$URL_CACHE"
-  REPO=$(gh repo view "$u" --json nameWithOwner --jq .nameWithOwner 2>/dev/null) && [ -n "$REPO" ] || return 1
+  gh_repo "$u" || return 1
   URL_CACHE="$URL_CACHE$u	$REPO
 "
 }
@@ -60,11 +68,12 @@ repo_of_remote() { # remote [--push]; sets REPO
 
 same_repo() { [ "$(lower "$1")" = "$(lower "$2")" ]; }
 
-# the local remote whose fetch URL resolves to the repository gh answers for; sets BASE_REMOTE
-BASE_REMOTE=""
+# the local remote whose fetch URL resolves to the repository gh answers for; sets BASE_REMOTE, BASE_HOST
+BASE_REMOTE=""; BASE_HOST=""
 base_remote() {
   local base r
-  base=$(gh repo view --json nameWithOwner --jq .nameWithOwner 2>/dev/null) && [ -n "$base" ] || return 1
+  gh_repo || return 1
+  base=$REPO; BASE_HOST=${base%%/*}
   while IFS= read -r r; do
     [ -n "$r" ] || continue
     repo_of_remote "$r" || continue
@@ -141,8 +150,8 @@ elif [ -z "$up_remote" ]; then
   relation=elsewhere; reason="branch '$cur' has no upstream"
 else
   repo_of_remote "$up_remote" --push || refuse "could not resolve remote '$up_remote' via gh"
-  if ! same_repo "$REPO" "$headrepo"; then
-    relation=elsewhere; reason="branch '$cur' pushes to $REPO, not the PR's head repository $headrepo"
+  if ! same_repo "$REPO" "$BASE_HOST/$headrepo"; then
+    relation=elsewhere; reason="branch '$cur' pushes to $REPO, not the PR's head repository $BASE_HOST/$headrepo"
   elif [ "$up_ref" != "refs/heads/$headref" ]; then
     relation=stacked; reason="branch '$cur' tracks '${up_ref#refs/heads/}', not the PR's head '$headref'"
   elif [ "$kind" = current ] && [ "$cur" != "$headref" ]; then

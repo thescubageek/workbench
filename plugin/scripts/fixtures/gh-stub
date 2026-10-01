@@ -3,8 +3,9 @@
 
 fixture: {"repos": {"<remote url>": "owner/name"},
           "prs": {"owner/name": {"42": {...pr fields...}}}}
-Base repository: the remote named `upstream` outranks `github`, which outranks `origin`
-(measured against gh 2.86.0, 2026-10-01, no `gh repo set-default`).
+Base repository: a remote with `remote.<name>.gh-resolved=base` (set by `gh repo set-default`)
+outranks the names; then `upstream` outranks `github`, which outranks `origin`
+(measured against gh 2.86.0, 2026-10-01, assumption A5).
 """
 import json, os, subprocess, sys
 
@@ -19,7 +20,8 @@ def git(*a):
 
 def base_repo():
     remotes = git("remote").split()
-    for name in ("upstream", "github", "origin"):
+    default = [n for n in remotes if git("config", f"remote.{n}.gh-resolved") == "base"]
+    for name in default + ["upstream", "github", "origin"]:
         if name in remotes:
             url = git("remote", "get-url", name)
             if url in fx["repos"]:
@@ -62,7 +64,7 @@ if cmd == ["pr", "view"]:
 elif cmd == ["repo", "view"]:
     repo = fx["repos"].get(args[0]) if args else base_repo()
     if not repo: die("could not resolve repository")
-    emit({"nameWithOwner": repo}, fields, jq)
+    emit({"nameWithOwner": repo, "url": "https://github.com/" + repo}, fields, jq)
 elif cmd == ["pr", "ready"]:
     with open(os.environ["GH_LOG"], "a") as log: log.write(f"READY {args[0]}\n")
     print(f"✓ Pull request #{args[0]} is marked as ready for review")
