@@ -43,6 +43,8 @@ cases = [
     ("BM%20CA%2012345678",        True, "percent-escaped space separators"),
     ("BM+CA+12345678",            True, "form-encoded space"),
     ("bm+ca+12345678",            True, "form-encoded space, lowercase"),
+    ("BM+CA+1234567",             True, "plus separators, 7 digits: only the general pattern matches"),
+    ("BMCA+12345678",             True, "plus after the second group, no separator before it: only the member-ID pattern matches"),
     ("BM/CA/12345678",            True, "slash separators"),
     ("BM:CA:12345678",            True, "colon separators"),
     ("BM - CA - 12345678",        True, "three-character separators"),

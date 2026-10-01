@@ -51,6 +51,12 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-10-01 14:23 — R12-T6 (closed)
+
+- **Task/phase**: R12-T6, the plus cases in test-phi-patterns do not discriminate per pattern.
+- **Landed**: two discriminating must-scrub cases added (BM+CA+1234567 matches only the general pattern, BMCA+12345678 only the member-ID pattern). Dropping the plus from either pattern alone passed the old 33 of 33 and fails the new suite on exactly the matching case; unmutated 35 of 35. Synthetic IDs only.
+- **Started at**: f77dd89
+
 ## 2026-10-01 14:22 — R12-T5 (closed)
 
 - **Task/phase**: R12-T5, reply-to-claude Step 2 prints path:null for outdated inline comments and does not scope to new findings.

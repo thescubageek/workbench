@@ -89,7 +89,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       first prints `a.py:12`. RED today: `a.py:null`. Add one sentence to Step 2 that the reply
       covers only findings raised since the last `@claude` reply, and grep for it. (~4 calls) (completed 2026-10-01 14:23)
 
-- [ ] **R12-T6** — `plugin/scripts/test-phi-patterns:44` — the two `+` cases match both patterns,
+- [x] **R12-T6** — `plugin/scripts/test-phi-patterns:44` — the two `+` cases match both patterns,
       so dropping `+` from either pattern alone leaves the suite green.
       **Fails when:** `+` is deleted from the separator class of only the general pattern, or only
       the member-ID pattern, in `sources.md`; `BM+CA+12345678` and `bm+ca+12345678` still match
@@ -97,7 +97,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       only the general pattern and `BMCA+12345678` only the member-ID pattern.
       **Acceptance (shape 2)**: add those two synthetic cases as must-scrub; plant each deletion in
       a scratch copy of `sources.md` and show the matching new case goes red while the old suite
-      stays green. (~5 calls)
+      stays green. (~5 calls) (completed 2026-10-01 14:24)
 
 - [ ] **R12-T7** — `CHANGELOG.md:175` — the 2.1.0 section was inserted above the released 2.2.0
       and 2.1.1, the 3.0.0 section never mentions WBTE, and a parenthetical says 3.0.0 was "then
