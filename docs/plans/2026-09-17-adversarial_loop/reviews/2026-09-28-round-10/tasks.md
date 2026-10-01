@@ -214,13 +214,13 @@ criterion is run before the fix**. A criterion that passes before the change is 
       composer's own words and never reproduce an `@` mention from relayed text; negative control:
       absent today. (~3 calls) (completed 2026-10-01 04:58)
 
-- [ ] **R10-T25** — `plugin/skills/adversarial-loop/SKILL.md:290` — the Phase 2 block pushes the
+- [x] **R10-T25** — `plugin/skills/adversarial-loop/SKILL.md:290` — the Phase 2 block pushes the
       checked-out branch and un-drafts `$PR` without asserting that the PR's head is the checkout.
       **Fails when:** on feature-B with `target=42` (feature-A's PR), a model that skips Phase 0's
       prose pushes feature-B and `gh pr ready 42` un-drafts PR 42.
       **Acceptance (shape 1)**: execute the Phase 2 block with `gh` stubbed to return a
       `headRefName` other than the current branch (or `isCrossRepository: true`); assert it exits
-      before `git push`. RED today: it reaches the push. (~5 calls)
+      before `git push`. RED today: it reaches the push. (~5 calls) (completed 2026-10-01 05:00)
 
 - [ ] **R10-T26** — `plugin/skills/implement_inline/SKILL.md:347` — BARRIER 2 says "Complete ALL
       tasks in the phase before verification" with no attestation carve-out, unlike

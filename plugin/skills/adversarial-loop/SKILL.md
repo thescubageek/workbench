@@ -306,11 +306,24 @@ baseline Phase 3 reads that old review as the new one.
 
 **Then confirm the push and the un-draft with the user** — two outward-facing changes, per *What
 stops for the user*. Resolve the pull request in the same shell that acts on it; a Bash call does
-not inherit variables from the previous one:
+not inherit variables from the previous one.
+
+**The block refuses unless the pull request's head is this checkout.** It runs the same test as
+[../reply-to-claude/SKILL.md](../reply-to-claude/SKILL.md) Step 1: the PR is same-repository and
+its `headRefOid` is an ancestor of `HEAD`. A branch-name comparison is not enough, because a
+fork or a stale local branch can have the same name. A refusal means Phases 2 and 4 do not run
+for this target, as in Phase 0.
 
 ```bash
 PR=$(gh pr view ${target:+"$target"} --json number --jq .number) \
   || { echo "no PR for ${target:-the current branch}" >&2; exit 1; }
+oid=$(gh pr view "$PR" --json headRefOid --jq .headRefOid) || exit 1
+cross=$(gh pr view "$PR" --json isCrossRepository --jq .isCrossRepository) || exit 1
+[ -n "$oid" ] || { echo "PR $PR reported no headRefOid — NOT publishing" >&2; exit 1; }
+[ "$cross" = false ] && git merge-base --is-ancestor "$oid" HEAD 2>/dev/null || {
+  echo "PR $PR's head ($oid, cross-repository: ${cross:-unknown}) is not this checkout — NOT publishing" >&2
+  exit 1
+}
 DRAFT=$(gh pr view "$PR" --json isDraft --jq .isDraft) \
   || { echo "isDraft check failed for PR $PR" >&2; exit 1; }
 [ "$DRAFT" = true ] || [ "$DRAFT" = false ] || { echo "isDraft returned unexpected value: '$DRAFT'" >&2; exit 1; }

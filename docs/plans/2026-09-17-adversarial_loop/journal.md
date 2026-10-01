@@ -51,6 +51,12 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-10-01 04:59 — R10-T25 (closed)
+
+- **Task/phase**: R10-T25, Phase 2 block pushes and un-drafts without asserting the PR head is the checkout.
+- **Landed**: Phase 2 block refuses unless the PR is same-repository and its headRefOid is an ancestor of HEAD, before any push or un-draft. Six executed cases against a scratch repo with a local bare origin and a stub gh: the shipped block pushed and un-drafted a foreign PR, the new one refuses cases 2 to 4 and proceeds for 5 and 6. Nothing real was pushed.
+- **Started at**: 066e88e
+
 ## 2026-10-01 04:58 — R10-T24 (closed)
 
 - **Task/phase**: R10-T24, reply body must not reproduce an @ mention from relayed bot text.
