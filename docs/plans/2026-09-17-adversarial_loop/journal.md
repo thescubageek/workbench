@@ -51,6 +51,12 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-10-01 05:01 — R10-T26 (closed)
+
+- **Task/phase**: R10-T26, implement_inline BARRIER 2 needs the attestation carve-out.
+- **Landed**: implement_inline BARRIER 2 now excepts attestation tasks, pointing at Step 3's list and Step 6.3's human tick. No blocked-task carve-out, since implement_inline has no blocking list. The unqualified phrase is gone.
+- **Started at**: 6702f06
+
 ## 2026-10-01 04:59 — R10-T25 (closed)
 
 - **Task/phase**: R10-T25, Phase 2 block pushes and un-drafts without asserting the PR head is the checkout.

@@ -344,7 +344,9 @@ Follow project testing patterns identified in research.md.
 
 ### Step 5: Run Phase Verification
 
-**⛔ BARRIER 2**: Complete ALL tasks in the phase before verification
+**⛔ BARRIER 2**: Every phase task is `[x]` and committed, or on the attestation list (Step 3) — waiting on a task no one but a human can tick would deadlock the phase
+
+Verify only after every task is `[x]`, except attestation tasks. Those keep their `[ ]` and are named at the checkpoint. Do not hold the barrier open for one: nothing before Step 6.3 may tick it, so waiting for it to go `[x]` is waiting forever.
 
 #### Automated Verification
 

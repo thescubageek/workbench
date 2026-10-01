@@ -222,7 +222,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       `headRefName` other than the current branch (or `isCrossRepository: true`); assert it exits
       before `git push`. RED today: it reaches the push. (~5 calls) (completed 2026-10-01 05:00)
 
-- [ ] **R10-T26** — `plugin/skills/implement_inline/SKILL.md:347` — BARRIER 2 says "Complete ALL
+- [x] **R10-T26** — `plugin/skills/implement_inline/SKILL.md:347` — BARRIER 2 says "Complete ALL
       tasks in the phase before verification" with no attestation carve-out, unlike
       `implement/SKILL.md:449-450`.
       **Fails when:** a round containing an `(attestation)` task leaves it `[ ]` at Step 3, and
@@ -230,7 +230,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       never reached, or the model breaks the barrier.
       **Acceptance (shape 3)**: dual grep — BARRIER 2 at `implement_inline/SKILL.md` carries an
       attestation carve-out matching `implement/SKILL.md:449-450`, and the unqualified form is
-      absent. (~2 calls)
+      absent. (~2 calls) (completed 2026-10-01 05:01)
 
 - [ ] **R10-T28** — `plugin/scripts/test-phi-patterns:35` — every no-separator case uses the `BM`
       prefix, so narrowing the first pattern to `BM` keeps the suite at 18 of 18.
