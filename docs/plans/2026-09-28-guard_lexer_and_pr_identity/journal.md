@@ -51,14 +51,17 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
-## 2026-10-01 02:55 — Phase 1 checkpoint [blocked] (open)
+## 2026-10-01 02:55 — Phase 1 checkpoint (closed)
 
-- **Task/phase**: close the Phase 1 checkpoint, then start P2-T1 (the identity fixture and
-  RED for R10-T3 and R10-T4).
-- **Next action**: wait for the user's two Phase 1 attestations (the `lex()` docstring, and
-  the waiver deletions in `b1640d7`). Then run `/wb:update_status` and start P2-T1. All
-  derivable checks pass after `93d5a3b` re-keyed a stale `GUARD` waiver.
-- **Started at**: `a03efec`
+- **Task/phase**: the Phase 1 checkpoint. Phase 1 is complete, and the next task is P2-T1.
+- **Landed**: `93d5a3b` re-keys the `GUARD` waiver that P1-T3 left stale. The sweep reports
+  378/421 killed, 43 waived and 0 survived. `64ea2d2` marks two `lex()` rules as the lexer's
+  own, after bash and zsh probes showed the shell does not do them. The user signed off on both
+  attestations. `/wb:update_status` set `current_phase: 2` and `completed_tasks: 9`.
+- **Commits**: `93d5a3b`, `eb53970`, `64ea2d2`, and the checkpoint close commit.
+- **Learned**: the plain suite cannot see a stale waiver. A task that edits a `check-guards`
+  statement must run `--generated` or re-key the waiver itself. P2-T1 does not depend on the
+  loaded plugin version, because it runs the `SKILL.md` block from the working tree.
 
 ## 2026-10-01 02:43 — handoff for the branch plugin (closed)
 

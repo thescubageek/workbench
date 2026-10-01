@@ -4,14 +4,14 @@ ticket: null
 created: 2026-09-28
 created_timestamp: 2026-09-28T20:05:58Z
 status: in-progress
-last_updated: 2026-09-28
+last_updated: 2026-10-01
 assignee: scraig
-current_phase: 1
+current_phase: 2
 total_tasks: 18
-completed_tasks: 3
+completed_tasks: 9
 task_tracking: markdown-checkboxes
 depends_on: [research.md, design.md]
-git_commit: 093ca0a
+git_commit: 64ea2d2
 git_branch: adversarial-loop-skill-research
 repository: thescubageek/workbench
 tags: [tasks, tracking, guard_lexer_and_pr_identity]
@@ -110,7 +110,7 @@ fan-out; `pwd` and `pwd -P` recorded at every fixture.
 | Phase | Status | Tasks | Progress |
 | ----- | ------ | ----- | -------- |
 | Phase 0: Planning | ✅ Complete | 4/4 | 100% |
-| Phase 1: One lexer | ⏸️ Not Started | 0/5 | 0% |
+| Phase 1: One lexer | ✅ Complete | 5/5 | 100% |
 | Phase 2: One resolver | ⏸️ Not Started | 0/5 | 0% |
 | Phase 3: CI and close-out | ⏸️ Not Started | 0/4 | 0% |
 
@@ -271,10 +271,11 @@ P1-T2 and at the checkpoint, backgrounded.
 
 #### Manual Verification
 
-- [ ] A human has read `lex()`'s docstring and agrees every rule in it is the shell's, not the
-      corpus's — the design's first risk row
-- [ ] A human has read the P1-T2 waiver deletions and agrees none dropped a mutant that still
-      exists under a new key
+- [x] A human has read `lex()`'s docstring and agrees every rule in it is the shell's, not the
+      corpus's — the design's first risk row (the user, 2026-10-01, after `64ea2d2` relabelled
+      two rules as the lexer's own; see Implementation Notes)
+- [x] A human has read the P1-T2 waiver deletions and agrees none dropped a mutant that still
+      exists under a new key (the user, 2026-10-01, on the measurement in Implementation Notes)
 
 ### Modified Files
 
@@ -315,8 +316,8 @@ shortened one.
 
 - [x] **(derivable)** Every Phase 1 checkbox is `[x]`
 - [x] **(derivable)** All automated verification passing
-- [ ] **(attestation)** Manual verification confirmed by human
-- [ ] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
+- [x] **(attestation)** Manual verification confirmed by human
+- [x] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
       only writer of those fields, so do not edit `current_phase` or `completed_tasks` by hand
 
 **Do not proceed without human confirmation of manual tests** — unless the phase is being run
@@ -336,8 +337,8 @@ stop-table row; validate the descendant case live on PR #25. Close R10-T3, T4, T
 
 ### Prerequisites
 
-- [ ] Phase 1 complete and verified
-- [ ] Phase 1 manual testing confirmed — *an attestation, like the checkpoint's. Under
+- [x] Phase 1 complete and verified
+- [x] Phase 1 manual testing confirmed — *an attestation, like the checkpoint's. Under
       `/wb:implement --auto` it stays `[ ]` and the phase proceeds anyway; the previous phase's
       checkpoint records that nobody was asked. Unticked here means deferred, not blocked.*
 - [x] The identity bullet's fixture recipe and its lesson (push the pull ref to the test
@@ -778,6 +779,16 @@ resolved, leaving a dated line saying how.
   re-keys the waiver and removes `echo` from its reason. The sweep now reports 378/421 killed,
   43 waived and 0 survived. The ratchet rose from 377/420. A task that edits a statement in
   `check-guards` must re-key any waiver on that statement, even if the plain suite passes.
+- **[2026-10-01] Phase 1 attestations, and the evidence behind them.** (1) The `lex()`
+  docstring: probes in bash and zsh 5.9 confirm six of its eight rules, and `lex()` returns
+  the shell's spans on each. The other two (an unclosed `$(` runs to end of line; an unclosed
+  backtick yields no span) are the lexer's choices for input the shell rejects. `64ea2d2`
+  states this in the docstring. `design.md` → "The shell rules the lexer encodes" still lists
+  all eight as the shell's. (2) The P1-T2 waiver deletions: `b1640d7` deleted 13 keys and
+  added 5. All 13 named statements of the old `substitutions()` loop, and none of them is
+  generated from the code before `b1640d7`, at it, or today. The 5 added keys all match a
+  mutant today, and the sweep reports 0 survivors. The commit message says 14 deletions. The
+  measured count is 13. The user signed off on both.
 
 ---
 
