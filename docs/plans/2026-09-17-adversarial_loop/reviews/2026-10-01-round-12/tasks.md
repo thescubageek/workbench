@@ -76,7 +76,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       repo on a renamed branch with a stub `gh` and assert the refusal text names both branches and
       says to push the renamed branch or switch back. (~5 calls) (completed 2026-10-01 14:22)
 
-- [ ] **R12-T5** — `plugin/skills/reply-to-claude/SKILL.md:92` — Step 2's inline-comment jq prints
+- [x] **R12-T5** — `plugin/skills/reply-to-claude/SKILL.md:92` — Step 2's inline-comment jq prints
       `path:null` for an outdated comment, and nothing scopes the collected findings to those new
       since the last reply.
       **Fails when:** GitHub sets `.line` to null on outdated inline comments; the filter prints
@@ -87,7 +87,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       **Acceptance (shape 1)**: run the Step 2 inline-comment filter with `/opt/homebrew/bin/jq` on
       a synthetic two-comment array (one with `"line": null, "original_line": 12`); assert the
       first prints `a.py:12`. RED today: `a.py:null`. Add one sentence to Step 2 that the reply
-      covers only findings raised since the last `@claude` reply, and grep for it. (~4 calls)
+      covers only findings raised since the last `@claude` reply, and grep for it. (~4 calls) (completed 2026-10-01 14:23)
 
 - [ ] **R12-T6** — `plugin/scripts/test-phi-patterns:44` — the two `+` cases match both patterns,
       so dropping `+` from either pattern alone leaves the suite green.

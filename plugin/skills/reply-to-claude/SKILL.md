@@ -89,7 +89,7 @@ REPO=$(gh repo view --json nameWithOwner --jq .nameWithOwner) || exit 1
 PR=$(gh pr view ${target:+"$target"} --json number --jq .number) || exit 1
 
 gh api --paginate "repos/$REPO/pulls/$PR/reviews"   --jq '.[] | select(.user.login=="claude[bot]") | .body'
-gh api --paginate "repos/$REPO/pulls/$PR/comments"  --jq '.[] | select(.user.login=="claude[bot]") | "\(.path):\(.line) \(.body)"'
+gh api --paginate "repos/$REPO/pulls/$PR/comments"  --jq '.[] | select(.user.login=="claude[bot]") | "\(.path):\(.line // .original_line) \(.body)"'
 gh api --paginate "repos/$REPO/issues/$PR/comments" --jq '.[] | select(.user.login=="claude[bot]") | .body'
 ```
 
@@ -103,6 +103,8 @@ something before concluding there is nothing to reply to.
 
 **The bot edits its comment in place** as it works, so the newest body is the whole of what it
 said — compare `updated_at`, not just whether a new comment appeared.
+
+The reply answers only the findings raised since your last `@claude` reply; restate an earlier round's finding only if the bot raised it again.
 
 ## Step 3: Decide each finding's disposition before writing anything
 

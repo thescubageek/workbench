@@ -51,6 +51,12 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-10-01 14:22 — R12-T5 (closed)
+
+- **Task/phase**: R12-T5, reply-to-claude Step 2 prints path:null for outdated inline comments and does not scope to new findings.
+- **Landed**: reply-to-claude Step 2's inline-comment filter uses line // original_line, so an outdated comment prints a.py:12 instead of a.py:null (RED/GREEN with jq on a synthetic array). Step 2 adds one sentence that the reply covers only findings raised since the last @claude reply.
+- **Started at**: 5d5a51e
+
 ## 2026-10-01 14:21 — R12-T4 (closed)
 
 - **Task/phase**: R12-T4, reply-to-claude Preconditions state the old test; the rename remedy points at the wrong branch.
