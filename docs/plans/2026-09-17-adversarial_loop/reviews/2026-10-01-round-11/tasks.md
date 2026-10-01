@@ -190,14 +190,14 @@ criterion is run before the fix**. A criterion that passes before the change is 
       says the publishing sites require `isCrossRepository` to be exactly `false` and
       adversarial-review fails open because it only chooses what to review. (~3 calls) (completed 2026-10-01 13:53)
 
-- [ ] **R11-T19** — `.github/workflows/checks.yml:57` — the `mutation-sweep` job has no
+- [x] **R11-T19** — `.github/workflows/checks.yml:57` — the `mutation-sweep` job has no
       `timeout-minutes`.
       **Fails when:** a mutant that survives the corpus loops on one of the integrity inputs; the
       in-process 5-second alarm does not cover that subprocess, so the job runs to GitHub's
       360-minute default. No such mutant was found, and the current sweep passes in about twelve
       minutes. The smaller change is the job timeout only.
       **Acceptance (shape 4)**: grep `checks.yml` for `timeout-minutes` inside the `mutation-sweep`
-      job (30); negative control: absent today. (~3 calls)
+      job (30); negative control: absent today. (~3 calls) (completed 2026-10-01 13:54)
 
 ## Implementation notes
 

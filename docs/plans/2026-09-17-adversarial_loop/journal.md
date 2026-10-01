@@ -51,6 +51,12 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-10-01 13:54 — R11-T19 (closed)
+
+- **Task/phase**: R11-T19, add timeout-minutes to the mutation-sweep job.
+- **Landed**: mutation-sweep gets timeout-minutes 30; check is untouched. The grep was 0 before. YAML parses with the value 30.
+- **Started at**: eb844f9
+
 ## 2026-10-01 13:53 — R11-T16 (closed)
 
 - **Task/phase**: R11-T16, the prose says one test; adversarial-review and the two publishing sites differ in polarity.
