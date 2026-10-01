@@ -34,7 +34,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       stay out of scope — the alphanumeric lookarounds are deliberate (`sources.md:238-240`).
       (~6 calls) (completed 2026-10-01 04:15)
 
-- [ ] **R10-T2** — `plugin/skills/adversarial-loop/SKILL.md:234` and `:392` — the ledger is
+- [x] **R10-T2** — `plugin/skills/adversarial-loop/SKILL.md:234` and `:392` — the ledger is
       staged after every commit that is said to carry it, in Phase 1 step 5 and in Phase 4 step 3.
       **Fails when:** the final round is clean (no `tasks.md`, or every finding rejected), step 3
       commits nothing or commits a ledger without this round's rows, step 5 stages
@@ -43,7 +43,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       rejected stages rows no commit carries before Phase 5 labels the PR.
       **Acceptance (shape 3)**: dual grep — the phrase "The commit that carries it is whichever
       one is already happening" absent, and a named step that commits the staged ledger after it
-      is written present in both Phase 1 and Phase 4, at a cited `file:line`. (~5 calls)
+      is written present in both Phase 1 and Phase 4, at a cited `file:line`. (~5 calls) (completed 2026-10-01 04:19)
 
 - [x] **R10-T3** — `plugin/skills/adversarial-review/SKILL.md:125` — the own-checkout test
       compares only `headRefName` with the current branch, so a fork PR is resolved against the

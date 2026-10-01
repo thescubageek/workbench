@@ -194,9 +194,9 @@ Checking the target out yourself is a state change nobody asked for.
    wrote and the pruning above modified it, so the round plan is sitting staged in a tree no
    `implement` run will ever commit — and Phase 2's `git status --porcelain` precondition lists
    it and hard-fails, on the state this branch calls success. Re-stage it with
-   `git add -f <round-dir>/tasks.md`, staging the ledger the same way alongside it, and commit
-   both on their own, round number in the message, before taking the gate. The first arrival
-   wrote no file and has nothing to commit.
+   `git add -f <round-dir>/tasks.md` and commit it on its own, round number in the message,
+   before taking the gate. The ledger is not in this commit, because this round's rows do not
+   exist yet — step 5 commits them. The first arrival wrote no file and has nothing to commit.
 
    No code was fixed, so there is nothing for step 4 to verify and no reworked area for step 6
    to re-review: the pass you just took still certifies this tree. Record the
@@ -239,13 +239,21 @@ Checking the target out yourself is a state change nobody asked for.
    otherwise pick one file, **name it in the round report**, and reuse it for every round of this
    run. If you cannot write one at all, stop and say so rather than running on.
 
-   **Stage it in this step, the same way as the round plan** —
-   [remediation-plan.md's "Promoting it"](../../docs/reference/remediation-plan.md) is the
-   pattern to mirror: `git add -f docs/plans/<plan>/review-log.md`, stage only, do not commit.
-   The commit that carries it is whichever one is already happening — `implement`'s per-task
-   commit on a normal round, or step 3's own pruned-plan commit on the all-rejected branch,
-   where no `implement` run will ever fire. A no-plan ledger outside `docs/plans/` is staged
-   the same way, at whatever path was picked above.
+   **Commit the ledger in this step, after the rows are written.** No earlier commit can carry
+   them. `implement`'s per-task commits ran at step 3, before this round's dispositions existed.
+   A clean round has no `implement` run at all. Stage with `-f`, as
+   [remediation-plan.md's "Promoting it"](../../docs/reference/remediation-plan.md) explains, and
+   chain the commit to the stage:
+
+   ```bash
+   git add -f "docs/plans/<plan>/review-log.md" \
+     && git commit -m "ledger: round <N> dispositions"
+   ```
+
+   Do this on every round, including a clean one, so Phase 2's clean-tree precondition reads the
+   state this loop calls success. A no-plan ledger outside `docs/plans/` is committed the same
+   way, at whatever path was picked above. If the round wrote no rows, `git commit` exits 1 with
+   "nothing to commit": the tree is already clean, and there is nothing to carry.
 
    **A breaker that cannot fire is worse than none**, because its presence is what licenses
    proceeding. Both Blocking triggers in
@@ -398,7 +406,12 @@ not an authority.
 2. **Verify each finding against real source**, not memory. When one turns on a library's
    behaviour, read the installed version of that library.
 3. **Record each finding's disposition in the same ledger Phase 1 step 5 writes**, as the next
-   round number — a bot round is a round — staged the same way that step describes.
+   round number — a bot round is a round.
+
+   **Commit the ledger in this step, after the rows are written**, with the same chained
+   `git add -f … && git commit` that Phase 1 step 5 shows. Do it before step 4's push, so the
+   push carries the rows. Do it also on a round where every finding was rejected and step 4 has
+   nothing to fix. Rows that are only staged are in no commit when Phase 5 labels the head.
 4. Fix what holds. **Confirm, then push.**
 5. **Before re-summoning `@claude`, evaluate
    [review-ledger.md](../../docs/reference/review-ledger.md)'s triggers on the rows just

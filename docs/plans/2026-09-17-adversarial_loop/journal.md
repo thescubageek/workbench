@@ -51,6 +51,12 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-10-01 04:18 — R10-T2 (closed)
+
+- **Task/phase**: R10-T2, the ledger is staged after the commits said to carry it (adversarial-loop Phase 1 step 5, Phase 4 step 3).
+- **Landed**: named ledger-commit step in Phase 1 step 5 and Phase 4 step 3; the old 'whichever one is already happening' sentence is gone; Phase 1 step 3's all-rejected commit no longer stages the ledger. check-guards and lint clean. Follow-up: an all-rejected bot round leaves an unpushed ledger commit that Phase 5's head comparison will not match.
+- **Started at**: b3b12ba
+
 ## 2026-10-01 04:14 — R10-T1 (closed)
 
 - **Task/phase**: R10-T1, widen the member-ID scrub patterns in daily-digest/sources.md.
