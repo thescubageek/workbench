@@ -135,8 +135,12 @@ publishing phases cannot end up pointed at different changes.
 
 **Read the review's `review_provenance`. If it is not `HEAD`, the pull-request phases do not
 run.** The `identity:` line `adversarial-review` prints in Step 1 shows it: a line that does not
-start with `HEAD` names a target that is not the current checkout. Phases 2 and 4 push the branch you are on; they cannot push a different one. Review the target, report,
-and stop at the end of Phase 1 — saying that the publishing phases were skipped and why.
+start with `HEAD` names a target that is not the current checkout. Phases 2 and 4 push the branch you are on; they cannot push a different one.
+**When the `identity:` line does not start with `HEAD`, run Phase 1 steps 1 and 2 once, report
+the findings and their dispositions, and stop.** Do not run steps 3 to 6: no `implement`, no
+ledger commit, no re-review. A fix would commit onto the current checkout, which is not the PR's
+head, and the next review would read the same unchanged ref. That report is the loop's whole
+output for this target. Say in it that the publishing phases were skipped, and why.
 Checking the target out yourself is a state change nobody asked for.
 
 ## Phase 1: review until clean
@@ -155,7 +159,8 @@ Checking the target out yourself is a state change nobody asked for.
    reviewer has been *asserted*; the label is the claim you are checking. Reviewers are wrong
    often enough that applying findings unexamined introduces defects, and a suggested fix is
    frequently worse than the finding it addresses.
-3. **Prune the plan to what you adjudicated, then run `implement` against it.** Do not fix
+3. If Phase 0 stopped the loop at step 2, this step does not run.
+   **Prune the plan to what you adjudicated, then run `implement` against it.** Do not fix
    findings inline. `adversarial-review` Step 8 emits
    `docs/plans/<plan>/reviews/<date>-round-N/tasks.md`; `implement` executes it one task at a
    time, in fresh context, each verified against its own acceptance criterion and committed

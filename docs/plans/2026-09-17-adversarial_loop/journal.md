@@ -51,6 +51,12 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-10-01 14:17 — R12-T1 (closed)
+
+- **Task/phase**: R12-T1, a fetched PR target must stop after the first review (Phase 0 and Phase 1 step 3).
+- **Landed**: Phase 0 now says that when the identity line does not start with HEAD the loop runs review and adjudication once, reports and stops, with no steps 3 to 6 (no implement, ledger commit or re-review); Phase 1 step 3 back-references it. The old stop-at-end-of-Phase-1 sentence is gone. No-target, path and own-checkout PR runs start with HEAD and are unaffected.
+- **Started at**: aa2bbab
+
 ## 2026-10-01 13:58 — Round 11 checkpoint (closed)
 
 - **Task/phase**: the Round 11 checkpoint, run unattended. All sixteen adjudicated tasks are done.
