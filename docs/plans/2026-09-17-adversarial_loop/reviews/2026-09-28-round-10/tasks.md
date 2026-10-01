@@ -147,13 +147,13 @@ criterion is run before the fix**. A criterion that passes before the change is 
       claim and assert both are absent by dual grep. (~4 calls) (closed by docs/plans/2026-09-28-guard_lexer_and_pr_identity P2-T4, 2026-10-01)
       Closed by removing the dead `filter=$?` guard and its prose claim, the criterion's second branch.
 
-- [ ] **R10-T14** — `plugin/scripts/check:42` — `require()` passes when `--version` yields no
+- [x] **R10-T14** — `plugin/scripts/check:42` — `require()` passes when `--version` yields no
       `x.y` token.
       **Fails when:** a fake `shellcheck` printing `garbage` and exiting 3 gives `require` rc 0 and
       nothing in FAILED, so the gate runs with no version enforcement, against `checks.yml`'s
       "fails loudly".
       **Acceptance (shape 2)**: a test case with the fake binary on PATH; RED today (rc 0); GREEN
-      when an unparseable version fails the gate by name. (~4 calls)
+      when an unparseable version fails the gate by name. (~4 calls) (completed 2026-10-01 04:29)
 
 - [ ] **R10-T16** — `plugin/skills/adversarial-loop/SKILL.md:425` — the Phase 5 check-runs lookup
       is unpaginated and reads an unbound `$REPO`.

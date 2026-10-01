@@ -126,6 +126,10 @@ lost. The wrapped command's exit code is always passed through unchanged.
 
 Contract tests for `quiet` (success collapse, failure dump, exit-code pass-through). Run after changing `quiet`.
 
+### `test-check`
+
+Contract tests for `check`'s `require()`, extracted from the shipped script and run against fake binaries on `PATH` (missing, unparseable version, too old, new enough). Run after changing `check`.
+
 ### `check`
 
 **Every gate this repository has, in one command.** This is what CI runs and what a maintainer
@@ -135,7 +139,7 @@ runs before cutting a release.
 ./plugin/scripts/check
 ```
 
-Runs, in order: `shellcheck-gate` (shellcheck ≥ 0.9.0 required), `lint --all`, `check-guards`, `test-guards`, `test-count`, `test-phi-patterns`, `test-quiet`. **Every
+Runs, in order: `shellcheck-gate` (shellcheck ≥ 0.9.0 required), `lint --all`, `check-guards`, `test-guards`, `test-count`, `test-phi-patterns`, `test-quiet`, `test-check`. **Every
 gate runs even after one fails** — knowing that something is broken is less useful than knowing
 which things are. Exits 0 only if all of them pass.
 

@@ -51,6 +51,12 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-10-01 04:24 — R10-T14 (closed)
+
+- **Task/phase**: R10-T14, check's require() passes when --version yields no x.y token.
+- **Landed**: require() fails by name when --version yields no parsable x.y token. New test-check (9 cases, RED 7/9 before) is wired into check as the check contract gate. Full check passes.
+- **Started at**: 3f36631
+
 ## 2026-10-01 04:22 — R10-T9 (closed)
 
 - **Task/phase**: R10-T9, reply-to-claude must check the PR head against the checkout.
