@@ -51,6 +51,12 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-10-01 14:24 — R12-T7 (closed)
+
+- **Task/phase**: R12-T7, reorder the 2.1.0 changelog section, mention WBTE in 3.0.0, reword the numbered-2.2.0 note.
+- **Landed**: CHANGELOG.md headings now read 3.0.0, 2.2.0, 2.1.1, 2.1.0, 2.0.1 (the 2.1.0 section moved below 2.1.1); the 3.0.0 section carries one WBTE sentence; the then-numbered-2.2.0 parenthetical is gone. A line-multiset comparison against HEAD shows only those changes. The worker truncated after the edits (its report read pending), and the coordinator verified the result directly.
+- **Started at**: b783ba7
+
 ## 2026-10-01 14:23 — R12-T6 (closed)
 
 - **Task/phase**: R12-T6, the plus cases in test-phi-patterns do not discriminate per pattern.

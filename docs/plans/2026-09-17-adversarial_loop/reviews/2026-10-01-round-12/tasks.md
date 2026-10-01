@@ -99,7 +99,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       a scratch copy of `sources.md` and show the matching new case goes red while the old suite
       stays green. (~5 calls) (completed 2026-10-01 14:24)
 
-- [ ] **R12-T7** — `CHANGELOG.md:175` — the 2.1.0 section was inserted above the released 2.2.0
+- [x] **R12-T7** — `CHANGELOG.md:175` — the 2.1.0 section was inserted above the released 2.2.0
       and 2.1.1, the 3.0.0 section never mentions WBTE, and a parenthetical says 3.0.0 was "then
       numbered 2.2.0".
       **Fails when:** the section order reads 3.0.0, 2.1.0, 2.2.0, 2.1.1, 2.0.1 (2.1.0 is not on
@@ -109,7 +109,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       sentence to 3.0.0, and reword the parenthetical.
       **Acceptance (shape 3)**: dual grep — the `^## \[` headings read 3.0.0, 2.2.0, 2.1.1, 2.1.0,
       2.0.1 in that order and "then numbered 2.2.0" is absent, and the 3.0.0 section contains
-      "WBTE" at a cited line. (~4 calls)
+      "WBTE" at a cited line. (~4 calls) (completed 2026-10-01 14:25)
 
 ## Implementation notes
 

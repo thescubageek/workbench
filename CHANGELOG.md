@@ -22,6 +22,8 @@ and a verification pass, and those two gaps are what `wb` supplies.
 The release also closes a defect class the work kept meeting: a measurement whose failure is
 indistinguishable from a clean result.
 
+3.0.0 also carries wb Technical English (WBTE), the writing standard released as 2.2.0 (see that section below), merged into this branch.
+
 **These skills were run against the pull request that ships them, before it was cut.** Six legs —
 the built-in review plus five domain lenses — returned 22 findings, 18 of them confirmed against
 shipped files, including a documented security boundary that silently read the wrong file and a
@@ -171,66 +173,6 @@ claude plugin update wb@thescubageek-workbench
 
 The three new skills are new *files*, and the plugin cache is keyed by version — they will not
 appear until the update runs, regardless of what has been pushed.
-
-## [2.1.0] — 2026-09-17
-
-*Reconstructed 2026-09-18 from the `wb--v2.0.1..wb--v2.1.0` tag range and PR #24. This release
-shipped without a changelog entry; the gap was found by the adversarial review of 3.0.0 (then numbered 2.2.0), and the
-entry is written after the fact rather than left as a hole in the release record.*
-
-### Added
-
-- **`plugin/docs/reference/branch-naming.md` — the shipped, runtime-read authority on branch
-  names.** Agent harnesses and worktree tools name branches before anyone understands the work:
-  one tool cut a codename from a list, then auto-renamed it to `commit-and-push` after the
-  *instruction* that triggered the rename. Neither name describes the change, and by the time the
-  first commit lands the name is expensive to fix. The convention is
-  `<scope>/<snake_case_description>` — a ticket key when one is known, otherwise a release
-  version when the work targets one, otherwise a bare description. A ticket outranks a version
-  and the two are never concatenated: the ticket is the more specific anchor, and the version is
-  recoverable from the diff while the ticket is not. **The description names the change, never
-  the user's last message.**
-- **Four triggers, first to fire wins**, each placed at the earliest point its inputs exist:
-  `jira-context` Step 6 (a ticket reference resolves), `create_project` Step 3 (the plan
-  directory is named), `forge`'s initial response (a resumed pipeline whose branch no single
-  stage owns), and `implement` Step 2 as a preflight backstop before any code lands on the name.
-
-### Fixed
-
-- **`create_research` and `create_design` had no missing-directory branch.** A session invoking
-  `/wb:create_research <ticket-url>` with no plan directory found every bullet presupposing the
-  directory already existed, so the model improvised: invented the plan slug, hand-wrote README
-  and journal by copying a neighbouring plan, and skipped the `design.md` and `tasks.md` stubs.
-  The output was fine and none of it was specified — a different session improvises differently
-  and the directory silently diverges from what every later stage reads. The policy, applied to
-  both stages: **a stage may create the artifact it writes, but never invent the artifact it
-  reads.** `create_design` now splits on which file is absent, and treats a `research.md` still
-  holding template placeholders as a hard stop, because a design argued over placeholder findings
-  is confident fiction that nothing downstream can distinguish from the real thing.
-- **`create_research` did not recognise a ticket argument at all.** Its initial response handled
-  a directory or no arguments, so the invocation that caused the above fell through unparsed.
-- **`create_project` never told anyone `thoughts/` exists.** Step 5 now names it as
-  created-on-first-use and lists `/wb:explore_design` in Next Steps, and Step 4 records why the
-  directory is deliberately not provisioned — `Write` creates parents, and git does not track an
-  empty directory — so a later pass does not "fix" it back.
-
-### Changed
-
-- **Root `CLAUDE.md` points at the branch-naming reference rather than carrying its own copy.**
-  The previous convention fired only from `jira-context` Step 6, so any work without a Jira
-  ticket had no rule at all.
-
-### Known gap at the time
-
-`create_tasks`, `implement`, `implement_inline` and `validate_execution` shared the same
-missing-directory phrasing behind a less likely entry point, and were deliberately left for a
-follow-up.
-
-### Migration
-
-```bash
-claude plugin update wb@thescubageek-workbench
-```
 
 ## [2.2.0] — 2026-09-30
 
@@ -400,6 +342,66 @@ Rolled as a patch so the version-keyed plugin cache picks it up. It will be abso
 
 None, unless you were relying on the Bash route to auto-fix — set `WB_LINT_FIX_ON_BASH=1` if
 so. Update the plugin and restart:
+
+```bash
+claude plugin update wb@thescubageek-workbench
+```
+
+## [2.1.0] — 2026-09-17
+
+*Reconstructed 2026-09-18 from the `wb--v2.0.1..wb--v2.1.0` tag range and PR #24. This release
+shipped without a changelog entry; the gap was found by the adversarial review of 3.0.0, and the
+entry is written after the fact rather than left as a hole in the release record.*
+
+### Added
+
+- **`plugin/docs/reference/branch-naming.md` — the shipped, runtime-read authority on branch
+  names.** Agent harnesses and worktree tools name branches before anyone understands the work:
+  one tool cut a codename from a list, then auto-renamed it to `commit-and-push` after the
+  *instruction* that triggered the rename. Neither name describes the change, and by the time the
+  first commit lands the name is expensive to fix. The convention is
+  `<scope>/<snake_case_description>` — a ticket key when one is known, otherwise a release
+  version when the work targets one, otherwise a bare description. A ticket outranks a version
+  and the two are never concatenated: the ticket is the more specific anchor, and the version is
+  recoverable from the diff while the ticket is not. **The description names the change, never
+  the user's last message.**
+- **Four triggers, first to fire wins**, each placed at the earliest point its inputs exist:
+  `jira-context` Step 6 (a ticket reference resolves), `create_project` Step 3 (the plan
+  directory is named), `forge`'s initial response (a resumed pipeline whose branch no single
+  stage owns), and `implement` Step 2 as a preflight backstop before any code lands on the name.
+
+### Fixed
+
+- **`create_research` and `create_design` had no missing-directory branch.** A session invoking
+  `/wb:create_research <ticket-url>` with no plan directory found every bullet presupposing the
+  directory already existed, so the model improvised: invented the plan slug, hand-wrote README
+  and journal by copying a neighbouring plan, and skipped the `design.md` and `tasks.md` stubs.
+  The output was fine and none of it was specified — a different session improvises differently
+  and the directory silently diverges from what every later stage reads. The policy, applied to
+  both stages: **a stage may create the artifact it writes, but never invent the artifact it
+  reads.** `create_design` now splits on which file is absent, and treats a `research.md` still
+  holding template placeholders as a hard stop, because a design argued over placeholder findings
+  is confident fiction that nothing downstream can distinguish from the real thing.
+- **`create_research` did not recognise a ticket argument at all.** Its initial response handled
+  a directory or no arguments, so the invocation that caused the above fell through unparsed.
+- **`create_project` never told anyone `thoughts/` exists.** Step 5 now names it as
+  created-on-first-use and lists `/wb:explore_design` in Next Steps, and Step 4 records why the
+  directory is deliberately not provisioned — `Write` creates parents, and git does not track an
+  empty directory — so a later pass does not "fix" it back.
+
+### Changed
+
+- **Root `CLAUDE.md` points at the branch-naming reference rather than carrying its own copy.**
+  The previous convention fired only from `jira-context` Step 6, so any work without a Jira
+  ticket had no rule at all.
+
+### Known gap at the time
+
+`create_tasks`, `implement`, `implement_inline` and `validate_execution` shared the same
+missing-directory phrasing behind a less likely entry point, and were deliberately left for a
+follow-up.
+
+### Migration
 
 ```bash
 claude plugin update wb@thescubageek-workbench
