@@ -51,6 +51,12 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-10-01 04:41 — R10-T18 (closed)
+
+- **Task/phase**: R10-T18, the plain suite's one ratchet_verdict call covers only the survivors branch.
+- **Landed**: two ratchet_verdict unit cases added to the plain suite: a stale waiver and killed below prev with no shrunk set, each asserting ok is False and its message. Planting an inverted if-stale or elif-killed-less-than-prev passed the old suite and fails the new one on the matching case.
+- **Started at**: 6a9b768
+
 ## 2026-10-01 04:32 — R10-T17 (closed)
 
 - **Task/phase**: R10-T17, the mutation ratchet fails whenever killed falls and its message offers no lowering path.

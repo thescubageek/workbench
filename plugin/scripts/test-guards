@@ -615,8 +615,23 @@ def main():
     print(f"  {'✓' if shrunk_verdict_ok else '✗'} --generated names lowering the stored count "
           f"when the mutant set shrank with no survivor")
 
+    stale_ok, stale_msgs = ratchet_verdict(344, 344, [], ['check-guards::stale-key'])
+    stale_text = '\n'.join(stale_msgs)
+    stale_verdict_ok = (not stale_ok and 'waiver' in stale_text
+                        and 'check-guards::stale-key' in stale_text)
+    print(f"  {'✓' if stale_verdict_ok else '✗'} --generated fails on a stale waiver "
+          f"and names it")
+
+    fell_ok, fell_msgs = ratchet_verdict(300, 344, [], [])
+    fell_text = '\n'.join(fell_msgs)
+    fell_verdict_ok = (not fell_ok and 'corpus case' in fell_text
+                       and '344 to 300' in fell_text)
+    print(f"  {'✓' if fell_verdict_ok else '✗'} --generated fails when the kill count fell "
+          f"with no shrunk set")
+
     ok = (base['correct'] == base['total'] and caught == len(MUTATIONS)
-          and integ_ok == len(integ) and intact and verdict_ok and shrunk_verdict_ok)
+          and integ_ok == len(integ) and intact and verdict_ok and shrunk_verdict_ok
+          and stale_verdict_ok and fell_verdict_ok)
     print(f"\ntest-guards: corpus {base['correct']}/{base['total']}, "
           f"integrity {integ_ok}/{len(integ)}, "
           f"mutations {caught}/{len(MUTATIONS)} — {'PASS' if ok else 'FAIL'}")

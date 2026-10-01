@@ -172,13 +172,13 @@ criterion is run before the fix**. A criterion that passes before the change is 
       **Acceptance (shape 2)**: a `ratchet_verdict` unit case with `killed < prev`, a smaller total
       and no survivors, asserting the message names lowering the stored count; RED today. (~4 calls) (completed 2026-10-01 04:38)
 
-- [ ] **R10-T18** — `plugin/scripts/test-guards:585` — the plain suite's single `ratchet_verdict`
+- [x] **R10-T18** — `plugin/scripts/test-guards:585` — the plain suite's single `ratchet_verdict`
       call covers only the survivors branch and asserts only `ok`.
       **Fails when:** an edit deletes or inverts the `if stale:` or `if killed < prev:` branch, and
       plain `test-guards` still passes.
       **Acceptance (shape 2)**: two more unit cases (a stale waiver; `killed < prev`), each
       asserting `ok is False` and its message; mutate each branch in a scratch copy and show the
-      matching case goes red. (~4 calls)
+      matching case goes red. (~4 calls) (completed 2026-10-01 04:54)
 
 - [ ] **R10-T19** — `README.md:305` and `plugin/scripts/README.md:142` — the READMEs list three
       and four check-guards shapes; the script's header lists six.
