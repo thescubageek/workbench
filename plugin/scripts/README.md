@@ -139,7 +139,7 @@ runs before cutting a release.
 ./plugin/scripts/check
 ```
 
-Runs, in order: `shellcheck-gate` (shellcheck ≥ 0.9.0 required), `lint --all`, `check-guards`, `test-guards`, `test-count`, `test-phi-patterns`, `test-quiet`, `test-check`. **Every
+Runs, in order: `shellcheck-gate` (shellcheck ≥ 0.9.0 required), `lint --all`, `check-guards`, `test-guards`, `test-count`, `test-phi-patterns`, `test-quiet`, `test-check`, `test-pr-identity`. **Every
 gate runs even after one fails** — knowing that something is broken is less useful than knowing
 which things are. Exits 0 only if all of them pass.
 
@@ -346,6 +346,22 @@ that `grep -c` collapses the two once defaulted the way a careful author would d
 ```
 
 A skip is reported as a skip, never as a pass.
+
+### `pr-identity`
+
+Decides how a PR number, branch or path target relates to this checkout. Prints closed-set key=value lines: `relation`, `fix`, `publish`, and push destination. Consumers act on the fields, never a ref name.
+
+### `test-pr-identity`
+
+Contract tests for `pr-identity`. Scenario table over scratch worlds and error paths, using the stub `gh`.
+
+```bash
+./plugin/scripts/test-pr-identity
+```
+
+### `fixtures/gh-stub`
+
+Stub `gh` for `test-pr-identity`. Reads `$GH_FIXTURE` and logs to `$GH_LOG`.
 
 ### `wbte-dictionary`
 

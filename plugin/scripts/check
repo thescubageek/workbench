@@ -63,6 +63,7 @@ gate "count contract"           ./plugin/scripts/test-count
 gate "PHI scrub patterns"       ./plugin/scripts/test-phi-patterns
 gate "quiet contract"           ./plugin/scripts/test-quiet
 gate "check contract"           ./plugin/scripts/test-check
+gate "pr-identity contract"     ./plugin/scripts/test-pr-identity
 
 echo
 if [ ${#FAILED[@]} -eq 0 ]; then
