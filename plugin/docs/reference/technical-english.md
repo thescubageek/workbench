@@ -107,7 +107,7 @@ rewrite the prose around it. The sentence rules do not apply to these strings.
 
 **Task lines** (`plugin/hooks/wb-prime.sh:131-136`, `plugin/skills/daily-digest/sources.md:67-68`,
 `plugin/skills/validate_project/reference/validation-rules.md:71,104,116`,
-`plugin/skills/implement/SKILL.md`, Step 6a, the checkbox check):
+`plugin/skills/implement/SKILL.md`, Step 4, BARRIER 2, the first unchecked task line):
 
 - The task-ID shape `[A-Z0-9-]*[0-9][A-Z0-9-]*`. An ID must contain at least one digit.
 - A task line starts `- [ ] **ID**` or `- [x] **ID**`. The patterns are

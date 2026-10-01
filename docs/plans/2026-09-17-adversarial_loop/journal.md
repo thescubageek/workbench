@@ -51,6 +51,12 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-10-01 14:20 — R12-T3 (closed)
+
+- **Task/phase**: R12-T3, technical-english cites implement Step 6a for the task-line parser.
+- **Landed**: technical-english cites implement Step 4, BARRIER 2 for the first unchecked task line instead of Step 6a (grep for the old phrase 1 to 0). test-prime 44 of 44 and link_check pass.
+- **Started at**: f6962e2
+
 ## 2026-10-01 14:19 — R12-T2 (closed)
 
 - **Task/phase**: R12-T2, the ledger commit block exits 128 when review-log.md does not exist.

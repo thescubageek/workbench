@@ -51,7 +51,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       no ledger file; assert exit 0 and no new commit; then with a ledger row present assert it
       still commits only the ledger. RED today: exit 128. (~5 calls) (completed 2026-10-01 14:19)
 
-- [ ] **R12-T3** — `plugin/docs/reference/technical-english.md:109` — the "Task lines" citation
+- [x] **R12-T3** — `plugin/docs/reference/technical-english.md:109` — the "Task lines" citation
       points at implement Step 6a, which holds no task-ID parser or line pattern.
       **Fails when:** a maintainer changing the task-line contract follows "`implement/SKILL.md`,
       Step 6a, the checkbox check" to find the ID shape and the `- [ ]` and `- [x]` patterns; Step 6a
@@ -60,7 +60,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       line citation.
       **Acceptance (shape 3)**: dual grep — "Step 6a, the checkbox check" absent from the file, and
       the citation names Step 4's BARRIER 2 rule (the first `- [ ]` line in the current phase) at a
-      cited line. (~3 calls)
+      cited line. (~3 calls) (completed 2026-10-01 14:21)
 
 - [ ] **R12-T4** — `plugin/skills/reply-to-claude/SKILL.md:20` (also `:58`) — the Preconditions
       bullet still states the old ancestry-only test, and the refusal's remedy "check out its
