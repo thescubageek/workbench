@@ -233,10 +233,12 @@ If the user has follow-up questions:
 
 ### Step 9: Confirm Completion
 
+Write this output in wb Technical English (WBTE): read [technical-english.md](../../docs/reference/technical-english.md) and apply it. Keep every exempt token exactly as it is.
+
 Emit a one-line summary, not a recap:
 
 ```
-✅ product-research.md updated — [topic]; validation [PASS/WARN]. Next: /wb:create_design
+✅ product-research.md updated — [topic]. Validation: [PASS/WARN]. Next: /wb:create_design
 ```
 
 **Then, only if the findings earned it, suggest `explore_design`.**

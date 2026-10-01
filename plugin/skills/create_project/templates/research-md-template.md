@@ -1,5 +1,7 @@
 # research.md Template
 
+Write this output in wb Technical English (WBTE): read [technical-english.md](../../../docs/reference/technical-english.md) and apply it. Keep every exempt token exactly as it is.
+
 ````markdown
 ---
 project: [project-name]
@@ -54,7 +56,7 @@ tags: [research, codebase, [project-name]]
 
 ## Code References
 
-Quick reference to key files:
+These are the key files:
 [Specific file:line references - to be added]
 
 ## Similar Implementations
@@ -63,8 +65,8 @@ Quick reference to key files:
 
 ## Open Questions
 
-Questions that block the next phase live here as a table with local IDs. To be populated by
-`/wb:create_research`.
+This table lists the questions that block the next phase. Each question has a local ID.
+`/wb:create_research` fills the table.
 
 | ID | Question | Blocks | State |
 | -- | -------- | ------ | ----- |
@@ -72,8 +74,8 @@ Questions that block the next phase live here as a table with local IDs. To be p
 
 ## Next Steps
 
-1. Run `/wb:create_research [directory]` to populate this document
-2. Review findings before design
+1. Run `/wb:create_research [directory]` to fill this document.
+2. Review the findings before the design starts.
 
 ## References
 

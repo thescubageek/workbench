@@ -232,6 +232,179 @@ follow-up.
 claude plugin update wb@thescubageek-workbench
 ```
 
+## [2.2.0] — 2026-09-30
+
+wb Technical English (WBTE) is a writing standard for everything the workbench writes for a
+person to read: plan documents, handoffs, reports, PR descriptions, commit messages, and the
+conversation. It is adapted from the principles of ASD-STE100 Issue 9. ASD does not endorse it,
+and it is not ASD-STE100 compliant. The plugin contains no text from the standard and no part
+of its dictionary.
+
+Measured on the harness fixture (3 repeats, `sonnet`), 2.1.1 against the final Phase 4 tree
+(card v3). The later card changes were not measured:
+
+| Measure | 2.1.1 | 2.2.0 |
+| ------- | ----- | ----- |
+| Document sentences over 25 words | 7.0% | 2.9% |
+| Semicolons in document prose | 82 | 9, all in the `tasks.md` boilerplate that 3.0.0 shares |
+| Chat IDs used alone | 25 | 2, in one sentence |
+| Lost facts (the within-run judge) | none in 3 of 3 | none in 3 of 3 |
+| Always-on token cost (the current tree) | ~3,251 | ~3,539, plus the rule card (149 words) |
+| Cost of `create_research`, `create_design`, `create_tasks` on invoke | ~5.2k, ~5.4k, ~3.8k | unchanged |
+
+The 2 chat IDs are a known remainder. If they show up in real use, a 2.2.x patch tightens the
+rule. A stage that follows a link line also reads the reference doc, about 2,500 tokens.
+
+### Added
+
+- **`plugin/docs/reference/technical-english.md`**, the single authority for WBTE. It holds the
+  output rules, the lighter rules for instruction prose, the technical nouns, the rules for IDs
+  and shorthand, the exempt tokens that parsers match, how WBTE combines with Output
+  discipline, the optional dictionary, and repository terms.
+- **A rule card at every session start.** `hooks/wb-prime.sh` prints a summary of the rules
+  (149 words) on startup, resume and compaction, with or without active plans, and outside the
+  `.claude/wb/PRIME.md` override. It does not print on PreCompact.
+  `WB_TECH_ENGLISH=0` turns it off. With the switch set, the hook output is byte-identical to
+  2.1.1.
+- **`plugin/scripts/test-prime`**, 44 contract checks for the session-start hook.
+- **`/wb:pr-description`**, for short PR descriptions.
+  - It drafts the title and body from the branch's commits and diff. It fills the repository's
+    PR template, or a generic one, scopes each section, and aims for about one screen.
+  - It runs `gh pr create` or `gh pr edit` only after the user confirms.
+  - `plugin/scripts/pr-template` finds the template in GitHub's order, and
+    `plugin/scripts/test-pr-template` tests it.
+- **`/wb:wbte-dictionary`** and `plugin/scripts/wbte-dictionary`.
+  - They make a private copy of the approved-word dictionary from the user's own free copy of
+    the Issue 9 PDF.
+  - The copy is `~/.claude/wb/wbte-dictionary.tsv`, outside every repository. The script
+    refuses to write inside a git work tree, also when only `~/.claude` is one.
+  - It needs `pdftotext` or python3 with `pypdf`, and the plugin works without it.
+  - `plugin/scripts/test-wbte-dictionary` tests it with invented words only.
+- **Repository terms.** A repository can list its own technical nouns in
+  `.claude/wb/technical-nouns.md`.
+
+### Changed
+
+- **Every output template links to the reference doc.** That is 44 templates, including the new
+  PR template, and 4 inline output steps in `create_project`, `create_research`,
+  `create_product_research` and `resolve_questions`.
+- **32 output templates** not shared with 3.0.0 are rewritten in WBTE.
+- **7 instruction files** for `create_research`, `create_design` and `create_tasks` get a
+  "lite" rewrite. Each passed a no-loss gate in the harness, with 1 repeat instead of 3.
+- **The `plan-presentation-message.md` summary** lists assumptions and pending decisions with
+  their meanings.
+- **`/wb:help` and `plugin/scripts/README.md`** describe `/wb:pr-description`,
+  `/wb:wbte-dictionary`, their scripts, and the three new contract tests.
+
+### Fixed
+
+- **A `.wblintignore` entry now wins over a `.gitignore` entry for the same path.** Before,
+  `git check-ignore` gave the match to `.gitignore`, so `wb_lint_ignored` linted the path. The
+  bug came in 2.1.1. `.wblintignore` also gains `evals/runs/`, so `./plugin/scripts/lint --all`
+  skips the generated harness output. `test-lint` has 3 new checks.
+
+### Not changed, deliberately
+
+- **The 48 files that the 3.0.0 branch also changes** get only small, local edits. Their prose
+  waits for the first release after 3.0.0, including the `create_tasks` boilerplate that holds
+  the remaining semicolons. The 3.0.0 handoff lists every edit.
+- **The `codebase-analyzer` and `codebase-locator` agents.** Their lite rewrite was restored
+  after its gate found a lost fact.
+- **No runtime check.** The rules reach the model as instructions. The lint hook, CI and the
+  validators do not check wording, and no new requirement applies to users.
+- **Parser tokens.** Every task-ID shape, journal heading, status value, checkpoint label and
+  report heading that a parser or validator matches is unchanged.
+
+### Migration
+
+None. To turn the card off, set `WB_TECH_ENGLISH=0`. Update the plugin and restart:
+
+```bash
+claude plugin update wb@thescubageek-workbench
+```
+
+## [2.1.1] — 2026-09-29
+
+A data-loss fix in the markdown lint hook. `lint-hook` ran `lint --fix` on markdown files a
+Bash command had merely **read**, and `lint` applied no exclusions at all to files named
+explicitly — the route the hook uses. Together they silently rewrote a vendored, hash-verified
+documentation mirror in a consuming repository. Reported with patches by a downstream user;
+caught only because that mirror carries a per-file sha256 manifest. Most repositories have no
+manifest, and for them this failure was invisible.
+
+Rolled as a patch so the version-keyed plugin cache picks it up. It will be absorbed into 3.0.0.
+
+### Fixed
+
+- **The Bash route auto-fixed files it could not know it had written.** The guard was
+  `find -mmin -1`, which answers *"was this file modified recently?"* — never *"did **this
+  command** modify it?"* Those diverge exactly when an earlier step writes a batch of markdown
+  and a later command reads one of them, which bulk generators (doc mirrors, codegen,
+  scaffolding, `create_project` itself) make the common case rather than the edge case. This is
+  a `PostToolUse` hook, so there is no pre-state to compare against: the information needed to
+  answer the question is not available at the point the question is asked. **So the question is
+  no longer asked.** The Bash route now reports and never rewrites, which preserves the guard's
+  actual intent — markdown written via a heredoc should not bypass linting — without the
+  destructive false positive. `Write`/`Edit` take their path from `tool_input.file_path`, which
+  *is* unambiguous, so those still auto-fix.
+- **`lint` applied no exclusions to explicit file arguments.** The exclude list lived only
+  inside the `--all` branch, so any path handed in — every path the hook hands in — was linted
+  regardless. Exclusions now come from `wb_lint_ignored()` in the new
+  `plugin/scripts/lint-common.sh`, consulted on **all three** file-selection routes.
+- **The `--all` exclusions were anchored to the repository root.** `./vendor/*` never matched
+  `docs/vendor/`, `third_party/vendor/`, or any nested vendor directory — even `--all` would
+  have rewritten the mirror. All built-in exclusions now match at any depth.
+- **`.markdownlintrc.tmp` was written into `$PWD` and removed with a bare `rm -f`.** Two
+  concurrent lints in one repository raced on it, and a `set -euo pipefail` abort left it behind
+  as an untracked file that then appeared in the *next* run's changed-files sweep. It is now
+  created in a `mktemp -d` directory removed by an `EXIT` trap.
+
+### Added
+
+- **`.wblintignore` and `.markdownlintignore` are honoured**, at the repository root, on every
+  route. `markdownlint-cli` already reads the latter, so a repository that has one has already
+  declared its intent; wb ignoring that file was surprising. Matching reuses `git check-ignore`
+  rather than reimplementing gitignore semantics — but `core.excludesFile` is *additive*, so
+  the repository's own `.gitignore` still matches and `check-ignore -v` is parsed to accept a
+  hit only from the file wb passed in. Honouring `.gitignore` would be wrong here: `docs/plans/`
+  is gitignored until a plan is promoted, and plan documents are exactly what the hook exists
+  to lint.
+- **`WB_LINT_HOOK=0`** — a one-line kill switch that makes the hook a no-op, so anyone hitting
+  a problem with it has an escape hatch that does not require editing the plugin manifest.
+- **`WB_LINT_FIX_ON_BASH=1`** — opt back into auto-fixing on the Bash route, for anyone who
+  wants the old behaviour and accepts that a read-only command can then silently rewrite
+  content the session did not author. Opt-in, because the failure mode is silent corruption and
+  that is the wrong thing to have on by default.
+- **`plugin/scripts/test-lint`** — contract tests for both scripts, covering the reporter's
+  suggested cases: read-only Bash does not mutate, vendor paths are excluded at any depth on
+  the explicit route, both ignore files are honoured, a gitignored-but-not-lint-ignored path is
+  still linted, `Write`/`Edit` still fixes, and both env vars behave. Verified against a planted
+  regression — reverting the two fixes turns 8 of the 15 checks red — so they are known to fire
+  rather than merely known to pass.
+
+### Not changed, deliberately
+
+- **The invented default config still applies with `--fix`.** The report noted that
+  `--fix`-ing house style (`MD003: atx`, `MD007: indent 2`, `MD024 siblings_only`) into files
+  the session did not author is a stylistic opinion expressed as a mutation. That is true, and
+  it is now unreachable: after the Bash-route fix, hook-driven `--fix` only runs on the file a
+  `Write`/`Edit` just authored, and any other `--fix` is a human typing the command. Making it
+  report-only would leave every repository without a markdownlint config with no autofix at
+  all, which is a real feature loss against an exposure that no longer exists.
+- **`grep -oE '[A-Za-z0-9._~/-]+\.md'` still over-matches** `.md` paths inside quoted strings
+  and unrelated arguments — a `git commit -m` message naming `README.md`, for instance. It now
+  determines only what gets *reported*, so the cost is a stray line rather than a rewrite, and
+  tightening it risks missing the heredoc writes the Bash route exists to catch.
+
+### Migration
+
+None, unless you were relying on the Bash route to auto-fix — set `WB_LINT_FIX_ON_BASH=1` if
+so. Update the plugin and restart:
+
+```bash
+claude plugin update wb@thescubageek-workbench
+```
+
 ## [2.0.1] — 2026-09-16
 
 Two prompt bugfixes in the shipped skill bodies, found by running `/wb:validate_execution`

@@ -1,20 +1,22 @@
 # resume_handoff — templates
 
+Write this output in wb Technical English (WBTE): read [technical-english.md](../../docs/reference/technical-english.md) and apply it. Keep every exempt token exactly as it is.
+
 Read the **section you need**, when its step directs you to.
 
 Sections: `Resume confirmation` (Step 6)
 
 ## Resume confirmation
 
-Step 6 — emitted once, when context has been restored and work is about to continue.
+Step 6. Emit this once, when the context is restored and work is about to continue.
 
 ```
-✅ Successfully resumed from handoff
+✅ Work resumed from the handoff.
 
 Handoff Summary:
 - Created: [date/time from handoff]
 - Previous Session: ran on [model]
-- Tasks Completed: [X]/[Y] (counted from tasks.md checkboxes, not from the handoff's claim)
+- Tasks Completed: [X]/[Y] (counted from the tasks.md checkboxes, not taken from the handoff)
 - Current Phase: [N] - [name]
 
 Key Context Restored:
@@ -24,22 +26,22 @@ Key Context Restored:
 
 Current State:
 - Git: [branch] at [commit]
-- Uncommitted changes: [YES — what they are / NO]
+- Uncommitted changes: [YES, and what they are / NO]
 - Tests: [PASSING/FAILING]
-- Plan: [X]/[Y] tasks [x]; next unchecked is [ID] — [title]
+- Plan: [X]/[Y] tasks [x]. The next unchecked task is [ID] — [title]
 - Journal: last entry [OPEN since <time> / CLOSED]
 
 Reconciliation:
-[Only if the handoff and the working tree disagree — say which is which and which
- one you are trusting. Omit entirely when they agree.]
+[Only if the handoff and the working tree disagree. Say what each one says, and
+ which one you trust. Omit this section when they agree.]
 
-Ready to continue with:
+Next task:
 [Next immediate task from tasks.md]
 
-Using approach:
+Approach:
 [Recommended approach from handoff]
 
-Watching for:
+Watch for:
 - [Gotcha 1 from handoff]
 - [Gotcha 2 from handoff]
 ```

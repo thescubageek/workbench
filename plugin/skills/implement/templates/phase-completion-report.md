@@ -1,5 +1,7 @@
 # Phase completion report
 
+Write this output in wb Technical English (WBTE): read [technical-english.md](../../../docs/reference/technical-english.md) and apply it. Keep every exempt token exactly as it is.
+
 Step 8 — emitted once. **Attended:** after the human confirms manual verification. **Under
 `--auto`:** immediately, with two additions that are part of the report and not optional extras.
 

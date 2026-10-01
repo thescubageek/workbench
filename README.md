@@ -142,6 +142,8 @@ Background capabilities that Claude automatically invokes:
 - **`daily-digest`** - Morning "catch me up + plan my day" orchestrator across Jira, wb plans, git, and more
 - **`clip`** - Runs an instruction, then copies the result to the clipboard (cross-platform) instead of printing it
 - **`eli5-clip`** - Summarizes recent work as a warm, plain-language message for a non-technical reader and copies it to the clipboard, tailored to a named recipient
+- **`pr-description`** - Drafts a short WBTE PR title and body from the branch, in the repository's PR template, and creates or updates the PR after you confirm
+- **`wbte-dictionary`** - Makes a private copy of the ASD-STE100 approved-word dictionary from your own copy of the Issue 9 PDF
 
 ### Reference docs (`plugin/docs/reference/`)
 
@@ -260,6 +262,36 @@ The `/wb:*` commands already keep narration terse (act on barriers silently, emi
 
 The plugin cannot (and does not) write to your personal config — this rule is opt-in by design.
 
+## wb Technical English (WBTE)
+
+wb Technical English (WBTE) is the writing standard for everything the workbench writes for a
+person to read: plan documents, handoffs, reports, PR descriptions, commit messages, and the
+conversation. It gives short sentences, one instruction in each sentence, no semicolons, no
+unexplained IDs, and exact values in place of vague phrases.
+
+WBTE is adapted from the principles of ASD-STE100 Issue 9. ASD does not endorse it, and it is
+not ASD-STE100 compliant. The plugin contains no text from the standard and no part of its
+dictionary.
+
+- **The rules** are in one file, `plugin/docs/reference/technical-english.md`. Every output
+  template links to it.
+- **The rule card** is a short summary of the rules. The session-start hook prints it on every
+  startup, resume, and compaction.
+- **PR descriptions and commit messages** stay short. `/wb:pr-description` drafts a PR title
+  and body from the branch, and creates or updates the PR after you confirm.
+- **Repository terms.** A repository can list its own technical nouns in
+  `.claude/wb/technical-nouns.md`, one on each line. WBTE treats them as approved terms.
+- **The optional dictionary.** Download the free ASD-STE100 Issue 9 PDF from ASD, then run
+  `/wb:wbte-dictionary <path-to-the-pdf>`.
+  - The command writes a private copy to `~/.claude/wb/wbte-dictionary.tsv`, outside every
+    repository.
+  - It needs `pdftotext` (poppler) or python3 with `pypdf`.
+  - The plugin works without the copy.
+
+| Variable | Effect |
+| -------- | ------ |
+| `WB_TECH_ENGLISH=0` | Do not print the rule card at session start |
+
 ## Development
 
 ### Scripts
@@ -271,6 +303,7 @@ The plugin cannot (and does not) write to your personal config — this rule is 
 ./plugin/scripts/lint           # Lint changed markdown
 ./plugin/scripts/lint --fix     # Auto-fix issues
 ./plugin/scripts/lint --all     # Lint every markdown file
+./plugin/scripts/test-lint      # Contract tests for lint + lint-hook
 
 ./plugin/scripts/check-guards   # Find measurements whose failure reads as a clean result
 ./plugin/scripts/count          # A match count whose failure is distinguishable from zero
@@ -301,6 +334,19 @@ the number on stdout is trustworthy including zero, 2 means it could not be take
 
 `lint-hook` is not run by hand — it is the PostToolUse hook body, wired in `plugin.json`, which
 runs `lint --fix` on any markdown a Write or Edit touches.
+
+`lint` never touches `vendor/`, `node_modules/`, `.git/`, `.context/`, `tmp/`, `.next/`,
+`dist/` or `build/` at any depth, and honours a repository's `.wblintignore` or
+`.markdownlintignore`. These apply on **every** route, including explicitly named files.
+A path that is merely `.gitignore`d is still linted — wb's own plan directories live in one.
+
+The `lint-hook` PostToolUse hook auto-fixes on `Write`/`Edit`, where the path is unambiguous,
+and **reports without rewriting** on `Bash`, where it cannot tell a write from a read.
+
+| Variable | Effect |
+| -------- | ------ |
+| `WB_LINT_HOOK=0` | Disable the hook entirely |
+| `WB_LINT_FIX_ON_BASH=1` | Opt back into auto-fixing on the Bash route |
 
 `check-guards` scans shipped shell and fenced `bash` blocks for three shapes whose failure is
 indistinguishable from "nothing matched": a `grep -c` captured without a status guard, an unquoted

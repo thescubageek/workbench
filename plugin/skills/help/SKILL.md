@@ -180,6 +180,14 @@ Morning "catch me up + plan my day" orchestrator. Restores active-project contex
 
 Advises which Claude model + reasoning-effort to run a task at (advice only, never implements). Also runs in **gate mode**: the per-phase "model journey" a `forge` should take and whether switching the main model at a gate is worth the context-reload cost.
 
+### `/wb:pr-description [base-branch] [--update]`
+
+Drafts a short PR title and body in WBTE from the branch's commits and diff. It fills the repository's own PR template, or a generic one, scopes each section to what a reviewer needs, and aims for about one screen. It runs `gh pr create` or `gh pr edit` only after you confirm.
+
+### `/wb:wbte-dictionary [path-to-ASD-STE100-Issue-9.pdf]`
+
+Makes a private copy of the ASD-STE100 approved-word dictionary from your own copy of the free Issue 9 PDF. The copy is `~/.claude/wb/wbte-dictionary.tsv`, outside every repository. It is optional. With the copy, the model can look up one word when it is not sure the word is approved in wb Technical English (WBTE). The WBTE rules are in `docs/reference/technical-english.md`, and a short rule card prints at every session start. `WB_TECH_ENGLISH=0` turns the card off.
+
 ## Other skills
 
 Not pipeline stages — invoke them directly when you want them.
@@ -209,6 +217,7 @@ changes in one place.
 
 | Doc | Governs |
 | --- | ------- |
+| `docs/reference/technical-english.md` | How wb writes plans, reports, chat, PRs and commit messages: wb Technical English (WBTE) |
 | `docs/reference/branch-naming.md` | What the working branch is called, and when to rename it |
 | `docs/reference/journal-entries.md` | Where a journal entry goes — newest at the top, never appended — its `(open)`/`(closed)` contract, and when it opens and closes |
 | `docs/reference/code-review-integration.md` | What Claude Code's built-in review commands provide, and which parts of that a skill may rely on |

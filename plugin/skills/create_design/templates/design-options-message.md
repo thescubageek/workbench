@@ -1,9 +1,11 @@
 # Design options message
 
-Step 4, Mode B — no decision record, so options are generated here.
+Write this output in wb Technical English (WBTE): read [technical-english.md](../../../docs/reference/technical-english.md) and apply it. Keep every exempt token exactly as it is.
+
+Step 4, Mode B. There is no decision record, so this step generates the options.
 
 ```
-Based on the research and verification agents, I see [2-3] possible approaches:
+The research and the verification agents show [2-3] possible approaches:
 
 **Option A: [Descriptive Name]**
 - Approach: [Brief description]
@@ -19,6 +21,6 @@ Based on the research and verification agents, I see [2-3] possible approaches:
 - Risk: [Main risk]
 - Precedent: [Similar implementation from agents]
 
-Which approach aligns best with your priorities?
-Or should we explore a hybrid approach?
+Which approach fits your priorities best?
+You can also ask for a hybrid of two approaches.
 ```

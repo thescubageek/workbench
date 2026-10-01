@@ -1,6 +1,8 @@
 # Completion message
 
-Step 7 — emitted once, after the document is written.
+Write this output in wb Technical English (WBTE): read [technical-english.md](../../../docs/reference/technical-english.md) and apply it. Keep every exempt token exactly as it is.
+
+Step 7. Emit this once, after the document is written.
 
 ```
 ✅ Exploration recorded: [path]/thoughts/[YYYY-MM-DD]-[topic].md
@@ -12,7 +14,7 @@ Rejected: [N] alternatives, with reasons
 This stage does not write design.md. Run:
   /wb:create_design [project-dir]
 
-It will find this record, present the decision for confirmation, and formalize
-it — including carrying the rejected alternatives across, so the reasoning is
-not regenerated from scratch.
+It finds this record, presents the decision for confirmation, and writes it
+into design.md. It also carries the rejected alternatives across, so the
+reasoning is not generated again.
 ```

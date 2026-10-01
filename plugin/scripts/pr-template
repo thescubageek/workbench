@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+
+# Print the PR template that /wb:pr-description fills.
+#
+# Usage: pr-template
+#
+# Looks where GitHub looks, in GitHub's order: .github/, the repository root, then docs/. In each
+# place, a pull_request_template.md (any case) is the default template, and the .md files of a
+# PULL_REQUEST_TEMPLATE/ directory are the others. Each output line is "repo <absolute path>".
+# If the repository has no template, the one line is "generic <absolute path>", the template
+# that ships with the skill. Outside a git repository, the current directory is the root.
+#
+# Exit 0 always. It only reads.
+
+set -uo pipefail
+
+root="$(git rev-parse --show-toplevel 2>/dev/null)" || root="$(pwd -P)"
+generic="$(cd "$(dirname "$0")/.." && pwd)/skills/pr-description/templates/pr-description.md"
+
+found=""
+for dir in "$root/.github" "$root" "$root/docs"; do
+  [ -d "$dir" ] || continue
+  default=$(find "$dir" -maxdepth 1 -type f -iname 'pull_request_template.md' 2>/dev/null | sort | head -1)
+  if [ -n "$default" ] && [ -z "$found" ]; then
+    echo "repo $default"
+    found=1
+  fi
+done
+for dir in "$root/.github" "$root" "$root/docs"; do
+  [ -d "$dir" ] || continue
+  sub=$(find "$dir" -maxdepth 1 -type d -iname 'pull_request_template' 2>/dev/null | head -1)
+  [ -n "$sub" ] || continue
+  while IFS= read -r f; do
+    [ -n "$f" ] && echo "repo $f" && found=1
+  done < <(find "$sub" -maxdepth 1 -type f -iname '*.md' 2>/dev/null | LC_ALL=C sort)
+done
+
+[ -n "$found" ] || echo "generic $generic"
+exit 0

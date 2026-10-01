@@ -1,14 +1,17 @@
 # Recorded-decision confirmation message
 
-Step 4, Mode A — a decision record exists, so it is confirmed rather than re-derived.
+Write this output in wb Technical English (WBTE): read [technical-english.md](../../../docs/reference/technical-english.md) and apply it. Keep every exempt token exactly as it is.
+
+Step 4, Mode A. A decision record exists, so this step confirms it and does not derive it
+again.
 
 ```
-Research and exploration already converged on a recorded decision:
+Research and exploration already reached a recorded decision:
 
 **Chosen direction**: [name from the decision record]
 **Rationale**: [rationale from the record]
 **Exploration record**: [thoughts doc path]
 
-I'll formalize this into design.md. Confirm, or tell me if the decision
-should be revisited.
+I will write this decision into design.md. Confirm it, or tell me to
+revisit the decision.
 ```

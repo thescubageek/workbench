@@ -1,5 +1,7 @@
 # Modified Files fragment
 
+Write this output in wb Technical English (WBTE): read [technical-english.md](../../../docs/reference/technical-english.md) and apply it. Keep every exempt token exactly as it is.
+
 Step 7 — aggregate every worker's output into this section of `tasks.md`.
 
 **One substitution branches on the kind of plan.** A remediation plan

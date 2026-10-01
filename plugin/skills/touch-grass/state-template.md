@@ -1,9 +1,11 @@
 # state.md — touch-grass checkpoint
 
+Write this output in wb Technical English (WBTE): read [technical-english.md](../../docs/reference/technical-english.md) and apply it. Keep every exempt token exactly as it is.
+
 <!--
-Copy this file to your checkpoint dir (default `.context/<slug>/state.md`) and fill it in
-BEFORE any research. This file is the spine: assume the session is killed between segments,
-so resume must be lossless from THIS FILE ALONE. Keep sections in this order.
+Copy this file to your checkpoint directory (the default is `.context/<slug>/state.md`). Fill it
+in BEFORE any research. This file holds the whole run. Assume that the session stops between
+segments, so a resume must lose nothing and use THIS FILE ALONE. Keep the sections in this order.
 -->
 
 ## Header
@@ -15,16 +17,16 @@ so resume must be lossless from THIS FILE ALONE. Keep sections in this order.
 - **Checkpoint dir:** <path>
 - **Deliverable file:** <path, e.g. .context/<slug>/report.md>
 
-<!-- AMENDMENT blocks: appended VERBATIM when the user changes scope mid-run.
-     Never rewrite history above — amendments are how later segments inherit changes. -->
+<!-- AMENDMENT blocks: append one VERBATIM when the user changes the scope during the run.
+     Never rewrite the history above. Later segments get the changes from the amendments. -->
 
 ### AMENDMENT 1 — <date/time>
 
-<what the user changed, in their words + your restatement>
+<what the user changed, in their words, and your restatement>
 
 ## Segment plan
 
-<!-- Each segment = ONE sub-question. Size it before running. Check off when its FINDINGS are written. -->
+<!-- Each segment is ONE sub-question. Size it before you run it. Tick it when its FINDINGS are written. -->
 
 - [ ] S1: <sub-question> — size: <small|medium|large>, est. <N> calls
 - [ ] S2: <sub-question> — size: <…>, est. <N> calls
@@ -32,7 +34,7 @@ so resume must be lossless from THIS FILE ALONE. Keep sections in this order.
 
 ## Budget ledger
 
-| Segment | Estimate | Actual | Notes (log every conscious cut here — silent truncation forbidden) |
+| Segment | Estimate | Actual | Notes (record every deliberate cut here. Silent truncation is forbidden) |
 | ------- | -------- | ------ | ------------------------------------------------------------------ |
 | S1      | <N>      | <N>    | <e.g. "skipped source X because Y">                                |
 
@@ -40,13 +42,13 @@ so resume must be lossless from THIS FILE ALONE. Keep sections in this order.
 
 ### S1 — <sub-question> — confidence: <high|medium|low>
 
-<dense, self-contained findings. Cite sources by id from the ledger below.>
+<short, complete findings. Cite each source by its number in the ledger below.>
 
 <!-- add one FINDINGS block per completed segment -->
 
 ## Decision so far
 
-<running verdict, updated EVERY segment. What would you answer if forced to stop now?>
+<the current verdict. Update it after EVERY segment. What is the answer if the run stops now?>
 
 ## Sources ledger
 
@@ -56,5 +58,5 @@ so resume must be lossless from THIS FILE ALONE. Keep sections in this order.
 
 ## Next action
 
-<Write this concretely enough that a COLD-CONTEXT model could execute it verbatim.
-Name the exact segment, the sources to hit, and the depth. This is what the wakeup prompt resumes into.>
+<Write this so that a model with NO earlier context can do it exactly as written.
+Name the segment, the sources, and the depth. The wakeup prompt resumes from this action.>

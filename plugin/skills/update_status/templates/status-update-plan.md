@@ -1,5 +1,7 @@
 # Status update plan
 
+Write this output in wb Technical English (WBTE): read [technical-english.md](../../../docs/reference/technical-english.md) and apply it. Keep every exempt token exactly as it is.
+
 Step 4 — present this and **wait** for confirmation before writing anything.
 
 **Two substitutions branch on the kind of plan.** A remediation plan

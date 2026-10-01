@@ -33,4 +33,4 @@ The command accepts the directory path as a parameter:
 /wb:create_research docs/plans/2025-10-07-my-project
 ```
 
-Or prompts for it if not provided.
+If the directory path is not given, the command prompts for it.

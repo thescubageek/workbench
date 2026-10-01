@@ -1,0 +1,101 @@
+#!/usr/bin/env bash
+
+# Make a private copy of the ASD-STE100 dictionary from the user's own copy of the Issue 9 PDF.
+#
+# Usage: wbte-dictionary <path-to-ASD-STE100-Issue-9.pdf | extracted-text-file>
+#
+# Writes ${HOME}/.claude/wb/wbte-dictionary.tsv with the columns word, pos, status (approved or
+# not approved), and alternatives. The alternatives column is best-effort: the PDF's columns
+# wrap, so some rows have it empty. ASD does not permit redistribution, so the copy lives
+# outside every repository: the script refuses to write inside a git work tree and writes
+# nowhere else.
+#
+# Extraction uses `pdftotext -layout` if present, otherwise python3 with pypdf. A plain-text
+# input (no %PDF header) is parsed as already-extracted layout text.
+#
+# Exit 0 on success, 2 on a usage error or a missing extractor, 3 on a refusal.
+
+set -uo pipefail
+
+in="${1:-}"
+if [ -z "$in" ] || [ ! -f "$in" ]; then
+  echo "wbte-dictionary: give the path to your copy of the ASD-STE100 Issue 9 PDF." >&2
+  exit 2
+fi
+
+out_dir="${HOME}/.claude/wb"
+out="$out_dir/wbte-dictionary.tsv"
+
+probe="$out_dir"
+while [ ! -d "$probe" ] && [ "$probe" != "/" ]; do probe="$(dirname "$probe")"; done
+if command -v git >/dev/null 2>&1 &&
+   [ "$(git -C "$probe" rev-parse --is-inside-work-tree 2>/dev/null)" = "true" ]; then
+  echo "wbte-dictionary: refused. $out_dir is inside a git work tree, and the dictionary copy must stay out of every repository." >&2
+  exit 3
+fi
+
+tmp="$(mktemp -d)"
+trap 'rm -rf "$tmp"' EXIT
+text="$tmp/text.txt"
+
+if [ "$(head -c 5 "$in")" = "%PDF-" ]; then
+  if command -v pdftotext >/dev/null 2>&1; then
+    pdftotext -layout "$in" "$text" || { echo "wbte-dictionary: pdftotext could not read $in." >&2; exit 2; }
+  elif command -v python3 >/dev/null 2>&1 && python3 -c 'import pypdf' 2>/dev/null; then
+    python3 - "$in" "$text" <<'PY' || { echo "wbte-dictionary: pypdf could not read the PDF." >&2; exit 2; }
+import sys
+from pypdf import PdfReader
+with open(sys.argv[2], "w", encoding="utf-8") as fh:
+    for page in PdfReader(sys.argv[1]).pages:
+        fh.write(page.extract_text(extraction_mode="layout") + "\n")
+PY
+  else
+    echo "wbte-dictionary: no PDF text extractor found. Install one of these, then run again:" >&2
+    echo "  - pdftotext (poppler: 'brew install poppler' or 'apt install poppler-utils')" >&2
+    echo "  - python3 with pypdf ('python3 -m pip install pypdf')" >&2
+    exit 2
+  fi
+else
+  cat "$in" > "$text"
+fi
+
+# A headword line: at most two spaces of indent, a word, its part of speech in parentheses, then
+# a comma (an approved verb lists its forms) or at least two spaces. A line indented further is
+# the alternatives column of an earlier entry. A capitalized headword is approved. For an
+# unapproved word, the capitalized phrases with a part of speech on the same line are its
+# approved alternatives, for example "MAKE SURE (v)". A later entry for the same word and part of
+# speech replaces an earlier one, so the dictionary wins over the change record.
+awk '
+  {
+    line = $0 "  "
+  }
+  match(line, /^ ? ?[A-Za-z][A-Za-z'"'"' -]*[A-Za-z] \((v|n|adj|adv|prep|conj|pron|art)\)(,|  )/) {
+    head = substr(line, 1, RLENGTH)
+    rest = substr(line, RLENGTH + 1)
+    word = head; sub(/^ +/, "", word); sub(/ \(.*$/, "", word)
+    pos = head; sub(/^.*\(/, "", pos); sub(/\).*$/, "", pos)
+    approved = (word == toupper(word))
+    alts = ""
+    if (!approved) {
+      while (match(rest, /[A-Z][A-Z-]*( [A-Z][A-Z-]*)* \((v|n|adj|adv|prep|conj|pron|art)\)/)) {
+        alts = alts (alts == "" ? "" : ", ") substr(rest, RSTART, RLENGTH)
+        rest = substr(rest, RSTART + RLENGTH)
+      }
+    }
+    key = tolower(word) "\t" pos
+    entry[key] = key "\t" (approved ? "approved" : "not approved") "\t" alts
+  }
+  END { for (k in entry) print entry[k] }
+' "$text" | LC_ALL=C sort > "$tmp/rows.tsv"
+
+count=$(wc -l < "$tmp/rows.tsv" | tr -d ' ')
+if [ "$count" -eq 0 ]; then
+  echo "wbte-dictionary: no dictionary entries found in $in. Is it the ASD-STE100 Issue 9 PDF?" >&2
+  exit 2
+fi
+
+mkdir -p "$out_dir"
+{ printf 'word\tpos\tstatus\talternatives\n'; cat "$tmp/rows.tsv"; } > "$tmp/out.tsv"
+mv "$tmp/out.tsv" "$out"
+approved=$(awk -F '\t' '$3 == "approved"' "$tmp/rows.tsv" | wc -l | tr -d ' ')
+echo "wbte-dictionary: wrote $count entries ($approved approved) to $out"

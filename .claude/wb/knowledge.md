@@ -97,16 +97,22 @@ we have the in-repo cautionary example for that.
 - **Verified**: 2026-09-08 · `docs/plans/2026-09-08-upstream-fable-merge/`
 - **Check it**: `/agents` in a session prints "The /agents wizard has been removed."
 
-## `./plugin/scripts/lint --all` does not consult `.gitignore`
+## `./plugin/scripts/lint` deliberately ignores `.gitignore`, and honours `.wblintignore` instead
 
-- **Why it matters**: it walks the tree with a hardcoded exclusion list
-  (`node_modules`, `.git`, `.context`, `vendor`, `tmp`, `.next`, `dist`, `build`). Any *other*
-  gitignored directory holding markdown — a vendored export, a scratch area — gets linted and
-  fails the gate for findings that are not ours. The fix is to add the path to that list, not
-  to reinterpret the gate.
-- **Verified**: 2026-09-08 · `docs/plans/2026-09-08-upstream-fable-merge/`
-- **Check it**: `sed -n '/LINT_ALL.*true/,/^else/p' plugin/scripts/lint` shows the `find`
-  exclusion list.
+- **Why it matters**: `docs/plans/` is gitignored until a plan is promoted, and plan documents
+  are exactly what the lint hook exists to lint — so honouring `.gitignore` would silently stop
+  linting the workflow's own output. Exclusions instead come from `wb_lint_ignored()` in
+  `plugin/scripts/lint-common.sh`: a built-in list (`vendor`, `node_modules`, `.git`,
+  `.context`, `tmp`, `.next`, `dist`, `build`, matched at **any** depth) plus `.wblintignore`
+  and `.markdownlintignore` at the repo root. To exclude a path, add it to `.wblintignore` or
+  to that built-in list — do not reach for `.gitignore`, and do not reinterpret the gate.
+- **The subtlety that bites**: `git check-ignore -c core.excludesFile=<f>` is *additive* — the
+  repository's own `.gitignore` still matches. `wb_lint_ignored` parses `check-ignore -v` and
+  accepts a match only when the reported source is the file it passed in. Anyone rewriting that
+  predicate will reintroduce the plans-not-linted bug if they drop the source check.
+- **Verified**: 2026-09-29 · wb 2.1.1
+- **Check it**: `./plugin/scripts/test-lint` — the case
+  "a gitignored-but-not-lint-ignored path is still fixed" is this fact.
 
 ## Plugin-directory reads are gated by the working-directory boundary
 
@@ -458,3 +464,9 @@ we have the in-repo cautionary example for that.
 - **Check it**: create `.claude/skills/x/SKILL.md` in a scratch repo whose body is a `text` fence
   with the four lines above; `claude -p --allowedTools=Skill "Invoke skill x with arguments: hello
   world"`; lines A and C come back substituted, B and D come back literal.
+
+## A resumed headless session loses read access to a `--plugin-dir` stage's supporting files
+
+- **Why it matters**: the eval harness (`evals/run.py`) resumes a stage with `claude -p --resume <id>` when the stage stops to ask. On 2026-09-30, one such follow-up call was refused `Read` of `create_design/templates/design-md-template.md` in a `--plugin-dir` checkout outside the cwd. The first call of the same session had read the stage's files without a refusal. The stage then stopped, as its manifest rule says, and wrote nothing. The refusal did not occur on every run (the P2-T6 run's follow-ups worked), so a harness without the fix fails at random. Pass `--add-dir <plugin-dir>` on every call, first and resumed.
+- **Verified**: 2026-09-30 · `docs/plans/2026-09-29-asd-ste100-prose/` (baseline run `evals/runs/20260930T011540Z`, repeat 3, `design.follow-up-1.json` lists the denials under `permission_denials`)
+- **Check it**: in `evals/run.py`, the `base` command list carries `--add-dir`. Without it, repeat a 3-repeat baseline and look for `permission_denials` on `Read` in any `*.follow-up-*.json`.

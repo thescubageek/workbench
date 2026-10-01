@@ -1,0 +1,105 @@
+#!/usr/bin/env bash
+
+# Contract tests for scripts/pr-template.
+#
+# pr-template tells /wb:pr-description which PR template to fill. The contract: GitHub's
+# locations in GitHub's order, case-insensitive names, every file of a template directory, the
+# generic template when the repository has none, and the same answer from a subdirectory.
+# Each output line is "repo <absolute path>" or "generic <absolute path>".
+
+set -uo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+TOOL="$SCRIPT_DIR/pr-template"
+GENERIC="$(cd "$SCRIPT_DIR/.." && pwd)/skills/pr-description/templates/pr-description.md"
+
+PASS=0
+FAIL=0
+
+check() {
+    local desc="$1" cond="$2"
+    if [[ "$cond" == "1" ]]; then
+        echo "  ✓ $desc"
+        PASS=$((PASS + 1))
+    else
+        echo "  ✗ $desc"
+        FAIL=$((FAIL + 1))
+    fi
+}
+
+yes_if() { if "$@"; then echo 1; else echo 0; fi; }
+
+echo "test-pr-template: $TOOL"
+
+WORK="$(mktemp -d)"
+trap 'rm -rf "$WORK"' EXIT
+
+repo() { mkdir -p "$1" && git -C "$1" init -q; (cd "$1" && pwd -P); }
+run() { (cd "$1" && "$TOOL" 2>&1); echo $? > "$WORK/rc"; }
+rc_zero() { [[ "$(cat "$WORK/rc")" == "0" ]]; }
+
+# --- Control: no template gives the generic one ---
+R=$(repo "$WORK/none")
+out=$(run "$R")
+check "no template: the generic template (got: $out)" "$(yes_if [ "$out" == "generic $GENERIC" ])"
+check "no template: exit 0" "$(yes_if rc_zero)"
+check "the generic template exists" "$(yes_if [ -f "$GENERIC" ])"
+
+# --- Each single-file location ---
+for loc in .github/pull_request_template.md pull_request_template.md docs/pull_request_template.md; do
+    R=$(repo "$WORK/single-${loc//\//_}")
+    mkdir -p "$R/$(dirname "$loc")"
+    echo "## Summary" > "$R/$loc"
+    out=$(run "$R")
+    check "$loc is found" "$(yes_if [ "$out" == "repo $R/$loc" ])"
+done
+
+# --- GitHub's order: .github/ first, then the root, then docs/ ---
+R=$(repo "$WORK/order")
+mkdir -p "$R/.github" "$R/docs"
+for loc in .github/pull_request_template.md pull_request_template.md docs/pull_request_template.md; do
+    echo "## $loc" > "$R/$loc"
+done
+out=$(run "$R")
+check "with three templates, .github/ wins" "$(yes_if [ "$out" == "repo $R/.github/pull_request_template.md" ])"
+
+# --- Case-insensitive names ---
+R=$(repo "$WORK/upper")
+mkdir -p "$R/.github"
+echo "## Summary" > "$R/.github/PULL_REQUEST_TEMPLATE.md"
+out=$(run "$R")
+check "PULL_REQUEST_TEMPLATE.md is found" "$(yes_if [ "$out" == "repo $R/.github/PULL_REQUEST_TEMPLATE.md" ])"
+
+# --- A template directory lists every file, after the default template ---
+R=$(repo "$WORK/dir")
+mkdir -p "$R/.github/PULL_REQUEST_TEMPLATE"
+echo "## Feature" > "$R/.github/PULL_REQUEST_TEMPLATE/feature.md"
+echo "## Bug" > "$R/.github/PULL_REQUEST_TEMPLATE/bugfix.md"
+echo "not a template" > "$R/.github/PULL_REQUEST_TEMPLATE/notes.json"
+out=$(run "$R")
+expected=$(printf 'repo %s\nrepo %s' "$R/.github/PULL_REQUEST_TEMPLATE/bugfix.md" \
+    "$R/.github/PULL_REQUEST_TEMPLATE/feature.md")
+check "a template directory lists its .md files, sorted" "$(yes_if [ "$out" == "$expected" ])"
+echo "## Default" > "$R/.github/pull_request_template.md"
+out=$(run "$R")
+check "the default template comes before the directory" \
+    "$(yes_if [ "$(head -1 <<<"$out")" == "repo $R/.github/pull_request_template.md" ])"
+check "the directory files still follow" "$(yes_if [ "$(wc -l <<<"$out" | tr -d ' ')" == "3" ])"
+
+# --- The same answer from a subdirectory ---
+R=$(repo "$WORK/sub")
+mkdir -p "$R/docs" "$R/src/deep"
+echo "## Summary" > "$R/docs/pull_request_template.md"
+out=$(run "$R/src/deep")
+check "a run from a subdirectory finds the root's template" \
+    "$(yes_if [ "$out" == "repo $R/docs/pull_request_template.md" ])"
+
+# --- Outside a git repository, the current directory is the root ---
+mkdir -p "$WORK/plain"
+out=$(run "$WORK/plain")
+check "outside a repository: the generic template, exit 0" \
+    "$(yes_if [ "$out" == "generic $GENERIC" ] && rc_zero)"
+
+echo ""
+echo "test-pr-template: $PASS passed, $FAIL failed"
+[[ $FAIL -eq 0 ]]

@@ -1,0 +1,120 @@
+{
+  "question_file": "QUESTION.md",
+  "paths_relative_to": "project/",
+  "facts": [
+    {
+      "id": "F1",
+      "fact": "The default read timeout per attempt is 8 seconds",
+      "ref": "src/linkcrawl/config/defaults.py:7",
+      "contains": "DEFAULT_TIMEOUT_SECONDS = 8.0"
+    },
+    {
+      "id": "F2",
+      "fact": "A link gets at most 4 attempts by default, including the first",
+      "ref": "src/linkcrawl/config/defaults.py:10",
+      "contains": "DEFAULT_MAX_ATTEMPTS = 4"
+    },
+    {
+      "id": "F3",
+      "fact": "The LINKCRAWL_TIMEOUT environment variable overrides the timeout setting",
+      "ref": "src/linkcrawl/config/env.py:18",
+      "contains": "\"LINKCRAWL_TIMEOUT\": \"timeout\""
+    },
+    {
+      "id": "F4",
+      "fact": "Settings are merged in the order defaults, config file, environment, command line, so the command line wins",
+      "ref": "src/linkcrawl/config/settings.py:17",
+      "contains": "LAYER_ORDER = (\"defaults\", \"file\", \"environment\", \"command line\")"
+    },
+    {
+      "id": "F5",
+      "fact": "The value passed to urlopen as the timeout is the larger of the connect and read timeouts",
+      "ref": "src/linkcrawl/net/timeouts.py:28",
+      "contains": "return max(self.connect, self.read)"
+    },
+    {
+      "id": "F6",
+      "fact": "HTTP statuses 429, 500, 502, 503 and 504 are retried",
+      "ref": "src/linkcrawl/net/retry.py:14",
+      "contains": "frozenset({429, 500, 502, 503, 504})"
+    },
+    {
+      "id": "F7",
+      "fact": "The backoff delay grows exponentially from the base and is capped at backoff_max",
+      "ref": "src/linkcrawl/net/backoff.py:35",
+      "contains": "min(self.maximum, self.base * (self.multiplier ** (attempt - 1)))"
+    },
+    {
+      "id": "F8",
+      "fact": "The per-host rate limit is 2 requests per second by default",
+      "ref": "src/linkcrawl/config/defaults.py:17",
+      "contains": "DEFAULT_RATE_LIMIT_PER_HOST = 2.0"
+    },
+    {
+      "id": "F9",
+      "fact": "A rate limit of 0 disables the per-host rate limiter",
+      "ref": "src/linkcrawl/net/rate_limit.py:70",
+      "contains": "return self.rate > 0"
+    },
+    {
+      "id": "F10",
+      "fact": "A link that robots.txt disallows gets a SKIPPED result without a request",
+      "ref": "src/linkcrawl/crawl/robots.py:79",
+      "contains": "return skipped_result(url, reason)"
+    },
+    {
+      "id": "F11",
+      "fact": "When robots.txt returns a 5xx status, every URL on that origin is disallowed",
+      "ref": "src/linkcrawl/crawl/robots.py:43",
+      "contains": "response.status >= 500"
+    },
+    {
+      "id": "F12",
+      "fact": "The checker consults the cache after the robots.txt check and before any network request",
+      "ref": "src/linkcrawl/core/checker.py:62",
+      "contains": "cached = self.components.cache.get(url)"
+    },
+    {
+      "id": "F13",
+      "fact": "A cached result is used only while it is younger than the cache TTL",
+      "ref": "src/linkcrawl/store/cache.py:56",
+      "contains": "return self.age_of(entry) < self.ttl_seconds"
+    },
+    {
+      "id": "F14",
+      "fact": "Only OK results are cached, so broken and skipped links are checked again on every run",
+      "ref": "src/linkcrawl/store/cache.py:21",
+      "contains": "frozenset({LinkStatus.OK})"
+    },
+    {
+      "id": "F15",
+      "fact": "An HTTP status of 429 after all retries makes a link SKIPPED, not broken",
+      "ref": "src/linkcrawl/core/classify.py:29",
+      "contains": "if code == RATE_LIMITED_STATUS:"
+    },
+    {
+      "id": "F16",
+      "fact": "An HTTP status of 400 or higher makes a link broken",
+      "ref": "src/linkcrawl/core/classify.py:34",
+      "contains": "if code >= BROKEN_STATUS_MIN:"
+    },
+    {
+      "id": "F17",
+      "fact": "The command exits with status 1 when any link is broken",
+      "ref": "src/linkcrawl/cli/exit_codes.py:33",
+      "contains": "return EXIT_BROKEN_LINKS"
+    },
+    {
+      "id": "F18",
+      "fact": "Skipped links make the run fail only when fail_on_skipped is set",
+      "ref": "src/linkcrawl/cli/exit_codes.py:34",
+      "contains": "if fail_on_skipped and summary.skipped > 0:"
+    },
+    {
+      "id": "F19",
+      "fact": "The JUnit report writes a broken link as a failure element",
+      "ref": "src/linkcrawl/report/junit.py:51",
+      "contains": "ElementTree.SubElement(case, \"failure\""
+    }
+  ]
+}

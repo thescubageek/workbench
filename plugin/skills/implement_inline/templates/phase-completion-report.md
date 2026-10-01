@@ -1,5 +1,7 @@
 # Phase completion report
 
+Write this output in wb Technical English (WBTE): read [technical-english.md](../../../docs/reference/technical-english.md) and apply it. Keep every exempt token exactly as it is.
+
 Step 6 — emitted once, after the human confirms manual verification.
 
 **Three substitutions branch on the kind of plan.** A remediation plan ([../../../docs/reference/remediation-plan.md](../../../docs/reference/remediation-plan.md))

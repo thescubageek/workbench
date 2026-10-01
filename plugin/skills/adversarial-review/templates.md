@@ -1,5 +1,7 @@
 # Output shapes
 
+Write this output in wb Technical English (WBTE): read [technical-english.md](../../docs/reference/technical-english.md) and apply it. Keep every exempt token exactly as it is.
+
 **Read this when a step directs you to.** These are the shapes the review emits. Use them as
 given — the parts that look decorative are the parts other tooling and later rounds read.
 

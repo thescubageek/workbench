@@ -1,5 +1,7 @@
 # Manual verification request
 
+Write this output in wb Technical English (WBTE): read [technical-english.md](../../../docs/reference/technical-english.md) and apply it. Keep every exempt token exactly as it is.
+
 Step 8 — emitted at the phase checkpoint, then **stop and wait**.
 
 **Attended runs only.** Under `--auto` this request is not emitted and nothing waits: the

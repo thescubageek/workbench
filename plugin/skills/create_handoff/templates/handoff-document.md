@@ -1,7 +1,9 @@
 # Handoff document
 
-Step 4 — write the handoff in this shape. Omit any section with nothing real to put in it;
-never fill one with placeholders.
+Write this output in wb Technical English (WBTE): read [technical-english.md](../../../docs/reference/technical-english.md) and apply it. Keep every exempt token exactly as it is.
+
+Step 4. Write the handoff in this shape. Omit a section that has no real content. Never fill a
+section with placeholders.
 
 ````markdown
 ---
@@ -21,17 +23,17 @@ repository: [repository name]
 **Created**: [YYYY-MM-DD HH:MM TZ]
 **Reason**: [handoff reason]
 **Current Phase**: Phase [N] of [Total]
-**Overall Progress**: [from tasks.md's checkboxes — e.g. 30/64 tasks; count ID-scoped task lines, not every checkbox]
+**Overall Progress**: [from the checkboxes in tasks.md, for example 30/64 tasks. Count only task lines with an ID, not every checkbox]
 
 ## Quick Start
 
-Same machine? Prefer native `claude --resume` — it restores the full prior session (including tool results) more reliably than any doc. This handoff exists for **cross-machine / cross-agent / teammate** transfer: resume with `/wb:resume_handoff [this file path]`.
+On the same machine, use `claude --resume` instead. It restores the full earlier session, with the tool results, more reliably than a document can. This handoff is for a transfer to **another machine, another agent, or a teammate**. To resume from it, run `/wb:resume_handoff [this file path]`.
 
 ## Current State Summary
 
-**What we're building**: [Brief description from design.md]
+**What the project builds**: [Brief description from design.md]
 
-**Where we are**: [Current status - e.g., "Implementing Phase 2, task 3 of 5"]
+**Where the work is**: [The current status, for example "Implementing Phase 2, task 3 of 5"]
 
 **Last completed action**: [What was just finished]
 
@@ -40,28 +42,28 @@ Same machine? Prefer native `claude --resume` — it restores the full prior ses
 ## Work Completed This Session
 
 ### Code Changes
-[Each entry derived from `git diff` / `git status` — `<file:line>` — what changed. Omit if none.]
+[One entry for each change, from `git diff` or `git status`: `<file:line>`, then what changed. Omit the section if there is none.]
 
 ### Tasks Completed
-[Task IDs flipped to [x] this session, with titles. Omit if none.]
+[The task IDs changed to [x] in this session, each with its title. Omit the section if there is none.]
 
 ### Verification Run
-[Only commands actually run this session, with their real output. Omit anything you did not run — do not assume pass/fail.]
+[Only the commands that ran in this session, with their real output. Omit a command that did not run. Do not assume a pass or a fail.]
 
 ### Plan State
 
 ```
 Phase [N] of [M] — [X]/[Y] tasks [x]
 Next unchecked task: [ID] — [title]
-Blocked (from tasks.md Current Blockers): [ID + one line, or "none"]
-Journal: [most recent entry, and whether it is OPEN or CLOSED]
+Blocked (from tasks.md Current Blockers): [ID and one line, or "none"]
+Journal: [the most recent entry, and whether it is OPEN or CLOSED]
 ```
 
 ## Critical Learnings
 
 ### Discoveries Not in Documentation
 
-[Non-obvious findings worth carrying forward — patterns, hidden dependencies, gotchas, required workarounds — each with a real `file:line`. Omit if none. Durable codebase facts belong in CLAUDE.md, not a one-shot handoff.]
+[Findings that are not obvious and that the next session needs: patterns, hidden dependencies, traps, and required workarounds. Give each one a real `file:line`. Omit the section if there is none. Put durable facts about the codebase in CLAUDE.md, not in a handoff that is read once.]
 
 ### Problems Solved
 
@@ -78,7 +80,7 @@ Journal: [most recent entry, and whether it is OPEN or CLOSED]
 
 1. **Decision**: Chose [approach A] over [approach B]
    - **Why**: [Reasoning]
-   - **Trade-off**: [What we gave up]
+   - **Trade-off**: [What the choice gave up]
    - **Impact**: [Consequences]
 
 ## Current Blockers
@@ -89,10 +91,10 @@ Journal: [most recent entry, and whether it is OPEN or CLOSED]
    - **Impact**: Cannot proceed with [task]
    - **Attempted Solutions**:
      - Tried [approach 1] - failed because [reason]
-     - Tried [approach 2] - partial success but [issue]
+     - Tried [approach 2] - it partly worked, but [issue]
    - **Potential Solutions**:
-     - Could try [approach 3]
-     - Might need to [alternative]
+     - Try [approach 3]
+     - If that fails, [alternative]
    - **Files Involved**: `file1.ts`, `file2.ts`
 
 ### Resolved Blockers (For Reference)
@@ -105,7 +107,7 @@ Journal: [most recent entry, and whether it is OPEN or CLOSED]
 
 ### Deviations from Plan
 
-1. **Deviation**: [What's different from tasks.md]
+1. **Deviation**: [What is different from tasks.md]
    - **Location**: Phase [N], Task [M]
    - **Original Plan**: [What tasks.md said]
    - **Actual Implementation**: [What was done]
@@ -116,7 +118,7 @@ Journal: [most recent entry, and whether it is OPEN or CLOSED]
 
 1. **Edge Case**: [Description]
    - **Scenario**: [When it occurs]
-   - **Handling**: [How it's handled]
+   - **Handling**: [How the code handles it]
    - **Test**: [Test coverage at `file:line`]
 
 ### Technical Debt Noted
@@ -136,7 +138,7 @@ Journal: [most recent entry, and whether it is OPEN or CLOSED]
 [List files]
 
 # Purpose of uncommitted changes:
-[Explain what the changes do and why not committed]
+[What the changes do, and why they are not committed]
 ```
 
 ## Next Steps
@@ -152,7 +154,7 @@ Journal: [most recent entry, and whether it is OPEN or CLOSED]
    - Try approach: [Specific suggestion]
    - If that fails: [Alternative]
 
-3. **Continue phase**: Complete remaining [N] tasks in Phase [M]
+3. **Continue phase**: Complete the remaining [N] tasks in Phase [M]
 
 ### Recommended Approach
 
@@ -178,14 +180,14 @@ npm test
 
 ## Mockup State (if applicable)
 
-_Include this section if mockups/ directory exists:_
+_Include this section if a mockups/ directory exists._
 
 - **Current version**: v00[N]
 - **Mockup log**: `mockups/mockup-log.md`
 - **Pending feedback** (not yet versioned):
   - [feedback 1]
   - [feedback 2]
-- **Open UI questions** (from the mockup log's records):
+- **Open UI questions** (from the records in the mockup log):
   - `UIQ[n]`: [question]
 
 ## Artifacts and References
@@ -197,7 +199,7 @@ _Include this section if mockups/ directory exists:_
 - This Handoff: `[path]/handoff-YYYY-MM-DD-HH-MM.md`
 
 ### Key Code Locations
-[Real paths central to the in-flight work. Stable, project-wide paths belong in CLAUDE.md, not each handoff.]
+[Real paths that the current work depends on. Put stable paths for the whole project in CLAUDE.md, not in each handoff.]
 
 ### External References
 - [Any documentation consulted]
@@ -206,17 +208,17 @@ _Include this section if mockups/ directory exists:_
 
 ## Session Metadata
 
-[Only what's measurable from tooling — omit the rest. Lines changed from `git diff --stat`; tasks completed from the checkboxes flipped this session. Do NOT estimate session duration or any count you can't derive from a command.]
+[Only what a tool can measure. Omit the rest. Take the lines changed from `git diff --stat`. Take the tasks completed from the checkboxes changed in this session. Do NOT estimate the session duration, or any count that a command cannot give.]
 
 ## Handoff Verification
 
-Before using this handoff, verify:
-- [ ] Project directory exists at specified path
-- [ ] Git repository is at mentioned commit
-- [ ] Tests pass as indicated
-- [ ] No merge conflicts if branch changed
+Before you use this handoff, check these items:
+- [ ] The project directory exists at the path above
+- [ ] The git repository is at the commit above
+- [ ] The tests pass, as the handoff says
+- [ ] If the branch changed, it has no merge conflicts
 
 ---
 
-**Handoff Complete**: Ready for resumption using `/wb:resume_handoff [path]`
+**Handoff complete.** To resume, run `/wb:resume_handoff [path]`.
 ````
