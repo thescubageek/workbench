@@ -70,10 +70,12 @@ broken command.
 
 **Then check that the PR's head is this checkout, and stop if it is not.** Step 3 adjudicates
 each finding against the files on disk. A `<pr#>` can name any PR, so without this check a reply
-could reject a finding by citing a `file:line` the PR does not contain. The test is the one
-[../adversarial-review/SKILL.md](../adversarial-review/SKILL.md) Step 1 uses: the PR is
-same-repository, this checkout is on the PR's own branch, and `HEAD` descends from its
-`headRefOid`. This skill does not fetch or switch
+could reject a finding by citing a `file:line` the PR does not contain. The PR must be
+same-repository, this checkout must be on the PR's own branch, and `HEAD` must descend from its
+`headRefOid`. This step requires `isCrossRepository` to be exactly `false`; an empty or null value
+refuses. `resolve_identity` in [../adversarial-review/SKILL.md](../adversarial-review/SKILL.md)
+Step 1 fails open instead: it proceeds unless the value is exactly `true`, because it only chooses
+what to review and falls through to a fetch. This skill does not fetch or switch
 branches to make the check pass; that is a state change nobody asked for. It runs with no
 argument as well, because a fork branch with the same name fails it.
 

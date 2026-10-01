@@ -51,6 +51,12 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-10-01 13:53 — R11-T16 (closed)
+
+- **Task/phase**: R11-T16, the prose says one test; adversarial-review and the two publishing sites differ in polarity.
+- **Landed**: reply-to-claude and adversarial-loop state that the publishing sites require isCrossRepository to be exactly false and that adversarial-review fails open because it only chooses what to review; the same-test claims are gone (joined-line grep 0). Prose only.
+- **Started at**: 110291d
+
 ## 2026-10-01 13:49 — R11-T15 (closed)
 
 - **Task/phase**: R11-T15, the shrunk-set advice ignores how far killed fell.

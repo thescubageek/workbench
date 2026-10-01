@@ -314,9 +314,12 @@ baseline Phase 3 reads that old review as the new one.
 stops for the user*. Resolve the pull request in the same shell that acts on it; a Bash call does
 not inherit variables from the previous one.
 
-**The block refuses unless the pull request's head is this checkout.** It runs the same test as
-[../reply-to-claude/SKILL.md](../reply-to-claude/SKILL.md) Step 1: the PR is same-repository, this
-checkout is on the PR's own branch, and `HEAD` descends from its `headRefOid`. The name alone is
+**The block refuses unless the pull request's head is this checkout.** The PR must be same-repository, this
+checkout must be on the PR's own branch, and `HEAD` must descend from its `headRefOid`. The block
+requires `isCrossRepository` to be exactly `false`; an empty or null value refuses, as in
+[../reply-to-claude/SKILL.md](../reply-to-claude/SKILL.md) Step 1. `resolve_identity` in
+[../adversarial-review/SKILL.md](../adversarial-review/SKILL.md) fails open instead: it proceeds
+unless the value is exactly `true`, because it only chooses what to review. The name alone is
 not enough, because a fork can share it, which `isCrossRepository` rules out. The ancestry alone
 is not enough, because a branch stacked on the PR's head descends from it, which the branch name
 rules out. A refusal means Phases 2 and 4 do not run

@@ -177,7 +177,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       (330, 344, 380, 395 with a drop explained by the shrink) still returns the lowering message
       only when `prev - killed <= prev_total - total`. (~5 calls) (completed 2026-10-01 13:52)
 
-- [ ] **R11-T16** — `plugin/skills/reply-to-claude/SKILL.md:54` (also
+- [x] **R11-T16** — `plugin/skills/reply-to-claude/SKILL.md:54` (also
       `plugin/skills/adversarial-loop/SKILL.md:311`) — the prose says all three identity blocks run
       one test, but adversarial-review proceeds unless `cross` is exactly `true` and the other two
       refuse unless it is exactly `false`.
@@ -188,7 +188,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       **Acceptance (shape 3)**: dual grep — "is the one ../adversarial-review/SKILL.md Step 1 uses"
       and "the same test as" absent from the two files, and a sentence present at a cited line that
       says the publishing sites require `isCrossRepository` to be exactly `false` and
-      adversarial-review fails open because it only chooses what to review. (~3 calls)
+      adversarial-review fails open because it only chooses what to review. (~3 calls) (completed 2026-10-01 13:53)
 
 - [ ] **R11-T19** — `.github/workflows/checks.yml:57` — the `mutation-sweep` job has no
       `timeout-minutes`.
