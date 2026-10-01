@@ -219,4 +219,3 @@ criterion is run before the fix**. A criterion that passes before the change is 
   - Phase 5's gate on a completed check-run for `HEAD` (ledgered Over-fitted) may be unmeetable if the target repository's claude workflow is comment-triggered.
   - The `rtk` hook truncated `git log --name-only` output, which understated the fix surface until re-run with `rtk proxy`.
   - R10-T2 follow-up still open: an all-rejected bot round leaves an unpushed ledger commit that Phase 5's head comparison will not match.
-
