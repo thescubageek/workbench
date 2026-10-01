@@ -155,14 +155,14 @@ criterion is run before the fix**. A criterion that passes before the change is 
       **Acceptance (shape 2)**: a test case with the fake binary on PATH; RED today (rc 0); GREEN
       when an unparseable version fails the gate by name. (~4 calls) (completed 2026-10-01 04:29)
 
-- [ ] **R10-T16** — `plugin/skills/adversarial-loop/SKILL.md:425` — the Phase 5 check-runs lookup
+- [x] **R10-T16** — `plugin/skills/adversarial-loop/SKILL.md:425` — the Phase 5 check-runs lookup
       is unpaginated and reads an unbound `$REPO`.
       **Fails when:** a repository with more than 30 check-runs on HEAD puts the bot's check-run on
       page 2 and Phase 5 concludes none exists; run as written in a fresh shell, the path becomes
       `repos//commits/<sha>/check-runs`.
       **Acceptance (shape 3)**: dual grep — `repos/$REPO` absent, and a lookup using
       `repos/{owner}/{repo}/…` with `--paginate` and `.check_runs[]` present at a cited line.
-      (~2 calls)
+      (~2 calls) (completed 2026-10-01 04:31)
 
 - [ ] **R10-T17** — `plugin/scripts/test-guards:515` — the ratchet fails whenever `killed` falls,
       never lowers, ignores the total, and its message offers only a corpus case or a waiver.

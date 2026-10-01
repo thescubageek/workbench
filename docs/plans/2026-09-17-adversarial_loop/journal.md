@@ -51,6 +51,12 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-10-01 04:30 — R10-T16 (closed)
+
+- **Task/phase**: R10-T16, Phase 5 check-runs lookup is unpaginated and reads an unbound REPO.
+- **Landed**: Phase 5 reads check-runs with gh api --paginate on repos/{owner}/{repo}, no unbound REPO, jq over .check_runs[]. The jq filter parsed a hand-made sample.
+- **Started at**: f8352d4
+
 ## 2026-10-01 04:24 — R10-T14 (closed)
 
 - **Task/phase**: R10-T14, check's require() passes when --version yields no x.y token.

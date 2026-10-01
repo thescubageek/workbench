@@ -452,9 +452,12 @@ deliberately does not reply to (*"a green-CI fix the bot never raised does not n
 **So compare, don't assume.** Neither surface the bot edits carries the SHA its review was
 written against — a review's `commit_id` still reads the earlier commit once the bot edits its
 comment, and an issue comment has no commit field at all. Compare check-runs instead: read the
-bot's review check-run for the current head, via `gh api "repos/$REPO/commits/<head
-sha>/check-runs"` or `gh pr checks`, and confirm a **completed** check-run for the review exists
-whose `head_sha` equals `git rev-parse HEAD`. A **skipped** check-run for HEAD is not
+bot's review check-run for the current head, via `gh api --paginate
+"repos/{owner}/{repo}/commits/$(git rev-parse HEAD)/check-runs" --jq '.check_runs[] | [.name,
+.status, .conclusion, .head_sha] | @tsv'` or `gh pr checks`, and confirm a **completed**
+check-run for the review exists whose `head_sha` equals `git rev-parse HEAD`. `gh` expands
+`{owner}` and `{repo}` from the current repository, and `--paginate` is required: the endpoint
+returns 30 check-runs per page, so the bot's can sit on page 2. A **skipped** check-run for HEAD is not
 clearance — `reference.md:54` records skipped as exactly what a later push produces. If no
 completed check-run exists for HEAD, or the newest one is for an older SHA, the branch is not
 cleared: fold the unreplied commits into an `@claude` reply and take another Phase 4 round, or
