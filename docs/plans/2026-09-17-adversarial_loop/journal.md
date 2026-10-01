@@ -51,6 +51,12 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-10-01 13:28 — R11-T12 (closed)
+
+- **Task/phase**: R11-T12, READMEs state 114 corpus cases and 15 integrity checks.
+- **Landed**: both READMEs now state the measured figures: corpus 131, integrity 16, ratchet 381 of 421, 40 waived. The stale 114, 15, 378 and 43 are gone. The task text said 128; the corpus grew to 131 in R11-T7.
+- **Started at**: 3d08612
+
 ## 2026-10-01 13:27 — R11-T11 (closed)
 
 - **Task/phase**: R11-T11, technical-english.md cites implement/SKILL.md lines that moved.

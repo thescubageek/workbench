@@ -142,12 +142,12 @@ criterion is run before the fix**. A criterion that passes before the change is 
       **Acceptance (shape 3)**: dual grep — `implement/SKILL.md:242-245` and `:307,320` absent,
       and each citation names the heading or phrase instead of a line. (~3 calls) (completed 2026-10-01 13:28)
 
-- [ ] **R11-T12** — `plugin/scripts/README.md:241` (also `README.md:360-361`) — both READMEs state
+- [x] **R11-T12** — `plugin/scripts/README.md:241` (also `README.md:360-361`) — both READMEs state
       a 114-case corpus and 15 integrity checks.
       **Fails when:** a maintainer runs the command the README prints, `jq length
       fixtures/guard-corpus.json`, and gets 128; `test-guards` reports integrity 16/16.
       **Acceptance (shape 3)**: dual grep — "114" and "15 scan-integrity" absent from both
-      READMEs, and 128 and 16 present at a cited line each. (~3 calls)
+      READMEs, and 128 and 16 present at a cited line each. (~3 calls) (completed 2026-10-01 13:31)
 
 - [ ] **R11-T13** — `plugin/scripts/test-guards:171` — the must-not-fire branch passes whenever
       `parse_findings` is empty, ignoring exit code, stderr and unmapped labels.
