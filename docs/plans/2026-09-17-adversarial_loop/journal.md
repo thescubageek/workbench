@@ -51,10 +51,10 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
-## 2026-10-01 13:26 — R11-T10 (open)
+## 2026-10-01 13:26 — R11-T10 (closed)
 
 - **Task/phase**: R11-T10, replace stale line citations in adversarial-loop with text names.
-- **Next action**: spawn a worker to fix the three citations and the hook sentence.
+- **Landed**: adversarial-loop cites the Phase 1 gate paragraph, Phase 2's Chained paragraph, reference.md and implement's ONLY rule by name instead of by line number; the hook sentence says lint-hook fixes after Write and Edit and only reports after Bash. The three-way grep went 3 to 0.
 - **Started at**: 5a3b7d9
 
 ## 2026-10-01 13:23 — R11-T8 (closed)

@@ -120,7 +120,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       shrunk-with-survivor case asserting it fails with the survivor message; plant `<=` in a
       scratch copy and show the equal-total case goes red while the old suite stays green. (~6 calls) (completed 2026-10-01 13:26)
 
-- [ ] **R11-T10** — `plugin/skills/adversarial-loop/SKILL.md:458` (also `:494`, `:346`) — three
+- [x] **R11-T10** — `plugin/skills/adversarial-loop/SKILL.md:458` (also `:494`, `:346`) — three
       citations point at the wrong text and one rationale contradicts `CLAUDE.md`.
       **Fails when:** line 458 cites `SKILL.md:273` for "a clean pass certifies the commit it read"
       (that text is at 289; 273 is "Only when a pull request exists"); line 494 cites
@@ -131,7 +131,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       **Acceptance (shape 3)**: dual grep — `SKILL.md:273`, `SKILL.md:299` and `lint-hook:26`
       absent from the file, and the replacements name the text itself (a heading or a quoted
       phrase) rather than a line number; the hook sentence says Write and Edit fix and Bash
-      reports. (~4 calls)
+      reports. (~4 calls) (completed 2026-10-01 13:27)
 
 - [ ] **R11-T11** — `plugin/docs/reference/technical-english.md:133` (also `:169`) — citations
       into `plugin/skills/implement/SKILL.md` point at lines that moved.

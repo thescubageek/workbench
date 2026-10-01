@@ -166,7 +166,7 @@ Checking the target out yourself is a state change nobody asked for.
    the plan before any adjudication exists, so it carries a task for **every** finding that
    survived verification — including the ones step 2 just rejected. `implement` takes the first
    unchecked task line in the phase and implements *"ONLY ... what is EXPLICITLY written in
-   tasks.md"* (`implement/SKILL.md:87`); the task shape in
+   tasks.md"* (`implement/SKILL.md`'s *"ONLY"* rule); the task shape in
    [../adversarial-review/templates.md](../adversarial-review/templates.md) has no disposition
    field, and nothing `implement` reads would carry one. So an unpruned round with two findings
    adjudicated `Valid` and four rejected commits six fixes — and the gate below still passes,
@@ -360,8 +360,8 @@ exit status: with the round's fixes still uncommitted, `git push` prints `Everyt
 and **exits 0** (executed, not assumed), so `&&` passes and `gh pr ready` un-drafts a head that
 does not contain them. Two paths reach that state without anyone deciding to. Phase 1's
 inline-fix branch — *"if there is no plan directory, fix inline"* — never commits. And
-`plugin/scripts/lint-hook:26` runs `lint --fix` after Write, Edit and Bash, so a hook can dirty
-the tree after the last commit you made.
+`plugin/scripts/lint-hook` runs `lint --fix` after Write and Edit (after Bash it only reports
+by default), so a hook can still dirty the tree after the last commit you made.
 
 ⛔ **Chained, not sequential.** Written as two statements, a failed push still un-drafts — and
 un-drafting against a stale head summons `claude[bot]` to review code without the round's fixes,
@@ -472,10 +472,10 @@ Only when **both** hold **on the current head SHA**: the bot reports nothing out
 check rollup is green — not on the latest run, which may have settled on a previous commit.
 
 ⛔ **The head SHA qualifies the bot too, not just the rollup.** A bot review certifies the commit
-it read, exactly as a local pass does — `SKILL.md:273`, *"a clean pass certifies the commit it
+it read, exactly as a local pass does — the Phase 1 gate's *""Clean" describes a tree state, not the branch"* paragraph, *"a clean pass certifies the commit it
 read"*, and the reviewer is a reviewer either way. So if anything has been pushed since the
 comment the bot last updated, its clearance is about a commit that is no longer the head, and
-nothing will tell you: `reference.md:54` records that the review check reports **skipped** on
+nothing will tell you: `reference.md`'s "The review check reports **skipped** on later pushes" row records that the review check reports **skipped** on
 later pushes, which is non-blocking and leaves a green rollup. The CI-only fix that Phase 4
 deliberately does not reply to (*"a green-CI fix the bot never raised does not need its own
 `@claude` comment"*) is precisely how a head the bot never saw gets here.
@@ -489,7 +489,7 @@ bot's review check-run for the current head, via `gh api --paginate
 check-run for the review exists whose `head_sha` equals `git rev-parse HEAD`. `gh` expands
 `{owner}` and `{repo}` from the current repository, and `--paginate` is required: the endpoint
 returns 30 check-runs per page, so the bot's can sit on page 2. A **skipped** check-run for HEAD is not
-clearance — `reference.md:54` records skipped as exactly what a later push produces. If no
+clearance — `reference.md`'s "skipped on later pushes" row records skipped as exactly what a later push produces. If no
 completed check-run exists for HEAD, or the newest one is for an older SHA, the branch is not
 cleared: fold the unreplied commits into an `@claude` reply and take another Phase 4 round, or
 say that the label covers a range the bot did not read. Do not label on the strength of a
@@ -510,7 +510,7 @@ gh pr edit "$PR" --add-label "<the repository's ready-for-review label>" \
   && gh pr view "$PR" --json labels
 ```
 
-⛔ **Chained, not sequential — the same shape `SKILL.md:299` requires of Phase 2.** Written as
+⛔ **Chained, not sequential — the same shape Phase 2's "Chained, not sequential" paragraph requires.** Written as
 two statements, a failed `--add-label` is masked: the edit exits non-zero with *"not found"*
 where the repository has no label by that name, the unchained `gh pr view` succeeds anyway, and
 what it prints is a labels array **without** the label — which is exactly what the confirmation
