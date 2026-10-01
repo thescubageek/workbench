@@ -8,10 +8,10 @@ last_updated: 2026-10-01
 assignee: scraig
 current_phase: 3
 total_tasks: 18
-completed_tasks: 14
+completed_tasks: 18
 task_tracking: markdown-checkboxes
 depends_on: [research.md, design.md]
-git_commit: f0704fe
+git_commit: d523862
 git_branch: adversarial-loop-skill-research
 repository: thescubageek/workbench
 tags: [tasks, tracking, guard_lexer_and_pr_identity]
@@ -112,7 +112,7 @@ fan-out; `pwd` and `pwd -P` recorded at every fixture.
 | Phase 0: Planning | ✅ Complete | 4/4 | 100% |
 | Phase 1: One lexer | ✅ Complete | 5/5 | 100% |
 | Phase 2: One resolver | ✅ Complete (manual verification deferred) | 5/5 | 100% |
-| Phase 3: CI and close-out | ⏸️ Not Started | 0/4 | 0% |
+| Phase 3: CI and close-out | ✅ Complete (manual verification deferred) | 4/4 | 100% |
 
 Counts come from the checkboxes below and are reconciled by `/wb:update_status`.
 
@@ -687,7 +687,7 @@ shortened one.
 - [x] **(derivable)** Every Phase 3 checkbox is `[x]`
 - [x] **(derivable)** All automated verification passing
 - [ ] **(attestation)** Manual verification confirmed by human
-- [ ] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
+- [x] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
       only writer of those fields, so do not edit `current_phase` or `completed_tasks` by hand
 
 **Do not proceed without human confirmation of manual tests** — unless the phase is being run
