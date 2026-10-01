@@ -494,3 +494,15 @@ we have the in-repo cautionary example for that.
 - **Why it matters**: three times in one session `git add` printed `Unable to create '.../.git/worktrees/ankara/index.lock': File exists`, and the lock was gone a moment later with no git process visible. A `&&` chain then skips the commit. Retry after a short wait before suspecting a stale lock, and confirm with `ls "$(git rev-parse --git-dir)/index.lock"` before deleting anything.
 - **Verified**: 2026-10-01 · `docs/plans/2026-09-17-adversarial_loop/`
 - **Check it**: after a failure, the lock path does not exist and the same `git add` exits 0.
+
+## With no `gh repo set-default`, `gh` resolves the repository from a remote named `upstream` before `origin`
+
+- **Why it matters**: in a clone with `origin` = the user's fork and `upstream` = the parent, `gh pr view <N>` answers for the parent, while a bare `git push` goes to the branch's upstream, usually the fork. A guard that checks only the PR's facts then approves a push that never reaches the PR. `gh` does not fall back when the `upstream` repository does not exist: it fails.
+- **Verified**: 2026-10-01 · `docs/plans/2026-10-01-pr_identity_contract/` (`gh` 2.86.0)
+- **Check it**: in a scratch `git init` with `origin` = `https://github.com/thescubageek/workbench.git` and `upstream` = a nonexistent repository, `gh repo view --json nameWithOwner` fails with `Could not resolve to a Repository`. Rename `upstream` to `fork` and it prints `thescubageek/workbench`.
+
+## Braced `${CLAUDE_PLUGIN_ROOT}` and `${CLAUDE_SKILL_DIR}` in a skill body are substituted at load; the unbraced form is not
+
+- **Why it matters**: a skill can call a shipped script by an absolute path, so one script can replace logic copied across skills. The variable is **not** in the Bash tool's environment (`echo "${CLAUDE_PLUGIN_ROOT:-unset}"` prints `unset`), so `$CLAUDE_PLUGIN_ROOT` written unbraced reaches the shell as an empty expansion.
+- **Verified**: 2026-10-01 · `docs/plans/2026-10-01-pr_identity_contract/` (Claude Code 2.1.286, under `--plugin-dir` and under the marketplace install of `wb` 2.2.0)
+- **Check it**: headless, `claude -p --allowedTools=Skill "Invoke wb:review-prep … quote the first line containing 'nvim-helper.sh setup'"` returns a path under `~/.claude/plugins/cache/…`, not the literal variable.
