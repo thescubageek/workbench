@@ -51,6 +51,12 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-10-01 05:01 — R10-T28 (closed)
+
+- **Task/phase**: R10-T28, test-phi-patterns has no BC or BA no-separator case.
+- **Landed**: test-phi-patterns gains BC and BA no-separator cases (30 of 30). A scratch copy with a BM-only first pattern passed the old 28-case suite and fails the new one on exactly those two cases.
+- **Started at**: 314de5b
+
 ## 2026-10-01 05:01 — R10-T26 (closed)
 
 - **Task/phase**: R10-T26, implement_inline BARRIER 2 needs the attestation carve-out.

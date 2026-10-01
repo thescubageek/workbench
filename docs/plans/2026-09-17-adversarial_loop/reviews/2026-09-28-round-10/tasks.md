@@ -232,12 +232,12 @@ criterion is run before the fix**. A criterion that passes before the change is 
       attestation carve-out matching `implement/SKILL.md:449-450`, and the unqualified form is
       absent. (~2 calls) (completed 2026-10-01 05:01)
 
-- [ ] **R10-T28** — `plugin/scripts/test-phi-patterns:35` — every no-separator case uses the `BM`
+- [x] **R10-T28** — `plugin/scripts/test-phi-patterns:35` — every no-separator case uses the `BM`
       prefix, so narrowing the first pattern to `BM` keeps the suite at 18 of 18.
       **Fails when:** a later edit drops BC or BA from the first pattern; the tests stay green, and
       synthetic `BCNY12345678` and `BANY12345678` go unscrubbed.
       **Acceptance (shape 4)**: add BC and BA no-separator cases; negative control — against a
-      scratch copy with a BM-only first pattern, the suite goes red. (~3 calls)
+      scratch copy with a BM-only first pattern, the suite goes red. (~3 calls) (completed 2026-10-01 05:02)
 
 - [x] **R10-T29** — `plugin/skills/adversarial-review/SKILL.md:313` — the blast-radius search
       excludes `.context` but not `.git`.
