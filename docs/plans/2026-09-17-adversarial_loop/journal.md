@@ -51,6 +51,12 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-10-01 04:32 — R10-T17 (closed)
+
+- **Task/phase**: R10-T17, the mutation ratchet fails whenever killed falls and its message offers no lowering path.
+- **Landed**: ratchet_verdict takes the total; when killed falls with a shrunk mutant set and no survivor, the failure message gives the exact killed and of values for a deliberate hand edit of mutation-ratchet.json. New unit case in the plain suite (RED first). The ratchet still never lowers itself. README states the lowering path. --generated was not run.
+- **Started at**: 9a503d1
+
 ## 2026-10-01 04:30 — R10-T16 (closed)
 
 - **Task/phase**: R10-T16, Phase 5 check-runs lookup is unpaginated and reads an unbound REPO.

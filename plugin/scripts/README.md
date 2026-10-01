@@ -273,7 +273,10 @@ ignored within a week; printing a number nobody compares to anything is the same
 it. So the kill count is recorded in `fixtures/mutation-ratchet.json` and **may not fall**, and
 **no survivor may go unwaived**: a newly surviving mutant must be killed with a corpus case or
 waived with an argument, and `--generated` fails on any unwaived survivor or a stale waiver.
-Those are the two things the sweep enforces.
+Those are the two things the sweep enforces. When the mutant set itself shrinks because
+`check-guards` was simplified, the stored count is lowered by a deliberate hand edit of
+`fixtures/mutation-ratchet.json`, with the reason in the commit message, and `--generated` prints
+the exact values. It never lowers the count by itself.
 
 **Equivalent mutants are the known cost**, waived in `fixtures/mutation-waivers.json`, and a
 waiver carries an argument rather than an entry. Treat the survivor list as a queue of corpus

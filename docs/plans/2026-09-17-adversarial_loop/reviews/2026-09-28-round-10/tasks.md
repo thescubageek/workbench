@@ -164,13 +164,13 @@ criterion is run before the fix**. A criterion that passes before the change is 
       `repos/{owner}/{repo}/…` with `--paginate` and `.check_runs[]` present at a cited line.
       (~2 calls) (completed 2026-10-01 04:31)
 
-- [ ] **R10-T17** — `plugin/scripts/test-guards:515` — the ratchet fails whenever `killed` falls,
+- [x] **R10-T17** — `plugin/scripts/test-guards:515` — the ratchet fails whenever `killed` falls,
       never lowers, ignores the total, and its message offers only a corpus case or a waiver.
       **Fails when:** check-guards code is simplified, mutants go 395→380 and killed 344→330 with no
       survivor; `--generated` exits 1 "add a corpus case, or waive the mutant", neither of which
       applies, and only an undocumented hand edit of `mutation-ratchet.json` passes.
       **Acceptance (shape 2)**: a `ratchet_verdict` unit case with `killed < prev`, a smaller total
-      and no survivors, asserting the message names lowering the stored count; RED today. (~4 calls)
+      and no survivors, asserting the message names lowering the stored count; RED today. (~4 calls) (completed 2026-10-01 04:38)
 
 - [ ] **R10-T18** — `plugin/scripts/test-guards:585` — the plain suite's single `ratchet_verdict`
       call covers only the survivors branch and asserts only `ok`.

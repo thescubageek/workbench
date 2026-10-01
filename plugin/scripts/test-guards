@@ -513,7 +513,7 @@ def run_generated(impl):
     return survivors, waived, killed, len(mutants), stale
 
 
-def ratchet_verdict(killed, prev, survivors, stale):
+def ratchet_verdict(killed, prev, survivors, stale, total=None, prev_total=None):
     """The --generated pass/fail decision, pure so the plain suite can test it."""
     msgs = []
     if stale:
@@ -525,7 +525,14 @@ def ratchet_verdict(killed, prev, survivors, stale):
     if survivors:
         msgs.append(f'❌ {len(survivors)} unwaived survivor(s). Kill each with a corpus case, or '
                     f'waive it with an argument —\n   keys in fixtures/mutation-survivors.txt.')
-    if killed < prev:
+    if killed < prev and not survivors and total is not None and prev_total is not None \
+            and total < prev_total:
+        msgs.append(f'❌ ratchet: killed fell from {prev} to {killed}, but the mutant set shrank '
+                    f'from {prev_total} to {total}\n   with no survivor, so check-guards was '
+                    f'simplified. If that is intended, lower the stored count\n   by hand: set '
+                    f'fixtures/mutation-ratchet.json to {{"killed": {killed}, "of": {total}}} and '
+                    f'record the\n   reason in the commit message.')
+    elif killed < prev:
         msgs.append(f'❌ ratchet: killed fell from {prev} to {killed}. Either add a corpus '
                     f'case, or waive the mutant in fixtures/mutation-waivers.json with a reason.')
     return not msgs, msgs
@@ -600,8 +607,16 @@ def main():
     print(f"  {'✓' if verdict_ok else '✗'} --generated fails on an unwaived survivor "
           f"even when the kill count rose")
 
+    shrunk_ok, shrunk_msgs = ratchet_verdict(330, 344, [], [], total=380, prev_total=395)
+    shrunk_text = '\n'.join(shrunk_msgs)
+    shrunk_verdict_ok = (not shrunk_ok and 'lower' in shrunk_text
+                         and 'mutation-ratchet.json' in shrunk_text
+                         and '330' in shrunk_text and '380' in shrunk_text)
+    print(f"  {'✓' if shrunk_verdict_ok else '✗'} --generated names lowering the stored count "
+          f"when the mutant set shrank with no survivor")
+
     ok = (base['correct'] == base['total'] and caught == len(MUTATIONS)
-          and integ_ok == len(integ) and intact and verdict_ok)
+          and integ_ok == len(integ) and intact and verdict_ok and shrunk_verdict_ok)
     print(f"\ntest-guards: corpus {base['correct']}/{base['total']}, "
           f"integrity {integ_ok}/{len(integ)}, "
           f"mutations {caught}/{len(MUTATIONS)} — {'PASS' if ok else 'FAIL'}")
@@ -624,8 +639,10 @@ if __name__ == '__main__':
         # waived, it is the bar. A survivor must be killed by a corpus case, or waived with
         # an argument. Every failing rule reports before the exit.
         rpath = os.path.join(HERE, 'fixtures', 'mutation-ratchet.json')
-        prev = json.load(open(rpath))['killed'] if os.path.exists(rpath) else 0
-        ok, msgs = ratchet_verdict(killed, prev, surv, stale)
+        stored = json.load(open(rpath)) if os.path.exists(rpath) else {}
+        prev = stored.get('killed', 0)
+        ok, msgs = ratchet_verdict(killed, prev, surv, stale,
+                                   total=total, prev_total=stored.get('of'))
         for m in msgs:
             print('\n' + m)
         if not ok:
