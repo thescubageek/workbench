@@ -51,6 +51,12 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-10-01 13:48 — R11-T14 (closed)
+
+- **Task/phase**: R11-T14, test-quiet misses the suppressed-line count and log retention.
+- **Landed**: test-quiet gains a case asserting 3 lines suppressed, the printed log path exists under a scratch TMPDIR and holds the three lines, and a failing run leaves no log. The lines=99 and delete-log mutants both passed the old test and fail the new one. The test leaks no logs now (scratch TMPDIR with a trap). shellcheck-gate passes.
+- **Started at**: eb007db
+
 ## 2026-10-01 13:31 — R11-T13 (closed)
 
 - **Task/phase**: R11-T13, the must-not-fire corpus branch cannot detect a crash or an unmapped label.

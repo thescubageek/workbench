@@ -13,6 +13,10 @@ QUIET="$SCRIPT_DIR/quiet"
 PASS=0
 FAIL=0
 
+SCRATCH="$(mktemp -d)"
+trap 'rm -rf "$SCRATCH"' EXIT
+export TMPDIR="$SCRATCH"
+
 check() {
     local desc="$1" cond="$2"
     if [[ "$cond" == "1" ]]; then
@@ -52,6 +56,17 @@ check "failure dumps line2" "$(echo "$out" | grep -q 'line2' && echo 1 || echo 0
 # --- Case 4: plain failure exits 1 ---
 "$QUIET" false >/dev/null 2>&1; code=$?
 check "false exits 1" "$([[ $code -eq 1 ]] && echo 1 || echo 0)"
+
+# --- Case 5: success reports the suppressed-line count and keeps the log; failure removes it ---
+out=$("$QUIET" sh -c 'echo a; echo b; echo c' 2>&1)
+check "success reports 3 lines suppressed" "$(echo "$out" | grep -q '(3 lines suppressed' && echo 1 || echo 0)"
+logpath=$(printf '%s\n' "$out" | awk 'NR==1' | sed -E 's/.*→ ([^)]*)\)$/\1/')
+check "success keeps the printed log under TMPDIR" "$([[ "$logpath" == "$SCRATCH"/wb-quiet.* && -f "$logpath" ]] && echo 1 || echo 0)"
+check "kept log holds the 3 lines" "$([[ $(awk 'NF{n++} END{print n+0}' "$logpath" 2>/dev/null) -eq 3 ]] && echo 1 || echo 0)"
+before=$(find "$SCRATCH" -type f | awk 'END{print NR}')
+"$QUIET" sh -c 'echo x; exit 2' >/dev/null 2>&1
+after=$(find "$SCRATCH" -type f | awk 'END{print NR}')
+check "failure removes its log" "$([[ "$before" -eq "$after" ]] && echo 1 || echo 0)"
 
 echo ""
 echo "test-quiet: $PASS passed, $FAIL failed"

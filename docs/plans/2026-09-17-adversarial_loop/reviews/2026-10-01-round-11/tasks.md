@@ -158,13 +158,13 @@ criterion is run before the fix**. A criterion that passes before the change is 
       `returncode == 1` for `expect == 1`, and fail on a finding line that maps to no `SHAPE_OF`
       key; show in a scratch copy that the crash-on-clean wrapper now fails the suite. (~8 calls) (completed 2026-10-01 13:47)
 
-- [ ] **R11-T14** — `plugin/scripts/test-quiet:1` — no case asserts the suppressed-line count or
+- [x] **R11-T14** — `plugin/scripts/test-quiet:1` — no case asserts the suppressed-line count or
       log retention that `quiet` documents.
       **Fails when:** in a scratch copy, replacing the count capture with `lines=99`, and
       separately deleting the log on success, both leave `test-quiet` at 9 passed, 0 failed.
       **Acceptance (shape 2)**: a case asserting "3 lines suppressed" for a three-line run and that
       the printed log path exists; show both scratch mutations now fail, and remove the test's own
-      leaked temp logs. (~6 calls)
+      leaked temp logs. (~6 calls) (completed 2026-10-01 13:49)
 
 - [ ] **R11-T15** — `plugin/scripts/test-guards:528` — the shrunk-set branch ignores how far
       `killed` fell compared with the total.
