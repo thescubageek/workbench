@@ -476,3 +476,21 @@ we have the in-repo cautionary example for that.
 - **Why it matters**: `docs/plans/` is gitignored, but a promoted plan's files are tracked. `git add -A docs/plans/<plan> && git commit …` stages the tracked changes, prints `The following paths are ignored by one of your .gitignore files`, and exits 1. The `&&` then skips the commit with no other error, and the changes stay staged. Use `git add -u <plan dir>` for tracked files, and `git add -f <file>` for a new file.
 - **Verified**: 2026-09-30 · `docs/plans/2026-09-28-guard_lexer_and_pr_identity/` (the P1-T5 commit failed this way once)
 - **Check it**: edit a tracked file in a promoted plan, then run `git add -A docs/plans/<plan>; echo "exit=$?"`. It prints the ignore hint and `exit=1`, and `git status --short` shows the file staged.
+
+## In zsh, `$var:letter` is a history modifier, so `$A1:refs/pull/42/head` loses the SHA
+
+- **Why it matters**: a refspec such as `git push origin $A1:refs/pull/42/head` is read as `${A1:r}efs/...` under the Bash tool's shell. The push fails with `src refspec ...efs/pull/42/head does not match any`, which reads as a missing ref and not as a quoting bug. Write `"${A1}:refs/pull/42/head"`.
+- **Verified**: 2026-10-01 · `docs/plans/2026-09-17-adversarial_loop/` (the round-12 `/verify` fixture)
+- **Check it**: `a=x.y; echo "$a:r"` prints `x`, and `echo "${a}:r"` prints `x.y:r`.
+
+## The rtk hook truncates `git log --name-only`, which understates a fix surface
+
+- **Why it matters**: `git log --first-parent --no-merges --name-only --format= <range>` listed 13 files through the hook and 45 through `rtk proxy git log`. The ledger's `introduced_by` is derived from that list, so a truncated list marks real `prev-fix` findings as pre-existing. Use `rtk proxy git log` for any name list that feeds a measurement.
+- **Verified**: 2026-10-01 · `docs/plans/2026-09-17-adversarial_loop/`
+- **Check it**: run the command both ways over `3b4e04b..HEAD` and compare `sort -u | wc -l`.
+
+## `git add` in this Conductor worktree sometimes fails once on `index.lock` and succeeds on retry
+
+- **Why it matters**: three times in one session `git add` printed `Unable to create '.../.git/worktrees/ankara/index.lock': File exists`, and the lock was gone a moment later with no git process visible. A `&&` chain then skips the commit. Retry after a short wait before suspecting a stale lock, and confirm with `ls "$(git rev-parse --git-dir)/index.lock"` before deleting anything.
+- **Verified**: 2026-10-01 · `docs/plans/2026-09-17-adversarial_loop/`
+- **Check it**: after a failure, the lock path does not exist and the same `git add` exits 0.

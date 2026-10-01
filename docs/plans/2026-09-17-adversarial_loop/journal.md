@@ -51,6 +51,13 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-10-01 17:35 — handoff for the identity-rule escalation (closed)
+
+- **Task/phase**: a handoff at the round-13 breaker trip, for a new session that runs `create_project`, `create_research`, a tracer bullet and `create_design` on the PR identity rule.
+- **Landed**: `handoff-2026-10-01-10-34.md` in this plan directory, and three entries in `.claude/wb/knowledge.md` (zsh `$var:letter`, rtk truncating `git log --name-only`, a transient `index.lock`).
+- **Commits**: this commit.
+- **Learned**: the 2026-09-28 identity design is stale against the code (round 11 added the branch-name test and the design was not updated).
+
 ## 2026-10-01 14:53 — Round 13 review, breaker Blocking (closed)
 
 - **Task/phase**: round 13, a re-review of round 12's fixes after `/verify`.
