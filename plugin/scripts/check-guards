@@ -126,8 +126,12 @@ def lex(line):
     character outside single quotes; single quotes are literal until the next single quote;
     double quotes toggle; $( ) and backticks open a fresh quoting context and restore the
     outer one on close; single quotes suppress a substitution and double quotes do not —
-    but a `)` inside double quotes is literal and closes nothing; an unclosed $( ) runs to
-    the end of the line; an unclosed backtick is a stray and yields no span.
+    but a `)` inside double quotes is literal and closes nothing.
+
+    Two rules are the lexer's own, not the shell's: they decide a line the shell would
+    reject or continue onto the next line. An unclosed $( ) runs to the end of the line,
+    which can only add findings. An unclosed backtick is a stray and yields no span, which
+    can miss a capture continued on the next line.
 
     The tuple carries only what a consumer reads. A substitution-depth field was written
     into the tracer bullet's seed "for completeness" and the generated sweep priced the
