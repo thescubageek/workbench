@@ -606,11 +606,17 @@ minutes on the maintainer's machine and has been measured at twelve; still not p
       → 0 today; after: 1. Validate the YAML with whichever parser is present:
       `python3 -c "import yaml; yaml.safe_load(open('.github/workflows/checks.yml'))"`, or
       `ruby -ryaml -e 'YAML.load_file(".github/workflows/checks.yml")'`. (~6 calls) (completed 2026-10-01 03:53)
-- [ ] **P3-T2** — Correct the runtime figure and the "not part of check" wording in
-      `plugin/scripts/README.md:211` and `README.md:319` per Changes Required §2, and add one
-      sentence to each that the ratchet was re-based on the lexer rewrite with the date.
-      **RED** (shape 3): `command grep -c '80 seconds' plugin/scripts/README.md` → 1; after: 0,
-      and `command grep -c 'CI' plugin/scripts/README.md` rises by one. (~5 calls)
+- [x] **P3-T2** — Correct the runtime figure and the "not part of check" wording in (completed 2026-10-01 03:54)
+      `plugin/scripts/README.md:249-250` and `README.md:365` (the lines moved since this plan was
+      written; `README.md` has no runtime figure, only "runs separately, because it is slow")
+      per Changes Required §2, and add one sentence to each that the ratchet was re-based on the
+      lexer rewrite with the date (2026-10-01, now 378 of 421 killed). Where the same paragraph
+      states the old totals (`plugin/scripts/README.md:253`, `README.md:368`), correct those
+      figures to the re-based ones so the new sentence does not contradict them. **RED** (shape 3,
+      rewritten 2026-10-01 because the original `'80 seconds'` grep cannot match a number that
+      wraps across two lines): `command grep -c -- '~80' plugin/scripts/README.md` → 1; after: 0.
+      `command grep -c 'CI' plugin/scripts/README.md` rises by at least one, and
+      `command grep -c 'CI' README.md` rises by at least one. (~6 calls)
 - [ ] **P3-T3** — Close the ten held round-10 tasks by pointer. In
       `docs/plans/2026-09-17-adversarial_loop/reviews/2026-09-28-round-10/tasks.md`, flip
       R10-T3, T4, T5, T7, T10, T11, T12, T13, T21, T29 to `[x]` with

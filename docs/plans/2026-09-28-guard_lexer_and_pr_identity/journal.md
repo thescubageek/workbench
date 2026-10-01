@@ -51,6 +51,12 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-10-01 03:54 — P3-T2 (closed)
+
+- **Task/phase**: P3-T2, correct the sweep's runtime and CI wording in the two READMEs.
+- **Landed**: both READMEs say the sweep runs in CI, state the four-and-twelve-minute runtime, and carry the re-based totals (378 of 421, 43 waived). The task's RED was rewritten first because the original grep could not match.
+- **Started at**: 0569d21
+
 ## 2026-10-01 03:53 — P3-T1 (closed)
 
 - **Task/phase**: P3-T1, add the mutation-sweep job to the checks workflow.
