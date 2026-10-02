@@ -23,7 +23,7 @@ refuse() { echo "$1 — NOT reviewing" >&2; exit 1; }
 target="${1:-}"
 case $target in -*) usage ;; esac
 
-lower() { printf '%s' "$1" | tr '[:upper:]' '[:lower:]'; }
+lower() { printf '%s' "$1" | LC_ALL=C tr '[:upper:]' '[:lower:]'; }
 
 AN=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
 

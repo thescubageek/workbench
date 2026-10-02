@@ -185,6 +185,16 @@ build() {
             esac
             REPOS="\"https://github.com/thescubageek/workbench.git\": \"thescubageek/workbench\""
             fixture "$(pr 42 feature-A "$(oid A1)" false thescubageek)"; TARGET=42 ;;
+        K1|K2)
+            base_world "$1"; git clone -q parent.git work; cd work || exit 2
+            git checkout -q feature-A; commit L1
+            case $1 in
+                K1) odd="https://g$(printf '\xc4\xb0')thub.com/thescubageek/workbench.git" ;;
+                K2) odd="ssh://u:p@github.com/thescubageek/workbench" ;;
+            esac
+            git remote set-url --push origin "$odd"
+            REPOS="$REPOS, \"$odd\": \"thescubageek/workbench\""
+            fixture "$(pr 42 feature-A "$(oid A1)" false thescubageek)"; TARGET=42 ;;
         C1)
             base_world C1; git clone -q parent.git work; cd work || exit 2
             git checkout -q feature-A; commit L1
@@ -259,6 +269,8 @@ I5|elsewhere|no|no|L1|A1|-|-|push url a relative path that gh resolves to the ba
 I6|elsewhere|no|no|L1|A1|-|-|push url a local path with @ and : that gh resolves to the base repository
 J1|own|yes|yes|L1|L1|origin|refs/heads/feature-A|push url ssh:// with no user
 J2|own|yes|yes|L1|L1|origin|refs/heads/feature-A|push url https:// with a port, .git and a trailing slash
+K1|elsewhere|no|no|L1|A1|-|-|push url https:// whose host has a non-ASCII letter that lower-casing folds to ASCII
+K2|elsewhere|no|no|L1|A1|-|-|push url ssh:// with a : in its userinfo
 C1|own|yes|yes|L1|L1|origin|refs/heads/feature-A|hosted GitHub URLs, fetch https and push scp
 D1|other|no|no|D1|A1|-|-|gh-resolved=base on origin outranks the name-ranked upstream'
 
