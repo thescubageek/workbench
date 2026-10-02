@@ -49,7 +49,7 @@ relates to this checkout. The block reads its fields by key and never reads a re
 # Re-state Step 1's binding: an argument was given → `target=<it>`; none → leave as is.
 target=""
 REPO=$(gh repo view --json nameWithOwner --jq .nameWithOwner) || exit 1
-out=$("${CLAUDE_PLUGIN_ROOT}/scripts/pr-identity" ${target:+"$target"})
+out=$("${CLAUDE_PLUGIN_ROOT}/scripts/pr-identity" --no-fetch ${target:+"$target"})
 rc=$?
 relation=""; pr=""; head_oid=""
 while IFS= read -r line; do
@@ -168,7 +168,7 @@ literal path (not a variable — the shell from 4a is gone):
 target=""
 # Re-state Step 1's printed value: `pr=<number>`.
 pr=""
-out=$("${CLAUDE_PLUGIN_ROOT}/scripts/pr-identity" ${target:+"$target"})
+out=$("${CLAUDE_PLUGIN_ROOT}/scripts/pr-identity" --no-fetch ${target:+"$target"})
 rc=$?
 relation=""; PR=""; head_oid=""
 while IFS= read -r line; do

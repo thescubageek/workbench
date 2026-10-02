@@ -702,7 +702,10 @@ else
         if [[ $ereply != - ]]; then
             fresh; BIND=$TARGET_BIND
             if has reply; then
-                run_block reply
+                : >"$W/trace-reply"
+                run_block reply GIT_TRACE="$W/trace-reply"
+                rfetch=$("$SCRIPT_DIR/count" 'built-in: git fetch' "$W/trace-reply") || rfetch=unmeasured
+                [[ $rfetch == 0 ]] || M="$M; reply made $rfetch fetches"
                 if [[ $RC -eq 0 && $ereply == refuse ]]; then U="$U; reply adjudicates against a tree that is not the PR head"
                 elif [[ $RC -ne 0 && $ereply == proceed ]]; then M="$M; reply refused on a checkout it serves"
                 fi
