@@ -54,23 +54,26 @@ fork_pr57() {
 
 fixture() { printf '{"repos": {%s}, "prs": {"thescubageek/workbench": {%s}}}\n' "$REPOS" "$1" >"$W/fixture.json"; }
 
+hosted_push() { git remote set-url --push origin https://github.com/thescubageek/workbench.git; }
+
 # build <scenario>: sets W, OIDS, HAS_TARGET, TARGET and leaves cwd in "$W/work"
 build() {
     HAS_TARGET=0; TARGET=""
     case $1 in
         S1|S7|S9|S10)
             base_world "$1"; git clone -q parent.git work; cd work || exit 2
-            git checkout -q feature-A; commit L1
+            git checkout -q feature-A; commit L1; hosted_push
             fixture "$(pr 42 feature-A "$(oid A1)" false thescubageek)"
             case $1 in S1) TARGET=42 ;; S7) TARGET=feature-A ;; S10) TARGET=plugin/ ;; esac ;;
         S2)
             base_world S2; git clone -q parent.git work; cd work || exit 2
             git checkout -q feature-A; git checkout -qb feature-B; commit B1; must git push -q -u origin feature-B
+            hosted_push
             fixture "$(pr 42 feature-A "$(oid A1)" false thescubageek), $(pr 43 feature-B "$(oid B1)" false thescubageek)"
             TARGET=42 ;;
         S3)
             base_world S3; git clone -q parent.git work; cd work || exit 2
-            git checkout -q -b mine --track origin/feature-A
+            git checkout -q -b mine --track origin/feature-A; hosted_push
             fixture "$(pr 42 feature-A "$(oid A1)" false thescubageek)"; TARGET=42 ;;
         S4)
             base_world S4; git clone -q parent.git work; cd work || exit 2
@@ -158,6 +161,30 @@ build() {
             esac
             REPOS="\"https://github.com/thescubageek/workbench.git\": \"thescubageek/workbench\""
             fixture "$(pr 42 feature-A "$(oid A1)" false thescubageek)"; TARGET=42 ;;
+        I1|I2|I3|I4|I5|I6)
+            base_world "$1"; git clone -q parent.git work; cd work || exit 2
+            git checkout -q feature-A; commit L1
+            case $1 in
+                I1) odd="ssh://evil.example%2f@github.com/thescubageek/workbench" ;;
+                I2) odd="ssh://%5Bevil.example%5D@github.com/thescubageek/workbench" ;;
+                I3) odd="ssh://x%40%5Bevil.example%5D@github.com/thescubageek/workbench" ;;
+                I4) odd="git://github.com/thescubageek/workbench.git" ;;
+                I5) odd="thescubageek/workbench" ;;
+                I6) odd="$W/x@github.com:thescubageek/workbench.git" ;;
+            esac
+            git remote set-url --push origin "$odd"
+            REPOS="$REPOS, \"$odd\": \"thescubageek/workbench\""
+            fixture "$(pr 42 feature-A "$(oid A1)" false thescubageek)"; TARGET=42 ;;
+        J1|J2)
+            base_world "$1"; git clone -q parent.git work; cd work || exit 2
+            git checkout -q feature-A; commit L1
+            git remote set-url origin https://github.com/thescubageek/workbench.git
+            case $1 in
+                J1) git remote set-url --push origin ssh://github.com/thescubageek/workbench ;;
+                J2) git remote set-url --push origin https://github.com:443/thescubageek/workbench.git/ ;;
+            esac
+            REPOS="\"https://github.com/thescubageek/workbench.git\": \"thescubageek/workbench\""
+            fixture "$(pr 42 feature-A "$(oid A1)" false thescubageek)"; TARGET=42 ;;
         C1)
             base_world C1; git clone -q parent.git work; cd work || exit 2
             git checkout -q feature-A; commit L1
@@ -224,6 +251,14 @@ H7|elsewhere|no|no|L1|A1|-|-|push url .../x@github.com:... is a local path, a / 
 H8|own|yes|yes|L1|L1|origin|refs/heads/feature-A|push url ssh:// with user, port, .git and a trailing slash
 H9|own|yes|yes|L1|L1|origin|refs/heads/feature-A|push url https:// with credentials in its userinfo
 H10|elsewhere|no|no|L1|A1|-|-|push url with a backslash in its authority is not read locally
+I1|elsewhere|no|no|L1|A1|-|-|push url ssh:// with a percent-encoded / in its userinfo
+I2|elsewhere|no|no|L1|A1|-|-|push url ssh:// with percent-encoded brackets in its userinfo
+I3|elsewhere|no|no|L1|A1|-|-|push url ssh:// with a percent-encoded @ and brackets in its userinfo
+I4|elsewhere|no|no|L1|A1|-|-|push url git:// that gh resolves to the base repository
+I5|elsewhere|no|no|L1|A1|-|-|push url a relative path that gh resolves to the base repository
+I6|elsewhere|no|no|L1|A1|-|-|push url a local path with @ and : that gh resolves to the base repository
+J1|own|yes|yes|L1|L1|origin|refs/heads/feature-A|push url ssh:// with no user
+J2|own|yes|yes|L1|L1|origin|refs/heads/feature-A|push url https:// with a port, .git and a trailing slash
 C1|own|yes|yes|L1|L1|origin|refs/heads/feature-A|hosted GitHub URLs, fetch https and push scp
 D1|other|no|no|D1|A1|-|-|gh-resolved=base on origin outranks the name-ranked upstream'
 

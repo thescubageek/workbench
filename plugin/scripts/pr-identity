@@ -27,29 +27,40 @@ lower() { printf '%s' "$1" | tr '[:upper:]' '[:lower:]'; }
 
 AN=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
 
-# host/owner/name parsed by git's rules from https://, ssh:// or user@host: URLs; fails for
-# anything it cannot read with certainty, which then goes to `gh repo view <url>`
+# host/owner/name from a URL in an exact allow-list, not git's full grammar:
+#   https://[user[:pass]@]host[:port]/  ssh://[user@]host[:port]/  user@host:
+# then owner/name, one optional .git and an optional trailing /. Host [A-Za-z0-9.-], owner and
+# name [A-Za-z0-9._-], userinfo [A-Za-z0-9._~-]; no %. Anything else fails, and only a URL this
+# reads may give publish=yes.
+UI=${AN}._~-
 parse_url() {
-  local u=$1 scheme="" auth host port path
+  local u=$1 scheme="" auth user="" host port path owner name
   u=${u%/}; u=${u%.git}
   case $u in
     https://*/*|ssh://*/*) scheme=${u%%://*}; u=${u#*://}; auth=${u%%/*}; path=${u#*/} ;;
     *://*) return 1 ;;
-    *:*) auth=${u%%:*}; path=${u#*:}
-         [[ $auth != */* && $auth == *@* ]] || return 1 ;;
+    *@*:*) auth=${u%%:*}; path=${u#*:}
+           [[ $auth == *@* ]] || return 1 ;;
     *) return 1 ;;
   esac
-  [[ $auth != *[!${AN}._~%:@-]* && $auth != *@*@* ]] || return 1
-  host=${auth#*@}
+  host=${auth##*@}
   if [ "$host" != "$auth" ]; then
-    [[ $auth == ?*@* && ( $scheme == https || $auth != *:*@* ) ]] || return 1
+    user=${auth%@*}
+    if [ "$scheme" = https ]; then
+      [[ -n $user && $user != *[!:${UI}]* && $user != :* && $user != *: && $user != *:*:* ]] || return 1
+    else
+      [[ -n $user && $user != *[!${UI}]* ]] || return 1
+    fi
   fi
   if [ -n "$scheme" ] && [[ $host == *:* ]]; then
-    port=${host##*:}; host=${host%:*}
+    port=${host#*:}; host=${host%%:*}
     [[ -n $port && $port != *[!0123456789]* ]] || return 1
   fi
   [[ -n $host && $host != -* && $host != *[!${AN}.-]* ]] || return 1
-  [[ $path == ?*/?* && $path != */*/* ]] || return 1
+  [[ $path == */* && $path != */*/* ]] || return 1
+  owner=${path%/*}; name=${path#*/}
+  [[ -n $owner && $owner != *[!${AN}._-]* && $owner != . && $owner != .. ]] || return 1
+  [[ -n $name && $name != *[!${AN}._-]* && $name != . && $name != .. ]] || return 1
   printf '%s/%s\n' "$host" "$path"
 }
 
@@ -73,10 +84,9 @@ repo_of_url() { # sets REPO; one gh call per distinct URL that parse_url cannot 
 "
 }
 
-repo_of_remote() { # remote [--push]; sets REPO
+repo_of_remote() { # remote; sets REPO
   local url
-  if [ "${2:-}" = --push ]; then url=$(git remote get-url --push "$1" 2>/dev/null) || return 1
-  else url=$(git remote get-url "$1" 2>/dev/null) || return 1; fi
+  url=$(git remote get-url "$1" 2>/dev/null) || return 1
   repo_of_url "$url"
 }
 
@@ -162,17 +172,16 @@ elif [ -z "$cur" ]; then
   relation=detached; reason="HEAD is detached"
 elif [ -z "$up_remote" ]; then
   relation=elsewhere; reason="branch '$cur' has no upstream"
+elif ! REPO=$(parse_url "$(git remote get-url --push "$up_remote" 2>/dev/null)"); then
+  relation=elsewhere; reason="push url of '$up_remote' is not a form pr-identity will publish to"
+elif ! same_repo "$REPO" "$BASE_HOST/$headrepo"; then
+  relation=elsewhere; reason="branch '$cur' pushes to $REPO, not the PR's head repository $BASE_HOST/$headrepo"
+elif [ "$up_ref" != "refs/heads/$headref" ]; then
+  relation=stacked; reason="branch '$cur' tracks '${up_ref#refs/heads/}', not the PR's head '$headref'"
+elif [ "$kind" = current ] && [ "$cur" != "$headref" ]; then
+  relation=elsewhere; reason="the PR's head branch '$headref' is not the current branch '$cur'"
 else
-  repo_of_remote "$up_remote" --push || refuse "could not resolve remote '$up_remote' via gh"
-  if ! same_repo "$REPO" "$BASE_HOST/$headrepo"; then
-    relation=elsewhere; reason="branch '$cur' pushes to $REPO, not the PR's head repository $BASE_HOST/$headrepo"
-  elif [ "$up_ref" != "refs/heads/$headref" ]; then
-    relation=stacked; reason="branch '$cur' tracks '${up_ref#refs/heads/}', not the PR's head '$headref'"
-  elif [ "$kind" = current ] && [ "$cur" != "$headref" ]; then
-    relation=elsewhere; reason="the PR's head branch '$headref' is not the current branch '$cur'"
-  else
-    relation=own; publish=yes; push_remote="$up_remote"; push_ref="$up_ref"
-  fi
+  relation=own; publish=yes; push_remote="$up_remote"; push_ref="$up_ref"
 fi
 
 if [ "$kind" = current ] || [ "$relation" = own ]; then
