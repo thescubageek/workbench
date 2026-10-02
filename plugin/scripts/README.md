@@ -139,7 +139,7 @@ runs before cutting a release.
 ./plugin/scripts/check
 ```
 
-Runs, in order: `shellcheck-gate` (shellcheck ≥ 0.9.0 required), `lint --all`, `check-guards`, `test-guards`, `test-count`, `test-phi-patterns`, `test-quiet`, `test-check`, `test-pr-identity`. **Every
+Runs, in order: `shellcheck-gate` (shellcheck ≥ 0.9.0 required), `lint --all`, `check-guards`, `test-guards`, `test-count`, `test-phi-patterns`, `test-quiet`, `test-check`, `test-lint`, `test-prime`, `test-pr-template`, `test-wbte-dictionary`, `test-pr-identity`. **Every
 gate runs even after one fails** — knowing that something is broken is less useful than knowing
 which things are. Exits 0 only if all of them pass.
 

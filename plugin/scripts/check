@@ -63,6 +63,10 @@ gate "count contract"           ./plugin/scripts/test-count
 gate "PHI scrub patterns"       ./plugin/scripts/test-phi-patterns
 gate "quiet contract"           ./plugin/scripts/test-quiet
 gate "check contract"           ./plugin/scripts/test-check
+gate "lint contract"            ./plugin/scripts/test-lint
+gate "prime contract"           ./plugin/scripts/test-prime
+gate "pr-template contract"     ./plugin/scripts/test-pr-template
+gate "wbte-dictionary contract" ./plugin/scripts/test-wbte-dictionary
 gate "pr-identity contract"     ./plugin/scripts/test-pr-identity
 
 echo
