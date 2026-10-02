@@ -4,14 +4,62 @@
 # One scratch world per scenario (S1 to S11 from the identity tracer bullet, plus N1 and O1 so
 # that every relation value has a world). A stub gh reads a per-world fixture; git is real and
 # pushes only into bare repositories under the scratch directory.
+#
+# Consumer level: S1 to S12b run against the fenced blocks extracted from the three SKILL.md
+# files (the working tree, or `--skills-at <rev>` for `git show <rev>:<path>`), under zsh as the
+# Bash tool runs them. No prose rule is modelled: a block that does not exist fails every cell
+# that needs it as MISSING. The block is the first ```bash fence under its heading, before the
+# next heading:
+#   review  adversarial-review "## Step 1:"      step8   adversarial-review "## Step 8:"
+#   phase0  adversarial-loop   "## Phase 0:"     phase2  adversarial-loop   "## Phase 2:"
+#   ledger  adversarial-loop   "<n>. **Record each finding" (Phase 1 step 5)
+#   reply   reply-to-claude    "## Step 1:"
+# Each block is run as the model runs it: a `name=""` line is re-typed with the value bound to
+# that name, and `target=<it>` is prepended to a block with no `target=""` line. Bound names are
+# target (the argument), the key=value lines Step 1 printed plus review_base, review_head and
+# pathspec from its `range:` line (for step8), and findings, the round's verified count (for
+# ledger). <plan>, <N> and <date> become p, 1 and $PLAN_DATE; ${CLAUDE_PLUGIN_ROOT} becomes
+# plugin/. Columns, each in a fresh copy of the world: the loop reads fix= from phase0; the
+# review head comes from the range: line of review, then step8 runs over a plan the test wrote
+# and the index says whether it was staged; phase2 runs after one fix commit, and the bare
+# repositories say where the push landed; reply proceeds when it exits 0.
+#
+# Expected rows come from design.md → Data Model, not the pre-registered tracer-bullet table.
+# Where they differ: S3 is own, so it fixes, stages, publishes and replies. S11 is elsewhere: the
+# review reads the fetched PR head and the loop does not fix. S2, S4, S5, S6 and S8 have fix=no,
+# so the loop refuses before the review and names /wb:adversarial-review <target>. S12 expects a
+# committed clean-round row. Reply proceeds on own or HEAD = head_oid, so S4 and S6 proceed and
+# S11 refuses; it is not run for S7, S8 and S10, whose targets are not PR numbers. Any push or
+# un-draft where publish=no is UNSAFE.
 
 set -uo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+PLUGIN_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 PRID="$SCRIPT_DIR/pr-identity"
 STUB="$SCRIPT_DIR/fixtures/gh-stub"
+
+SKILLS_AT=""
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --skills-at) [[ $# -ge 2 ]] || { echo "usage: test-pr-identity [--skills-at <rev>]" >&2; exit 2; }
+                     SKILLS_AT=$2; shift 2 ;;
+        *) echo "usage: test-pr-identity [--skills-at <rev>]" >&2; exit 2 ;;
+    esac
+done
+
 ROOT="$(cd "$(mktemp -d)" && pwd -P)"
 trap 'rm -rf "$ROOT"' EXIT
+
+mkdir -p "$ROOT/skills"
+for s in adversarial-review adversarial-loop reply-to-claude; do
+    if [[ -n $SKILLS_AT ]]; then
+        git -C "$PLUGIN_ROOT" show "$SKILLS_AT:plugin/skills/$s/SKILL.md" >"$ROOT/skills/$s.md" 2>/dev/null \
+            || { echo "cannot read plugin/skills/$s/SKILL.md at $SKILLS_AT" >&2; exit 2; }
+    else
+        cp "$PLUGIN_ROOT/skills/$s/SKILL.md" "$ROOT/skills/$s.md" || exit 2
+    fi
+done
 
 mkdir -p "$ROOT/bin"
 ln -s "$STUB" "$ROOT/bin/gh"
@@ -225,8 +273,11 @@ build() {
             base_world E3; git -C parent.git update-ref -d refs/pull/42/head
             git clone -q parent.git work; cd work || exit 2
             fixture "$(pr 42 feature-A "$(oid A1)" false thescubageek)"; TARGET=42 ;;
+        S12|S12b)
+            base_world "$1"; git clone -q parent.git work; cd work || exit 2
+            mkdir -p docs/plans/p; fixture "" ;;
     esac
-    [ "$1" = S9 ] || [ "$1" = N1 ] || [ "$1" = G1 ] || [ "$1" = H2 ] || HAS_TARGET=1
+    case $1 in S9|N1|G1|H2|S12|S12b) ;; *) HAS_TARGET=1 ;; esac
     export GH_FIXTURE="$W/fixture.json" GH_LOG="$W/gh.log"
     : >"$GH_LOG"
 }
@@ -382,5 +433,239 @@ if [[ $MISSING -eq 0 ]]; then
     cd "$SCRIPT_DIR" || exit 2
 fi
 
+echo "consumer level: skills from ${SKILLS_AT:-the working tree}"
+
+PLAN_DATE=2026-10-01
+REAL_GIT=$(command -v git)
+export REAL_GIT
+mkdir -p "$ROOT/pushbin"
+# a push to the hosted URL lands in the world's parent.git, as on GitHub; every other git call is real
+cat >"$ROOT/pushbin/git" <<'SH'
+#!/bin/sh
+[ "$1" = push ] && [ -n "${PUSH_AS_GITHUB:-}" ] || exec "$REAL_GIT" "$@"
+shift
+exec "$REAL_GIT" -c "url.$PUSH_AS_GITHUB.insteadOf=https://github.com/thescubageek/workbench.git" push "$@"
+SH
+chmod +x "$ROOT/pushbin/git"
+
+extract() { # file heading-ERE end-ERE: the first bash fence under the heading, dedented
+    awk -v head="$2" -v endre="$3" '
+        state == 0 { if (!fence && $0 ~ head) state = 1; else if ($0 ~ /^[ \t]*```/) fence = !fence; next }
+        state == 1 { if (!fence && $0 ~ endre) exit
+                     if (!fence && $0 ~ /^[ \t]*```bash[ \t]*$/) { match($0, /^[ \t]*/); ind = RLENGTH; state = 2; next }
+                     if ($0 ~ /^[ \t]*```/) fence = !fence
+                     next }
+        { if ($0 ~ /^[ \t]*```[ \t]*$/) { found = 1; exit }; print substr($0, ind + 1) }
+        END { exit !found }' "$1"
+}
+
+load_block() { # name skill heading-ERE end-ERE
+    extract "$ROOT/skills/$2.md" "$3" "$4" >"$ROOT/blk.$1" && [[ -s "$ROOT/blk.$1" ]] || rm -f "$ROOT/blk.$1"
+}
+load_block review adversarial-review '^## Step 1: ' '^##? '
+load_block step8 adversarial-review '^## Step 8: ' '^##? '
+load_block phase0 adversarial-loop '^## Phase 0: ' '^##? '
+load_block phase2 adversarial-loop '^## Phase 2: ' '^##? '
+load_block ledger adversarial-loop '^[0-9]+[.] [*][*]Record each finding' '^[0-9]+[.] |^##? '
+load_block reply reply-to-claude '^## Step 1: ' '^##? '
+
+has() { [[ -f "$ROOT/blk.$1" ]]; }
+
+block_desc() {
+    case $1 in
+        review) echo "adversarial-review Step 1" ;;
+        step8) echo "adversarial-review Step 8" ;;
+        phase0) echo "adversarial-loop Phase 0" ;;
+        phase2) echo "adversarial-loop Phase 2" ;;
+        ledger) echo "adversarial-loop Phase 1 step 5 (ledger)" ;;
+        reply) echo "reply-to-claude Step 1" ;;
+    esac
+}
+
+bound() { # name: the value in $BIND
+    local l
+    while IFS= read -r l; do
+        [[ -n $l && ${l%%=*} == "$1" ]] && { printf '%s' "${l#*=}"; return 0; }
+    done <<<"$BIND"
+    return 1
+}
+
+materialize() { # block-file out-file
+    local line name val restated=0
+    : >"$2.body"
+    while IFS= read -r line || [[ -n $line ]]; do
+        line=${line//"\${CLAUDE_PLUGIN_ROOT}"/$PLUGIN_ROOT}
+        line=${line//'<plan>'/p}; line=${line//'<N>'/1}; line=${line//'<date>'/$PLAN_DATE}
+        if [[ $line =~ ^([A-Za-z_][A-Za-z0-9_]*)=\"\"$ ]]; then
+            name=${BASH_REMATCH[1]}
+            [[ $name != target ]] || restated=1
+            if val=$(bound "$name"); then line="$name='$val'"; fi
+        fi
+        printf '%s\n' "$line" >>"$2.body"
+    done <"$1"
+    {
+        if [[ $restated -eq 0 ]] && val=$(bound target); then echo "target='$val'"; fi
+        cat "$2.body"
+    } >"$2"
+}
+
+run_block() { # block [VAR=value ...]: OUT and RC from the block under zsh in $W/work
+    local b=$1; shift
+    materialize "$ROOT/blk.$b" "$W/run-$b.zsh"
+    OUT=$(cd "$W/work" && env CLAUDE_PLUGIN_ROOT="$PLUGIN_ROOT" "$@" zsh -f "$W/run-$b.zsh" </dev/null 2>&1); RC=$?
+}
+
+fresh() { cd "$ROOT" || exit 2; rm -rf "$W"; cp -Rp "$W.snap" "$W"; : >"$GH_LOG"; cd "$W/work" || exit 2; }
+
+refs() {
+    local b
+    for b in "$W"/*.git; do
+        git -C "$b" for-each-ref --format="$(basename "$b" .git):%(refname) %(objectname)" refs/heads
+    done | sort
+}
+
+T_UNSAFE=0; T_MISSING=0; T_MISS=0; T_OK=0
+score() { # id: classifies $U, $F and $M
+    local class why
+    if [[ -n $U ]]; then class=UNSAFE; elif [[ -n $F ]]; then class=MISSING; elif [[ -n $M ]]; then class=MISS; else class=OK; fi
+    case $class in UNSAFE) T_UNSAFE=$((T_UNSAFE + 1)) ;; MISSING) T_MISSING=$((T_MISSING + 1)) ;;
+                   MISS) T_MISS=$((T_MISS + 1)) ;; OK) T_OK=$((T_OK + 1)) ;; esac
+    why="$U$F$M"
+    if [[ $class == OK ]]; then echo "  ✓ $1 consumer OK"; PASS=$((PASS + 1)); else fail "$1 consumer $class" "${why#; }"; fi
+}
+
+missing() { F="$F; missing block: $(block_desc "$1")"; }
+
+# id | fix | review head | pathspec | publish | reply
+CTABLE='S1|yes|L1||yes|proceed
+S2|no|A1||no|refuse
+S3|yes|A1||yes|proceed
+S4|no|A1||no|proceed
+S5|no|F1||no|refuse
+S6|no|F1||no|proceed
+S7|yes|L1||yes|-
+S8|no|H1||no|-
+S9|yes|L1||yes|proceed
+S10|yes|L1|plugin/|yes|-
+S11|no|A1||no|refuse'
+
+if ! command -v zsh >/dev/null; then
+    fail consumer "zsh not found: the extracted blocks run under zsh"
+else
+    while IFS='|' read -r id efix ehead espec epub ereply; do
+        build "$id" >/dev/null 2>&1
+        cp -Rp "$W" "$W.snap"
+        U=""; F=""; M=""
+        TARGET_BIND=""; [[ $HAS_TARGET -eq 0 ]] || TARGET_BIND="target=$TARGET"
+
+        fresh; BIND=$TARGET_BIND
+        if has phase0; then
+            run_block phase0
+            lfix=$(val fix)
+            if [[ -z $lfix ]]; then M="$M; phase0 printed no fix= line"
+            elif [[ $lfix == yes && $efix == no ]]; then U="$U; the loop fixes a checkout that is not the target"
+            elif [[ $lfix == no && $efix == yes ]]; then M="$M; the loop stops where it should fix"
+            elif [[ $lfix == no && $OUT != *"/wb:adversarial-review $TARGET"* ]]; then
+                M="$M; the loop's refusal does not name /wb:adversarial-review $TARGET"
+            fi
+        else missing phase0; fi
+
+        fresh; BIND=$TARGET_BIND
+        if has review; then
+            run_block review
+            rline=$(printf '%s\n' "$OUT" | sed -n 's/^range: //p' | head -1)
+            if [[ $RC -ne 0 || -z $rline ]]; then M="$M; review refused"
+            else
+                rspec=""
+                if [[ $rline == *" -- "* ]]; then rspec=${rline#* -- }; rline=${rline%% -- *}; fi
+                rbase=${rline%%...*}; rhead=${rline#*...}
+                got=$(git rev-parse -q --verify "$rhead^{commit}" 2>/dev/null)
+                if [[ $got != "$(oid "$ehead")" || $rspec != "$espec" ]]; then
+                    M="$M; review head $rhead${rspec:+ -- $rspec} = ${got:0:7}, expected $ehead${espec:+ -- $espec}"
+                fi
+                if has step8; then
+                    BIND="$TARGET_BIND"$'\n'"$(printf '%s\n' "$OUT" | grep -E '^[a-z_]+=')"$'\n'"review_base=$rbase"$'\n'"review_head=$rhead"$'\n'"pathspec=$rspec"
+                    plan="docs/plans/p/reviews/$PLAN_DATE-round-1/tasks.md"
+                    mkdir -p "${plan%/*}"; echo '- [ ] **R1-T1** — a verified finding' >"$plan"
+                    run_block step8
+                    if [[ -n "$(git diff --cached --name-only -- "$plan")" ]]; then
+                        [[ $efix == yes ]] || U="$U; round plan staged for a target that is not this checkout"
+                    else
+                        [[ $efix == no ]] || M="$M; round plan not staged on this checkout"
+                    fi
+                fi
+            fi
+        else missing review; fi
+        has step8 || missing step8
+
+        fresh; BIND=$TARGET_BIND
+        if has phase2; then
+            echo fix >>fix.txt; git add fix.txt; git commit -qm fix
+            before=$(refs); : >"$GH_LOG"
+            run_block phase2 PATH="$ROOT/pushbin:$PATH" PUSH_AS_GITHUB="$W/parent.git"
+            pushes=$(comm -13 <(printf '%s\n' "$before") <(refs) | sed 's# .*##; s#refs/heads/##' | paste -sd, -)
+            ready=$(sed -n 's/^READY //p' "$GH_LOG" | paste -sd, -)
+            if [[ $epub == yes ]]; then
+                [[ -z $ready || $pushes == "parent:feature-A" ]] || U="$U; ready $ready after a push to '${pushes:-nothing}'"
+                [[ -z $pushes || $pushes == "parent:feature-A" ]] || U="$U; push landed on $pushes"
+                [[ $pushes == "parent:feature-A" && $ready == 42 ]] || M="$M; fixed but not published"
+            else
+                [[ -z $pushes ]] || U="$U; push landed on $pushes where publish=no"
+                [[ -z $ready ]] || U="$U; ready $ready where publish=no"
+            fi
+        else missing phase2; fi
+
+        if [[ $ereply != - ]]; then
+            fresh; BIND=$TARGET_BIND
+            if has reply; then
+                run_block reply
+                if [[ $RC -eq 0 && $ereply == refuse ]]; then U="$U; reply adjudicates against a tree that is not the PR head"
+                elif [[ $RC -ne 0 && $ereply == proceed ]]; then M="$M; reply refused on a checkout it serves"
+                fi
+                if [[ $RC -ne 0 ]] && printf '%s\n' "$OUT" | grep -qiE '(^|[^[:alnum:]_-])push([^[:alnum:]_-]|$)|reopen|check out its branch'; then
+                    M="$M; reply's refusal tells the user to push, reopen or check out its branch"
+                fi
+            else missing reply; fi
+        fi
+
+        score "$id"
+        cd "$SCRIPT_DIR" || exit 2
+    done <<<"$CTABLE"
+
+    for id in S12 S12b; do
+        build "$id" >/dev/null 2>&1
+        U=""; F=""; M=""
+        L=docs/plans/p/review-log.md
+        if has ledger; then
+            if [[ $id == S12 ]]; then
+                BIND="findings=0"
+            else
+                BIND="findings=1"
+                printf '| 1 | a.sh:1 | x | CONFIRMED | Wrong | e | prev-fix |\n' >docs/plans/p/reviewlog.md
+            fi
+            run_block ledger
+            if [[ $id == S12 ]]; then
+                c=$(git log -1 --format=%H -- "$L")
+                if [[ $RC -ne 0 || -z $c ]] || ! git show "$c:$L" | grep -q clean-round; then
+                    M="$M; no clean-round row committed (exit $RC), so the breaker has no data"
+                fi
+            else
+                [[ $RC -ne 0 ]] || U="$U; exit 0 over a missing ledger"
+            fi
+        else missing ledger; fi
+        score "$id"
+        cd "$SCRIPT_DIR" || exit 2
+    done
+fi
+
+hits=$(grep -nE -- '--is-ancestor|isCrossRepository|git branch --show-current' "$ROOT"/skills/*.md \
+    | sed "s#^$ROOT/skills/##" | paste -sd ';' -)
+if [[ -z $hits ]]; then
+    echo "  ✓ grep: no --is-ancestor, isCrossRepository or git branch --show-current in the three SKILL.md files"; PASS=$((PASS + 1))
+else
+    fail grep "the identity test is still in SKILL.md: $hits"
+fi
+
+echo "consumer: UNSAFE $T_UNSAFE, MISSING $T_MISSING, MISS $T_MISS, OK $T_OK"
 echo "test-pr-identity: $PASS passed, $FAIL failed"
 [[ $FAIL -eq 0 && $MISSING -eq 0 ]]
