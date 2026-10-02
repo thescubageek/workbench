@@ -285,23 +285,27 @@ publishing phases cannot end up pointed at different changes.
 
    **Commit the ledger in this step, after the rows are written.** No earlier commit can carry
    them. `implement`'s per-task commits ran at step 3, before this round's dispositions existed.
-   A clean round has no `implement` run at all. Stage with `-f`, as
+   A clean round has no `implement` run at all. A clean round writes one `clean-round` row, as
+   [review-ledger.md](../../docs/reference/review-ledger.md) defines. Stage with `-f`, as
    [remediation-plan.md's "Promoting it"](../../docs/reference/remediation-plan.md) explains, and
    chain the commit to the stage:
 
    ```bash
+   # Re-state this round's verified finding count: `findings=<count>`.
+   findings=""
+   case $findings in ''|*[!0-9]*) echo "this round's finding count was not re-stated — ledger NOT committed" >&2; exit 1 ;; esac
    L="docs/plans/<plan>/review-log.md"
-   if [ -f "$L" ]; then
-     git add -f "$L" \
-       && { git diff --cached --quiet -- "$L" || git commit -m "ledger: round <N> dispositions" -- "$L"; }
-   fi
+   [ "$findings" -ne 0 ] || printf '| <N> | - | clean-round | - | - | 0 verified findings | - |\n' >>"$L"
+   git add -f "$L" \
+     && { git diff --cached --quiet -- "$L" || git commit -m "ledger: round <N> dispositions" -- "$L"; }
    ```
 
    Do this on every round, including a clean one, so Phase 2's clean-tree precondition reads the
    state this loop calls success. A no-plan ledger outside `docs/plans/` is committed the same
    way, at whatever path was picked above. The commit is scoped to the ledger, so work already
-   staged stays staged for its own task's commit. A round that wrote no rows, or never created
-   the ledger because it verified no findings, commits nothing and exits 0.
+   staged stays staged for its own task's commit. A clean round commits its `clean-round` row. A
+   round with findings whose ledger does not exist at commit time fails at `git add` and exits
+   non-zero. Stop there and write the rows. Do not run on.
 
    **A breaker that cannot fire is worse than none**, because its presence is what licenses
    proceeding. Both Blocking triggers in

@@ -39,6 +39,25 @@ One row per finding per round:
 | `evidence` | what settled it — the `file:line` that disproved it, or the commit that fixed it |
 | `introduced_by` | `prev-fix` or `pre-existing` — **derived, never judged** |
 
+**A round that verified no findings writes one `clean-round` row.** Without it, a clean round
+and a round that never wrote the ledger look the same. The row is:
+
+```
+| <round> | - | clean-round | - | - | 0 verified findings | - |
+```
+
+- `round` follows the `round` field above.
+- `class` is `clean-round`.
+- `evidence` is `0 verified findings`.
+- Every other field is `-`.
+
+The row counts as a round with zero findings. It adds nothing to the finding totals. It does not
+count toward the minimum-N floor, and it adds nothing to either side of the introduced-rate. The
+same-file trigger sees no file in that round.
+
+**A missing ledger at commit time is an error.** Step 5's commit has no existence check. A round
+with findings whose ledger does not exist makes `git add -f` fail, and the step exits non-zero.
+
 **`introduced_by` is computed, not decided.** Intersect the finding's path with the files the
 previous round's fixes touched:
 
