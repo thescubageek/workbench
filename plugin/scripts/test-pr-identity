@@ -75,8 +75,8 @@ must() { "$@" || { echo "world build failed: $*" >&2; exit 2; }; }
 record() { echo "$1=$(git rev-parse HEAD)" >>"$OIDS"; }
 commit() { echo "$1" >"$1.txt"; git add "$1.txt"; git commit -qm "$1"; record "$1"; }
 oid() { sed -n "s/^$1=//p" "$OIDS"; }
-pr() { # number headRefName oid cross owner [state]
-  printf '"%s": {"number": %s, "headRefName": "%s", "headRefOid": "%s", "baseRefName": "main", "isCrossRepository": %s, "headRepository": {"name": "workbench"}, "headRepositoryOwner": {"login": "%s"}, "state": "%s", "isDraft": true}' "$1" "$1" "$2" "$3" "$4" "$5" "${6:-OPEN}"
+pr() { # number headRefName oid cross owner [state [baseRefName]]
+  printf '"%s": {"number": %s, "headRefName": "%s", "headRefOid": "%s", "baseRefName": "%s", "isCrossRepository": %s, "headRepository": {"name": "workbench"}, "headRepositoryOwner": {"login": "%s"}, "state": "%s", "isDraft": true}' "$1" "$1" "$2" "$3" "${7:-main}" "$4" "$5" "${6:-OPEN}"
 }
 
 base_world() {
@@ -114,15 +114,15 @@ build() {
             git checkout -q feature-A; commit L1; hosted_push
             fixture "$(pr 42 feature-A "$(oid A1)" false thescubageek)"
             case $1 in S1) TARGET=42 ;; S7) TARGET=feature-A ;; S10) TARGET=plugin/ ;; esac ;;
-        S2|Q1)
+        S2|Q1|R1)
             base_world "$1"; git clone -q parent.git work; cd work || exit 2
             git checkout -q feature-A; git checkout -qb feature-B; commit B1; must git push -q -u origin feature-B
             hosted_push
             [[ $1 != Q1 ]] || mkdir 42
-            fixture "$(pr 42 feature-A "$(oid A1)" false thescubageek), $(pr 43 feature-B "$(oid B1)" false thescubageek)"
-            TARGET=42 ;;
-        S3)
-            base_world S3; git clone -q parent.git work; cd work || exit 2
+            fixture "$(pr 42 feature-A "$(oid A1)" false thescubageek), $(pr 43 feature-B "$(oid B1)" false thescubageek OPEN feature-A)"
+            TARGET=42; [[ $1 != R1 ]] || TARGET=43 ;;
+        S3|S3b)
+            base_world "$1"; git clone -q parent.git work; cd work || exit 2
             git checkout -q -b mine --track origin/feature-A; hosted_push
             fixture "$(pr 42 feature-A "$(oid A1)" false thescubageek)"; TARGET=42 ;;
         S4)
@@ -287,7 +287,7 @@ build() {
             base_world "$1"; git clone -q parent.git work; cd work || exit 2
             mkdir -p docs/plans/p; fixture "" ;;
     esac
-    case $1 in S9|N1|G1|H2|S12|S12b) ;; *) HAS_TARGET=1 ;; esac
+    case $1 in S9|S3b|N1|G1|H2|S12|S12b) ;; *) HAS_TARGET=1 ;; esac
     export GH_FIXTURE="$W/fixture.json" GH_LOG="$W/gh.log"
     : >"$GH_LOG"
 }
@@ -297,6 +297,8 @@ TABLE='S1|own|yes|yes|L1|L1|origin|refs/heads/feature-A|own PR, local commit
 S2|stacked|no|no|B1|A1|-|-|stacked on the PR, upstream is its own branch
 Q1|stacked|no|no|B1|A1|-|-|a directory named 42 does not make PR 42 the current checkout
 S3|own|yes|yes|A1|A1|origin|refs/heads/feature-A|renamed branch tracking the PR head
+S3b|elsewhere|yes|no|A1|A1|-|-|renamed branch tracking the PR head, no target: the PR head branch is not the current branch
+R1|own|yes|yes|B1|B1|origin|refs/heads/feature-B|PR stacked on feature-A, so its review base is origin/feature-A
 S4|detached|no|no|A1|A1|-|-|detached at the PR head
 S5|cross|no|no|M1|F1|-|-|same-name fork PR
 S6|cross|no|no|F1|F1|-|-|cross-repository PR checked out
@@ -346,10 +348,19 @@ err_pattern() {
     esac
 }
 
+want_base() {
+    case $1 in
+        R1) echo origin/feature-A ;;
+        S11) echo upstream/main ;;
+        *) echo origin/main ;;
+    esac
+}
+
 reason_pattern() {
     case $1 in
         M1) echo 'MERGED' ;;
         M2) echo 'CLOSED' ;;
+        S3b) echo "is not the current branch" ;;
     esac
 }
 
@@ -392,6 +403,7 @@ while IFS='|' read -r id rel fix publish headname revname premote pref why; do
     [[ "$got_head" == "$(oid "$revname")" ]] || problems="$problems review_head=$(val review_head) -> ${got_head:0:7} want $revname;"
     [[ "$(val push_remote)" == "$premote" ]] || problems="$problems push_remote=$(val push_remote) want $premote;"
     [[ "$(val push_ref)" == "$pref" ]] || problems="$problems push_ref=$(val push_ref) want $pref;"
+    [[ "$(val review_base)" == "$(want_base "$id")" ]] || problems="$problems review_base=$(val review_base) want $(want_base "$id");"
     rpat=$(reason_pattern "$id")
     [[ -z "$rpat" ]] || [[ "$(val reason)" == *"$rpat"* ]] || problems="$problems reason='$(val reason)' lacks '$rpat';"
     if [[ -z "$problems" ]]; then
@@ -700,6 +712,9 @@ else
             run_block phase2 PATH="$ROOT/pushbin:$PATH" PUSH_AS_GITHUB="$W/parent.git"
             pushes=$(comm -13 <(printf '%s\n' "$before") <(refs) | sed 's# .*##; s#refs/heads/##' | paste -sd, -)
             ready=$(sed -n 's/^READY //p' "$GH_LOG" | paste -sd, -)
+            if [[ $epub == no && ($RC -eq 0 || $OUT != *"NOT publishing"*) ]]; then
+                M="$M; phase2 did not refuse with its own message (exit $RC)"
+            fi
             if [[ $epub == yes ]]; then
                 [[ -z $ready || $pushes == "parent:feature-A" ]] || U="$U; ready $ready after a push to '${pushes:-nothing}'"
                 [[ -z $pushes || $pushes == "parent:feature-A" ]] || U="$U; push landed on $pushes"
@@ -719,6 +734,7 @@ else
                 [[ $rfetch == 0 ]] || M="$M; reply made $rfetch fetches"
                 if [[ $RC -eq 0 && $ereply == refuse ]]; then U="$U; reply adjudicates against a tree that is not the PR head"
                 elif [[ $RC -ne 0 && $ereply == proceed ]]; then M="$M; reply refused on a checkout it serves"
+                elif [[ $ereply == refuse && $OUT != *"NOT replying"* ]]; then M="$M; reply did not refuse with its own message"
                 fi
                 if [[ $RC -ne 0 ]] && printf '%s\n' "$OUT" | grep -qiE '(^|[^[:alnum:]_-])push([^[:alnum:]_-]|$)|reopen|check out its branch'; then
                     M="$M; reply's refusal tells the user to push, reopen or check out its branch"

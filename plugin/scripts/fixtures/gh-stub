@@ -58,8 +58,13 @@ def find_pr(repo, key):
 cmd = args[:2]; del args[:2]
 fields = pop_opt("--json"); jq = pop_opt("--jq")
 if cmd == ["pr", "view"]:
-    key = args[0] if args else git("branch", "--show-current")
-    if not key: die("could not determine current branch: not on any branch")
+    if args:
+        key = args[0]
+    else:
+        cur = git("branch", "--show-current")
+        if not cur: die("could not determine current branch: not on any branch")
+        merge = git("config", f"branch.{cur}.merge")
+        key = merge.removeprefix("refs/heads/") if merge else cur
     emit(find_pr(base_repo(), key), fields, jq)
 elif cmd == ["repo", "view"]:
     repo = fx["repos"].get(args[0]) if args else base_repo()
