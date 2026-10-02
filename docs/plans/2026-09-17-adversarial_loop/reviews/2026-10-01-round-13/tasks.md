@@ -5,15 +5,16 @@ round: 13
 created: 2026-10-01
 status: in-progress
 total_tasks: 7
-completed_tasks: 0
+completed_tasks: 4
 task_tracking: markdown-checkboxes
 ---
 
 # Remediation — adversarial review round 13
 
 Target: PR #25 on its own checkout, `origin/main...HEAD` at `72f8210`. A re-review of round 12's
-fixes. **HELD: the breaker tripped (see the Implementation notes). No task here is worked until
-the user decides.**
+fixes. **The breaker tripped (see the Implementation notes), and R13-T1 to R13-T4 were HELD.
+`docs/plans/2026-10-01-pr_identity_contract` closed them on 2026-10-02. R13-T5 to R13-T7 are
+unheld and are ordinary tasks for a later round.**
 
 ## How each task is verified
 
@@ -22,7 +23,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
 
 ## Tasks
 
-- [ ] **R13-T1** — `plugin/skills/adversarial-loop/SKILL.md:136` (also
+- [x] **R13-T1** — `plugin/skills/adversarial-loop/SKILL.md:136` (also
       `plugin/skills/adversarial-review/SKILL.md:131`) — Phase 0's stop rule keys on the identity
       line starting with `HEAD`, which a branch target named like `HEAD-fix` satisfies, while a
       branch target naming the current branch does not.
@@ -33,9 +34,9 @@ criterion is run before the fix**. A criterion that passes before the change is 
       **Acceptance (shape 1)**: run `resolve_identity` in a scratch repo for targets `HEAD-fix`,
       the current branch and a PR number; assert only own-checkout lines match the rule's test
       (a leading `HEAD (`), and a branch target equal to the current branch gets HEAD provenance.
-      RED today: `HEAD-fix` matches, the current-branch target does not. (~8 calls)
+      RED today: `HEAD-fix` matches, the current-branch target does not. (~8 calls) (closed by docs/plans/2026-10-01-pr_identity_contract P2-T4, 2026-10-02)
 
-- [ ] **R13-T2** — `plugin/skills/adversarial-loop/SKILL.md:139` (also
+- [x] **R13-T2** — `plugin/skills/adversarial-loop/SKILL.md:139` (also
       `plugin/skills/adversarial-review/SKILL.md:514`) — a run that Phase 0 stops still has the
       review stage an unpruned round plan under the current checkout's plan, and its dispositions
       are recorded nowhere.
@@ -46,9 +47,9 @@ criterion is run before the fix**. A criterion that passes before the change is 
       **Acceptance (shape 4)**: grep adversarial-review Step 8 for a rule that a review whose
       `review_head` is not `HEAD` writes and stages no plan, and Phase 0 for a sentence that the
       report is the only record and no ledger row exists for that target; negative control: both
-      absent today. (~5 calls)
+      absent today. (~5 calls) (closed by docs/plans/2026-10-01-pr_identity_contract P2-T3, 2026-10-02)
 
-- [ ] **R13-T3** — `plugin/skills/adversarial-loop/SKILL.md:258` (also
+- [x] **R13-T3** — `plugin/skills/adversarial-loop/SKILL.md:258` (also
       `plugin/docs/reference/review-ledger.md:30`) — the `[ -f ]` guard added in round 12 turns a
       missing or mistyped ledger path into a silent exit 0.
       **Fails when:** a round verifies findings, step 2 rejects them all, and the rows land at
@@ -57,9 +58,9 @@ criterion is run before the fix**. A criterion that passes before the change is 
       **Acceptance (shape 1)**: restore the unguarded block and make a clean round write a
       `clean-round` row so the ledger always exists; execute the block in a scratch repo: a missing
       ledger exits non-zero, a clean round's ledger commits alone, a changed ledger commits only
-      itself. RED today: a missing ledger exits 0. (~8 calls)
+      itself. RED today: a missing ledger exits 0. (~8 calls) (closed by docs/plans/2026-10-01-pr_identity_contract P2-T6, 2026-10-02)
 
-- [ ] **R13-T4** — `plugin/skills/reply-to-claude/SKILL.md:58` (also `:62`) — the branch refusal
+- [x] **R13-T4** — `plugin/skills/reply-to-claude/SKILL.md:58` (also `:62`) — the branch refusal
       tells the model to push and reopen the PR, and the ancestry refusal says "check out its
       branch" after the branch already matched.
       **Fails when:** on `main`, `/wb:reply-to-claude 57` prints a remedy to `git push -u origin`
@@ -67,7 +68,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
       branch name inside the quotes; the second refusal is reachable only after the names matched.
       **Acceptance (shape 1)**: execute Step 1 in a scratch repo for a mismatched branch, a renamed
       branch and a behind branch; assert neither message contains `push` or `check out its branch`,
-      each names both branches or the oid, and each ends `NOT replying`. RED today: both do. (~6 calls)
+      each names both branches or the oid, and each ends `NOT replying`. RED today: both do. (~6 calls) (closed by docs/plans/2026-10-01-pr_identity_contract P2-T7, 2026-10-02)
 
 - [ ] **R13-T5** — `plugin/skills/reply-to-claude/SKILL.md:92` — Step 2 prints no dates and shows
       an outdated comment's `original_line` unmarked.
@@ -93,6 +94,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
 
 ## Implementation notes
 
+- **[2026-10-02] Unheld.** R13-T1 to R13-T4 are closed by `docs/plans/2026-10-01-pr_identity_contract` (P2-T4, P2-T3, P2-T6, P2-T7). R13-T5 to R13-T7 are unheld and are ordinary tasks.
 - **[2026-10-01] HELD behind the breaker.** The introduced-rate did not fall from round 12 (80%)
   to round 13 (83%), so `review-ledger.md` says to stop fixing and not run another round. The
   seven tasks are the Valid findings, kept for the decision. The ledger carries all twelve rows
