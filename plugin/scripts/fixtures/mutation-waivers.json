@@ -36,10 +36,6 @@
   "reason": "EQUIVALENT, provably. The subscript indexes `m.group('f')`, which FENCE constrains to `` `{3,} `` or `~{3,}` \u2014 three or more of ONE character. `[0]`, `[1]` and `[-1]` are therefore the same character for every string the pattern can match."
  },
  {
-  "match": "md_shell_lines | if not inb: | continue | del Continue",
-  "reason": "EQUIVALENT in practice. Without it a shell fence's OPENER line is appended to the scanned lines. The opener is ```` ```bash ```` or `~~~sh`: no detector matches it, and the status lookahead only scans forward, so an extra contiguous predecessor cannot change a decision. The one distinguishing shape is a `for` loop whose body is split across two fences, so that the second fence's opener pushes the glob window over its limit. That is a markdown file nobody writes."
- },
- {
   "match": "md_shell_lines | for i, line in enumerate(text.splitlines(), 1): | if m and m.group('f')[0] == ch and len(m.group('f')) >= ln and n... | int 0+1",
   "reason": "EQUIVALENT, provably. The subscript indexes `m.group('f')`, which FENCE constrains to `` `{3,} `` or `~{3,}` \u2014 three or more of ONE character. `[0]`, `[1]` and `[-1]` are therefore the same character for every string the pattern can match."
  },

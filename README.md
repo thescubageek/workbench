@@ -368,11 +368,11 @@ all.
 `test-guards --generated` is the fourth part and runs separately, because it is slow and because
 it is a **ratchet rather than a pass/fail bar**. `lib_mutate.py` walks the syntax tree and changes
 one thing — a comparison, a boolean, an integer constant, a regex, a deleted statement — which
-gives it no blind spot correlated with the author's. It currently kills **381 of 421** (recorded
+gives it no blind spot correlated with the author's. It currently kills **382 of 421** (recorded
 in `fixtures/mutation-ratchet.json`), re-based on the lexer rewrite on 2026-10-01. It runs in CI on
 every pull request; the count may not fall, and no survivor may go unwaived — a
 newly surviving mutant has to be killed with a corpus case or waived in
-`fixtures/mutation-waivers.json` **with an argument**. The 40 waived ones are genuinely equivalent
+`fixtures/mutation-waivers.json` **with an argument**. The 39 waived ones are genuinely equivalent
 — deleted docstrings, a `^` on a pattern used with `re.match`, a branch unreachable from valid
 shell — and each entry says why. Waivers are addressed by a key that carries no line number, so an
 edit elsewhere in the file cannot silently unhook one; the sweep fails if a waiver ever stops

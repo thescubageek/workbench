@@ -262,7 +262,7 @@ measured at twelve, against `check`'s ~20 seconds. It parses `check-guards` and 
 comparison operator, boolean operator and integer constant, every statement deletion, and a set
 of regex weakenings (drop anchors, drop word boundaries, collapse alternations, widen
 quantifiers). 421 mutants (recorded in `fixtures/mutation-ratchet.json`). The ratchet was
-re-based on the lexer rewrite on 2026-10-01 and now stands at 381 of 421 killed.
+re-based on the lexer rewrite on 2026-10-01 and now stands at 382 of 421 killed.
 
 **Why both.** The curated list is author-written, and round 4 of this repository's own review
 established what that is worth: the same session wrote the tool, the corpus *and* the mutations,

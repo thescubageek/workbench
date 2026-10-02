@@ -1510,5 +1510,14 @@
     "include"
    ]
   ]
+ },
+ {
+  "id": "r1-t9-ok-bare-wrapper",
+  "shape": "none",
+  "expect": 0,
+  "path": "doc15.md",
+  "content": "Do not write this:\n\n````\n```bash\nn=$(grep -c foo bar.txt)\n```\n````\n\nDone.\n",
+  "provenance": "R1-T9 \u2014 a bash fence nested in a BARE four-backtick wrapper. The opener has no info string, so without the `continue` after it the opener is read as its own closer, the wrapper is never entered, and the nested fence is scanned as live shell. Kills `md_shell_lines | if not inb: | continue | del Continue`.",
+  "expect_at": []
  }
 ]
