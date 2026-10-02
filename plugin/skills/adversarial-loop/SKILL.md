@@ -508,9 +508,12 @@ not an authority.
    block then writes the `clean-round` row. Use the bot round's label `<M>b<k>` wherever the block
    says `<N>`. Do it before step 4's push, so the push carries the rows. Do it also on a round where every finding was rejected and step 4 has
    nothing to fix. Rows that are only staged are in no commit when Phase 5 labels the head.
-4. Fix what holds. **Confirm, then push.** Push with the same block shape as Phase 2. It
-   re-runs `pr-identity`, requires `publish=yes` and Phase 0's `pr`, and pushes to the
-   script's `push_remote` and `push_ref`.
+4. Fix what holds, then **commit the fix**. Nothing else commits it: step 3 commits only the
+   ledger. A fix left in the worktree makes `git push` print `Everything up-to-date` and exit 0,
+   so the reply would claim a fix the pull request does not have. **Confirm, then push.** Push
+   with the same block shape as Phase 2. It re-runs `pr-identity`, requires `publish=yes` and
+   Phase 0's `pr`, requires a clean worktree, and pushes to the script's `push_remote` and
+   `push_ref`.
 
    ```bash
    # Re-state Phase 0's binding: an argument was given → `target=<it>`; none → leave as is.
@@ -538,6 +541,9 @@ not an authority.
    [ "$PR" = "$pr" ] || { echo "pr-identity resolved PR ${PR:-none}, not Phase 0's PR $pr — NOT publishing" >&2; exit 1; }
    case $push_remote in ''|-) echo "pr-identity printed no push_remote — NOT publishing" >&2; exit 1 ;; esac
    case $push_ref in ''|-) echo "pr-identity printed no push_ref — NOT publishing" >&2; exit 1 ;; esac
+   [ -z "$(git status --porcelain)" ] || {
+     echo "uncommitted changes — the round's fix is not in the head being published" >&2
+     git status --short >&2; exit 1; }
    git push "$push_remote" "HEAD:$push_ref"
    ```
 
