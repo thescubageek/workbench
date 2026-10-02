@@ -131,9 +131,9 @@ cur=$(git symbolic-ref -q --short HEAD)
 if base_remote; then baseremote=$BASE_REMOTE; else baseremote=""; fi
 
 if [ -z "$target" ]; then kind="current"
-elif [ -e "$target" ]; then kind="current"; pathspec="$target"
 elif [[ $target != *[!0-9]* ]]; then kind="pr"
 elif [ -n "$cur" ] && [ "$target" = "$cur" ]; then kind="current"
+elif [ -e "$target" ]; then kind="current"; pathspec="$target"
 else kind="branch"
 fi
 

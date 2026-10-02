@@ -114,10 +114,11 @@ build() {
             git checkout -q feature-A; commit L1; hosted_push
             fixture "$(pr 42 feature-A "$(oid A1)" false thescubageek)"
             case $1 in S1) TARGET=42 ;; S7) TARGET=feature-A ;; S10) TARGET=plugin/ ;; esac ;;
-        S2)
-            base_world S2; git clone -q parent.git work; cd work || exit 2
+        S2|Q1)
+            base_world "$1"; git clone -q parent.git work; cd work || exit 2
             git checkout -q feature-A; git checkout -qb feature-B; commit B1; must git push -q -u origin feature-B
             hosted_push
+            [[ $1 != Q1 ]] || mkdir 42
             fixture "$(pr 42 feature-A "$(oid A1)" false thescubageek), $(pr 43 feature-B "$(oid B1)" false thescubageek)"
             TARGET=42 ;;
         S3)
@@ -294,6 +295,7 @@ build() {
 # id | relation (alternatives with /) | fix | publish | world HEAD | review_head oid | push_remote | push_ref | why
 TABLE='S1|own|yes|yes|L1|L1|origin|refs/heads/feature-A|own PR, local commit
 S2|stacked|no|no|B1|A1|-|-|stacked on the PR, upstream is its own branch
+Q1|stacked|no|no|B1|A1|-|-|a directory named 42 does not make PR 42 the current checkout
 S3|own|yes|yes|A1|A1|origin|refs/heads/feature-A|renamed branch tracking the PR head
 S4|detached|no|no|A1|A1|-|-|detached at the PR head
 S5|cross|no|no|M1|F1|-|-|same-name fork PR

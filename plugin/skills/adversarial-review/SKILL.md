@@ -53,9 +53,9 @@ clean trend.
 
 Three slots, all optional:
 
-- **Target** — a PR number, a branch, or a path. Sniff the type in this order: a path that exists
-  on disk is a path, digits are a PR, a name equal to the current branch is the current checkout,
-  and anything else is a branch. `pr-identity` applies this order. Absent, review the current diff.
+- **Target** — a PR number, a branch, or a path. Sniff the type in this order: digits are a PR,
+  a name equal to the current branch is the current checkout, a path that exists on disk is a
+  path, and anything else is a branch. `pr-identity` applies this order. Absent, review the current diff.
 - **`--effort=<level>`** — an override. Strip it before binding the positional, and match it by
   name so it may appear anywhere in the invocation. Absent, reconnaissance picks the level.
 - **`--plan=<dir>`** — the plan directory Step 8 writes the round under. Both `--plan=<dir>` and
