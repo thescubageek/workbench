@@ -75,8 +75,8 @@ must() { "$@" || { echo "world build failed: $*" >&2; exit 2; }; }
 record() { echo "$1=$(git rev-parse HEAD)" >>"$OIDS"; }
 commit() { echo "$1" >"$1.txt"; git add "$1.txt"; git commit -qm "$1"; record "$1"; }
 oid() { sed -n "s/^$1=//p" "$OIDS"; }
-pr() { # number headRefName oid cross owner
-  printf '"%s": {"number": %s, "headRefName": "%s", "headRefOid": "%s", "baseRefName": "main", "isCrossRepository": %s, "headRepository": {"name": "workbench"}, "headRepositoryOwner": {"login": "%s"}, "isDraft": true}' "$1" "$1" "$2" "$3" "$4" "$5"
+pr() { # number headRefName oid cross owner [state]
+  printf '"%s": {"number": %s, "headRefName": "%s", "headRefOid": "%s", "baseRefName": "main", "isCrossRepository": %s, "headRepository": {"name": "workbench"}, "headRepositoryOwner": {"login": "%s"}, "state": "%s", "isDraft": true}' "$1" "$1" "$2" "$3" "$4" "$5" "${6:-OPEN}"
 }
 
 base_world() {
@@ -164,6 +164,14 @@ build() {
             git checkout -qb side main; commit X1
             must git push -q origin "+$(oid X1):refs/pull/42/head"
             fixture "$(pr 42 feature-A "$(oid A1)" false thescubageek)"; TARGET=42 ;;
+        M1|M2)
+            base_world "$1"; git clone -q parent.git work; cd work || exit 2
+            git checkout -q feature-A; commit L1; hosted_push
+            case $1 in
+                M1) state=MERGED ;;
+                M2) state=CLOSED ;;
+            esac
+            fixture "$(pr 42 feature-A "$(oid A1)" false thescubageek "$state")"; TARGET=42 ;;
         P1)
             base_world P1; git init -q --bare elsewhere.git
             REPOS="$REPOS, \"$W/elsewhere.git\": \"someone/workbench\""
@@ -299,6 +307,8 @@ N1|none|yes|no|base|base|-|-|current checkout with no PR
 O1|other|no|no|O1|A1|-|-|HEAD does not contain the PR head
 B1|refuse|-|-|X1|-|-|-|refs/pull/42/head on the base remote is not the PR head
 P1|elsewhere|no|no|L1|A1|-|-|push url of the upstream remote points elsewhere
+M1|own|yes|no|L1|L1|-|-|the PR is MERGED, the branch is still the PR head
+M2|own|yes|no|L1|L1|-|-|the PR is CLOSED, the branch is still the PR head
 G1|refuse|-|-|base|-|-|-|no target and gh could not answer (detached HEAD)
 E1|refuse|-|-|base|-|-|-|gh has no such PR
 E2|refuse|-|-|base|-|-|-|no remote points at the base repository
@@ -331,6 +341,13 @@ err_pattern() {
         E1) echo 'could not resolve PR 99 via gh' ;;
         E2) echo 'no remote here points at the base repository' ;;
         E3) echo 'could not fetch refs/pull/42/head' ;;
+    esac
+}
+
+reason_pattern() {
+    case $1 in
+        M1) echo 'MERGED' ;;
+        M2) echo 'CLOSED' ;;
     esac
 }
 
@@ -373,6 +390,8 @@ while IFS='|' read -r id rel fix publish headname revname premote pref why; do
     [[ "$got_head" == "$(oid "$revname")" ]] || problems="$problems review_head=$(val review_head) -> ${got_head:0:7} want $revname;"
     [[ "$(val push_remote)" == "$premote" ]] || problems="$problems push_remote=$(val push_remote) want $premote;"
     [[ "$(val push_ref)" == "$pref" ]] || problems="$problems push_ref=$(val push_ref) want $pref;"
+    rpat=$(reason_pattern "$id")
+    [[ -z "$rpat" ]] || [[ "$(val reason)" == *"$rpat"* ]] || problems="$problems reason='$(val reason)' lacks '$rpat';"
     if [[ -z "$problems" ]]; then
         echo "  ✓ $id $rel: $why"; PASS=$((PASS + 1))
     else

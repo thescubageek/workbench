@@ -144,8 +144,8 @@ if [ "$kind" = branch ]; then
   emit
 fi
 
-F=number,headRefOid,headRefName,baseRefName,isCrossRepository,headRepository,headRepositoryOwner
-J='.number, .headRefOid, (.headRefName // ""), .baseRefName, .isCrossRepository, (.headRepositoryOwner.login + "/" + .headRepository.name)'
+F=number,headRefOid,headRefName,baseRefName,isCrossRepository,headRepository,headRepositoryOwner,state
+J='.number, .headRefOid, (.headRefName // ""), .baseRefName, .isCrossRepository, (.headRepositoryOwner.login + "/" + .headRepository.name), (.state // "")'
 if [ "$kind" = current ]; then
   gherr=$(mktemp) || refuse "could not create a temporary file"
   trap 'rm -f "$gherr"' EXIT
@@ -158,9 +158,9 @@ if [ "$kind" = current ]; then
 else
   facts=$(gh pr view "$target" --json "$F" --jq "$J") || refuse "could not resolve PR $target via gh"
 fi
-{ read -r pr; read -r head_oid; read -r headref; read -r base; read -r cross; read -r headrepo; } <<<"$facts"
+{ read -r pr; read -r head_oid; read -r headref; read -r base; read -r cross; read -r headrepo; read -r state; } <<<"$facts"
 [[ -n "$pr" && $pr != *[!0-9]* && -n "$head_oid" && $head_oid != null && -n "$headref" && $headref != null \
-   && -n "$base" && $base != null && $headrepo != */null && $headrepo != null/* && $headrepo != / ]] \
+   && -n "$base" && $base != null && -n "$state" && $headrepo != */null && $headrepo != null/* && $headrepo != / ]] \
   || refuse "could not resolve PR ${target:-for this checkout} via gh"
 
 [ -n "$baseremote" ] || refuse "no remote here points at the base repository of PR $pr"
@@ -187,6 +187,8 @@ elif [ "$up_ref" != "refs/heads/$headref" ]; then
   relation=stacked; reason="branch '$cur' tracks '${up_ref#refs/heads/}', not the PR's head '$headref'"
 elif [ "$kind" = current ] && [ "$cur" != "$headref" ]; then
   relation=elsewhere; reason="the PR's head branch '$headref' is not the current branch '$cur'"
+elif [ "$state" != OPEN ]; then
+  relation=own; reason="PR $pr is $state"
 else
   relation=own; publish=yes; push_remote="$up_remote"; push_ref="$up_ref"
 fi
