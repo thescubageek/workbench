@@ -1,6 +1,6 @@
 ---
 name: adversarial-review
-description: Adversarial code review — assume the change is broken and hunt for how, then verify every finding before reporting. Sizes its own fan-out from what the diff touches, wraps the built-in /code-review for breadth, and injects named domain-expert lenses it does not have. Use when the user says "adversarial review", "review adversarially", "hunt for bugs in this branch", "review as a principal <domain> engineer", names expert lenses to review under, or asks whether another session's findings are accurate.
+description: Adversarial code review — assume the change is broken and hunt for how, then verify every finding before reporting. Serves any PR, branch or path: it reads, reports and fetches at most one remote-tracking ref, and writes and stages a remediation plan only for the current checkout. Sizes its own fan-out from what the diff touches, wraps the built-in /code-review for breadth, and injects named domain-expert lenses it does not have. Use when the user says "adversarial review", "review adversarially", "hunt for bugs in this branch", "review as a principal <domain> engineer", names expert lenses to review under, or asks whether another session's findings are accurate.
 argument-hint: "[<pr#>|<branch>|<path>] [--effort=<low|medium|high|xhigh|max>] [--plan=<dir>]"
 allowed-tools: Read, Write, Glob, Grep, Bash, Task, Skill, ReportFindings
 ---
@@ -464,6 +464,11 @@ without one was never verified — drop it rather than reporting it with a lower
 
 ## Step 8: Emit the remediation plan
 
+**A plan is written and staged only when Step 1 printed `fix=yes`.** Any other value means the
+target is not this checkout, and the run that fixes it has no owner for the plan. Then the report
+is the whole output. Write no `tasks.md`, stage nothing, and say in the report that the review was
+report-only. An empty or missing `fix=` value counts as not `yes`.
+
 **A review round's output is a plan, not a patch.** Write the surviving findings to
 `docs/plans/<plan>/reviews/<date>-round-<N>/tasks.md` using the shape in
 [templates.md](templates.md), then stop. This skill does not fix anything, and it does not
@@ -489,6 +494,22 @@ caller, so report the plan as staged and awaiting one. Where no file was written
 below — there is nothing to stage and no `git add` to run.
 [../../docs/reference/remediation-plan.md](../../docs/reference/remediation-plan.md) →
 *Promoting it* has the rule and why the `-f` is needed every time.
+
+Run this block after the write on `fix=yes`. Run it in place of the write on any other value, so
+that the report-only line is printed. Re-type Step 1's `fix=` value on its first line, the same
+way Step 1 re-states `target`.
+
+```bash
+# Re-state Step 1's printed value: `fix=yes` or `fix=no`.
+fix=""
+
+plan_file="docs/plans/<plan>/reviews/<date>-round-<N>/tasks.md"
+if [ "$fix" = yes ]; then
+  git add -f -- "$plan_file" && echo "staged: $plan_file — awaiting the caller's commit"
+else
+  echo "report-only: fix=${fix:-unset}, the target is not this checkout — no round plan written or staged"
+fi
+```
 
 Two cases skip the write, and they are different absences:
 
