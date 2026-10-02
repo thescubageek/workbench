@@ -507,3 +507,15 @@ we have the in-repo cautionary example for that.
 - **Why it matters**: a skill can call a shipped script by an absolute path, so one script can replace logic copied across skills. The variable is **not** in the Bash tool's environment (`echo "${CLAUDE_PLUGIN_ROOT:-unset}"` prints `unset`), so `$CLAUDE_PLUGIN_ROOT` written unbraced reaches the shell as an empty expansion.
 - **Verified**: 2026-10-01 · `docs/plans/2026-10-01-pr_identity_contract/` (Claude Code 2.1.286, under `--plugin-dir` and under the marketplace install of `wb` 2.2.0)
 - **Check it**: headless, `claude -p --allowedTools=Skill "Invoke wb:review-prep … quote the first line containing 'nvim-helper.sh setup'"` returns a path under `~/.claude/plugins/cache/…`, not the literal variable.
+
+## `grep -c` exits 1 when the count is 0, which breaks a `&&` chain
+
+- **Why it matters**: `done=$(grep -c … f) && todo=$(grep -c … f) && echo …` stops silently when the second count is `0`, because the assignment takes the exit status of `grep`. A plan with no unchecked task reads as a command that did nothing, and a later `python3` step in the same chain never runs. Run the counts as separate statements, or end each with `|| true`.
+- **Verified**: 2026-10-02 · `docs/plans/2026-10-01-pr_identity_contract/` (the Phase 3 counter update ran as a no-op)
+- **Check it**: `n=$(grep -c nomatch /etc/hosts) && echo reached` prints nothing, and `echo $n` prints `0`.
+
+## `check-guards` run on named files skips the glob scan of every other script, so only `check` finds a new unguarded loop
+
+- **Why it matters**: `./plugin/scripts/check-guards plugin/scripts/pr-identity` reported clean while `plugin/scripts/test-pr-identity` held an unguarded `for b in "$W"/*.git` that the full `./plugin/scripts/check` flagged. Task verifications from P2-T2 to P2-T7 passed over a gate that was red. Run `./plugin/scripts/check` before a task counts as verified, not only the named-file form.
+- **Verified**: 2026-10-02 · `docs/plans/2026-10-01-pr_identity_contract/` (fixed in `ded0632`)
+- **Check it**: add `for x in /tmp/nothing*; do :; done` to a scratch script in `plugin/scripts/`, then compare `check-guards <other file>` with `check-guards` and `check`.
