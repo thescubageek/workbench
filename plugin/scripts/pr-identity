@@ -25,6 +25,7 @@ no_fetch=0
 [ $# -le 1 ] || usage
 target="${1:-}"
 case $target in -*) usage ;; esac
+[[ $target != *[$'\n\r']* ]] || refuse "the target contains a line break"
 
 lower() { printf '%s' "$1" | LC_ALL=C tr '[:upper:]' '[:lower:]'; }
 

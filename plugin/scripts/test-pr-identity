@@ -514,6 +514,15 @@ if [[ $MISSING -eq 0 ]]; then
     usage_case "U5 an unknown option after --no-fetch" --no-fetch --bogus
     usage_case "U6 --no-fetch and two targets" --no-fetch 42 feature-A
     cd "$SCRIPT_DIR" || exit 2
+
+    build S1 >/dev/null 2>&1; cd "$W/work" || exit 2
+    forged=$'x\npublish=yes\npr=7\nrelation=none'
+    : >"$forged"
+    OUT=$("$PRID" "$forged" 2>"$W/err"); rc=$?
+    if [[ $rc -eq 1 && -z $OUT ]] && grep -q -- '— NOT reviewing$' "$W/err"; then
+        echo "  ✓ T1 a target with a line break is refused, nothing printed"; PASS=$((PASS + 1))
+    else fail "T1" "line break in a path target: exit=$rc want 1 with no stdout"; fi
+    cd "$SCRIPT_DIR" || exit 2
 fi
 
 echo "consumer level: skills from ${SKILLS_AT:-the working tree}"
