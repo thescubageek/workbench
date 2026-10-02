@@ -17,8 +17,8 @@
 # Each block is run as the model runs it: a `name=""` line is re-typed with the value bound to
 # that name, and `target=<it>` is prepended to a block with no `target=""` line. Bound names are
 # target (the argument), the key=value lines Step 1 printed plus review_base, review_head and
-# pathspec from its `range:` line (for step8), and findings, the round's verified count (for
-# ledger). <plan>, <N> and <date> become p, 1 and $PLAN_DATE; ${CLAUDE_PLUGIN_ROOT} becomes
+# pathspec from its `range:` line (for step8), the key=value lines Phase 0 printed (for phase2),
+# and findings, the round's verified count (for ledger). <plan>, <N> and <date> become p, 1 and $PLAN_DATE; ${CLAUDE_PLUGIN_ROOT} becomes
 # plugin/. Columns, each in a fresh copy of the world: the loop reads fix= from phase0; the
 # review head comes from the range: line of review, then step8 runs over a plan the test wrote
 # and the index says whether it was staged; phase2 runs after one fix commit, and the bare
@@ -558,9 +558,10 @@ else
         U=""; F=""; M=""
         TARGET_BIND=""; [[ $HAS_TARGET -eq 0 ]] || TARGET_BIND="target=$TARGET"
 
-        fresh; BIND=$TARGET_BIND
+        fresh; BIND=$TARGET_BIND; P0=""
         if has phase0; then
             run_block phase0
+            P0=$(printf '%s\n' "$OUT" | grep -E '^[a-z_]+=')
             lfix=$(val fix)
             if [[ -z $lfix ]]; then M="$M; phase0 printed no fix= line"
             elif [[ $lfix == yes && $efix == no ]]; then U="$U; the loop fixes a checkout that is not the target"
@@ -598,7 +599,7 @@ else
         else missing review; fi
         has step8 || missing step8
 
-        fresh; BIND=$TARGET_BIND
+        fresh; BIND="$TARGET_BIND"$'\n'"$P0"
         if has phase2; then
             echo fix >>fix.txt; git add fix.txt; git commit -qm fix
             before=$(refs); : >"$GH_LOG"

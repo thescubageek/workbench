@@ -81,12 +81,13 @@ each time, and a confirmation for one is not a confirmation for the next:
 | `gh pr edit --add-label` | Phase 5 | A label is an assertion about the change, and in some repositories it is an input to automation |
 | any force-update of a remote ref | anywhere | It destroys history someone else may hold |
 
-One write is **disclosed, not confirmed**. When the target is a pull request that is not the
-current checkout, `adversarial-review` runs
-`git fetch origin "refs/pull/<N>/head:refs/remotes/origin/pr/<N>"`. It writes exactly one
-remote-tracking ref, `refs/remotes/origin/pr/<N>`. It checks nothing out, creates no branch, and
-leaves the worktree as it was. It is the same class of write as any `git fetch`. The review's
-`identity:` line names the ref it wrote.
+The loop fetches nothing. It serves only the current checkout, so it never pulls a remote branch.
+One write belongs to `adversarial-review` and is **disclosed, not confirmed**. When the target is a
+pull request that is not the current checkout, `pr-identity` fetches
+`refs/pull/<N>/head` into `refs/remotes/<base remote>/pr/<N>`. It writes exactly one
+remote-tracking ref. It checks nothing out, creates no branch, and leaves the worktree as it was.
+It is the same class of write as any `git fetch`. The review's `identity:` line names the ref it
+wrote.
 
 This is the repository norm, not a rule invented here: `plugin/docs/reference/branch-naming.md`
 requires confirmation before a git state change, and the root `CLAUDE.md` says work is committed
@@ -129,7 +130,7 @@ before this text reaches you, so the block would arrive with the value already s
 binding and carries the history of the defect.
 
 The binding lives in the session, not the shell. Each Bash call starts a fresh shell. Re-state it
-as the first line of every block that reads `$target` (the one below, and Phases 2 and 5). The
+as the first line of every block that reads `$target` (the one below, and Phases 2, 4 and 5). The
 history is in [../adversarial-review/SKILL.md](../adversarial-review/SKILL.md) Step 1.
 
 **Run [`pr-identity`](../../scripts/pr-identity) before anything else.** It is the one place that
@@ -355,36 +356,37 @@ baseline Phase 3 reads that old review as the new one.
 stops for the user*. Resolve the pull request in the same shell that acts on it; a Bash call does
 not inherit variables from the previous one.
 
-**The block refuses unless the pull request's head is this checkout.** The PR must be same-repository, this
-checkout must be on the PR's own branch, and `HEAD` must descend from its `headRefOid`. The block
-requires `isCrossRepository` to be exactly `false`; an empty or null value refuses, as in
-[../reply-to-claude/SKILL.md](../reply-to-claude/SKILL.md) Step 1. `resolve_identity` in
-[../adversarial-review/SKILL.md](../adversarial-review/SKILL.md) fails open instead: it proceeds
-unless the value is exactly `true`, because it only chooses what to review. The name alone is
-not enough, because a fork can share it, which `isCrossRepository` rules out. The ancestry alone
-is not enough, because a branch stacked on the PR's head descends from it, which the branch name
-rules out. A refusal means Phases 2 and 4 do not run
-for this target, as in Phase 0.
+**The block re-runs [`pr-identity`](../../scripts/pr-identity) and publishes only on
+`publish=yes`.** The script is the one place that decides whether a push lands on the PR's head.
+Re-type the `pr` that Phase 0 printed into the `pr=""` line. The block refuses when the script
+exits non-zero, when `publish` is not exactly `yes`, or when the script resolves another PR. It
+pushes to the script's `push_remote` and `push_ref`, never with a bare `git push`. A refusal
+skips Phases 2 to 5, as the Phase 0 outcome table says.
 
 ```bash
-# Re-state Step 1's binding: an argument was given → `target=<it>`; none → leave as is.
+# Re-state Phase 0's binding: an argument was given → `target=<it>`; none → leave as is.
 target=""
-PR=$(gh pr view ${target:+"$target"} --json number --jq .number) \
-  || { echo "no PR for ${target:-the current branch}" >&2; exit 1; }
-oid=$(gh pr view "$PR" --json headRefOid --jq .headRefOid) || exit 1
-cross=$(gh pr view "$PR" --json isCrossRepository --jq .isCrossRepository) || exit 1
-headref=$(gh pr view "$PR" --json headRefName --jq .headRefName) || exit 1
-[ -n "$oid" ] || { echo "PR $PR reported no headRefOid — NOT publishing" >&2; exit 1; }
-[ -n "$headref" ] || { echo "PR $PR reported no headRefName — NOT publishing" >&2; exit 1; }
-branch=$(git branch --show-current)
-[ "$branch" = "$headref" ] || {
-  echo "PR $PR's head branch is '$headref' but this checkout is on '${branch:-detached HEAD}' — NOT publishing" >&2
+# Re-state Phase 0's printed value: `pr=<number>`.
+pr=""
+out=$("${CLAUDE_PLUGIN_ROOT}/scripts/pr-identity" ${target:+"$target"})
+rc=$?
+printf '%s\n' "$out"
+publish=""; PR=""; push_remote=""; push_ref=""; reason=""
+while IFS= read -r line; do
+  case $line in
+    publish=*) publish=${line#*=} ;;
+    pr=*) PR=${line#*=} ;;
+    push_remote=*) push_remote=${line#*=} ;;
+    push_ref=*) push_ref=${line#*=} ;;
+    reason=*) reason=${line#*=} ;;
+  esac
+done <<<"$out"
+[ "$rc" -eq 0 ] && [ "$publish" = yes ] || {
+  echo "${target:-the current checkout} does not publish here (exit $rc, publish=${publish:-unset}${reason:+: $reason}) — NOT publishing" >&2
   exit 1
 }
-[ "$cross" = false ] && git merge-base --is-ancestor "$oid" HEAD 2>/dev/null || {
-  echo "PR $PR's head ($oid, cross-repository: ${cross:-unknown}) is not this checkout — NOT publishing" >&2
-  exit 1
-}
+case $pr in ''|-) echo "Phase 0's pr was not re-stated — NOT publishing" >&2; exit 1 ;; esac
+[ "$PR" = "$pr" ] || { echo "pr-identity resolved PR ${PR:-none}, not Phase 0's PR $pr — NOT publishing" >&2; exit 1; }
 DRAFT=$(gh pr view "$PR" --json isDraft --jq .isDraft) \
   || { echo "isDraft check failed for PR $PR" >&2; exit 1; }
 [ "$DRAFT" = true ] || [ "$DRAFT" = false ] || { echo "isDraft returned unexpected value: '$DRAFT'" >&2; exit 1; }
@@ -392,9 +394,9 @@ DRAFT=$(gh pr view "$PR" --json isDraft --jq .isDraft) \
   echo "uncommitted changes — the round's work is not in the head being published" >&2
   git status --short >&2; exit 1; }
 if [ "$DRAFT" = true ]; then
-  git push && gh pr ready "$PR"
+  git push "$push_remote" "HEAD:$push_ref" && gh pr ready "$PR"
 else
-  git push && echo "PR $PR is already open — no ready_for_review transition to fire" >&2
+  git push "$push_remote" "HEAD:$push_ref" && echo "PR $PR is already open — no ready_for_review transition to fire" >&2
 fi
 ```
 
@@ -496,7 +498,37 @@ not an authority.
    commit that Phase 1 step 5 shows. Do it before step 4's push, so the
    push carries the rows. Do it also on a round where every finding was rejected and step 4 has
    nothing to fix. Rows that are only staged are in no commit when Phase 5 labels the head.
-4. Fix what holds. **Confirm, then push.**
+4. Fix what holds. **Confirm, then push.** Push with the same block shape as Phase 2. It
+   re-runs `pr-identity`, requires `publish=yes` and Phase 0's `pr`, and pushes to the
+   script's `push_remote` and `push_ref`.
+
+   ```bash
+   # Re-state Phase 0's binding: an argument was given → `target=<it>`; none → leave as is.
+   target=""
+   # Re-state Phase 0's printed value: `pr=<number>`.
+   pr=""
+   out=$("${CLAUDE_PLUGIN_ROOT}/scripts/pr-identity" ${target:+"$target"})
+   rc=$?
+   printf '%s\n' "$out"
+   publish=""; PR=""; push_remote=""; push_ref=""; reason=""
+   while IFS= read -r line; do
+     case $line in
+       publish=*) publish=${line#*=} ;;
+       pr=*) PR=${line#*=} ;;
+       push_remote=*) push_remote=${line#*=} ;;
+       push_ref=*) push_ref=${line#*=} ;;
+       reason=*) reason=${line#*=} ;;
+     esac
+   done <<<"$out"
+   [ "$rc" -eq 0 ] && [ "$publish" = yes ] || {
+     echo "${target:-the current checkout} does not publish here (exit $rc, publish=${publish:-unset}${reason:+: $reason}) — NOT publishing" >&2
+     exit 1
+   }
+   case $pr in ''|-) echo "Phase 0's pr was not re-stated — NOT publishing" >&2; exit 1 ;; esac
+   [ "$PR" = "$pr" ] || { echo "pr-identity resolved PR ${PR:-none}, not Phase 0's PR $pr — NOT publishing" >&2; exit 1; }
+   git push "$push_remote" "HEAD:$push_ref"
+   ```
+
 5. **Before re-summoning `@claude`, evaluate
    [review-ledger.md](../../docs/reference/review-ledger.md)'s triggers on the rows just
    written.** A Blocking trigger stops and surfaces to the user rather than posting the reply.
@@ -545,11 +577,33 @@ the check-run's name and shape are unconfirmed. Revisit once a real run exists.
 **Name the label to the user and confirm it before adding it** — you cannot tell from here
 whether it drives automation.
 
+The block re-runs `pr-identity` as Phase 2 does. It labels only on `publish=yes` and Phase 0's
+`pr`.
+
 ```bash
-# Re-state Step 1's binding: an argument was given → `target=<it>`; none → leave as is.
+# Re-state Phase 0's binding: an argument was given → `target=<it>`; none → leave as is.
 target=""
-PR=$(gh pr view ${target:+"$target"} --json number --jq .number) \
-  || { echo "no PR for ${target:-the current branch}" >&2; exit 1; }
+# Re-state Phase 0's printed value: `pr=<number>`.
+pr=""
+out=$("${CLAUDE_PLUGIN_ROOT}/scripts/pr-identity" ${target:+"$target"})
+rc=$?
+printf '%s\n' "$out"
+publish=""; PR=""; push_remote=""; push_ref=""; reason=""
+while IFS= read -r line; do
+  case $line in
+    publish=*) publish=${line#*=} ;;
+    pr=*) PR=${line#*=} ;;
+    push_remote=*) push_remote=${line#*=} ;;
+    push_ref=*) push_ref=${line#*=} ;;
+    reason=*) reason=${line#*=} ;;
+  esac
+done <<<"$out"
+[ "$rc" -eq 0 ] && [ "$publish" = yes ] || {
+  echo "${target:-the current checkout} does not publish here (exit $rc, publish=${publish:-unset}${reason:+: $reason}) — NOT publishing" >&2
+  exit 1
+}
+case $pr in ''|-) echo "Phase 0's pr was not re-stated — NOT publishing" >&2; exit 1 ;; esac
+[ "$PR" = "$pr" ] || { echo "pr-identity resolved PR ${PR:-none}, not Phase 0's PR $pr — NOT publishing" >&2; exit 1; }
 gh pr edit "$PR" --add-label "<the repository's ready-for-review label>" \
   && gh pr view "$PR" --json labels
 ```
