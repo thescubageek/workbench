@@ -17,8 +17,8 @@ and on what evidence. A reply that says "addressed feedback" carries none of tha
 
 ## Preconditions
 
-- `gh` available and authenticated, and a pull request whose head is the current checkout: the
-  same repository, on the PR's own branch, with `HEAD` descended from (or at) the PR's head commit.
+- `gh` available and authenticated, and a pull request that is this checkout's PR:
+  `pr-identity` reports `relation=own`, or `HEAD` is the PR's `head_oid`.
 - A `claude[bot]` review to reply to. If there is none, say so and stop — this skill answers a
   review; it does not solicit one.
 
@@ -40,44 +40,54 @@ the first positional parameter in a fenced block** — see
 [../adversarial-review/SKILL.md](../adversarial-review/SKILL.md) Step 1, which carries the
 history of that defect.
 
-**Derive the repository rather than assuming it — and bind both values, in every shell that uses
-them. Then confirm that the PR's head is this checkout before anything is adjudicated against
-it.**
+**Derive the repository rather than assuming it. Then run
+[`pr-identity`](../../scripts/pr-identity) to confirm that the PR's head is this checkout before
+anything is adjudicated against it.** The script is the one place that decides how the target
+relates to this checkout. The block reads its fields by key and never reads a ref name.
 
 ```bash
+# Re-state Step 1's binding: an argument was given → `target=<it>`; none → leave as is.
+target=""
 REPO=$(gh repo view --json nameWithOwner --jq .nameWithOwner) || exit 1
-PR=$(gh pr view ${target:+"$target"} --json number --jq .number) || exit 1
-[ -n "$REPO" ] && [ -n "$PR" ] || { echo "could not resolve repo/PR" >&2; exit 1; }
-oid=$(gh pr view "$PR" --json headRefOid --jq .headRefOid) || exit 1
-cross=$(gh pr view "$PR" --json isCrossRepository --jq .isCrossRepository) || exit 1
-headref=$(gh pr view "$PR" --json headRefName --jq .headRefName) || exit 1
-[ -n "$oid" ] || { echo "PR $PR reported no headRefOid — NOT replying" >&2; exit 1; }
-[ -n "$headref" ] || { echo "PR $PR reported no headRefName — NOT replying" >&2; exit 1; }
-branch=$(git branch --show-current)
-[ "$branch" = "$headref" ] || {
-  echo "PR $PR's head branch is '$headref' but this checkout is on '${branch:-detached HEAD}' — switch to '$headref', or push this branch (git push -u origin <this branch>) and reopen the PR from it; NOT replying" >&2
+out=$("${CLAUDE_PLUGIN_ROOT}/scripts/pr-identity" ${target:+"$target"})
+rc=$?
+relation=""; pr=""; head_oid=""
+while IFS= read -r line; do
+  case $line in
+    relation=*) relation=${line#*=} ;;
+    pr=*) pr=${line#*=} ;;
+    head_oid=*) head_oid=${line#*=} ;;
+  esac
+done <<<"$out"
+what=${target:-the current checkout}
+[ "$rc" -eq 0 ] || { echo "pr-identity could not resolve $what (exit $rc) — NOT replying" >&2; exit 1; }
+[ -n "$REPO" ] && [ -n "$relation" ] && [ -n "$pr" ] && [ "$pr" != - ] && [ -n "$head_oid" ] || {
+  echo "pr-identity reported no PR for $what (relation=${relation:-unset}) — NOT replying" >&2
   exit 1
 }
-[ "$cross" = false ] && git merge-base --is-ancestor "$oid" HEAD 2>/dev/null || {
-  echo "PR $PR's head ($oid, cross-repository: ${cross:-unknown}) is not this checkout — check out its branch, or run from it; NOT replying" >&2
+here=$(git rev-parse HEAD) || exit 1
+[ "$relation" = own ] || [ "$here" = "$head_oid" ] || {
+  echo "PR $pr's head is $head_oid but this checkout's HEAD is $here (relation=$relation) — NOT replying" >&2
   exit 1
 }
+printf '%s\n' "REPO=$REPO" "pr=$pr" "relation=$relation"
 ```
 
-**Check that both are non-empty before using them.** Unbound, the calls below become
-`gh api "repos//pulls//reviews"` — a 404 that reads like a PR with no review rather than like a
-broken command.
+**Check that the repository and the PR are non-empty before using them.** Unbound, the calls
+below become `gh api "repos//pulls//reviews"` — a 404 that reads like a PR with no review rather
+than like a broken command.
 
 **Then check that the PR's head is this checkout, and stop if it is not.** Step 3 adjudicates
-each finding against the files on disk. A `<pr#>` can name any PR, so without this check a reply
-could reject a finding by citing a `file:line` the PR does not contain. The PR must be
-same-repository, this checkout must be on the PR's own branch, and `HEAD` must descend from its
-`headRefOid`. This step requires `isCrossRepository` to be exactly `false`; an empty or null value
-refuses. `resolve_identity` in [../adversarial-review/SKILL.md](../adversarial-review/SKILL.md)
-Step 1 fails open instead: it proceeds unless the value is exactly `true`, because it only chooses
-what to review and falls through to a fetch. This skill does not fetch or switch
-branches to make the check pass; that is a state change nobody asked for. It runs with no
-argument as well, because a fork branch with the same name fails it.
+each finding against the files on disk. A `<pr#>` can name any PR. Without this check a reply
+could reject a finding by citing a `file:line` the PR does not contain. The block proceeds on
+`relation=own`. It also proceeds when `HEAD` is exactly the PR's `head_oid`, because the files on
+disk are then the PR's files. That is the only comparison this skill makes itself. A script
+failure, a missing field or `pr=-` refuses. Record the `pr` the block prints. Step 4c re-types it.
+
+**A refusal names the PR, both refs and the relation, and nothing else.** The refs are the PR's
+`head_oid` and this checkout's `HEAD`. This skill does not
+fetch, switch branches or publish to make the check pass. That is a state change nobody asked
+for.
 
 ## Step 2: Collect the findings, from all three surfaces
 
@@ -85,6 +95,8 @@ Bot findings arrive on three different GitHub surfaces, and a reply that misses 
 ignored a finding:
 
 ```bash
+# Re-state Step 1's binding: an argument was given → `target=<it>`; none → leave as is.
+target=""
 REPO=$(gh repo view --json nameWithOwner --jq .nameWithOwner) || exit 1
 PR=$(gh pr view ${target:+"$target"} --json number --jq .number) || exit 1
 
@@ -130,6 +142,8 @@ the first and the third, and a Bash call does not inherit variables from the pre
 **4a — mint the path and print it.**
 
 ```bash
+# Re-state Step 1's binding: an argument was given → `target=<it>`; none → leave as is.
+target=""
 PR=$(gh pr view ${target:+"$target"} --json number --jq .number) || exit 1
 body=$(mktemp "${TMPDIR:-/tmp}/reply-pr${PR}-XXXXXX") || exit 1
 mv "$body" "$body.md" && body="$body.md"
@@ -141,11 +155,37 @@ echo "$body"
 **4c — post it.** ⛔ **Confirm with the user first.** Posting is an outward-facing state
 change: a public comment under your identity, prefixed `@claude` so it re-summons the bot and
 consumes review CI. `adversarial-loop` lists it in *What stops for the user*, and each round is
-a separate confirmation. Then, passing the same literal path (not a variable — the shell from
-4a is gone):
+a separate confirmation.
+
+**The block re-runs [`pr-identity`](../../scripts/pr-identity) before it posts.** Posting is this
+skill's only outward action. Re-type the `pr` that Step 1 printed into the `pr=""` line. The
+block refuses when the script exits non-zero, when it resolves another PR, or when Step 1's
+proceed rule no longer holds. It posts to the script's `pr`. Then run it, passing the same
+literal path (not a variable — the shell from 4a is gone):
 
 ```bash
-PR=$(gh pr view ${target:+"$target"} --json number --jq .number) || exit 1
+# Re-state Step 1's binding: an argument was given → `target=<it>`; none → leave as is.
+target=""
+# Re-state Step 1's printed value: `pr=<number>`.
+pr=""
+out=$("${CLAUDE_PLUGIN_ROOT}/scripts/pr-identity" ${target:+"$target"})
+rc=$?
+relation=""; PR=""; head_oid=""
+while IFS= read -r line; do
+  case $line in
+    relation=*) relation=${line#*=} ;;
+    pr=*) PR=${line#*=} ;;
+    head_oid=*) head_oid=${line#*=} ;;
+  esac
+done <<<"$out"
+[ "$rc" -eq 0 ] || { echo "pr-identity could not resolve ${target:-the current checkout} (exit $rc) — NOT replying" >&2; exit 1; }
+case $pr in ''|-) echo "Step 1's pr was not re-stated — NOT replying" >&2; exit 1 ;; esac
+[ "$PR" = "$pr" ] || { echo "pr-identity resolved PR ${PR:-none}, not Step 1's PR $pr — NOT replying" >&2; exit 1; }
+here=$(git rev-parse HEAD) || exit 1
+[ -n "$head_oid" ] && { [ "$relation" = own ] || [ "$here" = "$head_oid" ]; } || {
+  echo "PR $PR's head is ${head_oid:-unset} but this checkout's HEAD is $here (relation=${relation:-unset}) — NOT replying" >&2
+  exit 1
+}
 gh pr comment "$PR" --body-file "<the path 4a printed>"
 ```
 
