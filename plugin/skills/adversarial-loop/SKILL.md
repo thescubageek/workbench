@@ -1,7 +1,7 @@
 ---
 name: adversarial-loop
-description: Drive a change to reviewable — repeat adversarial review, adjudicate, fix and re-verify until a pass comes back clean. Runs anywhere there is a diff; if a pull request already exists it also flips to ready, waits on CI and claude[bot], and replies until the review is resolved. Use when the user says "adversarial loop", "run the loop on this", "take this to ready for review", or asks to close out a change end to end.
-argument-hint: "[<pr#>|<branch>] [--effort=<low|medium|high|xhigh|max>]"
+description: Drive the current checkout's change to reviewable — repeat adversarial review, adjudicate, fix and re-verify until a pass comes back clean. Serves only this checkout, because it fixes, commits and publishes; for any other PR or branch it refuses and names /wb:adversarial-review. Runs anywhere there is a diff; if this checkout's pull request already exists it also flips to ready, waits on CI and claude[bot], and replies until the review is resolved. Use when the user says "adversarial loop", "run the loop on this", "take this to ready for review", or asks to close out a change end to end.
+argument-hint: "[<this checkout's pr#>|<current branch>|<path in this tree>] [--effort=<low|medium|high|xhigh|max>]"
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash, Task, Skill
 ---
 
@@ -111,11 +111,13 @@ Two standing prohibitions:
 
 ## Phase 0: bind the target
 
-⛔ **Bind `target` first, as your own first action.** The argument hint advertises `<pr#>` and
-`<branch>`, and every pull-request phase below reads `$target`. With it unbound, Phases 2, 4 and
-5 resolve the pull request from the *current branch* while the report names the one that was
-asked for: on feature-B with draft PR #57, `/wb:adversarial-loop 42` reviews PR 42 and then
-pushes, un-drafts and labels **#57**.
+⛔ **Bind `target` first, as your own first action.** This loop serves only the current
+checkout's pull request. It fixes, commits and publishes, so its target must be this checkout.
+Give no argument, or an argument that names this checkout: the current PR's number, the current
+branch's name, or a path in this tree. Every pull-request phase below reads `$target`. With it
+unbound, Phases 2, 4 and 5 resolve the pull request from the *current branch* while the report
+names the one that was asked for. On feature-B with draft PR #57, `/wb:adversarial-loop 42`
+refuses. It must never review PR 42 and then push, un-draft and label **#57**.
 
 - an argument was given → `target=<that argument>`
 - no argument → leave it unset; resolving from the current branch is then correct rather than
@@ -127,21 +129,54 @@ before this text reaches you, so the block would arrive with the value already s
 binding and carries the history of the defect.
 
 The binding lives in the session, not the shell. Each Bash call starts a fresh shell. Re-state it
-as the first line of every block below that reads `$target` (Phases 2 and 5). The history is in
-[../adversarial-review/SKILL.md](../adversarial-review/SKILL.md) Step 1.
+as the first line of every block that reads `$target` (the one below, and Phases 2 and 5). The
+history is in [../adversarial-review/SKILL.md](../adversarial-review/SKILL.md) Step 1.
+
+**Run [`pr-identity`](../../scripts/pr-identity) before anything else.** It is the one place that
+decides how the target relates to this checkout. The block prints its fields and acts on `fix`
+only. It never reads a ref name or a prefix.
+
+```bash
+# Re-state Phase 0's binding: an argument was given → `target=<it>`; none → leave as is.
+target=""
+out=$("${CLAUDE_PLUGIN_ROOT}/scripts/pr-identity" ${target:+"$target"})
+rc=$?
+printf '%s\n' "$out"
+fix=""; relation=""; pr=""
+while IFS= read -r line; do
+  case $line in
+    fix=*) fix=${line#*=} ;;
+    relation=*) relation=${line#*=} ;;
+    pr=*) pr=${line#*=} ;;
+  esac
+done <<<"$out"
+case $pr in ''|-) what=${target:-the current checkout} ;; *) what="PR $pr" ;; esac
+if [ "$rc" -ne 0 ]; then
+  echo "pr-identity could not resolve $what (exit $rc) — NOT running the loop.${target:+ To review it, run /wb:adversarial-review $target.}" >&2
+  exit 1
+fi
+if [ "$fix" != yes ]; then
+  echo "$what is not this checkout (${relation:-unknown}) — NOT running the loop.${target:+ To review it, run /wb:adversarial-review $target.}" >&2
+  exit 1
+fi
+```
+
+**Only an exact `fix=yes` lets the loop run.** A script failure, an empty `fix`, or any other
+value refuses. The block exits 1, which ends the tool call, as the Phase 2 block does.
+
+| Phase 0 result | What the loop does |
+| -------------- | ------------------ |
+| `pr-identity` exits non-zero, or `fix` is not exactly `yes` | Refuse the whole loop. Run no Phase. Report the refusal line as printed |
+| `fix=yes`, `publish=no` | Run Phase 1. Skip Phases 2 to 5. Report `reason` as why they were skipped |
+| `fix=yes`, `publish=yes` | Run every phase |
+
+**A refusal is the loop's whole output.** Do not invoke `adversarial-review`. Do not fetch, write
+or stage anything. The script's fetch of a PR head is the only write, and the loop adds none. The
+refusal names `/wb:adversarial-review <target>`, which reviews any target. Pass that command to
+the user. Do not check the target out yourself. That is a state change nobody asked for.
 
 Pass the same `target` through to `adversarial-review` in Phase 1, so the review and the
 publishing phases cannot end up pointed at different changes.
-
-**Read the review's `review_provenance`. If it is not `HEAD`, the pull-request phases do not
-run.** The `identity:` line `adversarial-review` prints in Step 1 shows it: a line that does not
-start with `HEAD` names a target that is not the current checkout. Phases 2 and 4 push the branch you are on; they cannot push a different one.
-**When the `identity:` line does not start with `HEAD`, run Phase 1 steps 1 and 2 once, report
-the findings and their dispositions, and stop.** Do not run steps 3 to 6: no `implement`, no
-ledger commit, no re-review. A fix would commit onto the current checkout, which is not the PR's
-head, and the next review would read the same unchanged ref. That report is the loop's whole
-output for this target. Say in it that the publishing phases were skipped, and why.
-Checking the target out yourself is a state change nobody asked for.
 
 ## Phase 1: review until clean
 
@@ -159,8 +194,7 @@ Checking the target out yourself is a state change nobody asked for.
    reviewer has been *asserted*; the label is the claim you are checking. Reviewers are wrong
    often enough that applying findings unexamined introduces defects, and a suggested fix is
    frequently worse than the finding it addresses.
-3. If Phase 0 stopped the loop at step 2, this step does not run.
-   **Prune the plan to what you adjudicated, then run `implement` against it.** Do not fix
+3. **Prune the plan to what you adjudicated, then run `implement` against it.** Do not fix
    findings inline. `adversarial-review` Step 8 emits
    `docs/plans/<plan>/reviews/<date>-round-N/tasks.md`; `implement` executes it one task at a
    time, in fresh context, each verified against its own acceptance criterion and committed
