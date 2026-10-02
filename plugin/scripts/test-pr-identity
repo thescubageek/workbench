@@ -30,7 +30,8 @@
 # so the loop refuses before the review and names /wb:adversarial-review <target>. S12 expects a
 # committed clean-round row. Reply proceeds on own or HEAD = head_oid, so S4 and S6 proceed and
 # S11 refuses; it is not run for S7, S8 and S10, whose targets are not PR numbers. Any push or
-# un-draft where publish=no is UNSAFE.
+# un-draft where publish=no is UNSAFE. The loop never fetches (design.md PD8), so a pr ref left by
+# phase0 is a MISS.
 
 set -uo pipefail
 
@@ -411,6 +412,64 @@ while IFS='|' read -r id written; do
     cd "$SCRIPT_DIR" || exit 2
 done <<<"$ONE_WRITE"
 
+# --no-fetch (design.md PD8): the same facts as the fetching run, review_head=-, no ref, no fetch.
+# The --no-fetch run goes first, so the fetching run after it sees the same world.
+NO_FETCH='S2|origin/pr/42
+S4|origin/pr/42
+S5|origin/pr/57
+S6|origin/pr/57
+O1|origin/pr/42
+S11|upstream/pr/42'
+
+nval() { printf '%s\n' "$NF" | sed -n "s/^$1=//p" | head -1; }
+
+while IFS='|' read -r id ref; do
+    build "$id" >/dev/null 2>&1
+    cd "$W/work" || exit 2
+    if [[ $MISSING -eq 1 ]]; then
+        fail "$id" "plugin/scripts/pr-identity not found (--no-fetch check)"
+        cd "$SCRIPT_DIR" || exit 2; continue
+    fi
+    git for-each-ref --format='%(refname) %(objectname)' >"$W/refs.before"
+    fh_before=$(cksum .git/FETCH_HEAD 2>/dev/null)
+    NF=$(GIT_TRACE="$W/trace" "$PRID" --no-fetch "$TARGET" 2>"$W/err"); nrc=$?
+    git for-each-ref --format='%(refname) %(objectname)' >"$W/refs.after"
+    fh_after=$(cksum .git/FETCH_HEAD 2>/dev/null)
+    left=$(git rev-parse -q --verify "refs/remotes/$ref" 2>/dev/null)
+    fetches=$("$SCRIPT_DIR/count" 'built-in: git fetch' "$W/trace") || fetches=unmeasured
+    OUT=$("$PRID" "$TARGET" 2>/dev/null); frc=$?
+    problems=""
+    [[ $nrc -eq 0 ]] || problems="$problems exit=$nrc;"
+    [[ $frc -eq 0 ]] || problems="$problems fetching run exit=$frc;"
+    for k in relation fix publish pr head_oid reason review_base push_remote push_ref; do
+        [[ "$(nval "$k")" == "$(val "$k")" ]] || problems="$problems $k=$(nval "$k"), fetching run $k=$(val "$k");"
+    done
+    [[ "$(nval fix)" == no && "$(nval publish)" == no ]] || problems="$problems fix=$(nval fix) publish=$(nval publish) want no, no;"
+    [[ "$(nval review_head)" == - ]] || problems="$problems review_head=$(nval review_head) want -;"
+    [[ "$(val review_head)" == "$ref" ]] || problems="$problems fetching run review_head=$(val review_head) want $ref;"
+    [[ "$NF" == *"identity: "*"not fetched"* ]] || problems="$problems identity: line does not say the PR head was not fetched;"
+    cmp -s "$W/refs.before" "$W/refs.after" || problems="$problems refs changed;"
+    [[ -z $left ]] || problems="$problems refs/remotes/$ref exists after the run;"
+    [[ "$fh_before" == "$fh_after" ]] || problems="$problems .git/FETCH_HEAD changed;"
+    [[ $fetches == 0 ]] || problems="$problems $fetches fetches want 0;"
+    if [[ -z "$problems" ]]; then echo "  ✓ $id --no-fetch: $(nval relation), no ref, no fetch"; PASS=$((PASS + 1)); else fail "$id" "--no-fetch:$problems"; fi
+    cd "$SCRIPT_DIR" || exit 2
+done <<<"$NO_FETCH"
+
+if [[ $MISSING -eq 0 ]]; then
+    for id in S1 S9; do
+        build "$id" >/dev/null 2>&1
+        cd "$W/work" || exit 2
+        args=(); [[ $HAS_TARGET -eq 0 ]] || args=("$TARGET")
+        NF=$("$PRID" --no-fetch ${args[@]+"${args[@]}"} 2>"$W/err"); nrc=$?
+        OUT=$("$PRID" ${args[@]+"${args[@]}"} 2>/dev/null); frc=$?
+        if [[ $nrc -eq 0 && $frc -eq 0 && "$(nval relation)" == own && "$NF" == "$OUT" ]]; then
+            echo "  ✓ $id --no-fetch: own, output unchanged"; PASS=$((PASS + 1))
+        else fail "$id" "--no-fetch on own: exit=$nrc, relation=$(nval relation), output differs from the run without it"; fi
+        cd "$SCRIPT_DIR" || exit 2
+    done
+fi
+
 usage_case() { # name args...
     local name=$1; shift
     "$PRID" "$@" >"$W/out" 2>"$W/err"; rc=$?
@@ -430,6 +489,9 @@ if [[ $MISSING -eq 0 ]]; then
     usage_case "U1 unknown option" --bogus
     usage_case "U2 unknown option after a target" 42 --bogus
     usage_case "U3 two targets" 42 feature-A
+    usage_case "U4 --no-fetch after a target" 42 --no-fetch
+    usage_case "U5 an unknown option after --no-fetch" --no-fetch --bogus
+    usage_case "U6 --no-fetch and two targets" --no-fetch 42 feature-A
     cd "$SCRIPT_DIR" || exit 2
 fi
 
@@ -520,6 +582,7 @@ fresh() { cd "$ROOT" || exit 2; rm -rf "$W"; cp -Rp "$W.snap" "$W"; : >"$GH_LOG"
 refs() {
     local b
     for b in "$W"/*.git; do
+        [ -e "$b" ] || continue
         git -C "$b" for-each-ref --format="$(basename "$b" .git):%(refname) %(objectname)" refs/heads
     done | sort
 }
@@ -562,6 +625,7 @@ else
         if has phase0; then
             run_block phase0
             P0=$(printf '%s\n' "$OUT" | grep -E '^[a-z_]+=')
+            [[ -z "$(git for-each-ref 'refs/remotes/*/pr/*')" ]] || M="$M; the loop's Phase 0 wrote a pr ref"
             lfix=$(val fix)
             if [[ -z $lfix ]]; then M="$M; phase0 printed no fix= line"
             elif [[ $lfix == yes && $efix == no ]]; then U="$U; the loop fixes a checkout that is not the target"

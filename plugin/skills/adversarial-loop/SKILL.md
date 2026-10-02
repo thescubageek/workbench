@@ -140,7 +140,7 @@ only. It never reads a ref name or a prefix.
 ```bash
 # Re-state Phase 0's binding: an argument was given → `target=<it>`; none → leave as is.
 target=""
-out=$("${CLAUDE_PLUGIN_ROOT}/scripts/pr-identity" ${target:+"$target"})
+out=$("${CLAUDE_PLUGIN_ROOT}/scripts/pr-identity" --no-fetch ${target:+"$target"})
 rc=$?
 printf '%s\n' "$out"
 fix=""; relation=""; pr=""
@@ -172,9 +172,10 @@ value refuses. The block exits 1, which ends the tool call, as the Phase 2 block
 | `fix=yes`, `publish=yes` | Run every phase |
 
 **A refusal is the loop's whole output.** Do not invoke `adversarial-review`. Do not fetch, write
-or stage anything. The script's fetch of a PR head is the only write, and the loop adds none. The
-refusal names `/wb:adversarial-review <target>`, which reviews any target. Pass that command to
-the user. Do not check the target out yourself. That is a state change nobody asked for.
+or stage anything. The loop passes `--no-fetch`, so `pr-identity` fetches nothing and writes no
+ref. The review is where a remote PR gets fetched. The refusal names
+`/wb:adversarial-review <target>`, which reviews any target. Pass that command to the user. Do not
+check the target out yourself. That is a state change nobody asked for.
 
 Pass the same `target` through to `adversarial-review` in Phase 1, so the review and the
 publishing phases cannot end up pointed at different changes.
@@ -363,16 +364,17 @@ not inherit variables from the previous one.
 **The block re-runs [`pr-identity`](../../scripts/pr-identity) and publishes only on
 `publish=yes`.** The script is the one place that decides whether a push lands on the PR's head.
 Re-type the `pr` that Phase 0 printed into the `pr=""` line. The block refuses when the script
-exits non-zero, when `publish` is not exactly `yes`, or when the script resolves another PR. It
-pushes to the script's `push_remote` and `push_ref`, never with a bare `git push`. A refusal
-skips Phases 2 to 5, as the Phase 0 outcome table says.
+exits non-zero, when `publish` is not exactly `yes`, when the script resolves another PR, or when
+`push_remote` or `push_ref` is empty or `-`. It pushes to the script's `push_remote` and
+`push_ref`, never with a bare `git push`. A refusal skips Phases 2 to 5, as the Phase 0 outcome
+table says.
 
 ```bash
 # Re-state Phase 0's binding: an argument was given → `target=<it>`; none → leave as is.
 target=""
 # Re-state Phase 0's printed value: `pr=<number>`.
 pr=""
-out=$("${CLAUDE_PLUGIN_ROOT}/scripts/pr-identity" ${target:+"$target"})
+out=$("${CLAUDE_PLUGIN_ROOT}/scripts/pr-identity" --no-fetch ${target:+"$target"})
 rc=$?
 printf '%s\n' "$out"
 publish=""; PR=""; push_remote=""; push_ref=""; reason=""
@@ -391,6 +393,8 @@ done <<<"$out"
 }
 case $pr in ''|-) echo "Phase 0's pr was not re-stated — NOT publishing" >&2; exit 1 ;; esac
 [ "$PR" = "$pr" ] || { echo "pr-identity resolved PR ${PR:-none}, not Phase 0's PR $pr — NOT publishing" >&2; exit 1; }
+case $push_remote in ''|-) echo "pr-identity printed no push_remote — NOT publishing" >&2; exit 1 ;; esac
+case $push_ref in ''|-) echo "pr-identity printed no push_ref — NOT publishing" >&2; exit 1 ;; esac
 DRAFT=$(gh pr view "$PR" --json isDraft --jq .isDraft) \
   || { echo "isDraft check failed for PR $PR" >&2; exit 1; }
 [ "$DRAFT" = true ] || [ "$DRAFT" = false ] || { echo "isDraft returned unexpected value: '$DRAFT'" >&2; exit 1; }
@@ -511,7 +515,7 @@ not an authority.
    target=""
    # Re-state Phase 0's printed value: `pr=<number>`.
    pr=""
-   out=$("${CLAUDE_PLUGIN_ROOT}/scripts/pr-identity" ${target:+"$target"})
+   out=$("${CLAUDE_PLUGIN_ROOT}/scripts/pr-identity" --no-fetch ${target:+"$target"})
    rc=$?
    printf '%s\n' "$out"
    publish=""; PR=""; push_remote=""; push_ref=""; reason=""
@@ -530,6 +534,8 @@ not an authority.
    }
    case $pr in ''|-) echo "Phase 0's pr was not re-stated — NOT publishing" >&2; exit 1 ;; esac
    [ "$PR" = "$pr" ] || { echo "pr-identity resolved PR ${PR:-none}, not Phase 0's PR $pr — NOT publishing" >&2; exit 1; }
+   case $push_remote in ''|-) echo "pr-identity printed no push_remote — NOT publishing" >&2; exit 1 ;; esac
+   case $push_ref in ''|-) echo "pr-identity printed no push_ref — NOT publishing" >&2; exit 1 ;; esac
    git push "$push_remote" "HEAD:$push_ref"
    ```
 
@@ -589,7 +595,7 @@ The block re-runs `pr-identity` as Phase 2 does. It labels only on `publish=yes`
 target=""
 # Re-state Phase 0's printed value: `pr=<number>`.
 pr=""
-out=$("${CLAUDE_PLUGIN_ROOT}/scripts/pr-identity" ${target:+"$target"})
+out=$("${CLAUDE_PLUGIN_ROOT}/scripts/pr-identity" --no-fetch ${target:+"$target"})
 rc=$?
 printf '%s\n' "$out"
 publish=""; PR=""; push_remote=""; push_ref=""; reason=""

@@ -10,15 +10,18 @@
 #
 # The one write: for a PR target that is not `own`, refs/pull/<N>/head is fetched into
 # refs/remotes/<base remote>/pr/<N>. It never pushes, never checks out, never writes another ref.
+# --no-fetch skips that write: the same fields, with review_head=- for such a target.
 #
-# Usage: pr-identity [<target>]
+# Usage: pr-identity [--no-fetch] [<target>]
 # Exit 0 resolved, 1 refused (cause on stderr, ending "— NOT reviewing"), 2 bad usage.
 
 set -uo pipefail
 
-usage() { echo "usage: pr-identity [<pr-number> | <branch> | <path>]" >&2; exit 2; }
+usage() { echo "usage: pr-identity [--no-fetch] [<pr-number> | <branch> | <path>]" >&2; exit 2; }
 refuse() { echo "$1 — NOT reviewing" >&2; exit 1; }
 
+no_fetch=0
+[ "${1:-}" != --no-fetch ] || { no_fetch=1; shift; }
 [ $# -le 1 ] || usage
 target="${1:-}"
 case $target in -*) usage ;; esac
@@ -111,9 +114,13 @@ pathspec=""; push_remote=-; push_ref=-; reason=""
 
 emit() {
   local oid
-  oid=$(git rev-parse -q --verify "${review_head}^{commit}") \
-    || refuse "range did not resolve: '$review_head' is not a revision here"
-  echo "identity: $review_head = ${oid:0:7} ($relation${reason:+: $reason})"
+  if [ "$review_head" = - ]; then
+    echo "identity: PR $pr head ${head_oid:0:7} not fetched ($relation${reason:+: $reason})"
+  else
+    oid=$(git rev-parse -q --verify "${review_head}^{commit}") \
+      || refuse "range did not resolve: '$review_head' is not a revision here"
+    echo "identity: $review_head = ${oid:0:7} ($relation${reason:+: $reason})"
+  fi
   printf '%s\n' "relation=$relation" "fix=$fix" "publish=$publish" "pr=$pr" "head_oid=$head_oid" \
     "review_head=$review_head" "review_base=$review_base" "pathspec=$pathspec" \
     "push_remote=$push_remote" "push_ref=$push_ref" "reason=$reason"
@@ -186,6 +193,8 @@ fi
 
 if [ "$kind" = current ] || [ "$relation" = own ]; then
   fix=yes; review_head=HEAD
+elif [ "$no_fetch" = 1 ]; then
+  review_head=-
 else
   git fetch -q "$baseremote" "+refs/pull/${pr}/head:refs/remotes/${baseremote}/pr/${pr}" \
     || refuse "could not fetch refs/pull/$pr/head from $baseremote"
