@@ -502,9 +502,11 @@ not an authority.
    is a round, but it creates no `reviews/` directory, so label its rows `<M>b<k>` per
    [review-ledger.md](../../docs/reference/review-ledger.md)'s `round` field.
 
-   **Commit the ledger in this step, after the rows are written**, with the same scoped
-   commit that Phase 1 step 5 shows. Do it before step 4's push, so the
-   push carries the rows. Do it also on a round where every finding was rejected and step 4 has
+   **Commit the ledger in this step, after the rows are written**, with the block that Phase 1
+   step 5 shows. Re-state `findings` as the number of ledger rows this bot round wrote. Rejected
+   findings count, because they get rows too. `findings=0` means the round wrote no rows, and the
+   block then writes the `clean-round` row. Use the bot round's label `<M>b<k>` wherever the block
+   says `<N>`. Do it before step 4's push, so the push carries the rows. Do it also on a round where every finding was rejected and step 4 has
    nothing to fix. Rows that are only staged are in no commit when Phase 5 labels the head.
 4. Fix what holds. **Confirm, then push.** Push with the same block shape as Phase 2. It
    re-runs `pr-identity`, requires `publish=yes` and Phase 0's `pr`, and pushes to the

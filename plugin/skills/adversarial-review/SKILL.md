@@ -36,12 +36,14 @@ that review does not have: named domain-expert lenses, and a verification pass o
 candidate. Reconnaissance decides how much of either to buy, *before* buying it.
 
 It does **not** fix anything — findings are reported, and `adversarial-loop` is what applies
-them. It does write: Step 8 emits the remediation plan itself, a new `tasks.md`, which is a
-report of what was found, not a fix to the diff under review.
+them. It writes only when Step 1 printed `fix=yes`, which means the target is this checkout.
+Then Step 8 writes and stages the remediation plan, a new `tasks.md`. That file is a report of
+what was found, not a fix to the diff under review. On any other `fix=` value the report is the
+whole output.
 
 It does **not** adjudicate either, and so it writes **no findings ledger**. A ledger row is a
-finding's *disposition*, and a standalone round assigns none — Step 8 hands every verified
-finding to the caller as a task. `adversarial-loop` Phase 1 step 5 is what writes the ledger and
+finding's *disposition*, and a standalone round assigns none. On `fix=yes`, Step 8 hands every
+verified finding to the caller as a task. `adversarial-loop` Phase 1 step 5 is what writes the ledger and
 what the thrash breaker reads
 ([../../docs/reference/review-ledger.md](../../docs/reference/review-ledger.md)); a round run
 outside the loop leaves none, so do not run the breaker against one and read its silence as a
@@ -490,8 +492,8 @@ files the round against work it did not review.
 `docs/plans/` is gitignored, so the write alone leaves the round's only durable artifact
 untracked *and* invisible to `git status --short`, where a later clean-tree check reads clean
 over it and `git clean -fdx` takes it. Staging is not committing: the commit belongs to the
-caller, so report the plan as staged and awaiting one. Where no file was written — either case
-below — there is nothing to stage and no `git add` to run.
+caller, so report the plan as staged and awaiting one. Where no file was written — `fix` is not
+`yes`, or either case below — there is nothing to stage and no `git add` to run.
 [../../docs/reference/remediation-plan.md](../../docs/reference/remediation-plan.md) →
 *Promoting it* has the rule and why the `-f` is needed every time.
 

@@ -51,6 +51,7 @@ and a round that never wrote the ledger look the same. The row is:
 - `evidence` is `0 verified findings`.
 - Every other field is `-`.
 
+A round's finding count is the number of finding rows it wrote, rejected findings included.
 The row counts as a round with zero findings. It adds nothing to the finding totals. It does not
 count toward the minimum-N floor, and it adds nothing to either side of the introduced-rate. The
 same-file trigger sees no file in that round.
