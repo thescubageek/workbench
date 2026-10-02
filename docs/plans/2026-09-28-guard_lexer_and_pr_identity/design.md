@@ -14,6 +14,13 @@ depends_on: research.md
 design_approach: One lexer, one resolver — retire two classes the review loop kept re-finding
 ---
 
+> **Non-normative for PR identity.** The PR-identity sections of this design are superseded by
+> [`docs/plans/2026-10-01-pr_identity_contract/design.md`](../2026-10-01-pr_identity_contract/design.md).
+> They are the "own checkout" definition (headRefOid descent only), the refusal of a
+> cross-repository PR by name, the `review_head` values, and the statement that the Phase 2 push
+> and the `reply-to-claude` binding are out of scope. The guard-lexer parts are unaffected.
+> Read those sections as history, not as current guidance.
+
 # Design: guard_lexer_and_pr_identity
 
 **Created**: 2026-09-28 20:05 UTC

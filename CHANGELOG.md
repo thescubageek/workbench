@@ -76,6 +76,12 @@ been the thing worth distrusting.
   -c` prints `0` and exits 1 on no match, and exits 2 on error while printing nothing; captured
   in a command substitution both collapse into something that reads as "zero matches". `count`
   separates them on the exit code, with a contract test in `plugin/scripts/test-count`.
+- **`plugin/scripts/pr-identity` — the one predicate that says how a target relates to the
+  checkout.** It prints a closed-set `relation`, a `fix` field and a `publish` field. The three
+  review skills call it instead of each comparing a branch name. `--no-fetch` makes it read only.
+- **`plugin/scripts/test-pr-identity`, now a gate in `plugin/scripts/check`.** It runs the shipped
+  blocks of the three skills against scenarios S1 to S12b. A consumer-level test catches a skill
+  that stops calling the predicate, which a test of the script alone cannot.
 
 ### Fixed
 
@@ -162,6 +168,15 @@ been the thing worth distrusting.
     to a repository `CLAUDE.md`. Commit `3ce6af9` had already falsified that, and the entry was
     describing a state the tree was not in — the exact drift `adversarial-review/reference.md`
     names as a standing candidate between rounds.
+- **`/wb:adversarial-loop` serves only the current checkout's PR.** It refuses any other target
+  and names `/wb:adversarial-review <target>` instead. It never fetches.
+- **`/wb:adversarial-review` serves any PR, branch or path.** It writes a round plan only for the
+  current checkout.
+- **The loop pushes to the explicit `<push_remote> HEAD:<push_ref>` that `pr-identity` approved**,
+  not a bare `git push`.
+- **`reply-to-claude` calls `pr-identity` and checks again before it comments.**
+- **A clean loop round writes a `clean-round` ledger row**, and a missing ledger now exits
+  non-zero. A ledger that was never created no longer reads as a clean one.
 
 ### Migration
 
@@ -173,6 +188,9 @@ claude plugin update wb@thescubageek-workbench
 
 The three new skills are new *files*, and the plugin cache is keyed by version — they will not
 appear until the update runs, regardless of what has been pushed.
+
+If you ran `/wb:adversarial-loop <other PR>` as a review, run `/wb:adversarial-review <other PR>`
+now. The loop refuses a PR that is not the current checkout's.
 
 ## [2.2.0] — 2026-09-30
 
