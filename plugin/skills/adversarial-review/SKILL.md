@@ -51,8 +51,9 @@ clean trend.
 
 Three slots, all optional:
 
-- **Target** — a PR number, a branch, or a path. Sniff the type: digits are a PR, a path that
-  exists on disk is a path, anything else is a branch. Absent, review the current diff.
+- **Target** — a PR number, a branch, or a path. Sniff the type in this order: a path that exists
+  on disk is a path, digits are a PR, a name equal to the current branch is the current checkout,
+  and anything else is a branch. `pr-identity` applies this order. Absent, review the current diff.
 - **`--effort=<level>`** — an override. Strip it before binding the positional, and match it by
   name so it may appear anywhere in the invocation. Absent, reconnaissance picks the level.
 - **`--plan=<dir>`** — the plan directory Step 8 writes the round under. Both `--plan=<dir>` and
@@ -96,52 +97,19 @@ exits 0.
 ```bash
 # Re-state Step 1's binding: an argument was given → `target=<it>`; none → leave as is.
 target=""
-review_head=""; review_base=""; review_provenance=""
 
-resolve_identity() {
-  if [ -z "${target:-}" ] || [ -e "$target" ]; then
-    b=$(gh pr view --json baseRefName --jq .baseRefName 2>/dev/null)
-    review_base="origin/${b:-main}"; review_head="HEAD"
-    review_provenance="HEAD (current branch; base ${review_base})"
-    return 0
-  fi
-  if printf '%s' "$target" | grep -qE '^[0-9]+$'; then
-    json=$(gh pr view "$target" --json headRefOid,headRefName,baseRefName,isCrossRepository) \
-      || { echo "could not resolve PR $target via gh — NOT reviewing" >&2; return 1; }
-    oid=$(printf '%s' "$json" | jq -r .headRefOid)
-    base=$(printf '%s' "$json" | jq -r .baseRefName)
-    cross=$(printf '%s' "$json" | jq -r .isCrossRepository)
-    headref=$(printf '%s' "$json" | jq -r '.headRefName // empty')
-    review_base="origin/$base"
-    if [ "$cross" != true ] && [ -n "$headref" ] && [ "$(git branch --show-current)" = "$headref" ] \
-      && git merge-base --is-ancestor "$oid" HEAD 2>/dev/null; then
-      ahead=$(git rev-list --count "$oid..HEAD")
-      review_head="HEAD"
-      review_provenance="HEAD, $ahead commit(s) ahead of headRefOid $(printf '%s' "$oid" | cut -c1-7) (PR $target, own checkout)"
-      return 0
-    fi
-    git fetch origin "refs/pull/$target/head:refs/remotes/origin/pr/$target" \
-      || { echo "could not fetch refs/pull/$target/head — NOT reviewing" >&2; return 1; }
-    review_head="origin/pr/$target"
-    review_provenance="origin/pr/$target = $(printf '%s' "$oid" | cut -c1-7), fetched (PR $target is not the current checkout$([ "$cross" = true ] && printf ', cross-repository'))"
-    return 0
-  fi
-  b=$(gh pr view "$target" --json baseRefName --jq .baseRefName 2>/dev/null)
-  review_base="origin/${b:-main}"; review_head="$target"
-  review_provenance="$target (branch; base ${review_base})"
-}
-
-# Revisions and pathspec are held apart, because they cannot survive one variable: quoted,
-# "origin/main...HEAD -- some/path" reaches git as a single argument; unquoted, it depends on
-# the shell splitting it. See the shell note below — that dependency is what broke here.
-pathspec=""
-
+# Read the script's fields by key. Refs are passed on, never compared as text.
 # A function, so a failure can `return`. See the exit note below — `exit` here ends the tool call.
 resolve_range() {
-  resolve_identity || return 1
-  if [ -n "${target:-}" ] && [ -e "$target" ]; then
-    pathspec="$target"
-  fi
+  out=$("${CLAUDE_PLUGIN_ROOT}/scripts/pr-identity" ${target:+"$target"}) || return 1
+  review_head=""; review_base=""; pathspec=""
+  while IFS= read -r line; do
+    case $line in
+      review_head=*) review_head=${line#*=} ;;
+      review_base=*) review_base=${line#*=} ;;
+      pathspec=*) pathspec=${line#*=} ;;
+    esac
+  done <<<"$out"
 
   # Both endpoints, before the range is believed or printed as a finding-free diff.
   for ref in "$review_base" "$review_head"; do
@@ -149,8 +117,9 @@ resolve_range() {
     echo "range did not resolve: '$ref' is not a revision here — NOT reviewing" >&2
     return 1
   done
-  echo "identity: $review_provenance"
+  printf '%s\n' "$out"
 
+  # Revisions and pathspec stay apart: quoted together they reach git as one argument.
   range="$review_base...$review_head"
   if [ -n "$pathspec" ]; then
     echo "range: $range -- $pathspec"
@@ -186,25 +155,26 @@ report still named the PR.
 
 State the target and its size before reviewing — a wrong target wastes the whole pass.
 
-**A PR target is resolved by its commit and its branch, not its branch name alone.** The block
-reads `headRefOid`, `headRefName` and `isCrossRepository`. The range ends at `HEAD` only if the
-PR is not cross-repository, this checkout is on the PR's own branch, and `HEAD` descends from
-`headRefOid`. Otherwise the block does not review `HEAD`. It fetches the
-PR's head into `refs/remotes/origin/pr/<N>` and reviews that ref. The `identity:` line names
-the result. Copy that line into the report as it is printed.
+**The relation between the target and this checkout is decided in
+[`pr-identity`](../../scripts/pr-identity), not in this block.** The script's header and its
+`relation` cases are the conditions. The block reads the `review_head`, `review_base` and
+`pathspec` fields by key and does not re-derive them. For a PR target whose `relation` is not
+`own`, the script fetches the PR's head into `refs/remotes/<base remote>/pr/<N>` and the range
+ends there. The `identity:` line names the result. Copy that line into the report as it is
+printed.
 
 **An empty range and an unresolvable one are different, and only one of them is a stop.** Five
 outcomes, and the last is dangerous precisely because it wears the first one's clothes:
 
 - **Resolved, and empty** — the range parsed and the stat is blank. If that is genuinely the
   change, or is plainly not what was asked for, stop and say so rather than reviewing nothing.
-- **Fetched** — the PR is cross-repository, this checkout is not on its branch, or `HEAD` does
-  not descend from its head. The
-  `identity:` line reads `origin/pr/<N> = <oid>, fetched (…)`. The fetch writes that one
+- **Fetched** — the target is a PR number and `relation` is not `own`. The `identity:` line
+  reads `<base remote>/pr/<N> = <oid> (<relation>: <reason>)`. The fetch writes that one
   remote-tracking ref and nothing else. Disclose it in the report. It needs no confirmation.
-- **Refused** — `gh` could not answer for the PR, or the fetch of `refs/pull/<N>/head` failed.
-  The block names the cause on stderr and returns 1. The review did not run. Say that in the
-  report, and do not review the current branch in its place.
+- **Refused** — `pr-identity` exited non-zero: `gh` could not answer for the PR, no remote points
+  at the PR's base repository, or the fetch of `refs/pull/<N>/head` failed. The script names the
+  cause on stderr and the block returns 1. The review did not run. Say that in the report, and do
+  not review the current branch in its place.
 - **Not resolved** — an endpoint is not a revision here. The block says which, on stderr, and
   returns. Say that in the report; do not report it as a change with no content.
 - **Resolved to something git cannot parse** — the outcome with no error to show for it. Measured
@@ -218,8 +188,8 @@ outcomes, and the last is dangerous precisely because it wears the first one's c
 **The base is asked for, not assumed.** `origin/main` is this repository's default, not every
 repository's, and an earlier version of this block hardcoded it in three of its four branches
 while `git diff --stat origin/nonexistent...HEAD` exits 128 onto stderr — measured, and nothing in
-the old block read it. The block now asks `gh` for the target's base branch and falls back to
-`origin/main` only when that returns nothing. Step 2 reads `REVIEW.md` from the same base. What breaks a hardcoded base —
+the old block read it. `pr-identity` now asks `gh` for the target's base branch and falls back to
+`<remote>/main` only when no PR answers. Step 2 reads `REVIEW.md` from the same base. What breaks a hardcoded base —
 `master`, `develop`, a shallow or single-branch clone, a fork checkout — is enumerated once, in
 Step 2's ⛔ note; it is not restated here.
 
@@ -280,8 +250,8 @@ absent-case tell below never fires.
   first two. Say in the report that the repository's own review instructions were not loaded; do
   not treat it as absent.
 - **Read from the wrong branch** — the fourth outcome, and the one with no error to show for it.
-  The block echoes the base and head it used. Compare them with `review_provenance`, the line
-  Step 1 printed as `identity:`, and **state the base in the report**. A head that differs from
+  The block echoes the base and head it used. Compare them with the `identity:` line Step 1
+  printed, and **state the base in the report**. A head that differs from
   the one the `identity:` line names is how a review loads another change's rules and reports
   them as Present.
 
