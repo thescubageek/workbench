@@ -98,9 +98,10 @@ const journalFile = `${projectDir}/journal.md`;
    - Specific tasks to complete
    - Success verification steps
 
-4. **Read `journal.md`'s tail** — the most recent entry, and whether it is **open** or
-   **closed**. The handoff says what the previous session *meant* to convey; the journal's last
-   entry says what it was in the middle of. They are different, and both matter.
+4. **Read `journal.md`'s topmost entry** — the newest one, directly under the marker comment
+   and not at the end of the file — and whether it is **open** or **closed**. The handoff says
+   what the previous session *meant* to convey; that topmost entry says what it was in the middle
+   of. They are different, and both matter.
 
 5. **Read `.claude/wb/knowledge.md` if it exists** — durable repository facts with dates and
    verification hints. This is what stops you rediscovering something an earlier plan already

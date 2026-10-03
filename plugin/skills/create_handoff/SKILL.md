@@ -75,8 +75,8 @@ handoff reason from the next argument, defaulting to "session transfer". Then re
    task** — that is the "next immediate task" the handoff must name — and anything under
    `## 🚧 Blockers & Notes`.
 
-4. **Read the journal tail.** `journal.md`'s most recent entry says what the last stretch of
-   work was attempting. Carry its state into the handoff: an **open** entry beside uncommitted
+4. **Read the journal's topmost entry.** It is the newest one, directly under the marker comment
+   and not at the end of the file. It says what the last stretch of work was attempting. Carry its state into the handoff: an **open** entry beside uncommitted
    changes means a task was interrupted mid-flight, and that is the single most useful thing
    the next session can be told.
 
