@@ -292,7 +292,7 @@ publishing phases cannot end up pointed at different changes.
    chain the commit to the stage:
 
    ```bash
-   # Re-state this round's verified finding count: `findings=<count>`.
+   # Re-state the number of ledger rows this round wrote, rejected findings included: `findings=<count>`.
    findings=""
    case $findings in ''|*[!0-9]*) echo "this round's finding count was not re-stated — ledger NOT committed" >&2; exit 1 ;; esac
    L="docs/plans/<plan>/review-log.md"
