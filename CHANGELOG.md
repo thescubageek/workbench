@@ -43,9 +43,9 @@ been the thing worth distrusting.
   deduped once and verified once. Supporting files carry the lens table, the verbatim agent
   prompts, the output shapes and the adjudication rules.
 - **`wb:adversarial-loop` — a sequencer that drives a change to reviewable.** It owns ordering
-  and the gates between rounds and contains no review logic of its own. The local core needs
-  only a reviewable diff — no `gh`, no pull request, no network. Where a pull-request phase
-  engages, its dependencies are hard: if one is missing it stops and says which, rather than
+  and the gates between rounds and contains no review logic of its own. It needs a reviewable
+  diff and `gh` present and authenticated, and it needs no pull request. Where a pull-request
+  phase engages, its further dependencies are hard: if one is missing it stops and says which, rather than
   running a narrower loop and reporting it as the same thing.
 - **`wb:reply-to-claude` — composes a reply that maps one-to-one to a bot review's findings.**
   Every finding gets a line saying what actually happened to it, with the `file:line` that

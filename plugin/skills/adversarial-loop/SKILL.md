@@ -1,6 +1,6 @@
 ---
 name: adversarial-loop
-description: Drive the current checkout's change to reviewable — repeat adversarial review, adjudicate, fix and re-verify until a pass comes back clean. Serves only this checkout, because it fixes, commits and publishes; for any other PR or branch it refuses and names /wb:adversarial-review. Runs anywhere there is a diff; if this checkout's pull request already exists it also flips to ready, waits on CI and claude[bot], and replies until the review is resolved. Use when the user says "adversarial loop", "run the loop on this", "take this to ready for review", or asks to close out a change end to end.
+description: Drive the current checkout's change to reviewable — repeat adversarial review, adjudicate, fix and re-verify until a pass comes back clean. Serves only this checkout, because it fixes, commits and publishes; for any other PR or branch it refuses and names /wb:adversarial-review. Needs a reviewable diff and `gh` present and authenticated; if this checkout's pull request already exists it also flips to ready, waits on CI and claude[bot], and replies until the review is resolved. Use when the user says "adversarial loop", "run the loop on this", "take this to ready for review", or asks to close out a change end to end.
 argument-hint: "[<this checkout's pr#>|<current branch>|<path in this tree>] [--effort=<low|medium|high|xhigh|max>]"
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash, Task, Skill
 ---
@@ -54,15 +54,17 @@ adversarial-review → adjudicate → fix → /verify → re-review     (repeat)
 
 ## Preconditions
 
-**One universal precondition: a reviewable diff.** The local core needs nothing else — no `gh`,
-no pull request, no network.
+**Two universal preconditions: a reviewable diff, and `gh` present and authenticated.** Phase 0
+runs `pr-identity`, which asks `gh` about this checkout and refuses on any `gh` failure other than
+"no pull requests found". With `gh` missing, unauthenticated or offline, the loop prints "NOT
+running the loop" and stops. It needs no pull request.
 
 **A pull request is not required.** If one exists its phases join the loop; if not, the loop ends
 at clean. This skill **never creates one** — opening a pull request is a publishing decision and
 belongs to the user.
 
-**Where a pull request phase does engage, its dependencies are hard.** `gh` present and
-authenticated, a `Monitor`-style wait available, and `claude[bot]` installed on the repository.
+**Where a pull request phase does engage, its further dependencies are hard.** A `Monitor`-style
+wait available, and `claude[bot]` installed on the repository.
 If one is missing, **stop and say which** — do not run a narrower loop and report it as the same
 thing. A loop that silently skipped the bot round and announced success would be lying about what
 ran, which is the failure this whole family of skills exists to prevent.
