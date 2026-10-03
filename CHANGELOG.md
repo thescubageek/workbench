@@ -82,6 +82,17 @@ been the thing worth distrusting.
 - **`plugin/scripts/test-pr-identity`, now a gate in `plugin/scripts/check`.** It runs the shipped
   blocks of the three skills against scenarios S1 to S12b. A consumer-level test catches a skill
   that stops calling the predicate, which a test of the script alone cannot.
+- **`plugin/scripts/shellcheck-gate` — `shellcheck` over the plugin's own shell scripts**, at
+  default severity and selected by shebang. `check` needs `shellcheck` 0.9.0 or newer and fails
+  loudly without it.
+- **`plugin/scripts/test-phi-patterns` — a contract test for the PHI scrub patterns in
+  `daily-digest/sources.md`.** It extracts the patterns from the shipped file and checks both
+  directions: the Member ID variants must match, and Jira keys must not.
+- **`plugin/scripts/lib_mutate.py` and the `mutation-sweep` CI job.** The library generates
+  mutants of `check-guards` from its syntax tree. `test-guards --generated` scores them against
+  the corpus, fails on any unwaived survivor and on a falling kill count, and fails a waiver with
+  no reason. The job is in `.github/workflows/checks.yml`, separate from `check` because the
+  sweep takes minutes.
 
 ### Fixed
 
