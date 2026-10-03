@@ -296,7 +296,10 @@ publishing phases cannot end up pointed at different changes.
    findings=""
    case $findings in ''|*[!0-9]*) echo "this round's finding count was not re-stated — ledger NOT committed" >&2; exit 1 ;; esac
    L="docs/plans/<plan>/review-log.md"
-   [ "$findings" -ne 0 ] || printf '| <N> | - | clean-round | - | - | 0 verified findings | - |\n' >>"$L"
+   [ "$findings" -ne 0 ] || {
+     [ -z "$(tail -c1 "$L" 2>/dev/null)" ] || echo >>"$L"
+     printf '| <N> | - | clean-round | - | - | 0 verified findings | - |\n' >>"$L"
+   }
    git add -f "$L" \
      && { git diff --cached --quiet -- "$L" || git commit -m "ledger: round <N> dispositions" -- "$L"; }
    ```

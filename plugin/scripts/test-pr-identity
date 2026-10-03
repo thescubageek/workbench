@@ -283,11 +283,11 @@ build() {
             base_world E3; git -C parent.git update-ref -d refs/pull/42/head
             git clone -q parent.git work; cd work || exit 2
             fixture "$(pr 42 feature-A "$(oid A1)" false thescubageek)"; TARGET=42 ;;
-        S12|S12b)
+        S12|S12b|S12c)
             base_world "$1"; git clone -q parent.git work; cd work || exit 2
             mkdir -p docs/plans/p; fixture "" ;;
     esac
-    case $1 in S9|S3b|N1|G1|H2|S12|S12b) ;; *) HAS_TARGET=1 ;; esac
+    case $1 in S9|S3b|N1|G1|H2|S12|S12b|S12c) ;; *) HAS_TARGET=1 ;; esac
     export GH_FIXTURE="$W/fixture.json" GH_LOG="$W/gh.log"
     : >"$GH_LOG"
 }
@@ -746,26 +746,32 @@ else
         cd "$SCRIPT_DIR" || exit 2
     done <<<"$CTABLE"
 
-    for id in S12 S12b; do
+    for id in S12 S12b S12c; do
         build "$id" >/dev/null 2>&1
         U=""; F=""; M=""
         L=docs/plans/p/review-log.md
         if has ledger; then
-            if [[ $id == S12 ]]; then
-                BIND="findings=0"
-            else
-                BIND="findings=1"
-                printf '| 1 | a.sh:1 | x | CONFIRMED | Wrong | e | prev-fix |\n' >docs/plans/p/reviewlog.md
-            fi
+            ROW='| 1 | a.sh:1 | x | CONFIRMED | Wrong | e | prev-fix |'
+            case $id in
+                S12) BIND="findings=0" ;;
+                S12b) BIND="findings=1"; printf '%s\n' "$ROW" >docs/plans/p/reviewlog.md ;;
+                S12c) BIND="findings=0"; printf '%s' "$ROW" >"$L" ;;
+            esac
             run_block ledger
-            if [[ $id == S12 ]]; then
-                c=$(git log -1 --format=%H -- "$L")
-                if [[ $RC -ne 0 || -z $c ]] || ! git show "$c:$L" | grep -q clean-round; then
-                    M="$M; no clean-round row committed (exit $RC), so the breaker has no data"
-                fi
-            else
-                [[ $RC -ne 0 ]] || U="$U; exit 0 over a missing ledger"
-            fi
+            c=$(git log -1 --format=%H -- "$L")
+            case $id in
+                S12)
+                    if [[ $RC -ne 0 || -z $c ]] || ! git show "$c:$L" | grep -q clean-round; then
+                        M="$M; no clean-round row committed (exit $RC), so the breaker has no data"
+                    fi ;;
+                S12b) [[ $RC -ne 0 ]] || U="$U; exit 0 over a missing ledger" ;;
+                S12c)
+                    if [[ $RC -ne 0 || -z $c ]]; then M="$M; no clean-round row committed (exit $RC)"
+                    elif [[ "$(git show "$c:$L" | sed -n 1p)" != "$ROW" || "$(git show "$c:$L" | sed -n 2p)" != *clean-round* \
+                            || "$(git show "$c:$L" | wc -l | tr -d ' ')" != 2 ]]; then
+                        M="$M; the clean-round row is not on its own line after a ledger with no trailing newline"
+                    fi ;;
+            esac
         else missing ledger; fi
         score "$id"
         cd "$SCRIPT_DIR" || exit 2
