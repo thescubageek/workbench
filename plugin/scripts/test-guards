@@ -532,9 +532,15 @@ def run_generated(impl):
     return survivors, waived, killed, len(mutants), stale
 
 
-def ratchet_verdict(killed, prev, survivors, stale, total=None, prev_total=None):
+def ratchet_verdict(killed, prev, survivors, stale, total=None, prev_total=None, waived=()):
     """The --generated pass/fail decision, pure so the plain suite can test it."""
     msgs = []
+    unargued = sorted(k for _, k, r in waived if not (r or '').strip())
+    if unargued:
+        msgs.append(f'❌ {len(unargued)} waiver(s) carry no reason. A waiver is an argument that the\n'
+                    f'   mutant is equivalent, and an empty reason makes none. Write the reason in\n'
+                    f'   fixtures/mutation-waivers.json, or kill the mutant with a corpus case:'
+                    + ''.join(f'\n      {m}' for m in unargued))
     if stale:
         msgs.append(f'❌ {len(stale)} waiver(s) match no generated mutant. The statement each\n'
                     f'   one names has been rewritten or removed, so it is now waiving nothing\n'
@@ -682,11 +688,24 @@ def main():
     print(f"  {'✓' if edge_verdict_ok else '✗'} --generated names lowering the stored count when "
           f"the drop equals the shrink")
 
+    blank_checks = []
+    for blank in ('', '   ', None):
+        blank_ok, blank_msgs = ratchet_verdict(344, 344, [], [], waived=[('L1 x', 'k::blank', blank)])
+        blank_text = '\n'.join(blank_msgs)
+        blank_checks.append(not blank_ok and 'reason' in blank_text and 'k::blank' in blank_text)
+    blank_verdict_ok = all(blank_checks)
+    print(f"  {'✓' if blank_verdict_ok else '✗'} --generated fails on a waiver whose reason is "
+          f"empty, blank or missing, and names it")
+
+    argued_ok, _ = ratchet_verdict(344, 344, [], [], waived=[('L1 x', 'k', 'EQUIVALENT. argued')])
+    argued_verdict_ok = argued_ok
+    print(f"  {'✓' if argued_verdict_ok else '✗'} --generated accepts a waiver that carries a reason")
+
     ok = (base['correct'] == base['total'] and caught == len(MUTATIONS)
           and integ_ok == len(integ) and intact and verdict_ok and shrunk_verdict_ok
           and stale_verdict_ok and fell_verdict_ok and equal_verdict_ok
           and shrunk_surv_verdict_ok and idle_verdict_ok and big_verdict_ok
-          and edge_verdict_ok)
+          and edge_verdict_ok and blank_verdict_ok and argued_verdict_ok)
     print(f"\ntest-guards: corpus {base['correct']}/{base['total']}, "
           f"integrity {integ_ok}/{len(integ)}, "
           f"mutations {caught}/{len(MUTATIONS)} — {'PASS' if ok else 'FAIL'}")
@@ -712,7 +731,7 @@ if __name__ == '__main__':
         stored = json.load(open(rpath)) if os.path.exists(rpath) else {}
         prev = stored.get('killed', 0)
         ok, msgs = ratchet_verdict(killed, prev, surv, stale,
-                                   total=total, prev_total=stored.get('of'))
+                                   total=total, prev_total=stored.get('of'), waived=waiv)
         for m in msgs:
             print('\n' + m)
         if not ok:
