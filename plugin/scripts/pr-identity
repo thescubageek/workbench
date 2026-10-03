@@ -1,0 +1,209 @@
+#!/usr/bin/env bash
+# pr-identity — how a target (a PR number, a branch, a path, or nothing) relates to this
+# checkout. The one place that decides it: consumers act on the printed fields, never on a name.
+#
+# Prints one `identity:` line for the report, then key=value lines in this order:
+#   relation  own | none | branch | stacked | elsewhere | detached | cross | other
+#   fix       yes | no   — the reviewed tree is this checkout, so fixes may be committed here
+#   publish   yes | no   — a push to push_remote push_ref lands on the PR's head
+#   pr, head_oid, review_head, review_base, pathspec, push_remote, push_ref, reason
+#
+# The one write: for a PR target that is not `own`, refs/pull/<N>/head is fetched into
+# refs/remotes/<base remote>/pr/<N>. It never pushes, never checks out, never writes another ref.
+# --no-fetch skips that write: the same fields, with review_head=- for such a target.
+#
+# Usage: pr-identity [--no-fetch] [<target>]
+# Exit 0 resolved, 1 refused (cause on stderr, ending "— NOT reviewing"), 2 bad usage.
+
+set -uo pipefail
+
+usage() { echo "usage: pr-identity [--no-fetch] [<pr-number> | <branch> | <path>]" >&2; exit 2; }
+refuse() { echo "$1 — NOT reviewing" >&2; exit 1; }
+
+no_fetch=0
+[ "${1:-}" != --no-fetch ] || { no_fetch=1; shift; }
+[ $# -le 1 ] || usage
+target="${1:-}"
+case $target in -*) usage ;; esac
+[[ $target != *[$'\n\r']* ]] || refuse "the target contains a line break"
+
+lower() { printf '%s' "$1" | LC_ALL=C tr '[:upper:]' '[:lower:]'; }
+
+AN=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
+
+# host/owner/name from a URL in an exact allow-list, not git's full grammar:
+#   https://[user[:pass]@]host[:port]/  ssh://[user@]host[:port]/  user@host:
+# then owner/name, one optional .git and an optional trailing /. Host [A-Za-z0-9.-], owner and
+# name [A-Za-z0-9._-], userinfo [A-Za-z0-9._~-]; no %. Anything else fails, and only a URL this
+# reads may give publish=yes.
+UI=${AN}._~-
+parse_url() {
+  local u=$1 scheme="" auth user="" host port path owner name
+  u=${u%/}; u=${u%.git}
+  case $u in
+    https://*/*|ssh://*/*) scheme=${u%%://*}; u=${u#*://}; auth=${u%%/*}; path=${u#*/} ;;
+    *://*) return 1 ;;
+    *@*:*) auth=${u%%:*}; path=${u#*:}
+           [[ $auth == *@* ]] || return 1 ;;
+    *) return 1 ;;
+  esac
+  host=${auth##*@}
+  if [ "$host" != "$auth" ]; then
+    user=${auth%@*}
+    if [ "$scheme" = https ]; then
+      [[ -n $user && $user != *[!:${UI}]* && $user != :* && $user != *: && $user != *:*:* ]] || return 1
+    else
+      [[ -n $user && $user != *[!${UI}]* ]] || return 1
+    fi
+  fi
+  if [ -n "$scheme" ] && [[ $host == *:* ]]; then
+    port=${host#*:}; host=${host%%:*}
+    [[ -n $port && $port != *[!0123456789]* ]] || return 1
+  fi
+  [[ -n $host && $host != -* && $host != *[!${AN}.-]* ]] || return 1
+  [[ $path == */* && $path != */*/* ]] || return 1
+  owner=${path%/*}; name=${path#*/}
+  [[ -n $owner && $owner != *[!${AN}._-]* && $owner != . && $owner != .. ]] || return 1
+  [[ -n $name && $name != *[!${AN}._-]* && $name != . && $name != .. ]] || return 1
+  printf '%s/%s\n' "$host" "$path"
+}
+
+gh_repo() { # [url]; sets REPO to host/owner/name from gh's url and nameWithOwner
+  local a nwo
+  a=$(gh repo view "$@" --json nameWithOwner,url --jq '.url + " " + .nameWithOwner' 2>/dev/null) || return 1
+  nwo=${a#* }
+  [[ $nwo == */* ]] && REPO=$(parse_url "${a%% *}") || return 1
+  REPO="${REPO%%/*}/$nwo"
+}
+
+REPO=""; URL_CACHE=""
+repo_of_url() { # sets REPO; one gh call per distinct URL that parse_url cannot read
+  local u=$1 line
+  REPO=$(parse_url "$u") && return 0
+  while IFS= read -r line; do
+    [ "${line%%	*}" = "$u" ] && { REPO=${line#*	}; return 0; }
+  done <<<"$URL_CACHE"
+  gh_repo "$u" || return 1
+  URL_CACHE="$URL_CACHE$u	$REPO
+"
+}
+
+repo_of_remote() { # remote; sets REPO
+  local url
+  url=$(git remote get-url "$1" 2>/dev/null) || return 1
+  repo_of_url "$url"
+}
+
+same_repo() { [ "$(lower "$1")" = "$(lower "$2")" ]; }
+
+# the local remote whose fetch URL resolves to the repository gh answers for; sets BASE_REMOTE, BASE_HOST
+BASE_REMOTE=""; BASE_HOST=""
+base_remote() {
+  local base r
+  gh_repo || return 1
+  base=$REPO; BASE_HOST=${base%%/*}
+  while IFS= read -r r; do
+    [ -n "$r" ] || continue
+    repo_of_remote "$r" || continue
+    same_repo "$REPO" "$base" && { BASE_REMOTE=$r; return 0; }
+  done <<<"$(git remote)"
+  return 1
+}
+
+relation=""; fix=no; publish=no; pr=-; head_oid=-; review_head=""; review_base=""
+pathspec=""; push_remote=-; push_ref=-; reason=""
+
+emit() {
+  local oid
+  if [ "$review_head" = - ]; then
+    echo "identity: PR $pr head ${head_oid:0:7} not fetched ($relation${reason:+: $reason})"
+  else
+    oid=$(git rev-parse -q --verify "${review_head}^{commit}") \
+      || refuse "range did not resolve: '$review_head' is not a revision here"
+    echo "identity: $review_head = ${oid:0:7} ($relation${reason:+: $reason})"
+  fi
+  printf '%s\n' "relation=$relation" "fix=$fix" "publish=$publish" "pr=$pr" "head_oid=$head_oid" \
+    "review_head=$review_head" "review_base=$review_base" "pathspec=$pathspec" \
+    "push_remote=$push_remote" "push_ref=$push_ref" "reason=$reason"
+  exit 0
+}
+
+cur=$(git symbolic-ref -q --short HEAD)
+if base_remote; then baseremote=$BASE_REMOTE; else baseremote=""; fi
+
+if [ -z "$target" ]; then kind="current"
+elif [[ $target != *[!0-9]* ]]; then kind="pr"
+elif [ -n "$cur" ] && [ "$target" = "$cur" ]; then kind="current"
+elif [ -e "$target" ]; then kind="current"; pathspec="$target"
+else kind="branch"
+fi
+
+if [ "$kind" = branch ]; then
+  base=$(gh pr view "$target" --json baseRefName --jq .baseRefName 2>/dev/null)
+  relation=branch; review_head="$target"; review_base="${baseremote:-origin}/${base:-main}"
+  reason="'$target' is a branch other than the checkout"
+  emit
+fi
+
+F=number,headRefOid,headRefName,baseRefName,isCrossRepository,headRepository,headRepositoryOwner,state
+J='.number, .headRefOid, (.headRefName // ""), .baseRefName, .isCrossRepository, (.headRepositoryOwner.login + "/" + .headRepository.name), (.state // "")'
+if [ "$kind" = current ]; then
+  gherr=$(mktemp) || refuse "could not create a temporary file"
+  trap 'rm -f "$gherr"' EXIT
+  if ! facts=$(gh pr view --json "$F" --jq "$J" 2>"$gherr"); then
+    grep -q 'no pull requests found' "$gherr" || refuse "could not resolve PR for this checkout via gh"
+    relation=none; fix=yes; review_head=HEAD; review_base="${baseremote:-origin}/main"
+    reason="no PR for this checkout"
+    emit
+  fi
+else
+  facts=$(gh pr view "$target" --json "$F" --jq "$J") || refuse "could not resolve PR $target via gh"
+fi
+{ read -r pr; read -r head_oid; read -r headref; read -r base; read -r cross; read -r headrepo; read -r state; } <<<"$facts"
+[[ -n "$pr" && $pr != *[!0-9]* && -n "$head_oid" && $head_oid != null && -n "$headref" && $headref != null \
+   && -n "$base" && $base != null && -n "$state" && $headrepo != */null && $headrepo != null/* && $headrepo != / ]] \
+  || refuse "could not resolve PR ${target:-for this checkout} via gh"
+
+[ -n "$baseremote" ] || refuse "no remote here points at the base repository of PR $pr"
+review_base="$baseremote/$base"
+
+up_remote=""; up_ref=""
+if [ -n "$cur" ]; then
+  read -r up_remote up_ref < <(git for-each-ref --format='%(upstream:remotename) %(upstream:remoteref)' "refs/heads/$cur")
+fi
+
+if [ "$cross" != false ]; then
+  relation=cross; reason="PR $pr is cross-repository (isCrossRepository: ${cross:-unknown})"
+elif ! git merge-base --is-ancestor "$head_oid" HEAD 2>/dev/null; then
+  relation=other; reason="HEAD does not contain headRefOid ${head_oid:0:7}"
+elif [ -z "$cur" ]; then
+  relation=detached; reason="HEAD is detached"
+elif [ -z "$up_remote" ]; then
+  relation=elsewhere; reason="branch '$cur' has no upstream"
+elif ! REPO=$(parse_url "$(git remote get-url --push "$up_remote" 2>/dev/null)"); then
+  relation=elsewhere; reason="push url of '$up_remote' is not a form pr-identity will publish to"
+elif ! same_repo "$REPO" "$BASE_HOST/$headrepo"; then
+  relation=elsewhere; reason="branch '$cur' pushes to $REPO, not the PR's head repository $BASE_HOST/$headrepo"
+elif [ "$up_ref" != "refs/heads/$headref" ]; then
+  relation=stacked; reason="branch '$cur' tracks '${up_ref#refs/heads/}', not the PR's head '$headref'"
+elif [ "$kind" = current ] && [ "$cur" != "$headref" ]; then
+  relation=elsewhere; reason="the PR's head branch '$headref' is not the current branch '$cur'"
+elif [ "$state" != OPEN ]; then
+  relation=own; reason="PR $pr is $state"
+else
+  relation=own; publish=yes; push_remote="$up_remote"; push_ref="$up_ref"
+fi
+
+if [ "$kind" = current ] || [ "$relation" = own ]; then
+  fix=yes; review_head=HEAD
+elif [ "$no_fetch" = 1 ]; then
+  review_head=-
+else
+  git fetch -q "$baseremote" "+refs/pull/${pr}/head:refs/remotes/${baseremote}/pr/${pr}" \
+    || refuse "could not fetch refs/pull/$pr/head from $baseremote"
+  review_head="$baseremote/pr/$pr"
+  fetched=$(git rev-parse -q --verify "refs/remotes/${baseremote}/pr/${pr}^{commit}")
+  [ "$fetched" = "$head_oid" ] \
+    || refuse "refs/pull/$pr/head on $baseremote is ${fetched:0:7}, not the PR's headRefOid ${head_oid:0:7}"
+fi
+emit

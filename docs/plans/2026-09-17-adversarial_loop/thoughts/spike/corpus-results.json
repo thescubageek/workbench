@@ -1,0 +1,47 @@
+{
+ "A": {
+  "tp": 20,
+  "fn": 3,
+  "fp": 1,
+  "tn": 14,
+  "misses": [
+   "s1-guard-on-earlier",
+   "s1-hash-in-string",
+   "md-tilde-fence"
+  ],
+  "falses": [
+   "ok-ortrue-comment"
+  ]
+ },
+ "B": {
+  "tp": 22,
+  "fn": 1,
+  "fp": 10,
+  "tn": 5,
+  "misses": [
+   "s2-unquoted"
+  ],
+  "falses": [
+   "ok-count",
+   "ok-ortrue-inside",
+   "ok-status-next-line",
+   "ok-glob-guarded",
+   "ok-glob-guard-after-comment",
+   "ok-glob-guard-dbl-bracket",
+   "ok-glob-guard-test",
+   "ok-array",
+   "ok-comment-mentions",
+   "ok-fence-same-indent"
+  ]
+ },
+ "C": {
+  "tp": 23,
+  "fn": 0,
+  "fp": 1,
+  "tn": 14,
+  "misses": [],
+  "falses": [
+   "ok-status-next-line"
+  ]
+ }
+}

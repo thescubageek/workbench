@@ -14,6 +14,7 @@ Supporting files in this directory (read each when its step directs you to — n
 - `templates/` — [output-style.md](templates/output-style.md) (the per-phase report shape) · [model-plan.md](templates/model-plan.md) (the model-plan table)
 - [examples.md](examples.md) — invocation examples, and the evidence behind each detected state
 - [../../docs/reference/branch-naming.md](../../docs/reference/branch-naming.md) — the branch-name rule, shared with `create_project`, `jira-context` and `implement`
+- [../../docs/reference/journal-entries.md](../../docs/reference/journal-entries.md) — where a journal entry goes and what its heading must say; forge reads the newest entry to detect state
 
 **If a directed read fails, stop — do not continue from memory.** These files live outside your
 project, so a read can be refused. Say which file was refused, that reads outside the working
@@ -82,7 +83,8 @@ When invoked:
    it disagrees with the checkboxes, the checkboxes win. [examples.md](examples.md) tabulates
    the states and the evidence for each.
 
-3. **Read the journal tail if `journal.md` exists.** An **open** entry means the last stretch of
+3. **Read the newest journal entry if `journal.md` exists** — the topmost one; entries are
+   reverse-chronological. An **open** entry means the last stretch of
    work was interrupted; that is more informative about where the ticket really is than any
    status field, and it belongs in the state report.
 

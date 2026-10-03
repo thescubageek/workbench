@@ -1,0 +1,76 @@
+#!/usr/bin/env bash
+
+# Contract tests for require() in scripts/check.
+# The function is extracted FROM THE SHIPPED SCRIPT, never restated here: a test that carries
+# its own copy of the thing under test verifies nothing. Fake binaries first on PATH stand in
+# for shellcheck, so each branch — missing, unreadable version, too old, new enough — is
+# reached without depending on what the host has installed.
+
+set -uo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+CHECK="$SCRIPT_DIR/check"
+TMP="$(mktemp -d)"
+trap 'rm -rf "$TMP"' EXIT
+
+PASS=0
+FAIL=0
+
+check() {
+    local desc="$1" cond="$2"
+    if [[ "$cond" == "1" ]]; then
+        echo "  ✓ $desc"; PASS=$((PASS + 1))
+    else
+        echo "  ✗ $desc"; FAIL=$((FAIL + 1))
+    fi
+}
+
+REQ="$(sed -n '/^require() {/,/^}/p' "$CHECK")"
+check "require() is extractable from check" "$([[ -n "$REQ" ]] && echo 1 || echo 0)"
+
+fake() {  # name exit-code output
+    mkdir -p "$TMP/$1"
+    printf '#!/bin/sh\necho "%s"\nexit %s\n' "$3" "$2" > "$TMP/$1/shellcheck"
+    chmod +x "$TMP/$1/shellcheck"
+}
+
+run() {  # bindir tool minimum -> "rc|FAILED..."
+    (
+        eval "$REQ"
+        FAILED=()
+        PATH="$TMP/$1:$PATH"
+        require "$2" 'install hint' "$3" >/dev/null 2>&1
+        rc=$?
+        printf '%s|%s' "$rc" "${FAILED[*]-}"
+    )
+}
+
+fake garbage 3 'garbage'
+out="$(run garbage shellcheck 0.9.0)"
+check "an unparseable version returns non-zero" "$([[ "${out%%|*}" != "0" ]] && echo 1 || echo 0)"
+check "an unparseable version is named in FAILED" \
+      "$([[ "${out#*|}" == *shellcheck* ]] && echo 1 || echo 0)"
+
+fake current 0 'ShellCheck - shell script analysis tool\nversion: 0.9.0'
+out="$(run current shellcheck 0.9.0)"
+check "a version at the minimum returns 0"   "$([[ "$out" == "0|" ]] && echo 1 || echo 0)"
+
+fake newer 0 'version: 0.10.0'
+out="$(run newer shellcheck 0.9.0)"
+check "a version above the minimum returns 0" "$([[ "$out" == "0|" ]] && echo 1 || echo 0)"
+
+fake old 0 'version: 0.7.2'
+out="$(run old shellcheck 0.9.0)"
+check "a version below the minimum returns non-zero" "$([[ "${out%%|*}" != "0" ]] && echo 1 || echo 0)"
+check "a version below the minimum records \"too old\"" \
+      "$([[ "${out#*|}" == "shellcheck too old" ]] && echo 1 || echo 0)"
+
+mkdir -p "$TMP/empty"
+out="$(run empty wb-test-check-absent-tool 0.9.0)"
+check "a missing tool returns non-zero"      "$([[ "${out%%|*}" != "0" ]] && echo 1 || echo 0)"
+check "a missing tool records \"missing\"" \
+      "$([[ "${out#*|}" == "wb-test-check-absent-tool missing" ]] && echo 1 || echo 0)"
+
+total=$((PASS + FAIL))
+echo "test-check: $PASS/$total — $([[ $FAIL -eq 0 ]] && echo PASS || echo FAIL)"
+[[ $FAIL -eq 0 ]]

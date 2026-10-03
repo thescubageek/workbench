@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+# Runs shellcheck over the plugin's own shell scripts.
+#
+# (This comment deliberately does not open with the tool's name: a line beginning
+# `# shellcheck` is parsed as a DIRECTIVE, and an unparseable one is an error — which is how
+# this file failed its own gate on the first run.)
+#
+# Scoped to actual shell: the naive `plugin/scripts/*` glob feeds README.md to the parser and
+# produces seven spurious errors. Default severity only — `-o all` is what produces the noise,
+# and noise is what gets a gate switched off. It found real defects on its first run: `cd`
+# without `|| exit` in two scripts, and two dead assignments in test-count.
+#
+# Not the engine for check-guards. That was probed and rejected: SC2312 flags every masked
+# return value, so it fires on `n=$(count foo f) || exit 2` and on `[ -e "$x" ] || continue`
+# alike — 10 false positives against 15 correct files — and it misses the unquoted --include
+# glob entirely. See docs/reference/ and the spike in the plan's thoughts/.
+set -uo pipefail
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+cd "$ROOT" || exit 2
+
+files=()
+while IFS= read -r f; do files+=("$f"); done < <(
+  find plugin/scripts plugin/hooks -type f ! -name '*.md' ! -name '*.json' ! -name '*.py' 2>/dev/null \
+    | while IFS= read -r p; do head -1 "$p" | grep -q '^#!.*\(bash\|sh\)' && echo "$p"; done | sort
+)
+
+if [ ${#files[@]} -eq 0 ]; then
+  echo "❌ shellcheck-gate: found no shell scripts to check — refusing to report clean" >&2
+  exit 2
+fi
+
+shellcheck -f gcc "${files[@]}" || exit 1
+echo "✅ shellcheck: ${#files[@]} shell scripts clean"

@@ -115,5 +115,5 @@ Deliverable written **and** critic pass applied **and** user informed → **STOP
 touch-grass is a **runtime discipline**, orthogonal to the wb research→design→execution pipeline — use it *inside* a long `wb:create_research` or a multi-day investigation, not as a pipeline stage. It composes with:
 
 - **`tracer-bullet`** — before the first segment, fire one probe at the riskiest load-bearing assumption so the segment plan doesn't build on a wrong premise.
-- **`wb:loop`** — use `wb:loop` for *fixed-interval* recurring tasks; use touch-grass when the cadence must be *effort-aware and self-paced*. They are different tools for different rhythms.
+- **`/loop`** — Claude Code's built-in, not a wb skill. Use `/loop` for *fixed-interval* recurring tasks; use touch-grass when the cadence must be *effort-aware and self-paced*. They are different tools for different rhythms.
 - **`verification-before-completion`** — the fresh-context critic pass is how touch-grass satisfies "evidence before assertions" for a long-horizon deliverable.

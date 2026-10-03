@@ -13,6 +13,10 @@ QUIET="$SCRIPT_DIR/quiet"
 PASS=0
 FAIL=0
 
+SCRATCH="$(mktemp -d)"
+trap 'rm -rf "$SCRATCH"' EXIT
+export TMPDIR="$SCRATCH"
+
 check() {
     local desc="$1" cond="$2"
     if [[ "$cond" == "1" ]]; then
@@ -26,17 +30,21 @@ check() {
 
 echo "test-quiet: $QUIET"
 
+# Line counts here use awk, not `grep -c`. grep overloads its exit status — 1 for no match,
+# 2 for error — so a broken count and a count of zero are the same observation. awk has no
+# such overload: it always exits 0 and always prints a number.
+
 # --- Case 1: success preserves exit 0 and collapses output ---
 out=$("$QUIET" true 2>&1); code=$?
 check "success exits 0" "$([[ $code -eq 0 ]] && echo 1 || echo 0)"
 check "success prints a checkmark line" "$(echo "$out" | grep -q '✓' && echo 1 || echo 0)"
-check "success output is <= 2 lines" "$([[ $(printf '%s\n' "$out" | grep -c .) -le 2 ]] && echo 1 || echo 0)"
+check "success output is <= 2 lines" "$([[ $(printf '%s\n' "$out" | awk 'NF{n++} END{print n+0}') -le 2 ]] && echo 1 || echo 0)"
 
 # --- Case 2: success echoes the runner's last non-empty summary line ---
 # A 3-line-output command must collapse to exactly 2 lines (checkmark + summary),
 # which structurally proves the body was suppressed regardless of the command string.
 out=$("$QUIET" sh -c 'echo body1; echo body2; echo "34 passed in 1.2s"' 2>&1); code=$?
-check "success collapses 3-line output to 2 lines" "$([[ $(printf '%s\n' "$out" | grep -c .) -eq 2 ]] && echo 1 || echo 0)"
+check "success collapses 3-line output to 2 lines" "$([[ $(printf '%s\n' "$out" | awk 'NF{n++} END{print n+0}') -eq 2 ]] && echo 1 || echo 0)"
 check "success echoes the summary line" "$(echo "$out" | grep -q '34 passed in 1.2s' && echo 1 || echo 0)"
 
 # --- Case 3: failure preserves non-zero exit and dumps full log ---
@@ -48,6 +56,17 @@ check "failure dumps line2" "$(echo "$out" | grep -q 'line2' && echo 1 || echo 0
 # --- Case 4: plain failure exits 1 ---
 "$QUIET" false >/dev/null 2>&1; code=$?
 check "false exits 1" "$([[ $code -eq 1 ]] && echo 1 || echo 0)"
+
+# --- Case 5: success reports the suppressed-line count and keeps the log; failure removes it ---
+out=$("$QUIET" sh -c 'echo a; echo b; echo c' 2>&1)
+check "success reports 3 lines suppressed" "$(echo "$out" | grep -q '(3 lines suppressed' && echo 1 || echo 0)"
+logpath=$(printf '%s\n' "$out" | awk 'NR==1' | sed -E 's/.*→ ([^)]*)\)$/\1/')
+check "success keeps the printed log under TMPDIR" "$([[ "$logpath" == "$SCRATCH"/wb-quiet.* && -f "$logpath" ]] && echo 1 || echo 0)"
+check "kept log holds the 3 lines" "$([[ $(awk 'NF{n++} END{print n+0}' "$logpath" 2>/dev/null) -eq 3 ]] && echo 1 || echo 0)"
+before=$(find "$SCRATCH" -type f | awk 'END{print NR}')
+"$QUIET" sh -c 'echo x; exit 2' >/dev/null 2>&1
+after=$(find "$SCRATCH" -type f | awk 'END{print NR}')
+check "failure removes its log" "$([[ "$before" -eq "$after" ]] && echo 1 || echo 0)"
 
 echo ""
 echo "test-quiet: $PASS passed, $FAIL failed"

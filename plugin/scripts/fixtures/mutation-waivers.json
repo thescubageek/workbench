@@ -1,0 +1,158 @@
+[
+ {
+  "match": "<module> | \"\"\"check-guards \u2014 find measurements whose failure is indistingui... | del Expr",
+  "reason": "EQUIVALENT. Deletes a docstring. A docstring is a string expression nothing evaluates: `collect()` returns the same findings and the CLI prints the same output, so no corpus case and no integrity claim can observe it. The generator walks the syntax tree and cannot tell a docstring from a statement \u2014 that is the price of it having no blind spot correlated with the author's, and it is worth paying."
+ },
+ {
+  "match": "<module> | FENCE = re.compile(r'^(?P<ind>[ ]{0,3})(?P<f>`{3,}|~{3,})[ \\t]*(... | regex drop the leading anchor: ^(?P<ind>[ ]{0,3})(?P<f>`{3,}|~{3,})",
+  "reason": "EQUIVALENT, provably. The pattern is applied with `re.match`, which anchors at position 0 by definition; it is not compiled with `re.MULTILINE` and is never applied to text containing a newline. The `^` cannot change a decision. It stays because the pattern should read as anchored, and a later change to `.search` would need it."
+ },
+ {
+  "match": "<module> | COUNTING = re.compile(r'\\bgrep\\b[^|;)`]*?\\s(?:-[A-Za-z]*c[A-Za-z... | regex drop word boundaries: \\bgrep\\b[^|;)`]*?\\s(?:-[A-Za-z]*c[A-",
+  "reason": "EQUIVALENT. COUNTING's \\b around `grep` is redundant against this corpus: every fixture spells the command as a standalone word, so removing the boundaries changes no decision. The boundaries are still right \u2014 `egrep`/`zgrep` must not match \u2014 but no case distinguishes it, and inventing one to satisfy the mutant would be fitting the corpus to the tool. Re-keyed in R9-T14, when the flag cluster became `-[A-Za-z]*c[A-Za-z]*`: the trailing boundary after that greedy cluster only separates it from a following digit (`-c5`), which is not a grep spelling anyone writes, so it is equivalent for the same reason."
+ },
+ {
+  "match": "<module> | GUARD = re.compile(r'\\|\\|\\s*(?:true\\b|:(?!\\w))') | regex drop word boundaries: \\|\\|\\s*(?:true\\b|:(?!\\w))",
+  "reason": "WAIVED, and the label is disputed rather than clear-cut \u2014 which is why there is no corpus case. The boundaries stop `|| truncate` reading as the whitelisted no-op `true`. But `||` guards the exit status whatever follows it, and the exit status is the whole subject of shape 1, so the line the boundary makes the tool fire on \u2014 `n=$(grep -c f g) || true_or_warn 'none'` \u2014 is arguably a false positive and not a catch. Pinning it MUST-FIRE would encode that disputed prior into the corpus, which is the mistake Q8-5 already recorded once. The boundaries stay because a whitelist should mean the words it lists."
+ },
+ {
+  "match": "md_shell_lines | \"\"\"(lineno, line) for lines inside bash/sh/shell fences. | del Expr",
+  "reason": "EQUIVALENT. Deletes a docstring. A docstring is a string expression nothing evaluates: `collect()` returns the same findings and the CLI prints the same output, so no corpus case and no integrity claim can observe it. The generator walks the syntax tree and cannot tell a docstring from a statement \u2014 that is the price of it having no blind spot correlated with the author's, and it is worth paying."
+ },
+ {
+  "match": "md_shell_lines | out, inb, ch, ln = [], False, '', 0 | int 0+1",
+  "reason": "EQUIVALENT, provably. `ln` is read only by the fence-closer test, which runs only when `inb` is true, and `inb` becomes true only on the line that assigns `ln` from the opener's own run length. The initialiser is never read."
+ },
+ {
+  "match": "md_shell_lines | out, inb, ch, ln = [], False, '', 0 | int 0-1",
+  "reason": "EQUIVALENT, provably. `ln` is read only by the fence-closer test, which runs only when `inb` is true, and `inb` becomes true only on the line that assigns `ln` from the opener's own run length. The initialiser is never read."
+ },
+ {
+  "match": "md_shell_lines | if m: | inb, ch, ln = True, m.group('f')[0], len(m.group('f')) | int 0+1",
+  "reason": "EQUIVALENT, provably. The subscript indexes `m.group('f')`, which FENCE constrains to `` `{3,} `` or `~{3,}` \u2014 three or more of ONE character. `[0]`, `[1]` and `[-1]` are therefore the same character for every string the pattern can match."
+ },
+ {
+  "match": "md_shell_lines | if m: | inb, ch, ln = True, m.group('f')[0], len(m.group('f')) | int 0-1",
+  "reason": "EQUIVALENT, provably. The subscript indexes `m.group('f')`, which FENCE constrains to `` `{3,} `` or `~{3,}` \u2014 three or more of ONE character. `[0]`, `[1]` and `[-1]` are therefore the same character for every string the pattern can match."
+ },
+ {
+  "match": "md_shell_lines | for i, line in enumerate(text.splitlines(), 1): | if m and m.group('f')[0] == ch and len(m.group('f')) >= ln and n... | int 0+1",
+  "reason": "EQUIVALENT, provably. The subscript indexes `m.group('f')`, which FENCE constrains to `` `{3,} `` or `~{3,}` \u2014 three or more of ONE character. `[0]`, `[1]` and `[-1]` are therefore the same character for every string the pattern can match."
+ },
+ {
+  "match": "md_shell_lines | for i, line in enumerate(text.splitlines(), 1): | if m and m.group('f')[0] == ch and len(m.group('f')) >= ln and n... | int 0-1",
+  "reason": "EQUIVALENT, provably. The subscript indexes `m.group('f')`, which FENCE constrains to `` `{3,} `` or `~{3,}` \u2014 three or more of ONE character. `[0]`, `[1]` and `[-1]` are therefore the same character for every string the pattern can match."
+ },
+ {
+  "match": "md_shell_lines | if m and m.group('f')[0] == ch and len(m.group('f')) >= ln and n... | continue | del Continue",
+  "reason": "EQUIVALENT, provably. The only statement after the fence-closer branch is `if shell: out.append(...)`, and the branch has just assigned `shell = False`."
+ },
+ {
+  "match": "strip_comment | \"\"\"Drop a trailing comment: a `#` outside quotes, unescaped, at ... | del Expr",
+  "reason": "EQUIVALENT. Deletes a docstring. A docstring is a string expression nothing evaluates: `collect()` returns the same findings and the CLI prints the same output, so no corpus case and no integrity claim can observe it. The generator walks the syntax tree and cannot tell a docstring from a statement \u2014 that is the price of it having no blind spot correlated with the author's, and it is worth paying. Re-keyed in P1-T2: the docstring text itself changed when `strip_comment` was rebuilt on `lex()`, so the key moved. The argument did not."
+ },
+ {
+  "match": "_quote_spans | \"\"\"Index -> True when that index sits inside a quoted string.\"\"\" | del Expr",
+  "reason": "EQUIVALENT. Deletes a docstring. A docstring is a string expression nothing evaluates: `collect()` returns the same findings and the CLI prints the same output, so no corpus case and no integrity claim can observe it. The generator walks the syntax tree and cannot tell a docstring from a statement \u2014 that is the price of it having no blind spot correlated with the author's, and it is worth paying."
+ },
+ {
+  "match": "substitutions | \"\"\"(inner_start, close_index) for every $( ) and backtick span, ... | del Expr",
+  "reason": "EQUIVALENT. Deletes a docstring. A docstring is a string expression nothing evaluates: `collect()` returns the same findings and the CLI prints the same output, so no corpus case and no integrity claim can observe it. The generator walks the syntax tree and cannot tell a docstring from a statement \u2014 that is the price of it having no blind spot correlated with the author's, and it is worth paying."
+ },
+ {
+  "match": "lex | if line.startswith('$(', i): | i += 2 | int 2-1",
+  "reason": "EQUIVALENT, provably. Re-keyed in P1-T2 from `substitutions | if line.startswith('$(', j) and not q[j]: | j += 2 | int 2-1`: the same step past a `$(` the scanner has just consumed, now in `lex()`. Stepping by 1 leaves `i` on that `(`. The next iteration falls all the way to the loop tail for it \u2014 `(` is not `\\`, `'`, `\"`, `)` or a backtick, and `line.startswith('$(', i)` is false at a bare `(` \u2014 and the tail writes `(sq, dq, False)`, which here is `(False, False, False)`: `sq` is False because the `if sq` branch returns before this one, and `dq` was set False two lines above. That is byte-for-byte the tuple the branch's own `ctx[i] = ctx[i + 1] = (False, False, False)` already wrote at that index. Identical ctx, identical spans. The mirror `int 2+1` is NOT waived \u2014 it skips the first character of the body, and the corpus kills it."
+ },
+ {
+  "match": "lex | if line.startswith('$(', i): | stack.append((i + 2, 'paren', dq)) | int 2-1",
+  "reason": "EQUIVALENT, provably. Re-keyed in P1-T2 from `substitutions | elif line.startswith('$(', i): | res.append((i + 2, j - 1)) | int 2-1`, the statement `lex()` replaced: it is the same mutation of the same decision \u2014 where a `$( )` span's inner text begins \u2014 and so the same argument. The span's inner text gains one leading character, and that character is always the `(` of the `$(` that opened it. COUNTING starts matching at `\\bgrep\\b` and `(` is a non-word character, so the boundary still holds; GUARD requires `||`, which a lone `(` cannot make. Neither detector can read differently for it."
+ },
+ {
+  "match": "lex | if stack and stack[-1][1] == 'tick': | stack.append((i + 1, 'tick', dq)) | int 1-1",
+  "reason": "EQUIVALENT, provably. Re-keyed in P1-T2 from `substitutions | elif ch == '`': | res.append((i + 1, j)) | int 1-1`, the statement `lex()` replaced; same mutation of the same decision, same argument. The backtick span's inner text gains one leading character, always the opening backtick itself. COUNTING anchors on `\\bgrep\\b` and a backtick is a non-word character, so the boundary holds; GUARD requires `||`."
+ },
+ {
+  "match": "<module> | STATUS_LINE = re.compile(r'^\\s*(?:if\\s|\\[\\[?|test\\s|[A-Za-z_]\\w*... | regex drop the leading anchor: ^\\s*(?:if\\s|\\[\\[?|test\\s|[A-Za-z_]\\w",
+  "reason": "EQUIVALENT, provably. The pattern is applied with `re.match`, which anchors at position 0 by definition; it is not compiled with `re.MULTILINE` and is never applied to text containing a newline. The `^` cannot change a decision. It stays because the pattern should read as anchored, and a later change to `.search` would need it."
+ },
+ {
+  "match": "_status_tested | \"\"\"Is the capture on lines[idx] followed by a genuine test of it... | del Expr",
+  "reason": "EQUIVALENT. Deletes a docstring. A docstring is a string expression nothing evaluates: `collect()` returns the same findings and the CLI prints the same output, so no corpus case and no integrity claim can observe it. The generator walks the syntax tree and cannot tell a docstring from a statement \u2014 that is the price of it having no blind spot correlated with the author's, and it is worth paying."
+ },
+ {
+  "match": "_is_guard | \"\"\"Does this text establish that an unmatched glob is handled?\"\"... | del Expr",
+  "reason": "EQUIVALENT. Deletes a docstring. A docstring is a string expression nothing evaluates: `collect()` returns the same findings and the CLI prints the same output, so no corpus case and no integrity claim can observe it. The generator walks the syntax tree and cannot tell a docstring from a statement \u2014 that is the price of it having no blind spot correlated with the author's, and it is worth paying."
+ },
+ {
+  "match": "_is_guard | return bool(re.search(r'(?:\\[\\[?|test)\\s+!?\\s*-[efsr]\\s', text) | regex make + lazy-optional: (?:\\[\\[?|test)\\s+!?\\s*-[efsr]\\s",
+  "reason": "EQUIVALENT in shell. Relaxing `\\s+` to `\\s*` accepts `[-e ` and `test-f `. `[` and `test` are commands and need an argument separator, so neither is valid shell. The only other distinguishing input is a word ENDING in `test` immediately followed by `-e ` inside a glob-loop body \u2014 `cp \"$f\" releases/latest-e` \u2014 which is a fixture composed to satisfy the mutant, not to describe a script anyone writes."
+ },
+ {
+  "match": "analyse | \"\"\"lines: [(lineno, text)] -> [(lineno, shape, text)]. | del Expr",
+  "reason": "EQUIVALENT. Deletes a docstring. A docstring is a string expression nothing evaluates: `collect()` returns the same findings and the CLI prints the same output, so no corpus case and no integrity claim can observe it. The generator walks the syntax tree and cannot tell a docstring from a statement \u2014 that is the price of it having no blind spot correlated with the author's, and it is worth paying."
+ },
+ {
+  "match": "analyse | for idx, (no, raw) in enumerate(lines): | for m in re.finditer(r'--include=(\\S+)', line): | regex make + lazy-optional: --include=(\\S+)",
+  "reason": "EQUIVALENT for any working command. `--include=(\\S+)` and `(\\S*)` differ only when `--include=` is followed immediately by whitespace or end of line: the flag with no value, which matches nothing and is a broken invocation. Prose mentioning the flag with its value separated by a space would distinguish them, and prose is deliberately not scanned."
+ },
+ {
+  "match": "analyse | for idx, (no, raw) in enumerate(lines): | m = re.match(r'^\\s*for\\s+[A-Za-z_]\\w*\\s+in\\s+(.*?)(?:;\\s*do\\b(?P... | regex drop the leading anchor: ^\\s*for\\s+[A-Za-z_]\\w*\\s+in\\s+(.*?)(",
+  "reason": "EQUIVALENT, provably. The pattern is applied with `re.match`, which anchors at position 0 by definition; it is not compiled with `re.MULTILINE` and is never applied to text containing a newline. The `^` cannot change a decision. It stays because the pattern should read as anchored, and a later change to `.search` would need it."
+ },
+ {
+  "match": "analyse | for idx, (no, raw) in enumerate(lines): | m = re.match(r'^\\s*for\\s+[A-Za-z_]\\w*\\s+in\\s+(.*?)(?:;\\s*do\\b(?P... | regex drop word boundaries: ^\\s*for\\s+[A-Za-z_]\\w*\\s+in\\s+(.*?)(",
+  "reason": "EQUIVALENT in shell. The boundary separates `; do` from `; do<word>`. `do` is a reserved word: `for f in *.md; done` and `for f in *.log; download x` are both syntax errors, so no valid one-liner loop distinguishes the two patterns."
+ },
+ {
+  "match": "analyse | for idx, (no, raw) in enumerate(lines): | m = re.match(r'^\\s*for\\s+[A-Za-z_]\\w*\\s+in\\s+(.*?)(?:;\\s*do\\b(?P... | regex make + lazy-optional: ^\\s*for\\s+[A-Za-z_]\\w*\\s+in\\s+(.*?)(",
+  "reason": "EQUIVALENT in shell. Relaxing `for\\s+` to `for\\s*` makes `forx in *.md; do` parse as a loop over `x`. `for` is a reserved word and must be followed by whitespace; the mutant differs only on input that is not a `for` loop at all."
+ },
+ {
+  "match": "collect | \"\"\"-> (findings, scanned_count). Raises SystemExit(2) when the s... | del Expr",
+  "reason": "EQUIVALENT. Deletes a docstring. A docstring is a string expression nothing evaluates: `collect()` returns the same findings and the CLI prints the same output, so no corpus case and no integrity claim can observe it. The generator walks the syntax tree and cannot tell a docstring from a statement \u2014 that is the price of it having no blind spot correlated with the author's, and it is worth paying."
+ },
+ {
+  "match": "<module> | PUBLISH = re.compile(r'^\\s*(?:git\\s+push|gh\\s+pr\\s+' | regex drop the leading anchor: ^\\s*(?:git\\s+push|gh\\s+pr\\s+(?:ready",
+  "reason": "EQUIVALENT, provably. The pattern is applied with `re.match`, which anchors at position 0 by definition; it is not compiled with `re.MULTILINE` and is never applied to text containing a newline. The `^` cannot change a decision. It stays because the pattern should read as anchored, and a later change to `.search` would need it."
+ },
+ {
+  "match": "<module> | PUBLISH = re.compile(r'^\\s*(?:git\\s+push|gh\\s+pr\\s+' | regex drop word boundaries: ^\\s*(?:git\\s+push|gh\\s+pr\\s+(?:ready",
+  "reason": "EQUIVALENT in practice. The boundary sits after the gh subcommand alternation (`ready|edit|comment|merge|view|close|reopen`). Dropping it lets a longer word starting with one of them match, and no such `gh pr` subcommand exists. The failure direction is also the safe one \u2014 more lines read as outward-facing, not fewer \u2014 where this detector's whole point is not to miss one."
+ },
+ {
+  "match": "<module> | PUBLISH = re.compile(r'^\\s*(?:git\\s+push|gh\\s+pr\\s+' | regex make + lazy-optional: ^\\s*(?:git\\s+push|gh\\s+pr\\s+(?:ready",
+  "reason": "EQUIVALENT in shell. The first `+` is in `git\\s+push`, so the weakening accepts `gitpush`. `git` is a command and needs an argument separator; `gh\\s+pr` keeps its own `+`. The mutant differs only on input that is not a shell command at all."
+ },
+ {
+  "match": "<module> | ASSIGN = re.compile(r'^\\s*[A-Za-z_]\\w*=') | regex drop the leading anchor: ^\\s*[A-Za-z_]\\w*=",
+  "reason": "EQUIVALENT, provably. The pattern is applied with `re.match`, which anchors at position 0 by definition; it is not compiled with `re.MULTILINE` and is never applied to text containing a newline. The `^` cannot change a decision. It stays because the pattern should read as anchored, and a later change to `.search` would need it."
+ },
+ {
+  "match": "logical_lines | \"\"\"[(start_no, end_no, text)] with backslash continuations joine... | del Expr",
+  "reason": "EQUIVALENT. Deletes a docstring. A docstring is a string expression nothing evaluates: `collect()` returns the same findings and the CLI prints the same output, so no corpus case and no integrity claim can observe it. The generator walks the syntax tree and cannot tell a docstring from a statement \u2014 that is the price of it having no blind spot correlated with the author's, and it is worth paying."
+ },
+ {
+  "match": "logical_lines | for no, raw in lines: | if buf and prev is not None and no != prev + 1: | int 1+1",
+  "reason": "EQUIVALENT in practice. The offset is what separates \"contiguous\" from \"gapped\". Moving it to 2 makes the branch fire on a *contiguous* pair; moving it to 0 makes it fire on every line. Either way the only consequence is that a backslash continuation is split instead of joined \u2014 and a split changes a finding only if the continuation's SECOND physical line independently parses as a publish, i.e. begins with `git push` or `gh pr <sub>` at column zero. In valid shell that line is a flag, an argument, or starts with `&&`/`||`, none of which the anchored PUBLISH pattern matches. In markdown a real gap between fences is at least three lines (content, closer, opener, content), so every offset within \u00b11 reads it as a gap alike."
+ },
+ {
+  "match": "logical_lines | for no, raw in lines: | if buf and prev is not None and no != prev + 1: | int 1-1",
+  "reason": "EQUIVALENT in practice. The offset is what separates \"contiguous\" from \"gapped\". Moving it to 2 makes the branch fire on a *contiguous* pair; moving it to 0 makes it fire on every line. Either way the only consequence is that a backslash continuation is split instead of joined \u2014 and a split changes a finding only if the continuation's SECOND physical line independently parses as a publish, i.e. begins with `git push` or `gh pr <sub>` at column zero. In valid shell that line is a flag, an argument, or starts with `&&`/`||`, none of which the anchored PUBLISH pattern matches. In markdown a real gap between fences is at least three lines (content, closer, opener, content), so every offset within \u00b11 reads it as a gap alike."
+ },
+ {
+  "match": "logical_lines | if text.rstrip().endswith('\\\\'): | buf = text.rstrip()[:-1] | int 1+1",
+  "reason": "EQUIVALENT in practice. `[:-2]` eats one argument character along with the backslash when joining a continuation. Downstream nothing can see it: PUBLISH anchors at the start of the statement, and `statements` splits on an unquoted `;`. The eaten character changes a finding only if it is a quote whose loss also moves a `;` into or out of quoting \u2014 which needs a continuation immediately followed by `;`, not valid shell. The mirror mutant `[:-0]` IS killed, by ok-chain-continuation-joined: it leaves the backslash in the joined text."
+ },
+ {
+  "match": "statements | \"\"\"Split on `;` outside quotes. `&&` and `||` are joins, not sep... | del Expr",
+  "reason": "EQUIVALENT. Deletes a docstring. A docstring is a string expression nothing evaluates: `collect()` returns the same findings and the CLI prints the same output, so no corpus case and no integrity claim can observe it. The generator walks the syntax tree and cannot tell a docstring from a statement \u2014 that is the price of it having no blind spot correlated with the author's, and it is worth paying."
+ },
+ {
+  "match": "unchained_publishes | \"\"\"[(lineno, text)] for an outward-facing action immediately fol... | del Expr",
+  "reason": "EQUIVALENT. Deletes a docstring. A docstring is a string expression nothing evaluates: `collect()` returns the same findings and the CLI prints the same output, so no corpus case and no integrity claim can observe it. The generator walks the syntax tree and cannot tell a docstring from a statement \u2014 that is the price of it having no blind spot correlated with the author's, and it is worth paying."
+ },
+ {
+  "match": "lex | \"\"\"One pass over a shell line -> (ctx, spans). | del Expr",
+  "reason": "EQUIVALENT. Deletes a docstring. A docstring is a string expression nothing evaluates: `collect()` returns the same findings and the CLI prints the same output, so no corpus case and no integrity claim can observe it. The generator walks the syntax tree and cannot tell a docstring from a statement \u2014 that is the price of it having no blind spot correlated with the author's, and it is worth paying. This one is worth a second sentence: `lex()`'s docstring is NORMATIVE \u2014 it is the statement of the shell rules the machine below implements, and a review reads the code against it rather than against the previous fix. That makes it the most valuable prose in the file and still impossible for any input to observe, because nothing evaluates it. Normative prose is protected by review, not by the sweep, and pretending otherwise would mean writing a corpus case that cannot exist."
+ }
+]

@@ -127,6 +127,12 @@ report would have changed. A fan-out skipped under the rule above satisfies it t
 
 ### Step 3: Run Automated Verification
 
+**A criterion that passed is not the same as a criterion that held.** Before recording a pass,
+apply the `verification-before-completion` skill's FALSIFY step: know what the command prints
+when the criterion is false. This matters most for the absence-checking criteria a plan tends to
+accumulate — a grep that must return nothing returns nothing when the file is missing, the
+pattern is wrong, or the command errored, and all three read as clean.
+
 For each phase in tasks.md, run ALL automated verification commands:
 
 ```bash

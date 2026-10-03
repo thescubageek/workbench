@@ -36,10 +36,22 @@ we have the in-repo cautionary example for that.
 - **Why it matters**: after the 2.0.0 relocation the manifest lives in `plugin/`. A session
   started with `--plugin-dir .` does not error — it silently falls back to the **installed**
   marketplace copy, so working-tree changes are invisible and you debug the wrong files.
-- **Verified**: 2026-09-08 · `docs/plans/2026-09-08-upstream-fable-merge/`
+- **Also (2026-09-20) — the flag works from any cwd, and the way it fails when omitted looks
+  like a plugin defect.** A probe launched from `/tmp` reported `wb:adversarial-loop` as
+  `Unknown skill` and concluded `--plugin-dir` "contributed nothing" and that the `wb:`
+  namespace was being served by the stale installed 2.1.0. Measured: with the flag, from `/tmp`,
+  headless, the skill loads from the checkout — and adding `--add-dir` alongside changes
+  nothing. **Without** the flag the error is verbatim
+  `Unknown skill: wb:adversarial-loop (the listed skill is 'adversarial-loop', without the 'wb:'
+  prefix)`, and the session sees the installed copy's skill list. So that error means the flag
+  was **absent**, not ineffective. Check the flag took effect before drawing any conclusion from
+  a session's behaviour.
+- **Verified**: 2026-09-08, extended 2026-09-20 · `docs/plans/2026-09-08-upstream-fable-merge/`,
+  `docs/plans/2026-09-17-adversarial_loop/`
 - **Check it**: `claude --plugin-dir . plugin details wb` reports `Source: wb@<marketplace>` and
   the installed version; `--plugin-dir plugin` reports `Source: wb@inline` and the working-tree
-  version.
+  version. That one line is the whole test — version and `Source:` together — and it is worth
+  running as the first act of any session that is about to measure plugin behaviour.
 
 ## `claude plugin details` can measure the working tree, via the global flag
 
@@ -126,7 +138,18 @@ we have the in-repo cautionary example for that.
   boundary setting, no persisted grant). Only a `--plugin-dir` **checkout** run from another
   cwd is gated for a running stage. The release blocker this entry was written for does not
   exist for installed copies.
-- **Verified**: 2026-09-09, narrowed 2026-09-15 · `docs/plans/2026-09-08-upstream-fable-merge/`
+- **Also — the rule was finally exercised, 2026-09-20, and it holds.** In the one configuration
+  where the gate can fire for a running stage (a `--plugin-dir` checkout, boundary forced on, cwd
+  a git repo that is *not* a parent of the plugin), `adversarial-review`'s Step 3 read of
+  `lenses.md` was refused, and the session **stopped at the first directed read**: it used `Read`,
+  did not route around with `cat`, named the file, and gave the `--add-dir` remedy. Note what this
+  cost to discover — two interactive smoke runs measured nothing here, because in both the plugin
+  sat *inside* the working directory, so the boundary could not fire in either permission mode.
+  **It is a one-command headless probe, not an interactive session**: build a scratch repo in
+  `/tmp` with an `origin/main` and a one-line diff, then
+  `claude -p --plugin-dir <repo>/plugin --settings '{"permissions":{"blockReadsOutsideWorkingDirectories":true}}' --allowedTools=Skill,Read,Bash "<instruction>"`.
+- **Verified**: 2026-09-09, narrowed 2026-09-15, rule exercised 2026-09-20 ·
+  `docs/plans/2026-09-08-upstream-fable-merge/`,
 - **Check it**: from a cwd that is not a parent of the plugin —
   `claude --plugin-dir <repo>/plugin -p "Use the Read tool to read <repo>/plugin/skills/help/SKILL.md. Reply DENIED or the first line."`
   → `DENIED`; adding `--add-dir <repo>/plugin` → the first line.
@@ -139,9 +162,19 @@ we have the in-repo cautionary example for that.
   the environment field was missing — a real defect measured clean for a day. Generalise it: a
   probe that cannot fail is not evidence, and the way this one could not fail was invisible
   until someone asked where it ran.
-- **Verified**: 2026-09-09 · `docs/plans/2026-09-08-upstream-fable-merge/`
+- **Also, and this is what makes recording it harder than it sounds (2026-09-20)**: the cwd is
+  not a durable fact for the length of a session, and it has two spellings. A Bash call prefixed
+  with `cd` **moves the session's primary working directory** — the harness announces it with an
+  `Environment update` block and it persists into later calls. And a Conductor workspace path can
+  be a symlink: `pwd` reported `.../workbench/adversarial-loop-skill-research` where `pwd -P`
+  resolved to `.../workbench/ankara`, the same tree under two names that no automated comparison
+  will ever call equal. Record **both** spellings, and re-record the cwd at the point of each
+  measurement rather than once at the top.
+- **Verified**: 2026-09-09, extended 2026-09-20 · `docs/plans/2026-09-08-upstream-fable-merge/`,
+  `docs/plans/2026-09-17-adversarial_loop/thoughts/2026-09-19-smoke-session.md`
 - **Check it**: `grep -A12 'A4 re-probed' docs/plans/2026-09-08-upstream-fable-merge/thoughts/2026-09-08-baseline-measurements.md`
-  — the probe table carries a `cwd` column.
+  — the probe table carries a `cwd` column. For the symlink half: `pwd; pwd -P` in a Conductor
+  workspace, and `git worktree list` to confirm it is one tree rather than two.
 
 ## Auto mode bypasses the plugin's read conventions
 
@@ -152,9 +185,17 @@ we have the in-repo cautionary example for that.
   arrives. Every permission dialog advertises "Tip: auto mode handles these prompts for you" at
   the top, so this is the path of least resistance, not an unusual setting. Any test of read
   behaviour must confirm auto mode is **off** first, or it measures nothing.
-- **Verified**: 2026-09-09 · `docs/plans/2026-09-08-upstream-fable-merge/`
+- **Also (2026-09-20)**: **a new session can start with auto mode already on.** Two consecutive
+  P5-T4 runs were launched believing it was off and both arrived carrying the
+  `While auto mode is active` instruction; only an explicit toggle mid-session cleared it. So
+  "I started a fresh session" is not evidence the mode is off. Have the session state, as its
+  own first act, whether that instruction is present, and stop if it is — a run that proceeds
+  under it cannot measure read behaviour in either direction.
+- **Verified**: 2026-09-09, extended 2026-09-20 · `docs/plans/2026-09-08-upstream-fable-merge/`,
+  `docs/plans/2026-09-17-adversarial_loop/`
 - **Check it**: ask a session mid-run which tool it used to read a skill's supporting file —
-  `cat` means auto mode, `Read` means not.
+  `cat` means auto mode, `Read` means not. Or have it report whether a
+  `While auto mode is active` block is present in its context before it runs anything.
 
 ## Pre-2.0.0 `wb-*` skills in `~/.claude/skills/` shadow the plugin
 
@@ -165,9 +206,19 @@ we have the in-repo cautionary example for that.
   the deprecated-alias stubs never announce. Resolution between `wb:X` and `wb-X` is not
   deterministic: one alias reached the plugin stub and two reached the stale copies in the same
   session.
-- **Verified**: 2026-09-09 · `docs/plans/2026-09-08-upstream-fable-merge/` (13 stale directories
-  found on this machine, ~400 beads references; removed)
-- **Check it**: `ls -d ~/.claude/skills/wb-* 2>/dev/null` → no output.
+- **Also (2026-09-20) — a same-named personal skill wins the BARE name deterministically, even
+  with the plugin loaded.** With `--plugin-dir` in effect and the 3.0.0 plugin enumerating,
+  `Skill('adversarial-loop')` resolved to `~/.claude/skills/adversarial-loop/SKILL.md` — the
+  236-line personal copy — while `Skill('wb:adversarial-loop')` resolved to the 379-line shipped
+  one. Not ambiguous, not a race: the prefix decides. This is the concrete form of design A3, and
+  the reason P5-T5 deletes the three personal copies: a user who types the skill's own name gets
+  the wrong artifact.
+- **Verified**: 2026-09-09, extended 2026-09-20 · `docs/plans/2026-09-08-upstream-fable-merge/`
+  (13 stale directories found on this machine, ~400 beads references; removed),
+  `docs/plans/2026-09-17-adversarial_loop/`
+- **Check it**: `ls -d ~/.claude/skills/wb-* 2>/dev/null` → no output. For the same-name case:
+  `ls -d ~/.claude/skills/adversarial-* ~/.claude/skills/reply-to-claude 2>/dev/null` → no output
+  once P5-T5 has run.
 
 ## The Task tool's `model` is an enum — full model IDs cannot be pinned per spawn
 
@@ -230,8 +281,241 @@ we have the in-repo cautionary example for that.
 - **Check it**: install from a local marketplace, run a stage with the read boundary forced on,
   and read the refused path in its output — it names the marketplace source directory.
 
+## A plugin skill can invoke a built-in Claude Code skill, and it runs forked
+
+- **Why it matters**: `Skill(code-review, "low")` from inside a wb skill returns
+  `Skill "code-review" completed (forked execution)` with findings. Forked means it does **not**
+  consume the calling session's context, which is what makes wrapping a built-in affordable
+  rather than ruinous. Before this was measured, no shipped skill had ever invoked a built-in and
+  the whole `adversarial-review` design rested on the assumption that it was possible.
+- **Also**: declaring `Skill` in a skill's `allowed-tools` does not break loading — the plugin
+  enumerates normally. Whether it actually *pre-approves* the call is still unproven; loading
+  cleanly only establishes that the value is at worst inert.
+- **Verified**: 2026-09-18 · `docs/plans/2026-09-17-adversarial_loop/`
+- **Check it**: invoke `Skill(code-review, "low")` from a session with a diff; the result line
+  says `(forked execution)`.
+
+## The PostToolUse lint hook rewrites markdown *after* you check it
+
+- **Why it matters**: the hook runs `lint --fix` on every markdown Write/Edit, so the sequence
+  write → check → commit can capture the **pre-fix** state while the fix lands in the working tree
+  afterwards. That happened once: `lint --all` reported FAIL, the commit went in, and the hook's
+  correction was left uncommitted. Verify the **committed** content, not the working tree.
+- **Also (2026-09-20)**: the hook runs `lint --fix`, and **MD024 and MD025 are not auto-fixable**
+  — duplicate sibling headings and a second top-level heading survive it. So a document generated
+  in bulk can pass the hook, look clean, and fail `lint --all` later, which fails the `markdown
+  lint` gate inside `./plugin/scripts/check` with nothing in the generating session having warned.
+  MD025 also counts a frontmatter `title:` key as the document's title, so a file carrying both
+  `title:` and an `# H1` trips it; the convention in this repository is the H1 and no `title:`.
+- **Verified**: 2026-09-18, extended 2026-09-20 · `docs/plans/2026-09-17-adversarial_loop/`
+- **Check it**: `git show HEAD:<path> > /tmp/x && ./plugin/scripts/lint /tmp/x` — if that fails
+  while the working copy passes, the hook fixed it after the commit. For the un-fixable half:
+  write a file with two `# H1`s, watch the hook leave it, then run `./plugin/scripts/lint --all`.
+
+## `strings` emits non-ASCII as literal escape sequences
+
+- **Why it matters**: an em-dash in the Claude binary arrives from `strings` as the seven
+  characters `—`, not as `—`. A grep written with the real character — or with `.` standing
+  in for one — matches nothing and the check silently passes. This produced an unfirable
+  verification command that read as clean.
+- **Verified**: 2026-09-18 · `docs/plans/2026-09-17-adversarial_loop/`
+- **Check it**: `strings "$(readlink -f "$(command -v claude)")" | grep -c 'Dedup only'` returns
+  a non-zero count while a pattern written with a literal em-dash returns none.
+
+## markdownlint reads a fence indented under a list item as an indented code block
+
+- **Why it matters**: a ```` ``` ```` block indented to sit inside a `- [ ]` item fails MD046
+  (`Expected: fenced; Actual: indented`) and `lint --all` fails. Multi-line commands in a plan's
+  success criteria hit this. Dedent the fence to column zero; the list resumes after it and every
+  checkbox counter anchors on `^- \[`, so counting is unaffected.
+- **Verified**: 2026-09-18 · `docs/plans/2026-09-17-adversarial_loop/`
+- **Check it**: indent a fenced block six spaces under a list item and run
+  `./plugin/scripts/lint <file>` — it reports MD046.
+
+## A fenced `bash` block in a shipped skill is executed by **zsh**, not bash
+
+- **Why it matters**: this repository's doctrine is that a fenced `bash` block in a skill is
+  *run*, not illustrated — `plugin/scripts/check-guards` exists for that reason. But the Bash
+  tool's shell is `/bin/zsh` (5.9 here), and two bash behaviours those blocks were written
+  against are absent. Both shipped, both failed silently, both in `adversarial-review`:
+  - **`PIPESTATUS` is a bash array.** In zsh it expands to nothing, so `search=${PIPESTATUS[0]}`
+    left `search` empty, `[ "" -le 1 ]` was true, and a `grep` that exited 2 passed its guard
+    without a word. The guard's own prose said it existed to catch exactly that. zsh's array is
+    `$pipestatus` and is 1-indexed; there is no portable spelling, so take the status from `$?`
+    on the line after the command instead of from a pipeline.
+  - **zsh does not word-split unquoted expansions.** `range="origin/main...HEAD -- some/path";
+    git diff --stat $range` reaches git as one argument and dies with `fatal: ambiguous
+    argument`. Keep a pathspec in its own variable and quote both.
+  - **The one place that non-splitting helps**: an optional argument spells as
+    `cmd ${var:+"$var"}` — unset contributes *no* word at all (zsh drops an unquoted null
+    word), set contributes exactly one, and a value containing a space stays one word.
+    Identical in bash, so a block using it is safe under either. `adversarial-loop`'s
+    `gh pr view ${target:+"$target"} --json number` is the shipped use.
+- **Why it went four review rounds undetected**: only the *path*-target form put a space in the
+  variable, and no round had ever run that form. A block is not exercised by being read.
+- **Verified**: 2026-09-20 · `docs/plans/2026-09-17-adversarial_loop/` — P5-T4 run 2,
+  `thoughts/2026-09-20-smoke-session-run2.md`; the `${var:+"$var"}` half added in round-5
+  remediation, executed in both shells
+- **Also (2026-09-20), two more things about this shell that will mislead you.** `grep --version`
+  reports `BSD grep, GNU compatible 2.6.0-FreeBSD`, but the *diagnostics* come from **ugrep** —
+  so version-sniffing to decide which flags are safe gives the wrong answer. `--exclude-dir` and
+  `--include=` have both been seen **accepted (exit 0) and rejected (exit 2 with a warning)** on
+  this machine, depending on the invocation — so do not write a rule about which flags work.
+  Write the guard instead: the one time `--exclude-dir` was rejected,
+  `adversarial-review`'s blast-radius guard printed `SEARCH FAILED (grep exit 2)` rather than
+  reading the empty output as "no callers", which is the whole point of taking the status. And the RTK hook's `find` does not accept compound predicates or
+  actions — `-not`, `-exec` are rejected — so a probe needs plain `ls` per directory or
+  `rtk proxy find`.
+- **Check it**: `echo "$0 ${ZSH_VERSION:-no-zsh} ${BASH_VERSION:-no-bash}"` through the Bash
+  tool reports `/bin/zsh 5.9 no-bash`; and
+  `x=$(grep -rnF -- q /no/such/path 2>/dev/null); echo "dollar-question=$? pipestatus=${PIPESTATUS[0]:-<empty>}"`
+  prints a real status beside an empty `PIPESTATUS`.
+
+## `diff`'s exit status is not trustworthy — the hook rewrites it and it returns 0 on differing files
+
+- **Why it matters**: the RTK hook rewrites a bare `diff a b` into its own summarising wrapper,
+  which prints a readable `+1 added, -1 removed` digest **and exits 0 even when the files
+  differ**. So every idiom that asks git-style "are these the same?" — `diff a b && echo same`,
+  `if diff a b; then …`, `[ $? -eq 0 ]` — silently answers *identical* for files that are not.
+  A round-6 verifier hit this while byte-comparing a template's rendered output against `HEAD`,
+  concluded "Files are identical" for two files whose `grep -c` counts already disagreed, and
+  only caught it by re-running under another spelling. A comparison that cannot report a
+  difference is not a comparison.
+- **Also — it is not consistently wrong, which is worse.** Measured 2026-09-21 in one session:
+  bare `diff d1 d2` and `diff d1 d2 > file 2>&1` both exited **0** on differing files, while an
+  earlier `if diff d1 d2 >/dev/null 2>&1` in the same session took the *differ* branch. Same
+  flavour of invocation-dependence as the `--exclude-dir` entry above. Do not write a rule about
+  when the wrapper is honest; use a spelling that bypasses it.
+- **The two spellings that are reliable**: `command diff --color a b` and `rtk proxy diff a b`
+  both exit 1 on a difference. `cmp a b` exits 1 and names the first differing byte, and is the
+  better choice when the question is "identical or not" rather than "what changed".
+- **The `--color` in that line is load-bearing, not decoration (2026-09-28).** Measured in one
+  call on differing files: `command diff` exits **0**, `command diff --color` exits **1**,
+  `rtk proxy diff` exits 1, `cmp` exits 1, `/usr/bin/diff` exits 1. A worker that read this
+  entry, dropped the flag as cosmetic, and used bare `command diff` reported that this entry was
+  wrong and that `cmp` was the only reliable spelling. The entry was right; the flag is what
+  makes it right, because `--color` is the argument the rtk hook's rewrite does not match. If
+  the question is only "identical or not", reach for `cmp` — it is the spelling with no flag to
+  drop.
+- **Verified**: 2026-09-21 · `docs/plans/2026-09-17-adversarial_loop/reviews/2026-09-21-round-6/`
+  — surfaced by R6-T4's verification, re-derived directly at the round-6 checkpoint
+- **Check it**: `printf 'a\nb\n' > /tmp/d1; printf 'a\nC\n' > /tmp/d2; diff /tmp/d1 /tmp/d2;
+  echo "wrapped=$?"; command diff /tmp/d1 /tmp/d2 >/dev/null; echo "real=$?"` — prints
+  `wrapped=0` beside `real=1`.
+
+## `grep` in the Bash tool is a shell function that re-execs as ugrep honouring `.gitignore`
+
+- **Why it matters**: `type grep` reports *a shell function from
+  `~/.claude/shell-snapshots/snapshot-zsh-*.sh`*, not a binary. It re-execs Claude Code as
+  ugrep with `--ignore-files`, which reads `.gitignore` — so a **gitignored-but-tracked** path
+  is skipped silently, at **exit 0, with no diagnostic**. Measured here on one symbol, same
+  flags, same cwd: bare `grep` returned **30** hits, `command grep` **52**; all **8** dropped
+  files were tracked (`git ls-files --error-unmatch` on each). No status guard can see this —
+  the search succeeded, it just read a smaller tree.
+- **This also explains the two path spellings.** ugrep emits the path field with **no** `./`
+  prefix; `command grep -r … .` emits `./`-prefixed. That is the "the same command was observed
+  both ways on one machine" that round 5 recorded and never explained, and it is why
+  `adversarial-review`'s blast-radius filter has to match both spellings.
+- **Severity, stated honestly**: in *this* repository the dropped paths are `docs/plans/`
+  documents citing a filename — plan prose, not code callers — and in an ordinary repository
+  the ignored tree is build output, which you usually want skipped. The hazard is not the
+  default; it is that **the engine varies by invocation** with nothing in the command able to
+  tell you which one ran. A top-level Bash-tool call gets the shim; the identical line inside a
+  script file gets the system binary, because a non-interactive `zsh script.sh` never sources
+  the snapshot. So a measurement and its re-run can legitimately disagree.
+- **What to do**: when a count must include tracked files under an ignored path — anything
+  measuring this repository's own `docs/plans/` — use `command grep`, or `git grep`, and say
+  which you used. Do not compare a number from one engine against a number from the other.
+- **Verified**: 2026-09-23 · `docs/plans/2026-09-17-adversarial_loop/reviews/2026-09-21-round-7/`
+  — surfaced by R7-T11's verification, re-derived directly at the round-7 checkpoint
+- **Check it**: `type grep` names the snapshot function; then
+  `echo "bare=$(grep -rnF -- review-ledger.md . | wc -l) real=$(command grep -rnF -- review-ledger.md . | wc -l)"`
+  prints two different numbers.
+
+## The lint hook strips significant whitespace inside inline code spans
+
+- **Why it matters**: the PostToolUse hook runs `lint --fix` after Write, Edit **and Bash**, and
+  its MD038 fix removes leading and trailing spaces inside backticks. A sentence whose meaning
+  lives in that whitespace is rewritten **silently, underneath you**, between one step and the
+  next. It did exactly this to a journal line recording git's status codes — the
+  space-then-M unstaged form and the M-then-space staged form were both collapsed to a bare
+  `M`, destroying the distinction the line existed to draw, and the corrupted form reached a
+  commit before anyone noticed.
+- **What to do**: write such distinctions **in words** — "space-then-M, unstaged" — not as
+  whitespace inside a code span. This applies to anything describing `git status --porcelain`
+  output, column-aligned fixtures, or a trailing-space-sensitive format.
+- **Verified**: 2026-09-23 · `docs/plans/2026-09-17-adversarial_loop/reviews/2026-09-21-round-7/`
+  — R7-T13's worker caught it in the round's own journal; repaired in `6a6f629`
+- **Check it**: write a markdown line containing a backticked single space followed by `M`,
+  save it, then re-read the file — the space is gone.
+
+## The harness substitutes bare `$1` and `$ARGUMENTS` in a skill body, but not the braced forms
+
+- **Why it matters**: `check-guards` shape 6 (R9-T0) flags `$<digit>` and `$ARGUMENTS` inside a
+  fenced block of a shipped `SKILL.md` and deliberately leaves `${1:-…}` unmatched
+  (`fetch-issues/SKILL.md:46`). Whether that exemption was safe was untested until 2026-09-28.
+  Measured headless in a scratch repository with a four-line probe skill invoked with arguments:
+  `A: $1` arrived substituted, `C: $ARGUMENTS` arrived as the full argument string, and
+  `B: ${1:-default}` and `D: ${ARGUMENTS:-none}` arrived **verbatim, unsubstituted**. So the
+  braced default form is a real shell expansion at run time, never a harness splice, and shape 6's
+  exemption is correct. Write `${1:-…}` when a block genuinely wants a shell positional; never
+  write bare `$1` in a fence.
+- **Verified**: 2026-09-28 · `docs/plans/2026-09-17-adversarial_loop/` (round 9 follow-up 3)
+- **Check it**: create `.claude/skills/x/SKILL.md` in a scratch repo whose body is a `text` fence
+  with the four lines above; `claude -p --allowedTools=Skill "Invoke skill x with arguments: hello
+  world"`; lines A and C come back substituted, B and D come back literal.
+
 ## A resumed headless session loses read access to a `--plugin-dir` stage's supporting files
 
 - **Why it matters**: the eval harness (`evals/run.py`) resumes a stage with `claude -p --resume <id>` when the stage stops to ask. On 2026-09-30, one such follow-up call was refused `Read` of `create_design/templates/design-md-template.md` in a `--plugin-dir` checkout outside the cwd. The first call of the same session had read the stage's files without a refusal. The stage then stopped, as its manifest rule says, and wrote nothing. The refusal did not occur on every run (the P2-T6 run's follow-ups worked), so a harness without the fix fails at random. Pass `--add-dir <plugin-dir>` on every call, first and resumed.
 - **Verified**: 2026-09-30 · `docs/plans/2026-09-29-asd-ste100-prose/` (baseline run `evals/runs/20260930T011540Z`, repeat 3, `design.follow-up-1.json` lists the denials under `permission_denials`)
 - **Check it**: in `evals/run.py`, the `base` command list carries `--add-dir`. Without it, repeat a 3-repeat baseline and look for `permission_denials` on `Read` in any `*.follow-up-*.json`.
+
+## `git add -A` on a promoted plan directory exits 1, so a chained `&& git commit` never runs
+
+- **Why it matters**: `docs/plans/` is gitignored, but a promoted plan's files are tracked. `git add -A docs/plans/<plan> && git commit …` stages the tracked changes, prints `The following paths are ignored by one of your .gitignore files`, and exits 1. The `&&` then skips the commit with no other error, and the changes stay staged. Use `git add -u <plan dir>` for tracked files, and `git add -f <file>` for a new file.
+- **Verified**: 2026-09-30 · `docs/plans/2026-09-28-guard_lexer_and_pr_identity/` (the P1-T5 commit failed this way once)
+- **Check it**: edit a tracked file in a promoted plan, then run `git add -A docs/plans/<plan>; echo "exit=$?"`. It prints the ignore hint and `exit=1`, and `git status --short` shows the file staged.
+
+## In zsh, `$var:letter` is a history modifier, so `$A1:refs/pull/42/head` loses the SHA
+
+- **Why it matters**: a refspec such as `git push origin $A1:refs/pull/42/head` is read as `${A1:r}efs/...` under the Bash tool's shell. The push fails with `src refspec ...efs/pull/42/head does not match any`, which reads as a missing ref and not as a quoting bug. Write `"${A1}:refs/pull/42/head"`.
+- **Verified**: 2026-10-01 · `docs/plans/2026-09-17-adversarial_loop/` (the round-12 `/verify` fixture)
+- **Check it**: `a=x.y; echo "$a:r"` prints `x`, and `echo "${a}:r"` prints `x.y:r`.
+
+## The rtk hook truncates `git log --name-only`, which understates a fix surface
+
+- **Why it matters**: `git log --first-parent --no-merges --name-only --format= <range>` listed 13 files through the hook and 45 through `rtk proxy git log`. The ledger's `introduced_by` is derived from that list, so a truncated list marks real `prev-fix` findings as pre-existing. Use `rtk proxy git log` for any name list that feeds a measurement.
+- **Verified**: 2026-10-01 · `docs/plans/2026-09-17-adversarial_loop/`
+- **Check it**: run the command both ways over `3b4e04b..HEAD` and compare `sort -u | wc -l`.
+
+## `git add` in this Conductor worktree sometimes fails once on `index.lock` and succeeds on retry
+
+- **Why it matters**: three times in one session `git add` printed `Unable to create '.../.git/worktrees/ankara/index.lock': File exists`, and the lock was gone a moment later with no git process visible. A `&&` chain then skips the commit. Retry after a short wait before suspecting a stale lock, and confirm with `ls "$(git rev-parse --git-dir)/index.lock"` before deleting anything.
+- **Verified**: 2026-10-01 · `docs/plans/2026-09-17-adversarial_loop/`
+- **Check it**: after a failure, the lock path does not exist and the same `git add` exits 0.
+
+## With no `gh repo set-default`, `gh` resolves the repository from a remote named `upstream` before `origin`
+
+- **Why it matters**: in a clone with `origin` = the user's fork and `upstream` = the parent, `gh pr view <N>` answers for the parent, while a bare `git push` goes to the branch's upstream, usually the fork. A guard that checks only the PR's facts then approves a push that never reaches the PR. `gh` does not fall back when the `upstream` repository does not exist: it fails.
+- **Also (2026-10-01)**: the ranking is not the whole story. With two remotes that both exist (`origin` = `thescubageek/workbench`, `upstream` = `cli/cli`) and no default, a headless run answered for `cli/cli`, and the user's interactive terminal run failed with `No default remote repository has been set` for both `gh repo view` and `gh pr view`. Whether interactive versus headless is the cause was not isolated. After `gh repo set-default thescubageek/workbench`, `gh repo view` answered for `thescubageek/workbench` in both. Do not assume `gh` picks a repository in a clone with two live remotes.
+- **Verified**: 2026-10-01 · `docs/plans/2026-10-01-pr_identity_contract/` (`gh` 2.86.0)
+- **Check it**: in a scratch `git init` with `origin` = `https://github.com/thescubageek/workbench.git` and `upstream` = a nonexistent repository, `gh repo view --json nameWithOwner` fails with `Could not resolve to a Repository`. Rename `upstream` to `fork` and it prints `thescubageek/workbench`.
+
+## Braced `${CLAUDE_PLUGIN_ROOT}` and `${CLAUDE_SKILL_DIR}` in a skill body are substituted at load; the unbraced form is not
+
+- **Why it matters**: a skill can call a shipped script by an absolute path, so one script can replace logic copied across skills. The variable is **not** in the Bash tool's environment (`echo "${CLAUDE_PLUGIN_ROOT:-unset}"` prints `unset`), so `$CLAUDE_PLUGIN_ROOT` written unbraced reaches the shell as an empty expansion.
+- **Verified**: 2026-10-01 · `docs/plans/2026-10-01-pr_identity_contract/` (Claude Code 2.1.286, under `--plugin-dir` and under the marketplace install of `wb` 2.2.0)
+- **Check it**: headless, `claude -p --allowedTools=Skill "Invoke wb:review-prep … quote the first line containing 'nvim-helper.sh setup'"` returns a path under `~/.claude/plugins/cache/…`, not the literal variable.
+
+## `grep -c` exits 1 when the count is 0, which breaks a `&&` chain
+
+- **Why it matters**: `done=$(grep -c … f) && todo=$(grep -c … f) && echo …` stops silently when the second count is `0`, because the assignment takes the exit status of `grep`. A plan with no unchecked task reads as a command that did nothing, and a later `python3` step in the same chain never runs. Run the counts as separate statements, or end each with `|| true`.
+- **Verified**: 2026-10-02 · `docs/plans/2026-10-01-pr_identity_contract/` (the Phase 3 counter update ran as a no-op)
+- **Check it**: `n=$(grep -c nomatch /etc/hosts) && echo reached` prints nothing, and `echo $n` prints `0`.
+
+## `check-guards` run on named files skips the glob scan of every other script, so only `check` finds a new unguarded loop
+
+- **Why it matters**: `./plugin/scripts/check-guards plugin/scripts/pr-identity` reported clean while `plugin/scripts/test-pr-identity` held an unguarded `for b in "$W"/*.git` that the full `./plugin/scripts/check` flagged. Task verifications from P2-T2 to P2-T7 passed over a gate that was red. Run `./plugin/scripts/check` before a task counts as verified, not only the named-file form.
+- **Verified**: 2026-10-02 · `docs/plans/2026-10-01-pr_identity_contract/` (fixed in `ded0632`)
+- **Check it**: add `for x in /tmp/nothing*; do :; done` to a scratch script in `plugin/scripts/`, then compare `check-guards <other file>` with `check-guards` and `check`.

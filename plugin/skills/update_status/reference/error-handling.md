@@ -18,7 +18,13 @@ Valid next steps:
 
 ## Missing Files
 
-If files don't exist:
+**Check for a remediation plan before reporting anything missing.** A directory that
+`../../../docs/reference/remediation-plan.md` recognises as a round means `tasks.md` alone *is* the
+whole plan — research.md and design.md are not missing, they were never written, and this message must
+not fire. Reconcile the counters from the checkboxes and carry on; `/wb:create_project` would
+manufacture two files that exist only to be empty.
+
+Otherwise, if files don't exist:
 
 ```
 ❌ Missing Documentation Files

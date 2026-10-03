@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+# count — a match count whose failure is distinguishable from zero.
+#
+# `grep -c` prints 0 and exits 1 when nothing matches, and exits 2 on error while
+# printing nothing. Captured in a command substitution both collapse to something
+# that reads as "zero matches", which is how a broken measurement gets reported as
+# a clean result. This wrapper separates the two on the exit code:
+#
+#   exit 0  — the count is on stdout, and it is trustworthy (including "0")
+#   exit 2  — the count could not be taken; stdout is empty, reason on stderr
+#
+# Usage: count <extended-regex> <file>
+#        count --lines <file>          # count non-empty lines
+#
+# Because the failure is loud, `n=$(count ... ) || handle` is safe in a way that
+# `n=$(grep -c ...)` is not.
+
+set -uo pipefail
+
+usage() { echo "usage: count <extended-regex> <file> | count --lines <file>" >&2; exit 2; }
+[ $# -eq 2 ] || usage
+
+if [ "$1" = "--lines" ]; then pattern='.'; file="$2"; else pattern="$1"; file="$2"; fi
+
+if [ ! -e "$file" ]; then echo "count: no such file: $file" >&2; exit 2; fi
+if [ ! -r "$file" ]; then echo "count: not readable: $file" >&2; exit 2; fi
+if [ -d "$file" ]; then echo "count: is a directory: $file" >&2; exit 2; fi
+
+n=$(grep -cE -- "$pattern" "$file" 2>/dev/null)
+status=$?
+
+# grep: 0 = matched, 1 = no match (both are real answers), 2+ = error
+if [ "$status" -ge 2 ]; then
+  echo "count: grep failed on: $file" >&2
+  exit 2
+fi
+
+echo "${n:-0}"
+exit 0

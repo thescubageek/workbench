@@ -53,7 +53,9 @@ separate tracker to reload.
    was attempting and the next action it intended.
 
 4. **Review context**: tasks.md Implementation Notes, research.md, design.md, and
-   `.claude/wb/knowledge.md` if present.
+   `.claude/wb/knowledge.md` if present. A remediation plan (the shape
+   `../../docs/reference/remediation-plan.md` defines) has no research.md or design.md —
+   tasks.md alone is the whole plan.
 
 5. **Continue coordination**: extract the context package, take the next unchecked task, spawn.
 

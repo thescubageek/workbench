@@ -1,0 +1,791 @@
+#!/usr/bin/env bash
+
+# Predicate-level contract test for scripts/pr-identity.
+# One scratch world per scenario (S1 to S11 from the identity tracer bullet, plus N1 and O1 so
+# that every relation value has a world). A stub gh reads a per-world fixture; git is real and
+# pushes only into bare repositories under the scratch directory.
+#
+# Consumer level: S1 to S12b run against the fenced blocks extracted from the three SKILL.md
+# files (the working tree, or `--skills-at <rev>` for `git show <rev>:<path>`), under zsh as the
+# Bash tool runs them. No prose rule is modelled: a block that does not exist fails every cell
+# that needs it as MISSING. The block is the first ```bash fence under its heading, before the
+# next heading:
+#   review  adversarial-review "## Step 1:"      step8   adversarial-review "## Step 8:"
+#   phase0  adversarial-loop   "## Phase 0:"     phase2  adversarial-loop   "## Phase 2:"
+#   ledger  adversarial-loop   "<n>. **Record each finding" (Phase 1 step 5)
+#   reply   reply-to-claude    "## Step 1:"
+# Each block is run as the model runs it: a `name=""` line is re-typed with the value bound to
+# that name, and `target=<it>` is prepended to a block with no `target=""` line. Bound names are
+# target (the argument), the key=value lines Step 1 printed plus review_base, review_head and
+# pathspec from its `range:` line (for step8), the key=value lines Phase 0 printed (for phase2),
+# and findings, the round's verified count (for ledger). <plan>, <N> and <date> become p, 1 and $PLAN_DATE; ${CLAUDE_PLUGIN_ROOT} becomes
+# plugin/. Columns, each in a fresh copy of the world: the loop reads fix= from phase0; the
+# review head comes from the range: line of review, then step8 runs over a plan the test wrote
+# and the index says whether it was staged; phase2 runs after one fix commit, and the bare
+# repositories say where the push landed; reply proceeds when it exits 0.
+#
+# Expected rows come from design.md → Data Model, not the pre-registered tracer-bullet table.
+# Where they differ: S3 is own, so it fixes, stages, publishes and replies. S11 is elsewhere: the
+# review reads the fetched PR head and the loop does not fix. S2, S4, S5, S6 and S8 have fix=no,
+# so the loop refuses before the review and names /wb:adversarial-review <target>. S12 expects a
+# committed clean-round row. Reply proceeds on own or HEAD = head_oid, so S4 and S6 proceed and
+# S11 refuses; it is not run for S7, S8 and S10, whose targets are not PR numbers. Any push or
+# un-draft where publish=no is UNSAFE. The loop never fetches (design.md PD8), so a pr ref left by
+# phase0 is a MISS.
+
+set -uo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+PLUGIN_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+PRID="$SCRIPT_DIR/pr-identity"
+STUB="$SCRIPT_DIR/fixtures/gh-stub"
+
+SKILLS_AT=""
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --skills-at) [[ $# -ge 2 ]] || { echo "usage: test-pr-identity [--skills-at <rev>]" >&2; exit 2; }
+                     SKILLS_AT=$2; shift 2 ;;
+        *) echo "usage: test-pr-identity [--skills-at <rev>]" >&2; exit 2 ;;
+    esac
+done
+
+ROOT="$(cd "$(mktemp -d)" && pwd -P)"
+trap 'rm -rf "$ROOT"' EXIT
+
+mkdir -p "$ROOT/skills"
+for s in adversarial-review adversarial-loop reply-to-claude; do
+    if [[ -n $SKILLS_AT ]]; then
+        git -C "$PLUGIN_ROOT" show "$SKILLS_AT:plugin/skills/$s/SKILL.md" >"$ROOT/skills/$s.md" 2>/dev/null \
+            || { echo "cannot read plugin/skills/$s/SKILL.md at $SKILLS_AT" >&2; exit 2; }
+    else
+        cp "$PLUGIN_ROOT/skills/$s/SKILL.md" "$ROOT/skills/$s.md" || exit 2
+    fi
+done
+
+mkdir -p "$ROOT/bin"
+ln -s "$STUB" "$ROOT/bin/gh"
+export PATH="$ROOT/bin:$PATH"
+export GIT_CONFIG_GLOBAL="$ROOT/gitconfig" GIT_CONFIG_NOSYSTEM=1 GIT_ALLOW_PROTOCOL=file
+printf '[user]\n\tname = t\n\temail = t@example.invalid\n[init]\n\tdefaultBranch = main\n[advice]\n\tdetachedHead = false\n' >"$GIT_CONFIG_GLOBAL"
+
+PASS=0
+FAIL=0
+
+must() { "$@" || { echo "world build failed: $*" >&2; exit 2; }; }
+record() { echo "$1=$(git rev-parse HEAD)" >>"$OIDS"; }
+commit() { echo "$1" >"$1.txt"; git add "$1.txt"; git commit -qm "$1"; record "$1"; }
+oid() { sed -n "s/^$1=//p" "$OIDS"; }
+pr() { # number headRefName oid cross owner [state [baseRefName]]
+  printf '"%s": {"number": %s, "headRefName": "%s", "headRefOid": "%s", "baseRefName": "%s", "isCrossRepository": %s, "headRepository": {"name": "workbench"}, "headRepositoryOwner": {"login": "%s"}, "state": "%s", "isDraft": true}' "$1" "$1" "$2" "$3" "${7:-main}" "$4" "$5" "${6:-OPEN}"
+}
+
+base_world() {
+    W="$ROOT/w/$1"; OIDS="$W/oids"; rm -rf "$W"; mkdir -p "$W"; cd "$W" || exit 2
+    : >"$OIDS"
+    git init -q --bare parent.git
+    git clone -q parent.git seed 2>/dev/null; cd seed || exit 2
+    mkdir plugin; echo a >plugin/a.txt; printf 'docs/plans/\n' >.gitignore
+    git add .; git commit -qm base; record base; must git push -q origin main
+    git checkout -qb feature-A; commit A1; must git push -q origin feature-A
+    must git push -q origin "$(oid A1):refs/pull/42/head"
+    git checkout -q main; cd "$W" || exit 2
+    REPOS="\"$W/parent.git\": \"thescubageek/workbench\""
+}
+
+fork_pr57() {
+    git clone -q --bare parent.git fork.git
+    cd seed || exit 2; git remote add fork "$W/fork.git"; git checkout -qb f main; commit F1
+    must git push -q fork "+f:feature-A"
+    must git push -q origin "$(oid F1):refs/pull/57/head"
+    git checkout -q main; cd "$W" || exit 2
+    REPOS="$REPOS, \"$W/fork.git\": \"contributor/workbench\""
+}
+
+fixture() { printf '{"repos": {%s}, "prs": {"thescubageek/workbench": {%s}}}\n' "$REPOS" "$1" >"$W/fixture.json"; }
+
+hosted_push() { git remote set-url --push origin https://github.com/thescubageek/workbench.git; }
+
+# build <scenario>: sets W, OIDS, HAS_TARGET, TARGET and leaves cwd in "$W/work"
+build() {
+    HAS_TARGET=0; TARGET=""
+    case $1 in
+        S1|S7|S9|S10)
+            base_world "$1"; git clone -q parent.git work; cd work || exit 2
+            git checkout -q feature-A; commit L1; hosted_push
+            fixture "$(pr 42 feature-A "$(oid A1)" false thescubageek)"
+            case $1 in S1) TARGET=42 ;; S7) TARGET=feature-A ;; S10) TARGET=plugin/ ;; esac ;;
+        S2|Q1|R1)
+            base_world "$1"; git clone -q parent.git work; cd work || exit 2
+            git checkout -q feature-A; git checkout -qb feature-B; commit B1; must git push -q -u origin feature-B
+            hosted_push
+            [[ $1 != Q1 ]] || mkdir 42
+            fixture "$(pr 42 feature-A "$(oid A1)" false thescubageek), $(pr 43 feature-B "$(oid B1)" false thescubageek OPEN feature-A)"
+            TARGET=42; [[ $1 != R1 ]] || TARGET=43 ;;
+        S3|S3b)
+            base_world "$1"; git clone -q parent.git work; cd work || exit 2
+            git checkout -q -b mine --track origin/feature-A; hosted_push
+            fixture "$(pr 42 feature-A "$(oid A1)" false thescubageek)"; TARGET=42 ;;
+        S4)
+            base_world S4; git clone -q parent.git work; cd work || exit 2
+            git checkout -q --detach origin/feature-A
+            fixture "$(pr 42 feature-A "$(oid A1)" false thescubageek)"; TARGET=42 ;;
+        S5)
+            base_world S5; fork_pr57; git clone -q parent.git work; cd work || exit 2
+            git checkout -q feature-A; commit M1
+            fixture "$(pr 42 feature-A "$(oid A1)" false thescubageek), $(pr 57 feature-A "$(oid F1)" true contributor)"
+            TARGET=57 ;;
+        S6)
+            base_world S6; fork_pr57; git clone -q parent.git work; cd work || exit 2
+            git remote add fork "$W/fork.git"; git fetch -q fork
+            git checkout -q -b feature-A --track fork/feature-A
+            fixture "$(pr 57 feature-A "$(oid F1)" true contributor)"; TARGET=57 ;;
+        S8)
+            base_world S8; git clone -q parent.git work; cd work || exit 2
+            git checkout -qb HEAD-fix main; commit H1; must git push -q -u origin HEAD-fix
+            git checkout -qb feature-B main; commit B1; must git push -q -u origin feature-B
+            fixture "$(pr 42 feature-A "$(oid A1)" false thescubageek), $(pr 43 feature-B "$(oid B1)" false thescubageek)"
+            TARGET=HEAD-fix ;;
+        S11)
+            base_world S11; git clone -q --bare parent.git userfork.git
+            REPOS="$REPOS, \"$W/userfork.git\": \"scraig/workbench\""
+            git clone -q userfork.git work; cd work || exit 2
+            git remote add upstream "$W/parent.git"; git fetch -q upstream
+            # a bare `git checkout feature-A` is ambiguous when two remotes carry the branch
+            git checkout -q -b feature-A --track origin/feature-A; commit L1
+            fixture "$(pr 42 feature-A "$(oid A1)" false thescubageek)"; TARGET=42 ;;
+        N1)
+            base_world N1; git clone -q parent.git work; cd work || exit 2
+            fixture "$(pr 42 feature-A "$(oid A1)" false thescubageek)" ;;
+        O1)
+            base_world O1; git clone -q parent.git work; cd work || exit 2
+            git checkout -qb side main; commit O1
+            fixture "$(pr 42 feature-A "$(oid A1)" false thescubageek)"; TARGET=42 ;;
+        B1)
+            base_world B1; git clone -q parent.git work; cd work || exit 2
+            git checkout -qb side main; commit X1
+            must git push -q origin "+$(oid X1):refs/pull/42/head"
+            fixture "$(pr 42 feature-A "$(oid A1)" false thescubageek)"; TARGET=42 ;;
+        M1|M2)
+            base_world "$1"; git clone -q parent.git work; cd work || exit 2
+            git checkout -q feature-A; commit L1; hosted_push
+            case $1 in
+                M1) state=MERGED ;;
+                M2) state=CLOSED ;;
+            esac
+            fixture "$(pr 42 feature-A "$(oid A1)" false thescubageek "$state")"; TARGET=42 ;;
+        P1)
+            base_world P1; git init -q --bare elsewhere.git
+            REPOS="$REPOS, \"$W/elsewhere.git\": \"someone/workbench\""
+            git clone -q parent.git work; cd work || exit 2
+            git checkout -q feature-A; commit L1
+            git remote set-url --push origin "$W/elsewhere.git"
+            fixture "$(pr 42 feature-A "$(oid A1)" false thescubageek)"; TARGET=42 ;;
+        G1)
+            base_world G1; git clone -q parent.git work; cd work || exit 2
+            git checkout -q --detach main
+            fixture "$(pr 42 feature-A "$(oid A1)" false thescubageek)" ;;
+        H1|H2)
+            base_world "$1"; git clone -q parent.git work; cd work || exit 2
+            git checkout -q feature-A; commit L1
+            case $1 in
+                H1) git remote add gitlab https://gitlab.com/thescubageek/workbench.git
+                    git config branch.feature-A.remote gitlab; TARGET=42 ;;
+                H2) git remote add ghe git@github.example.com:thescubageek/workbench.git
+                    git config branch.feature-A.remote ghe ;;
+            esac
+            fixture "$(pr 42 feature-A "$(oid A1)" false thescubageek)" ;;
+        H3|H4|H5|H6|H7|H10)
+            base_world "$1"; git clone -q parent.git work; cd work || exit 2
+            git checkout -q feature-A; commit L1
+            case $1 in
+                H3) evil="https://evil.example/x@github.com/thescubageek/workbench.git" ;;
+                H4) evil="ssh://evil.example/x@github.com/thescubageek/workbench" ;;
+                H5) evil="evil.example:x@github.com:thescubageek/workbench.git" ;;
+                H6) git init -q --bare "$W/x@github.com/thescubageek/workbench.git"
+                    evil="file://$W/x@github.com/thescubageek/workbench.git" ;;
+                H7) evil="$W/x@github.com:thescubageek/workbench.git"; git init -q --bare "$evil" ;;
+                H10) evil='https://evil.example\@github.com/thescubageek/workbench.git' ;;
+            esac
+            git remote set-url --push origin "$evil"
+            REPOS="$REPOS, \"${evil//\\/\\\\}\": \"someone/workbench\""
+            fixture "$(pr 42 feature-A "$(oid A1)" false thescubageek)"; TARGET=42 ;;
+        H8|H9)
+            base_world "$1"; git clone -q parent.git work; cd work || exit 2
+            git checkout -q feature-A; commit L1
+            git remote set-url origin https://github.com/thescubageek/workbench.git
+            case $1 in
+                H8) git remote set-url --push origin ssh://git@github.com:22/thescubageek/workbench.git/ ;;
+                H9) git remote set-url --push origin https://x-access-token:abc@github.com/thescubageek/workbench ;;
+            esac
+            REPOS="\"https://github.com/thescubageek/workbench.git\": \"thescubageek/workbench\""
+            fixture "$(pr 42 feature-A "$(oid A1)" false thescubageek)"; TARGET=42 ;;
+        I1|I2|I3|I4|I5|I6)
+            base_world "$1"; git clone -q parent.git work; cd work || exit 2
+            git checkout -q feature-A; commit L1
+            case $1 in
+                I1) odd="ssh://evil.example%2f@github.com/thescubageek/workbench" ;;
+                I2) odd="ssh://%5Bevil.example%5D@github.com/thescubageek/workbench" ;;
+                I3) odd="ssh://x%40%5Bevil.example%5D@github.com/thescubageek/workbench" ;;
+                I4) odd="git://github.com/thescubageek/workbench.git" ;;
+                I5) odd="thescubageek/workbench" ;;
+                I6) odd="$W/x@github.com:thescubageek/workbench.git" ;;
+            esac
+            git remote set-url --push origin "$odd"
+            REPOS="$REPOS, \"$odd\": \"thescubageek/workbench\""
+            fixture "$(pr 42 feature-A "$(oid A1)" false thescubageek)"; TARGET=42 ;;
+        J1|J2)
+            base_world "$1"; git clone -q parent.git work; cd work || exit 2
+            git checkout -q feature-A; commit L1
+            git remote set-url origin https://github.com/thescubageek/workbench.git
+            case $1 in
+                J1) git remote set-url --push origin ssh://github.com/thescubageek/workbench ;;
+                J2) git remote set-url --push origin https://github.com:443/thescubageek/workbench.git/ ;;
+            esac
+            REPOS="\"https://github.com/thescubageek/workbench.git\": \"thescubageek/workbench\""
+            fixture "$(pr 42 feature-A "$(oid A1)" false thescubageek)"; TARGET=42 ;;
+        K1|K2)
+            base_world "$1"; git clone -q parent.git work; cd work || exit 2
+            git checkout -q feature-A; commit L1
+            case $1 in
+                K1) odd="https://g$(printf '\xc4\xb0')thub.com/thescubageek/workbench.git" ;;
+                K2) odd="ssh://u:p@github.com/thescubageek/workbench" ;;
+            esac
+            git remote set-url --push origin "$odd"
+            REPOS="$REPOS, \"$odd\": \"thescubageek/workbench\""
+            fixture "$(pr 42 feature-A "$(oid A1)" false thescubageek)"; TARGET=42 ;;
+        C1)
+            base_world C1; git clone -q parent.git work; cd work || exit 2
+            git checkout -q feature-A; commit L1
+            git remote set-url origin https://github.com/thescubageek/workbench.git
+            git remote set-url --push origin git@github.com:thescubageek/workbench.git
+            REPOS="\"https://github.com/thescubageek/workbench.git\": \"thescubageek/workbench\""
+            fixture "$(pr 42 feature-A "$(oid A1)" false thescubageek)"; TARGET=42 ;;
+        D1)
+            base_world D1; git clone -q --bare parent.git other.git
+            cd seed || exit 2; git checkout -qb u main; commit U1
+            must git push -q "$W/other.git" "+$(oid U1):refs/pull/42/head"
+            git checkout -q main; cd "$W" || exit 2
+            REPOS="$REPOS, \"$W/other.git\": \"someone/other\""
+            git clone -q parent.git work; cd work || exit 2
+            git remote add upstream "$W/other.git"
+            git config remote.origin.gh-resolved base
+            git checkout -qb side main; commit D1
+            fixture "$(pr 42 feature-A "$(oid A1)" false thescubageek)"; TARGET=42 ;;
+        E1)
+            base_world E1; git clone -q parent.git work; cd work || exit 2
+            fixture "$(pr 42 feature-A "$(oid A1)" false thescubageek)"; TARGET=99 ;;
+        E2)
+            base_world E2; git clone -q parent.git work; cd work || exit 2
+            git remote set-url origin "https://example.invalid/other/name.git"
+            REPOS="$REPOS, \"https://example.invalid/other/name.git\": \"thescubageek/workbench\""
+            fixture "$(pr 42 feature-A "$(oid A1)" false thescubageek)"; TARGET=42 ;;
+        E3)
+            base_world E3; git -C parent.git update-ref -d refs/pull/42/head
+            git clone -q parent.git work; cd work || exit 2
+            fixture "$(pr 42 feature-A "$(oid A1)" false thescubageek)"; TARGET=42 ;;
+        S12|S12b|S12c)
+            base_world "$1"; git clone -q parent.git work; cd work || exit 2
+            mkdir -p docs/plans/p; fixture "" ;;
+    esac
+    case $1 in S9|S3b|N1|G1|H2|S12|S12b|S12c) ;; *) HAS_TARGET=1 ;; esac
+    export GH_FIXTURE="$W/fixture.json" GH_LOG="$W/gh.log"
+    : >"$GH_LOG"
+}
+
+# id | relation (alternatives with /) | fix | publish | world HEAD | review_head oid | push_remote | push_ref | why
+TABLE='S1|own|yes|yes|L1|L1|origin|refs/heads/feature-A|own PR, local commit
+S2|stacked|no|no|B1|A1|-|-|stacked on the PR, upstream is its own branch
+Q1|stacked|no|no|B1|A1|-|-|a directory named 42 does not make PR 42 the current checkout
+S3|own|yes|yes|A1|A1|origin|refs/heads/feature-A|renamed branch tracking the PR head
+S3b|elsewhere|yes|no|A1|A1|-|-|renamed branch tracking the PR head, no target: the PR head branch is not the current branch
+R1|own|yes|yes|B1|B1|origin|refs/heads/feature-B|PR stacked on feature-A, so its review base is origin/feature-A
+S4|detached|no|no|A1|A1|-|-|detached at the PR head
+S5|cross|no|no|M1|F1|-|-|same-name fork PR
+S6|cross|no|no|F1|F1|-|-|cross-repository PR checked out
+S7|own|yes|yes|L1|L1|origin|refs/heads/feature-A|branch target equal to the current branch
+S8|branch|no|no|B1|H1|-|-|branch target HEAD-fix
+S9|own|yes|yes|L1|L1|origin|refs/heads/feature-A|no argument
+S10|own|yes|yes|L1|L1|origin|refs/heads/feature-A|path target
+S11|elsewhere|no|no|L1|A1|-|-|two remotes, upstream is the fork
+N1|none|yes|no|base|base|-|-|current checkout with no PR
+O1|other|no|no|O1|A1|-|-|HEAD does not contain the PR head
+B1|refuse|-|-|X1|-|-|-|refs/pull/42/head on the base remote is not the PR head
+P1|elsewhere|no|no|L1|A1|-|-|push url of the upstream remote points elsewhere
+M1|own|yes|no|L1|L1|-|-|the PR is MERGED, the branch is still the PR head
+M2|own|yes|no|L1|L1|-|-|the PR is CLOSED, the branch is still the PR head
+G1|refuse|-|-|base|-|-|-|no target and gh could not answer (detached HEAD)
+E1|refuse|-|-|base|-|-|-|gh has no such PR
+E2|refuse|-|-|base|-|-|-|no remote points at the base repository
+E3|refuse|-|-|base|-|-|-|the base remote has no refs/pull/42/head
+H1|elsewhere|no|no|L1|A1|-|-|upstream remote has the same owner/name on another host (https)
+H2|elsewhere|yes|no|L1|L1|-|-|upstream remote has the same owner/name on another host (scp), no target
+H3|elsewhere|no|no|L1|A1|-|-|push url https://evil.example/x@github.com/... has an @ in its path, not its authority
+H4|elsewhere|no|no|L1|A1|-|-|push url ssh://evil.example/x@github.com/... has an @ in its path, not its authority
+H5|elsewhere|no|no|L1|A1|-|-|push url evil.example:x@github.com:... is scp form on evil.example
+H6|elsewhere|no|no|L1|A1|-|-|push url file://.../x@github.com/... is a local repository
+H7|elsewhere|no|no|L1|A1|-|-|push url .../x@github.com:... is a local path, a / comes before its first :
+H8|own|yes|yes|L1|L1|origin|refs/heads/feature-A|push url ssh:// with user, port, .git and a trailing slash
+H9|own|yes|yes|L1|L1|origin|refs/heads/feature-A|push url https:// with credentials in its userinfo
+H10|elsewhere|no|no|L1|A1|-|-|push url with a backslash in its authority is not read locally
+I1|elsewhere|no|no|L1|A1|-|-|push url ssh:// with a percent-encoded / in its userinfo
+I2|elsewhere|no|no|L1|A1|-|-|push url ssh:// with percent-encoded brackets in its userinfo
+I3|elsewhere|no|no|L1|A1|-|-|push url ssh:// with a percent-encoded @ and brackets in its userinfo
+I4|elsewhere|no|no|L1|A1|-|-|push url git:// that gh resolves to the base repository
+I5|elsewhere|no|no|L1|A1|-|-|push url a relative path that gh resolves to the base repository
+I6|elsewhere|no|no|L1|A1|-|-|push url a local path with @ and : that gh resolves to the base repository
+J1|own|yes|yes|L1|L1|origin|refs/heads/feature-A|push url ssh:// with no user
+J2|own|yes|yes|L1|L1|origin|refs/heads/feature-A|push url https:// with a port, .git and a trailing slash
+K1|elsewhere|no|no|L1|A1|-|-|push url https:// whose host has a non-ASCII letter that lower-casing folds to ASCII
+K2|elsewhere|no|no|L1|A1|-|-|push url ssh:// with a : in its userinfo
+C1|own|yes|yes|L1|L1|origin|refs/heads/feature-A|hosted GitHub URLs, fetch https and push scp
+D1|other|no|no|D1|A1|-|-|gh-resolved=base on origin outranks the name-ranked upstream'
+
+err_pattern() {
+    case $1 in
+        E1) echo 'could not resolve PR 99 via gh' ;;
+        E2) echo 'no remote here points at the base repository' ;;
+        E3) echo 'could not fetch refs/pull/42/head' ;;
+    esac
+}
+
+want_base() {
+    case $1 in
+        R1) echo origin/feature-A ;;
+        S11) echo upstream/main ;;
+        *) echo origin/main ;;
+    esac
+}
+
+reason_pattern() {
+    case $1 in
+        M1) echo 'MERGED' ;;
+        M2) echo 'CLOSED' ;;
+        S3b) echo "is not the current branch" ;;
+    esac
+}
+
+val() { printf '%s\n' "$OUT" | sed -n "s/^$1=//p" | head -1; }
+
+fail() { echo "  ✗ $1: $2"; FAIL=$((FAIL + 1)); }
+
+if [[ -x "$PRID" ]]; then MISSING=0; else MISSING=1; echo "plugin/scripts/pr-identity not found or not executable"; fi
+
+while IFS='|' read -r id rel fix publish headname revname premote pref why; do
+    build "$id" >/dev/null 2>&1
+    cd "$W/work" || exit 2
+    world_head=$(git rev-parse HEAD)
+    if [[ "$(command -v gh)" != "$ROOT/bin/gh" ]] || [[ "$world_head" != "$(oid "$headname")" ]]; then
+        fail "$id" "world did not build: HEAD ${world_head:0:7}, expected $headname $(oid "$headname" | cut -c1-7)"
+        cd "$SCRIPT_DIR" || exit 2; continue
+    fi
+    if [[ $MISSING -eq 1 ]]; then
+        fail "$id" "plugin/scripts/pr-identity not found ($why; world built, HEAD is $headname)"
+        cd "$SCRIPT_DIR" || exit 2; continue
+    fi
+    if [[ $HAS_TARGET -eq 1 ]]; then OUT=$("$PRID" "$TARGET" 2>"$W/err"); else OUT=$("$PRID" 2>"$W/err"); fi
+    rc=$?
+    if [[ $rel == refuse ]]; then
+        problems=""
+        [[ $rc -eq 1 ]] || problems="$problems exit=$rc want 1;"
+        grep -q -- '— NOT reviewing$' "$W/err" || problems="$problems stderr lacks 'NOT reviewing';"
+        pat=$(err_pattern "$id")
+        [[ -z "$pat" ]] || grep -q -- "$pat" "$W/err" || problems="$problems stderr lacks '$pat';"
+        [[ "$id" != E3 ]] || [[ -z "$(git for-each-ref 'refs/remotes/*/pr/*')" ]] || problems="$problems a pr ref was left behind;"
+        if [[ -z "$problems" ]]; then echo "  ✓ $id $rel: $why"; PASS=$((PASS + 1)); else fail "$id" "$why:$problems"; fi
+        cd "$SCRIPT_DIR" || exit 2; continue
+    fi
+    got_head=$(git rev-parse -q --verify "$(val review_head)^{commit}" 2>/dev/null || echo unresolved)
+    problems=""
+    [[ $rc -eq 0 ]] || problems="$problems exit=$rc;"
+    [[ "/$rel/" == *"/$(val relation)/"* ]] || problems="$problems relation=$(val relation) want $rel;"
+    [[ "$(val fix)" == "$fix" ]] || problems="$problems fix=$(val fix) want $fix;"
+    [[ "$(val publish)" == "$publish" ]] || problems="$problems publish=$(val publish) want $publish;"
+    [[ "$got_head" == "$(oid "$revname")" ]] || problems="$problems review_head=$(val review_head) -> ${got_head:0:7} want $revname;"
+    [[ "$(val push_remote)" == "$premote" ]] || problems="$problems push_remote=$(val push_remote) want $premote;"
+    [[ "$(val push_ref)" == "$pref" ]] || problems="$problems push_ref=$(val push_ref) want $pref;"
+    [[ "$(val review_base)" == "$(want_base "$id")" ]] || problems="$problems review_base=$(val review_base) want $(want_base "$id");"
+    rpat=$(reason_pattern "$id")
+    [[ -z "$rpat" ]] || [[ "$(val reason)" == *"$rpat"* ]] || problems="$problems reason='$(val reason)' lacks '$rpat';"
+    if [[ -z "$problems" ]]; then
+        echo "  ✓ $id $rel: $why"; PASS=$((PASS + 1))
+    else
+        fail "$id" "$why:$problems"
+    fi
+    cd "$SCRIPT_DIR" || exit 2
+done <<<"$TABLE"
+
+ONE_WRITE='S2|origin/pr/42
+S4|origin/pr/42
+S5|origin/pr/57
+O1|origin/pr/42
+S11|upstream/pr/42
+H1|origin/pr/42
+D1|origin/pr/42
+S1|
+S3|'
+
+while IFS='|' read -r id written; do
+    build "$id" >/dev/null 2>&1
+    cd "$W/work" || exit 2
+    if [[ $MISSING -eq 1 ]]; then
+        fail "$id" "plugin/scripts/pr-identity not found (one-write check)"
+        cd "$SCRIPT_DIR" || exit 2; continue
+    fi
+    git for-each-ref --format='%(refname) %(objectname)' >"$W/refs.before"
+    "$PRID" "$TARGET" >"$W/out" 2>"$W/err"; rc=$?
+    git for-each-ref --format='%(refname) %(objectname)' >"$W/refs.after"
+    added=$(comm -13 "$W/refs.before" "$W/refs.after" | cut -d' ' -f1)
+    removed=$(comm -23 "$W/refs.before" "$W/refs.after")
+    want=""; [[ -z "$written" ]] || want="refs/remotes/$written"
+    problems=""
+    [[ $rc -eq 0 ]] || problems="$problems exit=$rc;"
+    [[ "$added" == "$want" ]] || problems="$problems new refs '${added//$'\n'/ }' want '$want';"
+    [[ -z "$removed" ]] || problems="$problems refs changed or removed: ${removed//$'\n'/ };"
+    if [[ -z "$problems" ]]; then echo "  ✓ $id one write: ${want:-no new ref}"; PASS=$((PASS + 1)); else fail "$id" "one write:$problems"; fi
+    cd "$SCRIPT_DIR" || exit 2
+done <<<"$ONE_WRITE"
+
+# --no-fetch (design.md PD8): the same facts as the fetching run, review_head=-, no ref, no fetch.
+# The --no-fetch run goes first, so the fetching run after it sees the same world.
+NO_FETCH='S2|origin/pr/42
+S4|origin/pr/42
+S5|origin/pr/57
+S6|origin/pr/57
+O1|origin/pr/42
+S11|upstream/pr/42'
+
+nval() { printf '%s\n' "$NF" | sed -n "s/^$1=//p" | head -1; }
+
+while IFS='|' read -r id ref; do
+    build "$id" >/dev/null 2>&1
+    cd "$W/work" || exit 2
+    if [[ $MISSING -eq 1 ]]; then
+        fail "$id" "plugin/scripts/pr-identity not found (--no-fetch check)"
+        cd "$SCRIPT_DIR" || exit 2; continue
+    fi
+    git for-each-ref --format='%(refname) %(objectname)' >"$W/refs.before"
+    fh_before=$(cksum .git/FETCH_HEAD 2>/dev/null)
+    NF=$(GIT_TRACE="$W/trace" "$PRID" --no-fetch "$TARGET" 2>"$W/err"); nrc=$?
+    git for-each-ref --format='%(refname) %(objectname)' >"$W/refs.after"
+    fh_after=$(cksum .git/FETCH_HEAD 2>/dev/null)
+    left=$(git rev-parse -q --verify "refs/remotes/$ref" 2>/dev/null)
+    fetches=$("$SCRIPT_DIR/count" 'built-in: git fetch' "$W/trace") || fetches=unmeasured
+    OUT=$("$PRID" "$TARGET" 2>/dev/null); frc=$?
+    problems=""
+    [[ $nrc -eq 0 ]] || problems="$problems exit=$nrc;"
+    [[ $frc -eq 0 ]] || problems="$problems fetching run exit=$frc;"
+    for k in relation fix publish pr head_oid reason review_base push_remote push_ref; do
+        [[ "$(nval "$k")" == "$(val "$k")" ]] || problems="$problems $k=$(nval "$k"), fetching run $k=$(val "$k");"
+    done
+    [[ "$(nval fix)" == no && "$(nval publish)" == no ]] || problems="$problems fix=$(nval fix) publish=$(nval publish) want no, no;"
+    [[ "$(nval review_head)" == - ]] || problems="$problems review_head=$(nval review_head) want -;"
+    [[ "$(val review_head)" == "$ref" ]] || problems="$problems fetching run review_head=$(val review_head) want $ref;"
+    [[ "$NF" == *"identity: "*"not fetched"* ]] || problems="$problems identity: line does not say the PR head was not fetched;"
+    cmp -s "$W/refs.before" "$W/refs.after" || problems="$problems refs changed;"
+    [[ -z $left ]] || problems="$problems refs/remotes/$ref exists after the run;"
+    [[ "$fh_before" == "$fh_after" ]] || problems="$problems .git/FETCH_HEAD changed;"
+    [[ $fetches == 0 ]] || problems="$problems $fetches fetches want 0;"
+    if [[ -z "$problems" ]]; then echo "  ✓ $id --no-fetch: $(nval relation), no ref, no fetch"; PASS=$((PASS + 1)); else fail "$id" "--no-fetch:$problems"; fi
+    cd "$SCRIPT_DIR" || exit 2
+done <<<"$NO_FETCH"
+
+if [[ $MISSING -eq 0 ]]; then
+    for id in S1 S9; do
+        build "$id" >/dev/null 2>&1
+        cd "$W/work" || exit 2
+        args=(); [[ $HAS_TARGET -eq 0 ]] || args=("$TARGET")
+        NF=$("$PRID" --no-fetch ${args[@]+"${args[@]}"} 2>"$W/err"); nrc=$?
+        OUT=$("$PRID" ${args[@]+"${args[@]}"} 2>/dev/null); frc=$?
+        if [[ $nrc -eq 0 && $frc -eq 0 && "$(nval relation)" == own && "$NF" == "$OUT" ]]; then
+            echo "  ✓ $id --no-fetch: own, output unchanged"; PASS=$((PASS + 1))
+        else fail "$id" "--no-fetch on own: exit=$nrc, relation=$(nval relation), output differs from the run without it"; fi
+        cd "$SCRIPT_DIR" || exit 2
+    done
+fi
+
+usage_case() { # name args...
+    local name=$1; shift
+    "$PRID" "$@" >"$W/out" 2>"$W/err"; rc=$?
+    if [[ $rc -eq 2 && ! -s "$W/out" ]]; then echo "  ✓ $name: exit 2"; PASS=$((PASS + 1)); else fail "$name" "exit=$rc want 2 with no stdout"; fi
+}
+
+if [[ $MISSING -eq 0 ]]; then
+    build C1 >/dev/null 2>&1; cd "$W/work" || exit 2
+    GIT_TRACE="$W/trace" "$PRID" "$TARGET" >"$W/out" 2>"$W/err"; rc=$?
+    calls=$("$SCRIPT_DIR/count" '^gh ' "$GH_LOG") || calls=unmeasured
+    fetches=$("$SCRIPT_DIR/count" 'built-in: git fetch' "$W/trace") || fetches=unmeasured
+    if [[ $rc -eq 0 && $calls == 2 && ($fetches == 0 || $fetches == 1) ]]; then echo "  ✓ C1 call budget: 2 gh calls, $fetches fetch"; PASS=$((PASS + 1))
+    else fail "C1" "call budget: exit=$rc, $calls gh calls want 2, $fetches fetches want at most 1"; fi
+    cd "$SCRIPT_DIR" || exit 2
+
+    build N1 >/dev/null 2>&1; cd "$W/work" || exit 2
+    usage_case "U1 unknown option" --bogus
+    usage_case "U2 unknown option after a target" 42 --bogus
+    usage_case "U3 two targets" 42 feature-A
+    usage_case "U4 --no-fetch after a target" 42 --no-fetch
+    usage_case "U5 an unknown option after --no-fetch" --no-fetch --bogus
+    usage_case "U6 --no-fetch and two targets" --no-fetch 42 feature-A
+    cd "$SCRIPT_DIR" || exit 2
+
+    build S1 >/dev/null 2>&1; cd "$W/work" || exit 2
+    forged=$'x\npublish=yes\npr=7\nrelation=none'
+    : >"$forged"
+    OUT=$("$PRID" "$forged" 2>"$W/err"); rc=$?
+    if [[ $rc -eq 1 && -z $OUT ]] && grep -q -- '— NOT reviewing$' "$W/err"; then
+        echo "  ✓ T1 a target with a line break is refused, nothing printed"; PASS=$((PASS + 1))
+    else fail "T1" "line break in a path target: exit=$rc want 1 with no stdout"; fi
+    cd "$SCRIPT_DIR" || exit 2
+fi
+
+echo "consumer level: skills from ${SKILLS_AT:-the working tree}"
+
+PLAN_DATE=2026-10-01
+REAL_GIT=$(command -v git)
+export REAL_GIT
+mkdir -p "$ROOT/pushbin"
+# a push to the hosted URL lands in the world's parent.git, as on GitHub; every other git call is real
+cat >"$ROOT/pushbin/git" <<'SH'
+#!/bin/sh
+[ "$1" = push ] && [ -n "${PUSH_AS_GITHUB:-}" ] || exec "$REAL_GIT" "$@"
+shift
+exec "$REAL_GIT" -c "url.$PUSH_AS_GITHUB.insteadOf=https://github.com/thescubageek/workbench.git" push "$@"
+SH
+chmod +x "$ROOT/pushbin/git"
+
+extract() { # file heading-ERE end-ERE: the first bash fence under the heading, dedented
+    awk -v head="$2" -v endre="$3" '
+        state == 0 { if (!fence && $0 ~ head) state = 1; else if ($0 ~ /^[ \t]*```/) fence = !fence; next }
+        state == 1 { if (!fence && $0 ~ endre) exit
+                     if (!fence && $0 ~ /^[ \t]*```bash[ \t]*$/) { match($0, /^[ \t]*/); ind = RLENGTH; state = 2; next }
+                     if ($0 ~ /^[ \t]*```/) fence = !fence
+                     next }
+        { if ($0 ~ /^[ \t]*```[ \t]*$/) { found = 1; exit }; print substr($0, ind + 1) }
+        END { exit !found }' "$1"
+}
+
+load_block() { # name skill heading-ERE end-ERE
+    extract "$ROOT/skills/$2.md" "$3" "$4" >"$ROOT/blk.$1" && [[ -s "$ROOT/blk.$1" ]] || rm -f "$ROOT/blk.$1"
+}
+load_block review adversarial-review '^## Step 1: ' '^##? '
+load_block step8 adversarial-review '^## Step 8: ' '^##? '
+load_block phase0 adversarial-loop '^## Phase 0: ' '^##? '
+load_block phase2 adversarial-loop '^## Phase 2: ' '^##? '
+load_block ledger adversarial-loop '^[0-9]+[.] [*][*]Record each finding' '^[0-9]+[.] |^##? '
+load_block reply reply-to-claude '^## Step 1: ' '^##? '
+
+has() { [[ -f "$ROOT/blk.$1" ]]; }
+
+block_desc() {
+    case $1 in
+        review) echo "adversarial-review Step 1" ;;
+        step8) echo "adversarial-review Step 8" ;;
+        phase0) echo "adversarial-loop Phase 0" ;;
+        phase2) echo "adversarial-loop Phase 2" ;;
+        ledger) echo "adversarial-loop Phase 1 step 5 (ledger)" ;;
+        reply) echo "reply-to-claude Step 1" ;;
+    esac
+}
+
+bound() { # name: the value in $BIND
+    local l
+    while IFS= read -r l; do
+        [[ -n $l && ${l%%=*} == "$1" ]] && { printf '%s' "${l#*=}"; return 0; }
+    done <<<"$BIND"
+    return 1
+}
+
+materialize() { # block-file out-file
+    local line name val restated=0
+    : >"$2.body"
+    while IFS= read -r line || [[ -n $line ]]; do
+        line=${line//"\${CLAUDE_PLUGIN_ROOT}"/$PLUGIN_ROOT}
+        line=${line//'<plan>'/p}; line=${line//'<N>'/1}; line=${line//'<date>'/$PLAN_DATE}
+        if [[ $line =~ ^([A-Za-z_][A-Za-z0-9_]*)=\"\"$ ]]; then
+            name=${BASH_REMATCH[1]}
+            [[ $name != target ]] || restated=1
+            if val=$(bound "$name"); then line="$name='$val'"; fi
+        fi
+        printf '%s\n' "$line" >>"$2.body"
+    done <"$1"
+    {
+        if [[ $restated -eq 0 ]] && val=$(bound target); then echo "target='$val'"; fi
+        cat "$2.body"
+    } >"$2"
+}
+
+run_block() { # block [VAR=value ...]: OUT and RC from the block under zsh in $W/work
+    local b=$1; shift
+    materialize "$ROOT/blk.$b" "$W/run-$b.zsh"
+    OUT=$(cd "$W/work" && env CLAUDE_PLUGIN_ROOT="$PLUGIN_ROOT" "$@" zsh -f "$W/run-$b.zsh" </dev/null 2>&1); RC=$?
+}
+
+fresh() { cd "$ROOT" || exit 2; rm -rf "$W"; cp -Rp "$W.snap" "$W"; : >"$GH_LOG"; cd "$W/work" || exit 2; }
+
+refs() {
+    local b
+    for b in "$W"/*.git; do
+        [ -e "$b" ] || continue
+        git -C "$b" for-each-ref --format="$(basename "$b" .git):%(refname) %(objectname)" refs/heads
+    done | sort
+}
+
+T_UNSAFE=0; T_MISSING=0; T_MISS=0; T_OK=0
+score() { # id: classifies $U, $F and $M
+    local class why
+    if [[ -n $U ]]; then class=UNSAFE; elif [[ -n $F ]]; then class=MISSING; elif [[ -n $M ]]; then class=MISS; else class=OK; fi
+    case $class in UNSAFE) T_UNSAFE=$((T_UNSAFE + 1)) ;; MISSING) T_MISSING=$((T_MISSING + 1)) ;;
+                   MISS) T_MISS=$((T_MISS + 1)) ;; OK) T_OK=$((T_OK + 1)) ;; esac
+    why="$U$F$M"
+    if [[ $class == OK ]]; then echo "  ✓ $1 consumer OK"; PASS=$((PASS + 1)); else fail "$1 consumer $class" "${why#; }"; fi
+}
+
+missing() { F="$F; missing block: $(block_desc "$1")"; }
+
+# id | fix | review head | pathspec | publish | reply
+CTABLE='S1|yes|L1||yes|proceed
+S2|no|A1||no|refuse
+S3|yes|A1||yes|proceed
+S4|no|A1||no|proceed
+S5|no|F1||no|refuse
+S6|no|F1||no|proceed
+S7|yes|L1||yes|-
+S8|no|H1||no|-
+S9|yes|L1||yes|proceed
+S10|yes|L1|plugin/|yes|-
+S11|no|A1||no|refuse'
+
+if ! command -v zsh >/dev/null; then
+    fail consumer "zsh not found: the extracted blocks run under zsh"
+else
+    while IFS='|' read -r id efix ehead espec epub ereply; do
+        build "$id" >/dev/null 2>&1
+        cp -Rp "$W" "$W.snap"
+        U=""; F=""; M=""
+        TARGET_BIND=""; [[ $HAS_TARGET -eq 0 ]] || TARGET_BIND="target=$TARGET"
+
+        fresh; BIND=$TARGET_BIND; P0=""
+        if has phase0; then
+            run_block phase0
+            P0=$(printf '%s\n' "$OUT" | grep -E '^[a-z_]+=')
+            [[ -z "$(git for-each-ref 'refs/remotes/*/pr/*')" ]] || M="$M; the loop's Phase 0 wrote a pr ref"
+            lfix=$(val fix)
+            if [[ -z $lfix ]]; then M="$M; phase0 printed no fix= line"
+            elif [[ $lfix == yes && $efix == no ]]; then U="$U; the loop fixes a checkout that is not the target"
+            elif [[ $lfix == no && $efix == yes ]]; then M="$M; the loop stops where it should fix"
+            elif [[ $lfix == no && $OUT != *"/wb:adversarial-review $TARGET"* ]]; then
+                M="$M; the loop's refusal does not name /wb:adversarial-review $TARGET"
+            fi
+        else missing phase0; fi
+
+        fresh; BIND=$TARGET_BIND
+        if has review; then
+            run_block review
+            rline=$(printf '%s\n' "$OUT" | sed -n 's/^range: //p' | head -1)
+            if [[ $RC -ne 0 || -z $rline ]]; then M="$M; review refused"
+            else
+                rspec=""
+                if [[ $rline == *" -- "* ]]; then rspec=${rline#* -- }; rline=${rline%% -- *}; fi
+                rbase=${rline%%...*}; rhead=${rline#*...}
+                got=$(git rev-parse -q --verify "$rhead^{commit}" 2>/dev/null)
+                if [[ $got != "$(oid "$ehead")" || $rspec != "$espec" ]]; then
+                    M="$M; review head $rhead${rspec:+ -- $rspec} = ${got:0:7}, expected $ehead${espec:+ -- $espec}"
+                fi
+                if has step8; then
+                    BIND="$TARGET_BIND"$'\n'"$(printf '%s\n' "$OUT" | grep -E '^[a-z_]+=')"$'\n'"review_base=$rbase"$'\n'"review_head=$rhead"$'\n'"pathspec=$rspec"
+                    plan="docs/plans/p/reviews/$PLAN_DATE-round-1/tasks.md"
+                    mkdir -p "${plan%/*}"; echo '- [ ] **R1-T1** — a verified finding' >"$plan"
+                    run_block step8
+                    if [[ -n "$(git diff --cached --name-only -- "$plan")" ]]; then
+                        [[ $efix == yes ]] || U="$U; round plan staged for a target that is not this checkout"
+                    else
+                        [[ $efix == no ]] || M="$M; round plan not staged on this checkout"
+                    fi
+                fi
+            fi
+        else missing review; fi
+        has step8 || missing step8
+
+        fresh; BIND="$TARGET_BIND"$'\n'"$P0"
+        if has phase2; then
+            echo fix >>fix.txt; git add fix.txt; git commit -qm fix
+            before=$(refs); : >"$GH_LOG"
+            run_block phase2 PATH="$ROOT/pushbin:$PATH" PUSH_AS_GITHUB="$W/parent.git"
+            pushes=$(comm -13 <(printf '%s\n' "$before") <(refs) | sed 's# .*##; s#refs/heads/##' | paste -sd, -)
+            ready=$(sed -n 's/^READY //p' "$GH_LOG" | paste -sd, -)
+            if [[ $epub == no && ($RC -eq 0 || $OUT != *"NOT publishing"*) ]]; then
+                M="$M; phase2 did not refuse with its own message (exit $RC)"
+            fi
+            if [[ $epub == yes ]]; then
+                [[ -z $ready || $pushes == "parent:feature-A" ]] || U="$U; ready $ready after a push to '${pushes:-nothing}'"
+                [[ -z $pushes || $pushes == "parent:feature-A" ]] || U="$U; push landed on $pushes"
+                [[ $pushes == "parent:feature-A" && $ready == 42 ]] || M="$M; fixed but not published"
+            else
+                [[ -z $pushes ]] || U="$U; push landed on $pushes where publish=no"
+                [[ -z $ready ]] || U="$U; ready $ready where publish=no"
+            fi
+        else missing phase2; fi
+
+        if [[ $ereply != - ]]; then
+            fresh; BIND=$TARGET_BIND
+            if has reply; then
+                : >"$W/trace-reply"
+                run_block reply GIT_TRACE="$W/trace-reply"
+                rfetch=$("$SCRIPT_DIR/count" 'built-in: git fetch' "$W/trace-reply") || rfetch=unmeasured
+                [[ $rfetch == 0 ]] || M="$M; reply made $rfetch fetches"
+                if [[ $RC -eq 0 && $ereply == refuse ]]; then U="$U; reply adjudicates against a tree that is not the PR head"
+                elif [[ $RC -ne 0 && $ereply == proceed ]]; then M="$M; reply refused on a checkout it serves"
+                elif [[ $ereply == refuse && $OUT != *"NOT replying"* ]]; then M="$M; reply did not refuse with its own message"
+                fi
+                if [[ $RC -ne 0 ]] && printf '%s\n' "$OUT" | grep -qiE '(^|[^[:alnum:]_-])push([^[:alnum:]_-]|$)|reopen|check out its branch'; then
+                    M="$M; reply's refusal tells the user to push, reopen or check out its branch"
+                fi
+            else missing reply; fi
+        fi
+
+        score "$id"
+        cd "$SCRIPT_DIR" || exit 2
+    done <<<"$CTABLE"
+
+    for id in S12 S12b S12c; do
+        build "$id" >/dev/null 2>&1
+        U=""; F=""; M=""
+        L=docs/plans/p/review-log.md
+        if has ledger; then
+            ROW='| 1 | a.sh:1 | x | CONFIRMED | Wrong | e | prev-fix |'
+            case $id in
+                S12) BIND="findings=0" ;;
+                S12b) BIND="findings=1"; printf '%s\n' "$ROW" >docs/plans/p/reviewlog.md ;;
+                S12c) BIND="findings=0"; printf '%s' "$ROW" >"$L" ;;
+            esac
+            run_block ledger
+            c=$(git log -1 --format=%H -- "$L")
+            case $id in
+                S12)
+                    if [[ $RC -ne 0 || -z $c ]] || ! git show "$c:$L" | grep -q clean-round; then
+                        M="$M; no clean-round row committed (exit $RC), so the breaker has no data"
+                    fi ;;
+                S12b) [[ $RC -ne 0 ]] || U="$U; exit 0 over a missing ledger" ;;
+                S12c)
+                    if [[ $RC -ne 0 || -z $c ]]; then M="$M; no clean-round row committed (exit $RC)"
+                    elif [[ "$(git show "$c:$L" | sed -n 1p)" != "$ROW" || "$(git show "$c:$L" | sed -n 2p)" != *clean-round* \
+                            || "$(git show "$c:$L" | wc -l | tr -d ' ')" != 2 ]]; then
+                        M="$M; the clean-round row is not on its own line after a ledger with no trailing newline"
+                    fi ;;
+            esac
+        else missing ledger; fi
+        score "$id"
+        cd "$SCRIPT_DIR" || exit 2
+    done
+fi
+
+hits=$(grep -nE -- '--is-ancestor|isCrossRepository|git branch --show-current' "$ROOT"/skills/*.md \
+    | sed "s#^$ROOT/skills/##" | paste -sd ';' -)
+if [[ -z $hits ]]; then
+    echo "  ✓ grep: no --is-ancestor, isCrossRepository or git branch --show-current in the three SKILL.md files"; PASS=$((PASS + 1))
+else
+    fail grep "the identity test is still in SKILL.md: $hits"
+fi
+
+echo "consumer: UNSAFE $T_UNSAFE, MISSING $T_MISSING, MISS $T_MISS, OK $T_OK"
+echo "test-pr-identity: $PASS passed, $FAIL failed"
+[[ $FAIL -eq 0 && $MISSING -eq 0 ]]

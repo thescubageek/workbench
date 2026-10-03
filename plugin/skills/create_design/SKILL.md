@@ -14,6 +14,7 @@ Supporting files in this directory (read each when its step directs you to — n
 - [sub-agent-prompts.md](sub-agent-prompts.md) — the three Step 2 verification agents
 - `templates/` — one file per output shape: [design-md-template.md](templates/design-md-template.md) (Step 5, includes the Assumptions and Pending Decisions tables) · [recorded-decision-confirmation-message.md](templates/recorded-decision-confirmation-message.md) (Step 4, Mode A) · [design-options-message.md](templates/design-options-message.md) (Step 4, Mode B) · [design-presentation-message.md](templates/design-presentation-message.md) (Step 6)
 - [reference.md](reference.md) — design principles, what belongs in design vs execution, handling knowledge gaps, leveraging agent findings, configuration
+- [../../docs/reference/journal-entries.md](../../docs/reference/journal-entries.md) — where a journal entry goes (newest first, never appended), its heading contract, and when it opens and closes
 
 **If a directed read fails, stop — do not continue from memory.** These files live outside your
 project, so a read can be refused. Say which file was refused, that reads outside the working
@@ -76,9 +77,10 @@ Assumptions table, which states what being wrong would cost.
 
 **⛔⛔⛔ BARRIER 1: STOP! Read research.md and existing design.md FULLY - NO SKIMMING ⛔⛔⛔**
 
-**Open a journal entry before you begin reading** — appended to `journal.md` in the plan
-directory. The heading shape is a contract — the session-start hook, `forge`, `daily-digest`,
-`resume_handoff` and `create_handoff` all match on the trailing `(open)` / `(closed)`:
+**Open a journal entry before you begin reading.** Placement and heading shape are both
+contracts: read [../../docs/reference/journal-entries.md](../../docs/reference/journal-entries.md) NOW
+and follow it. The entry goes at the **top** of `journal.md`, under the marker comment — never
+appended to the end, which the session-start hook cannot see:
 
 ```text
 ## 2026-09-11 14:02 — create_design (open)

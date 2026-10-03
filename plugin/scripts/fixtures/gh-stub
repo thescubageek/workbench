@@ -1,0 +1,79 @@
+#!/usr/bin/env python3
+"""Stub gh for test-pr-identity. Reads $GH_FIXTURE (JSON) and logs to $GH_LOG.
+
+fixture: {"repos": {"<remote url>": "owner/name"},
+          "prs": {"owner/name": {"42": {...pr fields...}}}}
+Base repository: a remote with `remote.<name>.gh-resolved=base` (set by `gh repo set-default`)
+outranks the names; then `upstream` outranks `github`, which outranks `origin`
+(measured against gh 2.86.0, 2026-10-01, assumption A5).
+"""
+import json, os, subprocess, sys
+
+fx = json.load(open(os.environ["GH_FIXTURE"]))
+args = sys.argv[1:]
+with open(os.environ["GH_LOG"], "a") as log:
+    log.write("gh " + " ".join(args) + "\n")
+
+def git(*a):
+    r = subprocess.run(["git", *a], capture_output=True, text=True)
+    return r.stdout.strip() if r.returncode == 0 else ""
+
+def base_repo():
+    remotes = git("remote").split()
+    default = [n for n in remotes if git("config", f"remote.{n}.gh-resolved") == "base"]
+    for name in default + ["upstream", "github", "origin"]:
+        if name in remotes:
+            url = git("remote", "get-url", name)
+            if url in fx["repos"]:
+                return fx["repos"][url]
+            die(f"GraphQL: Could not resolve to a Repository for remote {name}")
+    die("no git remotes found")
+
+def die(msg, rc=1):
+    sys.stderr.write(msg + "\n"); sys.exit(rc)
+
+def pop_opt(name):
+    if name in args:
+        i = args.index(name); v = args[i + 1]; del args[i:i + 2]; return v
+    return None
+
+def emit(obj, fields, jq):
+    sel = {f: obj.get(f) for f in fields.split(",")} if fields else obj
+    data = json.dumps(sel)
+    if jq:
+        r = subprocess.run(["jq", "-r", jq], input=data, capture_output=True, text=True)
+        sys.stdout.write(r.stdout); sys.exit(r.returncode)
+    print(data)
+
+def find_pr(repo, key):
+    prs = fx["prs"].get(repo, {})
+    if key.isdigit():
+        if key in prs: return prs[key]
+        die(f"GraphQL: Could not resolve to a PullRequest with the number of {key}.")
+    hits = [p for p in prs.values() if p["headRefName"] == key]
+    hits.sort(key=lambda p: p["isCrossRepository"])
+    if hits: return hits[0]
+    die(f'no pull requests found for branch "{key}"')
+
+cmd = args[:2]; del args[:2]
+fields = pop_opt("--json"); jq = pop_opt("--jq")
+if cmd == ["pr", "view"]:
+    if args:
+        key = args[0]
+    else:
+        cur = git("branch", "--show-current")
+        if not cur: die("could not determine current branch: not on any branch")
+        merge = git("config", f"branch.{cur}.merge")
+        key = merge.removeprefix("refs/heads/") if merge else cur
+    emit(find_pr(base_repo(), key), fields, jq)
+elif cmd == ["repo", "view"]:
+    repo = fx["repos"].get(args[0]) if args else base_repo()
+    if not repo: die("could not resolve repository")
+    emit({"nameWithOwner": repo, "url": "https://github.com/" + repo}, fields, jq)
+elif cmd == ["pr", "ready"]:
+    with open(os.environ["GH_LOG"], "a") as log: log.write(f"READY {args[0]}\n")
+    print(f"✓ Pull request #{args[0]} is marked as ready for review")
+elif cmd[0] == "api":
+    print("[]")
+else:
+    die("stub gh: unsupported " + " ".join(cmd))

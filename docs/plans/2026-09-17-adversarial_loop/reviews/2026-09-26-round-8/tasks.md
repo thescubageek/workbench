@@ -1,0 +1,131 @@
+---
+project: adversarial_loop
+reviews: docs/plans/2026-09-17-adversarial_loop
+round: 8
+created: 2026-09-26
+status: complete
+total_tasks: 3
+completed_tasks: 3
+task_tracking: markdown-checkboxes
+---
+
+# Remediation — adversarial review round 8
+
+Target: the two candidates round 7's own verification filed in
+`reviews/2026-09-21-round-7/tasks.md` → Implementation notes. Neither came from a review pass;
+both were measured while closing round 7. No new review was run — PD5-2 chose fewest defects, and
+these two are the known set. If this round reaches clean, the release closes.
+
+## How each task is verified
+
+Every task carries its finding's `failure_scenario` as its acceptance criterion, and **the
+criterion is run before the fix**. A criterion that passes before the change is not a criterion.
+
+## Tasks
+
+- [x] **R8-T1** — `plugin/skills/update_status/templates/frontmatter-fragments.md:13,37-42` — the
+      `tasks.md` fragment's round carve-out stops one row short: it omits `current_phase` for a
+      round and still writes `last_updated`, `git_commit` and `git_branch`, three keys
+      `plugin/docs/reference/remediation-plan.md:102` lists as absent by design and never
+      reported as missing.
+      **Fails when:** `/wb:update_status` on a round directory, rendered faithfully from the
+      fragment, writes three keys the contract says a round does not carry; the next
+      `validate_project` run over that round sees frontmatter §9 does not sanction. Round 7's
+      own close followed the reference doc instead of the fragment and wrote only `status`,
+      `total_tasks` and `completed_tasks` — two shipped authorities disagreeing, resolved by the
+      session's judgement rather than by either file.
+      **Acceptance (shape 3)**: dual grep — the carve-out table at `frontmatter-fragments.md:13`
+      names all four keys a round omits (`current_phase`, `last_updated`, `git_commit`,
+      `git_branch`), and `remediation-plan.md:102` is unchanged, so both files now say the same
+      set. RED today: the table names one. (~4 calls) (completed 2026-09-26 19:01)
+
+- [x] **R8-T2** — `plugin/skills/adversarial-review/SKILL.md:293` — the blast-radius search's
+      engine varies by invocation, and nothing in the block can tell which ran.
+      **Fails when:** in a top-level Bash-tool call `grep` is a shell function from
+      `~/.claude/shell-snapshots/` that re-execs as ugrep honouring `.gitignore`, so
+      gitignored-but-tracked files are skipped at exit 0 with no diagnostic; the identical line
+      inside a script file gets the system binary, because a non-interactive `zsh script.sh`
+      never sources the snapshot. Measured: bare `grep` 30 hits against `command grep` 52 on one
+      symbol, all dropped files tracked. Neither `search=$?` nor `filter=$?` sees it — the search
+      did not fail, it read a smaller tree. The two path spellings R7-T1 had to match are this
+      same split: ugrep emits no `./` prefix, the binary does. `.claude/wb/knowledge.md` carries
+      the entry and its `Check it`.
+      **Corrected severity, carried from round 7:** in this repository the dropped hits are plan
+      documents citing a filename, not code callers, and in an ordinary repository the ignored
+      tree is build output the measurement is right to skip. The defect is not under-reporting;
+      it is that two honest runs of one measurement can disagree and the reconnaissance summary
+      reports whichever it got as fact.
+      **Acceptance (shape 1 + shape 3)**: execute the knowledge entry's `Check it` as written and
+      assert the two counts differ today (RED). After the fix, the block pins its engine —
+      `command grep`, so the snapshot function is bypassed and the result is the same in a tool
+      call and in a script — and the "details in that command" list gains one bullet stating
+      why, with the bullet count and its heading number agreeing (R7-T8's criterion, re-run).
+      Then re-run the `Check it` through the block's own spelling and assert the count matches
+      `command grep`'s. Do not add an `--ignore-files`-style exclusion in its place: the
+      `--exclude-dir=.context` already scopes the search, and a gitignore-honouring engine fails
+      toward "isolated". (~6 calls) (completed 2026-09-26 19:06)
+
+- [x] **R8-T3** — `plugin/skills/adversarial-review/SKILL.md:319` and `:345` — the
+      `--exclude-dir` bullet's figures ("30 hits, 22 of them (73%)"; "on `check-guards`, 27 of
+      72") were measured through the shim, so the shipped text carries numbers its own pinned
+      engine cannot reproduce; and the path-field bullet still calls the `./`-prefix variance
+      "observed both ways on one machine" when the engine split now explains it. Filed at the
+      round-8 checkpoint from R8-T2's journal Learned line.
+      **Fails when:** a reader runs the block as written and gets 22 of 53 (~42%) and no
+      reproduction of 27/72.
+      **Acceptance (shape 1 + shape 3)**: re-measure both figures with `command grep` and the
+      block's own flags, assert the old numbers absent and the new ones present at the named
+      lines; the path-field bullet names the engine split (ugrep emits no `./`, the binary does)
+      as the cause and keeps the dual-spelling awk match. Bullet count and heading number still
+      agree. (~6 calls) (completed 2026-09-28 00:19)
+
+### 📝 Modified Files (Round 8)
+
+#### Code Files
+
+- `plugin/skills/update_status/templates/frontmatter-fragments.md` - carve-out row omitting
+  `last_updated`, `git_commit`, `git_branch` for a round (R8-T1)
+- `plugin/skills/adversarial-review/SKILL.md` - blast-radius search pinned to `command grep`;
+  the seventh "details in that command" bullet, heading count updated (R8-T2); the
+  `--exclude-dir` bullet's figures re-measured through the pinned engine and the path-field
+  bullet's `./` variance attributed to the engine split (R8-T3)
+
+#### Test Files
+
+None. Both acceptance criteria are executed commands — a dual grep and a hash (R8-T1); the
+knowledge entry's `Check it`, R7-T8's bullet count and a top-level-versus-script count (R8-T2) —
+run against the working tree rather than committed as a test.
+
+**Quick test commands:**
+
+```bash
+./plugin/scripts/lint --all
+./plugin/scripts/check-guards plugin/
+./plugin/scripts/check          # every gate; mostly test-guards
+```
+
+## Implementation notes
+
+- [2026-09-28] Round 8 complete using coordinated workers:
+  - 3 workers spawned (sequential execution): R8-T1 sonnet, R8-T2 and R8-T3 opus
+  - 0 escalations, 0 truncations recovered
+  - Main context kept clean, no compaction needed
+  - Key learnings: R8-T3 was filed at the checkpoint from R8-T2's own verification — the
+    neighbouring bullet's figures had been taken through the shim R8-T2 removed. Handing the
+    worker the governing contract (the knowledge entry, the heading-count rule) up front, as
+    round 7's escalations recommended, produced no invented rationale in three tasks. The
+    session was switched into auto mode during R8-T3; work stopped until it was turned off.
+  - Gates at the checkpoint: `lint --all`, `check-guards plugin/` and `./plugin/scripts/check`
+    all passed before R8-T3; `lint` and `check-guards` re-run on R8-T3's file clean.
+- **Both tasks were found by verification, not review.** Round 7 ran no review pass over its own
+  fix surface; these are what closing the round measured. The breaker has no ledger row for
+  round 8 because no findings were adjudicated — the tasks are decisions already taken, filed
+  as work.
+- **R8-T2 changes a measurement the tier rests on.** After it lands, the next reconnaissance
+  summary in this repository will count more call sites than the last one did for the same
+  symbol. That is the engine being pinned, not the blast radius growing; say so if it is
+  noticed.
+- **Not tasked, recorded so it is not lost**: the attestation list still lives only in session
+  memory until `implement` Step 8.4 (round 6's checkpoint note); `--since=<ref>` / `--range`
+  for `adversarial-review` (PD5-1, deferred to 3.1); the out-of-delta Step 2 and Step 4 items in
+  round 7's notes.

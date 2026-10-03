@@ -14,6 +14,7 @@ Supporting files in this directory (read each when its step directs you to — n
 - [sub-agent-prompts.md](sub-agent-prompts.md) — verbatim prompts for the Component Locator, Implementation Analyzer, Pattern Finder, and additional specialized agents
 - [templates.md](templates.md) — the `research.md` output template, including the Open Questions table
 - [reference.md](reference.md) — configuration
+- [../../docs/reference/journal-entries.md](../../docs/reference/journal-entries.md) — where a journal entry goes (newest first, never appended), its heading contract, and when it opens and closes
 
 **If a directed read fails, stop — do not continue from memory.** These files live outside your
 project, so a read can be refused. Say which file was refused, that reads outside the working
@@ -126,10 +127,11 @@ Then continue at this step against the directory it created. Do not hand-write `
 `journal.md`, or any other plan file by copying the shape of a neighbouring plan directory —
 every file comes from a `create_project` template, or it is not the same file set.
 
-**Open a journal entry before Step 3.** Append it to `journal.md` in the plan directory, naming
-this stage and the exact next action — written at the start, not the end. The heading shape is a
-contract — the session-start hook, `forge`, `daily-digest`, `resume_handoff` and
-`create_handoff` all match on the trailing `(open)` / `(closed)`:
+**Open a journal entry before Step 3**, naming this stage and the exact next action — written at
+the start, not the end. Placement and heading shape are both contracts: read
+[../../docs/reference/journal-entries.md](../../docs/reference/journal-entries.md) NOW and follow it.
+The entry goes at the **top** of `journal.md`, under the marker comment — never appended to the
+end, which the session-start hook cannot see:
 
 ```text
 ## 2026-09-11 14:02 — create_research (open)
