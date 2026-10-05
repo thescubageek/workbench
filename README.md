@@ -357,7 +357,7 @@ the block runs. Prose and tables are not scanned,
 so a document may describe a bad pattern freely — a deliberate counter-example belongs in a `text`
 fence rather than a `bash` one.
 
-`scripts/test-guards` is its contract test, in three parts: a **131-case labelled corpus**
+`scripts/test-guards` is its contract test, in three parts: a **132-case labelled corpus**
 (`jq length fixtures/guard-corpus.json`), **16 scan-integrity checks** the corpus structurally
 cannot cover, and **mutation survivability** — 25 single-line breaks planted in the checker, each
 of which must be caught. The third part exists because an earlier suite reported 31/31 while four

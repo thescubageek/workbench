@@ -61,8 +61,9 @@ been the thing worth distrusting.
   **indented** fences, since a block nested in a numbered step is still an instruction a model
   executes — for three shapes whose failure reads as a clean result.
 - **`plugin/scripts/test-guards` — contract tests for `check-guards`, in both directions.**
-  Nineteen planted cases: each shape must fire, and each correct form must not. A check observed
-  only passing is a check nobody has tested.
+  A labelled corpus of planted cases (`jq length plugin/scripts/fixtures/guard-corpus.json`):
+  each shape must fire, and each correct form must not. A check observed only passing is a check
+  nobody has tested.
 - **`plugin/scripts/check` — every gate in one command**, wired to CI
   (`.github/workflows/checks.yml`). The guards previously existed with nothing invoking them,
   which is the same defect one level up: a check that never runs and a check that always passes
@@ -77,11 +78,16 @@ been the thing worth distrusting.
   in a command substitution both collapse into something that reads as "zero matches". `count`
   separates them on the exit code, with a contract test in `plugin/scripts/test-count`.
 - **`plugin/scripts/pr-identity` — the one predicate that says how a target relates to the
-  checkout.** It prints a closed-set `relation`, a `fix` field and a `publish` field. The three
-  review skills call it instead of each comparing a branch name. `--no-fetch` makes it read only.
+  checkout.** It prints an `identity:` line, then closed-set `key=value` lines: `relation`, `fix`,
+  `publish`, `pr`, `head_oid`, `review_head`, `review_base`, `pathspec`, `push_remote`, `push_ref`
+  and `reason`. The three review skills call it instead of each comparing a branch name.
+  `--no-fetch` skips its one write, the fetch of the PR head. It exits 0 when resolved, 1 when
+  refused and 2 on bad usage. `publish=yes` needs an OPEN PR and every push URL naming the PR's
+  head repository. A PR in any other state gets `publish=no`. When the checkout otherwise matches it, its relation is `own`.
 - **`plugin/scripts/test-pr-identity`, now a gate in `plugin/scripts/check`.** It runs the shipped
-  blocks of the three skills against scenarios S1 to S12b. A consumer-level test catches a skill
-  that stops calling the predicate, which a test of the script alone cannot.
+  blocks of the three skills. It has a predicate table over scratch worlds and a consumer table
+  that runs the extracted skill blocks under bash, and under zsh when present. The consumer table
+  catches a skill that stops calling the predicate, which a test of the script alone cannot.
 - **`plugin/scripts/shellcheck-gate` — `shellcheck` over the plugin's own shell scripts**, at
   default severity and selected by shebang. `check` needs `shellcheck` 0.9.0 or newer and fails
   loudly without it.

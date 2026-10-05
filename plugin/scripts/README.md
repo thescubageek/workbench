@@ -238,7 +238,7 @@ Contract tests for `check-guards`, in **three** parts — and the third is the o
 ./plugin/scripts/test-guards
 ```
 
-- **Corpus** — 131 labelled cases (`jq length fixtures/guard-corpus.json`), each carrying the
+- **Corpus** — 132 labelled cases (`jq length fixtures/guard-corpus.json`), each carrying the
   review round that found it. Every shape must fire; every correct form must not.
 - **Scan integrity** — properties the corpus structurally cannot test, because every corpus case
   materialises a real directory: a missing target exits 2, an empty directory does not hard-fail,
@@ -349,11 +349,11 @@ A skip is reported as a skip, never as a pass.
 
 ### `pr-identity`
 
-Decides how a PR number, branch or path target relates to this checkout. Prints closed-set key=value lines: `relation`, `fix`, `publish`, and push destination. Consumers act on the fields, never a ref name.
+Decides how a PR number, branch or path target relates to this checkout. Prints an `identity:` line, then closed-set `key=value` lines: `relation`, `fix`, `publish`, `pr`, `head_oid`, `review_head`, `review_base`, `pathspec`, `push_remote`, `push_ref` and `reason`. Consumers act on the fields, never a ref name. `--no-fetch` skips its one write, the fetch of the PR head. Exit 0 is resolved, 1 refused and 2 bad usage. `publish=yes` needs an OPEN PR and every push URL naming the PR's head repository. A PR in any other state gets `publish=no`. When the checkout otherwise matches it, its relation is `own`.
 
 ### `test-pr-identity`
 
-Contract tests for `pr-identity`. Scenario table over scratch worlds and error paths, using the stub `gh`.
+Contract tests for `pr-identity`. A predicate table over scratch worlds and error paths, using the stub `gh`, and a consumer table that runs the extracted skill blocks under bash, and under zsh when present.
 
 ```bash
 ./plugin/scripts/test-pr-identity
