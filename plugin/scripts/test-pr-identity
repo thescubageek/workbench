@@ -82,7 +82,7 @@ record() { echo "$1=$(git rev-parse HEAD)" >>"$OIDS"; }
 commit() { echo "$1" >"$1.txt"; git add "$1.txt"; git commit -qm "$1"; record "$1"; }
 oid() { sed -n "s/^$1=//p" "$OIDS"; }
 pr() { # number headRefName oid cross owner [state [baseRefName]]
-  printf '"%s": {"number": %s, "headRefName": "%s", "headRefOid": "%s", "baseRefName": "%s", "isCrossRepository": %s, "headRepository": {"name": "workbench"}, "headRepositoryOwner": {"login": "%s"}, "state": "%s", "isDraft": true}' "$1" "$1" "$2" "$3" "${7:-main}" "$4" "$5" "${6:-OPEN}"
+  printf '"%s": {"number": %s, "headRefName": "%s", "headRefOid": "%s", "baseRefName": "%s", "isCrossRepository": %s, "headRepository": {"name": "workbench"}, "headRepositoryOwner": {"login": "%s"}, "state": "%s", "isDraft": true}' "$1" "$1" "$2" "$3" "${7:-main}" "$4" "$5" "${6-OPEN}"
 }
 
 base_world() {
@@ -120,13 +120,14 @@ build() {
             git checkout -q feature-A; commit L1; hosted_push
             fixture "$(pr 42 feature-A "$(oid A1)" false thescubageek)"
             case $1 in S1) TARGET=42 ;; S7) TARGET=feature-A ;; S10) TARGET=plugin/ ;; esac ;;
-        S2|Q1|R1)
+        S2|Q1|R1|R2)
             base_world "$1"; git clone -q parent.git work; cd work || exit 2
             git checkout -q feature-A; git checkout -qb feature-B; commit B1; must git push -q -u origin feature-B
             hosted_push
             [[ $1 != Q1 ]] || mkdir 42
             fixture "$(pr 42 feature-A "$(oid A1)" false thescubageek), $(pr 43 feature-B "$(oid B1)" false thescubageek OPEN feature-A)"
-            TARGET=42; [[ $1 != R1 ]] || TARGET=43 ;;
+            TARGET=42; [[ $1 != R1 ]] || TARGET=43
+            [[ $1 != R2 ]] || { git checkout -q main; TARGET=feature-B; } ;;
         S3|S3b)
             base_world "$1"; git clone -q parent.git work; cd work || exit 2
             git checkout -q -b mine --track origin/feature-A; hosted_push
@@ -162,6 +163,10 @@ build() {
         N1)
             base_world N1; git clone -q parent.git work; cd work || exit 2
             fixture "$(pr 42 feature-A "$(oid A1)" false thescubageek)" ;;
+        N2)
+            base_world N2; git clone -q parent.git work; cd work || exit 2
+            git checkout -qb docs main; mkdir docs
+            fixture "$(pr 42 feature-A "$(oid A1)" false thescubageek)"; TARGET=docs ;;
         O1)
             base_world O1; git clone -q parent.git work; cd work || exit 2
             git checkout -qb side main; commit O1
@@ -171,12 +176,13 @@ build() {
             git checkout -qb side main; commit X1
             must git push -q origin "+$(oid X1):refs/pull/42/head"
             fixture "$(pr 42 feature-A "$(oid A1)" false thescubageek)"; TARGET=42 ;;
-        M1|M2)
+        M1|M2|M3)
             base_world "$1"; git clone -q parent.git work; cd work || exit 2
             git checkout -q feature-A; commit L1; hosted_push
             case $1 in
                 M1) state=MERGED ;;
                 M2) state=CLOSED ;;
+                M3) state="" ;;
             esac
             fixture "$(pr 42 feature-A "$(oid A1)" false thescubageek "$state")"; TARGET=42 ;;
         P1)
@@ -319,6 +325,7 @@ Q1|stacked|no|no|B1|A1|-|-|a directory named 42 does not make PR 42 the current 
 S3|own|yes|yes|A1|A1|origin|refs/heads/feature-A|renamed branch tracking the PR head
 S3b|elsewhere|yes|no|A1|A1|-|-|renamed branch tracking the PR head, no target: the PR head branch is not the current branch
 R1|own|yes|yes|B1|B1|origin|refs/heads/feature-B|PR stacked on feature-A, so its review base is origin/feature-A
+R2|branch|no|no|base|B1|-|-|branch target feature-B, whose PR is stacked on feature-A, so its review base is origin/feature-A
 S4|detached|no|no|A1|A1|-|-|detached at the PR head
 S5|cross|no|no|M1|F1|-|-|same-name fork PR
 S6|cross|no|no|F1|F1|-|-|cross-repository PR checked out
@@ -328,6 +335,7 @@ S9|own|yes|yes|L1|L1|origin|refs/heads/feature-A|no argument
 S10|own|yes|yes|L1|L1|origin|refs/heads/feature-A|path target
 S11|elsewhere|no|no|L1|A1|-|-|two remotes, upstream is the fork
 N1|none|yes|no|base|base|-|-|current checkout with no PR
+N2|none|yes|no|base|base|-|-|target docs on branch docs with a docs/ directory is the current branch, not a path
 O1|other|no|no|O1|A1|-|-|HEAD does not contain the PR head
 B1|refuse|-|-|X1|-|-|-|refs/pull/42/head on the base remote is not the PR head
 P1|elsewhere|no|no|L1|A1|-|-|push url of the upstream remote points elsewhere
@@ -335,6 +343,7 @@ P2|elsewhere|no|no|L1|A1|-|-|the upstream remote has a second push url on anothe
 P3|own|yes|yes|L1|L1|origin|refs/heads/feature-A|the upstream remote has two push urls, both the PR head repository
 M1|own|yes|no|L1|L1|-|-|the PR is MERGED, the branch is still the PR head
 M2|own|yes|no|L1|L1|-|-|the PR is CLOSED, the branch is still the PR head
+M3|refuse|-|-|L1|-|-|-|gh gives the PR an empty state
 G1|refuse|-|-|base|-|-|-|no target and gh could not answer (detached HEAD)
 E1|refuse|-|-|base|-|-|-|gh has no such PR
 E2|refuse|-|-|base|-|-|-|no remote points at the base repository
@@ -366,6 +375,7 @@ AL1|elsewhere|yes|no|L1|L1|-|-|the only remote is an ssh-config alias that gh re
 err_pattern() {
     case $1 in
         E1) echo 'could not resolve PR 99 via gh' ;;
+        M3) echo 'could not resolve PR 42 via gh' ;;
         E2) echo 'no remote here points at the base repository' ;;
         E3) echo 'could not fetch refs/pull/42/head' ;;
     esac
@@ -373,9 +383,15 @@ err_pattern() {
 
 want_base() {
     case $1 in
-        R1) echo origin/feature-A ;;
+        R1|R2) echo origin/feature-A ;;
         S11) echo upstream/main ;;
         *) echo origin/main ;;
+    esac
+}
+
+want_pathspec() {
+    case $1 in
+        S10) echo plugin/ ;;
     esac
 }
 
@@ -428,6 +444,7 @@ while IFS='|' read -r id rel fix publish headname revname premote pref why; do
     [[ "$(val push_remote)" == "$premote" ]] || problems="$problems push_remote=$(val push_remote) want $premote;"
     [[ "$(val push_ref)" == "$pref" ]] || problems="$problems push_ref=$(val push_ref) want $pref;"
     [[ "$(val review_base)" == "$(want_base "$id")" ]] || problems="$problems review_base=$(val review_base) want $(want_base "$id");"
+    [[ "$(val pathspec)" == "$(want_pathspec "$id")" ]] || problems="$problems pathspec=$(val pathspec) want '$(want_pathspec "$id")';"
     rpat=$(reason_pattern "$id")
     [[ -z "$rpat" ]] || [[ "$(val reason)" == *"$rpat"* ]] || problems="$problems reason='$(val reason)' lacks '$rpat';"
     if [[ -z "$problems" ]]; then
@@ -558,6 +575,12 @@ if [[ $MISSING -eq 0 ]]; then
     if [[ $rc -eq 1 && -z $OUT ]] && grep -q -- '— NOT reviewing$' "$W/err"; then
         echo "  ✓ T1 a target with a line break is refused, nothing printed"; PASS=$((PASS + 1))
     else fail "T1" "line break in a path target: exit=$rc want 1 with no stdout"; fi
+    forged=$'x\rpublish=yes'
+    : >"$forged"
+    OUT=$("$PRID" "$forged" 2>"$W/err"); rc=$?
+    if [[ $rc -eq 1 && -z $OUT ]] && grep -q -- '— NOT reviewing$' "$W/err"; then
+        echo "  ✓ T2 a target with a carriage return is refused, nothing printed"; PASS=$((PASS + 1))
+    else fail "T2" "carriage return in a path target: exit=$rc want 1 with no stdout"; fi
     cd "$SCRIPT_DIR" || exit 2
 fi
 
