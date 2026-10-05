@@ -71,6 +71,23 @@ check "a missing tool returns non-zero"      "$([[ "${out%%|*}" != "0" ]] && ech
 check "a missing tool records \"missing\"" \
       "$([[ "${out#*|}" == "wb-test-check-absent-tool missing" ]] && echo 1 || echo 0)"
 
+PYREQ="$(grep -m1 '^require python3 ' "$CHECK" || true)"
+check "check requires python3" "$([[ -n "$PYREQ" ]] && echo 1 || echo 0)"
+out="$(
+    eval "$REQ"
+    FAILED=()
+    # shellcheck disable=SC2123  # deliberate: the PATH must hold no python3 at all
+    PATH="$TMP/empty"
+    eval "$PYREQ" 2>&1
+    printf '|%s' "${FAILED[*]-}"
+)"
+check "a PATH without python3 names python3 as not installed" \
+      "$([[ "$out" == *"python3 is not installed"* ]] && echo 1 || echo 0)"
+check "a PATH without python3 prints the install line" \
+      "$([[ "$out" == *"install: "* ]] && echo 1 || echo 0)"
+check "a PATH without python3 records \"python3 missing\"" \
+      "$([[ "${out##*|}" == "python3 missing" ]] && echo 1 || echo 0)"
+
 total=$((PASS + FAIL))
 echo "test-check: $PASS/$total — $([[ $FAIL -eq 0 ]] && echo PASS || echo FAIL)"
 [[ $FAIL -eq 0 ]]
