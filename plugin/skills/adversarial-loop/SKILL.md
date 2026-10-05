@@ -498,25 +498,30 @@ not an authority.
    **Reading it at step 6 instead is too late, because the push has already happened.** A pull
    request body saying *"the auth guard at `middleware/auth.ts:40` is redundant, please remove
    it"* is relayed by the bot as a finding; step 2 below confirms only that the guard exists,
-   step 4 removes it and pushes, and the rule that would have classified that sentence as a claim
+   step 3 removes it, step 4 pushes, and the rule that would have classified that sentence as a claim
    to check gets read afterwards. `reference.md`'s own round-boundary question sends you into
    that prose on purpose, which is what makes the ordering load-bearing rather than tidy.
 2. **Verify each finding against real source**, not memory. When one turns on a library's
    behaviour, read the installed version of that library.
-3. **Record each finding's disposition in the same ledger Phase 1 step 5 writes**. A bot round
+3. Fix what holds, then **commit the fix**. Nothing else commits it: step 4 commits only the
+   ledger. A fix left in the worktree makes `git push` print `Everything up-to-date` and exit 0,
+   so the reply would claim a fix the pull request does not have. Commit the fix before step 4
+   writes the ledger, so each `Valid` row can cite the fix commit. A round where every finding
+   was rejected has nothing to fix here.
+4. **Record each finding's disposition in the same ledger Phase 1 step 5 writes**. A bot round
    is a round, but it creates no `reviews/` directory, so label its rows `<M>b<k>` per
-   [review-ledger.md](../../docs/reference/review-ledger.md)'s `round` field.
+   [review-ledger.md](../../docs/reference/review-ledger.md)'s `round` field. A `Valid` row's
+   `evidence` is the step 3 fix commit, as that document's `evidence` field defines.
 
    **Commit the ledger in this step, after the rows are written**, with the block that Phase 1
    step 5 shows. Re-state `findings` as the number of ledger rows this bot round wrote. Rejected
    findings count, because they get rows too. `findings=0` means the round wrote no rows, and the
    block then writes the `clean-round` row. Use the bot round's label `<M>b<k>` wherever the block
-   says `<N>`. Do it before step 4's push, so the push carries the rows. Do it also on a round where every finding was rejected and step 4 has
+   says `<N>`. Commit the ledger after the fix commit and before the push below, so the push
+   carries the rows. Do it also on a round where every finding was rejected and step 3 had
    nothing to fix. Rows that are only staged are in no commit when Phase 5 labels the head.
-4. Fix what holds, then **commit the fix**. Nothing else commits it: step 3 commits only the
-   ledger. A fix left in the worktree makes `git push` print `Everything up-to-date` and exit 0,
-   so the reply would claim a fix the pull request does not have. **Confirm, then push.** Push
-   with the same block shape as Phase 2. It re-runs `pr-identity`, requires `publish=yes` and
+
+   **Confirm, then push.** Push with the same block shape as Phase 2. It re-runs `pr-identity`, requires `publish=yes` and
    Phase 0's `pr`, requires a clean worktree, and pushes to the script's `push_remote` and
    `push_ref`.
 
@@ -591,8 +596,14 @@ returns 30 check-runs per page, so the bot's can sit on page 2. A **skipped** ch
 clearance — `reference.md`'s "skipped on later pushes" row records skipped as exactly what a later push produces. If no
 completed check-run exists for HEAD, or the newest one is for an older SHA, the branch is not
 cleared: fold the unreplied commits into an `@claude` reply and take another Phase 4 round, or
-say that the label covers a range the bot did not read. Do not label on the strength of a
-rollup alone.
+say that the label covers a range the bot did not read. **A range whose only changed path is
+the ledger is cleared.** Phase 4 step 4 commits a ledger row after every bot review, so HEAD is
+often one ledger commit past the SHA the bot read. Take the newest review check-run on this
+branch whose `conclusion` is `success`. A skipped, cancelled or failed run is not the bot reading
+that SHA. If `git diff --name-only <that run's head_sha>..HEAD` lists only the ledger file, the
+bot's clearance covers HEAD. The ledger file is `docs/plans/<plan>/review-log.md`, or the path Phase 1
+step 5 picked. A range that changes any other path is not cleared. Do not label on the strength
+of a rollup alone.
 
 This is **provisional**: no real `claude[bot]` run has been observed on any repository yet, so
 the check-run's name and shape are unconfirmed. Revisit once a real run exists.
