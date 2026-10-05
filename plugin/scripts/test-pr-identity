@@ -6,9 +6,10 @@
 # pushes only into bare repositories under the scratch directory.
 #
 # Consumer level: S1 to S12b run against the fenced blocks extracted from the three SKILL.md
-# files (the working tree, or `--skills-at <rev>` for `git show <rev>:<path>`), under zsh as the
-# Bash tool runs them. No prose rule is modelled: a block that does not exist fails every cell
-# that needs it as MISSING. The block is the first ```bash fence under its heading, before the
+# files (the working tree, or `--skills-at <rev>` for `git show <rev>:<path>`), under bash, and
+# also under zsh when zsh is on PATH, as the Bash tool runs them under either shell. A missing zsh
+# is a skip line, not a failure. No prose rule is modelled: a block that does not exist fails
+# every cell that needs it as MISSING. The block is the first ```bash fence under its heading, before the
 # next heading:
 #   review  adversarial-review "## Step 1:"      step8   adversarial-review "## Step 8:"
 #   phase0  adversarial-loop   "## Phase 0:"     phase2  adversarial-loop   "## Phase 2:"
@@ -70,6 +71,7 @@ printf '[user]\n\tname = t\n\temail = t@example.invalid\n[init]\n\tdefaultBranch
 
 PASS=0
 FAIL=0
+SKIP=0
 
 must() { "$@" || { echo "world build failed: $*" >&2; exit 2; }; }
 record() { echo "$1=$(git rev-parse HEAD)" >>"$OIDS"; }
@@ -613,10 +615,12 @@ materialize() { # block-file out-file
     } >"$2"
 }
 
-run_block() { # block [VAR=value ...]: OUT and RC from the block under zsh in $W/work
+run_block() { # block [VAR=value ...]: OUT and RC from the block under $CSH in $W/work
     local b=$1; shift
-    materialize "$ROOT/blk.$b" "$W/run-$b.zsh"
-    OUT=$(cd "$W/work" && env CLAUDE_PLUGIN_ROOT="$PLUGIN_ROOT" "$@" zsh -f "$W/run-$b.zsh" </dev/null 2>&1); RC=$?
+    local -a sh=(zsh -f)
+    [[ $CSH == zsh ]] || sh=(bash --noprofile --norc)
+    materialize "$ROOT/blk.$b" "$W/run-$b.$CSH"
+    OUT=$(cd "$W/work" && env CLAUDE_PLUGIN_ROOT="$PLUGIN_ROOT" "$@" "${sh[@]}" "$W/run-$b.$CSH" </dev/null 2>&1); RC=$?
 }
 
 fresh() { cd "$ROOT" || exit 2; rm -rf "$W"; cp -Rp "$W.snap" "$W"; : >"$GH_LOG"; cd "$W/work" || exit 2; }
@@ -636,7 +640,7 @@ score() { # id: classifies $U, $F and $M
     case $class in UNSAFE) T_UNSAFE=$((T_UNSAFE + 1)) ;; MISSING) T_MISSING=$((T_MISSING + 1)) ;;
                    MISS) T_MISS=$((T_MISS + 1)) ;; OK) T_OK=$((T_OK + 1)) ;; esac
     why="$U$F$M"
-    if [[ $class == OK ]]; then echo "  ✓ $1 consumer OK"; PASS=$((PASS + 1)); else fail "$1 consumer $class" "${why#; }"; fi
+    if [[ $class == OK ]]; then echo "  ✓ $1 consumer OK under $CSH"; PASS=$((PASS + 1)); else fail "$1 consumer $class under $CSH" "${why#; }"; fi
 }
 
 missing() { F="$F; missing block: $(block_desc "$1")"; }
@@ -654,12 +658,16 @@ S9|yes|L1||yes|proceed
 S10|yes|L1|plugin/|yes|-
 S11|no|A1||no|refuse'
 
-if ! command -v zsh >/dev/null; then
-    fail consumer "zsh not found: the extracted blocks run under zsh"
+SHELLS=(bash)
+if command -v zsh >/dev/null; then
+    SHELLS+=(zsh)
 else
+    echo "  ⊘ consumer cells under zsh (skipped: zsh not found on PATH; they ran under bash only)"; SKIP=$((SKIP + 1))
+fi
+for CSH in "${SHELLS[@]}"; do
     while IFS='|' read -r id efix ehead espec epub ereply; do
         build "$id" >/dev/null 2>&1
-        cp -Rp "$W" "$W.snap"
+        rm -rf "$W.snap"; cp -Rp "$W" "$W.snap"
         U=""; F=""; M=""
         TARGET_BIND=""; [[ $HAS_TARGET -eq 0 ]] || TARGET_BIND="target=$TARGET"
 
@@ -776,7 +784,7 @@ else
         score "$id"
         cd "$SCRIPT_DIR" || exit 2
     done
-fi
+done
 
 hits=$(grep -nE -- '--is-ancestor|isCrossRepository|git branch --show-current' "$ROOT"/skills/*.md \
     | sed "s#^$ROOT/skills/##" | paste -sd ';' -)
@@ -786,6 +794,6 @@ else
     fail grep "the identity test is still in SKILL.md: $hits"
 fi
 
-echo "consumer: UNSAFE $T_UNSAFE, MISSING $T_MISSING, MISS $T_MISS, OK $T_OK"
-echo "test-pr-identity: $PASS passed, $FAIL failed"
+echo "consumer (${SHELLS[*]}): UNSAFE $T_UNSAFE, MISSING $T_MISSING, MISS $T_MISS, OK $T_OK"
+echo "test-pr-identity: $PASS passed, $FAIL failed, $SKIP skipped"
 [[ $FAIL -eq 0 && $MISSING -eq 0 ]]
