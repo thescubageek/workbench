@@ -566,7 +566,9 @@ extract() { # file heading-ERE end-ERE: the first bash fence under the heading, 
 }
 
 load_block() { # name skill heading-ERE end-ERE
-    extract "$ROOT/skills/$2.md" "$3" "$4" >"$ROOT/blk.$1" && [[ -s "$ROOT/blk.$1" ]] || rm -f "$ROOT/blk.$1"
+    if ! extract "$ROOT/skills/$2.md" "$3" "$4" >"$ROOT/blk.$1" || [[ ! -s "$ROOT/blk.$1" ]]; then
+        rm -f "$ROOT/blk.$1"
+    fi
 }
 load_block review adversarial-review '^## Step 1: ' '^##? '
 load_block step8 adversarial-review '^## Step 8: ' '^##? '
