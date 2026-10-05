@@ -49,8 +49,7 @@ separate tracker to reload.
    before spawning anything new; re-spawning over a half-finished tree is how one truncation
    becomes two.
 
-3. **Read the journal tail.** An **open** entry in `journal.md` names what the previous session
-   was attempting and the next action it intended.
+3. **Read the journal tail.** `journal.md`'s newest entry is at the top (see [`journal-entries.md`](../../docs/reference/journal-entries.md)). An **open** entry names what the previous session was attempting and the next action it intended.
 
 4. **Review context**: tasks.md Implementation Notes, research.md, design.md, and
    `.claude/wb/knowledge.md` if present. A remediation plan (the shape
