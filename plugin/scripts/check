@@ -69,6 +69,8 @@ gate "prime contract"           ./plugin/scripts/test-prime
 gate "pr-template contract"     ./plugin/scripts/test-pr-template
 gate "wbte-dictionary contract" ./plugin/scripts/test-wbte-dictionary
 gate "pr-identity contract"     ./plugin/scripts/test-pr-identity
+gate "template links"           python3 evals/link_check.py
+gate "template token budget"    python3 evals/token_check.py
 
 echo
 if [ ${#FAILED[@]} -eq 0 ]; then
