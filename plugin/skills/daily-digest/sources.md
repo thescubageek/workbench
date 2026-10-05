@@ -220,12 +220,13 @@ still reported clean, and carried whatever the collector had no pattern to catch
 `SKILL.md`'s PHI guardrail states the *rules* and points here for the *patterns*. One copy, in
 the place both readers reach: the orchestrator reads this file too.
 
-Scrub anything matching either pattern, plus obvious variants — lowercase, missing or extra
+Scrub anything matching any of these patterns, plus obvious variants — lowercase, missing or extra
 separators, surrounding punctuation:
 
 ```text
 (?i)(?:(?<![A-Z0-9])|(?<=%[0-9A-F]{2}))(?:BM|BC|BA)(?:[-_ .:/+–—\xA0]|%[0-9A-F]{2}){0,3}[A-Z]{2}(?:[-_ .:/+–—\xA0]|%[0-9A-F]{2}){0,3}\d{8}(?![A-Z0-9])      # canonical, plus the variants below
 (?i)(?:(?<![A-Z0-9])|(?<=%[0-9A-F]{2}))[A-Z]{2}(?:[-_ .:/+–—\xA0]|%[0-9A-F]{2}){1,3}[A-Z]{2}(?:[-_ .:/+–—\xA0]|%[0-9A-F]{2}){1,3}\d{6,10}(?![A-Z0-9])  # the general shape, separators required
+(?i)(?:BM|BC|BA)-[A-Z]{2}-\d{8}  # canonical, no edges: matches when glued to a letter or digit
 ```
 
 **The variants are in the patterns, not in the prose.** An earlier version described them —
@@ -241,8 +242,9 @@ requires one to three, because without one `[A-Z]{2}[A-Z]{2}\d{6,10}` would swal
 alphanumeric tokens. The edges are alphanumeric lookarounds, not `\b`: `_` is a word character,
 so `\b` finds no boundary in `member_BM-CA-12345678` or `BM-CA-12345678_intake.pdf` and the ID
 went through. A preceding percent-escape also counts as an edge, so `member_id%3ABM-CA-12345678`
-matches; a glued letter or digit (`patientBM-CA-12345678`, `BM-CA-12345678v2`) still does not,
-deliberately. Verified against
+matches. The first two patterns keep their alphanumeric edges. The third pattern is the exact
+canonical form with no edges. It matches an ID glued to a letter or digit
+(`patientBM-CA-12345678`, `BM-CA-12345678v2`, `BM-CA-12345678901`). Verified against
 `TB-2421`, `PR-42`, ISO dates, git SHAs, `v1.2.3` and `a.b` — none match.
 
 **Known cost, accepted deliberately**: the general shape cannot distinguish a member ID from
