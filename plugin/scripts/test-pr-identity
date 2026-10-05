@@ -14,16 +14,19 @@
 #   review  adversarial-review "## Step 1:"      step8   adversarial-review "## Step 8:"
 #   phase0  adversarial-loop   "## Phase 0:"     phase2  adversarial-loop   "## Phase 2:"
 #   ledger  adversarial-loop   "<n>. **Record each finding" (Phase 1 step 5)
+#   phase4  adversarial-loop   "**Confirm, then push.**" (Phase 4 step 4), up to the next step
 #   reply   reply-to-claude    "## Step 1:"
 # Each block is run as the model runs it: a `name=""` line is re-typed with the value bound to
 # that name, and `target=<it>` is prepended to a block with no `target=""` line. Bound names are
 # target (the argument), the key=value lines Step 1 printed plus review_base, review_head and
-# pathspec from its `range:` line (for step8), the key=value lines Phase 0 printed (for phase2),
-# and findings, the round's verified count (for ledger). <plan>, <N> and <date> become p, 1 and $PLAN_DATE; ${CLAUDE_PLUGIN_ROOT} becomes
+# pathspec from its `range:` line (for step8), the key=value lines Phase 0 printed (for phase2
+# and phase4), and findings, the round's verified count (for ledger). <plan>, <N> and <date> become p, 1 and $PLAN_DATE; ${CLAUDE_PLUGIN_ROOT} becomes
 # plugin/. Columns, each in a fresh copy of the world: the loop reads fix= from phase0; the
 # review head comes from the range: line of review, then step8 runs over a plan the test wrote
 # and the index says whether it was staged; phase2 runs after one fix commit, and the bare
-# repositories say where the push landed; reply proceeds when it exits 0.
+# repositories say where the push landed; reply proceeds when it exits 0. In S1 with a tracked
+# file modified and not committed, phase2 and phase4 must each exit 1 with `uncommitted changes`
+# on stderr, push nothing and not un-draft.
 #
 # Expected rows come from design.md → Data Model, not the pre-registered tracer-bullet table.
 # Where they differ: S3 is own, so it fixes, stages, publishes and replies. S11 is elsewhere: the
@@ -593,6 +596,7 @@ load_block review adversarial-review '^## Step 1: ' '^##? '
 load_block step8 adversarial-review '^## Step 8: ' '^##? '
 load_block phase0 adversarial-loop '^## Phase 0: ' '^##? '
 load_block phase2 adversarial-loop '^## Phase 2: ' '^##? '
+load_block phase4 adversarial-loop '^[ \t]*[*][*]Confirm, then push[.][*][*]' '^[0-9]+[.] |^##? '
 load_block ledger adversarial-loop '^[0-9]+[.] [*][*]Record each finding' '^[0-9]+[.] |^##? '
 load_block reply reply-to-claude '^## Step 1: ' '^##? '
 
@@ -604,6 +608,7 @@ block_desc() {
         step8) echo "adversarial-review Step 8" ;;
         phase0) echo "adversarial-loop Phase 0" ;;
         phase2) echo "adversarial-loop Phase 2" ;;
+        phase4) echo "adversarial-loop Phase 4 step 4 (push)" ;;
         ledger) echo "adversarial-loop Phase 1 step 5 (ledger)" ;;
         reply) echo "reply-to-claude Step 1" ;;
     esac
@@ -636,12 +641,13 @@ materialize() { # block-file out-file
     } >"$2"
 }
 
-run_block() { # block [VAR=value ...]: OUT and RC from the block under $CSH in $W/work
+run_block() { # block [VAR=value ...]: OUT and RC from the block under $CSH in $W/work; stderr goes to $ERRFILE when set
     local b=$1; shift
     local -a sh=(zsh -f)
     [[ $CSH == zsh ]] || sh=(bash --noprofile --norc)
     materialize "$ROOT/blk.$b" "$W/run-$b.$CSH"
-    OUT=$(cd "$W/work" && env CLAUDE_PLUGIN_ROOT="$PLUGIN_ROOT" "$@" "${sh[@]}" "$W/run-$b.$CSH" </dev/null 2>&1); RC=$?
+    OUT=$(cd "$W/work" && if [[ -n ${ERRFILE:-} ]]; then exec 2>"$ERRFILE"; else exec 2>&1; fi
+          env CLAUDE_PLUGIN_ROOT="$PLUGIN_ROOT" "$@" "${sh[@]}" "$W/run-$b.$CSH" </dev/null); RC=$?
 }
 
 fresh() { cd "$ROOT" || exit 2; rm -rf "$W"; cp -Rp "$W.snap" "$W"; : >"$GH_LOG"; cd "$W/work" || exit 2; }
@@ -805,6 +811,29 @@ for CSH in "${SHELLS[@]}"; do
             esac
         else missing ledger; fi
         score "$id"
+        cd "$SCRIPT_DIR" || exit 2
+    done
+
+    build S1 >/dev/null 2>&1
+    rm -rf "$W.snap"; cp -Rp "$W" "$W.snap"
+    fresh; BIND="target=$TARGET"; P0=""
+    if has phase0; then run_block phase0; P0=$(printf '%s\n' "$OUT" | grep -E '^[a-z_]+='); fi
+    for b in phase2 phase4; do
+        U=""; F=""; M=""
+        fresh; BIND="target=$TARGET"$'\n'"$P0"
+        if has "$b"; then
+            echo dirty >>L1.txt
+            before=$(refs); : >"$GH_LOG"
+            ERRFILE="$W/err-$b" run_block "$b" PATH="$ROOT/pushbin:$PATH" PUSH_AS_GITHUB="$W/parent.git"
+            pushes=$(comm -13 <(printf '%s\n' "$before") <(refs) | sed 's# .*##; s#refs/heads/##' | paste -sd, -)
+            ready=$(sed -n 's/^READY //p' "$GH_LOG" | paste -sd, -)
+            [[ -z $pushes ]] || U="$U; push landed on $pushes over an uncommitted change"
+            [[ -z $ready ]] || U="$U; ready $ready over an uncommitted change"
+            [[ $RC -eq 1 ]] || M="$M; exit $RC over an uncommitted change, want 1"
+            grep -q 'uncommitted changes' "$W/err-$b" || M="$M; stderr lacks 'uncommitted changes'"
+        else missing "$b"; fi
+        has phase0 || missing phase0
+        score "S1 $b dirty worktree"
         cd "$SCRIPT_DIR" || exit 2
     done
 done
