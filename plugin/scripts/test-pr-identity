@@ -182,6 +182,14 @@ build() {
             git checkout -q feature-A; commit L1
             git remote set-url --push origin "$W/elsewhere.git"
             fixture "$(pr 42 feature-A "$(oid A1)" false thescubageek)"; TARGET=42 ;;
+        P2|P3)
+            base_world "$1"; git clone -q parent.git work; cd work || exit 2
+            git checkout -q feature-A; commit L1; hosted_push
+            case $1 in
+                P2) git remote set-url --add --push origin https://evil.example.com/mirror/workbench.git ;;
+                P3) git remote set-url --add --push origin git@github.com:thescubageek/workbench.git ;;
+            esac
+            fixture "$(pr 42 feature-A "$(oid A1)" false thescubageek)"; TARGET=42 ;;
         G1)
             base_world G1; git clone -q parent.git work; cd work || exit 2
             git checkout -q --detach main
@@ -313,6 +321,8 @@ N1|none|yes|no|base|base|-|-|current checkout with no PR
 O1|other|no|no|O1|A1|-|-|HEAD does not contain the PR head
 B1|refuse|-|-|X1|-|-|-|refs/pull/42/head on the base remote is not the PR head
 P1|elsewhere|no|no|L1|A1|-|-|push url of the upstream remote points elsewhere
+P2|elsewhere|no|no|L1|A1|-|-|the upstream remote has a second push url on another host
+P3|own|yes|yes|L1|L1|origin|refs/heads/feature-A|the upstream remote has two push urls, both the PR head repository
 M1|own|yes|no|L1|L1|-|-|the PR is MERGED, the branch is still the PR head
 M2|own|yes|no|L1|L1|-|-|the PR is CLOSED, the branch is still the PR head
 G1|refuse|-|-|base|-|-|-|no target and gh could not answer (detached HEAD)
@@ -363,6 +373,7 @@ reason_pattern() {
         M1) echo 'MERGED' ;;
         M2) echo 'CLOSED' ;;
         S3b) echo "is not the current branch" ;;
+        P2) echo "evil.example.com/mirror/workbench" ;;
     esac
 }
 

@@ -34,8 +34,8 @@ AN=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
 # host/owner/name from a URL in an exact allow-list, not git's full grammar:
 #   https://[user[:pass]@]host[:port]/  ssh://[user@]host[:port]/  user@host:
 # then owner/name, one optional .git and an optional trailing /. Host [A-Za-z0-9.-], owner and
-# name [A-Za-z0-9._-], userinfo [A-Za-z0-9._~-]; no %. Anything else fails, and only a URL this
-# reads may give publish=yes.
+# name [A-Za-z0-9._-], userinfo [A-Za-z0-9._~-]; no %. Anything else fails, and publish=yes needs
+# every push URL to be one this reads.
 UI=${AN}._~-
 parse_url() {
   local u=$1 scheme="" auth user="" host port path owner name
@@ -167,6 +167,17 @@ fi
 [ -n "$baseremote" ] || refuse "no remote here points at the base repository of PR $pr"
 review_base="$baseremote/$base"
 
+# every push URL of a remote, as `git push` sends to each; sets REPO to the first that is not the
+# PR's head repository, or to empty. Fails when one is not a form parse_url reads.
+push_repo() {
+  local u r
+  REPO=""
+  while IFS= read -r u; do
+    r=$(parse_url "$u") || return 1
+    same_repo "$r" "$BASE_HOST/$headrepo" || { REPO=$r; return 0; }
+  done <<<"$(git remote get-url --push --all "$1" 2>/dev/null)"
+}
+
 up_remote=""; up_ref=""
 if [ -n "$cur" ]; then
   read -r up_remote up_ref < <(git for-each-ref --format='%(upstream:remotename) %(upstream:remoteref)' "refs/heads/$cur")
@@ -180,9 +191,9 @@ elif [ -z "$cur" ]; then
   relation=detached; reason="HEAD is detached"
 elif [ -z "$up_remote" ]; then
   relation=elsewhere; reason="branch '$cur' has no upstream"
-elif ! REPO=$(parse_url "$(git remote get-url --push "$up_remote" 2>/dev/null)"); then
+elif ! push_repo "$up_remote"; then
   relation=elsewhere; reason="push url of '$up_remote' is not a form pr-identity will publish to"
-elif ! same_repo "$REPO" "$BASE_HOST/$headrepo"; then
+elif [ -n "$REPO" ]; then
   relation=elsewhere; reason="branch '$cur' pushes to $REPO, not the PR's head repository $BASE_HOST/$headrepo"
 elif [ "$up_ref" != "refs/heads/$headref" ]; then
   relation=stacked; reason="branch '$cur' tracks '${up_ref#refs/heads/}', not the PR's head '$headref'"
