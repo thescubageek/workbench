@@ -126,6 +126,9 @@ refuses. It must never review PR 42 and then push, un-draft and label **#57**.
 - no argument → leave it unset; resolving from the current branch is then correct rather than
   accidental
 
+With no argument, a branch named differently from the PR's head branch
+publishes only with the PR number. That holds even when the branch tracks the PR head.
+
 **Do not bind `target` from the first positional parameter in a fenced block.** The harness substitutes positional parameters
 before this text reaches you, so the block would arrive with the value already spliced in — see
 [../adversarial-review/SKILL.md](../adversarial-review/SKILL.md) Step 1, which is the same
@@ -170,7 +173,7 @@ value refuses. The block exits 1, which ends the tool call, as the Phase 2 block
 | Phase 0 result | What the loop does |
 | -------------- | ------------------ |
 | `pr-identity` exits non-zero, or `fix` is not exactly `yes` | Refuse the whole loop. Run no Phase. Report the refusal line as printed |
-| `fix=yes`, `publish=no` | Run Phase 1. Skip Phases 2 to 5. Report `reason` as why they were skipped |
+| `fix=yes`, `publish=no` | Run Phase 1. Skip Phases 2 to 5. Report `reason` as why they were skipped. If `reason` says the PR's head branch is not the current branch, tell the user to pass the PR number to publish |
 | `fix=yes`, `publish=yes` | Run every phase |
 
 **A refusal is the loop's whole output.** Do not invoke `adversarial-review`. Do not fetch, write
