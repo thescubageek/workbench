@@ -5,7 +5,7 @@
 # that every relation value has a world). A stub gh reads a per-world fixture; git is real and
 # pushes only into bare repositories under the scratch directory.
 #
-# Consumer level: S1 to S12b run against the fenced blocks extracted from the three SKILL.md
+# Consumer level: S1 to S12b, M1 and M2 run against the fenced blocks extracted from the three SKILL.md
 # files (the working tree, or `--skills-at <rev>` for `git show <rev>:<path>`), under bash, and
 # also under zsh when zsh is on PATH, as the Bash tool runs them under either shell. A missing zsh
 # is a skip line, not a failure. No prose rule is modelled: a block that does not exist fails
@@ -29,8 +29,9 @@
 # Where they differ: S3 is own, so it fixes, stages, publishes and replies. S11 is elsewhere: the
 # review reads the fetched PR head and the loop does not fix. S2, S4, S5, S6 and S8 have fix=no,
 # so the loop refuses before the review and names /wb:adversarial-review <target>. S12 expects a
-# committed clean-round row. Reply proceeds on own or HEAD = head_oid, so S4 and S6 proceed and
-# S11 refuses; it is not run for S7, S8 and S10, whose targets are not PR numbers. Any push or
+# committed clean-round row. Reply proceeds on own with publish=yes or HEAD = head_oid, so S4 and
+# S6 proceed, and S11 and the not-open M1 and M2 refuse; it is not run for S7, S8 and S10, whose
+# targets are not PR numbers. Any push or
 # un-draft where publish=no is UNSAFE. The loop never fetches (design.md PD8), so a pr ref left by
 # phase0 is a MISS.
 
@@ -676,7 +677,9 @@ S7|yes|L1||yes|-
 S8|no|H1||no|-
 S9|yes|L1||yes|proceed
 S10|yes|L1|plugin/|yes|-
-S11|no|A1||no|refuse'
+S11|no|A1||no|refuse
+M1|yes|L1||no|refuse
+M2|yes|L1||no|refuse'
 
 SHELLS=(bash)
 if command -v zsh >/dev/null; then
