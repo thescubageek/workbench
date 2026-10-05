@@ -18,7 +18,8 @@ and on what evidence. A reply that says "addressed feedback" carries none of tha
 ## Preconditions
 
 - `gh` available and authenticated, and an open pull request that is this checkout's PR:
-  `pr-identity` reports `relation=own` with `publish=yes`, or `HEAD` is the PR's `head_oid`.
+  `pr-identity` reports `state=OPEN`, and either `relation=own` with `publish=yes` or `HEAD` is
+  the PR's `head_oid`. A PR that is not open gets no reply, whatever its relation.
 - A `claude[bot]` review to reply to. If there is none, say so and stop — this skill answers a
   review; it does not solicit one.
 
@@ -51,14 +52,14 @@ target=""
 REPO=$(gh repo view --json nameWithOwner --jq .nameWithOwner) || exit 1
 out=$("${CLAUDE_PLUGIN_ROOT}/scripts/pr-identity" --no-fetch ${target:+"$target"})
 rc=$?
-relation=""; publish=""; pr=""; head_oid=""; reason=""
+relation=""; publish=""; pr=""; head_oid=""; state=""
 while IFS= read -r line; do
   case $line in
     relation=*) relation=${line#*=} ;;
     publish=*) publish=${line#*=} ;;
     pr=*) pr=${line#*=} ;;
     head_oid=*) head_oid=${line#*=} ;;
-    reason=*) reason=${line#*=} ;;
+    state=*) state=${line#*=} ;;
   esac
 done <<<"$out"
 what=${target:-the current checkout}
@@ -67,12 +68,9 @@ what=${target:-the current checkout}
   echo "pr-identity reported no PR for $what (relation=${relation:-unset}) — NOT replying" >&2
   exit 1
 }
-[ "$relation" != own ] || [ "$publish" = yes ] || {
-  echo "PR $pr takes no reply here: ${reason:-publish=${publish:-unset}} (relation=own) — NOT replying" >&2
-  exit 1
-}
+[ "$state" = OPEN ] || { echo "PR $pr is ${state:-unknown}, not open (relation=$relation) — NOT replying" >&2; exit 1; }
 here=$(git rev-parse HEAD) || exit 1
-[ "$relation" = own ] || [ "$here" = "$head_oid" ] || {
+{ [ "$relation" = own ] && [ "$publish" = yes ]; } || [ "$here" = "$head_oid" ] || {
   echo "PR $pr's head is $head_oid but this checkout's HEAD is $here (relation=$relation) — NOT replying" >&2
   exit 1
 }
@@ -85,17 +83,17 @@ than like a broken command.
 
 **Then check that the PR's head is this checkout, and stop if it is not.** Step 3 adjudicates
 each finding against the files on disk. A `<pr#>` can name any PR. Without this check a reply
-could reject a finding by citing a `file:line` the PR does not contain. The block proceeds on
-`relation=own` with `publish=yes`. It also proceeds when `HEAD` is exactly the PR's `head_oid`,
-because the files on disk are then the PR's files. That is the only comparison this skill makes
-itself. A script failure, a missing field or `pr=-` refuses. `relation=own` with any other
-`publish` refuses before that comparison. `pr-identity` gives it only for a PR that is not open,
-and a reply to a merged or closed PR re-summons the bot for nothing. Record the `pr` the block
-prints. Step 4c re-types it.
+could reject a finding by citing a `file:line` the PR does not contain. The block proceeds only
+on `state=OPEN`. Then it proceeds on `relation=own` with `publish=yes`. It also proceeds when
+`HEAD` is exactly the PR's `head_oid`, because the files on disk are then the PR's files. That is
+the only comparison this skill makes itself. A script failure, a missing field or `pr=-` refuses.
+A `state` other than `OPEN` refuses before that comparison, for every relation: `own`,
+`detached`, `elsewhere`, `cross` and the others. A reply to a merged or closed PR re-summons the
+bot for nothing. Record the `pr` the block prints. Step 4c re-types it.
 
 **A refusal names the PR, both refs and the relation, and nothing else.** The refs are the PR's
-`head_oid` and this checkout's `HEAD`. A refusal for a PR that is not open names the PR, the
-`reason` and the relation instead. This skill does not
+`head_oid` and this checkout's `HEAD`. A refusal for a PR that is not open names the PR, its
+`state` and the relation instead. This skill does not
 fetch, switch branches or publish to make the check pass. That is a state change nobody asked
 for.
 
@@ -180,25 +178,22 @@ target=""
 pr=""
 out=$("${CLAUDE_PLUGIN_ROOT}/scripts/pr-identity" --no-fetch ${target:+"$target"})
 rc=$?
-relation=""; publish=""; PR=""; head_oid=""; reason=""
+relation=""; publish=""; PR=""; head_oid=""; state=""
 while IFS= read -r line; do
   case $line in
     relation=*) relation=${line#*=} ;;
     publish=*) publish=${line#*=} ;;
     pr=*) PR=${line#*=} ;;
     head_oid=*) head_oid=${line#*=} ;;
-    reason=*) reason=${line#*=} ;;
+    state=*) state=${line#*=} ;;
   esac
 done <<<"$out"
 [ "$rc" -eq 0 ] || { echo "pr-identity could not resolve ${target:-the current checkout} (exit $rc) — NOT replying" >&2; exit 1; }
 case $pr in ''|-) echo "Step 1's pr was not re-stated — NOT replying" >&2; exit 1 ;; esac
 [ "$PR" = "$pr" ] || { echo "pr-identity resolved PR ${PR:-none}, not Step 1's PR $pr — NOT replying" >&2; exit 1; }
-[ "$relation" != own ] || [ "$publish" = yes ] || {
-  echo "PR $PR takes no reply here: ${reason:-publish=${publish:-unset}} (relation=own) — NOT replying" >&2
-  exit 1
-}
+[ "$state" = OPEN ] || { echo "PR $PR is ${state:-unknown}, not open (relation=${relation:-unset}) — NOT replying" >&2; exit 1; }
 here=$(git rev-parse HEAD) || exit 1
-[ -n "$head_oid" ] && { [ "$relation" = own ] || [ "$here" = "$head_oid" ]; } || {
+[ -n "$head_oid" ] && { { [ "$relation" = own ] && [ "$publish" = yes ]; } || [ "$here" = "$head_oid" ]; } || {
   echo "PR $PR's head is ${head_oid:-unset} but this checkout's HEAD is $here (relation=${relation:-unset}) — NOT replying" >&2
   exit 1
 }

@@ -349,7 +349,7 @@ A skip is reported as a skip, never as a pass.
 
 ### `pr-identity`
 
-Decides how a PR number, branch or path target relates to this checkout. Prints an `identity:` line, then closed-set `key=value` lines: `relation`, `fix`, `publish`, `pr`, `head_oid`, `review_head`, `review_base`, `pathspec`, `push_remote`, `push_ref` and `reason`. Consumers act on the fields, never a ref name. `--no-fetch` skips its one write, the fetch of the PR head. Exit 0 is resolved, 1 refused and 2 bad usage. `publish=yes` needs an OPEN PR and every push URL naming the PR's head repository. A PR in any other state gets `publish=no`. When the checkout otherwise matches it, its relation is `own`.
+Decides how a PR number, branch or path target relates to this checkout. Prints an `identity:` line, then closed-set `key=value` lines: `relation`, `fix`, `publish`, `pr`, `head_oid`, `review_head`, `review_base`, `pathspec`, `push_remote`, `push_ref`, `reason` and `state`. `state` is the PR's state from `gh`, or `-` when there is no PR. Consumers act on the fields, never a ref name. `--no-fetch` skips its one write, the fetch of the PR head. Exit 0 is resolved, 1 refused and 2 bad usage. `publish=yes` needs an OPEN PR and every push URL naming the PR's head repository. A PR in any other state gets `publish=no`. When the checkout otherwise matches it, its relation is `own`.
 
 ### `test-pr-identity`
 

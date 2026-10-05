@@ -79,8 +79,9 @@ been the thing worth distrusting.
   separates them on the exit code, with a contract test in `plugin/scripts/test-count`.
 - **`plugin/scripts/pr-identity` — the one predicate that says how a target relates to the
   checkout.** It prints an `identity:` line, then closed-set `key=value` lines: `relation`, `fix`,
-  `publish`, `pr`, `head_oid`, `review_head`, `review_base`, `pathspec`, `push_remote`, `push_ref`
-  and `reason`. The three review skills call it instead of each comparing a branch name.
+  `publish`, `pr`, `head_oid`, `review_head`, `review_base`, `pathspec`, `push_remote`, `push_ref`,
+  `reason` and `state`. `state` is the PR's state from `gh`, or `-` when there is no PR. The three
+  review skills call it instead of each comparing a branch name.
   `--no-fetch` skips its one write, the fetch of the PR head. It exits 0 when resolved, 1 when
   refused and 2 on bad usage. `publish=yes` needs an OPEN PR and every push URL naming the PR's
   head repository. A PR in any other state gets `publish=no`. When the checkout otherwise matches it, its relation is `own`.
@@ -191,7 +192,8 @@ been the thing worth distrusting.
   current checkout.
 - **The loop pushes to the explicit `<push_remote> HEAD:<push_ref>` that `pr-identity` approved**,
   not a bare `git push`.
-- **`reply-to-claude` calls `pr-identity` and checks again before it comments.**
+- **`reply-to-claude` calls `pr-identity` and checks again before it comments.** It refuses a PR
+  whose `state` is not `OPEN`, for every relation, so a reply never goes to a merged PR.
 - **A clean loop round writes a `clean-round` ledger row**, and a missing ledger now exits
   non-zero. A ledger that was never created no longer reads as a clean one.
 
