@@ -401,6 +401,10 @@ def _alarm(_sig, _frm):
     raise _Timeout()
 
 
+def waived_entry(label, key, w):
+    return (label, key, w.get('reason') if w else None)
+
+
 def run_generated(impl):
     """Score every generated mutant against the corpus, in-process.
 
@@ -473,7 +477,7 @@ def run_generated(impl):
         w = next((x for x in waivers if x['match'] == key), None)
         if w:
             used.add(w['match'])
-        (waived if w else survivors).append((label, key, w['reason'] if w else None))
+        (waived if w else survivors).append(waived_entry(label, key, w))
 
     shutil.rmtree(root, ignore_errors=True)
 
@@ -697,6 +701,17 @@ def main():
     print(f"  {'✓' if blank_verdict_ok else '✗'} --generated fails on a waiver whose reason is "
           f"empty, blank or missing, and names it")
 
+    try:
+        noreason_ok, noreason_msgs = ratchet_verdict(
+            344, 344, [], [], waived=[waived_entry('L1 x', 'k::noreason', {'match': 'k::noreason'})])
+        noreason_text = '\n'.join(noreason_msgs)
+        noreason_verdict_ok = (not noreason_ok and 'carry no reason' in noreason_text
+                               and 'k::noreason' in noreason_text)
+    except Exception:
+        noreason_verdict_ok = False
+    print(f"  {'✓' if noreason_verdict_ok else '✗'} --generated names a waiver that has no "
+          f"reason key, instead of raising KeyError")
+
     argued_ok, _ = ratchet_verdict(344, 344, [], [], waived=[('L1 x', 'k', 'EQUIVALENT. argued')])
     argued_verdict_ok = argued_ok
     print(f"  {'✓' if argued_verdict_ok else '✗'} --generated accepts a waiver that carries a reason")
@@ -705,7 +720,7 @@ def main():
           and integ_ok == len(integ) and intact and verdict_ok and shrunk_verdict_ok
           and stale_verdict_ok and fell_verdict_ok and equal_verdict_ok
           and shrunk_surv_verdict_ok and idle_verdict_ok and big_verdict_ok
-          and edge_verdict_ok and blank_verdict_ok and argued_verdict_ok)
+          and edge_verdict_ok and blank_verdict_ok and noreason_verdict_ok and argued_verdict_ok)
     print(f"\ntest-guards: corpus {base['correct']}/{base['total']}, "
           f"integrity {integ_ok}/{len(integ)}, "
           f"mutations {caught}/{len(MUTATIONS)} — {'PASS' if ok else 'FAIL'}")
