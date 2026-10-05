@@ -1,6 +1,6 @@
 ---
 name: adversarial-review
-description: Adversarial code review — assume the change is broken and hunt for how, then verify every finding before reporting. Serves any PR, branch or path: it reads, reports and fetches at most one remote-tracking ref, and writes and stages a remediation plan only for the current checkout. Sizes its own fan-out from what the diff touches, wraps the built-in /code-review for breadth, and injects named domain-expert lenses it does not have. Use when the user says "adversarial review", "review adversarially", "hunt for bugs in this branch", "review as a principal <domain> engineer", names expert lenses to review under, or asks whether another session's findings are accurate.
+description: Adversarial code review — assume the change is broken and hunt for how, then verify every finding before reporting. Serves any PR, branch or path: it reads, reports and fetches at most one remote-tracking ref, and writes and stages a remediation plan only for the current checkout. Needs `gh` present and authenticated. Sizes its own fan-out from what the diff touches, wraps the built-in /code-review for breadth, and injects named domain-expert lenses it does not have. Use when the user says "adversarial review", "review adversarially", "hunt for bugs in this branch", "review as a principal <domain> engineer", names expert lenses to review under, or asks whether another session's findings are accurate.
 argument-hint: "[<pr#>|<branch>|<path>] [--effort=<low|medium|high|xhigh|max>] [--plan=<dir>]"
 allowed-tools: Read, Write, Glob, Grep, Bash, Task, Skill, ReportFindings
 ---
@@ -55,7 +55,7 @@ Three slots, all optional:
 
 - **Target** — a PR number, a branch, or a path. Sniff the type in this order: digits are a PR,
   a name equal to the current branch is the current checkout, a path that exists on disk is a
-  path, and anything else is a branch. `pr-identity` applies this order. Absent, review the current diff.
+  path, and anything else is a branch. `pr-identity` applies this order. Absent, review the current diff. This still asks `gh` for this checkout's pull request, and it refuses if `gh` cannot answer.
 - **`--effort=<level>`** — an override. Strip it before binding the positional, and match it by
   name so it may appear anywhere in the invocation. Absent, reconnaissance picks the level.
 - **`--plan=<dir>`** — the plan directory Step 8 writes the round under. Both `--plan=<dir>` and
