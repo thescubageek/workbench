@@ -77,9 +77,8 @@ gh_repo() { # [url]; sets REPO to host/owner/name from gh's url and nameWithOwne
 }
 
 REPO=""; URL_CACHE=""
-repo_of_url() { # sets REPO; one gh call per distinct URL that parse_url cannot read
+gh_url() { # sets REPO from gh repo view <url>; one gh call per distinct URL
   local u=$1 line
-  REPO=$(parse_url "$u") && return 0
   while IFS= read -r line; do
     [ "${line%%	*}" = "$u" ] && { REPO=${line#*	}; return 0; }
   done <<<"$URL_CACHE"
@@ -88,10 +87,9 @@ repo_of_url() { # sets REPO; one gh call per distinct URL that parse_url cannot 
 "
 }
 
-repo_of_remote() { # remote; sets REPO
-  local url
-  url=$(git remote get-url "$1" 2>/dev/null) || return 1
-  repo_of_url "$url"
+repo_of_url() { # sets REPO; one gh call per distinct URL that parse_url cannot read
+  REPO=$(parse_url "$1") && return 0
+  gh_url "$1"
 }
 
 same_repo() { [ "$(lower "$1")" = "$(lower "$2")" ]; }
@@ -99,12 +97,17 @@ same_repo() { [ "$(lower "$1")" = "$(lower "$2")" ]; }
 # the local remote whose fetch URL resolves to the repository gh answers for; sets BASE_REMOTE, BASE_HOST
 BASE_REMOTE=""; BASE_HOST=""
 base_remote() {
-  local base r
+  local base r url
   gh_repo || return 1
   base=$REPO; BASE_HOST=${base%%/*}
   while IFS= read -r r; do
     [ -n "$r" ] || continue
-    repo_of_remote "$r" || continue
+    url=$(git remote get-url "$r" 2>/dev/null) || continue
+    repo_of_url "$url" || continue
+    # same owner/name on another host, such as an ssh-config alias: gh says where it points
+    if ! same_repo "$REPO" "$base" && same_repo "${REPO#*/}" "${base#*/}"; then
+      gh_url "$url" || continue
+    fi
     same_repo "$REPO" "$base" && { BASE_REMOTE=$r; return 0; }
   done <<<"$(git remote)"
   return 1

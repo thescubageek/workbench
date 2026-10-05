@@ -281,6 +281,12 @@ build() {
             git config remote.origin.gh-resolved base
             git checkout -qb side main; commit D1
             fixture "$(pr 42 feature-A "$(oid A1)" false thescubageek)"; TARGET=42 ;;
+        AL1)
+            base_world AL1; git clone -q parent.git work; cd work || exit 2
+            git checkout -q feature-A; commit L1
+            git remote set-url origin git@github-work:thescubageek/workbench.git
+            REPOS="\"git@github-work:thescubageek/workbench.git\": \"thescubageek/workbench\""
+            fixture "$(pr 42 feature-A "$(oid A1)" false thescubageek)" ;;
         E1)
             base_world E1; git clone -q parent.git work; cd work || exit 2
             fixture "$(pr 42 feature-A "$(oid A1)" false thescubageek)"; TARGET=99 ;;
@@ -297,7 +303,7 @@ build() {
             base_world "$1"; git clone -q parent.git work; cd work || exit 2
             mkdir -p docs/plans/p; fixture "" ;;
     esac
-    case $1 in S9|S3b|N1|G1|H2|S12|S12b|S12c) ;; *) HAS_TARGET=1 ;; esac
+    case $1 in S9|S3b|N1|G1|H2|AL1|S12|S12b|S12c) ;; *) HAS_TARGET=1 ;; esac
     export GH_FIXTURE="$W/fixture.json" GH_LOG="$W/gh.log"
     : >"$GH_LOG"
 }
@@ -350,7 +356,8 @@ J2|own|yes|yes|L1|L1|origin|refs/heads/feature-A|push url https:// with a port, 
 K1|elsewhere|no|no|L1|A1|-|-|push url https:// whose host has a non-ASCII letter that lower-casing folds to ASCII
 K2|elsewhere|no|no|L1|A1|-|-|push url ssh:// with a : in its userinfo
 C1|own|yes|yes|L1|L1|origin|refs/heads/feature-A|hosted GitHub URLs, fetch https and push scp
-D1|other|no|no|D1|A1|-|-|gh-resolved=base on origin outranks the name-ranked upstream'
+D1|other|no|no|D1|A1|-|-|gh-resolved=base on origin outranks the name-ranked upstream
+AL1|elsewhere|yes|no|L1|L1|-|-|the only remote is an ssh-config alias that gh resolves to the base repository, no target'
 
 err_pattern() {
     case $1 in
