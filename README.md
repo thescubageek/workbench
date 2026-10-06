@@ -321,7 +321,7 @@ imports it to build the mutants. It is the only non-executable file in the direc
 names the install command when one is missing — a gate that silently skips is indistinguishable
 from a gate that passed.
 
-**Run `check` before a release.** It runs every gate above, does not stop at the first failure,
+**Run `check` before a release.** It runs every gate listed under `check` in [plugin/scripts/README.md](plugin/scripts/README.md), does not stop at the first failure,
 and is what `.github/workflows/checks.yml` invokes on push and on every pull request. The guards
 shipped once with nothing invoking them, which is the same defect one level up: a check that never
 runs and a check that always passes look identical from outside.
