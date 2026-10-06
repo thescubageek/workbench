@@ -560,6 +560,10 @@ not an authority.
    git push "$push_remote" "HEAD:$push_ref"
    ```
 
+   **If the bot reports nothing outstanding, finish step 4 and go to Phase 5.** Commit the
+   `clean-round` row and push it. Then skip steps 5 and 6. An empty `@claude` reply only re-summons a bot that
+   has nothing left to say.
+
 5. **Before re-summoning `@claude`, evaluate
    [review-ledger.md](../../docs/reference/review-ledger.md)'s triggers on the rows just
    written.** A Blocking trigger stops and surfaces to the user rather than posting the reply.
@@ -604,7 +608,8 @@ the ledger is cleared.** Phase 4 step 4 commits a ledger row after every bot rev
 often one ledger commit past the SHA the bot read. Take the newest review check-run on this
 branch whose `conclusion` is `success`. A skipped, cancelled or failed run is not the bot reading
 that SHA. If `git diff --name-only <that run's head_sha>..HEAD` lists only the ledger file, the
-bot's clearance covers HEAD. The ledger file is `docs/plans/<plan>/review-log.md`, or the path Phase 1
+bot's clearance covers HEAD. A `git diff` that exits non-zero or prints no path at all is not cleared.
+An unknown SHA exits 128 with empty output, so it is not a ledger-only range. The ledger file is `docs/plans/<plan>/review-log.md`, or the path Phase 1
 step 5 picked. A range that changes any other path is not cleared. Do not label on the strength
 of a rollup alone.
 
