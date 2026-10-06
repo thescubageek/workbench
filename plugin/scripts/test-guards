@@ -405,6 +405,13 @@ def waived_entry(label, key, w):
     return (label, key, w.get('reason') if w else None)
 
 
+def classify_survivor(label, key, waivers, used, waived, survivors):
+    w = next((x for x in waivers if x['match'] == key), None)
+    if w:
+        used.add(w['match'])
+    (waived if w else survivors).append(waived_entry(label, key, w))
+
+
 def run_generated(impl):
     """Score every generated mutant against the corpus, in-process.
 
@@ -474,10 +481,7 @@ def run_generated(impl):
         os.chmod(mpath, 0o755)
         if sum(1 for _, ok in run_integrity(mpath) if ok) < integ_base:
             continue                            # caught by integrity
-        w = next((x for x in waivers if x['match'] == key), None)
-        if w:
-            used.add(w['match'])
-        (waived if w else survivors).append(waived_entry(label, key, w))
+        classify_survivor(label, key, waivers, used, waived, survivors)
 
     shutil.rmtree(root, ignore_errors=True)
 
@@ -712,6 +716,21 @@ def main():
     print(f"  {'✓' if noreason_verdict_ok else '✗'} --generated names a waiver that has no "
           f"reason key, instead of raising KeyError")
 
+    try:
+        cs_waived, cs_survivors, cs_used = [], [], set()
+        classify_survivor('L1 x', 'k::cs', [{'match': 'k::cs'}], cs_used, cs_waived, cs_survivors)
+        classify_survivor('L2 y', 'k::none', [{'match': 'k::cs'}], cs_used, cs_waived, cs_survivors)
+        classify_ok, classify_msgs = ratchet_verdict(344, 344, [], [], waived=cs_waived)
+        classify_verdict_ok = (cs_waived == [('L1 x', 'k::cs', None)]
+                               and cs_survivors == [('L2 y', 'k::none', None)]
+                               and cs_used == {'k::cs'}
+                               and not classify_ok
+                               and 'carry no reason' in '\n'.join(classify_msgs))
+    except Exception:
+        classify_verdict_ok = False
+    print(f"  {'✓' if classify_verdict_ok else '✗'} --generated's classification of a reasonless "
+          f"waiver reaches the verdict without raising KeyError")
+
     argued_ok, _ = ratchet_verdict(344, 344, [], [], waived=[('L1 x', 'k', 'EQUIVALENT. argued')])
     argued_verdict_ok = argued_ok
     print(f"  {'✓' if argued_verdict_ok else '✗'} --generated accepts a waiver that carries a reason")
@@ -720,7 +739,8 @@ def main():
           and integ_ok == len(integ) and intact and verdict_ok and shrunk_verdict_ok
           and stale_verdict_ok and fell_verdict_ok and equal_verdict_ok
           and shrunk_surv_verdict_ok and idle_verdict_ok and big_verdict_ok
-          and edge_verdict_ok and blank_verdict_ok and noreason_verdict_ok and argued_verdict_ok)
+          and edge_verdict_ok and blank_verdict_ok and noreason_verdict_ok
+          and classify_verdict_ok and argued_verdict_ok)
     print(f"\ntest-guards: corpus {base['correct']}/{base['total']}, "
           f"integrity {integ_ok}/{len(integ)}, "
           f"mutations {caught}/{len(MUTATIONS)} — {'PASS' if ok else 'FAIL'}")
