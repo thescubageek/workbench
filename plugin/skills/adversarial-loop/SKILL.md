@@ -289,6 +289,12 @@ publishing phases cannot end up pointed at different changes.
    otherwise pick one file, **name it in the round report**, and reuse it for every round of this
    run. If you cannot write one at all, stop and say so rather than running on.
 
+   **The ledger rows use the `<N>` of the round directory this round's review wrote.** Its
+   `tasks.md` frontmatter `round:` holds it. Do not evaluate `<N>` again here, because Step 8 has
+   already written `round-<N>` and "one more than the highest" now names the next round. A round
+   whose review wrote no directory is a clean round. Evaluate `<N>` now, by the `<N>` row in
+   [remediation-plan.md](../../docs/reference/remediation-plan.md).
+
    **Commit the ledger in this step, after the rows are written.** No earlier commit can carry
    them. `implement`'s per-task commits ran at step 3, before this round's dispositions existed.
    A clean round has no `implement` run at all. A clean round writes one `clean-round` row, as

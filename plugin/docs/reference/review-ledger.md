@@ -31,7 +31,7 @@ One row per finding per round:
 
 | Field | Meaning |
 | ----- | ------- |
-| `round` | which pass raised it. A local round is its `<N>`, as [remediation-plan.md](remediation-plan.md)'s `<N>` row resolves it from the highest of the `reviews/` directories and this ledger's bare-integer `round` values. A bot round is `<M>b<k>`: `<M>` is the highest local round number from those same two sources, not one more, and `0` before the first local round. `<k>` counts bot rounds since it, from 1. A bot label is never a bare integer, so it never counts toward `<N>`. Order by `<M>`, then `<k>`: `10b1` falls after `10` and before `11` |
+| `round` | which pass raised it. A local round is its `<N>`, as [remediation-plan.md](remediation-plan.md)'s `<N>` row resolves it from the highest of the `reviews/` directories and this ledger's bare-integer `round` values. A round whose review wrote a directory uses that directory's number. A bot round is `<M>b<k>`: `<M>` is the highest local round number from those same two sources, not one more, and `0` before the first local round. `<k>` counts bot rounds since it, from 1. A bot label is never a bare integer, so it never counts toward `<N>`. Order by `<M>`, then `<k>`: `10b1` falls after `10` and before `11` |
 | `file:line` | where |
 | `class` | a short slug — the same defect in the same place next round is the same class |
 | `verdict` | the reviewer's label: `CONFIRMED` or `PLAUSIBLE` |
