@@ -80,7 +80,7 @@ been the thing worth distrusting.
 - **`plugin/scripts/pr-identity` — the one predicate that says how a target relates to the
   checkout.** It prints an `identity:` line, then closed-set `key=value` lines: `relation`, `fix`,
   `publish`, `pr`, `head_oid`, `review_head`, `review_base`, `pathspec`, `push_remote`, `push_ref`,
-  `reason` and `state`. `state` is the PR's state from `gh`, or `-` when there is no PR. The three
+  `reason` and `state`. `state` is the PR's state from `gh`, or `-` when no PR was resolved. No PR exists, or the target is a branch, whose PR is not read. The three
   review skills call it instead of each comparing a branch name.
   `--no-fetch` skips its one write, the fetch of the PR head. It exits 0 when resolved, 1 when
   refused and 2 on bad usage. `publish=yes` needs an OPEN PR and every push URL naming the PR's

@@ -7,7 +7,8 @@
 #   fix       yes | no   — the reviewed tree is this checkout, so fixes may be committed here
 #   publish   yes | no   — a push to push_remote push_ref lands on the PR's head
 #   pr, head_oid, review_head, review_base, pathspec, push_remote, push_ref, reason
-#   state     the PR's state from gh (OPEN, MERGED, CLOSED), or - when there is no PR
+#   state     the PR's state from gh (OPEN, MERGED, CLOSED), or - when no PR was resolved
+#             (no PR exists, or the target is a branch, whose PR is not read)
 #
 # The one write: for a PR target that is not `own`, refs/pull/<N>/head is fetched into
 # refs/remotes/<base remote>/pr/<N>. It never pushes, never checks out, never writes another ref.

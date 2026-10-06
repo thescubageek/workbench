@@ -292,7 +292,8 @@ publishing phases cannot end up pointed at different changes.
    **The ledger rows use the `<N>` of the round directory this round's review wrote.** Its
    `tasks.md` frontmatter `round:` holds it. Do not evaluate `<N>` again here, because Step 8 has
    already written `round-<N>` and "one more than the highest" now names the next round. A round
-   whose review wrote no directory is a clean round. Evaluate `<N>` now, by the `<N>` row in
+   whose review wrote no directory (a clean round, or any round with no plan directory) has no
+   `round:` to read. Evaluate `<N>` now, by the `<N>` row in
    [remediation-plan.md](../../docs/reference/remediation-plan.md).
 
    **Commit the ledger in this step, after the rows are written.** No earlier commit can carry
@@ -588,6 +589,11 @@ Say that you made that call.
 
 Only when **both** hold **on the current head SHA**: the bot reports nothing outstanding, and the
 check rollup is green — not on the latest run, which may have settled on a previous commit.
+
+If HEAD's check rollup is still pending, poll HEAD's rollup on the Phase 3 interval and bound:
+about 2 minutes between polls, at most 30 minutes or 15 polls. This happens right after the
+clean-bot exit, because the ledger push starts new checks. At the bound, stop and surface the
+rollup state to the user. Do not label. A failed rollup is not green.
 
 ⛔ **The head SHA qualifies the bot too, not just the rollup.** A bot review certifies the commit
 it read, exactly as a local pass does — the Phase 1 gate's *""Clean" describes a tree state, not the branch"* paragraph, *"a clean pass certifies the commit it
