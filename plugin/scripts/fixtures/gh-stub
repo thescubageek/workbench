@@ -83,6 +83,8 @@ elif cmd == ["repo", "view"]:
 elif cmd == ["pr", "ready"]:
     with open(os.environ["GH_LOG"], "a") as log: log.write(f"READY {args[0]}\n")
     print(f"✓ Pull request #{args[0]} is marked as ready for review")
+elif cmd == ["pr", "comment"]:
+    print(f"stub gh: comment on PR {args[0]} not posted")
 elif cmd[0] == "api":
     print("[]")
 else:

@@ -16,17 +16,21 @@
 #   ledger  adversarial-loop   "<n>. **Record each finding" (Phase 1 step 5)
 #   phase4  adversarial-loop   "**Confirm, then push.**" (Phase 4 step 4), up to the next step
 #   reply   reply-to-claude    "## Step 1:"
+#   reply4c reply-to-claude    "**4c — post it.**" (Step 4c)
 # Each block is run as the model runs it: a `name=""` line is re-typed with the value bound to
 # that name, and `target=<it>` is prepended to a block with no `target=""` line. Bound names are
 # target (the argument), the key=value lines Step 1 printed plus review_base, review_head and
 # pathspec from its `range:` line (for step8), the key=value lines Phase 0 printed (for phase2
-# and phase4), and findings, the round's verified count (for ledger). <plan>, <N> and <date> become p, 1 and $PLAN_DATE; ${CLAUDE_PLUGIN_ROOT} becomes
-# plugin/. Columns, each in a fresh copy of the world: the loop reads fix= from phase0; the
+# and phase4), the key=value lines reply printed (for reply4c), and findings, the round's verified count (for ledger). <plan>, <N> and <date> become p, 1 and $PLAN_DATE; <the path 4a printed> becomes a
+# scratch body file; ${CLAUDE_PLUGIN_ROOT} becomes plugin/. Columns, each in a fresh copy of the world: the loop reads fix= from phase0; the
 # review head comes from the range: line of review, then step8 runs over a plan the test wrote
 # and the index says whether it was staged; phase2 runs after one fix commit, and the bare
 # repositories say where the push landed; reply proceeds when it exits 0. In S1 with a tracked
-# file modified and not committed, phase2 and phase4 must each exit 1 with `uncommitted changes`
-# on stderr, push nothing and not un-draft.
+# file modified and not committed, staged but not committed, or an untracked file, phase2 and
+# phase4 must each exit 1 with `uncommitted changes` on stderr, push nothing and not un-draft.
+# reply4c runs after reply has printed pr=42 for an open PR: in M4 the PR has merged since and
+# HEAD is still its head, so 4c exits 1 with `NOT replying` and makes no `gh pr comment` call; in
+# S1 it makes exactly one.
 #
 # Expected rows come from design.md → Data Model, not the pre-registered tracer-bullet table.
 # Where they differ: S3 is own, so it fixes, stages, publishes and replies. S11 is elsewhere: the
@@ -198,12 +202,15 @@ build() {
             git checkout -q feature-A; commit L1
             git remote set-url --push origin "$W/elsewhere.git"
             fixture "$(pr 42 feature-A "$(oid A1)" false thescubageek)"; TARGET=42 ;;
-        P2|P3)
+        P2|P3|P4|P5)
             base_world "$1"; git clone -q parent.git work; cd work || exit 2
             git checkout -q feature-A; commit L1; hosted_push
             case $1 in
                 P2) git remote set-url --add --push origin https://evil.example.com/mirror/workbench.git ;;
                 P3) git remote set-url --add --push origin git@github.com:thescubageek/workbench.git ;;
+                P4) git remote set-url --push origin https://evil.example.com/mirror/workbench.git
+                    git remote set-url --add --push origin https://github.com/thescubageek/workbench.git ;;
+                P5) git remote set-url --add --push origin git://evil.example/mirror/workbench.git ;;
             esac
             fixture "$(pr 42 feature-A "$(oid A1)" false thescubageek)"; TARGET=42 ;;
         G1)
@@ -348,6 +355,8 @@ B1|refuse|-|-|X1|-|-|-|refs/pull/42/head on the base remote is not the PR head
 P1|elsewhere|no|no|L1|A1|-|-|push url of the upstream remote points elsewhere
 P2|elsewhere|no|no|L1|A1|-|-|the upstream remote has a second push url on another host
 P3|own|yes|yes|L1|L1|origin|refs/heads/feature-A|the upstream remote has two push urls, both the PR head repository
+P4|elsewhere|no|no|L1|A1|-|-|the first push url of the upstream remote is on another host, the second is the PR head repository
+P5|elsewhere|no|no|L1|A1|-|-|the second push url of the upstream remote, after the PR head repository, is git:// and not parsed
 M1|own|yes|no|L1|L1|-|-|the PR is MERGED, the branch is still the PR head
 M2|own|yes|no|L1|L1|-|-|the PR is CLOSED, the branch is still the PR head
 M3|refuse|-|-|L1|-|-|-|gh gives the PR an empty state
@@ -419,7 +428,8 @@ reason_pattern() {
         M1) echo 'MERGED' ;;
         M2) echo 'CLOSED' ;;
         S3b) echo "is not the current branch" ;;
-        P2) echo "evil.example.com/mirror/workbench" ;;
+        P2|P4) echo "evil.example.com/mirror/workbench" ;;
+        P5) echo "not a form pr-identity will publish to" ;;
     esac
 }
 
@@ -614,6 +624,8 @@ fi
 echo "consumer level: skills from ${SKILLS_AT:-the working tree}"
 
 PLAN_DATE=2026-10-01
+REPLY_BODY="$ROOT/reply-body.md"
+echo '@claude a reply' >"$REPLY_BODY"
 REAL_GIT=$(command -v git)
 export REAL_GIT
 mkdir -p "$ROOT/pushbin"
@@ -649,6 +661,7 @@ load_block phase2 adversarial-loop '^## Phase 2: ' '^##? '
 load_block phase4 adversarial-loop '^[ \t]*[*][*]Confirm, then push[.][*][*]' '^[0-9]+[.] |^##? '
 load_block ledger adversarial-loop '^[0-9]+[.] [*][*]Record each finding' '^[0-9]+[.] |^##? '
 load_block reply reply-to-claude '^## Step 1: ' '^##? '
+load_block reply4c reply-to-claude '^[*][*]4c ' '^##? '
 
 has() { [[ -f "$ROOT/blk.$1" ]]; }
 
@@ -661,6 +674,7 @@ block_desc() {
         phase4) echo "adversarial-loop Phase 4 step 4 (push)" ;;
         ledger) echo "adversarial-loop Phase 1 step 5 (ledger)" ;;
         reply) echo "reply-to-claude Step 1" ;;
+        reply4c) echo "reply-to-claude Step 4c (post)" ;;
     esac
 }
 
@@ -678,6 +692,7 @@ materialize() { # block-file out-file
     while IFS= read -r line || [[ -n $line ]]; do
         line=${line//"\${CLAUDE_PLUGIN_ROOT}"/$PLUGIN_ROOT}
         line=${line//'<plan>'/p}; line=${line//'<N>'/1}; line=${line//'<date>'/$PLAN_DATE}
+        line=${line//'<the path 4a printed>'/$REPLY_BODY}
         if [[ $line =~ ^([A-Za-z_][A-Za-z0-9_]*)=\"\"$ ]]; then
             name=${BASH_REMATCH[1]}
             [[ $name != target ]] || restated=1
@@ -872,21 +887,55 @@ for CSH in "${SHELLS[@]}"; do
     fresh; BIND="target=$TARGET"; P0=""
     if has phase0; then run_block phase0; P0=$(printf '%s\n' "$OUT" | grep -E '^[a-z_]+='); fi
     for b in phase2 phase4; do
+        for dirt in modified staged untracked; do
+            U=""; F=""; M=""
+            fresh; BIND="target=$TARGET"$'\n'"$P0"
+            if has "$b"; then
+                case $dirt in
+                    modified) echo dirty >>L1.txt ;;
+                    staged) echo dirty >>L1.txt; git add L1.txt ;;
+                    untracked) echo '| 1 | a.sh:1 | x |' >review-log.md ;;
+                esac
+                before=$(refs); : >"$GH_LOG"
+                ERRFILE="$W/err-$b" run_block "$b" PATH="$ROOT/pushbin:$PATH" PUSH_AS_GITHUB="$W/parent.git"
+                pushes=$(comm -13 <(printf '%s\n' "$before") <(refs) | sed 's# .*##; s#refs/heads/##' | paste -sd, -)
+                ready=$(sed -n 's/^READY //p' "$GH_LOG" | paste -sd, -)
+                [[ -z $pushes ]] || U="$U; push landed on $pushes over an uncommitted change"
+                [[ -z $ready ]] || U="$U; ready $ready over an uncommitted change"
+                [[ $RC -eq 1 ]] || M="$M; exit $RC over an uncommitted change, want 1"
+                grep -q 'uncommitted changes' "$W/err-$b" || M="$M; stderr lacks 'uncommitted changes'"
+            else missing "$b"; fi
+            has phase0 || missing phase0
+            score "S1 $b dirty worktree ($dirt)"
+            cd "$SCRIPT_DIR" || exit 2
+        done
+    done
+
+    for id in M4 S1; do
         U=""; F=""; M=""
-        fresh; BIND="target=$TARGET"$'\n'"$P0"
-        if has "$b"; then
-            echo dirty >>L1.txt
-            before=$(refs); : >"$GH_LOG"
-            ERRFILE="$W/err-$b" run_block "$b" PATH="$ROOT/pushbin:$PATH" PUSH_AS_GITHUB="$W/parent.git"
-            pushes=$(comm -13 <(printf '%s\n' "$before") <(refs) | sed 's# .*##; s#refs/heads/##' | paste -sd, -)
-            ready=$(sed -n 's/^READY //p' "$GH_LOG" | paste -sd, -)
-            [[ -z $pushes ]] || U="$U; push landed on $pushes over an uncommitted change"
-            [[ -z $ready ]] || U="$U; ready $ready over an uncommitted change"
-            [[ $RC -eq 1 ]] || M="$M; exit $RC over an uncommitted change, want 1"
-            grep -q 'uncommitted changes' "$W/err-$b" || M="$M; stderr lacks 'uncommitted changes'"
-        else missing "$b"; fi
-        has phase0 || missing phase0
-        score "S1 $b dirty worktree"
+        build "$id" >/dev/null 2>&1
+        sed 's/"state": "MERGED"/"state": "OPEN"/' "$GH_FIXTURE" >"$W/fixture-open.json"
+        rm -rf "$W.snap"; cp -Rp "$W" "$W.snap"
+        if has reply && has reply4c; then
+            fresh; BIND="target=$TARGET"
+            run_block reply GH_FIXTURE="$W/fixture-open.json"
+            R1=$(printf '%s\n' "$OUT" | grep -E '^[a-z_]+=')
+            [[ $R1 == *"pr=42"* ]] || M="$M; reply printed no pr=42 while the PR was open"
+            : >"$GH_LOG"; BIND="target=$TARGET"$'\n'"$R1"
+            run_block reply4c
+            posts=$("$SCRIPT_DIR/count" '^gh pr comment ' "$GH_LOG") || posts=unmeasured
+            mine=$("$SCRIPT_DIR/count" "^gh pr comment 42 --body-file $REPLY_BODY\$" "$GH_LOG") || mine=unmeasured
+            if [[ $id == M4 ]]; then
+                [[ $posts == 0 ]] || U="$U; $posts gh pr comment calls on a PR that merged after Step 1"
+                [[ $RC -eq 1 && $OUT == *"NOT replying"* ]] || M="$M; 4c did not refuse a merged PR with its own message (exit $RC)"
+            else
+                [[ $RC -eq 0 ]] || M="$M; 4c refused an open own PR (exit $RC)"
+                [[ $posts == 1 && $mine == 1 ]] || M="$M; $posts gh pr comment calls, $mine on PR 42 with the body file, want 1"
+            fi
+        fi
+        has reply || missing reply
+        has reply4c || missing reply4c
+        score "$id reply Step 4c"
         cd "$SCRIPT_DIR" || exit 2
     done
 done
