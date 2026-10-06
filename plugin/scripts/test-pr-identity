@@ -30,7 +30,9 @@
 # phase4 must each exit 1 with `uncommitted changes` on stderr, push nothing and not un-draft.
 # reply4c runs after reply has printed pr=42 for an open PR: in M4 the PR has merged since and
 # HEAD is still its head, so 4c exits 1 with `NOT replying` and makes no `gh pr comment` call; in
-# S1 it makes exactly one.
+# S1 it makes exactly one. It also exits 1 with `NOT replying` and makes no call when the checkout
+# switched to another open PR's branch (S2), when pr is not re-stated or is - (S1), and when HEAD
+# moved off head_oid on a relation that is not own (S4).
 #
 # Expected rows come from design.md → Data Model, not the pre-registered tracer-bullet table.
 # Where they differ: S3 is own, so it fixes, stages, publishes and replies. S11 is elsewhere: the
@@ -311,6 +313,14 @@ build() {
             REPOS="\"git@github.com:thescubageek/workbench.git\": \"thescubageek/workbench\""
             ALIASES='"github-work": "github.com"'
             fixture "$(pr 42 feature-A "$(oid A1)" false thescubageek)" ;;
+        AL2)
+            base_world AL2; git clone -q parent.git work; cd work || exit 2
+            git checkout -q feature-A; commit L1
+            git remote set-url origin git@alias1:thescubageek/workbench.git
+            git remote add work2 git@alias2:thescubageek/workbench.git
+            REPOS="\"git@github.com:thescubageek/workbench.git\": \"thescubageek/workbench\""
+            ALIASES='"alias1": "github.com", "alias2": "github.com"'
+            fixture "$(pr 42 feature-A "$(oid A1)" false thescubageek)" ;;
         E1)
             base_world E1; git clone -q parent.git work; cd work || exit 2
             fixture "$(pr 42 feature-A "$(oid A1)" false thescubageek)"; TARGET=99 ;;
@@ -327,7 +337,7 @@ build() {
             base_world "$1"; git clone -q parent.git work; cd work || exit 2
             mkdir -p docs/plans/p; fixture "" ;;
     esac
-    case $1 in S9|S3b|N1|G1|H2|AL1|S12|S12b|S12c) ;; *) HAS_TARGET=1 ;; esac
+    case $1 in S9|S3b|N1|G1|H2|AL1|AL2|S12|S12b|S12c) ;; *) HAS_TARGET=1 ;; esac
     export GH_FIXTURE="$W/fixture.json" GH_LOG="$W/gh.log"
     : >"$GH_LOG"
 }
@@ -389,13 +399,14 @@ K1|elsewhere|no|no|L1|A1|-|-|push url https:// whose host has a non-ASCII letter
 K2|elsewhere|no|no|L1|A1|-|-|push url ssh:// with a : in its userinfo
 C1|own|yes|yes|L1|L1|origin|refs/heads/feature-A|hosted GitHub URLs, fetch https and push scp
 D1|other|no|no|D1|A1|-|-|gh-resolved=base on origin outranks the name-ranked upstream
-AL1|elsewhere|yes|no|L1|L1|-|-|the only remote is an ssh-config alias that gh resolves to the base repository, no target'
+AL1|elsewhere|yes|no|L1|L1|-|-|the only remote is an ssh-config alias that gh resolves to the base repository, no target
+AL2|refuse|-|-|L1|-|-|-|two remotes are ssh-config aliases with the base owner/name, so neither is the base remote'
 
 err_pattern() {
     case $1 in
         E1) echo 'could not resolve PR 99 via gh' ;;
         M3) echo 'could not resolve PR 42 via gh' ;;
-        E2) echo 'no remote here points at the base repository' ;;
+        E2|AL2) echo 'no remote here points at the base repository' ;;
         E3) echo 'could not fetch refs/pull/42/head' ;;
     esac
 }
@@ -936,6 +947,40 @@ for CSH in "${SHELLS[@]}"; do
         has reply || missing reply
         has reply4c || missing reply4c
         score "$id reply Step 4c"
+        cd "$SCRIPT_DIR" || exit 2
+    done
+
+    for cell in switched unbound dash moved; do
+        U=""; F=""; M=""
+        case $cell in
+            switched) id=S2; why="the checkout switched to PR 43's branch after Step 1 printed pr=42" ;;
+            unbound) id=S1; why="Step 1's pr is not re-stated" ;;
+            dash) id=S1; why="Step 1's pr is re-stated as -" ;;
+            moved) id=S4; why="HEAD moved off head_oid after Step 1, relation is not own" ;;
+        esac
+        build "$id" >/dev/null 2>&1
+        rm -rf "$W.snap"; cp -Rp "$W" "$W.snap"
+        if has reply && has reply4c; then
+            fresh; BIND="target=$TARGET"
+            [[ $cell != switched ]] || { git checkout -q feature-A; BIND=""; }
+            run_block reply
+            R1=$(printf '%s\n' "$OUT" | grep -E '^[a-z_]+=')
+            [[ $RC -eq 0 && $R1 == *"pr=42"* ]] || M="$M; reply did not proceed with pr=42 (exit $RC)"
+            case $cell in
+                switched) git checkout -q feature-B ;;
+                unbound) R1=$(printf '%s\n' "$R1" | sed '/^pr=/d') ;;
+                dash) R1=$(printf '%s\n' "$R1" | sed 's/^pr=.*/pr=-/') ;;
+                moved) echo moved >moved.txt; git add moved.txt; git commit -qm moved ;;
+            esac
+            : >"$GH_LOG"; BIND="$BIND"$'\n'"$R1"
+            run_block reply4c
+            posts=$("$SCRIPT_DIR/count" '^gh pr comment ' "$GH_LOG") || posts=unmeasured
+            [[ $posts == 0 ]] || U="$U; $posts gh pr comment calls when $why"
+            [[ $RC -eq 1 && $OUT == *"NOT replying"* ]] || M="$M; 4c did not refuse with its own message when $why (exit $RC)"
+        fi
+        has reply || missing reply
+        has reply4c || missing reply4c
+        score "$id reply Step 4c ($cell): $why"
         cd "$SCRIPT_DIR" || exit 2
     done
 done
