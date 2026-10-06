@@ -95,7 +95,7 @@ base_world() {
     git checkout -qb feature-A; commit A1; must git push -q origin feature-A
     must git push -q origin "$(oid A1):refs/pull/42/head"
     git checkout -q main; cd "$W" || exit 2
-    REPOS="\"$W/parent.git\": \"thescubageek/workbench\""
+    REPOS="\"$W/parent.git\": \"thescubageek/workbench\""; ALIASES=""
 }
 
 fork_pr57() {
@@ -107,7 +107,7 @@ fork_pr57() {
     REPOS="$REPOS, \"$W/fork.git\": \"contributor/workbench\""
 }
 
-fixture() { printf '{"repos": {%s}, "prs": {"thescubageek/workbench": {%s}}}\n' "$REPOS" "$1" >"$W/fixture.json"; }
+fixture() { printf '{"repos": {%s}, "ssh_aliases": {%s}, "prs": {"thescubageek/workbench": {%s}}}\n' "$REPOS" "$ALIASES" "$1" >"$W/fixture.json"; }
 
 hosted_push() { git remote set-url --push origin https://github.com/thescubageek/workbench.git; }
 
@@ -301,7 +301,8 @@ build() {
             base_world AL1; git clone -q parent.git work; cd work || exit 2
             git checkout -q feature-A; commit L1
             git remote set-url origin git@github-work:thescubageek/workbench.git
-            REPOS="\"git@github-work:thescubageek/workbench.git\": \"thescubageek/workbench\""
+            REPOS="\"git@github.com:thescubageek/workbench.git\": \"thescubageek/workbench\""
+            ALIASES='"github-work": "github.com"'
             fixture "$(pr 42 feature-A "$(oid A1)" false thescubageek)" ;;
         E1)
             base_world E1; git clone -q parent.git work; cd work || exit 2
@@ -576,6 +577,13 @@ if [[ $MISSING -eq 0 ]]; then
     fetches=$("$SCRIPT_DIR/count" 'built-in: git fetch' "$W/trace") || fetches=unmeasured
     if [[ $rc -eq 0 && $calls == 2 && ($fetches == 0 || $fetches == 1) ]]; then echo "  ✓ C1 call budget: 2 gh calls, $fetches fetch"; PASS=$((PASS + 1))
     else fail "C1" "call budget: exit=$rc, $calls gh calls want 2, $fetches fetches want at most 1"; fi
+    cd "$SCRIPT_DIR" || exit 2
+
+    build H1 >/dev/null 2>&1; cd "$W/work" || exit 2
+    "$PRID" "$TARGET" >"$W/out" 2>"$W/err"; rc=$?
+    urlcalls=$("$SCRIPT_DIR/count" '^gh repo view ([A-Za-z]+://|[^ /]+@[^ /]+:)' "$GH_LOG") || urlcalls=unmeasured
+    if [[ $rc -eq 0 && $urlcalls == 0 ]]; then echo "  ✓ H1 no gh repo view <url> for a URL parse_url reads"; PASS=$((PASS + 1))
+    else fail "H1" "gh repo view <url>: exit=$rc, $urlcalls calls with a hosted URL want 0"; fi
     cd "$SCRIPT_DIR" || exit 2
 
     build N1 >/dev/null 2>&1; cd "$W/work" || exit 2

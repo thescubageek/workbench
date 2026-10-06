@@ -2,7 +2,10 @@
 """Stub gh for test-pr-identity. Reads $GH_FIXTURE (JSON) and logs to $GH_LOG.
 
 fixture: {"repos": {"<remote url>": "owner/name"},
+          "ssh_aliases": {"<ssh-config Host>": "<HostName>"},
           "prs": {"owner/name": {"42": {...pr fields...}}}}
+A remote's scp-form URL has its alias host translated before the lookup, as gh does through
+ssh -G. An explicit `gh repo view <url>` is looked up as given: gh takes its host literally.
 Base repository: a remote with `remote.<name>.gh-resolved=base` (set by `gh repo set-default`)
 outranks the names; then `upstream` outranks `github`, which outranks `origin`
 (measured against gh 2.86.0, 2026-10-01, assumption A5).
@@ -18,12 +21,19 @@ def git(*a):
     r = subprocess.run(["git", *a], capture_output=True, text=True)
     return r.stdout.strip() if r.returncode == 0 else ""
 
+def translate(url):
+    user, sep, rest = url.partition("@")
+    host, colon, path = rest.partition(":")
+    if sep and colon and "/" not in user + host and host in fx.get("ssh_aliases", {}):
+        return f"{user}@{fx['ssh_aliases'][host]}:{path}"
+    return url
+
 def base_repo():
     remotes = git("remote").split()
     default = [n for n in remotes if git("config", f"remote.{n}.gh-resolved") == "base"]
     for name in default + ["upstream", "github", "origin"]:
         if name in remotes:
-            url = git("remote", "get-url", name)
+            url = translate(git("remote", "get-url", name))
             if url in fx["repos"]:
                 return fx["repos"][url]
             die(f"GraphQL: Could not resolve to a Repository for remote {name}")

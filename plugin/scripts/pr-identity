@@ -78,8 +78,9 @@ gh_repo() { # [url]; sets REPO to host/owner/name from gh's url and nameWithOwne
 }
 
 REPO=""; URL_CACHE=""
-gh_url() { # sets REPO from gh repo view <url>; one gh call per distinct URL
+repo_of_url() { # sets REPO; one gh call per distinct URL that parse_url cannot read
   local u=$1 line
+  REPO=$(parse_url "$u") && return 0
   while IFS= read -r line; do
     [ "${line%%	*}" = "$u" ] && { REPO=${line#*	}; return 0; }
   done <<<"$URL_CACHE"
@@ -88,30 +89,25 @@ gh_url() { # sets REPO from gh repo view <url>; one gh call per distinct URL
 "
 }
 
-repo_of_url() { # sets REPO; one gh call per distinct URL that parse_url cannot read
-  REPO=$(parse_url "$1") && return 0
-  gh_url "$1"
-}
-
 same_repo() { [ "$(lower "$1")" = "$(lower "$2")" ]; }
 
-# the local remote whose fetch URL resolves to the repository gh answers for; sets BASE_REMOTE, BASE_HOST
+# the local remote whose fetch URL resolves to the repository gh answers for; sets BASE_REMOTE, BASE_HOST.
+# With no such remote, the one remote whose readable URL has the base owner/name on another host,
+# such as an ssh-config alias. It is for reading only: the own test reads push URLs with parse_url.
 BASE_REMOTE=""; BASE_HOST=""
 base_remote() {
-  local base r url
+  local base r url alias="" n=0
   gh_repo || return 1
   base=$REPO; BASE_HOST=${base%%/*}
   while IFS= read -r r; do
     [ -n "$r" ] || continue
     url=$(git remote get-url "$r" 2>/dev/null) || continue
     repo_of_url "$url" || continue
-    # same owner/name on another host, such as an ssh-config alias: gh says where it points
-    if ! same_repo "$REPO" "$base" && same_repo "${REPO#*/}" "${base#*/}"; then
-      gh_url "$url" || continue
-    fi
     same_repo "$REPO" "$base" && { BASE_REMOTE=$r; return 0; }
+    parse_url "$url" >/dev/null && same_repo "${REPO#*/}" "${base#*/}" && { alias=$r; n=$((n + 1)); }
   done <<<"$(git remote)"
-  return 1
+  [ "$n" -eq 1 ] || return 1
+  BASE_REMOTE=$alias
 }
 
 relation=""; fix=no; publish=no; pr=-; head_oid=-; review_head=""; review_base=""
