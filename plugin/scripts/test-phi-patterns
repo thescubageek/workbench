@@ -54,6 +54,12 @@ cases = [
     ("BM-CA-12345678v2",          True, "glued suffix — the canonical form matches without edges"),
     ("BM-CA-12345678Report.pdf",  True, "glued suffix word"),
     ("BM-CA-12345678901",         True, "trailing digits"),
+    ("patientBMCA12345678",       True, "glued prefix, no separators"),
+    ("BMCA12345678v2",            True, "glued suffix, no separators"),
+    ("memberBM_CA_12345678",      True, "glued prefix, underscore separators"),
+    ("abcBM.CA.12345678",         True, "glued prefix, dot separators"),
+    ("BM CA 12345678ext",         True, "glued suffix, space separators"),
+    ("idbm ca 12345678",          True, "glued prefix, lowercase, space separators"),
     ("TB-2421",         False, "Jira key"),
     ("PR-42",           False, "PR ref"),
     ("2026-09-18",      False, "ISO date"),
@@ -65,6 +71,11 @@ cases = [
     # it costs a digest item its actionable reference, so it is recorded rather than shrugged off.
     ("EN-US-10023456",  True,  "locale-scoped job id — ACCEPTED over-match"),
     ("PO-US-00123456",  True,  "purchase order — ACCEPTED over-match"),
+    # The edge-free third pattern matches inside a longer token, so a word or hash that
+    # contains BM/BC/BA, two letters and eight digits is scrubbed too.
+    ("Alibaba 12345678", True, "word ending in 'ba' plus an 8-digit number — ACCEPTED over-match"),
+    ("bcab12345678",    True,  "SHA-like token — ACCEPTED over-match"),
+    ("9f2bcab98765432deadbeef", True, "longer hash with an embedded match — ACCEPTED over-match"),
     # These must NOT match: too few digits to be a member ID, so the general shape must not
     # widen to swallow them.
     ("AB-CD-1234",      False, "4 digits — below the member-ID floor"),

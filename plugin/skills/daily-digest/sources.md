@@ -226,7 +226,7 @@ separators, surrounding punctuation:
 ```text
 (?i)(?:(?<![A-Z0-9])|(?<=%[0-9A-F]{2}))(?:BM|BC|BA)(?:[-_ .:/+–—\xA0]|%[0-9A-F]{2}){0,3}[A-Z]{2}(?:[-_ .:/+–—\xA0]|%[0-9A-F]{2}){0,3}\d{8}(?![A-Z0-9])      # canonical, plus the variants below
 (?i)(?:(?<![A-Z0-9])|(?<=%[0-9A-F]{2}))[A-Z]{2}(?:[-_ .:/+–—\xA0]|%[0-9A-F]{2}){1,3}[A-Z]{2}(?:[-_ .:/+–—\xA0]|%[0-9A-F]{2}){1,3}\d{6,10}(?![A-Z0-9])  # the general shape, separators required
-(?i)(?:BM|BC|BA)-[A-Z]{2}-\d{8}  # canonical, no edges: matches when glued to a letter or digit
+(?i)(?:BM|BC|BA)(?:[-_ .:/+–—\xA0]|%[0-9A-F]{2}){0,3}[A-Z]{2}(?:[-_ .:/+–—\xA0]|%[0-9A-F]{2}){0,3}\d{8}  # the first pattern with no edges: matches when glued to a letter or digit
 ```
 
 **The variants are in the patterns, not in the prose.** An earlier version described them —
@@ -242,9 +242,10 @@ requires one to three, because without one `[A-Z]{2}[A-Z]{2}\d{6,10}` would swal
 alphanumeric tokens. The edges are alphanumeric lookarounds, not `\b`: `_` is a word character,
 so `\b` finds no boundary in `member_BM-CA-12345678` or `BM-CA-12345678_intake.pdf` and the ID
 went through. A preceding percent-escape also counts as an edge, so `member_id%3ABM-CA-12345678`
-matches. The first two patterns keep their alphanumeric edges. The third pattern is the exact
-canonical form with no edges. It matches an ID glued to a letter or digit
-(`patientBM-CA-12345678`, `BM-CA-12345678v2`, `BM-CA-12345678901`). Verified against
+matches. The first two patterns keep their alphanumeric edges. The third pattern is the first
+pattern's shape with the same separator unit and no edges. It matches an ID glued to a letter or
+digit in any separator form, or with none (`patientBM-CA-12345678`, `patientBMCA12345678`,
+`memberBM_CA_12345678`, `BM CA 12345678ext`, `BM-CA-12345678901`). Verified against
 `TB-2421`, `PR-42`, ISO dates, git SHAs, `v1.2.3` and `a.b` — none match.
 
 **Known cost, accepted deliberately**: the general shape cannot distinguish a member ID from
@@ -253,6 +254,10 @@ or a purchase order is redacted too. Over-redaction is the safe direction for a
 de-identification rule — but it costs a digest item its actionable reference, so the cases are
 pinned in `plugin/scripts/test-phi-patterns` rather than left to drift. Narrowing the digit
 floor below six would start eating ordinary references; that is tested too.
+
+The edge-free third pattern has its own accepted cost. It matches inside a longer token, so a
+word or hash that contains `BM`, `BC` or `BA`, two letters and eight digits is redacted too
+(`Alibaba 12345678`, `bcab12345678`). These cases are pinned the same way.
 
 A repository may **add** its own format in its `CLAUDE.md`. It may not narrow or disable these:
 a de-identification rule that goes quiet when it is unconfigured still reports clean, which is
