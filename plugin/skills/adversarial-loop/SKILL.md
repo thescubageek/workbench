@@ -317,7 +317,8 @@ publishing phases cannot end up pointed at different changes.
 
    Do this on every round, including a clean one, so Phase 2's clean-tree precondition reads the
    state this loop calls success. A no-plan ledger outside `docs/plans/` is committed the same
-   way, at whatever path was picked above. The commit is scoped to the ledger, so work already
+   way, at whatever path was picked above. With no plan directory, set `L` to that picked path
+   instead of `docs/plans/<plan>/review-log.md`. The commit is scoped to the ledger, so work already
    staged stays staged for its own task's commit. A clean round commits its `clean-round` row. A
    round with findings whose ledger does not exist at commit time fails at `git add` and exits
    non-zero. Stop there and write the rows. Do not run on.
