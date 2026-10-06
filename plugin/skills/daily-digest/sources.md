@@ -224,9 +224,9 @@ Scrub anything matching any of these patterns, plus obvious variants — lowerca
 separators, surrounding punctuation:
 
 ```text
-(?i)(?:(?<![A-Z0-9])|(?<=%[0-9A-F]{2}))(?:BM|BC|BA)(?:[-_ .:/+–—\xA0]|%[0-9A-F]{2}){0,3}[A-Z]{2}(?:[-_ .:/+–—\xA0]|%[0-9A-F]{2}){0,3}\d{8}(?![A-Z0-9])      # canonical, plus the variants below
-(?i)(?:(?<![A-Z0-9])|(?<=%[0-9A-F]{2}))[A-Z]{2}(?:[-_ .:/+–—\xA0]|%[0-9A-F]{2}){1,3}[A-Z]{2}(?:[-_ .:/+–—\xA0]|%[0-9A-F]{2}){1,3}\d{6,10}(?![A-Z0-9])  # the general shape, separators required
-(?i)(?:BM|BC|BA)(?:[-_ .:/+–—\xA0]|%[0-9A-F]{2}){0,3}[A-Z]{2}(?:[-_ .:/+–—\xA0]|%[0-9A-F]{2}){0,3}\d{8}  # the first pattern with no edges: matches when glued to a letter or digit
+(?i)(?:(?<![A-Z0-9])|(?<=%[0-9A-F]{2}))(?:BM|BC|BA)(?:[-_ .:/+\t\xA0\u2010-\u2015\u2212\uFF0D]|%[0-9A-F]{2}|&(?:nbsp|ndash|mdash|#\d+);){0,3}[A-Z]{2}(?:[-_ .:/+\t\xA0\u2010-\u2015\u2212\uFF0D]|%[0-9A-F]{2}|&(?:nbsp|ndash|mdash|#\d+);){0,3}\d{8}(?![A-Z0-9])      # canonical, plus the variants below
+(?i)(?:(?<![A-Z0-9])|(?<=%[0-9A-F]{2}))[A-Z]{2}(?:[-_ .:/+\t\xA0\u2010-\u2015\u2212\uFF0D]|%[0-9A-F]{2}|&(?:nbsp|ndash|mdash|#\d+);){1,3}[A-Z]{2}(?:[-_ .:/+\t\xA0\u2010-\u2015\u2212\uFF0D]|%[0-9A-F]{2}|&(?:nbsp|ndash|mdash|#\d+);){1,3}\d{6,10}(?![A-Z0-9])  # the general shape, separators required
+(?i)(?:BM|BC|BA)(?:[-_ .:/+\t\xA0\u2010-\u2015\u2212\uFF0D]|%[0-9A-F]{2}|&(?:nbsp|ndash|mdash|#\d+);){0,3}[A-Z]{2}(?:[-_ .:/+\t\xA0\u2010-\u2015\u2212\uFF0D]|%[0-9A-F]{2}|&(?:nbsp|ndash|mdash|#\d+);){0,3}\d{8}  # the first pattern with no edges: matches when glued to a letter or digit
 ```
 
 **The variants are in the patterns, not in the prose.** An earlier version described them —
@@ -235,18 +235,27 @@ and the line above tells you to match rather than paraphrase. A collector obeyin
 instruction literally could not produce the coverage the instruction demanded, and
 `bm-ca-12345678` — the most common hand-typed form — went through unscrubbed.
 
-`(?i)` covers case. The separator unit is one of hyphen, underscore, space, dot, colon, slash, plus (a
-form-encoded space), en dash, em dash, NBSP (`\xA0`), or a percent-escape (`%20`, `%2F`). The first pattern allows
-zero to three units, which covers absent, single, doubled and ` - ` separators; the second
-requires one to three, because without one `[A-Z]{2}[A-Z]{2}\d{6,10}` would swallow ordinary
+`(?i)` covers case. The separator unit is one of these:
+
+- hyphen, underscore, space, tab, dot, colon, slash, or plus (a form-encoded space)
+- NBSP (`\xA0`)
+- a Unicode hyphen or dash, U+2010 to U+2015 (hyphen, non-breaking hyphen, figure dash, en
+  dash, em dash, horizontal bar)
+- the minus sign (U+2212) or the fullwidth hyphen (U+FF0D)
+- a percent-escape (`%20`, `%2F`)
+- an HTML entity: `&nbsp;`, `&ndash;`, `&mdash;`, or a numeric entity such as `&#8209;`
+
+The first pattern allows zero to three units, which covers absent, single, doubled and ` - `
+separators; the second requires one to three, because without one `[A-Z]{2}[A-Z]{2}\d{6,10}` would swallow ordinary
 alphanumeric tokens. The edges are alphanumeric lookarounds, not `\b`: `_` is a word character,
 so `\b` finds no boundary in `member_BM-CA-12345678` or `BM-CA-12345678_intake.pdf` and the ID
 went through. A preceding percent-escape also counts as an edge, so `member_id%3ABM-CA-12345678`
 matches. The first two patterns keep their alphanumeric edges. The third pattern is the first
 pattern's shape with the same separator unit and no edges. It matches an ID glued to a letter or
-digit in any separator form, or with none (`patientBM-CA-12345678`, `patientBMCA12345678`,
-`memberBM_CA_12345678`, `BM CA 12345678ext`, `BM-CA-12345678901`). Verified against
-`TB-2421`, `PR-42`, ISO dates, git SHAs, `v1.2.3` and `a.b` — none match.
+digit with any of the separators listed above, or with none (`patientBM-CA-12345678`,
+`patientBMCA12345678`, `memberBM_CA_12345678`, `memberBM:CA:12345678`, `BM CA 12345678ext`,
+`BM-CA-12345678901`). Verified against `TB-2421`, `PR-42`, ISO dates, `v1.2.3` and `a.b` — none
+match.
 
 **Known cost, accepted deliberately**: the general shape cannot distinguish a member ID from
 any other two-segment `AA-BB-nnnnnn` identifier, so a locale-scoped job id (`EN-US-10023456`)

@@ -18,7 +18,7 @@ src = open(os.path.join(ROOT, 'plugin/skills/daily-digest/sources.md')).read()
 block = re.search(r'```text\n(.*?)```', src, re.S)
 pats = []
 for line in (block.group(1).splitlines() if block else []):
-    p = line.split('#')[0].strip()
+    p = re.split(r'\s+# ', line, maxsplit=1)[0].strip()
     if p:
         pats.append(p)
 if len(pats) < 2:
@@ -50,6 +50,13 @@ cases = [
     ("BM - CA - 12345678",        True, "three-character separators"),
     ("BM–CA–12345678",  True, "en-dash separators"),
     ("BM CA 12345678",  True, "NBSP separators"),
+    ("BM\u2011CA\u201112345678", True, "non-breaking hyphen (U+2011) separators"),
+    ("BM\u2212CA\u221212345678", True, "minus sign (U+2212) separators"),
+    ("BM\uff0dCA\uff0d12345678", True, "fullwidth hyphen (U+FF0D) separators"),
+    ("BM\tCA\t12345678",         True, "tab separators"),
+    ("BM&nbsp;CA&nbsp;12345678",  True, "HTML &nbsp; entity separators"),
+    ("BM&mdash;CA&mdash;12345678", True, "HTML &mdash; entity separators"),
+    ("BM&#8209;CA&#8209;12345678", True, "HTML numeric entity separators"),
     ("patientBM-CA-12345678",     True, "glued prefix — the canonical form matches without edges"),
     ("BM-CA-12345678v2",          True, "glued suffix — the canonical form matches without edges"),
     ("BM-CA-12345678Report.pdf",  True, "glued suffix word"),
@@ -60,6 +67,12 @@ cases = [
     ("abcBM.CA.12345678",         True, "glued prefix, dot separators"),
     ("BM CA 12345678ext",         True, "glued suffix, space separators"),
     ("idbm ca 12345678",          True, "glued prefix, lowercase, space separators"),
+    ("patientBM+CA+12345678ext",  True, "glued, plus separators — only the edge-free pattern matches"),
+    ("memberBM:CA:12345678",      True, "glued prefix, colon separators"),
+    ("xBM/CA/12345678",           True, "glued prefix, slash separators"),
+    ("idBM\u2013CA\u201312345678", True, "glued prefix, en-dash separators"),
+    ("idBM\u2014CA\u201412345678", True, "glued prefix, em-dash separators"),
+    ("idBM\xa0CA\xa012345678",   True, "glued prefix, NBSP separators"),
     ("TB-2421",         False, "Jira key"),
     ("PR-42",           False, "PR ref"),
     ("2026-09-18",      False, "ISO date"),
