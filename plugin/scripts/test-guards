@@ -14,6 +14,7 @@ Usage: plugin/scripts/test-guards [path-to-check-guards]
 
 --generated refuses to run when fixtures/mutation-ratchet.json is missing. --init creates it.
 """
+import ast
 import contextlib
 from collections import Counter
 import hashlib
@@ -769,12 +770,35 @@ def main():
     print(f"  {'✓' if ratchet_load_ok else '✗'} --generated refuses a missing ratchet file "
           f"unless --init is given")
 
+    try:
+        with open(__file__) as fh:
+            rg = next(n for n in ast.walk(ast.parse(fh.read()))
+                      if isinstance(n, ast.FunctionDef) and n.name == 'run_generated')
+        calls = [n for n in ast.walk(rg) if isinstance(n, ast.Call)]
+        wanted = ['label', 'key', 'waivers', 'used', 'waived', 'survivors']
+        classify_calls = [c for c in calls
+                          if isinstance(c.func, ast.Name) and c.func.id == 'classify_survivor']
+        inline_appends = [c for c in calls
+                          if isinstance(c.func, ast.Attribute) and c.func.attr == 'append'
+                          and any(isinstance(m, ast.Name)
+                                  and m.id in ('waived', 'survivors', 'waived_entry')
+                                  for m in ast.walk(c))]
+        wiring_ok = (len(classify_calls) == 1
+                     and [getattr(a, 'id', None) for a in classify_calls[0].args] == wanted
+                     and not classify_calls[0].keywords
+                     and not inline_appends)
+    except Exception:
+        wiring_ok = False
+    print(f"  {'✓' if wiring_ok else '✗'} run_generated passes classify_survivor its arguments "
+          f"in order and appends no waiver tuple itself")
+
     ok = (base['correct'] == base['total'] and caught == len(MUTATIONS)
           and integ_ok == len(integ) and intact and verdict_ok and shrunk_verdict_ok
           and stale_verdict_ok and fell_verdict_ok and equal_verdict_ok
           and shrunk_surv_verdict_ok and idle_verdict_ok and big_verdict_ok
           and edge_verdict_ok and blank_verdict_ok and noreason_verdict_ok
-          and classify_verdict_ok and argued_verdict_ok and ratchet_load_ok)
+          and classify_verdict_ok and argued_verdict_ok and ratchet_load_ok
+          and wiring_ok)
     print(f"\ntest-guards: corpus {base['correct']}/{base['total']}, "
           f"integrity {integ_ok}/{len(integ)}, "
           f"mutations {caught}/{len(MUTATIONS)} — {'PASS' if ok else 'FAIL'}")
