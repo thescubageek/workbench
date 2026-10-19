@@ -3,6 +3,7 @@
 
 fixture: {"repos": {"<remote url>": "owner/name"},
           "ssh_aliases": {"<ssh-config Host>": "<HostName>"},
+          "default_branch": "<name>" or null (optional, default "main"),
           "prs": {"owner/name": {"42": {...pr fields...}}}}
 A remote's scp-form URL has its alias host translated before the lookup, as gh does through
 ssh -G. An explicit `gh repo view <url>` is looked up as given: gh takes its host literally.
@@ -79,7 +80,8 @@ if cmd == ["pr", "view"]:
 elif cmd == ["repo", "view"]:
     repo = fx["repos"].get(args[0]) if args else base_repo()
     if not repo: die("could not resolve repository")
-    emit({"nameWithOwner": repo, "url": "https://github.com/" + repo}, fields, jq)
+    emit({"nameWithOwner": repo, "url": "https://github.com/" + repo,
+          "defaultBranchRef": {"name": fx.get("default_branch", "main")}}, fields, jq)
 elif cmd == ["pr", "ready"]:
     with open(os.environ["GH_LOG"], "a") as log: log.write(f"READY {args[0]}\n")
     print(f"✓ Pull request #{args[0]} is marked as ready for review")

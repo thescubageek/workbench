@@ -101,7 +101,7 @@ base_world() {
     git checkout -qb feature-A; commit A1; must git push -q origin feature-A
     must git push -q origin "$(oid A1):refs/pull/42/head"
     git checkout -q main; cd "$W" || exit 2
-    REPOS="\"$W/parent.git\": \"thescubageek/workbench\""; ALIASES=""
+    REPOS="\"$W/parent.git\": \"thescubageek/workbench\""; ALIASES=""; DEFAULT_BRANCH=""
 }
 
 fork_pr57() {
@@ -113,7 +113,7 @@ fork_pr57() {
     REPOS="$REPOS, \"$W/fork.git\": \"contributor/workbench\""
 }
 
-fixture() { printf '{"repos": {%s}, "ssh_aliases": {%s}, "prs": {"thescubageek/workbench": {%s}}}\n' "$REPOS" "$ALIASES" "$1" >"$W/fixture.json"; }
+fixture() { printf '{"repos": {%s}, "ssh_aliases": {%s}%s, "prs": {"thescubageek/workbench": {%s}}}\n' "$REPOS" "$ALIASES" "${DEFAULT_BRANCH:+, \"default_branch\": $DEFAULT_BRANCH}" "$1" >"$W/fixture.json"; }
 
 hosted_push() { git remote set-url --push origin https://github.com/thescubageek/workbench.git; }
 
@@ -174,6 +174,16 @@ build() {
             fixture "$(pr 42 feature-A "$(oid A1)" false thescubageek)"; TARGET=42 ;;
         N1)
             base_world N1; git clone -q parent.git work; cd work || exit 2
+            fixture "$(pr 42 feature-A "$(oid A1)" false thescubageek)" ;;
+        N3|N4|N5)
+            base_world "$1"; git clone -q parent.git work; cd work || exit 2
+            must git push -q origin main:trunk; git fetch -q origin
+            DEFAULT_BRANCH='"trunk"'
+            case $1 in
+                N4) DEFAULT_BRANCH=null; git remote set-head origin trunk >/dev/null ;;
+                N5) git checkout -qb feature-B main; commit B1; must git push -q -u origin feature-B
+                    git checkout -q main; TARGET=feature-B ;;
+            esac
             fixture "$(pr 42 feature-A "$(oid A1)" false thescubageek)" ;;
         N2)
             base_world N2; git clone -q parent.git work; cd work || exit 2
@@ -337,7 +347,7 @@ build() {
             base_world "$1"; git clone -q parent.git work; cd work || exit 2
             mkdir -p docs/plans/p; fixture "" ;;
     esac
-    case $1 in S9|S3b|N1|G1|H2|AL1|AL2|S12|S12b|S12c|S12d|S12e|S12f|S12g|S12h) ;; *) HAS_TARGET=1 ;; esac
+    case $1 in S9|S3b|N1|N3|N4|G1|H2|AL1|AL2|S12|S12b|S12c|S12d|S12e|S12f|S12g|S12h) ;; *) HAS_TARGET=1 ;; esac
     export GH_FIXTURE="$W/fixture.json" GH_LOG="$W/gh.log"
     : >"$GH_LOG"
 }
@@ -360,6 +370,9 @@ S10|own|yes|yes|L1|L1|origin|refs/heads/feature-A|path target
 S11|elsewhere|no|no|L1|A1|-|-|two remotes, upstream is the fork
 N1|none|yes|no|base|base|-|-|current checkout with no PR
 N2|none|yes|no|base|base|-|-|target docs on branch docs with a docs/ directory is the current branch, not a path
+N3|none|yes|no|base|base|-|-|current checkout with no PR, the default branch of the base repository is trunk
+N4|none|yes|no|base|base|-|-|current checkout with no PR, gh gives no default branch and origin/HEAD is trunk
+N5|branch|no|no|base|B1|-|-|branch target with no PR, the default branch of the base repository is trunk
 O1|other|no|no|O1|A1|-|-|HEAD does not contain the PR head
 B1|refuse|-|-|X1|-|-|-|refs/pull/42/head on the base remote is not the PR head
 P1|elsewhere|no|no|L1|A1|-|-|push url of the upstream remote points elsewhere
@@ -415,6 +428,7 @@ want_base() {
     case $1 in
         R1|R2) echo origin/feature-A ;;
         S11) echo upstream/main ;;
+        N3|N4|N5) echo origin/trunk ;;
         *) echo origin/main ;;
     esac
 }
@@ -423,7 +437,7 @@ want_state() {
     case $1 in
         M1|M4|M5|M6) echo MERGED ;;
         M2) echo CLOSED ;;
-        N1|N2|R2|S8) echo - ;;
+        N1|N2|N3|N4|N5|R2|S8) echo - ;;
         *) echo OPEN ;;
     esac
 }

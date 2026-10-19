@@ -190,8 +190,9 @@ outcomes, and the last is dangerous precisely because it wears the first one's c
 **The base is asked for, not assumed.** `origin/main` is this repository's default, not every
 repository's, and an earlier version of this block hardcoded it in three of its four branches
 while `git diff --stat origin/nonexistent...HEAD` exits 128 onto stderr — measured, and nothing in
-the old block read it. `pr-identity` now asks `gh` for the target's base branch and falls back to
-`<remote>/main` only when no PR answers. Step 2 reads `REVIEW.md` from the same base. What breaks a hardcoded base —
+the old block read it. `pr-identity` now asks `gh` for the target's base branch. When no PR
+answers, it uses the default branch of the repository: `gh`'s `defaultBranchRef`, then
+`<remote>/HEAD`, then `main`. Step 2 reads `REVIEW.md` from the same base. What breaks a hardcoded base —
 `master`, `develop`, a shallow or single-branch clone, a fork checkout — is enumerated once, in
 Step 2's ⛔ note; it is not restated here.
 
