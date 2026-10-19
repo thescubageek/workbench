@@ -41,7 +41,12 @@ CORPUS = os.path.join(HERE, 'fixtures', 'guard-corpus.json')
 # and the waiver must carry an argument, not just an entry.
 #
 # A generated waiver is addressed by a KEY, not a line number:
-#   <scope> | <enclosing block> | <statement> | <operator>
+#   <scope> | <enclosing block> | <statement> | <operator> | <hash>
+# The first four parts are for reading, and are truncated. <hash> is the first 10 hex of a
+# sha256 over the full statement text and the full mutated element, so an edit anywhere in
+# the statement or pattern changes the key. Identical twins add a ` #n` suffix, and their
+# hash also covers the enclosing block's text and the twin count, so deleting one twin
+# stales the others' keys instead of moving a waiver onto the next twin (lib_mutate.py).
 # Line numbers were the first design and they were wrong: any edit to check-guards moved
 # every anchor below it, unhooking those waivers silently — the mutant reappears as an
 # unexplained survivor while the ratchet, which watches only the kill count, stays green.
@@ -792,13 +797,33 @@ def main():
     print(f"  {'✓' if wiring_ok else '✗'} run_generated passes classify_survivor its arguments "
           f"in order and appends no waiver tuple itself")
 
+    try:
+        sys.path.insert(0, HERE)
+        import lib_mutate
+        long_regex = ("import re\nP = re.compile(\n"
+                      "    r'^abcdefghijklmnopqrstuvwxyz0123456789-(?:one|{})$')\n")
+        long_stmt = ("ok = alpha_beta_gamma_delta_epsilon_zeta_eta_theta_iota_kappa_lambda"
+                     " < limit_{}\n")
+        key_checks = []
+        for shape in (long_regex, long_stmt):
+            first = [k for _, k, _ in lib_mutate.generate(shape.format('two'))]
+            again = [k for _, k, _ in lib_mutate.generate(shape.format('two'))]
+            edited = [k for _, k, _ in lib_mutate.generate(shape.format('six'))]
+            key_checks.append(bool(first) and first == again and len(first) == len(edited)
+                              and not set(first) & set(edited))
+        key_edit_ok = all(key_checks)
+    except Exception:
+        key_edit_ok = False
+    print(f"  {'✓' if key_edit_ok else '✗'} a mutant key changes when a regex is edited after "
+          f"character 36 or a statement after character 64")
+
     ok = (base['correct'] == base['total'] and caught == len(MUTATIONS)
           and integ_ok == len(integ) and intact and verdict_ok and shrunk_verdict_ok
           and stale_verdict_ok and fell_verdict_ok and equal_verdict_ok
           and shrunk_surv_verdict_ok and idle_verdict_ok and big_verdict_ok
           and edge_verdict_ok and blank_verdict_ok and noreason_verdict_ok
           and classify_verdict_ok and argued_verdict_ok and ratchet_load_ok
-          and wiring_ok)
+          and wiring_ok and key_edit_ok)
     print(f"\ntest-guards: corpus {base['correct']}/{base['total']}, "
           f"integrity {integ_ok}/{len(integ)}, "
           f"mutations {caught}/{len(MUTATIONS)} — {'PASS' if ok else 'FAIL'}")

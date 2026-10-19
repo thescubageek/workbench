@@ -288,8 +288,14 @@ Those are the two things the sweep enforces. When the mutant set itself shrinks 
 the exact values. It never lowers the count by itself.
 
 **Equivalent mutants are the known cost**, waived in `fixtures/mutation-waivers.json`, and a
-waiver carries an argument rather than an entry. Treat the survivor list as a queue of corpus
-cases worth writing, not as a bug list: many survivors are constants and branches no realistic
+waiver carries an argument rather than an entry. A waiver's `match` is the mutant's key:
+`<scope> | <enclosing block> | <statement> | <operator> | <hash>`. The first four parts are
+truncated for reading. `<hash>` is the first 10 hex characters of a sha256 over the full
+statement text and the full mutated element, so any edit to the statement or pattern changes
+the key and stales the waiver. Identical twins get a `#n` suffix, and their hash also covers
+the enclosing block's text and the twin count. Deleting a twin therefore stales the other
+twins' waivers instead of moving one onto the next twin. Treat the survivor list as a queue of
+corpus cases worth writing, not as a bug list: many survivors are constants and branches no realistic
 input distinguishes.
 
 ### `test-phi-patterns`

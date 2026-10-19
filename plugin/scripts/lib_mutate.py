@@ -17,7 +17,9 @@ Equivalent mutants are the known cost. They are waived in
 """
 import ast
 import copy
+import hashlib
 import re
+import types
 
 CMP_SWAP = {
     ast.Lt: ast.LtE, ast.LtE: ast.Lt, ast.Gt: ast.GtE, ast.GtE: ast.Gt,
@@ -64,55 +66,88 @@ def _head(src, node):
     return line if len(line) <= KEY_WIDTH else line[:KEY_WIDTH] + '...'
 
 
+def _text(src, node):
+    """The full source of `node`, or of its header alone when it has a body.
+
+    A compound statement's own text is its header: an edit inside the body is an edit to a
+    different statement, and must not re-key the mutants that sit on the header.
+    """
+    body = getattr(node, 'body', None)
+    if isinstance(node, ast.stmt) and isinstance(body, list) and body:
+        node = types.SimpleNamespace(lineno=node.lineno, col_offset=node.col_offset,
+                                     end_lineno=body[0].lineno, end_col_offset=body[0].col_offset)
+    return ast.get_source_segment(src, node) or ''
+
+
 def _places(tree, src):
-    """node id -> (scope, enclosing-block header, own statement header).
+    """node id -> (scope, block header, statement header, statement text, block text).
 
     This is what makes a mutant addressable by something other than a line number. A line
     number moves when anything above it changes, so every waiver keyed on one is unhooked by
     an unrelated edit — silently, because a waiver that matches nothing and a mutant that is
-    genuinely caught look identical from the outside.
+    genuinely caught look identical from the outside. The two headers are for reading; the
+    two texts are unbounded and feed the key's hash.
     """
-    out = {id(tree): ('<module>', '', '')}
+    out = {id(tree): ('<module>', '', '', '', src)}
 
-    def walk(node, scope, block, stmt):
+    def walk(node, scope, block, stmt, stmt_text, block_text):
         for child in ast.iter_child_nodes(node):
-            c_scope, c_block, c_stmt = scope, block, stmt
+            c = (scope, block, stmt, stmt_text, block_text)
             if isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
-                c_scope, c_block, c_stmt = child.name, '', ''
+                c = (child.name, '', '', _text(src, child), '')
             elif isinstance(child, ast.stmt):
-                c_block = _head(src, node) if isinstance(node, COMPOUND) else block
-                c_stmt = _head(src, child)
-            out[id(child)] = (c_scope, c_block, c_stmt)
-            walk(child, c_scope, c_block, c_stmt)
+                c = (scope, _head(src, node) if isinstance(node, COMPOUND) else block,
+                     _head(src, child), _text(src, child),
+                     src if node is tree else ast.get_source_segment(src, node) or '')
+            out[id(child)] = c
+            walk(child, *c)
 
-    walk(tree, '<module>', '', '')
+    walk(tree, '<module>', '', '', '', src)
     return out
 
 
-def _key(places, node, op):
-    scope, block, stmt = places.get(id(node), ('<module>', '', ''))
-    return ' | '.join(x for x in (scope, block, stmt, op) if x)
+def _digest(*parts):
+    return hashlib.sha256('\0'.join(parts).encode()).hexdigest()[:10]
+
+
+def _key(places, node, op, element):
+    """-> (readable head, hash parts, block text). `_disambiguate` joins them into the key."""
+    scope, block, stmt, stmt_text, block_text = places.get(id(node), ('<module>', '', '', '', ''))
+    head = ' | '.join(x for x in (scope, block, stmt, op) if x)
+    return head, (stmt_text, element), block_text
 
 
 def _disambiguate(out):
-    """Append `#n` to keys that repeat, so a waiver can only ever address one mutant.
+    """Join each key as `<head> | <hash>`, and keep twins apart without a silent re-target.
 
-    Two identical statements in one block — `continue` in both arms of an if/else, the same
-    `i += 1` twice — produce the same key, and a waiver matching two mutants would silently
-    excuse one nobody argued about. The index is positional and so is the one fragile part
-    left, but it orders only the collisions inside a single block rather than every line in
-    the file.
+    The hash covers the full statement text and the full mutated element, so an edit past
+    the readable head's truncation still changes the key. Two identical statements in one
+    block — `continue` in both arms of an if/else, the same `i += 1` twice — still produce
+    the same key, and a waiver matching two mutants would silently excuse one nobody argued
+    about. A twin's hash therefore also covers its enclosing block's full text and the size
+    of its twin group, and a `#n` suffix orders the twins that remain. Deleting or adding a
+    twin changes the block text or the group size, so every twin's key changes and a waiver
+    on one goes stale, loudly, instead of moving to the next twin.
     """
+    base = [f'{head} | {_digest(*parts)}' for _, (head, parts, _), _ in out]
+    size = {}
+    for k in base:
+        size[k] = size.get(k, 0) + 1
+    keys = []
+    for k, (_, (head, parts, block_text), _) in zip(base, out):
+        if size[k] > 1:
+            k = f'{head} | {_digest(*parts, block_text, str(size[k]))}'
+        keys.append(k)
     seen = {}
-    for e in out:
-        seen[e[1]] = seen.get(e[1], 0) + 1
+    for k in keys:
+        seen[k] = seen.get(k, 0) + 1
     run = {}
     fixed = []
-    for label, key, src in out:
-        if seen[key] > 1:
-            run[key] = run.get(key, 0) + 1
-            key = f'{key} #{run[key]}'
-        fixed.append((label, key, src))
+    for k, (label, _, src) in zip(keys, out):
+        if seen[k] > 1:
+            run[k] = run.get(k, 0) + 1
+            k = f'{k} #{run[k]}'
+        fixed.append((label, k, src))
     return fixed
 
 
@@ -141,6 +176,9 @@ def generate(src):
     places = _places(tree, src)
     out = []
 
+    def seg(node):
+        return ast.get_source_segment(src, node) or ''
+
     main_guard_ids = {
         id(n.test) for n in ast.walk(tree)
         if isinstance(n, ast.If) and isinstance(n.test, ast.Compare)
@@ -165,7 +203,7 @@ def generate(src):
                 s = _rebuild(tree, i, m)
                 if s:
                     o = f'cmp {type(op).__name__}->{swap.__name__}'
-                    out.append((f'L{node.lineno} {o}', _key(places, node, o), s))
+                    out.append((f'L{node.lineno} {o}', _key(places, node, o, seg(node)), s))
 
         # --- boolean operators
         elif isinstance(node, ast.BoolOp):
@@ -174,7 +212,7 @@ def generate(src):
             s = _rebuild(tree, i, m)
             if s:
                 out.append((f'L{node.lineno} bool and<->or',
-                            _key(places, node, 'bool and<->or'), s))
+                            _key(places, node, 'bool and<->or', seg(node)), s))
 
         # --- integer constants
         elif isinstance(node, ast.Constant) and isinstance(node.value, int) \
@@ -185,7 +223,7 @@ def generate(src):
                 s = _rebuild(tree, i, m)
                 if s:
                     o = f'int {node.value}{name}'
-                    out.append((f'L{node.lineno} {o}', _key(places, node, o), s))
+                    out.append((f'L{node.lineno} {o}', _key(places, node, o, seg(node)), s))
 
         # --- regex literals
         elif isinstance(node, ast.Constant) and isinstance(node.value, str):
@@ -209,7 +247,7 @@ def generate(src):
                 s = _rebuild(tree, i, m)
                 if s:
                     o = f'regex {label}: {pat[:36]}'
-                    out.append((f'L{node.lineno} {o}', _key(places, node, o), s))
+                    out.append((f'L{node.lineno} {o}', _key(places, node, o, pat), s))
 
     # --- statement deletion, done on the parent body so indices stay meaningful
     for i, node in enumerate(ast.walk(tree)):
@@ -228,6 +266,6 @@ def generate(src):
                     if field != 'body':
                         o += f' ({field})'
                     out.append((f'L{getattr(stmt, "lineno", 0)} {o}',
-                                _key(places, stmt, o), s))
+                                _key(places, stmt, o, seg(stmt)), s))
 
     return _disambiguate(out)
