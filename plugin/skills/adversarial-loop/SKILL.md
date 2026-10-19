@@ -306,12 +306,19 @@ publishing phases cannot end up pointed at different changes.
    ```bash
    # Re-state the number of ledger rows this round wrote, rejected findings included: `findings=<count>`.
    findings=""
-   case $findings in ''|*[!0-9]*) echo "this round's finding count was not re-stated — ledger NOT committed" >&2; exit 1 ;; esac
+   case $findings in ''|*[!0-9]*|0?*) echo "this round's finding count was not re-stated — ledger NOT committed" >&2; exit 1 ;; esac
    L="docs/plans/<plan>/review-log.md"
-   [ "$findings" -ne 0 ] || {
-     [ -z "$(tail -c1 "$L" 2>/dev/null)" ] || echo >>"$L"
-     printf '| <N> | - | clean-round | - | - | 0 verified findings | - |\n' >>"$L"
-   }
+   case "<N>" in 1) ;; *) [ -f "$L" ] || { echo "round <N> found no ledger at $L — ledger NOT committed" >&2; exit 1; } ;; esac
+   if [ "$findings" -eq 0 ]; then
+     grep -q '^| <N> | - | clean-round |' "$L" 2>/dev/null || {
+       [ -z "$(tail -c1 "$L" 2>/dev/null)" ] || echo >>"$L"
+       printf '| <N> | - | clean-round | - | - | 0 verified findings | - |\n' >>"$L"
+     }
+   else
+     rows=$("${CLAUDE_PLUGIN_ROOT}/scripts/count" '^\| <N> \|' "$L") \
+       || { echo "round <N> could not count the rows in $L — ledger NOT committed" >&2; exit 1; }
+     [ "$rows" -eq "$findings" ] || { echo "findings=$findings, but $L holds $rows rows for round <N> — ledger NOT committed" >&2; exit 1; }
+   fi
    git add -f "$L" \
      && { git diff --cached --quiet -- "$L" || git commit -m "ledger: round <N> dispositions" -- "$L"; }
    ```
@@ -320,9 +327,11 @@ publishing phases cannot end up pointed at different changes.
    state this loop calls success. A no-plan ledger outside `docs/plans/` is committed the same
    way, at whatever path was picked above. With no plan directory, set `L` to that picked path
    instead of `docs/plans/<plan>/review-log.md`. The commit is scoped to the ledger, so work already
-   staged stays staged for its own task's commit. A clean round commits its `clean-round` row. A
-   round with findings whose ledger does not exist at commit time fails at `git add` and exits
-   non-zero. Stop there and write the rows. Do not run on.
+   staged stays staged for its own task's commit. A clean round commits its `clean-round` row,
+   and a repeat run does not add a second one. Only round 1 may create the ledger. Any later round
+   whose ledger does not exist exits non-zero. A `findings` with a leading zero exits non-zero. A
+   non-zero `findings` that is not the number of rows that start `| <N> |` exits non-zero. Stop
+   there and correct the rows or the count. Do not run on.
 
    **A breaker that cannot fire is worse than none**, because its presence is what licenses
    proceeding. Both Blocking triggers in

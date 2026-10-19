@@ -21,7 +21,7 @@
 # that name, and `target=<it>` is prepended to a block with no `target=""` line. Bound names are
 # target (the argument), the key=value lines Step 1 printed plus review_base, review_head and
 # pathspec from its `range:` line (for step8), the key=value lines Phase 0 printed (for phase2
-# and phase4), the key=value lines reply printed (for reply4c), and findings, the round's verified count (for ledger). <plan>, <N> and <date> become p, 1 and $PLAN_DATE; <the path 4a printed> becomes a
+# and phase4), the key=value lines reply printed (for reply4c), and findings, the round's verified count (for ledger). <plan>, <N> and <date> become p, 1 (or the ledger cell's round label) and $PLAN_DATE; <the path 4a printed> becomes a
 # scratch body file; ${CLAUDE_PLUGIN_ROOT} becomes plugin/. Columns, each in a fresh copy of the world: the loop reads fix= from phase0; the
 # review head comes from the range: line of review, then step8 runs over a plan the test wrote
 # and the index says whether it was staged; phase2 runs after one fix commit, and the bare
@@ -333,11 +333,11 @@ build() {
             base_world E3; git -C parent.git update-ref -d refs/pull/42/head
             git clone -q parent.git work; cd work || exit 2
             fixture "$(pr 42 feature-A "$(oid A1)" false thescubageek)"; TARGET=42 ;;
-        S12|S12b|S12c)
+        S12|S12b|S12c|S12d|S12e|S12f|S12g|S12h)
             base_world "$1"; git clone -q parent.git work; cd work || exit 2
             mkdir -p docs/plans/p; fixture "" ;;
     esac
-    case $1 in S9|S3b|N1|G1|H2|AL1|AL2|S12|S12b|S12c) ;; *) HAS_TARGET=1 ;; esac
+    case $1 in S9|S3b|N1|G1|H2|AL1|AL2|S12|S12b|S12c|S12d|S12e|S12f|S12g|S12h) ;; *) HAS_TARGET=1 ;; esac
     export GH_FIXTURE="$W/fixture.json" GH_LOG="$W/gh.log"
     : >"$GH_LOG"
 }
@@ -702,7 +702,7 @@ materialize() { # block-file out-file
     : >"$2.body"
     while IFS= read -r line || [[ -n $line ]]; do
         line=${line//"\${CLAUDE_PLUGIN_ROOT}"/$PLUGIN_ROOT}
-        line=${line//'<plan>'/p}; line=${line//'<N>'/1}; line=${line//'<date>'/$PLAN_DATE}
+        line=${line//'<plan>'/p}; line=${line//'<N>'/${NLABEL:-1}}; line=${line//'<date>'/$PLAN_DATE}
         line=${line//'<the path 4a printed>'/$REPLY_BODY}
         if [[ $line =~ ^([A-Za-z_][A-Za-z0-9_]*)=\"\"$ ]]; then
             name=${BASH_REMATCH[1]}
@@ -862,9 +862,9 @@ for CSH in "${SHELLS[@]}"; do
         cd "$SCRIPT_DIR" || exit 2
     done <<<"$CTABLE"
 
-    for id in S12 S12b S12c; do
+    for id in S12 S12b S12c S12d S12e S12f S12g S12h; do
         build "$id" >/dev/null 2>&1
-        U=""; F=""; M=""
+        U=""; F=""; M=""; NLABEL=""
         L=docs/plans/p/review-log.md
         if has ledger; then
             ROW='| 1 | a.sh:1 | x | CONFIRMED | Wrong | e | prev-fix |'
@@ -872,6 +872,14 @@ for CSH in "${SHELLS[@]}"; do
                 S12) BIND="findings=0" ;;
                 S12b) BIND="findings=1"; printf '%s\n' "$ROW" >docs/plans/p/reviewlog.md ;;
                 S12c) BIND="findings=0"; printf '%s' "$ROW" >"$L" ;;
+                S12d) BIND="findings=00"; printf '%s\n' "$ROW" >"$L" ;;
+                S12e) BIND="findings=0"; NLABEL=3b1; printf '%s\n' '| 3 | a.sh:1 | x | CONFIRMED | Valid | c1 | prev-fix |' >"$L"
+                      run_block ledger; [[ $RC -eq 0 ]] || M="$M; the first clean run exited $RC" ;;
+                S12f) BIND="findings=0"; NLABEL=2 ;;
+                S12g) BIND="findings=2"; printf '%s\n' "$ROW" '| 2 | b.sh:1 | y | CONFIRMED | Valid | c1 | prev-fix |' >"$L" ;;
+                S12h) BIND="findings=2"; NLABEL=3b1
+                      printf '%s\n' "$ROW" '| 3b1 | a.sh:1 | x | CONFIRMED | Valid | c1 | prev-fix |' \
+                          '| 3b1 | b.sh:1 | y | PLAUSIBLE | Wrong | e | pre-existing |' >"$L" ;;
             esac
             run_block ledger
             c=$(git log -1 --format=%H -- "$L")
@@ -887,11 +895,26 @@ for CSH in "${SHELLS[@]}"; do
                             || "$(git show "$c:$L" | wc -l | tr -d ' ')" != 2 ]]; then
                         M="$M; the clean-round row is not on its own line after a ledger with no trailing newline"
                     fi ;;
+                S12d|S12f|S12g)
+                    case $id in S12d) why="findings=00" ;; S12f) why="a clean round 2 with no ledger" ;; S12g) why="findings=2 over 1 row for round 2" ;; esac
+                    if [[ $RC -eq 0 ]]; then U="$U; exit 0 over $why"; elif [[ -n $c ]]; then U="$U; a ledger commit over $why"; fi
+                    [[ $id != S12f || ! -e $L ]] || U="$U; a ledger created for $why" ;;
+                S12e)
+                    git show "$c:$L" >"$W/ledger.committed" 2>/dev/null
+                    n=$("$SCRIPT_DIR/count" '^\| 3b1 \| - \| clean-round \|' "$W/ledger.committed") || n=unmeasured
+                    if [[ $RC -ne 0 || -z $c ]]; then M="$M; the repeat clean run did not commit (exit $RC)"
+                    elif [[ $n != 1 ]]; then M="$M; ${n:-no} clean-round rows for 3b1 after two clean runs, want 1"; fi ;;
+                S12h)
+                    if [[ $RC -ne 0 || -z $c ]]; then M="$M; 2 rows for 3b1 and findings=2 did not commit (exit $RC)"
+                    elif ! git show "$c:$L" | cmp -s - "$L" || git show "$c:$L" | command grep -q clean-round; then
+                        M="$M; the committed ledger is not the 3 rows written"
+                    fi ;;
             esac
         else missing ledger; fi
         score "$id"
         cd "$SCRIPT_DIR" || exit 2
     done
+    NLABEL=""
 
     build S1 >/dev/null 2>&1
     rm -rf "$W.snap"; cp -Rp "$W" "$W.snap"
