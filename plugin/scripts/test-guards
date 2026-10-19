@@ -10,6 +10,9 @@ firing at all.
 Acceptance bar, pre-registered: 100% of the corpus, and every planted mutation caught.
 
 Usage: plugin/scripts/test-guards [path-to-check-guards]
+       plugin/scripts/test-guards --generated [--init] [path-to-check-guards]
+
+--generated refuses to run when fixtures/mutation-ratchet.json is missing. --init creates it.
 """
 import contextlib
 from collections import Counter
@@ -571,6 +574,17 @@ def ratchet_verdict(killed, prev, survivors, stale, total=None, prev_total=None,
     return not msgs, msgs
 
 
+def load_ratchet(rpath, init):
+    """The stored ratchet, or (None, refusal) when the file is missing and --init was not given."""
+    if os.path.exists(rpath):
+        return json.load(open(rpath)), None
+    if init:
+        return {}, None
+    return None, (f'❌ ratchet: {rpath} is missing. A missing file reads as 0 killed, so the\n'
+                  f'   sweep would pass and write whatever count it found. Restore the file from\n'
+                  f'   git, or pass --init to create it on purpose.')
+
+
 def main():
     print(f'corpus: {CORPUS}')
     base = run_corpus(CG)
@@ -735,12 +749,32 @@ def main():
     argued_verdict_ok = argued_ok
     print(f"  {'✓' if argued_verdict_ok else '✗'} --generated accepts a waiver that carries a reason")
 
+    try:
+        rdir = tempfile.mkdtemp(prefix='test-guards-ratchet-')
+        try:
+            missing = os.path.join(rdir, 'mutation-ratchet.json')
+            gone_stored, gone_msg = load_ratchet(missing, init=False)
+            init_stored, init_msg = load_ratchet(missing, init=True)
+            with open(missing, 'w') as fh:
+                json.dump({'killed': 382, 'of': 421}, fh)
+            have_stored, have_msg = load_ratchet(missing, init=False)
+        finally:
+            shutil.rmtree(rdir, ignore_errors=True)
+        ratchet_load_ok = (gone_stored is None and '--init' in gone_msg
+                           and 'mutation-ratchet.json' in gone_msg
+                           and init_stored == {} and init_msg is None
+                           and have_stored == {'killed': 382, 'of': 421} and have_msg is None)
+    except Exception:
+        ratchet_load_ok = False
+    print(f"  {'✓' if ratchet_load_ok else '✗'} --generated refuses a missing ratchet file "
+          f"unless --init is given")
+
     ok = (base['correct'] == base['total'] and caught == len(MUTATIONS)
           and integ_ok == len(integ) and intact and verdict_ok and shrunk_verdict_ok
           and stale_verdict_ok and fell_verdict_ok and equal_verdict_ok
           and shrunk_surv_verdict_ok and idle_verdict_ok and big_verdict_ok
           and edge_verdict_ok and blank_verdict_ok and noreason_verdict_ok
-          and classify_verdict_ok and argued_verdict_ok)
+          and classify_verdict_ok and argued_verdict_ok and ratchet_load_ok)
     print(f"\ntest-guards: corpus {base['correct']}/{base['total']}, "
           f"integrity {integ_ok}/{len(integ)}, "
           f"mutations {caught}/{len(MUTATIONS)} — {'PASS' if ok else 'FAIL'}")
@@ -750,6 +784,11 @@ def main():
 if __name__ == '__main__':
     if '--generated' in sys.argv:
         sys.path.insert(0, HERE)
+        rpath = os.path.join(HERE, 'fixtures', 'mutation-ratchet.json')
+        stored, refusal = load_ratchet(rpath, '--init' in sys.argv)
+        if refusal:
+            print(refusal)
+            sys.exit(1)
         print('== generated mutation sweep ==')
         surv, waiv, killed, total, stale = run_generated(CG)
         pct = 100 * killed // total if total else 0
@@ -762,8 +801,6 @@ if __name__ == '__main__':
         # Zero-unwaived was once unaffordable at 67%; with every survivor now killed or
         # waived, it is the bar. A survivor must be killed by a corpus case, or waived with
         # an argument. Every failing rule reports before the exit.
-        rpath = os.path.join(HERE, 'fixtures', 'mutation-ratchet.json')
-        stored = json.load(open(rpath)) if os.path.exists(rpath) else {}
         prev = stored.get('killed', 0)
         ok, msgs = ratchet_verdict(killed, prev, surv, stale,
                                    total=total, prev_total=stored.get('of'), waived=waiv)

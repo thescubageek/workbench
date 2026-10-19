@@ -264,6 +264,9 @@ of regex weakenings (drop anchors, drop word boundaries, collapse alternations, 
 quantifiers). 421 mutants (recorded in `fixtures/mutation-ratchet.json`). The ratchet was
 re-based on the lexer rewrite on 2026-10-01 and now stands at 382 of 421 killed.
 
+A missing `fixtures/mutation-ratchet.json` fails the sweep before it starts. Restore the file
+from git. `./plugin/scripts/test-guards --generated --init` creates it on purpose.
+
 **Why both.** The curated list is author-written, and round 4 of this repository's own review
 established what that is worth: the same session wrote the tool, the corpus *and* the mutations,
 and an independent reviewer's 24 mutations found 20 survivors behind a green 12/12. **A generator
