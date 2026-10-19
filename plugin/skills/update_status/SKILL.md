@@ -146,9 +146,12 @@ clicked through. Decide which case this run is.
 **Silent side — apply without stopping.** Present no plan, wait for nothing, and report what
 changed in one line at Step 7. This side is exactly:
 
-- the counters — `completed_tasks`, `total_tasks`, `current_phase` — at their counted values
-- the git metadata — `git_commit`, `git_branch`, `repository` — read from the repository, not
-  judged; a stale `git_commit` is a false fact that looks current
+- the counters — `completed_tasks`, `total_tasks` — at their counted values, and `current_phase`
+  (phased plan only: a remediation plan has no phase, see
+  [remediation-plan.md](../../docs/reference/remediation-plan.md))
+- the git metadata — `git_commit`, `git_branch`, `repository` (phased plan only: a remediation
+  plan never carries them) — read from the repository, not judged; a stale `git_commit` is a
+  false fact that looks current
 - **`tasks.md` `not-started` → `in-progress`**, the one `status:` value on this side: its trigger
   is "at least one task checkbox is `[x]`", arithmetic over the same checkboxes the counters
   read, not a claim about the world
@@ -180,7 +183,8 @@ the same, and the two must not diverge:
 - **Phased plan** — apply all three: the `research.md` fragment, the `design.md` fragment, and
   the `tasks.md` fragment.
 - **Remediation plan** — the shape `remediation-plan.md` defines, recognised at Step 1. Skip both the `research.md` and the `design.md` fragments and
-  apply the `tasks.md` fragment alone, omitting `current_phase`. A round has neither of those
+  apply the `tasks.md` fragment alone, omitting `current_phase`, `last_updated`, `git_commit` and
+  `git_branch`. A round has neither of those
   documents, so applying their fragments means writing frontmatter into files that do not exist,
   and it carries no phase number to write.
 
@@ -194,8 +198,9 @@ and not an estimate. If the count and the old counter disagree, the count is wha
 1. **Read each file back** to verify changes were applied
 2. **Re-count the checkboxes** and confirm the written counters now match
 3. **Check consistency**:
-   - All files have same `last_updated` date
-   - All files have same git metadata
+   - All files have same `last_updated` date (phased plan only: a remediation plan has no
+     `last_updated`, see [remediation-plan.md](../../docs/reference/remediation-plan.md))
+   - All files have same git metadata (phased plan only: a remediation plan carries none)
    - Status transitions are valid across all files
 4. **Validate no regressions**: status didn't move backward unexpectedly, phase numbers make sense
 
