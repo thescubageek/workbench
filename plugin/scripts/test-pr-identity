@@ -977,6 +977,7 @@ for CSH in "${SHELLS[@]}"; do
             posts=$("$SCRIPT_DIR/count" '^gh pr comment ' "$GH_LOG") || posts=unmeasured
             [[ $posts == 0 ]] || U="$U; $posts gh pr comment calls when $why"
             [[ $RC -eq 1 && $OUT == *"NOT replying"* ]] || M="$M; 4c did not refuse with its own message when $why (exit $RC)"
+            case $cell in unbound|dash) [[ $OUT == *"not re-stated"* ]] || M="$M; 4c refusal does not say Step 1's pr was not re-stated when $why" ;; esac
         fi
         has reply || missing reply
         has reply4c || missing reply4c
