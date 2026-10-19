@@ -78,6 +78,10 @@ const isRound =
   /(^|\/)reviews\/[^/]+-round-\d+\/?$/.test(projectDir);
 ```
 
+One copy of that regex is sanctioned: `validate_project/reference/validation-rules.md` carries it
+verbatim, because a validator needs the code form. It is a copy, not a second definition. Change
+the rule here first, then change the copy to match.
+
 ## What it has, and what it deliberately lacks
 
 **Has:** `tasks.md`, with this frontmatter and nothing else — the set Step 8 writes:
@@ -144,10 +148,23 @@ These are Step 8's placeholders, and two sessions writing a round must land on t
 
 ## Checking it
 
-The recognition rule is stated **here and nowhere else**. This must name exactly one file:
+The recognition rule is stated **here**, with one sanctioned copy of its regex in
+`validation-rules.md`. This must name exactly one file:
 
 ```bash
 grep -rlF 'a `reviews:` key in its frontmatter' plugin/
+```
+
+The regex must appear, with identical text, in this file and in `validation-rules.md` only. This
+must print nothing. A `MISS` line means one of the two lost the exact text. An `EXTRA` line means a
+third copy exists:
+
+```bash
+re='/(^|\/)reviews\/[^/]+-round-\d+\/?$/'
+for f in plugin/docs/reference/remediation-plan.md plugin/skills/validate_project/reference/validation-rules.md; do
+  grep -qF -- "$re" "$f" || echo "MISS $f"
+done
+grep -rlF -- "$re" plugin/ | grep -vxF -e plugin/docs/reference/remediation-plan.md -e plugin/skills/validate_project/reference/validation-rules.md | sed 's/^/EXTRA /'
 ```
 
 Every consumer that branches on the round shape links to this document rather than restating it.
