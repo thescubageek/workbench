@@ -68,6 +68,12 @@ before=$(find "$SCRATCH" -type f | awk 'END{print NR}')
 after=$(find "$SCRATCH" -type f | awk 'END{print NR}')
 check "failure removes its log" "$([[ "$before" -eq "$after" ]] && echo 1 || echo 0)"
 
+# --- Case 6: a log removed during the command reports 0 lines suppressed with empty stderr ---
+out=$("$QUIET" sh -c "rm -f '$SCRATCH'/wb-quiet.*" 2>"$SCRATCH/stderr.txt"); code=$?
+check "missing log still exits 0" "$([[ $code -eq 0 ]] && echo 1 || echo 0)"
+check "missing log reports 0 lines suppressed" "$(echo "$out" | grep -q '(0 lines suppressed' && echo 1 || echo 0)"
+check "missing log leaves stderr empty" "$([[ ! -s "$SCRATCH/stderr.txt" ]] && echo 1 || echo 0)"
+
 echo ""
 echo "test-quiet: $PASS passed, $FAIL failed"
 [[ $FAIL -eq 0 ]]
