@@ -379,7 +379,7 @@ Only when a pull request exists. Run the repository's own lint and checks first.
 **Record the review baseline before any summons.** Before the un-draft below and before any
 `@claude` comment, read the newest `claude[bot]` comment with the same `claude[bot]` author filter
 Phase 3 polls with. Record its id and its `updated_at`. If there is no such comment, record the
-baseline as "none". An already-open pull request can carry an old bot review, and without a
+baseline as "none". Either way, record `git rev-parse HEAD` as the baseline's head SHA. An already-open pull request can carry an old bot review, and without a
 baseline Phase 3 reads that old review as the new one.
 
 **Then confirm the push and the un-draft with the user** — two outward-facing changes, per *What
@@ -584,7 +584,7 @@ not an authority.
 5. **Before re-summoning `@claude`, evaluate
    [review-ledger.md](../../docs/reference/review-ledger.md)'s triggers on the rows just
    written.** A Blocking trigger stops and surfaces to the user rather than posting the reply.
-6. **Confirm, then** re-record the baseline and invoke `reply-to-claude`. Immediately before each re-summon, re-record the newest `claude[bot]` comment's `id` and `updated_at` as the new baseline, with the same author filter Phase 3 polls with, or "none" if there is no such comment. Phase 3 compares arrivals against that latest baseline. The reply maps one-to-one to the findings and
+6. **Confirm, then** re-record the baseline and invoke `reply-to-claude`. Immediately before each re-summon, re-record the newest `claude[bot]` comment's `id` and `updated_at` as the new baseline, with the same author filter Phase 3 polls with, or "none" if there is no such comment. Record `git rev-parse HEAD` at that moment as the baseline's head SHA. Phase 3 compares arrivals against that latest baseline. The reply maps one-to-one to the findings and
    states the pushback explicitly — which were rejected, why, and what was verified. A leading
    `@claude` re-summons it. Posting is publishing: it is in the table above, and each round is a
    separate confirmation.
@@ -634,6 +634,23 @@ bot's clearance covers HEAD. A `git diff` that exits non-zero or prints no path 
 An unknown SHA exits 128 with empty output, so it is not a ledger-only range. The ledger file is `docs/plans/<plan>/review-log.md`, or the path Phase 1
 step 5 picked. A range that changes any other path is not cleared. Do not label on the strength
 of a rollup alone.
+
+**A newer clean bot comment also clears HEAD.** After a Phase 4 fix push, the review check-run
+reports skipped on HEAD. An `@claude` re-review attaches its check-run elsewhere, so neither rule
+above clears it. Read the bot's comments, where `<PR>` is Phase 0's `pr`: `gh api --paginate
+"repos/{owner}/{repo}/issues/<PR>/comments" --jq '.[] | select(.user.login=="claude[bot]") |
+[.id, .updated_at] | @tsv'`. This is the same `claude[bot]` filter Phase 3 polls with. Take the
+comment with the latest `updated_at`. HEAD is cleared when all three conditions hold:
+
+1. It is newer than the latest baseline, by Phase 3's arrival rule.
+2. Its body reports nothing outstanding, read as Phase 4 reads it.
+3. `git diff --name-only <the baseline's head SHA>..HEAD` exits 0 and lists nothing or only the
+   ledger file.
+
+The ledger file is the one the paragraph above names. The diff catches every commit after the
+baseline, whatever its committer date. A `git diff` that exits non-zero is not cleared. A baseline
+with no recorded head SHA is not cleared. If any condition fails, HEAD is not cleared. Fold the
+commits into an `@claude` reply, or disclose the range, as above.
 
 This is **provisional**: no real `claude[bot]` run has been observed on any repository yet, so
 the check-run's name and shape are unconfirmed. Revisit once a real run exists.
