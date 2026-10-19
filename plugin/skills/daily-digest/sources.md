@@ -224,9 +224,9 @@ Scrub anything matching any of these patterns, plus obvious variants — lowerca
 separators, surrounding punctuation:
 
 ```text
-(?i)(?:(?<![A-Z0-9])|(?<=%[0-9A-F]{2}))(?:BM|BC|BA)(?:[-_ .:/+\t\xA0\u2010-\u2015\u2212\uFF0D]|%[0-9A-F]{2}|&(?:nbsp|ndash|mdash|#\d+);){0,3}[A-Z]{2}(?:[-_ .:/+\t\xA0\u2010-\u2015\u2212\uFF0D]|%[0-9A-F]{2}|&(?:nbsp|ndash|mdash|#\d+);){0,3}\d{8}(?![A-Z0-9])      # canonical, plus the variants below
-(?i)(?:(?<![A-Z0-9])|(?<=%[0-9A-F]{2}))[A-Z]{2}(?:[-_ .:/+\t\xA0\u2010-\u2015\u2212\uFF0D]|%[0-9A-F]{2}|&(?:nbsp|ndash|mdash|#\d+);){1,3}[A-Z]{2}(?:[-_ .:/+\t\xA0\u2010-\u2015\u2212\uFF0D]|%[0-9A-F]{2}|&(?:nbsp|ndash|mdash|#\d+);){1,3}\d{6,10}(?![A-Z0-9])  # the general shape, separators required
-(?i)(?:BM|BC|BA)(?:[-_ .:/+\t\xA0\u2010-\u2015\u2212\uFF0D]|%[0-9A-F]{2}|&(?:nbsp|ndash|mdash|#\d+);){0,3}[A-Z]{2}(?:[-_ .:/+\t\xA0\u2010-\u2015\u2212\uFF0D]|%[0-9A-F]{2}|&(?:nbsp|ndash|mdash|#\d+);){0,3}\d{8}  # the first pattern with no edges: matches when glued to a letter or digit
+(?i)(?:(?<![A-Z0-9])|(?<=%[0-9A-F]{2}))(?:BM|BC|BA)(?:[-_ .:/+\t\xA0\u2010-\u2015\u2212\uFF0D]|%[0-9A-F]{2}|&(?:nbsp|ndash|mdash|#(?:\d+|x[0-9a-f]+));){0,3}[A-Z]{2}(?:[-_ .:/+\t\xA0\u2010-\u2015\u2212\uFF0D]|%[0-9A-F]{2}|&(?:nbsp|ndash|mdash|#(?:\d+|x[0-9a-f]+));){0,3}\d{7,9}(?![A-Z0-9])      # canonical, plus the variants below
+(?i)(?:(?<![A-Z0-9])|(?<=%[0-9A-F]{2}))[A-Z]{2}(?:[-_ .:/+\t\xA0\u2010-\u2015\u2212\uFF0D]|%[0-9A-F]{2}|&(?:nbsp|ndash|mdash|#(?:\d+|x[0-9a-f]+));){1,3}[A-Z]{2}(?:[-_ .:/+\t\xA0\u2010-\u2015\u2212\uFF0D]|%[0-9A-F]{2}|&(?:nbsp|ndash|mdash|#(?:\d+|x[0-9a-f]+));){1,3}\d{6,10}(?![A-Z0-9])  # the general shape, separators required
+(?i)(?:BM|BC|BA)(?:[-_ .:/+\t\xA0\u2010-\u2015\u2212\uFF0D]|%[0-9A-F]{2}|&(?:nbsp|ndash|mdash|#(?:\d+|x[0-9a-f]+));){0,3}[A-Z]{2}(?:[-_ .:/+\t\xA0\u2010-\u2015\u2212\uFF0D]|%[0-9A-F]{2}|&(?:nbsp|ndash|mdash|#(?:\d+|x[0-9a-f]+));){0,3}\d{8}  # the first pattern with no edges: matches when glued to a letter or digit
 ```
 
 **The variants are in the patterns, not in the prose.** An earlier version described them —
@@ -234,6 +234,11 @@ separators, surrounding punctuation:
 and the line above tells you to match rather than paraphrase. A collector obeying that
 instruction literally could not produce the coverage the instruction demanded, and
 `bm-ca-12345678` — the most common hand-typed form — went through unscrubbed.
+
+**Normalize the text before you match.** A collector applies NFKC normalization (Unicode
+compatibility normalization) to the text, then applies the patterns. NFKC folds full-width
+letters and digits to ASCII, so `ＢＭ-ＣＡ-12345678` becomes `BM-CA-12345678` and matches. The
+patterns do not list full-width letters.
 
 `(?i)` covers case. The separator unit is one of these:
 
@@ -243,15 +248,17 @@ instruction literally could not produce the coverage the instruction demanded, a
   dash, em dash, horizontal bar)
 - the minus sign (U+2212) or the fullwidth hyphen (U+FF0D)
 - a percent-escape (`%20`, `%2F`)
-- an HTML entity: `&nbsp;`, `&ndash;`, `&mdash;`, or a numeric entity such as `&#8209;`
+- an HTML entity: `&nbsp;`, `&ndash;`, `&mdash;`, or a decimal or hex numeric entity such as
+  `&#8209;` or `&#x2011;`
 
 The first pattern allows zero to three units, which covers absent, single, doubled and ` - `
 separators; the second requires one to three, because without one `[A-Z]{2}[A-Z]{2}\d{6,10}` would swallow ordinary
-alphanumeric tokens. The edges are alphanumeric lookarounds, not `\b`: `_` is a word character,
+alphanumeric tokens. The first pattern takes seven to nine digits, so an ID with one digit
+missing or added still matches (`BMCA1234567`). The edges are alphanumeric lookarounds, not `\b`: `_` is a word character,
 so `\b` finds no boundary in `member_BM-CA-12345678` or `BM-CA-12345678_intake.pdf` and the ID
 went through. A preceding percent-escape also counts as an edge, so `member_id%3ABM-CA-12345678`
 matches. The first two patterns keep their alphanumeric edges. The third pattern is the first
-pattern's shape with the same separator unit and no edges. It matches an ID glued to a letter or
+pattern's shape with the same separator unit, exactly eight digits and no edges. It matches an ID glued to a letter or
 digit with any of the separators listed above, or with none (`patientBM-CA-12345678`,
 `patientBMCA12345678`, `memberBM_CA_12345678`, `memberBM:CA:12345678`, `BM CA 12345678ext`,
 `BM-CA-12345678901`). Verified against `TB-2421`, `PR-42`, ISO dates, `v1.2.3` and `a.b` — none

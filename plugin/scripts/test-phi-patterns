@@ -12,6 +12,7 @@ made of must not. Over-redaction that eats Jira keys destroys the artifact.
 import os
 import re
 import sys
+import unicodedata
 ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..'))
 src = open(os.path.join(ROOT, 'plugin/skills/daily-digest/sources.md')).read()
 # extract the patterns FROM THE SHIPPED FILE — never from what I think they are
@@ -57,6 +58,9 @@ cases = [
     ("BM&nbsp;CA&nbsp;12345678",  True, "HTML &nbsp; entity separators"),
     ("BM&mdash;CA&mdash;12345678", True, "HTML &mdash; entity separators"),
     ("BM&#8209;CA&#8209;12345678", True, "HTML numeric entity separators"),
+    ("BM&#x2011;CA&#x2011;12345678", True, "HTML hex numeric entity separators"),
+    ("BMCA1234567",               True, "7 digits, no separators"),
+    ("ＢＭ-ＣＡ-12345678",           True, "full-width letters — NFKC folds them to ASCII", "nfkc"),
     ("patientBM-CA-12345678",     True, "glued prefix — the canonical form matches without edges"),
     ("BM-CA-12345678v2",          True, "glued suffix — the canonical form matches without edges"),
     ("BM-CA-12345678Report.pdf",  True, "glued suffix word"),
@@ -77,6 +81,12 @@ cases = [
     ("PR-42",           False, "PR ref"),
     ("2026-09-18",      False, "ISO date"),
     ("a1b2c3d4e5f6",    False, "git sha"),
+    ("TB-1234567",      False, "Jira key, 7 digits"),
+    ("PR-123456789",    False, "PR ref, 9 digits"),
+    ("a1b2c3d",         False, "short git sha, 7 characters"),
+    ("a1b2c3d4e",       False, "git sha, 9 characters"),
+    ("ABCD1234567",     False, "no separators, 7 digits, no BM/BC/BA prefix"),
+    ("ABCD123456789",   False, "no separators, 9 digits, no BM/BC/BA prefix"),
     ("Fix login bug",   False, "prose"),
     # Known, accepted over-matches. Pinned so the trade-off is visible and cannot drift
     # silently: the general two-segment shape cannot tell a member ID from any other
@@ -96,8 +106,9 @@ cases = [
     ("AB+CD+1234",      False, "plus-joined, 4 digits — below the member-ID floor"),
 ]
 bad = 0
-for s, want, why in cases:
-    hit = any(re.search(p, s) for p in pats)
+for s, want, why, *flags in cases:
+    text = unicodedata.normalize('NFKC', s) if "nfkc" in flags else s
+    hit = any(re.search(p, text) for p in pats)
     ok = hit == want
     if not ok: bad += 1
     print(f"  {'✓' if ok else '✗'} {s:18} scrubbed={str(hit):5} want={str(want):5}  {why}")
