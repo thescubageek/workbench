@@ -38,8 +38,8 @@ AN=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
 # host/owner/name from a URL in an exact allow-list, not git's full grammar:
 #   https://[user[:pass]@]host[:port]/  ssh://[user@]host[:port]/  user@host:
 # then owner/name, one optional .git and an optional trailing /. Host [A-Za-z0-9.-], owner and
-# name [A-Za-z0-9._-], userinfo [A-Za-z0-9._~-]; no %. Anything else fails, and publish=yes needs
-# every push URL to be one this reads.
+# name [A-Za-z0-9._-], userinfo [A-Za-z0-9._~-] not starting with -, port 1-65535 with no leading
+# zero; no %. Anything else fails, and publish=yes needs every push URL to be one this reads.
 UI=${AN}._~-
 parse_url() {
   local u=$1 scheme="" auth user="" host port path owner name
@@ -55,14 +55,15 @@ parse_url() {
   if [ "$host" != "$auth" ]; then
     user=${auth%@*}
     if [ "$scheme" = https ]; then
-      [[ -n $user && $user != *[!:${UI}]* && $user != :* && $user != *: && $user != *:*:* ]] || return 1
+      [[ -n $user && $user != -* && $user != *[!:${UI}]* && $user != :* && $user != *: && $user != *:*:* ]] || return 1
     else
-      [[ -n $user && $user != *[!${UI}]* ]] || return 1
+      [[ -n $user && $user != -* && $user != *[!${UI}]* ]] || return 1
     fi
   fi
   if [ -n "$scheme" ] && [[ $host == *:* ]]; then
     port=${host#*:}; host=${host%%:*}
-    [[ -n $port && $port != *[!0123456789]* ]] || return 1
+    [[ -n $port && $port != 0* && $port != *[!0123456789]* && ${#port} -le 5 ]] || return 1
+    [ "$port" -le 65535 ] || return 1
   fi
   [[ -n $host && $host != -* && $host != *[!${AN}.-]* ]] || return 1
   [[ $path == */* && $path != */*/* ]] || return 1
