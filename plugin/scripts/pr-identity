@@ -153,8 +153,15 @@ elif [ -e "$target" ]; then kind="current"; pathspec="$target"
 else kind="branch"
 fi
 
+gherr=$(mktemp) || refuse "could not create a temporary file"
+trap 'rm -f "$gherr"' EXIT
+
 if [ "$kind" = branch ]; then
-  base=$(gh pr view "$target" --json baseRefName --jq .baseRefName 2>/dev/null)
+  if ! base=$(gh pr view "$target" --json baseRefName --jq .baseRefName 2>"$gherr"); then
+    grep -q 'no pull requests found' "$gherr" || refuse "could not resolve PR for branch '$target' via gh"
+    base=""
+  fi
+  [ "$base" != null ] || base=""
   relation=branch; review_head="$target"; review_base="${baseremote:-origin}/${base:-$(default_branch "${baseremote:-origin}")}"
   reason="'$target' is a branch other than the checkout"
   emit
@@ -163,8 +170,6 @@ fi
 F=number,headRefOid,headRefName,baseRefName,isCrossRepository,headRepository,headRepositoryOwner,state
 J='.number, .headRefOid, (.headRefName // ""), .baseRefName, .isCrossRepository, (.headRepositoryOwner.login + "/" + .headRepository.name), (.state // "")'
 if [ "$kind" = current ]; then
-  gherr=$(mktemp) || refuse "could not create a temporary file"
-  trap 'rm -f "$gherr"' EXIT
   if ! facts=$(gh pr view --json "$F" --jq "$J" 2>"$gherr"); then
     grep -q 'no pull requests found' "$gherr" || refuse "could not resolve PR for this checkout via gh"
     relation=none; fix=yes; review_head=HEAD; review_base="${baseremote:-origin}/$(default_branch "${baseremote:-origin}")"
@@ -206,6 +211,8 @@ elif [ -z "$cur" ]; then
   relation=detached; reason="HEAD is detached"
 elif [ -z "$up_remote" ]; then
   relation=elsewhere; reason="branch '$cur' has no upstream"
+elif [ "$up_remote" = . ]; then
+  relation=elsewhere; reason="branch '$cur' tracks a local branch, not a remote"
 elif ! push_repo "$up_remote"; then
   relation=elsewhere; reason="push url of '$up_remote' is not a form pr-identity will publish to"
 elif [ -n "$REPO" ]; then

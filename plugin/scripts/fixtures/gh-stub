@@ -4,6 +4,7 @@
 fixture: {"repos": {"<remote url>": "owner/name"},
           "ssh_aliases": {"<ssh-config Host>": "<HostName>"},
           "default_branch": "<name>" or null (optional, default "main"),
+          "pr_view_error": "<message>" (optional: every `gh pr view` fails with it),
           "prs": {"owner/name": {"42": {...pr fields...}}}}
 A remote's scp-form URL has its alias host translated before the lookup, as gh does through
 ssh -G. An explicit `gh repo view <url>` is looked up as given: gh takes its host literally.
@@ -69,6 +70,7 @@ def find_pr(repo, key):
 cmd = args[:2]; del args[:2]
 fields = pop_opt("--json"); jq = pop_opt("--jq")
 if cmd == ["pr", "view"]:
+    if "pr_view_error" in fx: die(fx["pr_view_error"])
     if args:
         key = args[0]
     else:

@@ -101,7 +101,7 @@ base_world() {
     git checkout -qb feature-A; commit A1; must git push -q origin feature-A
     must git push -q origin "$(oid A1):refs/pull/42/head"
     git checkout -q main; cd "$W" || exit 2
-    REPOS="\"$W/parent.git\": \"thescubageek/workbench\""; ALIASES=""; DEFAULT_BRANCH=""
+    REPOS="\"$W/parent.git\": \"thescubageek/workbench\""; ALIASES=""; DEFAULT_BRANCH=""; PR_VIEW_ERROR=""
 }
 
 fork_pr57() {
@@ -113,7 +113,7 @@ fork_pr57() {
     REPOS="$REPOS, \"$W/fork.git\": \"contributor/workbench\""
 }
 
-fixture() { printf '{"repos": {%s}, "ssh_aliases": {%s}%s, "prs": {"thescubageek/workbench": {%s}}}\n' "$REPOS" "$ALIASES" "${DEFAULT_BRANCH:+, \"default_branch\": $DEFAULT_BRANCH}" "$1" >"$W/fixture.json"; }
+fixture() { printf '{"repos": {%s}, "ssh_aliases": {%s}%s, "prs": {"thescubageek/workbench": {%s}}}\n' "$REPOS" "$ALIASES" "${DEFAULT_BRANCH:+, \"default_branch\": $DEFAULT_BRANCH}${PR_VIEW_ERROR:+, \"pr_view_error\": \"$PR_VIEW_ERROR\"}" "$1" >"$W/fixture.json"; }
 
 hosted_push() { git remote set-url --push origin https://github.com/thescubageek/workbench.git; }
 
@@ -185,6 +185,16 @@ build() {
                     git checkout -q main; TARGET=feature-B ;;
             esac
             fixture "$(pr 42 feature-A "$(oid A1)" false thescubageek)" ;;
+        N6)
+            base_world N6; git clone -q parent.git work; cd work || exit 2
+            git checkout -qb feature-B main; commit B1; must git push -q -u origin feature-B
+            git checkout -q main; TARGET=feature-B
+            b43=$(pr 43 feature-B "$(oid B1)" false thescubageek)
+            fixture "$(pr 42 feature-A "$(oid A1)" false thescubageek), ${b43/\"baseRefName\": \"main\"/\"baseRefName\": null}" ;;
+        LT1)
+            base_world LT1; git clone -q parent.git work; cd work || exit 2
+            git checkout -q feature-A; git checkout -q -b mine --track feature-A
+            fixture "$(pr 42 feature-A "$(oid A1)" false thescubageek)"; TARGET=42 ;;
         N2)
             base_world N2; git clone -q parent.git work; cd work || exit 2
             git checkout -qb docs main; mkdir docs
@@ -339,6 +349,10 @@ build() {
             git remote set-url origin "https://example.invalid/other/name.git"
             REPOS="$REPOS, \"https://example.invalid/other/name.git\": \"thescubageek/workbench\""
             fixture "$(pr 42 feature-A "$(oid A1)" false thescubageek)"; TARGET=42 ;;
+        E4)
+            base_world E4; git clone -q parent.git work; cd work || exit 2
+            PR_VIEW_ERROR="HTTP 502: Bad Gateway"
+            fixture "$(pr 42 feature-A "$(oid A1)" false thescubageek)"; TARGET=feature-A ;;
         E3)
             base_world E3; git -C parent.git update-ref -d refs/pull/42/head
             git clone -q parent.git work; cd work || exit 2
@@ -373,12 +387,14 @@ N2|none|yes|no|base|base|-|-|target docs on branch docs with a docs/ directory i
 N3|none|yes|no|base|base|-|-|current checkout with no PR, the default branch of the base repository is trunk
 N4|none|yes|no|base|base|-|-|current checkout with no PR, gh gives no default branch and origin/HEAD is trunk
 N5|branch|no|no|base|B1|-|-|branch target with no PR, the default branch of the base repository is trunk
+N6|branch|no|no|base|B1|-|-|branch target whose PR has a null baseRefName, so its review base is the default branch
 O1|other|no|no|O1|A1|-|-|HEAD does not contain the PR head
 B1|refuse|-|-|X1|-|-|-|refs/pull/42/head on the base remote is not the PR head
 P1|elsewhere|no|no|L1|A1|-|-|push url of the upstream remote points elsewhere
 P2|elsewhere|no|no|L1|A1|-|-|the upstream remote has a second push url on another host
 P3|own|yes|yes|L1|L1|origin|refs/heads/feature-A|the upstream remote has two push urls, both the PR head repository
 P4|elsewhere|no|no|L1|A1|-|-|the first push url of the upstream remote is on another host, the second is the PR head repository
+LT1|elsewhere|no|no|A1|A1|-|-|the current branch tracks a local branch (remote = .), not a remote
 P5|elsewhere|no|no|L1|A1|-|-|the second push url of the upstream remote, after the PR head repository, is git:// and not parsed
 M1|own|yes|no|L1|L1|-|-|the PR is MERGED, the branch is still the PR head
 M2|own|yes|no|L1|L1|-|-|the PR is CLOSED, the branch is still the PR head
@@ -390,6 +406,7 @@ G1|refuse|-|-|base|-|-|-|no target and gh could not answer (detached HEAD)
 E1|refuse|-|-|base|-|-|-|gh has no such PR
 E2|refuse|-|-|base|-|-|-|no remote points at the base repository
 E3|refuse|-|-|base|-|-|-|the base remote has no refs/pull/42/head
+E4|refuse|-|-|base|-|-|-|branch target, and gh pr view fails with an error other than no pull requests found
 H1|elsewhere|no|no|L1|A1|-|-|upstream remote has the same owner/name on another host (https)
 H2|elsewhere|yes|no|L1|L1|-|-|upstream remote has the same owner/name on another host (scp), no target
 H3|elsewhere|no|no|L1|A1|-|-|push url https://evil.example/x@github.com/... has an @ in its path, not its authority
@@ -421,6 +438,7 @@ err_pattern() {
         M3) echo 'could not resolve PR 42 via gh' ;;
         E2|AL2) echo 'no remote here points at the base repository' ;;
         E3) echo 'could not fetch refs/pull/42/head' ;;
+        E4) echo "could not resolve PR for branch 'feature-A' via gh" ;;
     esac
 }
 
@@ -437,7 +455,7 @@ want_state() {
     case $1 in
         M1|M4|M5|M6) echo MERGED ;;
         M2) echo CLOSED ;;
-        N1|N2|N3|N4|N5|R2|S8) echo - ;;
+        N1|N2|N3|N4|N5|N6|R2|S8) echo - ;;
         *) echo OPEN ;;
     esac
 }
@@ -455,6 +473,7 @@ reason_pattern() {
         S3b) echo "is not the current branch" ;;
         P2|P4) echo "evil.example.com/mirror/workbench" ;;
         P5) echo "not a form pr-identity will publish to" ;;
+        LT1) echo "branch 'mine' tracks a local branch, not a remote" ;;
     esac
 }
 
