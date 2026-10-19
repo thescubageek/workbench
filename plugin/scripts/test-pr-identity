@@ -1,28 +1,29 @@
 #!/usr/bin/env bash
 
-# Predicate-level contract test for scripts/pr-identity.
-# One scratch world per scenario (S1 to S11 from the identity tracer bullet, plus N1 and O1 so
-# that every relation value has a world). A stub gh reads a per-world fixture; git is real and
-# pushes only into bare repositories under the scratch directory.
+# Contract test for scripts/pr-identity and the skill blocks that consume it.
+# Predicate level: a table of scenarios, each run in its own scratch world, checked against the
+# key=value lines pr-identity prints. The stub gh in fixtures/ reads a per-world fixture; git is
+# real and pushes only into bare repositories under the scratch directory.
 #
-# Consumer level: S1 to S12b and M1 to M6 (not M3) run against the fenced blocks extracted from the three SKILL.md
-# files (the working tree, or `--skills-at <rev>` for `git show <rev>:<path>`), under bash, and
-# also under zsh when zsh is on PATH, as the Bash tool runs them under either shell. A missing zsh
-# is a skip line, not a failure. No prose rule is modelled: a block that does not exist fails
-# every cell that needs it as MISSING. The block is the first ```bash fence under its heading, before the
+# Consumer level: cells run the fenced blocks extracted from the three SKILL.md files (the
+# working tree, or `--skills-at <rev>` for `git show <rev>:<path>`) under bash, and also under zsh
+# when zsh is on PATH, as the Bash tool runs them under either shell. A missing zsh is a skip
+# line, not a failure. No prose rule is modelled: a block that does not exist fails every cell
+# that needs it as MISSING. The block is the first ```bash fence under its heading, before the
 # next heading:
 #   review  adversarial-review "## Step 1:"      step8   adversarial-review "## Step 8:"
 #   phase0  adversarial-loop   "## Phase 0:"     phase2  adversarial-loop   "## Phase 2:"
 #   ledger  adversarial-loop   "<n>. **Record each finding" (Phase 1 step 5)
 #   phase4  adversarial-loop   "**Confirm, then push.**" (Phase 4 step 4), up to the next step
+#   phase5  adversarial-loop   "## Phase 5:"
 #   reply   reply-to-claude    "## Step 1:"
 #   reply4c reply-to-claude    "**4c — post it.**" (Step 4c)
 # Each block is run as the model runs it: a `name=""` line is re-typed with the value bound to
 # that name, and `target=<it>` is prepended to a block with no `target=""` line. Bound names are
 # target (the argument), the key=value lines Step 1 printed plus review_base, review_head and
-# pathspec from its `range:` line (for step8), the key=value lines Phase 0 printed (for phase2
-# and phase4), the key=value lines reply printed (for reply4c), and findings, the round's verified count (for ledger). <plan>, <N> and <date> become p, 1 (or the ledger cell's round label) and $PLAN_DATE; <the path 4a printed> becomes a
-# scratch body file; ${CLAUDE_PLUGIN_ROOT} becomes plugin/. Columns, each in a fresh copy of the world: the loop reads fix= from phase0; the
+# pathspec from its `range:` line (for step8), the key=value lines Phase 0 printed (for phase2,
+# phase4 and phase5), the key=value lines reply printed (for reply4c), and findings, the round's verified count (for ledger). <plan>, <N> and <date> become p, 1 (or the ledger cell's round label) and $PLAN_DATE; <the path 4a printed> becomes a
+# scratch body file; <the repository's ready-for-review label> becomes $LABEL; ${CLAUDE_PLUGIN_ROOT} becomes plugin/. Columns, each in a fresh copy of the world: the loop reads fix= from phase0; the
 # review head comes from the range: line of review, then step8 runs over a plan the test wrote
 # and the index says whether it was staged; phase2 runs after one fix commit, and the bare
 # repositories say where the push landed; reply proceeds when it exits 0. In S1 with a tracked
@@ -678,6 +679,7 @@ echo "consumer level: skills from ${SKILLS_AT:-the working tree}"
 PLAN_DATE=2026-10-01
 REPLY_BODY="$ROOT/reply-body.md"
 echo '@claude a reply' >"$REPLY_BODY"
+LABEL=wb-test-ready
 REAL_GIT=$(command -v git)
 export REAL_GIT
 mkdir -p "$ROOT/pushbin"
@@ -714,6 +716,7 @@ load_block phase4 adversarial-loop '^[ \t]*[*][*]Confirm, then push[.][*][*]' '^
 load_block ledger adversarial-loop '^[0-9]+[.] [*][*]Record each finding' '^[0-9]+[.] |^##? '
 load_block reply reply-to-claude '^## Step 1: ' '^##? '
 load_block reply4c reply-to-claude '^[*][*]4c ' '^##? '
+load_block phase5 adversarial-loop '^## Phase 5: ' '^##? '
 
 has() { [[ -f "$ROOT/blk.$1" ]]; }
 
@@ -724,6 +727,7 @@ block_desc() {
         phase0) echo "adversarial-loop Phase 0" ;;
         phase2) echo "adversarial-loop Phase 2" ;;
         phase4) echo "adversarial-loop Phase 4 step 4 (push)" ;;
+        phase5) echo "adversarial-loop Phase 5 (label)" ;;
         ledger) echo "adversarial-loop Phase 1 step 5 (ledger)" ;;
         reply) echo "reply-to-claude Step 1" ;;
         reply4c) echo "reply-to-claude Step 4c (post)" ;;
@@ -745,6 +749,7 @@ materialize() { # block-file out-file
         line=${line//"\${CLAUDE_PLUGIN_ROOT}"/$PLUGIN_ROOT}
         line=${line//'<plan>'/p}; line=${line//'<N>'/${NLABEL:-1}}; line=${line//'<date>'/$PLAN_DATE}
         line=${line//'<the path 4a printed>'/$REPLY_BODY}
+        line=${line//"<the repository's ready-for-review label>"/$LABEL}
         if [[ $line =~ ^([A-Za-z_][A-Za-z0-9_]*)=\"\"$ ]]; then
             name=${BASH_REMATCH[1]}
             [[ $name != target ]] || restated=1
@@ -1046,6 +1051,47 @@ for CSH in "${SHELLS[@]}"; do
         has reply || missing reply
         has reply4c || missing reply4c
         score "$id reply Step 4c ($cell): $why"
+        cd "$SCRIPT_DIR" || exit 2
+    done
+
+    for cell in S1 S4 S11 unbound switched; do
+        U=""; F=""; M=""
+        case $cell in
+            S1) id=S1; why="own, publish=yes" ;;
+            S4) id=S4; why="detached at the PR head, publish=no" ;;
+            S11) id=S11; why="elsewhere, publish=no" ;;
+            unbound) id=S1; why="Phase 0's pr is not re-stated" ;;
+            switched) id=S2; why="the checkout switched to PR 43's branch after Phase 0 printed pr=42" ;;
+        esac
+        build "$id" >/dev/null 2>&1
+        rm -rf "$W.snap"; cp -Rp "$W" "$W.snap"
+        if has phase0 && has phase5; then
+            fresh; BIND="target=$TARGET"
+            [[ $cell != switched ]] || { git checkout -q feature-A; BIND=""; }
+            run_block phase0
+            P0=$(printf '%s\n' "$OUT" | grep -E '^[a-z_]+=')
+            [[ $P0 == *"pr=42"* ]] || M="$M; phase0 printed no pr=42"
+            case $cell in
+                switched) git checkout -q feature-B ;;
+                unbound) P0=$(printf '%s\n' "$P0" | sed '/^pr=/d') ;;
+            esac
+            : >"$GH_LOG"; BIND="$BIND"$'\n'"$P0"
+            run_block phase5
+            edits=$("$SCRIPT_DIR/count" '^gh pr edit ' "$GH_LOG") || edits=unmeasured
+            mine=$("$SCRIPT_DIR/count" "^gh pr edit 42 --add-label $LABEL\$" "$GH_LOG") || mine=unmeasured
+            if [[ $cell == S1 ]]; then
+                [[ $RC -eq 0 ]] || M="$M; Phase 5 refused an own PR with publish=yes (exit $RC)"
+                [[ $edits == 1 && $mine == 1 ]] || M="$M; $edits gh pr edit calls, $mine on PR 42 with $LABEL, want 1"
+                [[ $OUT == *"\"$LABEL\""* ]] || M="$M; the labels array does not hold $LABEL"
+            else
+                [[ $edits == 0 ]] || U="$U; $edits gh pr edit calls when $why"
+                [[ $RC -eq 1 && $OUT == *"NOT publishing"* ]] || M="$M; Phase 5 did not refuse with its own message when $why (exit $RC)"
+                [[ $cell != unbound || $OUT == *"was not re-stated"* ]] || M="$M; Phase 5 refusal does not say Phase 0's pr was not re-stated"
+            fi
+        fi
+        has phase0 || missing phase0
+        has phase5 || missing phase5
+        score "$id Phase 5 label ($cell): $why"
         cd "$SCRIPT_DIR" || exit 2
     done
 done

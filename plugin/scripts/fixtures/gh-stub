@@ -6,6 +6,8 @@ fixture: {"repos": {"<remote url>": "owner/name"},
           "default_branch": "<name>" or null (optional, default "main"),
           "pr_view_error": "<message>" (optional: every `gh pr view` fails with it),
           "prs": {"owner/name": {"42": {...pr fields...}}}}
+`gh pr edit <N> --add-label <label>` posts nothing: the log line is the label, and
+`gh pr view <N> --json labels` returns the labels the log has added to <N>.
 A remote's scp-form URL has its alias host translated before the lookup, as gh does through
 ssh -G. An explicit `gh repo view <url>` is looked up as given: gh takes its host literally.
 Base repository: a remote with `remote.<name>.gh-resolved=base` (set by `gh repo set-default`)
@@ -67,6 +69,11 @@ def find_pr(repo, key):
     if hits: return hits[0]
     die(f'no pull requests found for branch "{key}"')
 
+def added_labels(number):
+    prefix = f"gh pr edit {number} --add-label "
+    with open(os.environ["GH_LOG"]) as log:
+        return [{"name": l[len(prefix):].rstrip("\n")} for l in log if l.startswith(prefix)]
+
 cmd = args[:2]; del args[:2]
 fields = pop_opt("--json"); jq = pop_opt("--jq")
 if cmd == ["pr", "view"]:
@@ -78,7 +85,10 @@ if cmd == ["pr", "view"]:
         if not cur: die("could not determine current branch: not on any branch")
         merge = git("config", f"branch.{cur}.merge")
         key = merge.removeprefix("refs/heads/") if merge else cur
-    emit(find_pr(base_repo(), key), fields, jq)
+    pr = find_pr(base_repo(), key)
+    if fields and "labels" in fields.split(","):
+        pr = dict(pr, labels=added_labels(pr["number"]))
+    emit(pr, fields, jq)
 elif cmd == ["repo", "view"]:
     repo = fx["repos"].get(args[0]) if args else base_repo()
     if not repo: die("could not resolve repository")
@@ -87,6 +97,8 @@ elif cmd == ["repo", "view"]:
 elif cmd == ["pr", "ready"]:
     with open(os.environ["GH_LOG"], "a") as log: log.write(f"READY {args[0]}\n")
     print(f"✓ Pull request #{args[0]} is marked as ready for review")
+elif cmd == ["pr", "edit"] and args[1:2] == ["--add-label"]:
+    pass
 elif cmd == ["pr", "comment"]:
     print(f"stub gh: comment on PR {args[0]} not posted")
 elif cmd[0] == "api":
