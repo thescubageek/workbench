@@ -54,6 +54,7 @@ and a round that never wrote the ledger look the same. The row is:
 A round's finding count is the number of finding rows it wrote, rejected findings included.
 The row counts as a round with zero findings. It adds nothing to the finding totals. It does not
 count toward the minimum-N floor, and it adds nothing to either side of the introduced-rate. The
+introduced-rate trigger skips it and compares with the last round that had findings. The
 same-file trigger sees no file in that round.
 
 **A missing ledger at commit time is an error.** Step 5's commit has no existence check. A round
@@ -81,10 +82,10 @@ Evaluated after each round, from the ledger.
 | Trigger | Mode |
 | ------- | ---- |
 | A **mirror-image regression** — a new finding that is the inverse of one already fixed | **Blocking** |
-| The **introduced-rate fails to fall** between two consecutive rounds | **Blocking** |
+| The **introduced-rate fails to fall** between a round with findings and the last round that had findings before it. Clean rounds are skipped. With no earlier round that had findings, there is no comparison | **Blocking** |
 | The **same file** appears in three consecutive rounds | Advisory |
 
-**A trend test, not a threshold.** Fire on *"the rate did not fall from round N−1 to N"*, never
+**A trend test, not a threshold.** Fire on *"the rate did not fall from the last round that had findings to this one"*, never
 on *"the rate exceeds X%"*. That is scale-free, needs no magic number, and transplants to a
 repository whose numbers look nothing like these. It is also the correct shape: the original
 diagnosis was that the gate is a level test and so cannot see oscillation, and fixing that with
@@ -100,8 +101,9 @@ judged; the limitation is that path-intersection is a poor proxy for causation w
 few paths. Read a Blocking trip on a one- or two-file change as *"the breaker cannot tell"*
 rather than as evidence, and say so when surfacing it.
 
-**Minimum-N floor: three findings.** Below that the rate is meaningless — one of two is 50% and
-says nothing — so do not evaluate the trend at all.
+**Minimum-N floor: three findings per round.** Each of the two compared rounds needs at least
+three findings. Below that the rate is meaningless — one of two is 50% and says nothing — so do
+not evaluate the trend at all.
 
 **Blocking means stop and surface, not refuse.** The user says proceed and it proceeds. The
 asymmetry that matters is that a block requires an answer while an advisory can be stepped past
