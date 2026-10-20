@@ -357,7 +357,7 @@ the block runs. Prose and tables are not scanned,
 so a document may describe a bad pattern freely — a deliberate counter-example belongs in a `text`
 fence rather than a `bash` one.
 
-`scripts/test-guards` is its contract test, in three parts: a **132-case labelled corpus**
+`scripts/test-guards` is its contract test, in three parts: a **136-case labelled corpus**
 (`jq length fixtures/guard-corpus.json`), **16 scan-integrity checks** the corpus structurally
 cannot cover, and **mutation survivability** — 25 single-line breaks planted in the checker, each
 of which must be caught. The third part exists because an earlier suite reported 31/31 while four
@@ -367,12 +367,13 @@ all.
 
 `test-guards --generated` is the fourth part and runs separately, because it is slow and because
 it is a **ratchet rather than a pass/fail bar**. `lib_mutate.py` walks the syntax tree and changes
-one thing — a comparison, a boolean, an integer constant, a regex, a deleted statement — which
-gives it no blind spot correlated with the author's. It currently kills **382 of 421** (recorded
-in `fixtures/mutation-ratchet.json`), re-based on the lexer rewrite on 2026-10-01. It runs in CI on
+one thing — a comparison, a boolean operator or constant, a dropped `not`, a `+`/`-` swap, an
+integer constant, a regex, a deleted statement — which gives it no blind spot correlated with
+the author's. It currently kills **426 of 488** (recorded in `fixtures/mutation-ratchet.json`).
+It runs in CI on
 every pull request; the count may not fall, and no survivor may go unwaived — a
 newly surviving mutant has to be killed with a corpus case or waived in
-`fixtures/mutation-waivers.json` **with an argument**. The 39 waived ones are genuinely equivalent
+`fixtures/mutation-waivers.json` **with an argument**. The 62 waived ones are genuinely equivalent
 — deleted docstrings, a `^` on a pattern used with `re.match`, a branch unreachable from valid
 shell — and each entry says why. Waivers are addressed by a key that carries no line number, so an
 edit elsewhere in the file cannot silently unhook one; the sweep fails if a waiver ever stops

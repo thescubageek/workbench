@@ -817,13 +817,29 @@ def main():
     print(f"  {'✓' if key_edit_ok else '✗'} a mutant key changes when a regex is edited after "
           f"character 36 or a statement after character 64")
 
+    try:
+        op_src = "def f(x, y):\n    flag = True\n    if not x:\n        return y + 1\n    return y - 1\n"
+        op_out = {lb.split(' ', 1)[1]: ms for lb, _, ms in lib_mutate.generate(op_src)}
+        ops_ok = (set(op_out) >= {'const True->False', 'unary drop not',
+                                  'binop Add->Sub', 'binop Sub->Add'}
+                  and 'flag = False' in op_out['const True->False']
+                  and 'if x:' in op_out['unary drop not']
+                  and 'y - 1\n    return y - 1' in op_out['binop Add->Sub']
+                  and 'y + 1\n    return y + 1' in op_out['binop Sub->Add']
+                  and any(lb.endswith('const False->True') and 'flag = True' in ms
+                          for lb, _, ms in lib_mutate.generate("flag = False\nx = 1\n")))
+    except Exception:
+        ops_ok = False
+    print(f"  {'✓' if ops_ok else '✗'} the generator flips a bool constant, drops a `not`, and "
+          f"swaps + and - in a binary operation")
+
     ok = (base['correct'] == base['total'] and caught == len(MUTATIONS)
           and integ_ok == len(integ) and intact and verdict_ok and shrunk_verdict_ok
           and stale_verdict_ok and fell_verdict_ok and equal_verdict_ok
           and shrunk_surv_verdict_ok and idle_verdict_ok and big_verdict_ok
           and edge_verdict_ok and blank_verdict_ok and noreason_verdict_ok
           and classify_verdict_ok and argued_verdict_ok and ratchet_load_ok
-          and wiring_ok and key_edit_ok)
+          and wiring_ok and key_edit_ok and ops_ok)
     print(f"\ntest-guards: corpus {base['correct']}/{base['total']}, "
           f"integrity {integ_ok}/{len(integ)}, "
           f"mutations {caught}/{len(MUTATIONS)} — {'PASS' if ok else 'FAIL'}")

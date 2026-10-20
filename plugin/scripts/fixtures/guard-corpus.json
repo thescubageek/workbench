@@ -1519,5 +1519,56 @@
   "content": "Do not write this:\n\n````\n```bash\nn=$(grep -c foo bar.txt)\n```\n````\n\nDone.\n",
   "provenance": "R1-T9 \u2014 a bash fence nested in a BARE four-backtick wrapper. The opener has no info string, so without the `continue` after it the opener is read as its own closer, the wrapper is never entered, and the nested fence is scanned as live shell. Kills `md_shell_lines | if not inb: | continue | del Continue`.",
   "expect_at": []
+ },
+ {
+  "id": "p4-t16-hash-without-space-after",
+  "path": "scripts/hash.sh",
+  "shape": "none",
+  "expect": 0,
+  "expect_at": [],
+  "provenance": "P4-T16 \u2014 a comment whose text starts right after the `#`. A `#` is a comment when whitespace PRECEDES it; the character after it is irrelevant. Checking the character after it instead keeps the commented-out capture as live code and reports it. Kills `strip_comment | for i, ch in enumerate(line): | if ch == '#' and not (sq or dq or escd) and (i == 0 or line[i - ... | binop Sub->Add`.",
+  "content": "#!/usr/bin/env bash\ntrue #$(grep -c foo /etc/hosts)\n"
+ },
+ {
+  "id": "p4-t16-paren-subst-at-column-0",
+  "path": "scripts/col0.sh",
+  "shape": "capture",
+  "expect": 1,
+  "expect_at": [
+   [
+    2,
+    "capture"
+   ]
+  ],
+  "provenance": "P4-T16 \u2014 a `$( )` substitution at column 0. Its inner text starts two characters after the `$`. Recording the start two characters BEFORE it gives a negative index there, the slice wraps to the end of the line, and the capture is missed. Kills `lex | if line.startswith('$(', i): | stack.append((i + 2, 'paren', dq)) | binop Add->Sub`.",
+  "content": "#!/usr/bin/env bash\n$(grep -c foo /etc/hosts)\n"
+ },
+ {
+  "id": "p4-t16-backtick-subst-at-column-0",
+  "path": "scripts/col0tick.sh",
+  "shape": "capture",
+  "expect": 1,
+  "expect_at": [
+   [
+    2,
+    "capture"
+   ]
+  ],
+  "provenance": "P4-T16 \u2014 a backtick substitution at column 0. Its inner text starts one character after the backtick. Recording the start one character BEFORE it gives a negative index there, the slice wraps to the end of the line, and the capture is missed. Kills `lex | if stack and stack[-1][1] == 'tick': | stack.append((i + 1, 'tick', dq)) | binop Add->Sub`.",
+  "content": "#!/usr/bin/env bash\n`grep -c foo /etc/hosts`\n"
+ },
+ {
+  "id": "p4-t16-continued-push-then-edit",
+  "path": "docs/cont.md",
+  "shape": "chain",
+  "expect": 1,
+  "expect_at": [
+   [
+    6,
+    "chain"
+   ]
+  ],
+  "provenance": "P4-T16 \u2014 a `git push` continued onto a second line with `\\`, then an unchained `gh pr edit`. The continuation is ONE statement only when the next line number is `prev + 1`. Testing against `prev - 1` splits it, so `  origin main` sits between the two publishes and the de-chained pair is missed. Kills `logical_lines | for no, raw in lines: | if buf and prev is not None and no != prev + 1: | binop Add->Sub`.",
+  "content": "Run:\n\n```bash\ngit push \\\n  origin main\ngh pr edit 1 --add-label ok\n```\n"
  }
 ]

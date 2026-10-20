@@ -238,7 +238,7 @@ Contract tests for `check-guards`, in **three** parts — and the third is the o
 ./plugin/scripts/test-guards
 ```
 
-- **Corpus** — 132 labelled cases (`jq length fixtures/guard-corpus.json`), each carrying the
+- **Corpus** — 136 labelled cases (`jq length fixtures/guard-corpus.json`), each carrying the
   review round that found it. Every shape must fire; every correct form must not.
 - **Scan integrity** — properties the corpus structurally cannot test, because every corpus case
   materialises a real directory: a missing target exits 2, an empty directory does not hard-fail,
@@ -259,10 +259,11 @@ Acceptance bar: 100% of the corpus, all integrity checks, every mutation caught.
 **The generated sweep** is a separate mode and still not part of `check`. It runs in CI on every
 pull request. Locally it takes about four minutes on the maintainer's machine and has been
 measured at twelve, against `check`'s ~20 seconds. It parses `check-guards` and mutates it mechanically: every
-comparison operator, boolean operator and integer constant, every statement deletion, and a set
+comparison operator, boolean operator, integer and boolean constant, `not` (dropped) and
+`+`/`-` (swapped), every statement deletion, and a set
 of regex weakenings (drop anchors, drop word boundaries, collapse alternations, widen
-quantifiers). 421 mutants (recorded in `fixtures/mutation-ratchet.json`). The ratchet was
-re-based on the lexer rewrite on 2026-10-01 and now stands at 382 of 421 killed.
+quantifiers). 488 mutants (recorded in `fixtures/mutation-ratchet.json`). The ratchet
+stands at 426 of 488 killed.
 
 A missing `fixtures/mutation-ratchet.json` fails the sweep before it starts. Restore the file
 from git. `./plugin/scripts/test-guards --generated --init` creates it on purpose.

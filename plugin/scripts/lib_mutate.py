@@ -9,7 +9,8 @@ problem at all — it walks the syntax tree and changes one thing.
 
 Two generators, because the generic one alone misses where this tool's decisions live:
 
-  AST      comparison operators, boolean operators, integer constants, statement deletion
+  AST      comparison operators, boolean operators, integer and boolean constants,
+           dropped `not`, `+`/`-` swaps, statement deletion
   REGEX    the compiled patterns — collapse alternations, drop anchors, widen quantifiers
 
 Equivalent mutants are the known cost. They are waived in
@@ -166,6 +167,19 @@ def _rebuild(tree, target_index, mutate):
         return None
 
 
+def _drop_not(node, tree):
+    """Replace `node` (a `not x`) with `x` in its parent."""
+    for parent in ast.walk(tree):
+        for field, value in ast.iter_fields(parent):
+            if value is node:
+                setattr(parent, field, node.operand)
+                return
+            if isinstance(value, list) and any(v is node for v in value):
+                value[[v is node for v in value].index(True)] = node.operand
+                return
+    return False
+
+
 def generate(src):
     """-> [(label, key, mutated_source)]. Deterministic and ordered.
 
@@ -224,6 +238,32 @@ def generate(src):
                 if s:
                     o = f'int {node.value}{name}'
                     out.append((f'L{node.lineno} {o}', _key(places, node, o, seg(node)), s))
+
+        # --- boolean constants
+        elif isinstance(node, ast.Constant) and isinstance(node.value, bool):
+            def m(n, _t):
+                n.value = not n.value
+            s = _rebuild(tree, i, m)
+            if s:
+                o = f'const {node.value}->{not node.value}'
+                out.append((f'L{node.lineno} {o}', _key(places, node, o, seg(node)), s))
+
+        # --- `not x` -> `x`
+        elif isinstance(node, ast.UnaryOp) and isinstance(node.op, ast.Not):
+            s = _rebuild(tree, i, _drop_not)
+            if s:
+                out.append((f'L{node.lineno} unary drop not',
+                            _key(places, node, 'unary drop not', seg(node)), s))
+
+        # --- `+` <-> `-`
+        elif isinstance(node, ast.BinOp) and isinstance(node.op, (ast.Add, ast.Sub)):
+            swap = ast.Sub if isinstance(node.op, ast.Add) else ast.Add
+            def m(n, _t, swap=swap):
+                n.op = swap()
+            s = _rebuild(tree, i, m)
+            if s:
+                o = f'binop {type(node.op).__name__}->{swap.__name__}'
+                out.append((f'L{node.lineno} {o}', _key(places, node, o, seg(node)), s))
 
         # --- regex literals
         elif isinstance(node, ast.Constant) and isinstance(node.value, str):
