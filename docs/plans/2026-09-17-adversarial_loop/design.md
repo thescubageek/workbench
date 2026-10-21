@@ -16,6 +16,10 @@ design_approach: Wrapper + lens injection, scaled by reconnaissance
 
 # Design: adversarial_loop
 
+> **Kept in the repository without its sibling records.** This design cites `research.md`,
+> `tasks.md` and `thoughts/` records of the same plan. They are not in the repository. Each
+> decision below is complete without them.
+
 **Created**: 2026-09-17 17:51 UTC
 **Designer**: scraig
 **Ticket**: N/A

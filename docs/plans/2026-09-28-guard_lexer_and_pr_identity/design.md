@@ -23,6 +23,10 @@ design_approach: One lexer, one resolver — retire two classes the review loop 
 
 # Design: guard_lexer_and_pr_identity
 
+> **Kept in the repository without its sibling records.** This design cites `research.md`,
+> `tasks.md` and `thoughts/` records of the same plan. They are not in the repository. Each
+> decision below is complete without them.
+
 **Created**: 2026-09-28 20:05 UTC
 **Designer**: scraig
 **Ticket**: N/A
