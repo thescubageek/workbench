@@ -13,6 +13,7 @@ Supporting files in this directory (read each when its step directs you to — n
 
 - `templates/` — [status-update-plan.md](templates/status-update-plan.md) (Step 4) · [frontmatter-fragments.md](templates/frontmatter-fragments.md) (Step 5) · [completion-summary.md](templates/completion-summary.md) (Step 7)
 - `reference/` — [smart-status-detection.md](reference/smart-status-detection.md) (Step 2) · [status-transition-logic.md](reference/status-transition-logic.md) (Step 3) · [error-handling.md](reference/error-handling.md) · [important-notes.md](reference/important-notes.md) (the sole-writer rule) · [configuration.md](reference/configuration.md)
+- [../../docs/reference/remediation-plan.md](../../docs/reference/remediation-plan.md) — what a review round's remediation plan is, how Step 1 recognises one, and the files it has and deliberately lacks
 
 **If a directed read fails, stop — do not continue from memory.** These files live outside your
 project, so a read can be refused. Say which file was refused, that reads outside the working
@@ -68,6 +69,19 @@ When invoked, check for arguments:
 3. **Read tasks.md FULLY** - Check current_phase, counters, and every task checkbox
 
 **IMPORTANT**: Use Read tool WITHOUT limit/offset parameters
+
+**A remediation plan has only `tasks.md`, and that is correct.** Read
+[../../docs/reference/remediation-plan.md](../../docs/reference/remediation-plan.md) NOW for how to recognise one
+and what it deliberately lacks, then take `tasks.md` alone as the whole plan. Do not stop, and do
+not route the user to `/wb:create_project` — this skill is the only writer of the counters, so
+halting here strands a finished round at `completed_tasks: 0` permanently. What follows from it:
+
+- Steps 1–3 judge `tasks.md` only. There is no research or design status to detect, so the
+  design-gated validation rules in Step 3 do not apply.
+- The round's `## Tasks` section is its single phase and it carries no `current_phase`. Count the
+  checkboxes as usual; do not invent a phase number for a plan that has none.
+- Steps 4–7 report on `tasks.md` alone — leave the research and design rows out of the plan and
+  the summary rather than filling them with "n/a".
 
 Record current state as *claimed*: the status of each file, `current_phase`, and the counter
 values. These are the numbers you will test, not the numbers you will trust.
@@ -132,9 +146,12 @@ clicked through. Decide which case this run is.
 **Silent side — apply without stopping.** Present no plan, wait for nothing, and report what
 changed in one line at Step 7. This side is exactly:
 
-- the counters — `completed_tasks`, `total_tasks`, `current_phase` — at their counted values
-- the git metadata — `git_commit`, `git_branch`, `repository` — read from the repository, not
-  judged; a stale `git_commit` is a false fact that looks current
+- the counters — `completed_tasks`, `total_tasks` — at their counted values, and `current_phase`
+  (phased plan only: a remediation plan has no phase, see
+  [remediation-plan.md](../../docs/reference/remediation-plan.md))
+- the git metadata — `git_commit`, `git_branch`, `repository` (phased plan only: a remediation
+  plan never carries them) — read from the repository, not judged; a stale `git_commit` is a
+  false fact that looks current
 - **`tasks.md` `not-started` → `in-progress`**, the one `status:` value on this side: its trigger
   is "at least one task checkbox is `[x]`", arithmetic over the same checkboxes the counters
   read, not a claim about the world
@@ -147,9 +164,10 @@ NOW, present it, and then:
 "Anything else" is any of:
 
 - a **judgment-bearing** `status:` value would change — `tasks.md` reaching **`complete`**,
-  which claims the work is finished, or any `research.md` or `design.md` transition
+  which claims the work is finished, or, on a phased plan, any `research.md` or `design.md`
+  transition
 - any status would move **backward** — the NO REGRESSION rule
-- `design.md` would reach `approved`, which you never set yourself in any case
+- on a phased plan, `design.md` would reach `approved`, which you never set yourself in any case
 - the count and the checkboxes disagree in a way you cannot account for
 - **both counts are zero while the stored counters are not** — Step 2 already stops here; it is
   repeated because the counters are otherwise on the silent side, and zeroing them is the one
@@ -157,7 +175,18 @@ NOW, present it, and then:
 
 ### Step 5: Apply Updates
 
-In the counters-only case you have already applied them; skip to Step 6. Otherwise, after the user confirms, read the [templates/frontmatter-fragments.md](templates/frontmatter-fragments.md) NOW and apply them to research.md, design.md and tasks.md.
+In the counters-only case you have already applied them; skip to Step 6. Otherwise, after the
+user confirms, read the [templates/frontmatter-fragments.md](templates/frontmatter-fragments.md)
+NOW. **Which fragments you apply branches on the kind of plan** — the template's own table says
+the same, and the two must not diverge:
+
+- **Phased plan** — apply all three: the `research.md` fragment, the `design.md` fragment, and
+  the `tasks.md` fragment.
+- **Remediation plan** — the shape `remediation-plan.md` defines, recognised at Step 1. Skip both the `research.md` and the `design.md` fragments and
+  apply the `tasks.md` fragment alone, omitting `current_phase`, `last_updated`, `git_commit` and
+  `git_branch`. A round has neither of those
+  documents, so applying their fragments means writing frontmatter into files that do not exist,
+  and it carries no phase number to write.
 
 The counters written are the **counted** values from Step 2 — not the previous values adjusted,
 and not an estimate. If the count and the old counter disagree, the count is what lands.
@@ -169,8 +198,9 @@ and not an estimate. If the count and the old counter disagree, the count is wha
 1. **Read each file back** to verify changes were applied
 2. **Re-count the checkboxes** and confirm the written counters now match
 3. **Check consistency**:
-   - All files have same `last_updated` date
-   - All files have same git metadata
+   - All files have same `last_updated` date (phased plan only: a remediation plan has no
+     `last_updated`, see [remediation-plan.md](../../docs/reference/remediation-plan.md))
+   - All files have same git metadata (phased plan only: a remediation plan carries none)
    - Status transitions are valid across all files
 4. **Validate no regressions**: status didn't move backward unexpectedly, phase numbers make sense
 

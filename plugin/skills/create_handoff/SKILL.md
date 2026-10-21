@@ -13,6 +13,7 @@ Supporting files in this directory (read each when its step directs you to — n
 
 - `templates/` — [handoff-document.md](templates/handoff-document.md) (Step 5) · [completion-message.md](templates/completion-message.md) (Step 7)
 - [reference.md](reference.md) — purpose, what to include and exclude, handoff quality, when to create one, workflow position, configuration
+- [../../docs/reference/journal-entries.md](../../docs/reference/journal-entries.md) — where a journal entry goes (newest first, never appended), its heading contract, and when it opens and closes
 
 **If a directed read fails, stop — do not continue from memory.** These files live outside your
 project, so a read can be refused. Say which file was refused, that reads outside the working
@@ -74,8 +75,8 @@ handoff reason from the next argument, defaulting to "session transfer". Then re
    task** — that is the "next immediate task" the handoff must name — and anything under
    `## 🚧 Blockers & Notes`.
 
-4. **Read the journal tail.** `journal.md`'s most recent entry says what the last stretch of
-   work was attempting. Carry its state into the handoff: an **open** entry beside uncommitted
+4. **Read the journal's topmost entry.** It is the newest one, directly under the marker comment
+   and not at the end of the file. It says what the last stretch of work was attempting. Carry its state into the handoff: an **open** entry beside uncommitted
    changes means a task was interrupted mid-flight, and that is the single most useful thing
    the next session can be told.
 
@@ -178,11 +179,12 @@ Save it as:
 
 Where `YYYY-MM-DD` is the current date and `HH-MM` the current time (24-hour).
 
-### Step 6: Append a Journal Pointer
+### Step 6: Add a Journal Pointer
 
-Append an entry to `journal.md` recording that a handoff was written, and its path. A future
-session reading the journal tail then finds the handoff rather than reconstructing the same
-state from scratch — the journal is the index, the handoff is the detail.
+Add an entry at the **top** of `journal.md` recording that a handoff was written, and its path —
+read [../../docs/reference/journal-entries.md](../../docs/reference/journal-entries.md) NOW and follow
+it. A future session reading the newest entry then finds the handoff rather than reconstructing
+the same state from scratch — the journal is the index, the handoff is the detail.
 
 The heading shape is a contract — the session-start hook, `forge`, `daily-digest`, `resume_handoff` and `create_handoff` all match on the trailing `(open)` / `(closed)`, and an entry ending any other way is invisible to them. Timestamp from `date -u +"%Y-%m-%d %H:%M"`, never estimated:
 

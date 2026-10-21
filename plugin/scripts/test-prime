@@ -112,6 +112,7 @@ mkdir -p "$WORK/prime/.claude/wb"
 echo "Custom orientation for this repository." > "$WORK/prime/.claude/wb/PRIME.md"
 out=$(run "$WORK/prime" "$startup")
 check "PRIME.md, startup: custom text printed" "$(yes_if grep -qF 'Custom orientation' <<<"$out")"
+# shellcheck disable=SC2016  # single quotes are deliberate: the inner bash -c expands $0 and $1
 check "PRIME.md, startup: default orientation replaced" \
     "$(yes_if bash -c '! grep -qF "wb: structured development workflow" <<<"$0"' "$out")"
 check "PRIME.md, startup: card present" "$(yes_if has_card "$out")"
@@ -139,6 +140,7 @@ check "WB_TECH_ENGLISH=0, compact, 0 plans: no output (unchanged)" "$(yes_if [ -
 
 # --- Paths that are not a session start ---
 out=$(cd "$WORK/repo1" && bash "$HOOK" --export </dev/null)
+# shellcheck disable=SC2016  # single quotes are deliberate: the inner bash -c expands $0 and $1
 check "--export without stdin: orientation, no card" \
     "$(yes_if bash -c 'grep -qF "wb: structured development workflow" <<<"$0" && ! grep -qF "$1" <<<"$0"' "$out" "$CARD_START")"
 out=$(cd "$WORK/repo1" && printf '%s' "$startup" | bash "$HOOK" --export)

@@ -2,15 +2,16 @@
 name: review-prep
 description: Interactive code review walkthrough using tmux and nvim for pair programming style review. Use when user says "review", "walk through changes", "explain this diff", "prep for PR", or wants to understand what changed.
 allowed-tools: Read, Glob, Grep, Bash
-  - Read
-  - Grep
-  - Glob
-  - Bash
 ---
 
 # Code Review Prep
 
 Interactive walkthrough of changes as pair programming. Opens files in nvim pane, waits for questions.
+
+**Wanting a batch hunt instead?** This skill is human-paced: it opens files and waits for your
+questions. If what you want is an adversarial pass that reads the diff, fans out domain-expert
+lenses, verifies each finding and hands you a report, that is `adversarial-review` — same subject,
+opposite shape.
 
 ## Supporting Script
 

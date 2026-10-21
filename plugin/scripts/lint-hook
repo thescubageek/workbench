@@ -10,7 +10,7 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 # with it, without editing the plugin manifest.
 [ "${WB_LINT_HOOK:-1}" = "0" ] && exit 0
 
-# shellcheck source=./lint-common.sh
+# shellcheck source=./lint-common.sh disable=SC1091  # the gate checks lint-common.sh as its own input
 . "$SCRIPT_DIR/lint-common.sh"
 
 # Parse the JSON payload. Claude Code delivers the PostToolUse payload as JSON

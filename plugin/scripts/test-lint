@@ -40,7 +40,8 @@ fi
 echo "test-lint: $LINT"
 
 REPO="$(mktemp -d)"
-trap 'rm -rf "$REPO"' EXIT
+TMPROOT="$(mktemp -d)"
+trap 'rm -rf "$REPO" "$TMPROOT"' EXIT
 cd "$REPO" || exit 1
 git init -q .
 
@@ -151,6 +152,24 @@ before=$(sha docs/vendor/x.md)
 jq -n --arg p "$REPO/docs/vendor/x.md" '{tool_input:{file_path:$p}}' | "$HOOK" >/dev/null 2>&1
 check "Write/Edit path respects exclusions" \
     "$([[ "$before" == "$(sha docs/vendor/x.md)" ]] && echo 1 || echo 0)"
+
+# Exclusions match relative to the repository root. Linux CI's mktemp gives /tmp/...,
+# and a tmp/ component above the root once turned Write/Edit linting off entirely.
+mkdir -p "$TMPROOT/tmp/repo"
+cd "$TMPROOT/tmp/repo" || exit 1
+git init -q .
+mkdir -p tmp
+dirty authored.md
+dirty tmp/x.md
+before=$(sha authored.md)
+jq -n --arg p "$TMPROOT/tmp/repo/authored.md" '{tool_input:{file_path:$p}}' | "$HOOK" >/dev/null 2>&1
+check "Write/Edit auto-fixes in a repository under a tmp/ directory" \
+    "$([[ "$before" != "$(sha authored.md)" ]] && echo 1 || echo 0)"
+before=$(sha tmp/x.md)
+jq -n --arg p "$TMPROOT/tmp/repo/tmp/x.md" '{tool_input:{file_path:$p}}' | "$HOOK" >/dev/null 2>&1
+check "a tmp/ path inside that repository stays ignored" \
+    "$([[ "$before" == "$(sha tmp/x.md)" ]] && echo 1 || echo 0)"
+cd "$REPO" || exit 1
 
 # --- Case 5: WB_LINT_HOOK=0 makes the hook a no-op ---
 dirty authored.md

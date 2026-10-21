@@ -13,6 +13,7 @@ Supporting files in this directory (read each when its step directs you to — n
 
 - [templates.md](templates.md) — the resume confirmation message
 - [reference.md](reference.md) — purpose, validation steps, resume best practices, handling handoff-vs-code conflicts, workflow position, error handling, configuration
+- [../../docs/reference/journal-entries.md](../../docs/reference/journal-entries.md) — where a journal entry goes (newest first, never appended), its heading contract, and when it opens and closes
 
 **If a directed read fails, stop — do not continue from memory.** These files live outside your
 project, so a read can be refused. Say which file was refused, that reads outside the working
@@ -97,9 +98,10 @@ const journalFile = `${projectDir}/journal.md`;
    - Specific tasks to complete
    - Success verification steps
 
-4. **Read `journal.md`'s tail** — the most recent entry, and whether it is **open** or
-   **closed**. The handoff says what the previous session *meant* to convey; the journal's last
-   entry says what it was in the middle of. They are different, and both matter.
+4. **Read `journal.md`'s topmost entry** — the newest one, directly under the marker comment
+   and not at the end of the file — and whether it is **open** or **closed**. The handoff says
+   what the previous session *meant* to convey; that topmost entry says what it was in the middle
+   of. They are different, and both matter.
 
 5. **Read `.claude/wb/knowledge.md` if it exists** — durable repository facts with dates and
    verification hints. This is what stops you rediscovering something an earlier plan already
@@ -203,8 +205,10 @@ If handoff documents active blockers:
 Read [templates.md](templates.md) NOW and present it.
 
 Then open a journal entry for the work you are about to resume — naming the task and the exact
-next action — and continue. If the previous session left an entry **open**, close it first with
-what actually landed, so the journal's tail describes this session rather than the last one.
+next action — and continue. It goes at the **top** of `journal.md`, never appended to the end:
+read [../../docs/reference/journal-entries.md](../../docs/reference/journal-entries.md) NOW and follow
+it. If the previous session left an entry **open**, close it first with what actually landed, so
+the newest entry describes this session rather than the last one.
 
 The heading shape is a contract — the session-start hook, `forge`, `daily-digest`, `resume_handoff` and `create_handoff` all match on the trailing `(open)` / `(closed)`, and an entry ending any other way is invisible to them. Timestamp from `date -u +"%Y-%m-%d %H:%M"`, never estimated:
 

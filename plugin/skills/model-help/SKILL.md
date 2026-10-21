@@ -101,6 +101,8 @@ The wb pipeline (`forge`, `resume_handoff`, and the `create_*` / `implement` / `
 | `implement` | Sonnet 5 / medium | Coordination, not coding: extract context, spawn, verify, commit. The main session holds little | **workers carry the cost, and their tiers are pinned at the point of spawn** — see `implement`'s Step 5, the single statement of the worker ladder |
 | `implement_inline` | Sonnet 5 / medium (bump gnarly tasks to Opus 4.8 / high) | TDD execution of a locked plan **on the session model**; most tasks mechanical-to-moderate. Nothing is delegated, so the session tier *is* the execution tier | nothing — use `/wb:implement` if you want work pushed to workers |
 | `validate_execution` | Sonnet 5 / medium → Opus 4.8 / high (→ Opus 5 for compliance-critical / hard-to-verify) | Adversarial check vs plan; raise for wide blast radius / compliance / hard-to-verify | validation agents → sonnet / haiku |
+| `adversarial-review` | Sonnet 5 / medium (→ Opus 4.8 / high for compliance-sensitive, wide-blast-radius or hard-to-verify diffs) | The session resolves the target, sizes the pass and synthesizes; the reading is done by forked agents and a forked built-in review | **the legs carry the cost** — lens agents at `sonnet`, security and AI-systems at `opus`, verifiers at `sonnet`; see `adversarial-review`'s prompts.md |
+| `adversarial-loop` | Sonnet 5 / medium | A sequencer: it orders rounds and holds gates, and contains no review logic of its own | everything — the review it invokes carries its own tier, and `/verify` carries its own |
 
 ### Where this skill's authority ends
 
@@ -157,7 +159,7 @@ Keep it tight. No preamble, no restating the whole handoff.
 
 ## Calibration anchors
 
-- **Reef `review-reef` on a clinical notes-fan-out PR** → Opus 5 / high (compliance-critical, cross-file, adversarial). Bump to max for a focused pass on the sign-and-lock core.
+- **`adversarial-review` on a compliance-sensitive, cross-file change** → Opus 5 / high. The review's own reconnaissance sizes its fan-out; this is the *session* tier, and it is what the mandatory security and AI-systems lenses are judged at. Bump to max for a focused pass on the part that cannot be taken back.
 - **Add a nullable column + a one-line resolver change on a ~140-call-site hot path + form field** (e.g. TB-2936 Zoom `zoom_url`) → Sonnet 5 / medium; the migration alone would be Sonnet/low.
 - **Copy change / locale tweak / config bump** → Haiku 4.5 / low.
 - **Gate mode, a moderate forge** (bounded feature, decisions still open) → research Sonnet/medium → **switch up** to Opus 4.8/high for the design gate → **switch back down** to Sonnet/medium for `create_tasks` + `implement` → validate Sonnet/medium. Two main-model switches total; research, task-writing and implementation never leave Sonnet.

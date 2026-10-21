@@ -13,14 +13,28 @@
 # touch, or when the repository's own .wblintignore / .markdownlintignore says so.
 # Returns 1 (lint it) otherwise.
 wb_lint_ignored() {
-    local f="${1:-}" abs root ignore matched
+    local f="${1:-}" abs root rel dir ignore matched
 
     [ -n "$f" ] || return 1
+
+    root="$(git rev-parse --show-toplevel 2>/dev/null)" || root=""
+
+    # An absolute path is matched relative to the repository root, so a tmp/ or
+    # build/ directory ABOVE the root cannot switch linting off. The root is
+    # physical (/private/var on macOS), so compare against the file's physical dir.
+    rel="$f"
+    case "$f" in
+        /*) if [ -n "$root" ] && dir="$(cd "$(dirname "$f")" 2>/dev/null && pwd -P)"; then
+                case "$dir/" in
+                    "$root"/*) rel="${dir#"$root"}/${f##*/}"; rel="${rel#/}" ;;
+                esac
+            fi ;;
+    esac
 
     # Built-in exclusions, matched at ANY depth. The previous list lived only in
     # the --all branch and was anchored to the repo root ("./vendor/*"), so it
     # missed docs/vendor/, third_party/vendor/ and every other nested case.
-    case "$f" in
+    case "$rel" in
         vendor/*|*/vendor/*) return 0 ;;
         node_modules/*|*/node_modules/*) return 0 ;;
         .git/*|*/.git/*) return 0 ;;
@@ -31,7 +45,6 @@ wb_lint_ignored() {
         build/*|*/build/*) return 0 ;;
     esac
 
-    root="$(git rev-parse --show-toplevel 2>/dev/null)" || return 1
     [ -n "$root" ] || return 1
 
     # check-ignore resolves relative paths against -C, which is the repo root and

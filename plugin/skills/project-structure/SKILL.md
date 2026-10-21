@@ -33,7 +33,8 @@ user-invocable: false
 
 **journal.md** - Session continuity
 
-- Append-only, reverse-chronological. Entries **open when work starts**, close when it ends
+- Reverse-chronological — **newest entry at the top, never appended to the end**. Entries
+  **open when work starts**, close when it ends. See `plugin/docs/reference/journal-entries.md`
 - An open entry beside uncommitted changes means an interrupted task
 
 ## No external tracker

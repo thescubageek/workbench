@@ -322,7 +322,7 @@ Creates architectural design decisions based on validated research. Focuses on W
 
 ### `/create_tasks` - Create Execution Plan
 
-> Renamed from `/create_execution` at 2.0.0; the old name is a deprecated alias removed at 3.0.0.
+> Renamed from `/create_execution` at 2.0.0; the old name is a deprecated alias removed at 4.0.0.
 
 Transforms approved design into detailed phased execution plan with embedded tasks.
 
@@ -382,7 +382,7 @@ Transforms approved design into detailed phased execution plan with embedded tas
 
 ### `/implement` - Implement with TDD via worker agents
 
-> Renamed from `/implement_coordinated` at 2.0.0. `/implement_inline` (formerly `/implement_tasks`) runs the same plan inline on the session model. Both old names are deprecated aliases removed at 3.0.0.
+> Renamed from `/implement_coordinated` at 2.0.0. `/implement_inline` (formerly `/implement_tasks`) runs the same plan inline on the session model. Both old names are deprecated aliases removed at 4.0.0.
 
 Implements tasks following Test-Driven Development (Red → Green → Refactor).
 
