@@ -41,7 +41,7 @@ Remove it when the entry finally closes.
 When resuming work (phase = "continue"), the plan document tells you where you are — there is
 no separate tracker to reload.
 
-1. **Read `tasks.md` FULLY** and establish position from the checkboxes:
+1. **Read `tasks.md` in full** and establish position from the checkboxes:
 
    ```bash
    grep -cE '^- \[x\] \*\*[A-Z0-9-]*[0-9][A-Z0-9-]*\*\*' tasks.md    # completed
