@@ -897,9 +897,9 @@ Annotate each with its projected tool-call cost; anything past ~50 splits at a n
       not to converge. Run a 1-run pilot first. Then run Opus 5.5 and Sonnet 5.5 at `medium`, 10
       repeats for each cell, if the ledger allows it. Name the trap cells before the run. Record
       the table in `RESULTS.md`. (~35 calls) (completed 2026-10-23 05:05)
-- [ ] **P4-T8** — Act on the P4-T7 results. Revert any edit whose cell fails the bar, and record
+- [x] **P4-T8** — Act on the P4-T7 results. Revert any edit whose cell fails the bar, and record
       it. Run `checks/prompt-checks.sh triple-barriers notification roster` on the whole of
-      `plugin/`. All three must PASS. (~12 calls)
+      `plugin/`. All three must PASS. (~12 calls) (completed 2026-10-23 05:05)
 
 ### Success Criteria
 
@@ -911,10 +911,10 @@ step is the rule; this is the moment it applies.
 
 #### Automated Verification
 
-- [ ] In the Batch 3 blind trial, `trim` ≥ `base` in every cell, and every named trap cell
+- [x] In the Batch 3 blind trial, `trim` ≥ `base` in every cell, and every named trap cell
       reaches at least 9 of 10
-- [ ] `checks/prompt-checks.sh triple-barriers notification roster` exits 0 over all of `plugin/`
-- [ ] `command grep -n 'review' plugin/skills/review-prep/SKILL.md | head -3` shows a description
+- [x] `checks/prompt-checks.sh triple-barriers notification roster` exits 0 over all of `plugin/`
+- [x] `command grep -n 'review' plugin/skills/review-prep/SKILL.md | head -3` shows a description
       that does not list the bare word "review" as a trigger
 - [ ] `./plugin/scripts/check` exits 0
 
@@ -1449,6 +1449,8 @@ resolved, leaving a dated line saying how.
 - [2026-10-23] Completed P4-T7: PASS. 3 trap cells (validate_execution placeholder,
   update_status obvious status, explore_design soft yes), 10 of 10 for both arms on both models.
   Cost $0.48.
+- [2026-10-23] Completed P4-T8: no cell failed, so nothing is reverted. Over all of `plugin/`,
+  `triple-barriers` 0, `notification` 0, and `roster` 0.
 - **Kept CAPS lines**: record each one here with its file, line, and reason, as the wording tasks
   run.
   - `create_research/SKILL.md:27` — the Documentarian Rule fence. It is the stage's one core
