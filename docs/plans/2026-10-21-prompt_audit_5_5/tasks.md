@@ -528,8 +528,8 @@ Annotate each with its projected tool-call cost; anything past ~50 splits at a n
 
 - [x] **P2-T1** — Apply the wording rules to `create_research/SKILL.md`, `reference.md`, and
       `sub-agent-prompts.md`. (~25 calls) (completed 2026-10-23 02:37)
-- [ ] **P2-T2** — Apply the wording rules to `create_product_research/SKILL.md`, `reference.md`,
-      and `sub-agent-prompts.md`. (~30 calls)
+- [x] **P2-T2** — Apply the wording rules to `create_product_research/SKILL.md`, `reference.md`,
+      and `sub-agent-prompts.md`. (~30 calls) (completed 2026-10-23 02:38)
 - [ ] **P2-T3** — Apply the wording rules to `create_design/SKILL.md`, `reference.md`, and
       `sub-agent-prompts.md`. (~25 calls)
 - [ ] **P2-T4** — Apply the wording rules to `create_tasks/SKILL.md` and `sub-agent-prompts.md`.
@@ -1345,10 +1345,14 @@ resolved, leaving a dated line saying how.
   rules live in BARRIER 2 and `sub-agent-prompts.md`), "Document ONLY what EXISTS" twice,
   "REMEMBER", and Step 5 item 7. `reference.md` dropped its three restating sections and kept the
   research-practice items. `sub-agent-prompts.md` dropped its copy of the read-only line.
+- [2026-10-23] Completed P2-T2: the same rewrite as P2-T1. BARRIER 4 (the validator) now says to
+  wait for its completion notification. `reference.md` folded Critical Ordering, Documentation
+  Philosophy, and File Reading into one Research Practice list without the restated rules.
 - **Kept CAPS lines**: record each one here with its file, line, and reason, as the wording tasks
   run.
   - `create_research/SKILL.md:27` — the Documentarian Rule fence. It is the stage's one core
     rule, and the file states it nowhere else now.
+  - `create_product_research/SKILL.md:26` — the same Documentarian Rule fence, for the same reason.
 
 ---
 

@@ -62,6 +62,12 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-10-23 02:37 — P2-T2 (closed)
+
+- **Task/phase**: P2-T2 — the wording rules in create_product_research
+- **Landed**: 4 single-marker barriers, 1 kept CAPS line (the Documentarian Rule fence), and the restatements removed. 43 lines added, 76 removed
+- **Commits**: the P2-T2 commit
+
 ## 2026-10-23 02:36 — P2-T1 (closed)
 
 - **Task/phase**: P2-T1 — the wording rules in create_research

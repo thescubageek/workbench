@@ -24,40 +24,25 @@ This skill can be used in two ways:
 
 ## Important Notes
 
-### Critical Ordering
+### Research Practice
 
-- **ALWAYS** read mentioned files first before spawning sub-tasks (Step 1)
-- **ALWAYS** wait for all sub-agents to complete before synthesizing (Step 4)
-- **ALWAYS** write the document before validating (Step 6 before Step 7)
-- **ALWAYS** wait for validation before confirming completion (Step 7)
-- **NEVER** write the research document with placeholder values
-
-### Documentation Philosophy
-
-- **CRITICAL**: You and all sub-agents are documentarians, not evaluators
-- **AUDIENCE**: Product managers — write for them, not for engineers
-- **NO RECOMMENDATIONS**: Only describe the current state of the software
-- Focus on behaviors, flows, and capabilities over implementation details
-- Research documents should be self-contained with all necessary context
-- Each sub-agent prompt should be specific and focused on read-only operations
-- Document cross-component connections and how systems interact
-
-### File Reading
-
-- **File reading**: Always read mentioned files FULLY (no limit/offset) before spawning sub-tasks
-- Have sub-agents document examples and usage patterns as they exist
-- Keep the main agent focused on synthesis, not deep file reading
-- Sub-agents must include file:line references for all claims
+- Focus on behaviors, flows, and capabilities over implementation details.
+- Make the research document self-contained, with all the context it needs.
+- Keep each sub-agent prompt specific, and limit it to read-only work.
+- Document how components connect and how systems interact.
+- Have sub-agents document examples and usage patterns as they exist, with file:line references
+  for every claim.
+- Keep the main session on synthesis. The agents do the deep file reading.
 
 ### Three-Layer Output
 
 - **Layer 1 (Product Overview)**: Every PM reads this — must be clear and jargon-free
-- **Layer 2 (Engineering Approach)**: PMs read this to understand HOW the team builds — patterns, not details
+- **Layer 2 (Engineering Approach)**: PMs read this to understand how the team builds — patterns, not details
 - **Layer 3 (Technical Appendix)**: PMs reference this when talking to engineers — file paths and snippets
 
 ### Validation
 
-- Validation runs AFTER writing the document, reading it directly from file
+- Validation runs after the document is written, and reads it directly from the file
 - FAIL results must be fixed (re-check the code, update document, re-validate)
 - UNCERTAIN results are noted in the Validation Notes section for human review
 - The `validation_status` frontmatter field tracks overall validation state
