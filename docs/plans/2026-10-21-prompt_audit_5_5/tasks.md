@@ -471,11 +471,11 @@ lose no facts. This phase tests A1 (the Q2 result holds at full stage length).
 
 ### Prerequisites
 
-- [ ] Phase 1 complete and verified
-- [ ] Phase 1 manual testing confirmed — *an attestation, like the checkpoint's. Under
+- [x] Phase 1 complete and verified
+- [x] Phase 1 manual testing confirmed — *an attestation, like the checkpoint's. Under
       `/wb:implement --auto` it stays `[ ]` and the phase proceeds anyway; the previous phase's
       checkpoint records that nobody was asked. Unticked here means deferred, not blocked.*
-- [ ] The spend ledger shows at least $12 left of the $30
+- [x] The spend ledger shows at least $12 left of the $30
 
 ### Changes Required
 
@@ -526,8 +526,8 @@ Annotate each with its projected tool-call cost; anything past ~50 splits at a n
 
 #### Implementation
 
-- [ ] **P2-T1** — Apply the wording rules to `create_research/SKILL.md`, `reference.md`, and
-      `sub-agent-prompts.md`. (~25 calls)
+- [x] **P2-T1** — Apply the wording rules to `create_research/SKILL.md`, `reference.md`, and
+      `sub-agent-prompts.md`. (~25 calls) (completed 2026-10-23 02:37)
 - [ ] **P2-T2** — Apply the wording rules to `create_product_research/SKILL.md`, `reference.md`,
       and `sub-agent-prompts.md`. (~30 calls)
 - [ ] **P2-T3** — Apply the wording rules to `create_design/SKILL.md`, `reference.md`, and
@@ -1340,8 +1340,15 @@ resolved, leaving a dated line saying how.
   from ~5.1k to ~5.3k (the roster prices) and `daily-digest` from ~6.2k to ~6.3k. Neither is one
   of the 14 stages.
 - [2026-10-23] Phase 1 manual verification confirmed by the user ("looks good, proceed"), 2026-10-23 02:36 UTC.
+- [2026-10-23] Completed P2-T1: 3 barriers in the single-marker form, with the completion
+  notification on BARRIER 2. Removed restatements: the "CRITICAL Agent Instructions" list (its
+  rules live in BARRIER 2 and `sub-agent-prompts.md`), "Document ONLY what EXISTS" twice,
+  "REMEMBER", and Step 5 item 7. `reference.md` dropped its three restating sections and kept the
+  research-practice items. `sub-agent-prompts.md` dropped its copy of the read-only line.
 - **Kept CAPS lines**: record each one here with its file, line, and reason, as the wording tasks
   run.
+  - `create_research/SKILL.md:27` — the Documentarian Rule fence. It is the stage's one core
+    rule, and the file states it nowhere else now.
 
 ---
 

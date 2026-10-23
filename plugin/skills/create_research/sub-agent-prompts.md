@@ -3,9 +3,6 @@
 Read this when Step 4 directs you to. Use these prompts verbatim. Substitute the bracketed
 placeholders. Never paraphrase them from memory.
 
-**Sub-agents are READ-ONLY** — they return findings only; YOU write `research.md` after
-synthesizing.
-
 ## Parallel Research Strategy
 
 Announce the fan-out in this shape:
@@ -46,9 +43,9 @@ Task({
 ```javascript
 Task({
   description: "Analyze [feature] implementation",
-  prompt: `Document the codebase as it exists, with file:line references — describe
-  HOW IT CURRENTLY WORKS; no improvements or issue-spotting (document what IS,
-  not what SHOULD BE). Return findings only; write nothing.
+  prompt: `Document the codebase as it exists, with file:line references. Describe how
+  it currently works, with no improvements and no issue-spotting. Return findings only;
+  write nothing.
 
   Understand how [feature] works. Analyze:
   - Entry points and main functions
@@ -89,8 +86,7 @@ Task({
 
 The three typed agents above carry the documentarian constraint in their own definitions.
 An ad-hoc `general-purpose` agent does **not** carry it. So when you spawn a one-off researcher,
-put the documentarian constraint in the spawning prompt explicitly. That is what Step 4's
-"Remind EVERY agent" instruction exists for.
+put the documentarian constraint in the spawning prompt explicitly.
 
 ## Parallel Execution
 

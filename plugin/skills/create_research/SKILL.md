@@ -81,14 +81,14 @@ Use the skill's report as high-priority scoping input for the rest of this skill
 
 The `Agents` section shapes **where** you look; it does not change **what** you produce. The Documentarian Rule still holds — document what exists, no recommendations.
 
-**⛔ Best-effort, never blocking**: no ticket, no Atlassian MCP, or no `Agents` section must NOT stop research. Fall through to Step 1.
+**⛔ Best-effort, never blocking**: no ticket, no Atlassian MCP, or no `Agents` section does not stop research. Fall through to Step 1.
 
-### Step 1: Read Any Directly Mentioned Files First (CRITICAL)
+### Step 1: Read Any Directly Mentioned Files First
 
-- If the user mentions specific files (docs, JSON, configs), read them FULLY first
-- **IMPORTANT**: Use the Read tool WITHOUT limit/offset parameters to read entire files
-- **CRITICAL**: Read these files yourself in the main context before spawning any sub-tasks
-- This ensures you have full context before decomposing the research
+- If the user mentions specific files (docs, JSON, configs), read each one in full first. Read
+  the whole file. If Read returns a partial view, page through it with `offset` and `limit`.
+- Read these files yourself, in the main context, before you spawn any agent. Decomposing the
+  research needs their full content.
 
 **Also read `.claude/wb/knowledge.md` if it exists.** It holds durable facts about this
 repository — a constraint, a convention, a tool quirk — each with a date and a verification
@@ -102,13 +102,13 @@ hint. Two rules on how to use it:
 
 Absent file, fall through — a repository with no entries is the normal starting state.
 
-**⛔⛔⛔ BARRIER 1: STOP! Do NOT proceed to Step 2 until ALL mentioned files are FULLY read ⛔⛔⛔**
+⛔ BARRIER 1: every file the user mentioned is read in full — a decomposition built on a partial read aims the agents at the wrong places
 
 ### Step 2: Validate Project Structure
 
 - Check that the specified directory exists
 - Verify research.md file exists (created by `/wb:create_project`)
-- Read the current research.md FULLY to see what's already documented
+- Read the current research.md in full to see what is already documented
 - Check frontmatter status field
 
 **If the directory or `research.md` is missing, provision it through `create_project` — never
@@ -149,23 +149,20 @@ time from elsewhere in the file.
 
 ### Step 3: Analyze and Decompose the Research Question
 
-**Document what EXISTS in the codebase**
-
 1. **Break down the user's query into composable research areas**
-2. **REMEMBER: Document what IS, not what SHOULD BE**
-3. **Work out:**
-   - Underlying patterns and connections that EXIST
-   - Architectural implementations CURRENTLY IN PLACE
-   - Which directories, files, or patterns are ACTUALLY PRESENT
+2. **Work out:**
+   - Underlying patterns and connections that exist
+   - Architectural implementations currently in place
+   - Which directories, files, or patterns are actually present
 
-4. **Identify research areas** to investigate:
+3. **Identify research areas** to investigate:
    - Authentication flow (if relevant)
    - User validation points (if relevant)
    - API endpoints (if relevant)
    - Database schema (if relevant)
    - [Other areas specific to the research question]
 
-5. **Consider which specific components** to investigate
+4. **Consider which specific components** to investigate
 
 ### Step 4: Spawn Parallel Research Agents
 
@@ -180,35 +177,22 @@ every file the agents would open, not a sample. Having read *some* of it, a cros
 or uncertainty about which files are relevant are each a reason to spawn, not to skip. **If you
 skip, say so in your output and say why**, naming what you read instead.
 
-**Sub-agents are READ-ONLY** — they return findings only; YOU write `research.md` after synthesizing.
+**Sub-agents are read-only.** They return findings only, and you write `research.md` after you
+synthesize them.
 
-**CRITICAL Agent Instructions (MUST follow exactly):**
+⛔ BARRIER 2: every spawned agent has returned (subagents run in the background, so wait for a completion notification from each one) — synthesis on a partial set misses what the missing report would have changed
 
-- **Each agent is a documentarian, NOT a critic or consultant**
-- **Agents MUST describe what exists without ANY judgment**
-- **Use specific agent types for their strengths**
-- **Run multiple agents in parallel for speed**
-- **ALWAYS wait for ALL agents before synthesizing**
-- **Remind EVERY agent: You are documenting the codebase AS IT EXISTS**
-
-**⛔⛔⛔ BARRIER 2: STOP! Wait for ALL sub-agents to complete - DO NOT proceed until EVERY agent returns ⛔⛔⛔**
-
-This barrier governs *waiting*, not spawning — synthesis on a partial set misses what the missing
-report would have changed. A fan-out skipped under the rule above satisfies it trivially.
+This barrier governs waiting, not spawning. A fan-out skipped under the rule above satisfies it
+trivially.
 
 ### Step 5: Synthesize Findings
-
-**Document ONLY what EXISTS**
-
-**IMPORTANT**: Wait for ALL sub-agent tasks to complete before proceeding
 
 1. **Compile all sub-agent results**
 2. **Prioritize live codebase findings** as primary source of truth
 3. **Connect findings across different components**
 4. **Include specific file paths and line numbers** for reference
-5. **Highlight patterns, connections, and architectural decisions THAT EXIST**
-6. **Answer the user's specific questions** with concrete evidence FROM THE CURRENT CODE
-7. **DO NOT add recommendations or improvements unless explicitly requested**
+5. **Highlight patterns, connections, and architectural decisions that exist**
+6. **Answer the user's specific questions** with concrete evidence from the current code
 
 ### Step 6: Document Findings
 
@@ -224,19 +208,19 @@ Two things about that template are load-bearing rather than cosmetic:
   `Resolved YYYY-MM-DD → design.md (## Technical Decisions)`. The decision does not get copied
   back here — research documents facts, and a decision is not a fact about the codebase.
 
-**⛔⛔⛔ BARRIER 3: STOP! Verify NO placeholder values - ALL data MUST be from ACTUAL codebase ⛔⛔⛔**
+⛔ BARRIER 3: no placeholder values — every value comes from the actual codebase, because a placeholder that ships becomes a finding nobody can check
 
 Before writing:
 
-- **NO** "[To be added]" or similar placeholders
-- **NO** generic examples - use REAL code from THIS codebase
-- **NO** assumptions - only documented FACTS
+- No "[To be added]" or similar placeholders.
+- No generic examples. Use real code from this codebase.
+- No assumptions. Write only documented facts.
 
 ### Step 7: Handle Follow-Up Questions
 
 If the user has follow-up questions:
 
-1. **DO NOT create a new research file**
+1. **Do not create a new research file**
 2. **Append to the existing research.md**
 3. **Add new section**: `## Follow-up Research [YYYY-MM-DD HH:MM]`
 4. **Update frontmatter**:
@@ -282,7 +266,7 @@ If either test fails — the path is clear, or the constraints already choose �
 
 ## Important Notes
 
-See [reference.md](reference.md) — critical ordering, documentation philosophy, and file reading.
+See [reference.md](reference.md) — research practice.
 
 ## Configuration
 

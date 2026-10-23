@@ -62,6 +62,12 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-10-23 02:36 — P2-T1 (closed)
+
+- **Task/phase**: P2-T1 — the wording rules in create_research
+- **Landed**: 3 single-marker barriers, 1 kept CAPS line (the Documentarian Rule fence), and the restatements removed. 39 lines added, 73 removed
+- **Commits**: the P2-T1 commit
+
 ## 2026-10-23 01:49 — P1-T10 (closed)
 
 - **Task/phase**: P1-T10 — release 3.0.1: CHANGELOG entry and both manifests
