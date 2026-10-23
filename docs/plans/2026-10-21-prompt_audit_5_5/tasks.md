@@ -192,9 +192,9 @@ the 5.5 models. Ship it as 3.0.1.
 
 - [x] Research validated
 - [x] Design approved
-- [ ] `./plugin/scripts/lint --all` is clean on the unmodified tree. On 2026-10-22, its one
+- [x] `./plugin/scripts/lint --all` is clean on the unmodified tree. On 2026-10-22, its one
       failure was this plan's `journal.md`, and `lint --fix` cleared it
-- [ ] `claude --version` reports 2.1.292 or later. It reported 2.1.306 on 2026-10-22
+- [x] `claude --version` reports 2.1.292 or later. It reported 2.1.306 on 2026-10-22
 
 ### Changes Required
 
@@ -397,13 +397,13 @@ step is the rule; this is the moment it applies.
 
 #### Automated Verification
 
-- [ ] `checks/prompt-checks.sh spawn-names prose-spawns spawn-models agent-tiers roster haiku-effort-rule`
+- [x] `checks/prompt-checks.sh spawn-names prose-spawns spawn-models agent-tiers roster haiku-effort-rule`
       exits 0. Each check proved in P1-T2 that it prints FAIL on a planted failure
-- [ ] The P1-T9 probe table shows the expected model and effort for all 7 agents, and the
+- [x] The P1-T9 probe table shows the expected model and effort for all 7 agents, and the
       negative control shows the rejection error
-- [ ] `./plugin/scripts/check` exits 0
-- [ ] `claude plugin tag --dry-run plugin/` names `wb--v3.0.1`
-- [ ] For each of the 14 stages, the on-invoke cost in `claude --plugin-dir plugin plugin details wb`
+- [x] `./plugin/scripts/check` exits 0
+- [x] `claude plugin tag --dry-run plugin/` names `wb--v3.0.1`
+- [x] For each of the 14 stages, the on-invoke cost in `claude --plugin-dir plugin plugin details wb`
       is at most its value in `baseline-tokens-3.0.0.txt`
 
 #### Manual Verification
@@ -449,8 +449,8 @@ before, and following it ticks the human sign-off box. **This block, labels and 
 included, is repeated in full at every phase's checkpoint**; a later phase never gets a
 shortened one.
 
-- [ ] **(derivable)** Every Phase 1 checkbox is `[x]`
-- [ ] **(derivable)** All automated verification passing
+- [x] **(derivable)** Every Phase 1 checkbox is `[x]`
+- [x] **(derivable)** All automated verification passing
 - [ ] **(attestation)** Manual verification confirmed by human
 - [ ] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
       only writer of those fields, so do not edit `current_phase` or `completed_tasks` by hand
