@@ -62,6 +62,12 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-10-23 04:59 — P4-T4 (closed)
+
+- **Task/phase**: P4-T4 — the wording rules in explore_design, create_mockup, and mockup-iteration
+- **Landed**: 7 barriers with reasons, plain scope section and agent prompts. 0 CAPS lines
+- **Commits**: the P4-T4 commit
+
 ## 2026-10-23 04:59 — P4-T3 (closed)
 
 - **Task/phase**: P4-T3 — the wording rules in create_handoff and resume_handoff

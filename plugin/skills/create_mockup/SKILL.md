@@ -45,7 +45,7 @@ When invoked, check for arguments:
 
 ### Step 1: Research Existing UI
 
-**⛔⛔⛔ BARRIER 1: STOP! Research current UI patterns before proposing anything ⛔⛔⛔**
+⛔ BARRIER 1: current UI patterns are researched before anything is proposed — a mockup built without them invents a second design system
 
 Read [sub-agent-prompts.md](sub-agent-prompts.md) NOW and spawn the five agents it defines, concurrently. They document layout, components, styling, similar features, and the icon system — all as they exist.
 
@@ -54,7 +54,7 @@ every file the agents would open, not a sample. Having read *some* of it, a cros
 or uncertainty about which files are relevant are each a reason to spawn, not to skip. **If you
 skip, say so in your output and say why**, naming what you read instead.
 
-**⛔ BARRIER 2**: Wait for ALL agents to complete before proceeding.
+**⛔ BARRIER 2**: every spawned agent has returned (subagents run in the background, so wait for a completion notification from each one) — a mockup built on a partial set misses the pattern that the missing report found.
 
 This barrier governs *waiting*, not spawning — synthesis on a partial set misses what the missing
 report would have changed. A fan-out skipped under the rule above satisfies it trivially.
@@ -93,7 +93,8 @@ Set up versioned mockup structure:
 
 ### Step 5: Create Initial Mockup (v001)
 
-**⛔ BARRIER 3**: No placeholders - all content must be specific based on research + answers.
+**⛔ BARRIER 3**: No placeholders — all content is specific, based on the research and the answers,
+because a placeholder in a mockup reads as a decision nobody made.
 
 Read [templates/mockup-md.md](templates/mockup-md.md) NOW and create `mockups/v001/mockup.md`. Then read [templates/decisions-md.md](templates/decisions-md.md) and create `mockups/v001/decisions.md`.
 
@@ -104,7 +105,8 @@ stayed open, and resolving a question edits its row rather than deleting it.
 
 ### Step 6: Create HTML Mockup with App Styles
 
-**⛔ BARRIER 4**: After ASCII mockup created, generate working HTML mockup with real app styles.
+**⛔ BARRIER 4**: After the ASCII mockup is created, generate a working HTML mockup with real app
+styles — the user judges the HTML, and an ASCII sketch hides styling conflicts.
 
 Read [templates/mockup-html.md](templates/mockup-html.md) NOW and create `mockups/v001/mockup.html`.
 
@@ -121,7 +123,8 @@ Run the quality checks in [reference.md](reference.md) before proceeding.
 
 ### Step 7: Visual Validation with Playwright
 
-**⛔ BARRIER 5**: Validate HTML mockup visually before presenting to user.
+**⛔ BARRIER 5**: Validate the HTML mockup visually before presenting it to the user — a mockup shown
+without a visual check can carry a broken layout that the user then has to diagnose.
 
 Use Playwright to preview the mockup:
 

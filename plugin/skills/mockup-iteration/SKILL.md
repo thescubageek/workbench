@@ -219,7 +219,7 @@ _All confirmed requirements through this version:_
 
 ## Fidelity Preservation
 
-**CRITICAL**: Never lose design decisions. Every piece of feedback must be:
+**Keep every design decision.** Each piece of feedback is:
 
 1. **Captured verbatim** - Quote user's exact words
 2. **Classified** - KEEP/REMOVE/CHANGE/QUESTION
@@ -470,7 +470,7 @@ If session ends mid-iteration or user requests handoff:
 
 On resume, read mockup-log.md's "Pending Feedback" section first.
 
-## DO NOT
+## Do Not
 
 - Do not create mockup versions without reading current mockup.md AND mockup.html first
 - Do not skip updating mockup-log.md

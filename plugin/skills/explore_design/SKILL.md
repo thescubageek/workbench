@@ -35,15 +35,17 @@ Lighter models tend to converge too quickly and miss trade-offs.
 Continue on [model], or restart this stage in a stronger session?
 ```
 
-**Do NOT block.** If the user chooses to continue, proceed. This is guidance, not enforcement, and it follows the standing policy: advise, never auto-switch. If Fable is elected, run it at `effort: high` — never `xhigh` or `max`.
+**Do not block.** If the user chooses to continue, proceed. This is guidance, not enforcement, and it follows the standing policy: advise, never auto-switch. If Fable is elected, run it at `effort: high` — never `xhigh` or `max`.
 
-## CRITICAL: This Stage Produces POSSIBILITIES, Not Commitments
+## Scope: possibilities, not commitments
 
-- **DO NOT** write `design.md` — that is `create_design`'s artifact, and it has one writer
-- **DO NOT** converge without explicit user approval
-- **DO NOT** present a single option and call it a discussion
-- **DO NOT** start implementing, prototyping, or editing source
-- **ONLY** frame, diverge, discuss, converge on approval, and record
+This stage frames, diverges, discusses, converges on approval, and records. A commitment made
+here would skip the review that `create_design` exists for.
+
+- Do not write `design.md` — that is `create_design`'s artifact, and it has one writer
+- Do not converge without explicit user approval
+- Do not present a single option and call it a discussion
+- Do not start implementing, prototyping, or editing source
 
 The output is a `thoughts/` document. If the user walks away mid-exploration, nothing is committed to and nothing is lost.
 
@@ -71,13 +73,13 @@ When invoked, check for arguments:
 
 ### Step 1: Entry Gate and Context Reading
 
-**⛔⛔⛔ BARRIER 1: STOP! Read research.md FULLY before framing anything ⛔⛔⛔**
+⛔ BARRIER 1: research.md is read in full before anything is framed — options framed without the facts have nothing underneath
 
 1. **Check research.md exists and is complete.** This stage reasons from facts; without them it
    generates plausible-sounding options with nothing underneath. If research.md is missing or
    `draft`, say so and stop — `/wb:create_research` comes first.
 
-2. **Read research.md FULLY.** The constraints that bound every direction come from here.
+2. **Read research.md in full.** The constraints that bound every direction come from here.
 
 3. **Read `design.md` if it exists.** If it already records a decision on this topic, say so and
    ask whether the user wants to revisit it — do not silently re-open a settled question.
@@ -131,7 +133,8 @@ Work through the trade-offs **with the user**, one thread at a time. This is a c
 - Follow the user's reasoning; when they rule something out, capture **why** in their words
 - Let a hybrid emerge if it does, but do not manufacture one to avoid a choice
 
-**⛔ BARRIER 2: Do not converge here.** Discussion continues until the user signals they are ready.
+**⛔ BARRIER 2: Do not converge here** — a convergence the user did not ask for turns a discussion
+into a decision they never made. Discussion continues until the user signals they are ready.
 
 ### Step 5: Converge — ⛔ CHECKPOINT
 

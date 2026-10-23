@@ -25,7 +25,7 @@ This skill:
 
 ### Research First
 
-- ALWAYS research existing UI before proposing
+- Research the existing UI before proposing
 - Reference specific file:line locations
 - Follow established patterns unless explicitly breaking them
 

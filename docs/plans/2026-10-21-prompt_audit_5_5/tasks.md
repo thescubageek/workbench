@@ -873,10 +873,10 @@ Annotate each with its projected tool-call cost; anything past ~50 splits at a n
       files. (~18 calls) (completed 2026-10-23 04:59)
 - [x] **P4-T3** — Apply the wording rules to `create_handoff/SKILL.md`, `create_handoff/reference.md`,
       and `resume_handoff/SKILL.md`. (~18 calls) (completed 2026-10-23 04:59)
-- [ ] **P4-T4** — Apply the wording rules to `explore_design/SKILL.md`, `create_mockup/SKILL.md`,
+- [x] **P4-T4** — Apply the wording rules to `explore_design/SKILL.md`, `create_mockup/SKILL.md`,
       `create_mockup/reference.md`, `create_mockup/sub-agent-prompts.md`, and
       `mockup-iteration/SKILL.md`. Start from the Phase 1 state of
-      `create_mockup/sub-agent-prompts.md`. (~30 calls)
+      `create_mockup/sub-agent-prompts.md`. (~30 calls) (completed 2026-10-23 05:00)
 - [ ] **P4-T5** — Apply the wording rules to `create_project`, `resolve_questions`, `fetch-issues`,
       `daily-digest`, and `forge` (the barrier lines in the table). (~30 calls)
 - [ ] **P4-T6** — Apply the wording rules to `touch-grass`, `doc-adherence`, `jira-context`,
@@ -1430,6 +1430,11 @@ resolved, leaving a dated line saying how.
   pages, and the reference files say "Do not" and "Present". 0 CAPS lines.
 - [2026-10-23] Completed P4-T3: 3 single-marker barriers with reasons (`create_handoff` BARRIER 1
   and 2, `resume_handoff` BARRIER 1), the read-fully wording, and "Always include". 0 CAPS lines.
+- [2026-10-23] Completed P4-T4: `explore_design` has a plain "Scope: possibilities, not
+  commitments" section with its reason, a single-marker BARRIER 1, and a reason on BARRIER 2.
+  `create_mockup` has 5 barriers with reasons, BARRIER 2 naming the completion notification, and
+  plain agent prompts. `mockup-iteration` has 2 plain lines. A wrapped barrier hides its
+  notification clause from the line-based check, so wait-for-agents barriers stay on one line.
 - **Kept CAPS lines**: record each one here with its file, line, and reason, as the wording tasks
   run.
   - `create_research/SKILL.md:27` — the Documentarian Rule fence. It is the stage's one core
