@@ -530,8 +530,8 @@ Annotate each with its projected tool-call cost; anything past ~50 splits at a n
       `sub-agent-prompts.md`. (~25 calls) (completed 2026-10-23 02:37)
 - [x] **P2-T2** — Apply the wording rules to `create_product_research/SKILL.md`, `reference.md`,
       and `sub-agent-prompts.md`. (~30 calls) (completed 2026-10-23 02:38)
-- [ ] **P2-T3** — Apply the wording rules to `create_design/SKILL.md`, `reference.md`, and
-      `sub-agent-prompts.md`. (~25 calls)
+- [x] **P2-T3** — Apply the wording rules to `create_design/SKILL.md`, `reference.md`, and
+      `sub-agent-prompts.md`. (~25 calls) (completed 2026-10-23 02:39)
 - [ ] **P2-T4** — Apply the wording rules to `create_tasks/SKILL.md` and `sub-agent-prompts.md`.
       (~15 calls)
 
@@ -1348,6 +1348,10 @@ resolved, leaving a dated line saying how.
 - [2026-10-23] Completed P2-T2: the same rewrite as P2-T1. BARRIER 4 (the validator) now says to
   wait for its completion notification. `reference.md` folded Critical Ordering, Documentation
   Philosophy, and File Reading into one Research Practice list without the restated rules.
+- [2026-10-23] Completed P2-T3: the CAPS "WHAT and WHY - NEVER HOW" block is now a short
+  "Scope: what and why, not how" section with its reason, and it points to the full list in
+  `reference.md`. `reference.md` dropped its restating principle and its REMEMBER line. 3
+  single-marker barriers. No CAPS line is kept.
 - **Kept CAPS lines**: record each one here with its file, line, and reason, as the wording tasks
   run.
   - `create_research/SKILL.md:27` — the Documentarian Rule fence. It is the stage's one core

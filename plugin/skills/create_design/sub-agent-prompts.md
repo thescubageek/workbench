@@ -3,9 +3,6 @@
 Read this when Step 2 directs you to. All three agents spawn together, in parallel. Read the
 file whole. Use the prompts verbatim. Substitute the bracketed placeholders from research.md.
 
-**Sub-agents are READ-ONLY** — they return findings only; YOU write `design.md` after
-synthesizing.
-
 ## Agent 1: Verify design patterns
 
 ```javascript

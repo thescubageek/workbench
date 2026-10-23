@@ -6,47 +6,40 @@ Read this when a step directs you to.
 
 ### Design Principles
 
-1. **Separate WHAT from HOW**:
-   - Design says WHAT to build and WHY
-   - Execution plan says HOW to build it
-   - Do not include implementation sequences
-
-2. **Make Decisions Explicit**:
+1. **Make Decisions Explicit**:
    - Document every significant choice
    - Include rationale and trade-offs
    - Note what was rejected and why
 
-3. **Respect Research Findings**:
+2. **Respect Research Findings**:
    - Build on patterns found in research
    - Respect constraints discovered
    - Do not contradict factual findings
 
-4. **Keep It Disposable**:
+3. **Keep It Disposable**:
    - Design should be complete but changeable
    - If the approach is wrong, you should be able to start over
    - Research remains valid even if design changes
 
 ### What Belongs in Design vs Execution
 
-**Design (THIS document - WHAT and WHY only)**:
+**Design (`design.md`: what and why)**:
 
-- ✅ Architecture decisions (WHAT architecture to use and WHY)
-- ✅ Data models (WHAT data structures and WHY)
-- ✅ API contracts (WHAT interfaces and WHY)
-- ✅ Success criteria (WHAT defines success and WHY)
-- ✅ Scope boundaries (WHAT is included/excluded and WHY)
-- ✅ Technical approach (WHAT approach and WHY)
+- ✅ Architecture decisions (what architecture to use, and why)
+- ✅ Data models (what data structures, and why)
+- ✅ API contracts (what interfaces, and why)
+- ✅ Success criteria (what defines success, and why)
+- ✅ Scope boundaries (what is included or excluded, and why)
+- ✅ Technical approach (what approach, and why)
 
-**Execution (tasks.md - HOW only - NEVER PUT THESE HERE)**:
+**Execution (`tasks.md`: how). These do not go in the design**:
 
-- ❌ Phase sequencing (HOW to order implementation)
-- ❌ Specific code changes (HOW to modify files)
-- ❌ Step-by-step implementation (HOW to build it)
-- ❌ Test writing tasks (HOW to test it)
-- ❌ File modification lists (HOW to change code)
-- ❌ Command sequences (HOW to execute changes)
-
-**REMEMBER: If it describes HOW to do something, it DOES NOT belong in design**
+- ❌ Phase sequencing (how to order the implementation)
+- ❌ Specific code changes (how to modify files)
+- ❌ Step-by-step implementation (how to build it)
+- ❌ Test writing tasks (how to test it)
+- ❌ File modification lists (how to change code)
+- ❌ Command sequences (how to run the changes)
 
 ### Handling Knowledge Gaps
 

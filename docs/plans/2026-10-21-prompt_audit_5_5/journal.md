@@ -62,6 +62,12 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-10-23 02:38 — P2-T3 (closed)
+
+- **Task/phase**: P2-T3 — the wording rules in create_design
+- **Landed**: the scope section with its reason, 3 single-marker barriers, and the restatements removed. 0 CAPS lines remain
+- **Commits**: the P2-T3 commit
+
 ## 2026-10-23 02:37 — P2-T2 (closed)
 
 - **Task/phase**: P2-T2 — the wording rules in create_product_research

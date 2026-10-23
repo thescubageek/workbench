@@ -26,15 +26,17 @@ model and effort of this phase. Surface its one-line verdict, and the `/model` a
 switch clears the switch-cost bar. Do not block on it: stay silent and proceed when the current
 tier is already right.
 
-## CRITICAL: This Document is About WHAT and WHY - NEVER HOW
+## Scope: what and why, not how
 
-- **DO NOT** include implementation sequences or step-by-step procedures
-- **DO NOT** specify HOW to code solutions
-- **DO NOT** create task lists or phase breakdowns
-- **DO NOT** detail file modifications or code changes
-- **ONLY** document WHAT needs to be built and WHY those choices were made
-- **ONLY** architectural decisions and technical approach
-- The HOW comes later in the execution plan - NOT HERE
+`design.md` records what to build and why. The execution plan records how, so a design that
+fixes an implementation sequence takes that choice away from `create_tasks` before anyone has
+weighed it.
+
+- Record architectural decisions, the technical approach, and the reason for each choice.
+- Leave out implementation sequences, step-by-step procedures, task lists, phase breakdowns, and
+  file or code changes.
+
+[reference.md](reference.md) → "What Belongs in Design vs Execution" lists both sides.
 
 **Output discipline**: act on barriers silently; don't restate the plan between steps; emit only the artifact and a one-line completion summary.
 
@@ -60,7 +62,7 @@ When invoked, check for arguments:
 
 ## Prerequisites
 
-- **MUST** have completed research.md in the project directory
+- A completed research.md in the project directory
 - Research should be validated (facts confirmed accurate)
 - Knowledge gaps from research should be reviewed
 
@@ -78,7 +80,7 @@ Assumptions table, which states what being wrong would cost.
 
 ### Step 1: Read and Analyze Research
 
-**⛔⛔⛔ BARRIER 1: STOP! Read research.md and existing design.md FULLY - NO SKIMMING ⛔⛔⛔**
+⛔ BARRIER 1: research.md and any existing design.md are read in full — a design argued over a partial reading contradicts findings it never saw
 
 **Open a journal entry before you begin reading.** Placement and heading shape are both
 contracts: read [../../docs/reference/journal-entries.md](../../docs/reference/journal-entries.md) NOW
@@ -97,7 +99,8 @@ appended to the end, which the session-start hook cannot see:
 time from elsewhere in the file.
 
 Take the project directory from the arguments, prompting for it if it is missing. Then read
-`research.md` and `design.md` from that directory — **fully**, no `limit` or `offset`.
+`research.md` and `design.md` from that directory, in full. Read the whole file. If Read returns a
+partial view, page through it with `offset` and `limit`.
 
 **When a read finds nothing, which file it was decides what happens.** A stage may create the
 artifact it writes; it may never invent the artifact it reads.
@@ -137,7 +140,7 @@ artifact it writes; it may never invent the artifact it reads.
    a section stating the chosen direction and its rationale. If `design.md` already exists,
    also check its `## Technical Decisions` for a record naming an exploration document.
 
-   If one exists, read the exploration document **FULLY**, including its rejected
+   If one exists, read the exploration document in full, including its rejected
    alternatives. The architectural decision has already been made and argued; Step 4 will
    formalize it rather than regenerate options. If none exists, Step 4 runs its normal
    interactive path — this check simply finds nothing and costs nothing.
@@ -146,10 +149,7 @@ artifact it writes; it may never invent the artifact it reads.
    date and a verification hint. Treat entries as dated claims to re-check, not as current
    truth; correct or delete one you find false in this session. Absent file, fall through.
 
-**Decide WHAT to build, not HOW to build it**
-
 Synthesize the research into design constraints and opportunities.
-Remember: You are deciding WHAT and WHY, not HOW.
 
 ### Step 2: Spawn Verification Agents
 
@@ -162,12 +162,13 @@ every file the agents would open, not a sample. Having read *some* of it, a cros
 or uncertainty about which files are relevant are each a reason to spawn, not to skip. **If you
 skip, say so in your output and say why**, naming what you read instead.
 
-**Sub-agents are READ-ONLY** — they return findings only; YOU write `design.md` after synthesizing.
+**Sub-agents are read-only.** They return findings only, and you write `design.md` after you
+synthesize them.
 
-**⛔⛔⛔ BARRIER 2: STOP! Wait for ALL agents to complete - NO EXCEPTIONS ⛔⛔⛔**
+⛔ BARRIER 2: every spawned agent has returned (subagents run in the background, so wait for a completion notification from each one) — synthesis on a partial set misses what the missing report would have changed
 
-This barrier governs *waiting*, not spawning — synthesis on a partial set misses what the missing
-report would have changed. A fan-out skipped under the rule above satisfies it trivially.
+This barrier governs waiting, not spawning. A fan-out skipped under the rule above satisfies it
+trivially.
 
 ### Step 3: Problem Definition
 
@@ -196,7 +197,7 @@ This step runs in one of two modes, set by Step 1's decision-record check.
 
 #### Mode A — a recorded decision exists: formalize, do not regenerate
 
-The architectural decision was already made and argued in `/wb:explore_design`. **Do NOT
+The architectural decision was already made and argued in `/wb:explore_design`. **Do not
 generate options.** Presenting a fresh option set here would re-litigate a decision the user
 already reached, and would discard the reasoning the exploration produced.
 
@@ -262,7 +263,7 @@ Both are edited in place when resolved — `/wb:resolve_questions` flips the sta
 for a pending decision, writes the decision with its rationale and trade-off under
 `## Technical Decisions`. Rows are never deleted; the audit trail is the point.
 
-**⛔⛔⛔ BARRIER 3: STOP! Verify no placeholder values before writing — every decision, rationale, and reference must be concrete, not a `[TODO]`/`[TBD]`/template stub. ⛔⛔⛔**
+⛔ BARRIER 3: no placeholder values — every decision, rationale, and reference is concrete, not a `[TODO]`, a `[TBD]`, or a template stub, because a placeholder that ships becomes a task nobody can execute
 
 ### Step 6: Review and Iterate
 
