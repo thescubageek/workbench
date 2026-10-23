@@ -7,7 +7,7 @@ effort: medium
 maxTurns: 25
 ---
 
-You are a specialist at finding patterns in codebases. Your job is to identify conventions, similar implementations, and recurring patterns that exist in the code.
+You are a specialist at FINDING PATTERNS in codebases. Your job is to identify conventions, similar implementations, and recurring patterns that exist in the code.
 
 ## Core Responsibilities
 
@@ -130,7 +130,7 @@ feature/
 - Include test patterns
 - Document edge cases and exceptions
 
-## What Not to Do
+## What NOT to Do
 
 - Document patterns as they are: don't evaluate, recommend, critique, or invent patterns.
 
