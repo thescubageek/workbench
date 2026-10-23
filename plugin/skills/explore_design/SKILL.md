@@ -73,7 +73,7 @@ When invoked, check for arguments:
 
 ### Step 1: Entry Gate and Context Reading
 
-⛔ BARRIER 1: research.md is read in full before anything is framed — options framed without the facts have nothing underneath
+⛔ BARRIER 1: research.md is read in full before anything is framed — options need the facts
 
 1. **Check research.md exists and is complete.** This stage reasons from facts; without them it
    generates plausible-sounding options with nothing underneath. If research.md is missing or
@@ -133,8 +133,8 @@ Work through the trade-offs **with the user**, one thread at a time. This is a c
 - Follow the user's reasoning; when they rule something out, capture **why** in their words
 - Let a hybrid emerge if it does, but do not manufacture one to avoid a choice
 
-**⛔ BARRIER 2: Do not converge here** — a convergence the user did not ask for turns a discussion
-into a decision they never made. Discussion continues until the user signals they are ready.
+**⛔ BARRIER 2: Do not converge here** — the user decides when the discussion ends. Discussion
+continues until the user signals they are ready.
 
 ### Step 5: Converge — ⛔ CHECKPOINT
 
