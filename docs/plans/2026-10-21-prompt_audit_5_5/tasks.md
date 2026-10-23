@@ -570,7 +570,7 @@ step is the rule; this is the moment it applies.
 - [x] No triple barrier remains in the four stages: `command grep -n '⛔⛔⛔' plugin/skills/create_research plugin/skills/create_product_research plugin/skills/create_design plugin/skills/create_tasks -r; echo rc=$?`
       prints only `rc=1`
 - [x] `python3 evals/link_check.py` and `python3 evals/token_check.py` exit 0
-- [ ] `./plugin/scripts/check` exits 0
+- [x] `./plugin/scripts/check` exits 0
 - [x] No on-invoke cost of the four stages rises above `baseline-tokens-3.0.0.txt`
 
 #### Manual Verification
@@ -614,8 +614,8 @@ before, and following it ticks the human sign-off box. **This block, labels and 
 included, is repeated in full at every phase's checkpoint**; a later phase never gets a
 shortened one.
 
-- [ ] **(derivable)** Every Phase 2 checkbox is `[x]`
-- [ ] **(derivable)** All automated verification passing
+- [x] **(derivable)** Every Phase 2 checkbox is `[x]`
+- [x] **(derivable)** All automated verification passing
 - [ ] **(attestation)** Manual verification confirmed by human
 - [ ] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
       only writer of those fields, so do not edit `current_phase` or `completed_tasks` by hand
