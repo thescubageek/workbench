@@ -566,7 +566,7 @@ step is the rule; this is the moment it applies.
 #### Automated Verification
 
 - [x] `judge.py --within --fixture evals/fixture-large` reports no loss in every repeat of the
-      P2-T5 run, or every reported loss has a recorded revert
+      P2-T5 run, or every reported loss has a recorded revert. *(Met by the rule the user chose at P2-T6: revert only if the loss recurs. Repeat 3 was clean, and Implementation Notes records the decision.)*
 - [x] No triple barrier remains in the four stages: `command grep -n '⛔⛔⛔' plugin/skills/create_research plugin/skills/create_product_research plugin/skills/create_design plugin/skills/create_tasks -r; echo rc=$?`
       prints only `rc=1`
 - [x] `python3 evals/link_check.py` and `python3 evals/token_check.py` exit 0
