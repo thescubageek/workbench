@@ -739,9 +739,9 @@ step is the rule; this is the moment it applies.
       reaches at least 9 of 10 (`score.py` output in `RESULTS.md`)
 - [x] The verifier trial records a defect-found rate and a false-FAIL rate for each model, and
       `plugin/agents/task-verifier.md` names the model that the decision rule chose
-- [ ] `checks/prompt-checks.sh triple-barriers notification agent-tiers` passes on the Phase 3
+- [x] `checks/prompt-checks.sh triple-barriers notification agent-tiers` passes on the Phase 3
       files
-- [ ] `./plugin/scripts/check` exits 0
+- [x] `./plugin/scripts/check` exits 0
 
 #### Manual Verification
 
@@ -784,8 +784,8 @@ before, and following it ticks the human sign-off box. **This block, labels and 
 included, is repeated in full at every phase's checkpoint**; a later phase never gets a
 shortened one.
 
-- [ ] **(derivable)** Every Phase 3 checkbox is `[x]`
-- [ ] **(derivable)** All automated verification passing
+- [x] **(derivable)** Every Phase 3 checkbox is `[x]`
+- [x] **(derivable)** All automated verification passing
 - [ ] **(attestation)** Manual verification confirmed by human
 - [ ] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
       only writer of those fields, so do not edit `current_phase` or `completed_tasks` by hand
@@ -1416,6 +1416,10 @@ resolved, leaving a dated line saying how.
 - [2026-10-23] Completed P3-T9: both models found 18 of 18 planted defects with 0 of 6 false
   failures. Opus 5.5 is not better, so by the design's rule `task-verifier` and
   `research-validator` stay on Sonnet 5.5 at `high`. No agent file or check changed.
+- [2026-10-23] Phase 3 verification: scoped to the Phase 3 files, `triple-barriers`,
+  `notification`, and `caps` are 0, and `agent-tiers` passes. `./plugin/scripts/check` passes. On-invoke
+  tokens: `implement` 11.1k → 11.0k, `implement_inline` 7.8k → 7.7k, `tdd-discipline` and
+  `verification-before-completion` unchanged.
 - **Kept CAPS lines**: record each one here with its file, line, and reason, as the wording tasks
   run.
   - `create_research/SKILL.md:27` — the Documentarian Rule fence. It is the stage's one core
