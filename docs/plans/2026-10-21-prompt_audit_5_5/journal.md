@@ -62,6 +62,12 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-10-23 04:29 — P3-T4 (closed)
+
+- **Task/phase**: P3-T4 — the wording rules in implement_inline/reference.md
+- **Landed**: a plain DON'T list without the restated scope items, and the paging rule. 0 CAPS lines
+- **Commits**: the P3-T4 commit
+
 ## 2026-10-23 04:28 — P3-T3 (closed)
 
 - **Task/phase**: P3-T3 — the wording rules in implement_inline/SKILL.md

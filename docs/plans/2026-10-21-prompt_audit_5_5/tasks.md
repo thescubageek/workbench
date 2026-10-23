@@ -697,7 +697,7 @@ Annotate each with its projected tool-call cost; anything past ~50 splits at a n
 - [x] **P3-T2** — Apply the wording rules to `implement/reference.md` and
       `implement/prompts/worker-prompt.md`. (~15 calls) (completed 2026-10-23 04:28)
 - [x] **P3-T3** — Apply the wording rules to `implement_inline/SKILL.md`. (~20 calls) (completed 2026-10-23 04:28)
-- [ ] **P3-T4** — Apply the wording rules to `implement_inline/reference.md`. (~10 calls)
+- [x] **P3-T4** — Apply the wording rules to `implement_inline/reference.md`. (~10 calls) (completed 2026-10-23 04:29)
 - [ ] **P3-T5** — Apply the wording rules to `tdd-discipline/SKILL.md` and
       `verification-before-completion/SKILL.md`. (~12 calls)
 
@@ -1394,6 +1394,9 @@ resolved, leaving a dated line saying how.
   word for word except American spelling. The principle "ZERO SCOPE CREEP" is a plain Scope
   principle. BARRIER 1 is single-marker. The "Implement ONLY what's specified" heading and the
   REMEMBER line repeated the scope rule, so they are gone. 0 CAPS lines remain.
+- [2026-10-23] Completed P3-T4: the 13-line NEVER list is an 8-line "Do not" list. The five
+  scope items repeated `SKILL.md` → Scope, so a pointer replaces them. "NEVER use limit/offset"
+  contradicted the new read-fully rule, so it now says to page through a partial view.
 - **Kept CAPS lines**: record each one here with its file, line, and reason, as the wording tasks
   run.
   - `create_research/SKILL.md:27` — the Documentarian Rule fence. It is the stage's one core

@@ -173,7 +173,7 @@ If automated verification fails after implementation:
 ### DO
 
 - ✅ Follow TDD cycle: Red → Green → Refactor
-- ✅ Read ALL documentation files FULLY first
+- ✅ Read all documentation files in full first
 - ✅ Read `tasks.md` to find the next unchecked task
 - ✅ Flip a task's checkbox to `[x]` the moment it is done — that flip **is** the tracking act
 - ✅ Commit each task separately, so the log is the audit trail
@@ -183,21 +183,18 @@ If automated verification fails after implementation:
 - ✅ Document any deviations in Implementation Notes
 - ✅ Run `/wb:update_status` at phase checkpoints to reconcile the counters
 
-### DON'T (ABSOLUTELY FORBIDDEN)
+### DON'T
 
-- ❌ **NEVER** skip writing tests first (except for noted exceptions)
-- ❌ **NEVER** add ANY scope beyond what's in tasks.md - NO EXCEPTIONS
-- ❌ **NEVER** move to next phase without verification
-- ❌ **NEVER** close manual verification without user confirmation
-- ❌ **NEVER** implement multiple phases without checkpoints (unless explicitly instructed)
-- ❌ **NEVER** use limit/offset when reading files
-- ❌ **NEVER** add "nice to have" features or improvements
-- ❌ **NEVER** refactor code that works unless tasks.md says to
-- ❌ **NEVER** add error handling not specified in tasks
-- ❌ **NEVER** create helper functions not explicitly required
-- ❌ **NEVER** use TaskCreate/TaskUpdate/TodoWrite for tracking — the checkboxes in `tasks.md` are the tracking surface, and a parallel list only goes stale
-- ❌ **NEVER** hand-edit the frontmatter counters — `/wb:update_status` is their only writer
-- ❌ **NEVER** leave a finished task unchecked; an unflipped checkbox is indistinguishable from unfinished work
+The scope rules are stated once, in `SKILL.md` → Scope. This list does not repeat them.
+
+- ❌ Do not skip writing tests first (except for noted exceptions)
+- ❌ Do not move to the next phase without verification
+- ❌ Do not close manual verification without user confirmation
+- ❌ Do not implement multiple phases without checkpoints (unless explicitly instructed)
+- ❌ Do not stop at a partial view of a file. Page through it with `offset` and `limit`
+- ❌ Do not use TaskCreate/TaskUpdate/TodoWrite for tracking — the checkboxes in `tasks.md` are the tracking surface, and a parallel list only goes stale
+- ❌ Do not hand-edit the frontmatter counters — `/wb:update_status` is their only writer
+- ❌ Do not leave a finished task unchecked. An unflipped checkbox is indistinguishable from unfinished work
 
 ## Configuration
 
