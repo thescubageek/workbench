@@ -1334,6 +1334,11 @@ resolved, leaving a dated line saying how.
 - [2026-10-23] Completed P1-T9: PASS. All 7 agents ran at the Data Model tier, and the bare
   name was rejected (`trials/2026-10-23-batch0-probe/RESULTS.md`). This validates A5 for every
   agent that sets a model.
+- [2026-10-23] P1-T10 verification: the token check found `implement` at ~11.2k against ~11.1k.
+  The new Effort column and its note caused it. Shortening the note and dropping the haiku Notes
+  cell brought it back to ~11.1k. The 14-stage sum is ~63.9k against ~64.1k. `model-help` rose
+  from ~5.1k to ~5.3k (the roster prices) and `daily-digest` from ~6.2k to ~6.3k. Neither is one
+  of the 14 stages.
 - **Kept CAPS lines**: record each one here with its file, line, and reason, as the wording tasks
   run.
 

@@ -286,13 +286,12 @@ this skill and its supporting files points here rather than restating it.
 
 | Tier | Effort | When | Notes |
 | ---- | ------ | ---- | ----- |
-| `haiku` | `medium` | Mechanical only — config, docs, renames, version bumps, typos | Haiku 5.5 at `low` skips searches and checks more often |
+| `haiku` | `medium` | Mechanical only — config, docs, renames, version bumps, typos | |
 | `sonnet` | `medium` | Bounded and fully specified — the task names the exact change and leaves no design latitude | The deliberate downshift, not the default |
 | **`opus`** | `medium` | **Default.** Anything with judgment in it | |
 | `fable` | `high` | **Never a first spawn.** Only as an explicit election after a *verified* failure | Never `xhigh` or `max` |
 
-Pass the row's effort on the spawn. A spawn `effort` overrides the agent file's `effort`, and
-`agents/task-worker.md` sets `medium` only as the fallback for a spawn that passes none.
+Pass the row's effort on the spawn. It overrides the agent file's `effort`.
 
 **These four are the only values the spawn tool accepts** — its `model` parameter is an enum, so
 a full identifier like `claude-opus-5-5[1m]` cannot be pinned per spawn, and `opus` resolves to
