@@ -352,8 +352,8 @@ Annotate each with its projected tool-call cost; anything past ~50 splits at a n
       `implement/SKILL.md:284-300`, `:410-412`, and
       `implement/prompts/escalation-worker-prompt.md:9-10`. Delete the haiku-effort rule at
       `adversarial-review/prompts.md:165`. (~15 calls) (completed 2026-10-23 01:44)
-- [ ] **P1-T7** — Rewrite `plugin/skills/model-help/SKILL.md` as Changes Required §4 says.
-      (~20 calls)
+- [x] **P1-T7** — Rewrite `plugin/skills/model-help/SKILL.md` as Changes Required §4 says.
+      (~20 calls) (completed 2026-10-23 01:46)
 - [ ] **P1-T8** — Rewrite the gate lines and the other tier text in Changes Required §5. Depends
       on: P1-T7 (the gate lines point to the new `model-help`). (~25 calls)
 
@@ -1320,6 +1320,12 @@ resolved, leaving a dated line saying how.
 - [2026-10-22] Completed P1-T6: the tier table gains an `Effort` column. `adversarial-review/prompts.md:153-154`
   also said "both Opus tiers collapse to `opus`", which named the old two-Opus roster. It now says
   that `opus` always means the current Opus. That line is roster text, which this phase owns.
+- [2026-10-22] Completed P1-T7: `model-help` names Fable 5.1, Opus 5.5, Sonnet 5.5, and Haiku
+  5.5, with prices. The baseline table follows design.md and adds a row for `update_status` and
+  `validate_project`. Two additions beyond the task text, both facts from research.md §9: an
+  effort change also invalidates the prompt cache, and Opus 5.5 at `medium` matches the previous
+  Opus at `high`. The `create_research` row's `READ-ONLY` (`model-help:98`, a P4-T6 line) became
+  "read-only" because the row was rewritten here.
 - **Kept CAPS lines**: record each one here with its file, line, and reason, as the wording tasks
   run.
 

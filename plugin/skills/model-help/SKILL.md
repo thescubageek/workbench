@@ -20,10 +20,10 @@ Read a handoff / task spec / ticket and return a **model + effort** recommendati
 **Model = capability ceiling.** How much raw reasoning the hardest part of the task needs.
 **Effort = how much thinking to spend** at that ceiling. A cheap model at high effort ≠ a strong model at low effort — match model to the ceiling, effort to the depth.
 
-Current roster (most → least capable): **`claude-opus-5` (Opus 5)** · **`claude-opus-4-8` (Opus 4.8)** · **`claude-sonnet-5` (Sonnet 5)** · **`claude-haiku-4-5-20251001` (Haiku 4.5)**. `claude-fable-5-1` (Fable 5.1) also exists (fast Claude‑5 tier); default to the four above unless the user prefers Fable. Effort levels: `low` · `medium` · `high` · `xhigh` · `max`.
+Current roster (most → least capable): **`claude-fable-5-1` (Fable 5.1)** · **`claude-opus-5-5` (Opus 5.5)** · **`claude-sonnet-5-5` (Sonnet 5.5)** · **`claude-haiku-5-5` (Haiku 5.5)**. **Opus 5.5 is the default main-session model.** Fable 5.1 is the top rung and never a default. Effort levels: `low` · `medium` · `high` · `xhigh` · `max`, and all four models support every level. Price per million input / output tokens: Fable 5.1 $10 / $50, Opus 5.5 $4 / $20, Sonnet 5.5 $2 / $10, Haiku 5.5 from $0.10 / $0.50.
 
-**1M-context variants.** Append `[1m]` to a model ID for the wide-context form:
-`claude-opus-5[1m]` · `claude-opus-4-8[1m]` · `claude-sonnet-5[1m]`. Reach for one when the
+**1M-context variants.** Append `[1m]` to a model ID for the wide-context form, for example
+`claude-opus-5-5[1m]`. Reach for one when the
 task must hold a lot at once — a whole-subsystem audit, a cross-file refactor, a long plan —
 not as a general upgrade: a wider window costs more per token and does nothing for a task that
 fits comfortably.
@@ -31,11 +31,12 @@ fits comfortably.
 **This roster is for the *main session*, set with `/model`.** Sub-agent spawns are a different
 mechanism with a narrower vocabulary: the spawn tool's `model` parameter is an enum of
 `haiku · sonnet · opus · fable`, so no full identifier and no `[1m]` variant can be pinned per
-spawn. `/wb:implement`'s Step 5 states the worker ladder in those four values, and is the single
+spawn. A spawn can also pass `effort`, which overrides the agent file's `effort`.
+`/wb:implement`'s Step 5 states the worker ladder in those four values, and is the single
 statement of it. Advising a worker tier by full model ID would name something the spawner cannot
 select.
 
-**Two Opus tiers.** Opus 5 is the ceiling — reserve it for the genuinely hardest work: novel design, one-way doors, compliance / PHI / security-critical, wide blast radius, adversarial review of sensitive code. **Opus 4.8 is the default Opus** — reach for it when a task needs Opus-class reasoning but not the absolute top. Downshift 5 → 4.8 whenever 5 would be overkill; the reasoning ceiling is close and 4.8 is the cheaper Opus.
+**One Opus, and effort before Fable.** Opus 5.5 is the one current Opus. At `medium` it matches or exceeds the previous Opus at `high` on coding and knowledge work (Anthropic's Opus 5.5 prompting guide), so raise its effort before you reach for Fable 5.1. Reserve Fable 5.1 for the genuinely hardest work: novel design, one-way doors, compliance / PHI / security-critical changes, and the escalation after a verified failure.
 
 ## Assess the task on these dimensions
 
@@ -51,10 +52,10 @@ Score the task HIGH/MED/LOW on each — the **highest** dimension drives the tie
 
 | Task shape | Model | Effort |
 | --- | --- | --- |
-| Trivial, isolated, easily verified — copy tweaks, config bumps, a rename, doc edits, a single obvious factory/spec | Haiku 4.5 (or Sonnet 5) | low |
-| Bounded eng change, mechanical but touches a hot path or needs edge/nil-safety reasoning + real specs | Sonnet 5 | medium |
-| Multi-file feature, non-trivial logic, moderate correctness sensitivity, some design latitude | Sonnet 5 (Opus 4.8 if reasoning-dense) | high |
-| Compliance / PHI / security / billing critical · wide blast radius · novel design · hard-to-reverse migration · adversarial review of sensitive code | Opus 5 | high → max |
+| Trivial, isolated, easily verified — copy tweaks, config bumps, a rename, doc edits, a single obvious factory/spec | Haiku 5.5 (or Sonnet 5.5) | low |
+| Bounded eng change, mechanical but touches a hot path or needs edge/nil-safety reasoning + real specs | Sonnet 5.5 | medium |
+| Multi-file feature, non-trivial logic, moderate correctness sensitivity, some design latitude | Opus 5.5 | medium |
+| Compliance / PHI / security / billing critical · wide blast radius · novel design · hard-to-reverse migration · adversarial review of sensitive code | Opus 5.5 (Fable 5.1 for novel or one-way-door work) | high |
 
 ### The upshift ladder (D12 — election, never baseline)
 
@@ -62,7 +63,7 @@ Every tier above a phase's baseline is reached by **explicit election**, never b
 choosing it automatically. The ladder, from any starting point:
 
 ```
-Haiku 4.5  →  Sonnet 5  →  Opus 4.8  →  Opus 5  →  Fable
+Haiku 5.5  →  Sonnet 5.5  →  Opus 5.5  →  Fable 5.1
 ```
 
 Two rules make it a ladder rather than a menu:
@@ -78,7 +79,7 @@ Two rules make it a ladder rather than a menu:
 This skill **advises** the election; it never makes it. That is the same advise-never-auto-switch
 policy the switch-cost rule below enforces.
 
-Effort guidance: **medium is the default for real eng work.** Drop to **low** only when genuinely mechanical. Reserve **high** for hard reasoning / review; **xhigh/max** for the thorniest multi-constraint problems or adversarial verification — they cost real time/tokens with diminishing returns, so don't reach for them by default.
+Effort guidance: **medium is the default for real eng work**, and it is the Claude Code default for Opus 5.5, Sonnet 5.5, and Haiku 5.5. Drop to **low** only when genuinely mechanical. Reserve **high** for hard reasoning / review; **xhigh/max** for the thorniest multi-constraint problems or adversarial verification — they cost real time/tokens with diminishing returns, so don't reach for them by default.
 
 ## Splitting
 
@@ -88,21 +89,22 @@ If the handoff has parts with different ceilings, **recommend splitting** and ti
 
 The wb pipeline (`forge`, `resume_handoff`, and the `create_*` / `implement` / `implement_inline` / `validate_execution` skills) consults this skill at phase boundaries. Not every phase needs the same tier, but **switching the main-session model reloads the whole conversation** — so the goal is to spend the right amount per phase *without* churning the model. Two levers, very different costs:
 
-- **Sub-agent model + effort is free** — each spawned agent is fresh context. Push cheap, parallelizable work down to cheap agents aggressively (the phase commands already set `model:` hints on their `Task(...)` spawns). This is where most cost optimization lives, and it never touches the main session.
-- **Main-session model/effort costs a context reload** on every switch (tokens + latency). Advise a main-session switch only when it pays for that tax.
+- **Sub-agent model + effort is free** — each spawned agent is fresh context. Push cheap, parallelizable work down to cheap agents aggressively (each agent file in `agents/*.md` sets its own model and effort). This is where most cost optimization lives, and it never touches the main session.
+- **Main-session model/effort costs a context reload** on every switch (tokens + latency). An effort change also invalidates the prompt cache, so treat it as a smaller switch. Advise a main-session switch only when it pays for that tax.
 
 ### Per-phase baseline (then modulate by the ticket's difficulty via the dimensions above)
 
 | wb phase | Main-session baseline | Why | Cheap work → sub-agents |
 | --- | --- | --- | --- |
-| `create_research` | Sonnet 5 / medium | Main session decomposes + synthesizes; the heavy lifting is in parallel READ-ONLY agents | locator → haiku, analyzer → sonnet, pattern-finder → haiku |
-| `create_design` | **Opus 4.8 / high** (→ Opus 5 / high–max for novel / one-way-door / compliance-critical / high-blast-radius) | Reasoning-dense: trade-offs, architecture, locked decisions. Usually the pipeline's ceiling | little to delegate — the judgment is main-session |
-| `create_tasks` | Sonnet 5 / medium (upshift: Opus 4.8 / high) | Decompose an already-decided design into phased tasks — structuring, not deciding. Upshift when decomposition quality sets the ceiling for cheap workers | analysis agents → sonnet / haiku |
-| `implement` | Sonnet 5 / medium | Coordination, not coding: extract context, spawn, verify, commit. The main session holds little | **workers carry the cost, and their tiers are pinned at the point of spawn** — see `implement`'s Step 5, the single statement of the worker ladder |
-| `implement_inline` | Sonnet 5 / medium (bump gnarly tasks to Opus 4.8 / high) | TDD execution of a locked plan **on the session model**; most tasks mechanical-to-moderate. Nothing is delegated, so the session tier *is* the execution tier | nothing — use `/wb:implement` if you want work pushed to workers |
-| `validate_execution` | Sonnet 5 / medium → Opus 4.8 / high (→ Opus 5 for compliance-critical / hard-to-verify) | Adversarial check vs plan; raise for wide blast radius / compliance / hard-to-verify | validation agents → sonnet / haiku |
-| `adversarial-review` | Sonnet 5 / medium (→ Opus 4.8 / high for compliance-sensitive, wide-blast-radius or hard-to-verify diffs) | The session resolves the target, sizes the pass and synthesizes; the reading is done by forked agents and a forked built-in review | **the legs carry the cost** — lens agents at `sonnet`, security and AI-systems at `opus`, verifiers at `sonnet`; see `adversarial-review`'s prompts.md |
-| `adversarial-loop` | Sonnet 5 / medium | A sequencer: it orders rounds and holds gates, and contains no review logic of its own | everything — the review it invokes carries its own tier, and `/verify` carries its own |
+| `create_research` | Opus 5.5 / medium | Main session decomposes + synthesizes; the heavy lifting is in parallel read-only agents | the agent files set the tiers: locator → haiku, analyzer → sonnet, pattern-finder → haiku |
+| `create_design` | **Opus 5.5 / high** (→ Fable 5.1 / high for novel / one-way-door / compliance-critical / high-blast-radius) | Reasoning-dense: trade-offs, architecture, locked decisions. Usually the pipeline's ceiling | little to delegate — the judgment is main-session |
+| `create_tasks` | Opus 5.5 / medium (upshift: Opus 5.5 / high) | Decompose an already-decided design into phased tasks — structuring, not deciding. Upshift when decomposition quality sets the ceiling for cheap workers | analysis agents, at their agent-file tiers |
+| `implement` | Opus 5.5 / medium | Coordination, not coding: extract context, spawn, verify, commit. The main session holds little | **workers carry the cost, and their tiers are pinned at the point of spawn** — see `implement`'s Step 5, the single statement of the worker ladder |
+| `implement_inline` | Opus 5.5 / medium (bump gnarly tasks to Opus 5.5 / high) | TDD execution of a locked plan **on the session model**; most tasks mechanical-to-moderate. Nothing is delegated, so the session tier *is* the execution tier | nothing — use `/wb:implement` if you want work pushed to workers |
+| `validate_execution` | Opus 5.5 / high (→ Fable 5.1 / high for compliance-critical / hard-to-verify) | Adversarial check vs plan; raise for wide blast radius / compliance / hard-to-verify | validation agents, at their agent-file tiers |
+| `adversarial-review` | Opus 5.5 / high (→ Fable 5.1 / high for compliance-sensitive, wide-blast-radius or hard-to-verify diffs) | The session resolves the target, sizes the pass and synthesizes; the reading is done by forked agents and a forked built-in review | **the legs carry the cost** — lens agents at `sonnet`, security and AI-systems at `opus`, verifiers at `sonnet`; see `adversarial-review`'s prompts.md |
+| `adversarial-loop` | Opus 5.5 / medium | A sequencer: it orders rounds and holds gates, and contains no review logic of its own | everything — the review it invokes carries its own tier, and `/verify` carries its own |
+| `update_status`, `validate_project` | Sonnet 5.5 / medium (upshift: Opus 5.5 / medium) | Mechanical: count checkboxes, compare documents to rules | nothing |
 
 ### Where this skill's authority ends
 
@@ -112,7 +114,7 @@ lives in `implement`'s Step 5 — this skill does not restate either, because tw
 tier rule drift. What it does own is the **main-session** tier for every phase, and the
 switch-cost judgment about whether changing it is worth the reload.
 
-Bump a phase above its baseline whenever the ticket's own dimensions (blast radius, correctness sensitivity, novelty, cross-file reasoning, verification cost) say so — a research pass over an ambiguous cross-subsystem area is Opus/high, not Sonnet/medium.
+Bump a phase above its baseline whenever the ticket's own dimensions (blast radius, correctness sensitivity, novelty, cross-file reasoning, verification cost) say so — a research pass over an ambiguous cross-subsystem area is Opus 5.5 / high, not Opus 5.5 / medium.
 
 ### The switch-cost rule (this is what keeps it from being noisy)
 
@@ -123,7 +125,7 @@ Advise a **main-session** switch only when **both** hold:
 
 Then:
 
-- **Cluster same-tier phases.** research + execution + implement typically sit at Sonnet; switch **up** to Opus only for the design gate (and validate if sensitive), then back down. A whole forge should cost ~1–2 switches, not 5.
+- **Cluster same-tier phases.** Most phases sit on Opus 5.5, so a forge usually needs no model switch: design and validation raise the effort to `high`, and the other phases stay at `medium`. Switch **up** to Fable 5.1 only for a novel or one-way-door design gate, then back down. A whole forge should cost 0–2 switches, not 5.
 - **Never switch down if you'll likely switch back up soon** — the double round-trip loses. Only drop a tier when you'll stay dropped for ≥ 2 phases. Sitting one tier *high* for a short phase is cheaper than a round-trip and never costs quality.
 - **The floor is inviolable.** Never advise below the tier a phase needs at its hardest sub-problem. Savings come from not *over*-powering cheap phases and from sub-agent tiering — never from under-powering a hard one.
 
@@ -159,8 +161,8 @@ Keep it tight. No preamble, no restating the whole handoff.
 
 ## Calibration anchors
 
-- **`adversarial-review` on a compliance-sensitive, cross-file change** → Opus 5 / high. The review's own reconnaissance sizes its fan-out; this is the *session* tier, and it is what the mandatory security and AI-systems lenses are judged at. Bump to max for a focused pass on the part that cannot be taken back.
-- **Add a nullable column + a one-line resolver change on a ~140-call-site hot path + form field** (e.g. TB-2936 Zoom `zoom_url`) → Sonnet 5 / medium; the migration alone would be Sonnet/low.
-- **Copy change / locale tweak / config bump** → Haiku 4.5 / low.
-- **Gate mode, a moderate forge** (bounded feature, decisions still open) → research Sonnet/medium → **switch up** to Opus 4.8/high for the design gate → **switch back down** to Sonnet/medium for `create_tasks` + `implement` → validate Sonnet/medium. Two main-model switches total; research, task-writing and implementation never leave Sonnet.
-- **Gate mode, `resume_handoff` into an implement phase** → Sonnet/medium (plan is locked, tasks are mechanical-to-moderate). The resume already reloaded context, so if the remaining work is gnarly it's a cheap moment to land on Opus 4.8/high (or Opus 5 if it's genuinely the hardest part) instead — the reload tax is already paid.
+- **`adversarial-review` on a compliance-sensitive, cross-file change** → Opus 5.5 / high. The review's own reconnaissance sizes its fan-out; this is the *session* tier, and it is what the mandatory security and AI-systems lenses are judged at. Bump to Fable 5.1 / high for a focused pass on the part that cannot be taken back.
+- **Add a nullable column + a one-line resolver change on a ~140-call-site hot path + form field** (e.g. TB-2936 Zoom `zoom_url`) → Sonnet 5.5 / medium; the migration alone would be Sonnet 5.5 / low.
+- **Copy change / locale tweak / config bump** → Haiku 5.5 / low.
+- **Gate mode, a moderate forge** (bounded feature, decisions still open) → research Opus 5.5 / medium → design Opus 5.5 / high → `create_tasks` + `implement` Opus 5.5 / medium → validate Opus 5.5 / high. No model switch, and two effort changes.
+- **Gate mode, `resume_handoff` into an implement phase** → Opus 5.5 / medium (plan is locked, tasks are mechanical-to-moderate). The resume already reloaded context, so if the remaining work is gnarly it's a cheap moment to land on Opus 5.5 / high (or Fable 5.1 / high if it's genuinely the hardest part) instead — the reload tax is already paid.

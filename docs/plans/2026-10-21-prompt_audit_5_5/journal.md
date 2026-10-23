@@ -62,6 +62,13 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-10-23 01:46 — P1-T7 (closed)
+
+- **Task/phase**: P1-T7 — model-help roster, ladder, mapping, baselines, and anchors for the 5.5 models
+- **Landed**: the 5.5 roster and prices, one Opus, the ladder Haiku 5.5 → Sonnet 5.5 → Opus 5.5 → Fable 5.1, Opus 5.5 baselines, and new anchors. `model-help` has 0 roster hits
+- **Commits**: the P1-T7 commit
+- **Learned**: a fact that compares with an old model ("Opus 5 at high") trips the roster check, so it now says "the previous Opus"
+
 ## 2026-10-23 01:44 — P1-T6 (closed)
 
 - **Task/phase**: P1-T6 — effort for each rung of the `implement` tier ladder, and remove the haiku-effort rule
