@@ -359,7 +359,7 @@ Annotate each with its projected tool-call cost; anything past ~50 splits at a n
 
 #### Testing
 
-- [ ] **P1-T9** — Run the Batch 0 gate and record it in
+- [x] **P1-T9** — Run the Batch 0 gate and record it in
       `docs/plans/2026-10-21-prompt_audit_5_5/trials/<date>-batch0-probe/RESULTS.md`.
       First run `checks/prompt-checks.sh spawn-names prose-spawns spawn-models agent-tiers roster
       haiku-effort-rule`. All six must PASS. Then run one headless probe from an empty git
@@ -373,7 +373,7 @@ Annotate each with its projected tool-call cost; anything past ~50 splits at a n
       from `"output_config":{"effort":…}`. Expected: locator and pattern-finder `claude-haiku-5-5`
       at `medium`, analyzer and product analyzer `claude-sonnet-5-5` at `medium`, validator and
       verifier `claude-sonnet-5-5` at `high`, worker `claude-sonnet-5-5` at `medium`, and the bare
-      name rejected with `Agent type '…' not found`. Add the cost to the spend ledger. (~25 calls)
+      name rejected with `Agent type '…' not found`. Add the cost to the spend ledger. (~25 calls) (completed 2026-10-23 01:48)
 
 #### Integration
 
@@ -1280,7 +1280,8 @@ resolved, leaving a dated line saying how.
   | ---- | ---- | ---- |
   | 2026-10-22 | Q2 blind trial, 320 runs | $3.62 |
   | 2026-10-22 | Test-coverage agent probes during planning | about $0.03 |
-  | | **Total** | **$3.65** |
+  | 2026-10-23 | P1-T9 Batch 0 spawn probe | $0.27 |
+  | | **Total** | **$3.92** |
 
 - **Budget plan** (estimates, to be replaced by measured costs): Batch 1 harness gate about $10
   for 2 repeats, Batch 4 research-only gate about $8, Batch 2 and Batch 3 blind trials about $2,
@@ -1330,6 +1331,9 @@ resolved, leaving a dated line saying how.
   no root `CLAUDE.md` pointer. `explore_design`, `resume_handoff:195`, and
   `forge/templates/model-plan.md` name the 5.5 models. In `daily-digest`, only the Critical row
   (`opus` at `xhigh`→`max`) and its guidance line contradicted `model-help`, so only those changed.
+- [2026-10-23] Completed P1-T9: PASS. All 7 agents ran at the Data Model tier, and the bare
+  name was rejected (`trials/2026-10-23-batch0-probe/RESULTS.md`). This validates A5 for every
+  agent that sets a model.
 - **Kept CAPS lines**: record each one here with its file, line, and reason, as the wording tasks
   run.
 

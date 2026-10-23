@@ -62,6 +62,12 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-10-23 01:47 — P1-T9 (closed)
+
+- **Task/phase**: P1-T9 — Batch 0 gate: mechanical checks and a headless spawn probe
+- **Landed**: trials/2026-10-23-batch0-probe/RESULTS.md. The six mechanical checks PASS, all 7 agents ran at their tier, and the bare name was rejected. Cost $0.27, ledger $3.92
+- **Commits**: the P1-T9 commit
+
 ## 2026-10-23 01:46 — P1-T8 (closed)
 
 - **Task/phase**: P1-T8 — gate lines delegate to model-help, and the other tier text names the 5.5 models
