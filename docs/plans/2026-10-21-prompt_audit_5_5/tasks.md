@@ -545,11 +545,11 @@ Annotate each with its projected tool-call cost; anything past ~50 splits at a n
       total at or under $30. If it does not, stop and ask the user. Then run
       `python3 evals/judge.py --run evals/runs/<ts> --within --fixture evals/fixture-large`. Record
       the commands, the costs, and the judge verdict in Implementation Notes. (~20 calls) (completed 2026-10-23 03:05)
-- [ ] **P2-T6** — Act on the P2-T5 verdict. If the judge reports no loss in any repeat, write "no
+- [x] **P2-T6** — Act on the P2-T5 verdict. If the judge reports no loss in any repeat, write "no
       loss" with the run timestamp in Implementation Notes. If it reports a lost fact, find the
       stage that lost it, `git revert` the P2 task commit for that stage, and record the fact and
       the revert. Re-run the gate only for that stage, and only if the ledger allows it. Otherwise
-      ask the user. (~15 calls)
+      ask the user. (~15 calls) (completed 2026-10-23 03:50)
 - [ ] **P2-T7** — Run `checks/prompt-checks.sh triple-barriers notification` scoped to the Phase 2
       files and confirm 0 for both. Compare the on-invoke cost of `create_research`,
       `create_product_research`, `create_design`, and `create_tasks` with
@@ -1284,7 +1284,8 @@ resolved, leaving a dated line saying how.
   | 2026-10-23 | P2-T5 harness repeat 1 (`evals/runs/20261023T024021Z`) | $3.80 |
   | 2026-10-23 | P2-T5 harness repeat 2 (`evals/runs/20261023T025258Z`) | $4.45 |
   | 2026-10-23 | P2-T5 judge, 4 calls (`judge.py` records no cost) | about $0.20, estimated |
-  | | **Total** | **about $12.37** |
+  | 2026-10-23 | P2-T6 harness repeat 3 (`evals/runs/20261023T033810Z`) and its judge | $3.47 + about $0.10 |
+  | | **Total** | **about $15.94** |
 
 - **Budget plan** (estimates, to be replaced by measured costs): Batch 1 harness gate about $10
   for 2 repeats, Batch 4 research-only gate about $8, Batch 2 and Batch 3 blind trials about $2,
@@ -1372,6 +1373,10 @@ resolved, leaving a dated line saying how.
     read-fully sentence, and one duplicate read-only line. It does not change how `create_tasks`
     carries assumptions (`create_tasks/SKILL.md:93`, the template's `## Implementation
     Discoveries`). Repeat 1 of the same tree lost nothing.
+- [2026-10-23] Completed P2-T6: the user chose a 3rd repeat before deciding. Repeat 3 on the same
+  tree ($3.47): `design.md` and `tasks.md` no loss. Over the 3 repeats, 1 of 6 judged documents
+  lost a fact (repeat 2 `tasks.md`, assumption A2), and the P2-T4 diff does not touch assumption
+  handling. Decision: keep P2-T4, and record the loss as run-to-run variance. No edit is reverted.
 - **Kept CAPS lines**: record each one here with its file, line, and reason, as the wording tasks
   run.
   - `create_research/SKILL.md:27` — the Documentarian Rule fence. It is the stage's one core

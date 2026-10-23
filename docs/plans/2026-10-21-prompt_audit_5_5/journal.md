@@ -62,6 +62,12 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-10-23 03:38 — P2-T6 (closed)
+
+- **Task/phase**: P2-T6 — act on the Batch 1 verdict
+- **Landed**: repeat 3 no loss. P2-T4 kept, and the repeat-2 loss is recorded as variance. Ledger about $15.94
+- **Commits**: the P2-T6 commit
+
 ## 2026-10-23 02:40 — P2-T5 (closed)
 
 - **Task/phase**: P2-T5 — Batch 1 harness gate on evals/fixture-large
