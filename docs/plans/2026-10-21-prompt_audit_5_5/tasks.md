@@ -1291,7 +1291,8 @@ resolved, leaving a dated line saying how.
   | 2026-10-23 | P4-T7 Batch 3 blind trial, 120 runs with the pilot | $0.48 |
   | 2026-10-23 | P5-T3 Batch 4 gate, 4 research runs (`evals/runs/20261023T071234Z`) and its judge | $5.22 + about $0.10 |
   | 2026-10-23 | P5-T4 confirmation, 2 research runs (`evals/runs/20261023T073333Z`) and its judge | $2.97 + about $0.05 |
-  | | **Total** | **about $27.87** |
+  | 2026-10-23 | P5-T4 ref-versus-path control, 2 research runs (`evals/runs/20261023T160436Z`) and its judge, approved over the limit by the user | $2.76 + about $0.05 |
+  | | **Total** | **about $30.68** |
 
 - **Budget plan** (estimates, to be replaced by measured costs): Batch 1 harness gate about $10
   for 2 repeats, Batch 4 research-only gate about $8, Batch 2 and Batch 3 blind trials about $2,
@@ -1485,6 +1486,12 @@ resolved, leaving a dated line saying how.
     runs (3 in Phase 2, 4 here) cited 4 to 6. The number of spawned agents varied from 3 to 5.
   - Reading: either this fixture's research output varies far more than 2 repeats can resolve, or
     a ref-versus-path artifact exists in the harness that this plan has not found.
+- [2026-10-23] P5-T4 control (the user chose it, and approved going over $30): HEAD built as a git
+  ref against HEAD as a path copy, identical content, 1 repeat each. The ref tree cited 9 expected
+  facts (142 references), and the path tree 12 (209 references). The judge found no loss. So there
+  is no ref-versus-path artifact: the research stage on `evals/fixture-large` varies from 4 to 12
+  expected facts between runs of identical text. At 2 repeats, the Batch 4 gate cannot tell an
+  edit's effect from that variance.
 - **Kept CAPS lines**: record each one here with its file, line, and reason, as the wording tasks
   run.
   - `create_research/SKILL.md:27` — the Documentarian Rule fence. It is the stage's one core
