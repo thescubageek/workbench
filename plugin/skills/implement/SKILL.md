@@ -239,8 +239,7 @@ const contextPackage = {
 
 ### Step 4: Take the Next Task
 
-**⛔ BARRIER 2: One task at a time, in document order** — the plan's order is the schedule, and
-two workers in flight would share one working tree
+**⛔ BARRIER 2: One task at a time, in document order** — two workers would share one tree
 
 The next task is the **first `- [ ]` line in the current phase**. Phases run in document order
 and tasks run in order within a phase, so the plan's ordering is the schedule.
@@ -307,8 +306,7 @@ plan's ~50-call task sizing are what address that.
 
 ### Step 6: After Each Worker Returns
 
-**⛔ BARRIER 3: Verify and commit before the next task** — the next worker starts from this
-working tree, so an unverified task becomes its starting point
+**⛔ BARRIER 3: Verify and commit before the next task** — the next worker starts from this tree
 
 #### 6a. Did the worker finish?
 

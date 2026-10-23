@@ -1418,7 +1418,8 @@ resolved, leaving a dated line saying how.
   `research-validator` stay on Sonnet 5.5 at `high`. No agent file or check changed.
 - [2026-10-23] Phase 3 verification: scoped to the Phase 3 files, `triple-barriers`,
   `notification`, and `caps` are 0, and `agent-tiers` passes. `./plugin/scripts/check` passes. On-invoke
-  tokens: `implement` 11.1k → 11.0k, `implement_inline` 7.8k → 7.7k, `tdd-discipline` and
+  tokens: `implement` 11.1k → 11.1k (it first measured 11.2k, so the BARRIER 2 and 3 reasons were
+  shortened), `implement_inline` 7.8k → 7.7k, `tdd-discipline` and
   `verification-before-completion` unchanged.
 - **Kept CAPS lines**: record each one here with its file, line, and reason, as the wording tasks
   run.
