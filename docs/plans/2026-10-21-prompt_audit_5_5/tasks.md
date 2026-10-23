@@ -537,14 +537,14 @@ Annotate each with its projected tool-call cost; anything past ~50 splits at a n
 
 #### Testing
 
-- [ ] **P2-T5** — Run the Batch 1 harness gate on the committed tree. Run
+- [x] **P2-T5** — Run the Batch 1 harness gate on the committed tree. Run
       `env -u CLAUDE_CODE_PLUGIN_DIRS python3 evals/run.py --before . --repeats 1 --model sonnet --stages research,design,tasks --fixture evals/fixture-large`.
       Read the cost of the repeat from its `meta.json` or from `python3 evals/report.py evals/runs/<ts>`.
       Add it to the spend ledger. Check A3 (about $5 a repeat) and A4 (the `create_research` session
       has a `subagents/` directory). Run a second repeat only if the ledger then projects the plan
       total at or under $30. If it does not, stop and ask the user. Then run
       `python3 evals/judge.py --run evals/runs/<ts> --within --fixture evals/fixture-large`. Record
-      the commands, the costs, and the judge verdict in Implementation Notes. (~20 calls)
+      the commands, the costs, and the judge verdict in Implementation Notes. (~20 calls) (completed 2026-10-23 03:05)
 - [ ] **P2-T6** — Act on the P2-T5 verdict. If the judge reports no loss in any repeat, write "no
       loss" with the run timestamp in Implementation Notes. If it reports a lost fact, find the
       stage that lost it, `git revert` the P2 task commit for that stage, and record the fact and
@@ -1281,7 +1281,10 @@ resolved, leaving a dated line saying how.
   | 2026-10-22 | Q2 blind trial, 320 runs | $3.62 |
   | 2026-10-22 | Test-coverage agent probes during planning | about $0.03 |
   | 2026-10-23 | P1-T9 Batch 0 spawn probe | $0.27 |
-  | | **Total** | **$3.92** |
+  | 2026-10-23 | P2-T5 harness repeat 1 (`evals/runs/20261023T024021Z`) | $3.80 |
+  | 2026-10-23 | P2-T5 harness repeat 2 (`evals/runs/20261023T025258Z`) | $4.45 |
+  | 2026-10-23 | P2-T5 judge, 4 calls (`judge.py` records no cost) | about $0.20, estimated |
+  | | **Total** | **about $12.37** |
 
 - **Budget plan** (estimates, to be replaced by measured costs): Batch 1 harness gate about $10
   for 2 repeats, Batch 4 research-only gate about $8, Batch 2 and Batch 3 blind trials about $2,
@@ -1354,6 +1357,21 @@ resolved, leaving a dated line saying how.
   single-marker barriers. No CAPS line is kept.
 - [2026-10-23] Completed P2-T4: 3 single-marker barriers, the two MUST prerequisites as plain
   items, the read-fully wording, and the read-only line deleted from `sub-agent-prompts.md`.
+- [2026-10-23] Completed P2-T5: 2 harness repeats on `evals/fixture-large`, Sonnet 5.5, each run
+  under `env -u CLAUDE_CODE_PLUGIN_DIRS` on the tree at `b7aea6e`. Every stage wrote its document.
+  - Cost: repeat 1 $3.80 (research $1.36, design $1.07, tasks $1.38), repeat 2 $4.45. A3 (about $5
+    a repeat) holds.
+  - A4 holds: the repeat-1 research session spawned `wb:codebase-locator` and `wb:pattern-finder`
+    on `claude-haiku-5-5` and two `wb:codebase-analyzer` on `claude-sonnet-5-5`, all at `medium`.
+    The stage sessions ran at `medium`.
+  - Judge (`judge.py --within --fixture evals/fixture-large`): repeat 1 no loss for `design.md`
+    and `tasks.md`. Repeat 2: `design.md` no loss, `tasks.md` LOSS. Its `lost_ids` is `A2`, and
+    `other_losses` says the plan dropped the design's pending assumption A2 (the unverified
+    consumers of `max_body_bytes`) from Implementation Discoveries and stated it as settled.
+  - Attribution: the P2-T4 diff changes only the 3 barrier lines, the 2 prerequisite lines, the
+    read-fully sentence, and one duplicate read-only line. It does not change how `create_tasks`
+    carries assumptions (`create_tasks/SKILL.md:93`, the template's `## Implementation
+    Discoveries`). Repeat 1 of the same tree lost nothing.
 - **Kept CAPS lines**: record each one here with its file, line, and reason, as the wording tasks
   run.
   - `create_research/SKILL.md:27` — the Documentarian Rule fence. It is the stage's one core

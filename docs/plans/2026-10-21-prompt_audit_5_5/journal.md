@@ -62,6 +62,13 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-10-23 02:40 — P2-T5 (closed)
+
+- **Task/phase**: P2-T5 — Batch 1 harness gate on evals/fixture-large
+- **Landed**: 2 repeats ($3.80, $4.45). Judge: repeat 1 no loss. Repeat 2 tasks.md lost design assumption A2. Ledger about $12.37
+- **Commits**: the P2-T5 commit
+- **Learned**: the P2-T4 diff does not touch assumption handling, so the loss is likely run-to-run variance. P2-T6 needs the user's decision
+
 ## 2026-10-23 02:39 — P2-T4 (closed)
 
 - **Task/phase**: P2-T4 — the wording rules in create_tasks
