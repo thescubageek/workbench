@@ -16,7 +16,7 @@ This skill evolves `implement_inline` with one key improvement:
 - ⛔ BARRIER synchronization points
 - TDD cycle enforcement (Red → Green → Refactor)
 - Checkbox state in `tasks.md` as the single status surface
-- ZERO SCOPE CREEP discipline
+- Scope discipline: only what tasks.md specifies
 - Phase boundary verification
 - Manual verification checkpoints
 
