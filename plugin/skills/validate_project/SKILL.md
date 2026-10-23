@@ -61,10 +61,12 @@ the counts win.
 
 ### Step 1: Read All Documentation
 
-**⛔ BARRIER 1: Read ALL files FULLY - no shortcuts**
+**⛔ BARRIER 1: Read every file in full** — a check against a partial reading passes rules it never
+saw
 
 Take the project directory from the arguments, prompting for it if it is missing. Then read
-every document it holds — **fully**, no `limit` or `offset`. On a **phased project**,
+every document it holds, in full. Read the whole file. If Read returns a partial view, page
+through it with `offset` and `limit`. On a **phased project**,
 `research.md`, `design.md` and `tasks.md` are required; `journal.md` and any `handoff*.md` are
 optional and validated only when present.
 
@@ -89,9 +91,9 @@ spot on the file that *is* the whole plan.
    ```
 
 2. **Read all required files**:
-   - Read research.md FULLY (a remediation plan has none — skip it)
-   - Read design.md FULLY (a remediation plan has none — skip it)
-   - Read tasks.md FULLY
+   - Read research.md in full (a remediation plan has none — skip it)
+   - Read design.md in full (a remediation plan has none — skip it)
+   - Read tasks.md in full
    - Read journal.md and handoff.md if they exist
 
 3. **Parse frontmatter** from each file

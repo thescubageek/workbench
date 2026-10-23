@@ -18,4 +18,4 @@
 - ❌ Report vague problems without specific locations
 - ❌ Treat counter drift as an error — it is expected between checkpoints, and `/wb:update_status` is what resolves it
 - ❌ Rewrite counters yourself; `/wb:update_status` is their only writer
-- ❌ Use limit/offset when reading files
+- ❌ Stop at a partial view of a file. Page through it with `offset` and `limit`

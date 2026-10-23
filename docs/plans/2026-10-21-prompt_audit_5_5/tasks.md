@@ -806,8 +806,8 @@ barrier without a reason, or the "no limit/offset" wording. Narrow the `review-p
 
 ### Prerequisites
 
-- [ ] Phase 3 complete and verified
-- [ ] Phase 3 manual testing confirmed — *an attestation, like the checkpoint's. Under
+- [x] Phase 3 complete and verified
+- [x] Phase 3 manual testing confirmed — *an attestation, like the checkpoint's. Under
       `/wb:implement --auto` it stays `[ ]` and the phase proceeds anyway; the previous phase's
       checkpoint records that nobody was asked. Unticked here means deferred, not blocked.*
 
@@ -866,9 +866,9 @@ Annotate each with its projected tool-call cost; anything past ~50 splits at a n
 
 #### Implementation
 
-- [ ] **P4-T1** — Apply the wording rules to `validate_execution/SKILL.md`,
+- [x] **P4-T1** — Apply the wording rules to `validate_execution/SKILL.md`,
       `validate_project/SKILL.md`, `validate_project/reference/important-guidelines.md`, and
-      `research-validation/SKILL.md`. (~25 calls)
+      `research-validation/SKILL.md`. (~25 calls) (completed 2026-10-23 04:58)
 - [ ] **P4-T2** — Apply the wording rules to `update_status/SKILL.md` and its two reference
       files. (~18 calls)
 - [ ] **P4-T3** — Apply the wording rules to `create_handoff/SKILL.md`, `create_handoff/reference.md`,
@@ -1422,6 +1422,9 @@ resolved, leaving a dated line saying how.
   shortened), `implement_inline` 7.8k → 7.7k, `tdd-discipline` and
   `verification-before-completion` unchanged.
 - [2026-10-23] Phase 3 manual verification confirmed by the user ("continue"), 2026-10-23 04:58 UTC.
+- [2026-10-23] Completed P4-T1: `validate_execution` has 3 single-marker barriers, BARRIER 2 naming
+  the completion notification, and a plain read-only line. `validate_project` BARRIER 1 gains a
+  reason. The read-fully wording now pages through a partial view in all four files. 0 CAPS lines.
 - **Kept CAPS lines**: record each one here with its file, line, and reason, as the wording tasks
   run.
   - `create_research/SKILL.md:27` — the Documentarian Rule fence. It is the stage's one core

@@ -37,7 +37,8 @@ If both exist, validate whichever the user specifies. If unspecified, ask.
 
 ### 2. Read It Fully
 
-Read the entire document. No limit/offset. Full context required.
+Read the entire document. If Read returns a partial view, page through it with `offset` and
+`limit`. Every claim needs its context.
 
 ### 3. Check Every Claim
 

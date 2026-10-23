@@ -62,6 +62,12 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-10-23 04:58 — P4-T1 (closed)
+
+- **Task/phase**: P4-T1 — the wording rules in the validation skills
+- **Landed**: 4 barriers with reasons, the read-fully wording, and 0 CAPS lines in the four files
+- **Commits**: the P4-T1 commit
+
 ## 2026-10-23 04:36 — P3-T9 (closed)
 
 - **Task/phase**: P3-T9 — run the verifier trial to 3 repeats, apply the decision rule
