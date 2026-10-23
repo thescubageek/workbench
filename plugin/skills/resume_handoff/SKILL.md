@@ -43,7 +43,7 @@ When invoked, check for arguments:
 
 ### Step 1: Read and Validate Handoff
 
-**⛔⛔⛔ BARRIER 1: STOP! Read handoff document COMPLETELY - every section matters ⛔⛔⛔**
+⛔ BARRIER 1: the handoff document is read in full — every section matters, and the one you skip is the one that names the blocker
 
 Take the handoff file path from the arguments, prompting for it if it is missing.
 

@@ -62,6 +62,12 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-10-23 04:59 — P4-T3 (closed)
+
+- **Task/phase**: P4-T3 — the wording rules in create_handoff and resume_handoff
+- **Landed**: 3 barriers with reasons and the read-fully wording. 0 CAPS lines
+- **Commits**: the P4-T3 commit
+
 ## 2026-10-23 04:58 — P4-T2 (closed)
 
 - **Task/phase**: P4-T2 — the wording rules in update_status

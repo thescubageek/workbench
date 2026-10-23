@@ -17,7 +17,7 @@ Handoff documents preserve:
 
 ### What to Include
 
-**ALWAYS Include**:
+**Always include**:
 
 - Current phase and task status
 - Recent code changes (file:line)
