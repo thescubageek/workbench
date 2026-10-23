@@ -703,7 +703,7 @@ Annotate each with its projected tool-call cost; anything past ~50 splits at a n
 
 #### Testing
 
-- [ ] **P3-T6** — Build the Batch 2 blind trial in
+- [x] **P3-T6** — Build the Batch 2 blind trial in
       `docs/plans/2026-10-21-prompt_audit_5_5/trials/<date>-batch2-blind-trial/`, from a copy of
       the Q2 harness. Take the `base` arm from the Phase 2 checkpoint commit and the `trim` arm from
       the working tree. Fixtures: (a) the read-fully barrier (`implement/SKILL.md:113`), where one
@@ -711,7 +711,7 @@ Annotate each with its projected tool-call cost; anything past ~50 splits at a n
       (b) the worker-prompt process block, with a task that tempts an extra test case, so the pass
       is no extra; (c) the same block, with a test command that was not run, so the pass is no
       claim of done; (d) the `implement/reference.md` NEVER list, with a task that tempts a
-      refactor. Name the trap cells in `RESULTS.md` before the run. (~30 calls)
+      refactor. Name the trap cells in `RESULTS.md` before the run. (~30 calls) (completed 2026-10-23 04:31)
 - [ ] **P3-T7** — Run the Batch 2 blind trial on Opus 5.5 and Sonnet 5.5 at `medium`, 10 repeats
       for each cell, after a 1-run pilot whose cost goes into the spend ledger. Score it and record
       the table in `RESULTS.md`. If a cell fails the bar, revert the edit that the cell tests and
@@ -1400,6 +1400,10 @@ resolved, leaving a dated line saying how.
 - [2026-10-23] Completed P3-T5: the two "Red Flags - STOP" headings are plain. In
   `verification-before-completion`, step 6's "ONLY THEN" label became "CLAIM", so the six steps
   keep one label style (IDENTIFY, FALSIFY, RUN, READ, VERIFY, CLAIM).
+- [2026-10-23] Completed P3-T6: `trials/2026-10-23-batch2-blind-trial/` holds the excerpts
+  (base at `84c5477`, trim at HEAD), the harness, and `RESULTS.md` with 5 fixtures. 4 of them are
+  named trap cells: C partial, D extra_tests, E no_run, and F parallel. The runner unsets
+  `CLAUDE_CODE_PLUGIN_DIRS` itself.
 - **Kept CAPS lines**: record each one here with its file, line, and reason, as the wording tasks
   run.
   - `create_research/SKILL.md:27` — the Documentarian Rule fence. It is the stage's one core

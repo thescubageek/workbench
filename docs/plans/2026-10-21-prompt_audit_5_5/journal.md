@@ -62,6 +62,12 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-10-23 04:30 — P3-T6 (closed)
+
+- **Task/phase**: P3-T6 — build the Batch 2 blind trial
+- **Landed**: 5 fixtures, 4 named trap cells, harness and scorer. Not yet run
+- **Commits**: the P3-T6 commit
+
 ## 2026-10-23 04:29 — P3-T5 (closed)
 
 - **Task/phase**: P3-T5 — the wording rules in tdd-discipline and verification-before-completion
