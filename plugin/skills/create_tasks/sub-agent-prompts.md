@@ -4,9 +4,6 @@ Read this when Step 2 directs you to. All three agents spawn together, in parall
 file whole. Use the prompts verbatim, and substitute the bracketed placeholders from
 research.md and design.md.
 
-**Sub-agents are READ-ONLY** — they return findings only; YOU write `tasks.md` after
-synthesizing.
-
 ## Agent 1: Analyze file dependencies
 
 ```javascript

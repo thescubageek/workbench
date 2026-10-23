@@ -532,8 +532,8 @@ Annotate each with its projected tool-call cost; anything past ~50 splits at a n
       and `sub-agent-prompts.md`. (~30 calls) (completed 2026-10-23 02:38)
 - [x] **P2-T3** — Apply the wording rules to `create_design/SKILL.md`, `reference.md`, and
       `sub-agent-prompts.md`. (~25 calls) (completed 2026-10-23 02:39)
-- [ ] **P2-T4** — Apply the wording rules to `create_tasks/SKILL.md` and `sub-agent-prompts.md`.
-      (~15 calls)
+- [x] **P2-T4** — Apply the wording rules to `create_tasks/SKILL.md` and `sub-agent-prompts.md`.
+      (~15 calls) (completed 2026-10-23 02:40)
 
 #### Testing
 
@@ -1352,6 +1352,8 @@ resolved, leaving a dated line saying how.
   "Scope: what and why, not how" section with its reason, and it points to the full list in
   `reference.md`. `reference.md` dropped its restating principle and its REMEMBER line. 3
   single-marker barriers. No CAPS line is kept.
+- [2026-10-23] Completed P2-T4: 3 single-marker barriers, the two MUST prerequisites as plain
+  items, the read-fully wording, and the read-only line deleted from `sub-agent-prompts.md`.
 - **Kept CAPS lines**: record each one here with its file, line, and reason, as the wording tasks
   run.
   - `create_research/SKILL.md:27` — the Documentarian Rule fence. It is the stage's one core

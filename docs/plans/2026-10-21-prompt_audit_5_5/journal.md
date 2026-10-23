@@ -62,6 +62,12 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-10-23 02:39 — P2-T4 (closed)
+
+- **Task/phase**: P2-T4 — the wording rules in create_tasks
+- **Landed**: 3 single-marker barriers and plain prerequisites. 0 CAPS lines remain
+- **Commits**: the P2-T4 commit
+
 ## 2026-10-23 02:38 — P2-T3 (closed)
 
 - **Task/phase**: P2-T3 — the wording rules in create_design
