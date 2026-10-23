@@ -1,0 +1,120 @@
+{
+ "duration_api_ms": 2585,
+ "stop_reason": "end_turn",
+ "session_id": "27b15ee6-ff45-4ffd-bc69-34d0d6b225ca",
+ "total_cost_usd": 0.00211928,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 0,
+  "cache_read_input_tokens": 4874,
+  "output_tokens": 140,
+  "output_tokens_details": {
+   "thinking_tokens": 0
+  },
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 0,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "global",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 140,
+    "cache_read_input_tokens": 4874,
+    "cache_creation_input_tokens": 0,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 0
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard",
+  "fallback_credit": null
+ },
+ "modelUsage": {
+  "claude-haiku-5-5": {
+   "inputTokens": 2032,
+   "outputTokens": 23,
+   "cacheReadInputTokens": 1318,
+   "cacheCreationInputTokens": 0,
+   "webSearchRequests": 0,
+   "costUSD": 0.00022788000000000002,
+   "contextWindow": 1000000,
+   "maxOutputTokens": 128000,
+   "thinkingTokens": 0,
+   "canonicalModel": "claude-haiku-5-5",
+   "provider": "firstParty",
+   "costBasis": "list"
+  },
+  "claude-sonnet-5-5": {
+   "inputTokens": 2,
+   "outputTokens": 140,
+   "cacheReadInputTokens": 4874,
+   "cacheCreationInputTokens": 0,
+   "webSearchRequests": 0,
+   "costUSD": 0.0018914,
+   "contextWindow": 1000000,
+   "maxOutputTokens": 128000,
+   "thinkingTokens": 0,
+   "canonicalModel": "claude-sonnet-5-5",
+   "provider": "firstParty",
+   "costBasis": "list"
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "fast_mode_disabled_reason": "sdk_opt_in_required",
+ "subagent_stats": {
+  "spawned": 0,
+  "requested": {
+   "background": 0,
+   "foreground": 0,
+   "unset": 0
+  },
+  "started_in_background": 0,
+  "max_depth": 0,
+  "spawned_by_subagents": 0,
+  "completed": 0,
+  "failed": 0,
+  "killed": {
+   "parent": 0,
+   "user": 0,
+   "system": 0
+  },
+  "refused": {
+   "depth_limit": 0,
+   "concurrency_limit": 0,
+   "budget": 0
+  },
+  "by_type": {}
+ },
+ "safety_stops": 0,
+ "is_error": false,
+ "num_turns": 1,
+ "subtype": "success",
+ "api_error_status": null,
+ "result": "DECISION: PROCEED\n\nAll four reads (research.md, design.md, tasks.md, knowledge.md) returned the full file with line counts, and nothing indicates truncation or a partial view, so Barrier 1 is satisfied and no paging is needed. Nothing in the excerpt calls for stopping to ask the user. I'll continue to Step 2, treating the knowledge.md entries as dated claims to re-check.",
+ "ttft_ms": 2108,
+ "type": "result",
+ "duration_ms": 2124,
+ "uuid": "7a7cfa69-c7af-4bac-b856-b75601a0713d",
+ "ttft_stream_ms": 1288,
+ "time_to_request_ms": 369,
+ "first_content_frame_ms": 1289,
+ "queued_turn_count": 0,
+ "result_index": 0,
+ "job": {
+  "set": "C",
+  "arm": "trim",
+  "fixture": "positive",
+  "model": "sonnet",
+  "rep": 2
+ }
+}

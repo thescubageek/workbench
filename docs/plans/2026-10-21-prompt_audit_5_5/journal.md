@@ -62,6 +62,12 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-10-23 04:31 — P3-T7 (closed)
+
+- **Task/phase**: P3-T7 — run the Batch 2 blind trial
+- **Landed**: PASS in every cell, 200 runs, $1.13. Ledger about $17.07
+- **Commits**: the P3-T7 commit
+
 ## 2026-10-23 04:30 — P3-T6 (closed)
 
 - **Task/phase**: P3-T6 — build the Batch 2 blind trial

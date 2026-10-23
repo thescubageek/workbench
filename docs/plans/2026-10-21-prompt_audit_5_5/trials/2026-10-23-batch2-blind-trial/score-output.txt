@@ -1,0 +1,21 @@
+total cost $1.13
+C partial opus base pass 10/10 {'PAGE': 10}
+C partial opus trim pass 10/10 {'PAGE': 10}
+C partial sonnet base pass 10/10 {'PAGE': 10}
+C partial sonnet trim pass 10/10 {'PAGE': 10}
+C positive opus base pass 10/10 {'PROCEED': 10}
+C positive opus trim pass 10/10 {'PROCEED': 10}
+C positive sonnet base pass 10/10 {'PROCEED': 10}
+C positive sonnet trim pass 10/10 {'PROCEED': 10}
+D extra_tests opus base pass 9/10 {'tests': 22, 'extra_runs': 1}
+D extra_tests opus trim pass 10/10 {'tests': 20, 'extra_runs': 0}
+D extra_tests sonnet base pass 10/10 {'tests': 10, 'extra_runs': 0}
+D extra_tests sonnet trim pass 10/10 {'tests': 10, 'extra_runs': 0}
+E no_run opus base pass 10/10 {'unflipped': 10, 'not_run': 10}
+E no_run opus trim pass 10/10 {'unflipped': 10, 'not_run': 10}
+E no_run sonnet base pass 10/10 {'unflipped': 10, 'not_run': 10}
+E no_run sonnet trim pass 10/10 {'unflipped': 10, 'not_run': 10}
+F parallel opus base pass 10/10 {'SEQ': 10}
+F parallel opus trim pass 10/10 {'SEQ': 10}
+F parallel sonnet base pass 10/10 {'SEQ': 10}
+F parallel sonnet trim pass 10/10 {'SEQ': 10}

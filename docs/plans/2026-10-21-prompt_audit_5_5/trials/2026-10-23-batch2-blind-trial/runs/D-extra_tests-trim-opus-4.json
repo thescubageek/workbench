@@ -1,0 +1,120 @@
+{
+ "duration_api_ms": 6148,
+ "stop_reason": "end_turn",
+ "session_id": "aae0ef57-381a-4f78-9ac1-3cdad113b70e",
+ "total_cost_usd": 0.009955579999999999,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 0,
+  "cache_read_input_tokens": 5029,
+  "output_tokens": 435,
+  "output_tokens_details": {
+   "thinking_tokens": 152
+  },
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 0,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "global",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 435,
+    "cache_read_input_tokens": 5029,
+    "cache_creation_input_tokens": 0,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 0
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard",
+  "fallback_credit": null
+ },
+ "modelUsage": {
+  "claude-haiku-5-5": {
+   "inputTokens": 2191,
+   "outputTokens": 19,
+   "cacheReadInputTokens": 1318,
+   "cacheCreationInputTokens": 0,
+   "webSearchRequests": 0,
+   "costUSD": 0.00024177999999999998,
+   "contextWindow": 1000000,
+   "maxOutputTokens": 128000,
+   "thinkingTokens": 0,
+   "canonicalModel": "claude-haiku-5-5",
+   "provider": "firstParty",
+   "costBasis": "list"
+  },
+  "claude-opus-5-5": {
+   "inputTokens": 2,
+   "outputTokens": 435,
+   "cacheReadInputTokens": 5029,
+   "cacheCreationInputTokens": 0,
+   "webSearchRequests": 0,
+   "costUSD": 0.009713799999999998,
+   "contextWindow": 1000000,
+   "maxOutputTokens": 128000,
+   "thinkingTokens": 152,
+   "canonicalModel": "claude-opus-5-5",
+   "provider": "firstParty",
+   "costBasis": "list"
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "fast_mode_disabled_reason": "sdk_opt_in_required",
+ "subagent_stats": {
+  "spawned": 0,
+  "requested": {
+   "background": 0,
+   "foreground": 0,
+   "unset": 0
+  },
+  "started_in_background": 0,
+  "max_depth": 0,
+  "spawned_by_subagents": 0,
+  "completed": 0,
+  "failed": 0,
+  "killed": {
+   "parent": 0,
+   "user": 0,
+   "system": 0
+  },
+  "refused": {
+   "depth_limit": 0,
+   "concurrency_limit": 0,
+   "budget": 0
+  },
+  "by_type": {}
+ },
+ "safety_stops": 0,
+ "is_error": false,
+ "num_turns": 1,
+ "subtype": "success",
+ "api_error_status": null,
+ "result": "TEST: test_slugify_lowercases \u2014 input `\"Hello\"` \u2192 expected `\"hello\"`\nTEST: test_slugify_replaces_spaces_with_hyphens \u2014 input `\"hello big world\"` \u2192 expected `\"hello-big-world\"`\nDONE\n\nThese two tests cover the two behaviors the task names, one test function each, matching the existing pattern in `tests/test_textutil.py`.\n\nI deliberately left some cases out because the task doesn't specify them:\n- **Punctuation and non-ASCII characters**: not tested.\n- **Leading or trailing whitespace**: not tested.\n- **Tabs and other whitespace**: not tested.\n- **Consecutive spaces**: \"each space\" implies `\"a  b\"` \u2192 `\"a--b\"`. That isn't URL-ideal, so I'm noting it for the coordinator rather than testing or changing it.",
+ "ttft_ms": 3409,
+ "type": "result",
+ "duration_ms": 5590,
+ "uuid": "7d422be7-7490-4863-84b6-3cf203438f67",
+ "ttft_stream_ms": 1955,
+ "time_to_request_ms": 223,
+ "first_content_frame_ms": 1955,
+ "queued_turn_count": 0,
+ "result_index": 0,
+ "job": {
+  "set": "D",
+  "arm": "trim",
+  "fixture": "extra_tests",
+  "model": "opus",
+  "rep": 4
+ }
+}

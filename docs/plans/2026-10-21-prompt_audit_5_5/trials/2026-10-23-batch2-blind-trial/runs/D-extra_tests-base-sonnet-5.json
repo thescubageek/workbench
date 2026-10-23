@@ -1,0 +1,120 @@
+{
+ "duration_api_ms": 3174,
+ "stop_reason": "end_turn",
+ "session_id": "356266bf-a651-4854-93f8-17726e897810",
+ "total_cost_usd": 0.0019322800000000004,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 0,
+  "cache_read_input_tokens": 5099,
+  "output_tokens": 117,
+  "output_tokens_details": {
+   "thinking_tokens": 0
+  },
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 0,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "global",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 117,
+    "cache_read_input_tokens": 5099,
+    "cache_creation_input_tokens": 0,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 0
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard",
+  "fallback_credit": null
+ },
+ "modelUsage": {
+  "claude-haiku-5-5": {
+   "inputTokens": 2257,
+   "outputTokens": 19,
+   "cacheReadInputTokens": 1318,
+   "cacheCreationInputTokens": 0,
+   "webSearchRequests": 0,
+   "costUSD": 0.00024838000000000003,
+   "contextWindow": 1000000,
+   "maxOutputTokens": 128000,
+   "thinkingTokens": 0,
+   "canonicalModel": "claude-haiku-5-5",
+   "provider": "firstParty",
+   "costBasis": "list"
+  },
+  "claude-sonnet-5-5": {
+   "inputTokens": 2,
+   "outputTokens": 117,
+   "cacheReadInputTokens": 5099,
+   "cacheCreationInputTokens": 0,
+   "webSearchRequests": 0,
+   "costUSD": 0.0016839000000000003,
+   "contextWindow": 1000000,
+   "maxOutputTokens": 128000,
+   "thinkingTokens": 0,
+   "canonicalModel": "claude-sonnet-5-5",
+   "provider": "firstParty",
+   "costBasis": "list"
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "fast_mode_disabled_reason": "sdk_opt_in_required",
+ "subagent_stats": {
+  "spawned": 0,
+  "requested": {
+   "background": 0,
+   "foreground": 0,
+   "unset": 0
+  },
+  "started_in_background": 0,
+  "max_depth": 0,
+  "spawned_by_subagents": 0,
+  "completed": 0,
+  "failed": 0,
+  "killed": {
+   "parent": 0,
+   "user": 0,
+   "system": 0
+  },
+  "refused": {
+   "depth_limit": 0,
+   "concurrency_limit": 0,
+   "budget": 0
+  },
+  "by_type": {}
+ },
+ "safety_stops": 0,
+ "is_error": false,
+ "num_turns": 1,
+ "subtype": "success",
+ "api_error_status": null,
+ "result": "The task specifies one behavior (lowercase the title and replace each space with a hyphen), and the pattern is one test function per behavior. I'll write a single test covering that.\n\nTEST: test_slugify \u2014 input `\"Hello World Example\"` \u2192 expected `\"hello-world-example\"` (verifies both lowercasing and that each space becomes a hyphen)\n\nDONE",
+ "ttft_ms": 2594,
+ "type": "result",
+ "duration_ms": 2609,
+ "uuid": "8559c0cf-667a-4343-a2ab-b12c3670f69b",
+ "ttft_stream_ms": 1748,
+ "time_to_request_ms": 145,
+ "first_content_frame_ms": 1748,
+ "queued_turn_count": 0,
+ "result_index": 0,
+ "job": {
+  "set": "D",
+  "arm": "base",
+  "fixture": "extra_tests",
+  "model": "sonnet",
+  "rep": 5
+ }
+}

@@ -1,0 +1,120 @@
+{
+ "duration_api_ms": 4981,
+ "stop_reason": "end_turn",
+ "session_id": "44a5e422-2cfa-4fef-a0be-e69e44eabbaa",
+ "total_cost_usd": 0.00924818,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 1773,
+  "cache_read_input_tokens": 3172,
+  "output_tokens": 142,
+  "output_tokens_details": {
+   "thinking_tokens": 0
+  },
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 1773,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "global",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 142,
+    "cache_read_input_tokens": 3172,
+    "cache_creation_input_tokens": 1773,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 1773
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard",
+  "fallback_credit": null
+ },
+ "modelUsage": {
+  "claude-haiku-5-5": {
+   "inputTokens": 2103,
+   "outputTokens": 383,
+   "cacheReadInputTokens": 1318,
+   "cacheCreationInputTokens": 0,
+   "webSearchRequests": 0,
+   "costUSD": 0.00041498,
+   "contextWindow": 1000000,
+   "maxOutputTokens": 128000,
+   "thinkingTokens": 363,
+   "canonicalModel": "claude-haiku-5-5",
+   "provider": "firstParty",
+   "costBasis": "list"
+  },
+  "claude-sonnet-5-5": {
+   "inputTokens": 2,
+   "outputTokens": 142,
+   "cacheReadInputTokens": 3172,
+   "cacheCreationInputTokens": 1773,
+   "webSearchRequests": 0,
+   "costUSD": 0.0088332,
+   "contextWindow": 1000000,
+   "maxOutputTokens": 128000,
+   "thinkingTokens": 0,
+   "canonicalModel": "claude-sonnet-5-5",
+   "provider": "firstParty",
+   "costBasis": "list"
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "fast_mode_disabled_reason": "sdk_opt_in_required",
+ "subagent_stats": {
+  "spawned": 0,
+  "requested": {
+   "background": 0,
+   "foreground": 0,
+   "unset": 0
+  },
+  "started_in_background": 0,
+  "max_depth": 0,
+  "spawned_by_subagents": 0,
+  "completed": 0,
+  "failed": 0,
+  "killed": {
+   "parent": 0,
+   "user": 0,
+   "system": 0
+  },
+  "refused": {
+   "depth_limit": 0,
+   "concurrency_limit": 0,
+   "budget": 0
+  },
+  "by_type": {}
+ },
+ "safety_stops": 0,
+ "is_error": false,
+ "num_turns": 1,
+ "subtype": "success",
+ "api_error_status": null,
+ "result": "DECISION: PAGE\n\nThe Read of design.md was truncated at line 600 of 1450, and the skill's Barrier 1 requires reading every documentation file fully with no shortcuts. The remaining 850 lines (second half of Technical Decisions, plus success criteria and verification requirements) are what the phase depends on, so I need to continue with offset 601 and a suitable limit until the whole file is read before moving to Step 2.",
+ "ttft_ms": 2732,
+ "type": "result",
+ "duration_ms": 2751,
+ "uuid": "e639038f-b18a-4b04-8cc0-a3b8e01b8e83",
+ "ttft_stream_ms": 1350,
+ "time_to_request_ms": 86,
+ "first_content_frame_ms": 1350,
+ "queued_turn_count": 0,
+ "result_index": 0,
+ "job": {
+  "set": "C",
+  "arm": "base",
+  "fixture": "partial",
+  "model": "sonnet",
+  "rep": 0
+ }
+}

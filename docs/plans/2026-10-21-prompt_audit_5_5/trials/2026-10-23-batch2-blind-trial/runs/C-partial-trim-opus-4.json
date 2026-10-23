@@ -1,0 +1,120 @@
+{
+ "duration_api_ms": 4797,
+ "stop_reason": "end_turn",
+ "session_id": "0b60c271-81b4-4186-b697-e9ccf2b4b782",
+ "total_cost_usd": 0.004557480000000001,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 0,
+  "cache_read_input_tokens": 4962,
+  "output_tokens": 157,
+  "output_tokens_details": {
+   "thinking_tokens": 0
+  },
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 0,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "global",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 157,
+    "cache_read_input_tokens": 4962,
+    "cache_creation_input_tokens": 0,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 0
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard",
+  "fallback_credit": null
+ },
+ "modelUsage": {
+  "claude-haiku-5-5": {
+   "inputTokens": 2124,
+   "outputTokens": 383,
+   "cacheReadInputTokens": 1318,
+   "cacheCreationInputTokens": 0,
+   "webSearchRequests": 0,
+   "costUSD": 0.00041708,
+   "contextWindow": 1000000,
+   "maxOutputTokens": 128000,
+   "thinkingTokens": 363,
+   "canonicalModel": "claude-haiku-5-5",
+   "provider": "firstParty",
+   "costBasis": "list"
+  },
+  "claude-opus-5-5": {
+   "inputTokens": 2,
+   "outputTokens": 157,
+   "cacheReadInputTokens": 4962,
+   "cacheCreationInputTokens": 0,
+   "webSearchRequests": 0,
+   "costUSD": 0.004140400000000001,
+   "contextWindow": 1000000,
+   "maxOutputTokens": 128000,
+   "thinkingTokens": 0,
+   "canonicalModel": "claude-opus-5-5",
+   "provider": "firstParty",
+   "costBasis": "list"
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "fast_mode_disabled_reason": "sdk_opt_in_required",
+ "subagent_stats": {
+  "spawned": 0,
+  "requested": {
+   "background": 0,
+   "foreground": 0,
+   "unset": 0
+  },
+  "started_in_background": 0,
+  "max_depth": 0,
+  "spawned_by_subagents": 0,
+  "completed": 0,
+  "failed": 0,
+  "killed": {
+   "parent": 0,
+   "user": 0,
+   "system": 0
+  },
+  "refused": {
+   "depth_limit": 0,
+   "concurrency_limit": 0,
+   "budget": 0
+  },
+  "by_type": {}
+ },
+ "safety_stops": 0,
+ "is_error": false,
+ "num_turns": 1,
+ "subtype": "success",
+ "api_error_status": null,
+ "result": "DECISION: PAGE\n\ndesign.md was only partially read (lines 1-600 of 1450), and Barrier 1 requires research.md, design.md, and tasks.md to be read in full before proceeding. The unread remainder likely contains the rest of Technical Decisions plus the success criteria and verification requirements that workers must be briefed on. I'll page through design.md with `offset: 600` and a suitable `limit` until all 1450 lines are read, then continue to Step 2.",
+ "ttft_ms": 2555,
+ "type": "result",
+ "duration_ms": 2579,
+ "uuid": "77c0eec2-f86a-4b26-9a68-46f60169791f",
+ "ttft_stream_ms": 1220,
+ "time_to_request_ms": 116,
+ "first_content_frame_ms": 1220,
+ "queued_turn_count": 0,
+ "result_index": 0,
+ "job": {
+  "set": "C",
+  "arm": "trim",
+  "fixture": "partial",
+  "model": "opus",
+  "rep": 4
+ }
+}

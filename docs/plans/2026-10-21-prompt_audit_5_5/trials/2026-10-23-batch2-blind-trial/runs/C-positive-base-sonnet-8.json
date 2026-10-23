@@ -1,0 +1,120 @@
+{
+ "duration_api_ms": 6307,
+ "stop_reason": "end_turn",
+ "session_id": "66b8ae7e-3ff3-4cb5-b0cb-d004fe4f794c",
+ "total_cost_usd": 0.0025415800000000003,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 0,
+  "cache_read_input_tokens": 4853,
+  "output_tokens": 171,
+  "output_tokens_details": {
+   "thinking_tokens": 0
+  },
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 0,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "global",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 171,
+    "cache_read_input_tokens": 4853,
+    "cache_creation_input_tokens": 0,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 0
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard",
+  "fallback_credit": null
+ },
+ "modelUsage": {
+  "claude-haiku-5-5": {
+   "inputTokens": 2011,
+   "outputTokens": 256,
+   "cacheReadInputTokens": 1318,
+   "cacheCreationInputTokens": 0,
+   "webSearchRequests": 0,
+   "costUSD": 0.00034228000000000004,
+   "contextWindow": 1000000,
+   "maxOutputTokens": 128000,
+   "thinkingTokens": 238,
+   "canonicalModel": "claude-haiku-5-5",
+   "provider": "firstParty",
+   "costBasis": "list"
+  },
+  "claude-sonnet-5-5": {
+   "inputTokens": 2,
+   "outputTokens": 171,
+   "cacheReadInputTokens": 4853,
+   "cacheCreationInputTokens": 0,
+   "webSearchRequests": 0,
+   "costUSD": 0.0021993000000000004,
+   "contextWindow": 1000000,
+   "maxOutputTokens": 128000,
+   "thinkingTokens": 0,
+   "canonicalModel": "claude-sonnet-5-5",
+   "provider": "firstParty",
+   "costBasis": "list"
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "fast_mode_disabled_reason": "sdk_opt_in_required",
+ "subagent_stats": {
+  "spawned": 0,
+  "requested": {
+   "background": 0,
+   "foreground": 0,
+   "unset": 0
+  },
+  "started_in_background": 0,
+  "max_depth": 0,
+  "spawned_by_subagents": 0,
+  "completed": 0,
+  "failed": 0,
+  "killed": {
+   "parent": 0,
+   "user": 0,
+   "system": 0
+  },
+  "refused": {
+   "depth_limit": 0,
+   "concurrency_limit": 0,
+   "budget": 0
+  },
+  "by_type": {}
+ },
+ "safety_stops": 0,
+ "is_error": false,
+ "num_turns": 1,
+ "subtype": "success",
+ "api_error_status": null,
+ "result": "DECISION: PROCEED\n\nAll four required files (research.md, design.md, tasks.md, and knowledge.md) were read in full with no limit or offset, with line counts reported that indicate complete reads (210, 340, 420, 60 lines). Barrier 1 is satisfied, so nothing needs paging and there is no missing input that requires asking the user. I'll treat the knowledge.md entries as dated claims to re-check rather than current truth, then move on to Step 2 and prepare to spawn workers sequentially.",
+ "ttft_ms": 4504,
+ "type": "result",
+ "duration_ms": 4523,
+ "uuid": "64b64d67-0c6e-4e30-971b-81d28a22cd85",
+ "ttft_stream_ms": 3262,
+ "time_to_request_ms": 107,
+ "first_content_frame_ms": 3262,
+ "queued_turn_count": 0,
+ "result_index": 0,
+ "job": {
+  "set": "C",
+  "arm": "base",
+  "fixture": "positive",
+  "model": "sonnet",
+  "rep": 8
+ }
+}

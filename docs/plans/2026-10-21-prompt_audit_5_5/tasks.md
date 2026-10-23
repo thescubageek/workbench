@@ -712,10 +712,10 @@ Annotate each with its projected tool-call cost; anything past ~50 splits at a n
       is no extra; (c) the same block, with a test command that was not run, so the pass is no
       claim of done; (d) the `implement/reference.md` NEVER list, with a task that tempts a
       refactor. Name the trap cells in `RESULTS.md` before the run. (~30 calls) (completed 2026-10-23 04:31)
-- [ ] **P3-T7** — Run the Batch 2 blind trial on Opus 5.5 and Sonnet 5.5 at `medium`, 10 repeats
+- [x] **P3-T7** — Run the Batch 2 blind trial on Opus 5.5 and Sonnet 5.5 at `medium`, 10 repeats
       for each cell, after a 1-run pilot whose cost goes into the spend ledger. Score it and record
       the table in `RESULTS.md`. If a cell fails the bar, revert the edit that the cell tests and
-      record it. (~15 calls)
+      record it. (~15 calls) (completed 2026-10-23 04:34)
 - [ ] **P3-T8** — Build the planted-defect verifier trial as Changes Required §2 says. Run a
       1-run pilot on each model, and add its cost to the spend ledger. (~35 calls)
 - [ ] **P3-T9** — Run the verifier trial with 3 repeats for each cell and model, if the ledger
@@ -1285,7 +1285,8 @@ resolved, leaving a dated line saying how.
   | 2026-10-23 | P2-T5 harness repeat 2 (`evals/runs/20261023T025258Z`) | $4.45 |
   | 2026-10-23 | P2-T5 judge, 4 calls (`judge.py` records no cost) | about $0.20, estimated |
   | 2026-10-23 | P2-T6 harness repeat 3 (`evals/runs/20261023T033810Z`) and its judge | $3.47 + about $0.10 |
-  | | **Total** | **about $15.94** |
+  | 2026-10-23 | P3-T7 Batch 2 blind trial, 200 runs with the pilot | $1.13 |
+  | | **Total** | **about $17.07** |
 
 - **Budget plan** (estimates, to be replaced by measured costs): Batch 1 harness gate about $10
   for 2 repeats, Batch 4 research-only gate about $8, Batch 2 and Batch 3 blind trials about $2,
@@ -1404,6 +1405,9 @@ resolved, leaving a dated line saying how.
   (base at `84c5477`, trim at HEAD), the harness, and `RESULTS.md` with 5 fixtures. 4 of them are
   named trap cells: C partial, D extra_tests, E no_run, and F parallel. The runner unsets
   `CLAUDE_CODE_PLUGIN_DIRS` itself.
+- [2026-10-23] Completed P3-T7: PASS. `trim` ≥ `base` in all 10 cell pairs, and all 4 trap cells
+  reached 10 of 10 for `trim` on both models (`trials/2026-10-23-batch2-blind-trial/RESULTS.md`).
+  No edit is reverted. Cost $1.13.
 - **Kept CAPS lines**: record each one here with its file, line, and reason, as the wording tasks
   run.
   - `create_research/SKILL.md:27` — the Documentarian Rule fence. It is the stage's one core
