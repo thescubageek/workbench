@@ -916,7 +916,7 @@ step is the rule; this is the moment it applies.
 - [x] `checks/prompt-checks.sh triple-barriers notification roster` exits 0 over all of `plugin/`
 - [x] `command grep -n 'review' plugin/skills/review-prep/SKILL.md | head -3` shows a description
       that does not list the bare word "review" as a trigger
-- [ ] `./plugin/scripts/check` exits 0
+- [x] `./plugin/scripts/check` exits 0
 
 #### Manual Verification
 
@@ -957,8 +957,8 @@ before, and following it ticks the human sign-off box. **This block, labels and 
 included, is repeated in full at every phase's checkpoint**; a later phase never gets a
 shortened one.
 
-- [ ] **(derivable)** Every Phase 4 checkbox is `[x]`
-- [ ] **(derivable)** All automated verification passing
+- [x] **(derivable)** Every Phase 4 checkbox is `[x]`
+- [x] **(derivable)** All automated verification passing
 - [ ] **(attestation)** Manual verification confirmed by human
 - [ ] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
       only writer of those fields, so do not edit `current_phase` or `completed_tasks` by hand
@@ -1451,6 +1451,10 @@ resolved, leaving a dated line saying how.
   Cost $0.48.
 - [2026-10-23] Completed P4-T8: no cell failed, so nothing is reverted. Over all of `plugin/`,
   `triple-barriers` 0, `notification` 0, and `roster` 0.
+- [2026-10-23] Phase 4 verification: `./plugin/scripts/check` passes. The token check found
+  `create_mockup` at 2.7k and `explore_design` at 3.3k, against 2.5k and 3.2k. The barrier reasons
+  were shortened, and `create_mockup` lost a paragraph that repeated BARRIER 2's reason. Both are
+  back at baseline. The 14-stage sum is ~63.4k against ~64.1k.
 - **Kept CAPS lines**: record each one here with its file, line, and reason, as the wording tasks
   run.
   - `create_research/SKILL.md:27` — the Documentarian Rule fence. It is the stage's one core
