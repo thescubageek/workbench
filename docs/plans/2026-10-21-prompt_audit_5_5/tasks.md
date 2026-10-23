@@ -550,10 +550,10 @@ Annotate each with its projected tool-call cost; anything past ~50 splits at a n
       stage that lost it, `git revert` the P2 task commit for that stage, and record the fact and
       the revert. Re-run the gate only for that stage, and only if the ledger allows it. Otherwise
       ask the user. (~15 calls) (completed 2026-10-23 03:50)
-- [ ] **P2-T7** — Run `checks/prompt-checks.sh triple-barriers notification` scoped to the Phase 2
+- [x] **P2-T7** — Run `checks/prompt-checks.sh triple-barriers notification` scoped to the Phase 2
       files and confirm 0 for both. Compare the on-invoke cost of `create_research`,
       `create_product_research`, `create_design`, and `create_tasks` with
-      `baseline-tokens-3.0.0.txt`. Record both in Implementation Notes. (~8 calls)
+      `baseline-tokens-3.0.0.txt`. Record both in Implementation Notes. (~8 calls) (completed 2026-10-23 03:50)
 
 ### Success Criteria
 
@@ -565,13 +565,13 @@ step is the rule; this is the moment it applies.
 
 #### Automated Verification
 
-- [ ] `judge.py --within --fixture evals/fixture-large` reports no loss in every repeat of the
+- [x] `judge.py --within --fixture evals/fixture-large` reports no loss in every repeat of the
       P2-T5 run, or every reported loss has a recorded revert
-- [ ] No triple barrier remains in the four stages: `command grep -n '⛔⛔⛔' plugin/skills/create_research plugin/skills/create_product_research plugin/skills/create_design plugin/skills/create_tasks -r; echo rc=$?`
+- [x] No triple barrier remains in the four stages: `command grep -n '⛔⛔⛔' plugin/skills/create_research plugin/skills/create_product_research plugin/skills/create_design plugin/skills/create_tasks -r; echo rc=$?`
       prints only `rc=1`
-- [ ] `python3 evals/link_check.py` and `python3 evals/token_check.py` exit 0
+- [x] `python3 evals/link_check.py` and `python3 evals/token_check.py` exit 0
 - [ ] `./plugin/scripts/check` exits 0
-- [ ] No on-invoke cost of the four stages rises above `baseline-tokens-3.0.0.txt`
+- [x] No on-invoke cost of the four stages rises above `baseline-tokens-3.0.0.txt`
 
 #### Manual Verification
 
@@ -1377,6 +1377,10 @@ resolved, leaving a dated line saying how.
   tree ($3.47): `design.md` and `tasks.md` no loss. Over the 3 repeats, 1 of 6 judged documents
   lost a fact (repeat 2 `tasks.md`, assumption A2), and the P2-T4 diff does not touch assumption
   handling. Decision: keep P2-T4, and record the loss as run-to-run variance. No edit is reverted.
+- [2026-10-23] Completed P2-T7: scoped to the 4 stages, `triple-barriers` 0, `notification` 0,
+  `caps` 2 (the two kept Documentarian Rule fences). On-invoke tokens against 3.0.0:
+  `create_research` 5.3k → 5.0k, `create_product_research` 4.5k → 4.3k, `create_design` 5.5k →
+  5.4k, `create_tasks` 3.9k → 3.9k. `link_check.py` and `token_check.py` PASS.
 - **Kept CAPS lines**: record each one here with its file, line, and reason, as the wording tasks
   run.
   - `create_research/SKILL.md:27` — the Documentarian Rule fence. It is the stage's one core
