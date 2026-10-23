@@ -636,11 +636,11 @@ wording loses nothing. Decide the verifier tier with the planted-defect trial.
 
 ### Prerequisites
 
-- [ ] Phase 2 complete and verified
-- [ ] Phase 2 manual testing confirmed — *an attestation, like the checkpoint's. Under
+- [x] Phase 2 complete and verified
+- [x] Phase 2 manual testing confirmed — *an attestation, like the checkpoint's. Under
       `/wb:implement --auto` it stays `[ ]` and the phase proceeds anyway; the previous phase's
       checkpoint records that nobody was asked. Unticked here means deferred, not blocked.*
-- [ ] If Phase 2 reverted any edit, the wording rules above are updated to avoid the pattern
+- [x] If Phase 2 reverted any edit, the wording rules above are updated to avoid the pattern
       that lost the fact
 
 ### Changes Required
@@ -692,8 +692,8 @@ Annotate each with its projected tool-call cost; anything past ~50 splits at a n
 
 #### Implementation
 
-- [ ] **P3-T1** — Apply the wording rules to `implement/SKILL.md`. Leave the Phase 1 lines
-      (`:106`, `:284-302`, `:337`, `:410-412`) as Phase 1 left them. (~25 calls)
+- [x] **P3-T1** — Apply the wording rules to `implement/SKILL.md`. Leave the Phase 1 lines
+      (`:106`, `:284-302`, `:337`, `:410-412`) as Phase 1 left them. (~25 calls) (completed 2026-10-23 04:27)
 - [ ] **P3-T2** — Apply the wording rules to `implement/reference.md` and
       `implement/prompts/worker-prompt.md`. (~15 calls)
 - [ ] **P3-T3** — Apply the wording rules to `implement_inline/SKILL.md`. (~20 calls)
@@ -1382,6 +1382,10 @@ resolved, leaving a dated line saying how.
   `create_research` 5.3k → 5.0k, `create_product_research` 4.5k → 4.3k, `create_design` 5.5k →
   5.4k, `create_tasks` 3.9k → 3.9k. `link_check.py` and `token_check.py` PASS.
 - [2026-10-23] Phase 2 manual verification confirmed by the user ("looks good, proceed"), 2026-10-23 04:26 UTC.
+- [2026-10-23] Completed P3-T1: the CAPS scope block is a plain `### Scope` list, the same shape
+  as the Q2 `trim` arm. Its "Same zero-tolerance policy as original:" line pointed at
+  `implement_inline`, which this skill never loads, so it is gone. BARRIER 1 is single-marker.
+  BARRIER 2 and BARRIER 3 keep their names and gain a reason. 0 CAPS lines remain.
 - **Kept CAPS lines**: record each one here with its file, line, and reason, as the wording tasks
   run.
   - `create_research/SKILL.md:27` — the Documentarian Rule fence. It is the stage's one core

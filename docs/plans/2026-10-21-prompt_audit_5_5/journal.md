@@ -62,6 +62,12 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-10-23 04:27 — P3-T1 (closed)
+
+- **Task/phase**: P3-T1 — the wording rules in implement/SKILL.md
+- **Landed**: plain Scope list, single-marker BARRIER 1, reasons on BARRIER 2 and 3, and the read-fully wording. 0 CAPS lines
+- **Commits**: the P3-T1 commit
+
 ## 2026-10-23 03:38 — P2-T6 (closed)
 
 - **Task/phase**: P2-T6 — act on the Batch 1 verdict
