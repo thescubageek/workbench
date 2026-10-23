@@ -869,8 +869,8 @@ Annotate each with its projected tool-call cost; anything past ~50 splits at a n
 - [x] **P4-T1** — Apply the wording rules to `validate_execution/SKILL.md`,
       `validate_project/SKILL.md`, `validate_project/reference/important-guidelines.md`, and
       `research-validation/SKILL.md`. (~25 calls) (completed 2026-10-23 04:58)
-- [ ] **P4-T2** — Apply the wording rules to `update_status/SKILL.md` and its two reference
-      files. (~18 calls)
+- [x] **P4-T2** — Apply the wording rules to `update_status/SKILL.md` and its two reference
+      files. (~18 calls) (completed 2026-10-23 04:59)
 - [ ] **P4-T3** — Apply the wording rules to `create_handoff/SKILL.md`, `create_handoff/reference.md`,
       and `resume_handoff/SKILL.md`. (~18 calls)
 - [ ] **P4-T4** — Apply the wording rules to `explore_design/SKILL.md`, `create_mockup/SKILL.md`,
@@ -1425,6 +1425,9 @@ resolved, leaving a dated line saying how.
 - [2026-10-23] Completed P4-T1: `validate_execution` has 3 single-marker barriers, BARRIER 2 naming
   the completion notification, and a plain read-only line. `validate_project` BARRIER 1 gains a
   reason. The read-fully wording now pages through a partial view in all four files. 0 CAPS lines.
+- [2026-10-23] Completed P4-T2: the "CRITICAL: Status Update Philosophy" labels are in sentence
+  case. BARRIER 1 and BARRIER 3 gain a reason. BARRIER 2 already had one. The read-fully wording now
+  pages, and the reference files say "Do not" and "Present". 0 CAPS lines.
 - **Kept CAPS lines**: record each one here with its file, line, and reason, as the wording tasks
   run.
   - `create_research/SKILL.md:27` — the Documentarian Rule fence. It is the stage's one core

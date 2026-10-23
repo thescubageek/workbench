@@ -62,6 +62,12 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-10-23 04:58 — P4-T2 (closed)
+
+- **Task/phase**: P4-T2 — the wording rules in update_status
+- **Landed**: plain philosophy list, 2 barrier reasons, and the read-fully wording. 0 CAPS lines
+- **Commits**: the P4-T2 commit
+
 ## 2026-10-23 04:58 — P4-T1 (closed)
 
 - **Task/phase**: P4-T1 — the wording rules in the validation skills

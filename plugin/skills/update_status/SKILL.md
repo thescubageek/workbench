@@ -22,14 +22,14 @@ directory are gated, and that the fix is to allow the read once or to relaunch w
 
 **Output discipline**: act on barriers silently; don't restate the plan between steps; emit only the artifact and a one-line completion summary.
 
-## CRITICAL: Status Update Philosophy
+## Status Update Philosophy
 
-- **READ BEFORE WRITE**: Always read ALL documentation files FULLY before making any updates
-- **COUNT, DON'T ASSUME**: progress comes from counting checkboxes, never from the counters you are about to rewrite
-- **CASCADING UPDATES**: Status changes may trigger updates across multiple files
-- **MAINTAIN CONSISTENCY**: Ensure all files reflect the same project reality
-- **NO REGRESSION**: Never move status backward without explicit user confirmation
-- **ATOMIC UPDATES**: Update all affected files together, not one at a time
+- **Read before write**: read every documentation file in full before you make any update
+- **Count, don't assume**: progress comes from counting checkboxes, never from the counters you are about to rewrite
+- **Cascading updates**: a status change may trigger updates across several files
+- **Consistency**: every file reflects the same project reality
+- **No regression**: do not move a status backward without explicit user confirmation
+- **Atomic updates**: update all affected files together, not one at a time
 
 ### This skill is the sole writer of the progress frontmatter
 
@@ -60,15 +60,16 @@ When invoked, check for arguments:
 
 ## Steps to Execute
 
-### Step 1: Read Current State (CRITICAL)
+### Step 1: Read Current State
 
-**⛔ BARRIER 1**: Read ALL files FULLY before proceeding
+**⛔ BARRIER 1**: Read every file in full before proceeding — every count and status this skill writes
+comes from those files
 
-1. **Read research.md FULLY** - Check status, completion, findings
-2. **Read design.md FULLY** - Check status, phase progress, implementation state
-3. **Read tasks.md FULLY** - Check current_phase, counters, and every task checkbox
+1. **Read research.md in full** - Check status, completion, findings
+2. **Read design.md in full** - Check status, phase progress, implementation state
+3. **Read tasks.md in full** - Check current_phase, counters, and every task checkbox
 
-**IMPORTANT**: Use Read tool WITHOUT limit/offset parameters
+Read the whole file. If Read returns a partial view, page through it with `offset` and `limit`.
 
 **A remediation plan has only `tasks.md`, and that is correct.** Read
 [../../docs/reference/remediation-plan.md](../../docs/reference/remediation-plan.md) NOW for how to recognise one
@@ -97,7 +98,7 @@ grep -cE '^- \[x\] \*\*[A-Z0-9-]*[0-9][A-Z0-9-]*\*\*' tasks.md    # completed
 grep -cE '^- \[ \] \*\*[A-Z0-9-]*[0-9][A-Z0-9-]*\*\*' tasks.md    # remaining
 ```
 
-**⛔ STOP if both counts are zero and the stored counters are not.** A plan whose task lines
+**⛔ Stop if both counts are zero and the stored counters are not.** A plan whose task lines
 carry no ID returns `0` and `0` here, which is indistinguishable from a plan with no tasks —
 and writing those zeros over stored counters destroys the only record of progress the file
 still holds. Pre-2.0.0 plans are the case this exists for: they tracked status in an external
@@ -193,7 +194,8 @@ and not an estimate. If the count and the old counter disagree, the count is wha
 
 ### Step 6: Verify Consistency
 
-**⛔ BARRIER 3**: Verify all updates were applied correctly
+**⛔ BARRIER 3**: Verify all updates were applied correctly — a write that did not land leaves the
+counters claiming progress the file does not have
 
 1. **Read each file back** to verify changes were applied
 2. **Re-count the checkboxes** and confirm the written counters now match
