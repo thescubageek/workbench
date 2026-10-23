@@ -408,9 +408,9 @@ step is the rule; this is the moment it applies.
 
 #### Manual Verification
 
-- [ ] Read the new `model-help` roster, ladder, and baselines against design.md's Data Model
+- [x] Read the new `model-help` roster, ladder, and baselines against design.md's Data Model
       tables
-- [ ] Read one rewritten gate line and confirm that it names no model and no root `CLAUDE.md`
+- [x] Read one rewritten gate line and confirm that it names no model and no root `CLAUDE.md`
 
 ### Modified Files
 
@@ -451,7 +451,7 @@ shortened one.
 
 - [x] **(derivable)** Every Phase 1 checkbox is `[x]`
 - [x] **(derivable)** All automated verification passing
-- [ ] **(attestation)** Manual verification confirmed by human
+- [x] **(attestation)** Manual verification confirmed by human
 - [ ] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
       only writer of those fields, so do not edit `current_phase` or `completed_tasks` by hand
 
@@ -1339,6 +1339,7 @@ resolved, leaving a dated line saying how.
   cell brought it back to ~11.1k. The 14-stage sum is ~63.9k against ~64.1k. `model-help` rose
   from ~5.1k to ~5.3k (the roster prices) and `daily-digest` from ~6.2k to ~6.3k. Neither is one
   of the 14 stages.
+- [2026-10-23] Phase 1 manual verification confirmed by the user ("looks good, proceed"), 2026-10-23 02:36 UTC.
 - **Kept CAPS lines**: record each one here with its file, line, and reason, as the wording tasks
   run.
 
