@@ -317,7 +317,7 @@ Annotate each with its projected tool-call cost; anything past ~50 splits at a n
       `create_product_research`, `create_mockup`, `explore_design`, `create_design`,
       `create_tasks`, `implement`, `implement_inline`, `validate_execution`, `validate_project`,
       `update_status`, `create_handoff`, and `resume_handoff`. (~6 calls) (completed 2026-10-23 01:41)
-- [ ] **P1-T2** — Write `docs/plans/2026-10-21-prompt_audit_5_5/checks/prompt-checks.sh`, a bash
+- [x] **P1-T2** — Write `docs/plans/2026-10-21-prompt_audit_5_5/checks/prompt-checks.sh`, a bash
       script with one function for each check below. `prompt-checks.sh <check>...` runs the named
       checks, prints `name: <count> (target <n>) PASS|FAIL` for each, and exits 1 if any fails. It
       takes the grep exit status directly, and treats exit 2 as FAIL, never as 0 matches. Checks:
@@ -334,7 +334,7 @@ Annotate each with its projected tool-call cost; anything past ~50 splits at a n
       (`⛔⛔⛔` under `plugin/`, target 0, baseline 23), `notification` (barrier lines that wait
       for agents and do not name the completion notification, target 0), and `caps` (the CAPS
       metric command under Implementation Notes, target 15, baseline 118). Plant one failure for
-      each check in a scratch copy, and show that each check prints FAIL for it. (~35 calls)
+      each check in a scratch copy, and show that each check prints FAIL for it. (~35 calls) (completed 2026-10-23 01:43)
 
 #### Implementation
 
@@ -1307,6 +1307,13 @@ resolved, leaving a dated line saying how.
   3.2k, `create_design` 5.5k, `create_tasks` 3.9k, `implement` 11.1k, `implement_inline` 7.8k,
   `validate_execution` 3.4k, `validate_project` 2.6k, `update_status` 4.2k, `create_handoff` 3.2k,
   `resume_handoff` 3.6k. The values are rounded to about 100 tokens, so compare per stage.
+- [2026-10-22] Completed P1-T2: `checks/prompt-checks.sh` and its contract test
+  `checks/test-prompt-checks.sh` (42 of 42 pass: a clean fixture passes, one planted failure per
+  check fails only that check, and a missing tree is a FAIL). Baselines at `3f3ccb4`:
+  `spawn-names` 20, `prose-spawns` 6, `spawn-models` 20, `agent-tiers` 3 (locator, pattern-finder,
+  and task-worker lack `effort`), `roster` 23, `haiku-effort-rule` 2, `triple-barriers` 23,
+  `notification` 8, `caps` 118. The `notification` check reads one line at a time, so a barrier
+  that wraps across lines is not seen.
 - **Kept CAPS lines**: record each one here with its file, line, and reason, as the wording tasks
   run.
 

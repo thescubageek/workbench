@@ -62,6 +62,13 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-10-23 01:41 — P1-T2 (closed)
+
+- **Task/phase**: P1-T2 — write checks/prompt-checks.sh and its planted-failure test
+- **Landed**: the 9 checks and a 42-case contract test. The baselines are in tasks.md Implementation Notes
+- **Commits**: the P1-T2 commit
+- **Learned**: the haiku-effort line in `adversarial-review/prompts.md:165` backticks `haiku`, so the first regex missed it. The contract test now plants both forms
+
 ## 2026-10-23 01:40 — P1-T1 (closed)
 
 - **Task/phase**: P1-T1 — capture the token baseline before any Phase 1 edit
