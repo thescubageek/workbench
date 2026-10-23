@@ -1,0 +1,97 @@
+# Session Journal: prompt_audit_5_5
+
+Reverse-chronological — **newest entry at the top. No entries yet.**
+
+**Where a new entry goes: directly under the marker comment at the bottom of this preamble,
+above every existing entry. Never appended to the end of the file.** This is not a style
+preference. The session-start hook picks the most recent entry with
+`grep -E '^## ' journal.md | grep -vE '\[YYYY|<YYYY|YYYY-MM-DD' | head -1` — the *first* heading
+in the file. An entry written at the bottom is invisible to it, and the failure is silent and
+inverted: the hook reports the oldest entry as current, so a resuming session is told the plan is
+mid-research when design has already finished, or that an entry is `(open)` when its own
+`(closed)` entry sits further down. `forge`, `daily-digest`, `resume_handoff` and
+`create_handoff` inherit the same first-heading assumption. For the same reason, "the journal
+tail" means the newest entry — which is at the top.
+
+**Entries open when work starts, not when it ends.** A session does not get to choose how it
+ends: a token limit, a closed laptop, or a crashed harness runs no shutdown step. An entry
+written only at completion would be silent in exactly those cases, and worse than silent — its
+tail would still show the last *finished* phase, so the next session would read a confident,
+stale record and never learn that work stopped mid-task. Opening on entry makes the default
+residue of an abrupt kill correct: an open entry naming what was being attempted and what came
+next.
+
+An open entry beside uncommitted changes means an interrupted task. An open entry beside a
+**clean** tree is ambiguous and the tree cannot resolve it: the session may have finished without
+closing out, or be **blocked waiting on a human** — a design awaiting approval is exactly this,
+and it is the correct residue rather than a fault — or still be running in another session, which
+this repository cannot observe at all.
+
+**So read the entry's `Next action` before concluding anything.** The working tree is the
+authority on whether work is *in flight*; only the entry says what the work was and what it is
+waiting for.
+
+**A heading must end in a literal `(open)` or `(closed)`.** That suffix is what every reader
+matches on — the session-start hook, `forge`, `daily-digest`, `resume_handoff`,
+`create_handoff`. A heading ending any other way is invisible to all of them, and the failure
+is silent: the next session is told "closed" over work that was interrupted.
+
+Entries take these two shapes. **Keep the dates as the literal placeholder `YYYY-MM-DD`.** The
+session-start hook finds the newest entry with `grep -E '^## '` and then discards headings whose
+date is still a placeholder — so the placeholder is what stops these examples being read as a
+real entry. The fence is for readability and is *not* the protection: the hook is not
+fence-aware, and these headings still begin at column zero inside it. An example rewritten with
+a realistic-looking date would be reported as an interrupted task in every plan generated from
+this template, silently, from the moment of creation.
+
+```text
+## YYYY-MM-DD HH:MM — <task-id or short label> (open)
+
+- **Task/phase**: <ID and one-line description>
+- **Next action**: <the literal next thing to do, specific enough to act on cold>
+- **Started at**: <commit hash>
+
+## YYYY-MM-DD HH:MM — <task-id or short label> (closed)
+
+- **Task/phase**: <ID and one-line description>
+- **Landed**: <what actually changed>
+- **Commits**: <range or hashes>
+- **Learned**: <anything that changes how the remaining work should proceed — omit if nothing>
+- **Blocked by**: <anything blocking — omit if nothing>
+```
+
+<!-- Real entries begin below this line, newest first. -->
+
+## 2026-10-23 01:40 — P1-T1 (closed)
+
+- **Task/phase**: P1-T1 — capture the token baseline before any Phase 1 edit
+- **Landed**: baseline-tokens-3.0.0.txt (wb@inline 3.0.0). The 14-stage on-invoke sum is ~64.1k, recorded in tasks.md Implementation Notes
+- **Commits**: the P1-T1 commit
+
+## 2026-10-22 20:48 — create_tasks (closed)
+
+- **Task/phase**: P0-T4 — execution plan for prompt_audit_5_5
+- **Landed**: tasks.md with 6 phases and 44 implementation tasks (48 with P0), one phase per design batch, each with its own gate and a full checkpoint. inventory-2026-10-22.txt holds the line numbers at d2ba6ab
+- **Commits**: none (plan files are gitignored and not yet promoted)
+- **Learned**: CLAUDE_CODE_PLUGIN_DIRS on this machine loads the ankara plugin into headless runs, so every harness and probe command uses `env -u CLAUDE_CODE_PLUGIN_DIRS`. `judge.py --within` judges nothing on a research-only run, so Phase 5 uses the before/after mode. Spend so far $3.65. Next stage: /wb:implement
+
+## 2026-10-22 20:25 — create_design (closed)
+
+- **Task/phase**: P0-T3 — design for prompt_audit_5_5
+- **Landed**: design.md approved by the user on 2026-10-22 (status: approved). Option B in six batches (0 to 5), each with its own gate. Batch 0 ships as 3.0.1, Batches 1 to 5 as 3.1.0
+- **Commits**: none (plan files are gitignored and not yet promoted)
+- **Learned**: the harness supports `--stages` and a one-tree run without `--after`, which can lower gate cost. Next stage: /wb:create_tasks
+
+## 2026-10-22 19:58 — create_research follow-up: Q1 and Q2 probes (closed)
+
+- **Task/phase**: P0-T2 follow-up — Q1 (per-spawn effort) and Q2 (WBTE lite rule 6) probes, Q3 and Q4 recorded
+- **Landed**: research.md Follow-up Research section. Q1–Q4 resolved, with decisions in design.md (## Technical Decisions, Resolved Decisions). Trial record in trials/2026-10-22-q2-blind-trial/. Two knowledge entries added
+- **Commits**: none (plan files are gitignored; knowledge.md is changed in the working tree only)
+- **Learned**: a spawn `effort` reaches the API. Plain barrier and scope wording showed no loss on Opus 5.5 and Sonnet 5.5 (320 runs, $3.62). About $26 of the $30 eval budget remains. Next stage: /wb:create_design
+
+## 2026-10-21 18:47 — create_research (closed)
+
+- **Task/phase**: P0-T2 — research for prompt_audit_5_5
+- **Landed**: research.md (status complete), from 6 read-only agents and one live probe. Bare `subagent_type` names fail in Claude Code 2.1.303. 4 open questions (Q1–Q4) block the design.
+- **Commits**: none (plan files are gitignored and not yet promoted)
+- **Learned**: Claude Code 2.1.303 documents a per-spawn `effort` parameter, which contradicts Gabe's 2.1.285 measurement. WBTE lite rule 6 constrains barrier and caps changes. Next stage: /wb:create_design

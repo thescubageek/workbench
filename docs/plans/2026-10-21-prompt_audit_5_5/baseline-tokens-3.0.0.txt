@@ -1,0 +1,67 @@
+wb 3.0.0
+  Description: Workbench for structured software development: TDD, project planning, and phased execution with status tracked in the plan documents.
+  Source: wb@inline
+
+Component inventory
+  Skills (41)  adversarial-loop, adversarial-review, clip, create_design, create_execution, create_handoff, create_mockup, create_product_research, create_project, create_research, create_tasks, daily-digest, doc-adherence, eli5-clip, explore_design, fetch-issues, forge, help, implement, implement_coordinated, implement_inline, implement_tasks, jira-context, mockup-iteration, model-help, pr-description, project-structure, reply-to-claude, research-validation, resolve_questions, resume_handoff, review-prep, status-sync, tdd-discipline, touch-grass, tracer-bullet, update_status, validate_execution, validate_project, verification-before-completion, wbte-dictionary
+  Agents (7)  product-behavior-analyzer, codebase-analyzer, pattern-finder, codebase-locator, research-validator, task-verifier, task-worker
+  Hooks (3)  SessionStart, PostToolUse, PreCompact  (harness-only — no model context cost)
+  MCP servers (0)
+  LSP servers (0)
+
+Projected token cost
+  Always-on:   ~4,111 tok   added to every session
+
+Per-component (rounded)
+  component                       always-on  on-invoke
+  resolve_questions                     ~70      ~4.9k
+  wbte-dictionary                      ~130       ~770
+  eli5-clip                            ~160      ~1.3k
+  jira-context                         ~150      ~2.2k
+  create_product_research               ~40      ~4.5k
+  adversarial-loop                     ~220     ~16.7k
+  reply-to-claude                      ~120      ~5.1k
+  review-prep                           ~80      ~1.3k
+  implement_coordinated                 ~30       ~350
+  tdd-discipline                        ~70      ~1.1k
+  clip                                 ~130       ~540
+  validate_execution                    ~40      ~3.4k
+  mockup-iteration                      ~50      ~4.6k
+  daily-digest                         ~260      ~6.2k
+  create_handoff                        ~30      ~3.2k
+  create_execution                      ~30       ~330
+  resume_handoff                        ~30      ~3.6k
+  create_research                       ~30      ~5.3k
+  implement_inline                      ~40      ~7.8k
+  doc-adherence                        ~100      ~1.4k
+  tracer-bullet                        ~110      ~1.4k
+  implement_tasks                       ~30       ~380
+  adversarial-review                   ~250     ~12.7k
+  create_mockup                         ~30      ~2.5k
+  model-help                           ~230      ~5.1k
+  pr-description                       ~140      ~1.8k
+  project-structure                     ~70      ~1.3k
+  explore_design                       ~130      ~3.2k
+  create_project                        ~30      ~3.3k
+  validate_project                      ~30      ~2.6k
+  create_design                         ~30      ~5.5k
+  forge                                 ~50      ~4.3k
+  status-sync                           ~60        ~1k
+  implement                            ~100     ~11.1k
+  touch-grass                          ~200      ~3.4k
+  update_status                         ~30      ~4.2k
+  fetch-issues                         ~140      ~6.7k
+  create_tasks                          ~30      ~3.9k
+  verification-before-completion        ~80      ~2.8k
+  research-validation                   ~90       ~900
+  help                                  ~30      ~5.4k
+  product-behavior-analyzer             ~80      ~2.1k
+  codebase-analyzer                     ~60      ~1.2k
+  pattern-finder                        ~60      ~1.2k
+  codebase-locator                      ~70        ~1k
+  research-validator                    ~70        ~3k
+  task-verifier                         ~60      ~3.1k
+  task-worker                           ~70      ~1.9k
+
+  On-invoke cost is paid each time a skill or agent fires.
+  Token counts are estimates and may differ from actual usage.
