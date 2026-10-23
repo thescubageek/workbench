@@ -16,8 +16,7 @@ Find and document:
 - Responsive breakpoints
 
 Return with file:line references. DO NOT suggest improvements.`,
-  subagent_type: "codebase-analyzer",
-  model: "haiku"
+  subagent_type: "wb:codebase-analyzer"
 })
 
 // Agent 2: Component Library
@@ -32,8 +31,7 @@ Find and document:
 - Where components are defined
 
 Return with file:line references. DO NOT suggest improvements.`,
-  subagent_type: "codebase-analyzer",
-  model: "haiku"
+  subagent_type: "wb:codebase-analyzer"
 })
 
 // Agent 3: Styling Patterns
@@ -49,8 +47,7 @@ Find and document:
 - Theme configuration
 
 Return with file:line references. DO NOT suggest improvements.`,
-  subagent_type: "codebase-analyzer",
-  model: "haiku"
+  subagent_type: "wb:codebase-analyzer"
 })
 
 // Agent 4: Similar Features
@@ -64,8 +61,7 @@ Find examples of:
 - Patterns for [feature type] in this codebase
 
 Return with file:line references. DO NOT suggest improvements.`,
-  subagent_type: "pattern-finder",
-  model: "haiku"
+  subagent_type: "wb:pattern-finder"
 })
 
 // Agent 5: Icon System
@@ -83,8 +79,7 @@ Find and document:
 
 Return exact patterns found. If NO icon system exists, state that clearly.
 DO NOT suggest adding an icon library if none exists.`,
-  subagent_type: "codebase-analyzer",
-  model: "haiku"
+  subagent_type: "wb:codebase-analyzer"
 })
 ```
 

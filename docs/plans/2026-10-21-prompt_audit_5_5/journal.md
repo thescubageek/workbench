@@ -62,6 +62,12 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-10-23 01:43 — P1-T3 (closed)
+
+- **Task/phase**: P1-T3 — `wb:` spawn names and no spawn `model` in the 6 sub-agent-prompts.md files
+- **Landed**: 20 spawn blocks now read `subagent_type: "wb:<name>"` with no `model`. The 2 general-purpose spawns are unchanged. `spawn-names` 0 and `spawn-models` 0 PASS
+- **Commits**: the P1-T3 commit
+
 ## 2026-10-23 01:41 — P1-T2 (closed)
 
 - **Task/phase**: P1-T2 — write checks/prompt-checks.sh and its planted-failure test

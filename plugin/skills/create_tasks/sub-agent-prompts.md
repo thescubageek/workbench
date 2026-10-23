@@ -29,8 +29,7 @@ Task({
   - External dependencies needed
 
   Return findings only; write nothing.`,
-  subagent_type: "codebase-analyzer",
-  model: "sonnet"
+  subagent_type: "wb:codebase-analyzer"
 })
 ```
 
@@ -56,8 +55,7 @@ Task({
   - Test fixtures needed
 
   Return findings only; write nothing.`,
-  subagent_type: "codebase-analyzer",
-  model: "sonnet"
+  subagent_type: "wb:codebase-analyzer"
 })
 ```
 
@@ -79,8 +77,7 @@ Task({
   - Configuration patterns to follow
 
   Return findings only; write nothing.`,
-  subagent_type: "pattern-finder",
-  model: "haiku"
+  subagent_type: "wb:pattern-finder"
 })
 ```
 

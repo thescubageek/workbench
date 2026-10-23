@@ -37,8 +37,7 @@ Task({
 
   Focus on [specific directories if known].
   Return findings only; write nothing.`,
-  subagent_type: "codebase-locator",
-  model: "haiku"
+  subagent_type: "wb:codebase-locator"
 })
 ```
 
@@ -58,8 +57,7 @@ Task({
   - Error handling approaches
 
   Start with [specific files if known].`,
-  subagent_type: "codebase-analyzer",
-  model: "sonnet"
+  subagent_type: "wb:codebase-analyzer"
 })
 ```
 
@@ -77,8 +75,7 @@ Task({
   - Testing approaches for [feature type]
 
   Return findings only; write nothing.`,
-  subagent_type: "pattern-finder",
-  model: "haiku"
+  subagent_type: "wb:pattern-finder"
 })
 ```
 

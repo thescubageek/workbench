@@ -36,8 +36,7 @@ Task({
 
   Focus on [specific directories if known].
   Return findings only; write nothing.`,
-  subagent_type: "codebase-locator",
-  model: "haiku"
+  subagent_type: "wb:codebase-locator"
 })
 ```
 
@@ -59,8 +58,7 @@ Task({
   - What configuration controls this feature's behavior?
 
   Start with [specific files if known].`,
-  subagent_type: "product-behavior-analyzer",
-  model: "sonnet"
+  subagent_type: "wb:product-behavior-analyzer"
 })
 ```
 
@@ -84,8 +82,7 @@ Task({
   REMEMBER: Document what IS, not what SHOULD BE. No recommendations.
 
   Return findings only; write nothing.`,
-  subagent_type: "pattern-finder",
-  model: "haiku"
+  subagent_type: "wb:pattern-finder"
 })
 ```
 
@@ -122,7 +119,6 @@ Task({
 
   Return a structured validation report with PASS/FAIL/UNCERTAIN per claim.
   DO NOT modify the document. Only report findings.`,
-  subagent_type: "research-validator",
-  model: "sonnet"
+  subagent_type: "wb:research-validator"
 })
 ```

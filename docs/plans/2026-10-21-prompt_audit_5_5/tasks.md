@@ -338,10 +338,10 @@ Annotate each with its projected tool-call cost; anything past ~50 splits at a n
 
 #### Implementation
 
-- [ ] **P1-T3** — Rewrite the 6 `sub-agent-prompts.md` files as Changes Required §1 says: 20
+- [x] **P1-T3** — Rewrite the 6 `sub-agent-prompts.md` files as Changes Required §1 says: 20
       `subagent_type` values to `wb:<name>`, and their 20 `model:` lines deleted. Leave the 2
       `general-purpose` spawns in `validate_execution/sub-agent-prompts.md:51-52` and `:70-71`
-      unchanged. Change no other line. (~20 calls)
+      unchanged. Change no other line. (~20 calls) (completed 2026-10-23 01:43)
 - [ ] **P1-T4** — Change the prose spawns in `implement` to the `wb:` names:
       `implement/SKILL.md:106`, `:302`, `:337`, `implement/prompts/worker-prompt.md:3`,
       `verifier-prompt.md:3`, `:6`, and `escalation-worker-prompt.md:7`. Leave a path or a file
