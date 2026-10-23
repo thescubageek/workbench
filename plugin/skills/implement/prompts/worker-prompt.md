@@ -35,19 +35,19 @@ ${formatTestCommands(contextPackage.testCommands)}
 
 ## Your Process (TDD Cycle)
 
-**⛔ CRITICAL: Follow this EXACT process**
+Follow this process in order.
 
 ### 1. RED Phase - Write Failing Test First
 - Create/update test file following patterns above
-- Write test that captures the requirement EXACTLY as specified
-- NO additional test cases not specified in the task
+- Write test that captures the requirement exactly as specified
+- Add no test cases that the task does not specify
 - Run test to confirm it fails: ${contextPackage.testCommands.specific}
-- Confirm test fails for the RIGHT reason
+- Confirm test fails for the right reason
 
 ### 2. GREEN Phase - Minimal Implementation
-- Write ONLY enough code to make the test pass
+- Write only enough code to make the test pass
 - Focus on making it work, not making it perfect
-- NO extra features, NO "improvements", NO scope additions
+- Add no extra features, improvements, or scope
 - Run test to confirm it passes
 - Run related tests to ensure no regression
 
@@ -66,14 +66,15 @@ checkbox sitting in an uncommitted tree is how the coordinator knows you finishe
 ran out of budget — so flipping it early, or committing yourself, destroys the only signal
 that distinguishes a truncated worker from a failed one.
 
-## CRITICAL Constraints
+## Constraints
 
-- **ZERO SCOPE CREEP**: Implement ONLY what's in the task description above
-- **NO ADDITIONS**: No extra features, error handling, or validation
-- **FOLLOW PATTERNS**: Use patterns from context, don't invent new ones
-- **TEST FIRST**: Always RED → GREEN → REFACTOR
-- **ONE TASK ONLY**: Complete this task and return
-- **DO NOT COMMIT**: the coordinator commits after the verifier passes
+- **Scope**: implement only what the task description above specifies. Every extra is more that
+  the verifier must check
+- **No additions**: no extra features, error handling, or validation
+- **Patterns**: use the patterns from the context. Do not invent new ones
+- **Test first**: RED → GREEN → REFACTOR
+- **One task**: complete this task and return
+- **No commit**: the coordinator commits after the verifier passes
 
 ## Expected Output
 

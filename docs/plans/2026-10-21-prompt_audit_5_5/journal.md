@@ -62,6 +62,12 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-10-23 04:27 — P3-T2 (closed)
+
+- **Task/phase**: P3-T2 — the wording rules in implement/reference.md and implement/prompts/worker-prompt.md
+- **Landed**: plain DON'T list and plain worker constraints. 0 CAPS lines in `implement/`
+- **Commits**: the P3-T2 commit
+
 ## 2026-10-23 04:27 — P3-T1 (closed)
 
 - **Task/phase**: P3-T1 — the wording rules in implement/SKILL.md
