@@ -1021,13 +1021,13 @@ Annotate each with its projected tool-call cost; anything past ~50 splits at a n
 
 #### Testing
 
-- [ ] **P5-T3** — Run the Batch 4 harness gate. Run
+- [x] **P5-T3** — Run the Batch 4 harness gate. Run
       `env -u CLAUDE_CODE_PLUGIN_DIRS python3 evals/run.py --before <Phase 4 checkpoint commit> --after . --repeats 2 --model sonnet --stages research --fixture evals/fixture-large`,
       if the ledger projects the plan total at or under $30. Otherwise ask the user. Then run
       `python3 evals/judge.py --run evals/runs/<ts> --fixture evals/fixture-large` in its
       before/after mode, which is reliable for `research.md`. Add the costs to the spend ledger.
       Record the verdict and the deviation from the design's `--within` in Implementation Notes.
-      (~20 calls)
+      (~20 calls) (completed 2026-10-23 07:46)
 - [ ] **P5-T4** — Act on the P5-T3 verdict. If an `after` repeat loses a fact that its `before`
       repeat has, revert the commit of the agent most likely responsible, and record it.
       Otherwise record "no loss". (~10 calls)
@@ -1289,7 +1289,9 @@ resolved, leaving a dated line saying how.
   | 2026-10-23 | P3-T8 verifier trial pilot, 16 runs | $0.73 |
   | 2026-10-23 | P3-T9 verifier trial, reps 1 and 2 (32 runs) | $1.25 |
   | 2026-10-23 | P4-T7 Batch 3 blind trial, 120 runs with the pilot | $0.48 |
-  | | **Total** | **about $19.53** |
+  | 2026-10-23 | P5-T3 Batch 4 gate, 4 research runs (`evals/runs/20261023T071234Z`) and its judge | $5.22 + about $0.10 |
+  | 2026-10-23 | P5-T4 confirmation, 2 research runs (`evals/runs/20261023T073333Z`) and its judge | $2.97 + about $0.05 |
+  | | **Total** | **about $27.87** |
 
 - **Budget plan** (estimates, to be replaced by measured costs): Batch 1 harness gate about $10
   for 2 repeats, Batch 4 research-only gate about $8, Batch 2 and Batch 3 blind trials about $2,
@@ -1466,6 +1468,23 @@ resolved, leaving a dated line saying how.
   its closing REMEMBER section is gone. `task-verifier` changes only its role line and heading,
   because the verifier trial had just validated its text. `task-worker`'s CAPS scope labels are
   plain, and the scope item gains its reason. The verifier report headings are unchanged.
+- [2026-10-23] Completed P5-T3: before `b6cd14c` (git ref), after HEAD (path), research only, 2
+  repeats, `judge.py --run` before/after mode. Both repeats LOSS: the after `research.md` cited 5
+  and 5 of the 19 expected facts against 9 and 10, with 152 and 125 references against 190 and
+  198. The lost findings include the docs-versus-code mismatches (`docs/configuration.md` example
+  values).
+- [2026-10-23] P5-T4 in progress: the five agent edits that removed recaps or casing were restored
+  in one commit (`f175ea4`). `task-verifier` and `task-worker` keep their P5-T2 edits, and the
+  research stage does not spawn either. A confirmation run on the restored tree (2 repeats,
+  judged against the same before runs) still lost facts: 4 and 5 expected facts, 114 and 121
+  references. The restored tree's research agents are byte-identical to `b6cd14c`, so the agent
+  edits did not cause the loss.
+  - A `git archive` tree and a path-copy tree of HEAD are byte-identical (`diff -rq` on 169
+    files). The only difference between the arms is how `run.py` builds the tree.
+  - Pattern across all runs: the 2 ref-built runs cited 9 and 10 expected facts. The 7 path-built
+    runs (3 in Phase 2, 4 here) cited 4 to 6. The number of spawned agents varied from 3 to 5.
+  - Reading: either this fixture's research output varies far more than 2 repeats can resolve, or
+    a ref-versus-path artifact exists in the harness that this plan has not found.
 - **Kept CAPS lines**: record each one here with its file, line, and reason, as the wording tasks
   run.
   - `create_research/SKILL.md:27` — the Documentarian Rule fence. It is the stage's one core

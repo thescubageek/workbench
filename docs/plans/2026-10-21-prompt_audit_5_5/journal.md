@@ -62,11 +62,17 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
-## 2026-10-23 07:12 — P5-T3 (open)
+## 2026-10-23 07:46 — P5-T4 [blocked] (open)
 
-- **Task/phase**: P5-T3 — Batch 4 harness gate: research only, before b6cd14c, after HEAD, 2 repeats, before/after judge
-- **Next action**: run evals/run.py under env -u CLAUDE_CODE_PLUGIN_DIRS, then judge.py --run in before/after mode
-- **Started at**: ffedbb1
+- **Task/phase**: P5-T4 — act on the Batch 4 verdict
+- **Next action**: waiting on the user. The restored tree (f175ea4) lost facts too, so the gate cannot attribute the loss. Ledger about $27.87 of $30. Options: keep the restored agent files, re-apply the edits, or spend about $2.80 on a ref-versus-path control
+- **Started at**: f81b684
+
+## 2026-10-23 07:12 — P5-T3 (closed)
+
+- **Task/phase**: P5-T3 — Batch 4 harness gate
+- **Landed**: both repeats LOSS (5 and 5 expected facts against 9 and 10). Ledger about $25
+- **Commits**: the P5-T3 record commit
 
 ## 2026-10-23 07:11 — P5-T2 (closed)
 
