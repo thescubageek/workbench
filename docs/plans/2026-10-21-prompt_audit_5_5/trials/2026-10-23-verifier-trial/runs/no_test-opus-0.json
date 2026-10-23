@@ -1,0 +1,119 @@
+{
+ "duration_api_ms": 12616,
+ "stop_reason": "end_turn",
+ "session_id": "5e4e3e4c-2251-4d90-9fc3-7be26aefccc4",
+ "total_cost_usd": 0.05458618,
+ "usage": {
+  "input_tokens": 6,
+  "cache_creation_input_tokens": 2808,
+  "cache_read_input_tokens": 30227,
+  "output_tokens": 1295,
+  "output_tokens_details": {
+   "thinking_tokens": 95
+  },
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 2808,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "global",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 931,
+    "cache_read_input_tokens": 11228,
+    "cache_creation_input_tokens": 304,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 304
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard",
+  "fallback_credit": null
+ },
+ "modelUsage": {
+  "claude-haiku-5-5": {
+   "inputTokens": 1291,
+   "outputTokens": 21,
+   "cacheReadInputTokens": 1318,
+   "cacheCreationInputTokens": 0,
+   "webSearchRequests": 0,
+   "costUSD": 0.00015278000000000004,
+   "contextWindow": 1000000,
+   "maxOutputTokens": 128000,
+   "thinkingTokens": 0,
+   "canonicalModel": "claude-haiku-5-5",
+   "provider": "firstParty",
+   "costBasis": "list"
+  },
+  "claude-opus-5-5": {
+   "inputTokens": 6,
+   "outputTokens": 1295,
+   "cacheReadInputTokens": 30227,
+   "cacheCreationInputTokens": 2808,
+   "webSearchRequests": 0,
+   "costUSD": 0.0544334,
+   "contextWindow": 1000000,
+   "maxOutputTokens": 128000,
+   "thinkingTokens": 95,
+   "canonicalModel": "claude-opus-5-5",
+   "provider": "firstParty",
+   "costBasis": "list"
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "fast_mode_disabled_reason": "sdk_opt_in_required",
+ "subagent_stats": {
+  "spawned": 0,
+  "requested": {
+   "background": 0,
+   "foreground": 0,
+   "unset": 0
+  },
+  "started_in_background": 0,
+  "max_depth": 0,
+  "spawned_by_subagents": 0,
+  "completed": 0,
+  "failed": 0,
+  "killed": {
+   "parent": 0,
+   "user": 0,
+   "system": 0
+  },
+  "refused": {
+   "depth_limit": 0,
+   "concurrency_limit": 0,
+   "budget": 0
+  },
+  "by_type": {}
+ },
+ "safety_stops": 0,
+ "is_error": false,
+ "num_turns": 3,
+ "subtype": "success",
+ "api_error_status": null,
+ "result": "## Verification Report: P1-T2\n\n### Status: FAIL\n\nP1-T2 (add `subtract` with a unit test) is incomplete. The function exists, but no test was added. The worker said it added `test_subtract` to `tests/test_calc.py`. That file is not changed in the working tree.\n\n### Test Results\n**Command**: `python3 -m unittest discover -s tests -v`\n**Exit Code**: 0\n**Output**:\n```\ntest_add (test_calc.TestCalc.test_add) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 0.000s\n\nOK\n```\nOnly `test_add` ran. `grep -rn subtract tests/` returns nothing. The suite passes, but nothing in it tests `subtract`.\n\n### Files Changed\n- \u2705 `calc.py`: Expected. It adds `subtract(a, b)` returning `a - b` (calc.py:5-6).\n- \u2705 `docs/plans/demo/tasks.md`: Expected. The P1-T2 checkbox is now `[x]`.\n- \u274c `tests/test_calc.py`: Missing. The task requires a change here and the worker listed it, but `git status --short` does not show it as modified.\n\n### Baseline failures\n- None.\n\n### Scope Verification\n- \u2705 Requirement 1: `subtract(a, b)` returns `a` minus `b` (calc.py:5-6).\n- \u274c Requirement 2: There is no unit test for `subtract` in `tests/test_calc.py`.\n- \u2705 The worker did not add anything outside the task.\n\n### Issues Found\n1. **Critical: the required test is missing.** `tests/test_calc.py` contains only `test_add` (tests/test_calc.py:8-9). The worker summary says `test_subtract` was added, which does not match the working tree.\n2. **Critical: the checkbox is wrong.** P1-T2 is marked `[x]` in `docs/plans/demo/tasks.md:6`, but the task is not done. Revert it to `[ ]` until the test exists.\n3. **Minor: the completion date is in the future.** The checkbox line says `(completed 2026-10-23 10:00)`, and today is 2026-10-22.\n\n### Recommendation\n- **FAIL**: The unit test required by the task was never written.\n  - Suggested fix: Add a `test_subtract` method to `TestCalc` in `tests/test_calc.py`, for example `self.assertEqual(subtract(5, 3), 2)`. Re-run the test command and confirm that 2 tests run. Correct the completion date on the checkbox line.",
+ "ttft_ms": 1834,
+ "type": "result",
+ "duration_ms": 13340,
+ "uuid": "b99f2499-3385-48d0-bd45-f42675e7359a",
+ "ttft_stream_ms": 742,
+ "time_to_request_ms": 35,
+ "first_content_frame_ms": 742,
+ "queued_turn_count": 0,
+ "result_index": 0,
+ "job": {
+  "cell": "no_test",
+  "model": "opus",
+  "rep": 0,
+  "expected": "FAIL"
+ }
+}

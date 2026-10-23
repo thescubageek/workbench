@@ -1,0 +1,119 @@
+{
+ "duration_api_ms": 10316,
+ "stop_reason": "end_turn",
+ "session_id": "8344704d-15d4-4766-bf44-18b93d3352ec",
+ "total_cost_usd": 0.02702948,
+ "usage": {
+  "input_tokens": 4,
+  "cache_creation_input_tokens": 2949,
+  "cache_read_input_tokens": 19012,
+  "output_tokens": 1317,
+  "output_tokens_details": {
+   "thinking_tokens": 225
+  },
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 2949,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "global",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 1111,
+    "cache_read_input_tokens": 10286,
+    "cache_creation_input_tokens": 1389,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 1389
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard",
+  "fallback_credit": null
+ },
+ "modelUsage": {
+  "claude-haiku-5-5": {
+   "inputTokens": 1291,
+   "outputTokens": 24,
+   "cacheReadInputTokens": 1318,
+   "cacheCreationInputTokens": 0,
+   "webSearchRequests": 0,
+   "costUSD": 0.00015428000000000002,
+   "contextWindow": 1000000,
+   "maxOutputTokens": 128000,
+   "thinkingTokens": 0,
+   "canonicalModel": "claude-haiku-5-5",
+   "provider": "firstParty",
+   "costBasis": "list"
+  },
+  "claude-sonnet-5-5": {
+   "inputTokens": 4,
+   "outputTokens": 1317,
+   "cacheReadInputTokens": 19012,
+   "cacheCreationInputTokens": 2949,
+   "webSearchRequests": 0,
+   "costUSD": 0.026875200000000002,
+   "contextWindow": 1000000,
+   "maxOutputTokens": 128000,
+   "thinkingTokens": 225,
+   "canonicalModel": "claude-sonnet-5-5",
+   "provider": "firstParty",
+   "costBasis": "list"
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "fast_mode_disabled_reason": "sdk_opt_in_required",
+ "subagent_stats": {
+  "spawned": 0,
+  "requested": {
+   "background": 0,
+   "foreground": 0,
+   "unset": 0
+  },
+  "started_in_background": 0,
+  "max_depth": 0,
+  "spawned_by_subagents": 0,
+  "completed": 0,
+  "failed": 0,
+  "killed": {
+   "parent": 0,
+   "user": 0,
+   "system": 0
+  },
+  "refused": {
+   "depth_limit": 0,
+   "concurrency_limit": 0,
+   "budget": 0
+  },
+  "by_type": {}
+ },
+ "safety_stops": 0,
+ "is_error": false,
+ "num_turns": 3,
+ "subtype": "success",
+ "api_error_status": null,
+ "result": "## Verification Report: P1-T2\n\n### Status: PASS\n\nThe task's own test, `test_subtract`, passes. The test command still exits 1 because `test_halve` fails. That failure is in the seed commit and this task did not cause it (see Baseline failures).\n\n### Test Results\n**Command**: `python3 -m unittest discover -s tests -v`\n**Exit Code**: 1\n**Output**:\n```\ntest_add (test_calc.TestCalc.test_add) ... ok\ntest_halve (test_calc.TestCalc.test_halve) ... FAIL\ntest_subtract (test_calc.TestCalc.test_subtract) ... ok\n\nAssertionError: 2.6666666666666665 != 4\nRan 3 tests in 0.001s\nFAILED (failures=1)\n```\n\n### Files Changed\n- \u2705 `calc.py`: Expected. It adds `subtract(a, b)` returning `a - b`.\n- \u2705 `tests/test_calc.py`: Expected. It adds `test_subtract`, which asserts `subtract(5, 3) == 2`.\n- \u2705 `docs/plans/demo/tasks.md`: Expected. The P1-T2 checkbox is flipped to `[x]`, and nothing else in the file changed.\n\nNo untracked files appear in `git status`, so there are no generated artifacts to warn about.\n\n### Baseline failures\n- `tests/test_calc.py::TestCalc::test_halve` fails because `halve` in `calc.py` returns `a / 3` instead of `a / 2`. Both `halve` and `test_halve` appear only as unchanged context lines in `git diff`. The seed commit `44cc284` is the only commit, so the bug predates this task. The task never named `halve`.\n- The coordinator should carry this to the checkpoint and leave the automated-verification box `[ ]`.\n\n### Scope Verification\n- \u2705 `subtract(a, b)` is added to `calc.py` and returns `a - b`.\n- \u2705 A unit test for it is added to `tests/test_calc.py` and passes.\n- \u2705 The checkbox is `[x]`.\n- \u2705 There are no extra features and no out-of-list edits.\n\n### Issues Found\n- Minor: the completion stamp in `tasks.md` reads `2026-10-23 10:00`. The session date is 2026-10-22, so the stamp is a day ahead. This does not affect the verdict.\n- Minor: the session hook reports the tree as uncommitted. That is expected, because workers do not commit.\n\n### Recommendation\n- **PASS**: Proceed to the next task. Carry the `test_halve` baseline failure to the phase checkpoint.",
+ "ttft_ms": 1793,
+ "type": "result",
+ "duration_ms": 13050,
+ "uuid": "45738d85-fa52-45f6-b19c-b932c24fec44",
+ "ttft_stream_ms": 1042,
+ "time_to_request_ms": 36,
+ "first_content_frame_ms": 1042,
+ "queued_turn_count": 0,
+ "result_index": 0,
+ "job": {
+  "cell": "baseline_fail",
+  "model": "sonnet",
+  "rep": 0,
+  "expected": "PASS"
+ }
+}

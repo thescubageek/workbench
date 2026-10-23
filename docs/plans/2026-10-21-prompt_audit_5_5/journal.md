@@ -62,6 +62,12 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-10-23 04:35 — P3-T8 (closed)
+
+- **Task/phase**: P3-T8 — build the planted-defect verifier trial and run a pilot
+- **Landed**: 8 cells, harness, and a pilot where both models are right in every cell. $0.73, ledger about $17.80
+- **Commits**: the P3-T8 commit
+
 ## 2026-10-23 04:31 — P3-T7 (closed)
 
 - **Task/phase**: P3-T7 — run the Batch 2 blind trial

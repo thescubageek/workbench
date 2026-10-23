@@ -1,0 +1,119 @@
+{
+ "duration_api_ms": 13708,
+ "stop_reason": "end_turn",
+ "session_id": "dc758b1f-67f5-4fc0-ac37-fb4a959c2fe7",
+ "total_cost_usd": 0.04973428,
+ "usage": {
+  "input_tokens": 4,
+  "cache_creation_input_tokens": 2362,
+  "cache_read_input_tokens": 19055,
+  "output_tokens": 1343,
+  "output_tokens_details": {
+   "thinking_tokens": 218
+  },
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 2362,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "global",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 1161,
+    "cache_read_input_tokens": 10331,
+    "cache_creation_input_tokens": 755,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 755
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard",
+  "fallback_credit": null
+ },
+ "modelUsage": {
+  "claude-haiku-5-5": {
+   "inputTokens": 1291,
+   "outputTokens": 18,
+   "cacheReadInputTokens": 1318,
+   "cacheCreationInputTokens": 0,
+   "webSearchRequests": 0,
+   "costUSD": 0.00015128000000000003,
+   "contextWindow": 1000000,
+   "maxOutputTokens": 128000,
+   "thinkingTokens": 0,
+   "canonicalModel": "claude-haiku-5-5",
+   "provider": "firstParty",
+   "costBasis": "list"
+  },
+  "claude-opus-5-5": {
+   "inputTokens": 4,
+   "outputTokens": 1343,
+   "cacheReadInputTokens": 19055,
+   "cacheCreationInputTokens": 2362,
+   "webSearchRequests": 0,
+   "costUSD": 0.049583,
+   "contextWindow": 1000000,
+   "maxOutputTokens": 128000,
+   "thinkingTokens": 218,
+   "canonicalModel": "claude-opus-5-5",
+   "provider": "firstParty",
+   "costBasis": "list"
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "fast_mode_disabled_reason": "sdk_opt_in_required",
+ "subagent_stats": {
+  "spawned": 0,
+  "requested": {
+   "background": 0,
+   "foreground": 0,
+   "unset": 0
+  },
+  "started_in_background": 0,
+  "max_depth": 0,
+  "spawned_by_subagents": 0,
+  "completed": 0,
+  "failed": 0,
+  "killed": {
+   "parent": 0,
+   "user": 0,
+   "system": 0
+  },
+  "refused": {
+   "depth_limit": 0,
+   "concurrency_limit": 0,
+   "budget": 0
+  },
+  "by_type": {}
+ },
+ "safety_stops": 0,
+ "is_error": false,
+ "num_turns": 2,
+ "subtype": "success",
+ "api_error_status": null,
+ "result": "## Verification Report: P1-T2 (add `subtract(a, b)`)\n\n### Status: FAIL\n\nThe code and test are correct, but the P1-T2 checkbox in `docs/plans/demo/tasks.md` is still `[ ]`. The worker reported that it flipped the checkbox, and that claim is wrong.\n\n### Test Results\n**Command**: `python3 -m unittest discover -s tests -v`\n**Exit Code**: 0\n**Output**:\n```\ntest_add (test_calc.TestCalc.test_add) ... ok\ntest_subtract (test_calc.TestCalc.test_subtract) ... ok\n\n----------------------------------------------------------------------\nRan 2 tests in 0.000s\n\nOK\n```\n\n### Files Changed\n`git status --short` shows only 2 modified files:\n- \u2705 `calc.py`: expected. It adds `subtract(a, b)`, which returns `a - b` (calc.py:5-6).\n- \u2705 `tests/test_calc.py`: expected. It adds `test_subtract`, which checks `subtract(5, 3) == 2` (tests/test_calc.py:11-12).\n- \u274c `docs/plans/demo/tasks.md`: the worker listed this file as changed, but it has no change.\n\n### Baseline failures\n- None.\n\n### Scope Verification\n- \u2705 `subtract(a, b)` returns `a` minus `b`. It is implemented.\n- \u2705 The unit test is in `tests/test_calc.py`. It runs and passes.\n- \u2705 The tree has no scope creep, no files outside the task's list, and no untracked generated files.\n- \u274c The P1-T2 checkbox is not flipped. `tasks.md` line 6 still reads `- [ ] **P1-T2** \u2014 ...`.\n\n### Issues Found\n1. **Missing checkbox (critical, blocks the commit).** Flipping the checkbox is the worker's last required step. The plan records task status only through checkboxes, so committing now would leave P1-T2 marked incomplete.\n2. **Wrong worker report (minor).** The report says \"Flipped the P1-T2 checkbox\", but `tasks.md` has no change. The report also lists `tasks.md` under Files Changed, which is wrong for the same reason.\n\n### Recommendation\n- **FAIL**: The `tasks.md` checkbox for P1-T2 is still `[ ]`.\n  - **Suggested fix:** In `docs/plans/demo/tasks.md`, change `- [ ] **P1-T2**` to `- [x] **P1-T2**`. Follow the P1-T1 format, which adds a completion timestamp. Then re-verify. Only that one line needs checking, because the code and tests already pass.\n  - Do not change the code. `calc.py` and `tests/test_calc.py` meet the task's criteria.",
+ "ttft_ms": 2371,
+ "type": "result",
+ "duration_ms": 14527,
+ "uuid": "d30ae48a-bd30-4d27-9d0c-2e0dc63b5595",
+ "ttft_stream_ms": 958,
+ "time_to_request_ms": 35,
+ "first_content_frame_ms": 958,
+ "queued_turn_count": 0,
+ "result_index": 0,
+ "job": {
+  "cell": "unchecked",
+  "model": "opus",
+  "rep": 0,
+  "expected": "FAIL"
+ }
+}

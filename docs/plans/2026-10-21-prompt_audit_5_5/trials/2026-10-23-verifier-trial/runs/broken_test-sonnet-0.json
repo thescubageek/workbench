@@ -1,0 +1,119 @@
+{
+ "duration_api_ms": 8323,
+ "stop_reason": "end_turn",
+ "session_id": "d533afba-1916-4b01-898a-2339fd46ae39",
+ "total_cost_usd": 0.02360228,
+ "usage": {
+  "input_tokens": 4,
+  "cache_creation_input_tokens": 2968,
+  "cache_read_input_tokens": 19010,
+  "output_tokens": 967,
+  "output_tokens_details": {
+   "thinking_tokens": 0
+  },
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 2968,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "global",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 765,
+    "cache_read_input_tokens": 10284,
+    "cache_creation_input_tokens": 1410,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 1410
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard",
+  "fallback_credit": null
+ },
+ "modelUsage": {
+  "claude-haiku-5-5": {
+   "inputTokens": 1291,
+   "outputTokens": 18,
+   "cacheReadInputTokens": 1318,
+   "cacheCreationInputTokens": 0,
+   "webSearchRequests": 0,
+   "costUSD": 0.00015128000000000003,
+   "contextWindow": 1000000,
+   "maxOutputTokens": 128000,
+   "thinkingTokens": 0,
+   "canonicalModel": "claude-haiku-5-5",
+   "provider": "firstParty",
+   "costBasis": "list"
+  },
+  "claude-sonnet-5-5": {
+   "inputTokens": 4,
+   "outputTokens": 967,
+   "cacheReadInputTokens": 19010,
+   "cacheCreationInputTokens": 2968,
+   "webSearchRequests": 0,
+   "costUSD": 0.023451,
+   "contextWindow": 1000000,
+   "maxOutputTokens": 128000,
+   "thinkingTokens": 0,
+   "canonicalModel": "claude-sonnet-5-5",
+   "provider": "firstParty",
+   "costBasis": "list"
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "fast_mode_disabled_reason": "sdk_opt_in_required",
+ "subagent_stats": {
+  "spawned": 0,
+  "requested": {
+   "background": 0,
+   "foreground": 0,
+   "unset": 0
+  },
+  "started_in_background": 0,
+  "max_depth": 0,
+  "spawned_by_subagents": 0,
+  "completed": 0,
+  "failed": 0,
+  "killed": {
+   "parent": 0,
+   "user": 0,
+   "system": 0
+  },
+  "refused": {
+   "depth_limit": 0,
+   "concurrency_limit": 0,
+   "budget": 0
+  },
+  "by_type": {}
+ },
+ "safety_stops": 0,
+ "is_error": false,
+ "num_turns": 3,
+ "subtype": "success",
+ "api_error_status": null,
+ "result": "## Verification Report: P1-T2\n\n### Status: FAIL\n\n### Test Results\n**Command**: `python3 -m unittest discover -s tests -v`\n**Exit Code**: 1\n**Output**:\n```\ntest_add (test_calc.TestCalc.test_add) ... ok\ntest_subtract (test_calc.TestCalc.test_subtract) ... FAIL\nAssertionError: 8 != 2\nRan 2 tests in 0.000s\nFAILED (failures=1)\n```\nThe worker's claim that the test command passes is false.\n\n### Files Changed\n- \u2705 `calc.py`: expected (task requirement)\n- \u2705 `tests/test_calc.py`: expected (test file)\n- \u2705 `docs/plans/demo/tasks.md`: expected (the P1-T2 checkbox is `[x]`)\n\n### Baseline failures\nNone. `test_add` passes, and `test_subtract` is new in this task.\n\n### Scope Verification\n- \u274c `subtract(a, b)` returns `a - b`: not implemented. `calc.py:6` contains `return a + b`, so `subtract(5, 3)` returns 8.\n- \u2705 Unit test `test_subtract` exists in `tests/test_calc.py:11-12`, and it asserts the correct value (`subtract(5, 3) == 2`).\n- \u2705 The checkbox is flipped to `[x]`. It is flipped wrongly, because the task is not done.\n- \u2705 There is no scope creep.\n\n### Issues Found\n1. **Critical:** `calc.py:6` has `return a + b` in `subtract`. It must be `return a - b`.\n2. The checkbox for P1-T2 in `tasks.md` is `[x]` while the task fails. The coordinator must not commit it as done.\n3. **Warning:** `__pycache__/` and `tests/__pycache__/` exist. `git status --short --ignored` shows them as ignored (`!!`), so they cannot be staged by accident.\n\n### Recommendation\n- **FAIL**: `subtract` adds instead of subtracting, and the task's own test fails.\n  - Suggested fix: change `calc.py:6` to `return a - b`. Re-run the test command.\n  - Revert the P1-T2 checkbox to `[ ]` until the test passes.",
+ "ttft_ms": 1894,
+ "type": "result",
+ "duration_ms": 11636,
+ "uuid": "219666bf-d3cb-4303-8051-4e79b5b1562c",
+ "ttft_stream_ms": 1132,
+ "time_to_request_ms": 36,
+ "first_content_frame_ms": 1132,
+ "queued_turn_count": 0,
+ "result_index": 0,
+ "job": {
+  "cell": "broken_test",
+  "model": "sonnet",
+  "rep": 0,
+  "expected": "FAIL"
+ }
+}

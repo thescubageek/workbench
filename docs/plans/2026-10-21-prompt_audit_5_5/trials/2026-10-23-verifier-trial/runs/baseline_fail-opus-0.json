@@ -1,0 +1,119 @@
+{
+ "duration_api_ms": 17055,
+ "stop_reason": "end_turn",
+ "session_id": "e8ce16ca-1685-4253-86a2-19a5a02b523a",
+ "total_cost_usd": 0.07042578,
+ "usage": {
+  "input_tokens": 6,
+  "cache_creation_input_tokens": 3608,
+  "cache_read_input_tokens": 30430,
+  "output_tokens": 1765,
+  "output_tokens_details": {
+   "thinking_tokens": 256
+  },
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 3608,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "global",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 1183,
+    "cache_read_input_tokens": 11428,
+    "cache_creation_input_tokens": 904,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 904
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard",
+  "fallback_credit": null
+ },
+ "modelUsage": {
+  "claude-haiku-5-5": {
+   "inputTokens": 1291,
+   "outputTokens": 19,
+   "cacheReadInputTokens": 1318,
+   "cacheCreationInputTokens": 0,
+   "webSearchRequests": 0,
+   "costUSD": 0.00015178000000000001,
+   "contextWindow": 1000000,
+   "maxOutputTokens": 128000,
+   "thinkingTokens": 0,
+   "canonicalModel": "claude-haiku-5-5",
+   "provider": "firstParty",
+   "costBasis": "list"
+  },
+  "claude-opus-5-5": {
+   "inputTokens": 6,
+   "outputTokens": 1765,
+   "cacheReadInputTokens": 30430,
+   "cacheCreationInputTokens": 3608,
+   "webSearchRequests": 0,
+   "costUSD": 0.070274,
+   "contextWindow": 1000000,
+   "maxOutputTokens": 128000,
+   "thinkingTokens": 256,
+   "canonicalModel": "claude-opus-5-5",
+   "provider": "firstParty",
+   "costBasis": "list"
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "fast_mode_disabled_reason": "sdk_opt_in_required",
+ "subagent_stats": {
+  "spawned": 0,
+  "requested": {
+   "background": 0,
+   "foreground": 0,
+   "unset": 0
+  },
+  "started_in_background": 0,
+  "max_depth": 0,
+  "spawned_by_subagents": 0,
+  "completed": 0,
+  "failed": 0,
+  "killed": {
+   "parent": 0,
+   "user": 0,
+   "system": 0
+  },
+  "refused": {
+   "depth_limit": 0,
+   "concurrency_limit": 0,
+   "budget": 0
+  },
+  "by_type": {}
+ },
+ "safety_stops": 0,
+ "is_error": false,
+ "num_turns": 3,
+ "subtype": "success",
+ "api_error_status": null,
+ "result": "## Verification Report: P1-T2 (add `subtract(a, b)` to `calc.py`)\n\n### Status: PASS\n\nP1-T2 meets its own criteria. One test fails, but that failure was already in the seed commit `44cc284` before the worker started, so it does not count against this task. The coordinator must still leave the automated-verification box `[ ]` because of that failure.\n\n### Test Results\n**Command**: `python3 -m unittest discover -s tests -v`\n**Exit Code**: 1\n**Output**:\n```\ntest_add (test_calc.TestCalc.test_add) ... ok\ntest_halve (test_calc.TestCalc.test_halve) ... FAIL\ntest_subtract (test_calc.TestCalc.test_subtract) ... ok\n\nFAIL: test_halve\n  File \"tests/test_calc.py\", line 12, in test_halve\n    self.assertEqual(halve(8), 4)\nAssertionError: 2.6666666666666665 != 4\n\nRan 3 tests in 0.000s\nFAILED (failures=1)\n```\n\n### Files Changed\n- \u2705 `calc.py`: expected. It adds `def subtract(a, b): return a - b` and changes nothing else.\n- \u2705 `tests/test_calc.py`: expected. It adds `test_subtract`, which checks `subtract(5, 3) == 2`. The test reaches `subtract` through the existing `from calc import *` (tests/test_calc.py:4).\n- \u2705 `docs/plans/demo/tasks.md`: expected. The P1-T2 checkbox is now `[x]`.\n\n### Baseline failures\n- `tests/test_calc.py::TestCalc::test_halve` fails on the clean seed commit `44cc284`, before this task's changes.\n  - **How I checked:** I extracted that commit to a temp directory with `git archive`, ran the same command there, and got `BASELINE_EXIT=1` with the same `2.6666666666666665 != 4` error.\n  - **Cause:** `halve` returns `a / 3` instead of `a / 2` (calc.py:6). The task's diff does not touch that line.\n  - **Action:** carry this to the phase checkpoint. Leave the automated-verification box `[ ]`.\n\n### Scope Verification\n- \u2705 `subtract(a, b)` returns `a - b`.\n- \u2705 A unit test for `subtract` exists and passes.\n- \u2705 The P1-T2 checkbox in `tasks.md` is `[x]`.\n- \u2705 Nothing outside the task was added. The worker did not change `halve`, which is correct because fixing it is outside this task.\n\n### Issues Found\n1. **The worker report is wrong about the tests (minor).** The worker said \"The test command passes\", but the command exits with code 1 because of `test_halve`. That failure is not the worker's fault, but the coordinator should not trust the claim.\n2. **The completion date is wrong (minor).** The P1-T2 line says `(completed 2026-10-23 10:00)`, but today is 2026-10-22. Correct the date before committing.\n3. **Generated files:** `__pycache__/` and `tests/__pycache__/` are already gitignored, so nothing needs to be done.\n\n### Recommendation\n- **PASS:** commit P1-T2. List the `test_halve` failure (caused by `halve` returning `a / 3`) as a baseline failure at the Phase 1 checkpoint.",
+ "ttft_ms": 1720,
+ "type": "result",
+ "duration_ms": 20294,
+ "uuid": "64382410-ae45-4f6f-bb74-e9e0770efa20",
+ "ttft_stream_ms": 771,
+ "time_to_request_ms": 37,
+ "first_content_frame_ms": 771,
+ "queued_turn_count": 0,
+ "result_index": 0,
+ "job": {
+  "cell": "baseline_fail",
+  "model": "opus",
+  "rep": 0,
+  "expected": "PASS"
+ }
+}

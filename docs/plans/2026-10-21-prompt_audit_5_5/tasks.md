@@ -716,8 +716,8 @@ Annotate each with its projected tool-call cost; anything past ~50 splits at a n
       for each cell, after a 1-run pilot whose cost goes into the spend ledger. Score it and record
       the table in `RESULTS.md`. If a cell fails the bar, revert the edit that the cell tests and
       record it. (~15 calls) (completed 2026-10-23 04:34)
-- [ ] **P3-T8** — Build the planted-defect verifier trial as Changes Required §2 says. Run a
-      1-run pilot on each model, and add its cost to the spend ledger. (~35 calls)
+- [x] **P3-T8** — Build the planted-defect verifier trial as Changes Required §2 says. Run a
+      1-run pilot on each model, and add its cost to the spend ledger. (~35 calls) (completed 2026-10-23 04:36)
 - [ ] **P3-T9** — Run the verifier trial with 3 repeats for each cell and model, if the ledger
       projects the plan total at or under $30. Otherwise ask the user. Record the results in the
       trial's `RESULTS.md`. Apply the decision rule. If Opus wins, set `model: opus` in
@@ -1286,7 +1286,8 @@ resolved, leaving a dated line saying how.
   | 2026-10-23 | P2-T5 judge, 4 calls (`judge.py` records no cost) | about $0.20, estimated |
   | 2026-10-23 | P2-T6 harness repeat 3 (`evals/runs/20261023T033810Z`) and its judge | $3.47 + about $0.10 |
   | 2026-10-23 | P3-T7 Batch 2 blind trial, 200 runs with the pilot | $1.13 |
-  | | **Total** | **about $17.07** |
+  | 2026-10-23 | P3-T8 verifier trial pilot, 16 runs | $0.73 |
+  | | **Total** | **about $17.80** |
 
 - **Budget plan** (estimates, to be replaced by measured costs): Batch 1 harness gate about $10
   for 2 repeats, Batch 4 research-only gate about $8, Batch 2 and Batch 3 blind trials about $2,
@@ -1408,6 +1409,9 @@ resolved, leaving a dated line saying how.
 - [2026-10-23] Completed P3-T7: PASS. `trim` ≥ `base` in all 10 cell pairs, and all 4 trap cells
   reached 10 of 10 for `trim` on both models (`trials/2026-10-23-batch2-blind-trial/RESULTS.md`).
   No edit is reverted. Cost $1.13.
+- [2026-10-23] Completed P3-T8: `trials/2026-10-23-verifier-trial/` with 8 cells (2 controls, 6
+  planted defects). The runner uses `--agent wb:task-verifier --model <m>`, which needs no spawn
+  and so does not test a spawn `model` override. Pilot $0.73: both models right in all 8 cells.
 - **Kept CAPS lines**: record each one here with its file, line, and reason, as the wording tasks
   run.
   - `create_research/SKILL.md:27` — the Documentarian Rule fence. It is the stage's one core
