@@ -11,6 +11,50 @@ requires `shellcheck` and `python3` and fails loudly without them. A contributor
 the checks at 2.1.0 cannot at 3.0.0 without installing two tools, and no reading of "removed or
 renamed stages" would have warned them.
 
+## [3.0.1] — 2026-10-23
+
+Prompt bugfixes for the Claude 5.5 models, found by a prompt audit
+(`docs/plans/2026-10-21-prompt_audit_5_5/`). The plugin's aliases already resolve to the 5.5
+models, but every spawn block named its agent in a form the Agent tool rejects, and the model
+advice still named the models before 5.5. No stage was added or removed.
+
+### Fixed
+
+- **Every spawn block named its agent without the `wb:` prefix, and the Agent tool rejects that
+  name.** A bare `subagent_type: "codebase-locator"` fails with `Agent type 'codebase-locator' not
+  found`. The 20 spawns in the 6 `sub-agent-prompts.md` files and the 6 prose spawns in
+  `implement` now use `wb:<name>`. The 2 `general-purpose` spawns stay bare, because a built-in
+  has no prefix.
+- **Spawn blocks passed a `model` that overrode the agent file.** A spawn's `model` wins over the
+  agent file, and 6 spawns disagreed with theirs: `validate_execution` ran `codebase-analyzer` on
+  `haiku` and `pattern-finder` on `sonnet`, and `create_mockup` ran `codebase-analyzer` on `haiku`
+  4 times. Spawn blocks now pass no `model`, so the agent file is the one place that sets a
+  spawned agent's tier.
+- **Three agents inherited the session's effort.** `codebase-locator`, `pattern-finder`, and
+  `task-worker` set no `effort`, so they ran at whatever level the session used, which was `high`
+  in the audit's own session. They now set `effort: medium`. A Haiku 5.5 agent at `low` is "more
+  likely to skip a search, stop early, or skip a check" (Anthropic's Haiku 5.5 prompting guide).
+- **`model-help` named Opus 5, Opus 4.8, Sonnet 5, and Haiku 4.5.** It now names Fable 5.1, Opus
+  5.5, Sonnet 5.5, and Haiku 5.5, with Opus 5.5 as the default and Fable 5.1 as the top rung. Its
+  ladder, mapping, per-phase baselines, and anchors follow.
+- **"Never annotate `effort` on a haiku spawn" was stale.** Haiku 5.5 supports every effort
+  level, and a spawn's `effort` overrides the agent file's on Claude Code 2.1.292 and later. The
+  rule is gone from `implement` and `adversarial-review`. The `implement` tier table gains an
+  effort for each rung.
+- **Seven stages hard-coded a model tier in their gate line, and five pointed to a `CLAUDE.md`
+  that installers do not receive.** The gate lines now delegate to `model-help` alone.
+
+### Migration
+
+None. Update the plugin and restart:
+
+```bash
+claude plugin update wb@thescubageek-workbench
+```
+
+This is a patch release so that the version-keyed plugin cache picks the fixes up. The wording
+pass that the audit also covers comes in 3.1.0.
+
 ## [3.0.0] — 2026-10-21
 
 Three review skills, added by **wrapping** Claude Code's built-in review machinery rather than

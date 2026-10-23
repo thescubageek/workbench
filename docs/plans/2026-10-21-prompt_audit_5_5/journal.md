@@ -62,6 +62,12 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-10-23 01:49 — P1-T10 (closed)
+
+- **Task/phase**: P1-T10 — release 3.0.1: CHANGELOG entry and both manifests
+- **Landed**: the [3.0.1] entry and version 3.0.1 in both manifests. ./plugin/scripts/check passed every gate. Not tagged and not pushed, pending the user
+- **Commits**: the P1-T10 commit
+
 ## 2026-10-23 01:47 — P1-T9 (closed)
 
 - **Task/phase**: P1-T9 — Batch 0 gate: mechanical checks and a headless spawn probe

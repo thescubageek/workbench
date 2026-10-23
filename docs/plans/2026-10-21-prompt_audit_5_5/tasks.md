@@ -377,7 +377,7 @@ Annotate each with its projected tool-call cost; anything past ~50 splits at a n
 
 #### Integration
 
-- [ ] **P1-T10** — Release 3.0.1. Add a `## [3.0.1] — <date>` entry to `CHANGELOG.md` in the 2.0.1
+- [x] **P1-T10** — Release 3.0.1. Add a `## [3.0.1] — <date>` entry to `CHANGELOG.md` in the 2.0.1
       shape: one paragraph on what was found, a `### Fixed` list (bare spawn names, spawn models
       that overrode their agent files, agents that inherited the session effort, the stale
       roster, and the stale haiku-effort rule), and a `### Migration` block with
@@ -385,7 +385,7 @@ Annotate each with its projected tool-call cost; anything past ~50 splits at a n
       `plugin/.claude-plugin/plugin.json:3` and `.claude-plugin/marketplace.json:12` in the same
       commit. Run `./plugin/scripts/check`. After the commit, run
       `claude plugin tag --dry-run plugin/` and confirm that it names `wb--v3.0.1`. Do not tag or
-      push without the user's go-ahead. (~12 calls)
+      push without the user's go-ahead. (~12 calls) (completed 2026-10-23 02:00)
 
 ### Success Criteria
 
