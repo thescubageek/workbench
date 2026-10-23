@@ -1,0 +1,13 @@
+total cost $0.48
+ED soft_yes opus base pass 10/10 {'CONFIRM': 10}
+ED soft_yes opus trim pass 10/10 {'CONFIRM': 10}
+ED soft_yes sonnet base pass 10/10 {'CONFIRM': 10}
+ED soft_yes sonnet trim pass 10/10 {'CONFIRM': 10}
+US obvious_status opus base pass 10/10 {'ASK': 10}
+US obvious_status opus trim pass 10/10 {'ASK': 10}
+US obvious_status sonnet base pass 10/10 {'ASK': 10}
+US obvious_status sonnet trim pass 10/10 {'ASK': 10}
+VE placeholder opus base pass 10/10 {'FIX': 10}
+VE placeholder opus trim pass 10/10 {'FIX': 10}
+VE placeholder sonnet base pass 10/10 {'FIX': 10}
+VE placeholder sonnet trim pass 10/10 {'FIX': 10}

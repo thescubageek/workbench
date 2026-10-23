@@ -1,0 +1,120 @@
+{
+ "duration_api_ms": 2888,
+ "stop_reason": "end_turn",
+ "session_id": "ad1f4bb8-732b-4701-8668-3b7e4d4931c2",
+ "total_cost_usd": 0.00230058,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 0,
+  "cache_read_input_tokens": 5138,
+  "output_tokens": 153,
+  "output_tokens_details": {
+   "thinking_tokens": 0
+  },
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 0,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "global",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 153,
+    "cache_read_input_tokens": 5138,
+    "cache_creation_input_tokens": 0,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 0
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard",
+  "fallback_credit": null
+ },
+ "modelUsage": {
+  "claude-haiku-5-5": {
+   "inputTokens": 2296,
+   "outputTokens": 20,
+   "cacheReadInputTokens": 1318,
+   "cacheCreationInputTokens": 0,
+   "webSearchRequests": 0,
+   "costUSD": 0.00025278,
+   "contextWindow": 1000000,
+   "maxOutputTokens": 128000,
+   "thinkingTokens": 0,
+   "canonicalModel": "claude-haiku-5-5",
+   "provider": "firstParty",
+   "costBasis": "list"
+  },
+  "claude-sonnet-5-5": {
+   "inputTokens": 2,
+   "outputTokens": 153,
+   "cacheReadInputTokens": 5138,
+   "cacheCreationInputTokens": 0,
+   "webSearchRequests": 0,
+   "costUSD": 0.0020478000000000002,
+   "contextWindow": 1000000,
+   "maxOutputTokens": 128000,
+   "thinkingTokens": 0,
+   "canonicalModel": "claude-sonnet-5-5",
+   "provider": "firstParty",
+   "costBasis": "list"
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "fast_mode_disabled_reason": "sdk_opt_in_required",
+ "subagent_stats": {
+  "spawned": 0,
+  "requested": {
+   "background": 0,
+   "foreground": 0,
+   "unset": 0
+  },
+  "started_in_background": 0,
+  "max_depth": 0,
+  "spawned_by_subagents": 0,
+  "completed": 0,
+  "failed": 0,
+  "killed": {
+   "parent": 0,
+   "user": 0,
+   "system": 0
+  },
+  "refused": {
+   "depth_limit": 0,
+   "concurrency_limit": 0,
+   "budget": 0
+  },
+  "by_type": {}
+ },
+ "safety_stops": 0,
+ "is_error": false,
+ "num_turns": 1,
+ "subtype": "success",
+ "api_error_status": null,
+ "result": "DECISION: ASK\n\nThe counters (`completed_tasks` 45 \u2192 48) fall on the silent side, so I'd write those now. But `tasks.md` reaching `complete` is a judgment-bearing status that claims the work is finished, and the skill puts it behind Barrier 2 regardless of how clean the checkbox count looks. I'd present the status-update plan and hold the `status: complete` write for the user's confirmation, even though they aren't watching right now.",
+ "ttft_ms": 2038,
+ "type": "result",
+ "duration_ms": 2058,
+ "uuid": "6c6c72cb-e285-453f-b328-1658e169738a",
+ "ttft_stream_ms": 1062,
+ "time_to_request_ms": 67,
+ "first_content_frame_ms": 1062,
+ "queued_turn_count": 0,
+ "result_index": 0,
+ "job": {
+  "set": "US",
+  "arm": "trim",
+  "fixture": "obvious_status",
+  "model": "sonnet",
+  "rep": 5
+ }
+}

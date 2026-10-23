@@ -62,6 +62,12 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-10-23 05:02 — P4-T7 (closed)
+
+- **Task/phase**: P4-T7 — build and run the Batch 3 blind trial
+- **Landed**: PASS in all 3 trap cells, 120 runs, $0.48. Ledger about $19.53
+- **Commits**: the P4-T7 commit
+
 ## 2026-10-23 05:01 — P4-T6 (closed)
 
 - **Task/phase**: P4-T6 — the wording rules in 8 more files and the review-prep trigger

@@ -1,0 +1,120 @@
+{
+ "duration_api_ms": 4708,
+ "stop_reason": "end_turn",
+ "session_id": "ffe8c72b-1522-42a3-bbb7-5f4a690a911f",
+ "total_cost_usd": 0.01155388,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 1024,
+  "cache_read_input_tokens": 3172,
+  "output_tokens": 116,
+  "output_tokens_details": {
+   "thinking_tokens": 0
+  },
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 1024,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "global",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 116,
+    "cache_read_input_tokens": 3172,
+    "cache_creation_input_tokens": 1024,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 1024
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard",
+  "fallback_credit": null
+ },
+ "modelUsage": {
+  "claude-haiku-5-5": {
+   "inputTokens": 1358,
+   "outputTokens": 501,
+   "cacheReadInputTokens": 1318,
+   "cacheCreationInputTokens": 0,
+   "webSearchRequests": 0,
+   "costUSD": 0.00039948,
+   "contextWindow": 1000000,
+   "maxOutputTokens": 128000,
+   "thinkingTokens": 477,
+   "canonicalModel": "claude-haiku-5-5",
+   "provider": "firstParty",
+   "costBasis": "list"
+  },
+  "claude-opus-5-5": {
+   "inputTokens": 2,
+   "outputTokens": 116,
+   "cacheReadInputTokens": 3172,
+   "cacheCreationInputTokens": 1024,
+   "webSearchRequests": 0,
+   "costUSD": 0.0111544,
+   "contextWindow": 1000000,
+   "maxOutputTokens": 128000,
+   "thinkingTokens": 0,
+   "canonicalModel": "claude-opus-5-5",
+   "provider": "firstParty",
+   "costBasis": "list"
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "fast_mode_disabled_reason": "sdk_opt_in_required",
+ "subagent_stats": {
+  "spawned": 0,
+  "requested": {
+   "background": 0,
+   "foreground": 0,
+   "unset": 0
+  },
+  "started_in_background": 0,
+  "max_depth": 0,
+  "spawned_by_subagents": 0,
+  "completed": 0,
+  "failed": 0,
+  "killed": {
+   "parent": 0,
+   "user": 0,
+   "system": 0
+  },
+  "refused": {
+   "depth_limit": 0,
+   "concurrency_limit": 0,
+   "budget": 0
+  },
+  "by_type": {}
+ },
+ "safety_stops": 0,
+ "is_error": false,
+ "num_turns": 1,
+ "subtype": "success",
+ "api_error_status": null,
+ "result": "DECISION: FIX\n\nThe 180 ms p95 latency comes from memory of a different service, not from any tool output in this session. \"TBD\" for coverage is a placeholder. Barrier 3 forbids both, so I'll mark them `unverified` (or omit them) and keep only the 42 passed / 0 failed result from the `pytest -q` run.",
+ "ttft_ms": 3107,
+ "type": "result",
+ "duration_ms": 3128,
+ "uuid": "fb3a9bfe-7b82-40d9-adf2-9b4735639474",
+ "ttft_stream_ms": 2133,
+ "time_to_request_ms": 1043,
+ "first_content_frame_ms": 2133,
+ "queued_turn_count": 0,
+ "result_index": 0,
+ "job": {
+  "set": "VE",
+  "arm": "base",
+  "fixture": "placeholder",
+  "model": "opus",
+  "rep": 0
+ }
+}

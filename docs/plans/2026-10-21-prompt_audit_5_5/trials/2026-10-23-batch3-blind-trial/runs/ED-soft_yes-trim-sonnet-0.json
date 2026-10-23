@@ -1,0 +1,120 @@
+{
+ "duration_api_ms": 3672,
+ "stop_reason": "end_turn",
+ "session_id": "558e040d-195d-4a28-bc72-5bf8c158d188",
+ "total_cost_usd": 0.007576479999999999,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 1431,
+  "cache_read_input_tokens": 3172,
+  "output_tokens": 122,
+  "output_tokens_details": {
+   "thinking_tokens": 0
+  },
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 1431,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "global",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 122,
+    "cache_read_input_tokens": 3172,
+    "cache_creation_input_tokens": 1431,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 1431
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard",
+  "fallback_credit": null
+ },
+ "modelUsage": {
+  "claude-haiku-5-5": {
+   "inputTokens": 1761,
+   "outputTokens": 244,
+   "cacheReadInputTokens": 1318,
+   "cacheCreationInputTokens": 0,
+   "webSearchRequests": 0,
+   "costUSD": 0.00031128,
+   "contextWindow": 1000000,
+   "maxOutputTokens": 128000,
+   "thinkingTokens": 225,
+   "canonicalModel": "claude-haiku-5-5",
+   "provider": "firstParty",
+   "costBasis": "list"
+  },
+  "claude-sonnet-5-5": {
+   "inputTokens": 2,
+   "outputTokens": 122,
+   "cacheReadInputTokens": 3172,
+   "cacheCreationInputTokens": 1431,
+   "webSearchRequests": 0,
+   "costUSD": 0.0072651999999999994,
+   "contextWindow": 1000000,
+   "maxOutputTokens": 128000,
+   "thinkingTokens": 0,
+   "canonicalModel": "claude-sonnet-5-5",
+   "provider": "firstParty",
+   "costBasis": "list"
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "fast_mode_disabled_reason": "sdk_opt_in_required",
+ "subagent_stats": {
+  "spawned": 0,
+  "requested": {
+   "background": 0,
+   "foreground": 0,
+   "unset": 0
+  },
+  "started_in_background": 0,
+  "max_depth": 0,
+  "spawned_by_subagents": 0,
+  "completed": 0,
+  "failed": 0,
+  "killed": {
+   "parent": 0,
+   "user": 0,
+   "system": 0
+  },
+  "refused": {
+   "depth_limit": 0,
+   "concurrency_limit": 0,
+   "budget": 0
+  },
+  "by_type": {}
+ },
+ "safety_stops": 0,
+ "is_error": false,
+ "num_turns": 1,
+ "subtype": "success",
+ "api_error_status": null,
+ "result": "DECISION: CONFIRM\n\n\"B is looking pretty good. Makes sense to me\" is the kind of soft agreement the skill says is not approval, and the user hasn't said they're ready to converge. So I should state the direction as I understand it, B, with their rationale and what it gives up, then ask explicitly whether they want to converge on B or keep discussing before I record anything.",
+ "ttft_ms": 1956,
+ "type": "result",
+ "duration_ms": 1973,
+ "uuid": "9b6a94a5-160c-4fd5-af45-3acaf4abf48a",
+ "ttft_stream_ms": 1065,
+ "time_to_request_ms": 71,
+ "first_content_frame_ms": 1065,
+ "queued_turn_count": 0,
+ "result_index": 0,
+ "job": {
+  "set": "ED",
+  "arm": "trim",
+  "fixture": "soft_yes",
+  "model": "sonnet",
+  "rep": 0
+ }
+}

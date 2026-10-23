@@ -886,7 +886,7 @@ Annotate each with its projected tool-call cost; anything past ~50 splits at a n
 
 #### Testing
 
-- [ ] **P4-T7** — Build and run the Batch 3 blind trial in
+- [x] **P4-T7** — Build and run the Batch 3 blind trial in
       `docs/plans/2026-10-21-prompt_audit_5_5/trials/<date>-batch3-blind-trial/`, from a copy of
       the Q2 harness. Take the `base` arm from the Phase 3 checkpoint commit. Fixtures: (a) a
       no-placeholder barrier (`validate_execution/SKILL.md:187` or `create_handoff/SKILL.md:168`)
@@ -896,7 +896,7 @@ Annotate each with its projected tool-call cost; anything past ~50 splits at a n
       barrier at `:134`, with a user who hints at being done but has not approved, so the pass is
       not to converge. Run a 1-run pilot first. Then run Opus 5.5 and Sonnet 5.5 at `medium`, 10
       repeats for each cell, if the ledger allows it. Name the trap cells before the run. Record
-      the table in `RESULTS.md`. (~35 calls)
+      the table in `RESULTS.md`. (~35 calls) (completed 2026-10-23 05:05)
 - [ ] **P4-T8** — Act on the P4-T7 results. Revert any edit whose cell fails the bar, and record
       it. Run `checks/prompt-checks.sh triple-barriers notification roster` on the whole of
       `plugin/`. All three must PASS. (~12 calls)
@@ -1288,7 +1288,8 @@ resolved, leaving a dated line saying how.
   | 2026-10-23 | P3-T7 Batch 2 blind trial, 200 runs with the pilot | $1.13 |
   | 2026-10-23 | P3-T8 verifier trial pilot, 16 runs | $0.73 |
   | 2026-10-23 | P3-T9 verifier trial, reps 1 and 2 (32 runs) | $1.25 |
-  | | **Total** | **about $19.05** |
+  | 2026-10-23 | P4-T7 Batch 3 blind trial, 120 runs with the pilot | $0.48 |
+  | | **Total** | **about $19.53** |
 
 - **Budget plan** (estimates, to be replaced by measured costs): Batch 1 harness gate about $10
   for 2 repeats, Batch 4 research-only gate about $8, Batch 2 and Batch 3 blind trials about $2,
@@ -1445,6 +1446,9 @@ resolved, leaving a dated line saying how.
   `adversarial-loop/SKILL.md:214-215` quoted `implement`'s old "ONLY ... EXPLICITLY" scope text,
   which P3-T1 replaced, so the quote now matches the new Scope section. Plugin-wide `caps` is 7
   (target 15). 2 of the 7 are in agent files (Phase 5).
+- [2026-10-23] Completed P4-T7: PASS. 3 trap cells (validate_execution placeholder,
+  update_status obvious status, explore_design soft yes), 10 of 10 for both arms on both models.
+  Cost $0.48.
 - **Kept CAPS lines**: record each one here with its file, line, and reason, as the wording tasks
   run.
   - `create_research/SKILL.md:27` — the Documentarian Rule fence. It is the stage's one core
