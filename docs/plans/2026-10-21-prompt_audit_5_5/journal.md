@@ -62,11 +62,17 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
-## 2026-10-23 07:10 — P5-T1 (open)
+## 2026-10-23 07:11 — P5-T2 (open)
 
-- **Task/phase**: P5-T1 — the wording rules in the prose of codebase-analyzer, product-behavior-analyzer, codebase-locator, and pattern-finder
-- **Next action**: read each agent body, rewrite the CAPS lines and the restated documentarian rule, one commit for each file
-- **Started at**: d9cb9c4
+- **Task/phase**: P5-T2 — the wording rules in research-validator, task-verifier, and task-worker
+- **Next action**: rewrite the CAPS lines and restatements in the three agent bodies, one commit for each file. Keep the report headings
+- **Started at**: f500133
+
+## 2026-10-23 07:10 — P5-T1 (closed)
+
+- **Task/phase**: P5-T1 — the wording rules in 4 agent files
+- **Landed**: b31b1b2, a9a2010, f605fc1, 105a5d9. The frontmatter is unchanged (agent-tiers PASS)
+- **Commits**: b31b1b2..105a5d9, and the record commit f500133
 
 ## 2026-10-23 05:02 — P4-T7 (closed)
 
