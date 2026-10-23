@@ -135,13 +135,13 @@ When invoked:
 ### Phase: create_design
 
 - Invoke `/wb:create_design` semantics.
-- ⛔ BARRIER on completion: read design.md's `## Pending Decisions` table. If any row is unresolved and its `Blocks` names execution start, **stop and surface it**.
+- ⛔ BARRIER on completion: read design.md's `## Pending Decisions` table. If any row is unresolved and its `Blocks` names execution start, **stop and surface it** — tasks built on an open decision encode a guess.
 
 ### Phase: create_tasks
 
 - Invoke `/wb:create_tasks` semantics.
 - Writes the phased task list, each task a checkbox with a local ID.
-- ⛔ BARRIER: explicitly ask the user "ready to implement?" before advancing. Default stop-after value is here.
+- ⛔ BARRIER: explicitly ask the user "ready to implement?" before advancing — implementation is the first stage that changes code. Default stop-after value is here.
 
 ### Phase: implement
 

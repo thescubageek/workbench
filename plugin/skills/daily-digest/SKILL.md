@@ -84,7 +84,7 @@ git status --short
   **OPEN** entry in its `journal.md` — an open entry beside a dirty tree is an
   interrupted task, and it is the highest-signal item in the digest.
 - **Last handoff:** newest `docs/plans/**/handoff*.md` or `.context/**` — read it
-  FULLY if present (this is the highest-signal context restore).
+  in full if present (this is the highest-signal context restore).
 - **Last digest:** read `.context/daily-digest/<prev-date>.md` if present — yesterday's
   "Today" list is the baseline you diff against.
 
@@ -92,8 +92,9 @@ Emit nothing yet. Hold this as the frame that aims Phase 1.
 
 ## Phase 1 — Gather (parallel fan-out, read-only)
 
-**⛔ BARRIER 1: Spawn one collector per available source, then wait for ALL before
-reconciling.** Collectors are read-only and independent — fan them out concurrently
+**⛔ BARRIER 1: Spawn one collector per available source, then wait for a completion notification
+from every collector before reconciling** — a digest reconciled on a partial set ranks work it has
+not seen. Collectors are read-only and independent — fan them out concurrently
 (one message, multiple `Agent` calls) for speed and cost. Use **haiku** for
 mechanical pulls (git, PR lists, calendar) and **sonnet** for sources needing
 judgement (email triage, Sentry severity, Notion relevance).
@@ -125,7 +126,8 @@ Collect all collector outputs before Phase 2.
 
 ## Phase 2 — Reconcile & bucket
 
-**⛔ BARRIER 2: Deduplicate across sources into unified work items BEFORE ranking.**
+**⛔ BARRIER 2: Deduplicate across sources into unified work items before ranking** — otherwise one
+piece of work is counted several times.
 
 The same work shows up in many tools. Group them: match on ticket key in branch/PR
 names, PR↔issue closing refs, plan task titles referencing a Jira key, Sentry
@@ -232,8 +234,8 @@ exhausting the rolling **5-hour usage window** or ignoring your calendar.
 
 **Applies whenever you work in a HIPAA-covered organization** — or anywhere the sources
 below carry regulated personal data. Gmail, Jira, Sentry and Notion routinely contain
-Protected Health Information. This skill reads those sources to *plan work*, and MUST NOT
-surface or persist PHI.
+Protected Health Information. This skill reads those sources to *plan work*, and it never
+surfaces or persists PHI.
 
 If your organization is not covered, this section costs you nothing: it only ever removes
 identifiers from a planning artifact that never needed them.
@@ -276,7 +278,7 @@ were never told to open is a rule with nothing to apply.
 - **Re-runnable.** Running twice in a day = "what changed since the last run," not a
   duplicate morning report.
 
-## Red flags — STOP
+## Red flags: stop
 
 - Ranking before reconciling (the same work counted 3×).
 - Any patient identifier or Member ID in the digest or a `.context/` file.

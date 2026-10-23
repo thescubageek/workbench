@@ -56,7 +56,7 @@ When invoked, check for arguments:
 
 ### Step 2: Gather every open record
 
-**⛔ BARRIER: Read all sources before presenting anything to the user. Do not start asking until the full list is known.**
+**⛔ BARRIER: Read all sources before presenting anything to the user. Do not start asking until the full list is known** — a question asked early can be answered twice, or contradicted by one found later.
 
 Planning records live in the document that raises them — there is no external tracker to query, so the documents *are* the list. Read each `.md` file in the directory fully and collect:
 

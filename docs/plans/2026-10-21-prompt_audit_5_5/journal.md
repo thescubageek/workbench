@@ -62,6 +62,12 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-10-23 05:00 — P4-T5 (closed)
+
+- **Task/phase**: P4-T5 — the wording rules in create_project, resolve_questions, fetch-issues, daily-digest, and forge
+- **Landed**: 9 barriers with reasons. 1 kept CAPS line, the daily-digest Iron Law (the PHI rule)
+- **Commits**: the P4-T5 commit
+
 ## 2026-10-23 04:59 — P4-T4 (closed)
 
 - **Task/phase**: P4-T4 — the wording rules in explore_design, create_mockup, and mockup-iteration
