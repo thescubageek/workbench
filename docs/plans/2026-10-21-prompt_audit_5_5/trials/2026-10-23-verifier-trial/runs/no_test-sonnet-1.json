@@ -1,0 +1,119 @@
+{
+ "duration_api_ms": 8628,
+ "stop_reason": "end_turn",
+ "session_id": "d158c238-7e3c-4a71-922a-132c0cefcbd5",
+ "total_cost_usd": 0.02374368,
+ "usage": {
+  "input_tokens": 4,
+  "cache_creation_input_tokens": 2688,
+  "cache_read_input_tokens": 19009,
+  "output_tokens": 1093,
+  "output_tokens_details": {
+   "thinking_tokens": 65
+  },
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 2688,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "global",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 874,
+    "cache_read_input_tokens": 10283,
+    "cache_creation_input_tokens": 1131,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 1131
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard",
+  "fallback_credit": null
+ },
+ "modelUsage": {
+  "claude-haiku-5-5": {
+   "inputTokens": 1291,
+   "outputTokens": 21,
+   "cacheReadInputTokens": 1318,
+   "cacheCreationInputTokens": 0,
+   "webSearchRequests": 0,
+   "costUSD": 0.00015278000000000004,
+   "contextWindow": 1000000,
+   "maxOutputTokens": 128000,
+   "thinkingTokens": 0,
+   "canonicalModel": "claude-haiku-5-5",
+   "provider": "firstParty",
+   "costBasis": "list"
+  },
+  "claude-sonnet-5-5": {
+   "inputTokens": 4,
+   "outputTokens": 1093,
+   "cacheReadInputTokens": 19009,
+   "cacheCreationInputTokens": 2688,
+   "webSearchRequests": 0,
+   "costUSD": 0.023590899999999998,
+   "contextWindow": 1000000,
+   "maxOutputTokens": 128000,
+   "thinkingTokens": 65,
+   "canonicalModel": "claude-sonnet-5-5",
+   "provider": "firstParty",
+   "costBasis": "list"
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "fast_mode_disabled_reason": "sdk_opt_in_required",
+ "subagent_stats": {
+  "spawned": 0,
+  "requested": {
+   "background": 0,
+   "foreground": 0,
+   "unset": 0
+  },
+  "started_in_background": 0,
+  "max_depth": 0,
+  "spawned_by_subagents": 0,
+  "completed": 0,
+  "failed": 0,
+  "killed": {
+   "parent": 0,
+   "user": 0,
+   "system": 0
+  },
+  "refused": {
+   "depth_limit": 0,
+   "concurrency_limit": 0,
+   "budget": 0
+  },
+  "by_type": {}
+ },
+ "safety_stops": 0,
+ "is_error": false,
+ "num_turns": 3,
+ "subtype": "success",
+ "api_error_status": null,
+ "result": "## Verification Report: P1-T2\n\n### Status: FAIL\n\n### Test Results\n**Command**: `python3 -m unittest discover -s tests -v`\n**Exit Code**: 0\n**Output**:\n```\ntest_add (test_calc.TestCalc.test_add) ... ok\nRan 1 test in 0.000s\nOK\n```\nOnly `test_add` ran. No `test_subtract` exists, so the passing run says nothing about `subtract`.\n\n### Files Changed\n- \u2705 `calc.py`: Expected. It adds `subtract(a, b)` returning `a - b`.\n- \u2705 `docs/plans/demo/tasks.md`: Expected. The P1-T2 checkbox is flipped to `[x]`.\n- \u274c `tests/test_calc.py`: **Not modified**, although the worker reported adding `test_subtract`. `git status --short` lists only `calc.py` and `tasks.md`.\n\n### Baseline failures\nNone.\n\n### Scope Verification\n- \u2705 Requirement 1: `subtract(a, b)` is in `calc.py` and returns `a - b`.\n- \u274c Requirement 2: There is no unit test for `subtract` in `tests/test_calc.py`. The file contains only `test_add`.\n- \u26a0\ufe0f The checkbox is `[x]`, but the task is incomplete. The checkbox also carries the timestamp `2026-10-23 10:00`. Today is 2026-10-22.\n\n### Issues Found\n1. **Critical**: The unit test the task requires is missing. The worker's summary says `test_subtract` was added, but the working tree has no such change.\n2. **Minor**: The completion timestamp in `tasks.md` (`2026-10-23 10:00`) is a day later than today's date.\n3. **Warning**: Untracked, git-ignored `__pycache__/` and `tests/__pycache__/` exist. `git status --ignored` shows them as ignored, so they won't be staged.\n\n### Recommendation\n- **FAIL**: The required unit test is missing, so the task is not complete.\n  - Suggested fix: Add `test_subtract` to `TestCalc` in `tests/test_calc.py`, for example `self.assertEqual(subtract(5, 3), 2)`. Rerun the test command and confirm that two tests run. Reset the P1-T2 checkbox to `[ ]` until the test exists, then flip it and fix the timestamp.",
+ "ttft_ms": 1617,
+ "type": "result",
+ "duration_ms": 9110,
+ "uuid": "b311106c-e0ef-4f68-a605-229c46724365",
+ "ttft_stream_ms": 913,
+ "time_to_request_ms": 44,
+ "first_content_frame_ms": 913,
+ "queued_turn_count": 0,
+ "result_index": 0,
+ "job": {
+  "cell": "no_test",
+  "model": "sonnet",
+  "rep": 1,
+  "expected": "FAIL"
+ }
+}

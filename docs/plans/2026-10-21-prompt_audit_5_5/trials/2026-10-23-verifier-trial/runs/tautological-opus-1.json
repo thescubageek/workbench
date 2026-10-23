@@ -1,0 +1,119 @@
+{
+ "duration_api_ms": 16298,
+ "stop_reason": "end_turn",
+ "session_id": "f2caee08-37a4-4156-b262-336825ec305d",
+ "total_cost_usd": 0.06354618,
+ "usage": {
+  "input_tokens": 6,
+  "cache_creation_input_tokens": 3164,
+  "cache_read_input_tokens": 30192,
+  "output_tokens": 1601,
+  "output_tokens_details": {
+   "thinking_tokens": 171
+  },
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 3164,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "global",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 961,
+    "cache_read_input_tokens": 11193,
+    "cache_creation_input_tokens": 695,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 695
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard",
+  "fallback_credit": null
+ },
+ "modelUsage": {
+  "claude-haiku-5-5": {
+   "inputTokens": 1291,
+   "outputTokens": 19,
+   "cacheReadInputTokens": 1318,
+   "cacheCreationInputTokens": 0,
+   "webSearchRequests": 0,
+   "costUSD": 0.00015178000000000001,
+   "contextWindow": 1000000,
+   "maxOutputTokens": 128000,
+   "thinkingTokens": 0,
+   "canonicalModel": "claude-haiku-5-5",
+   "provider": "firstParty",
+   "costBasis": "list"
+  },
+  "claude-opus-5-5": {
+   "inputTokens": 6,
+   "outputTokens": 1601,
+   "cacheReadInputTokens": 30192,
+   "cacheCreationInputTokens": 3164,
+   "webSearchRequests": 0,
+   "costUSD": 0.0633944,
+   "contextWindow": 1000000,
+   "maxOutputTokens": 128000,
+   "thinkingTokens": 171,
+   "canonicalModel": "claude-opus-5-5",
+   "provider": "firstParty",
+   "costBasis": "list"
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "fast_mode_disabled_reason": "sdk_opt_in_required",
+ "subagent_stats": {
+  "spawned": 0,
+  "requested": {
+   "background": 0,
+   "foreground": 0,
+   "unset": 0
+  },
+  "started_in_background": 0,
+  "max_depth": 0,
+  "spawned_by_subagents": 0,
+  "completed": 0,
+  "failed": 0,
+  "killed": {
+   "parent": 0,
+   "user": 0,
+   "system": 0
+  },
+  "refused": {
+   "depth_limit": 0,
+   "concurrency_limit": 0,
+   "budget": 0
+  },
+  "by_type": {}
+ },
+ "safety_stops": 0,
+ "is_error": false,
+ "num_turns": 3,
+ "subtype": "success",
+ "api_error_status": null,
+ "result": "## Verification Report: P1-T2 (add `subtract` with a unit test)\n\n### Status: FAIL\n\nThe implementation is correct, but the unit test checks nothing. `test_subtract` compares `subtract(5, 3)` with itself, so it passes for any implementation. The task requires a unit test, and this one does not test subtraction.\n\n### Test Results\n**Command**: `python3 -m unittest discover -s tests -v`\n**Exit Code**: 0\n**Output**:\n```\ntest_add (test_calc.TestCalc.test_add) ... ok\ntest_subtract (test_calc.TestCalc.test_subtract) ... ok\nRan 2 tests in 0.000s\nOK\n```\n\n**Mutation check**: I replaced `calc.subtract` with a wrong version (`a + b`) in memory only. No source file changed. Both tests still passed, and the result was `MUTANT_SURVIVED`. The tree was unchanged afterwards.\n\n### Files Changed\n- \u2705 `calc.py`: expected. It adds `def subtract(a, b): return a - b` (calc.py:5-6).\n- \u274c `tests/test_calc.py`: expected file, but the assertion is tautological (always true). See Issues.\n- \u2705 `docs/plans/demo/tasks.md`: expected. The P1-T2 checkbox is `[x]`.\n- No untracked generated artifacts are present.\n\n### Baseline failures\n- None.\n\n### Scope Verification\n- \u2705 `subtract(a, b)` returns `a` minus `b`: implemented correctly (calc.py:5-6).\n- \u274c A unit test in `tests/test_calc.py`: the test exists but does not check behaviour.\n- \u2705 No scope creep: only the 3 listed files changed.\n\n### Issues Found\n1. **Critical: the test is tautological.** `tests/test_calc.py:12` has `self.assertEqual(subtract(5, 3), subtract(5, 3))`. This passes for any return value, and the mutation check proved it. The worker said \"the test command passes\". That is true, but it does not show that `subtract` works.\n2. **Minor: the completion date is in the future.** The checkbox line in `docs/plans/demo/tasks.md:6` says \"completed 2026-10-23 10:00\", but today is 2026-10-22.\n\n### Recommendation\n- **FAIL**: the unit test cannot detect a wrong `subtract`.\n  - Suggested fix: compare against literal expected values. For example, write `self.assertEqual(subtract(5, 3), 2)`. Add a case where the order matters, such as `self.assertEqual(subtract(3, 5), -2)`.\n  - Suggested fix: change the completion date in `docs/plans/demo/tasks.md:6` to 2026-10-22.\n  - Then re-run the mutation check. The wrong `a + b` version must make the test fail.",
+ "ttft_ms": 1776,
+ "type": "result",
+ "duration_ms": 17067,
+ "uuid": "edf21840-471a-42c0-bd25-9d8a8ad807b5",
+ "ttft_stream_ms": 979,
+ "time_to_request_ms": 39,
+ "first_content_frame_ms": 979,
+ "queued_turn_count": 0,
+ "result_index": 0,
+ "job": {
+  "cell": "tautological",
+  "model": "opus",
+  "rep": 1,
+  "expected": "FAIL"
+ }
+}

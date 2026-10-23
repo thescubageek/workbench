@@ -37,3 +37,36 @@ failures.
 
 Cost $0.73 (Sonnet $0.23, Opus $0.50, with the 2 cost-measurement runs). Both models were right in
 all 8 cells: 6 of 6 defects found and 0 of 2 false failures on the controls.
+
+## Results (3 runs for each cell and model)
+
+Total cost $1.98, the pilot included (Sonnet $0.62, Opus $1.36). `score-output.txt` has the counts.
+
+| Cell | Sonnet 5.5 right | Opus 5.5 right |
+| ---- | ---------------- | -------------- |
+| clean | 3 of 3 | 3 of 3 |
+| baseline_fail | 3 of 3 | 3 of 3 |
+| broken_test | 3 of 3 | 3 of 3 |
+| scope_creep | 3 of 3 | 3 of 3 |
+| clean_tree | 3 of 3 | 3 of 3 |
+| unchecked | 3 of 3 | 3 of 3 |
+| tautological | 3 of 3 | 3 of 3 |
+| no_test | 3 of 3 | 3 of 3 |
+
+- Defects found: Sonnet 18 of 18, Opus 18 of 18.
+- False FAIL or missing status on the controls: Sonnet 0 of 6, Opus 0 of 6.
+- Every `baseline_fail` report, on both models, had a `### Baseline failures` section that named
+  `test_halve`.
+- An Opus run cost about twice a Sonnet run ($0.11 against $0.06 for the clean cell).
+
+## Verdict
+
+Opus 5.5 found no more defects than Sonnet 5.5 and had no fewer false failures. By the design's
+rule, `task-verifier` and `research-validator` stay on Sonnet 5.5 at `high`.
+
+## Limits
+
+- The defects are planted and plain. A subtle defect could separate the models where these did not.
+- The runner makes the verifier the session agent with `--agent`. It does not go through a spawn,
+  so it does not test a spawn `model` override.
+- `research-validator` was not run. The design ties its tier to this trial.

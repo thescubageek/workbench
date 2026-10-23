@@ -62,6 +62,12 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-10-23 04:36 — P3-T9 (closed)
+
+- **Task/phase**: P3-T9 — run the verifier trial to 3 repeats, apply the decision rule
+- **Landed**: 18 of 18 defects on both models, 0 false failures. The verifiers stay on Sonnet 5.5. Ledger about $19.05
+- **Commits**: the P3-T9 commit
+
 ## 2026-10-23 04:35 — P3-T8 (closed)
 
 - **Task/phase**: P3-T8 — build the planted-defect verifier trial and run a pilot

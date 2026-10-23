@@ -718,12 +718,12 @@ Annotate each with its projected tool-call cost; anything past ~50 splits at a n
       record it. (~15 calls) (completed 2026-10-23 04:34)
 - [x] **P3-T8** — Build the planted-defect verifier trial as Changes Required §2 says. Run a
       1-run pilot on each model, and add its cost to the spend ledger. (~35 calls) (completed 2026-10-23 04:36)
-- [ ] **P3-T9** — Run the verifier trial with 3 repeats for each cell and model, if the ledger
+- [x] **P3-T9** — Run the verifier trial with 3 repeats for each cell and model, if the ledger
       projects the plan total at or under $30. Otherwise ask the user. Record the results in the
       trial's `RESULTS.md`. Apply the decision rule. If Opus wins, set `model: opus` in
       `plugin/agents/task-verifier.md` and `plugin/agents/research-validator.md`, and update the
       P1 table in `checks/prompt-checks.sh`. Record the decision in Implementation Notes either
-      way. (~20 calls)
+      way. (~20 calls) (completed 2026-10-23 04:38)
 
 ### Success Criteria
 
@@ -735,9 +735,9 @@ step is the rule; this is the moment it applies.
 
 #### Automated Verification
 
-- [ ] In the Batch 2 blind trial, `trim` ≥ `base` in every cell, and every named trap cell
+- [x] In the Batch 2 blind trial, `trim` ≥ `base` in every cell, and every named trap cell
       reaches at least 9 of 10 (`score.py` output in `RESULTS.md`)
-- [ ] The verifier trial records a defect-found rate and a false-FAIL rate for each model, and
+- [x] The verifier trial records a defect-found rate and a false-FAIL rate for each model, and
       `plugin/agents/task-verifier.md` names the model that the decision rule chose
 - [ ] `checks/prompt-checks.sh triple-barriers notification agent-tiers` passes on the Phase 3
       files
@@ -1287,7 +1287,8 @@ resolved, leaving a dated line saying how.
   | 2026-10-23 | P2-T6 harness repeat 3 (`evals/runs/20261023T033810Z`) and its judge | $3.47 + about $0.10 |
   | 2026-10-23 | P3-T7 Batch 2 blind trial, 200 runs with the pilot | $1.13 |
   | 2026-10-23 | P3-T8 verifier trial pilot, 16 runs | $0.73 |
-  | | **Total** | **about $17.80** |
+  | 2026-10-23 | P3-T9 verifier trial, reps 1 and 2 (32 runs) | $1.25 |
+  | | **Total** | **about $19.05** |
 
 - **Budget plan** (estimates, to be replaced by measured costs): Batch 1 harness gate about $10
   for 2 repeats, Batch 4 research-only gate about $8, Batch 2 and Batch 3 blind trials about $2,
@@ -1412,6 +1413,9 @@ resolved, leaving a dated line saying how.
 - [2026-10-23] Completed P3-T8: `trials/2026-10-23-verifier-trial/` with 8 cells (2 controls, 6
   planted defects). The runner uses `--agent wb:task-verifier --model <m>`, which needs no spawn
   and so does not test a spawn `model` override. Pilot $0.73: both models right in all 8 cells.
+- [2026-10-23] Completed P3-T9: both models found 18 of 18 planted defects with 0 of 6 false
+  failures. Opus 5.5 is not better, so by the design's rule `task-verifier` and
+  `research-validator` stay on Sonnet 5.5 at `high`. No agent file or check changed.
 - **Kept CAPS lines**: record each one here with its file, line, and reason, as the wording tasks
   run.
   - `create_research/SKILL.md:27` — the Documentarian Rule fence. It is the stage's one core

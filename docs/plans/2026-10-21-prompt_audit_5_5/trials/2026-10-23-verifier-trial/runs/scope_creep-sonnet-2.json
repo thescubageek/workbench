@@ -1,0 +1,119 @@
+{
+ "duration_api_ms": 8589,
+ "stop_reason": "end_turn",
+ "session_id": "b3058c73-7490-433c-b402-4c2e25ee31cf",
+ "total_cost_usd": 0.024274380000000005,
+ "usage": {
+  "input_tokens": 4,
+  "cache_creation_input_tokens": 2803,
+  "cache_read_input_tokens": 19011,
+  "output_tokens": 1100,
+  "output_tokens_details": {
+   "thinking_tokens": 57
+  },
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 2803,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "global",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 890,
+    "cache_read_input_tokens": 10285,
+    "cache_creation_input_tokens": 1244,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 1244
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard",
+  "fallback_credit": null
+ },
+ "modelUsage": {
+  "claude-haiku-5-5": {
+   "inputTokens": 1291,
+   "outputTokens": 22,
+   "cacheReadInputTokens": 1318,
+   "cacheCreationInputTokens": 0,
+   "webSearchRequests": 0,
+   "costUSD": 0.00015328000000000002,
+   "contextWindow": 1000000,
+   "maxOutputTokens": 128000,
+   "thinkingTokens": 0,
+   "canonicalModel": "claude-haiku-5-5",
+   "provider": "firstParty",
+   "costBasis": "list"
+  },
+  "claude-sonnet-5-5": {
+   "inputTokens": 4,
+   "outputTokens": 1100,
+   "cacheReadInputTokens": 19011,
+   "cacheCreationInputTokens": 2803,
+   "webSearchRequests": 0,
+   "costUSD": 0.024121100000000003,
+   "contextWindow": 1000000,
+   "maxOutputTokens": 128000,
+   "thinkingTokens": 57,
+   "canonicalModel": "claude-sonnet-5-5",
+   "provider": "firstParty",
+   "costBasis": "list"
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "fast_mode_disabled_reason": "sdk_opt_in_required",
+ "subagent_stats": {
+  "spawned": 0,
+  "requested": {
+   "background": 0,
+   "foreground": 0,
+   "unset": 0
+  },
+  "started_in_background": 0,
+  "max_depth": 0,
+  "spawned_by_subagents": 0,
+  "completed": 0,
+  "failed": 0,
+  "killed": {
+   "parent": 0,
+   "user": 0,
+   "system": 0
+  },
+  "refused": {
+   "depth_limit": 0,
+   "concurrency_limit": 0,
+   "budget": 0
+  },
+  "by_type": {}
+ },
+ "safety_stops": 0,
+ "is_error": false,
+ "num_turns": 3,
+ "subtype": "success",
+ "api_error_status": null,
+ "result": "## Verification Report: P1-T2\n\n### Status: FAIL\n\n### Test Results\n**Command**: `python3 -m unittest discover -s tests -v`\n**Exit Code**: 0\n**Output**:\n```\ntest_add (test_calc.TestCalc.test_add) ... ok\ntest_subtract (test_calc.TestCalc.test_subtract) ... ok\nRan 2 tests in 0.000s\nOK\n```\n\n### Files Changed\n- \u26a0\ufe0f `calc.py`: `subtract` is expected. An unrequested `multiply(a, b)` was also added (see Issues Found).\n- \u2705 `tests/test_calc.py`: Expected. It adds `test_subtract`.\n- \u2705 `docs/plans/demo/tasks.md`: Expected. The P1-T2 checkbox is `[x]`, with a completion stamp.\n\n### Baseline failures\nNone.\n\n### Scope Verification\n- \u2705 `subtract(a, b)` returns `a - b` (`calc.py:5-6`).\n- \u2705 The unit test is in `tests/test_calc.py` and runs and passes. It is not skipped.\n- \u2705 The checkbox in `tasks.md` is `[x]`.\n- \u274c Extra feature: `multiply(a, b)` was added at `calc.py:9-10`. The task does not ask for it. `tasks.md` has only P1-T1 and P1-T2, so no other task claims it.\n\n### Issues Found\n1. **Scope creep (blocking):** `calc.py:9-10` adds `def multiply(a, b): return a * b`. It has no test and is not in the task description. An out-of-list change is allowed only if the task cannot work without it. `subtract` works without `multiply`, so the edit is a FAIL even though it is small.\n2. **Minor, not blocking:** The worker's note says the session ran outside the journal. The tree had 3 uncommitted files, all accounted for above.\n3. **Generated files:** `__pycache__/` and `tests/__pycache__/` exist. Both are already ignored (`!!` in `git status --ignored`), so nothing needs fixing.\n\n### Recommendation\n- **FAIL**: The task adds `multiply`, which is outside its scope.\n  - Suggested fix: Remove `multiply` (`calc.py:8-10`, including the blank lines before it). Keep `subtract`, `test_subtract`, and the checkbox. Re-run the test command. No later task is affected, because the plan has none after P1-T2.",
+ "ttft_ms": 1353,
+ "type": "result",
+ "duration_ms": 9514,
+ "uuid": "6e31749e-9247-4404-a719-065480bb1935",
+ "ttft_stream_ms": 802,
+ "time_to_request_ms": 36,
+ "first_content_frame_ms": 802,
+ "queued_turn_count": 0,
+ "result_index": 0,
+ "job": {
+  "cell": "scope_creep",
+  "model": "sonnet",
+  "rep": 2,
+  "expected": "FAIL"
+ }
+}

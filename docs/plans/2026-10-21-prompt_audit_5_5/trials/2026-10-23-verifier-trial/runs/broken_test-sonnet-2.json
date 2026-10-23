@@ -1,0 +1,119 @@
+{
+ "duration_api_ms": 7821,
+ "stop_reason": "end_turn",
+ "session_id": "cb1dd73d-82c8-4de4-a427-6009437494ec",
+ "total_cost_usd": 0.02371978,
+ "usage": {
+  "input_tokens": 4,
+  "cache_creation_input_tokens": 2917,
+  "cache_read_input_tokens": 19010,
+  "output_tokens": 999,
+  "output_tokens_details": {
+   "thinking_tokens": 0
+  },
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 2917,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "global",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 798,
+    "cache_read_input_tokens": 10284,
+    "cache_creation_input_tokens": 1359,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 1359
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard",
+  "fallback_credit": null
+ },
+ "modelUsage": {
+  "claude-haiku-5-5": {
+   "inputTokens": 1291,
+   "outputTokens": 21,
+   "cacheReadInputTokens": 1318,
+   "cacheCreationInputTokens": 0,
+   "webSearchRequests": 0,
+   "costUSD": 0.00015278000000000004,
+   "contextWindow": 1000000,
+   "maxOutputTokens": 128000,
+   "thinkingTokens": 0,
+   "canonicalModel": "claude-haiku-5-5",
+   "provider": "firstParty",
+   "costBasis": "list"
+  },
+  "claude-sonnet-5-5": {
+   "inputTokens": 4,
+   "outputTokens": 999,
+   "cacheReadInputTokens": 19010,
+   "cacheCreationInputTokens": 2917,
+   "webSearchRequests": 0,
+   "costUSD": 0.023566999999999998,
+   "contextWindow": 1000000,
+   "maxOutputTokens": 128000,
+   "thinkingTokens": 0,
+   "canonicalModel": "claude-sonnet-5-5",
+   "provider": "firstParty",
+   "costBasis": "list"
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "fast_mode_disabled_reason": "sdk_opt_in_required",
+ "subagent_stats": {
+  "spawned": 0,
+  "requested": {
+   "background": 0,
+   "foreground": 0,
+   "unset": 0
+  },
+  "started_in_background": 0,
+  "max_depth": 0,
+  "spawned_by_subagents": 0,
+  "completed": 0,
+  "failed": 0,
+  "killed": {
+   "parent": 0,
+   "user": 0,
+   "system": 0
+  },
+  "refused": {
+   "depth_limit": 0,
+   "concurrency_limit": 0,
+   "budget": 0
+  },
+  "by_type": {}
+ },
+ "safety_stops": 0,
+ "is_error": false,
+ "num_turns": 3,
+ "subtype": "success",
+ "api_error_status": null,
+ "result": "## Verification Report: P1-T2\n\n### Status: FAIL\n\n### Test Results\n**Command**: `python3 -m unittest discover -s tests -v`\n**Exit Code**: 1\n**Output**:\n```\ntest_add (test_calc.TestCalc.test_add) ... ok\ntest_subtract (test_calc.TestCalc.test_subtract) ... FAIL\nAssertionError: 8 != 2\nRan 2 tests in 0.000s\nFAILED (failures=1)\n```\nThe worker reported that the test command passes. That is false.\n\n### Files Changed\n- \u274c `calc.py` - Expected file, but `subtract` is wrong (`calc.py:6`)\n- \u2705 `tests/test_calc.py` - Expected (adds `test_subtract`)\n- \u2705 `docs/plans/demo/tasks.md` - Expected (P1-T2 checkbox flipped to `[x]`)\n\n### Baseline failures\n- None. `test_add` passes. The only failure is `test_subtract`, which this task added.\n\n### Scope Verification\n- \u274c `subtract(a, b)` returns `a - b`: `calc.py:6-7` has `return a + b`, so `subtract(5, 3)` returns 8.\n- \u2705 Unit test for `subtract` added in `tests/test_calc.py:11-12`. The test is correct and it catches the bug.\n- \u26a0\ufe0f The checkbox is `[x]`, but the task is not done. The coordinator should not treat P1-T2 as complete.\n- \u2705 No extra features or out-of-list files.\n- \u2705 `.gitignore` covers `__pycache__/`.\n\n### Issues Found\n1. **Critical**: `calc.py:7` reads `return a + b`. It must read `return a - b`.\n2. The worker's summary says the test command passes. It fails with `AssertionError: 8 != 2`.\n3. The tasks.md checkbox for P1-T2 was flipped while the test is red. Leave it as is for now, and re-verify after the fix.\n\n### Recommendation\n- **FAIL**: `subtract` has the wrong implementation, and the task's own test fails.\n  - Suggested fix: change `calc.py:7` to `return a - b`. Then re-run `python3 -m unittest discover -s tests -v` and expect 2 passing tests.\n  - This is a code fix for a worker. It is not an attestation task.",
+ "ttft_ms": 1458,
+ "type": "result",
+ "duration_ms": 9051,
+ "uuid": "a462a2aa-6bb9-4d99-89dc-c21b057831c5",
+ "ttft_stream_ms": 921,
+ "time_to_request_ms": 34,
+ "first_content_frame_ms": 921,
+ "queued_turn_count": 0,
+ "result_index": 0,
+ "job": {
+  "cell": "broken_test",
+  "model": "sonnet",
+  "rep": 2,
+  "expected": "FAIL"
+ }
+}

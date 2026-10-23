@@ -1,0 +1,119 @@
+{
+ "duration_api_ms": 11088,
+ "stop_reason": "end_turn",
+ "session_id": "e1017d21-dc3c-4db1-81f0-633ffa677f04",
+ "total_cost_usd": 0.04545448,
+ "usage": {
+  "input_tokens": 4,
+  "cache_creation_input_tokens": 2488,
+  "cache_read_input_tokens": 19001,
+  "output_tokens": 1079,
+  "output_tokens_details": {
+   "thinking_tokens": 61
+  },
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 2488,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "global",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 939,
+    "cache_read_input_tokens": 10277,
+    "cache_creation_input_tokens": 935,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 935
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard",
+  "fallback_credit": null
+ },
+ "modelUsage": {
+  "claude-haiku-5-5": {
+   "inputTokens": 1291,
+   "outputTokens": 24,
+   "cacheReadInputTokens": 1318,
+   "cacheCreationInputTokens": 0,
+   "webSearchRequests": 0,
+   "costUSD": 0.00015428000000000002,
+   "contextWindow": 1000000,
+   "maxOutputTokens": 128000,
+   "thinkingTokens": 0,
+   "canonicalModel": "claude-haiku-5-5",
+   "provider": "firstParty",
+   "costBasis": "list"
+  },
+  "claude-opus-5-5": {
+   "inputTokens": 4,
+   "outputTokens": 1079,
+   "cacheReadInputTokens": 19001,
+   "cacheCreationInputTokens": 2488,
+   "webSearchRequests": 0,
+   "costUSD": 0.0453002,
+   "contextWindow": 1000000,
+   "maxOutputTokens": 128000,
+   "thinkingTokens": 61,
+   "canonicalModel": "claude-opus-5-5",
+   "provider": "firstParty",
+   "costBasis": "list"
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "fast_mode_disabled_reason": "sdk_opt_in_required",
+ "subagent_stats": {
+  "spawned": 0,
+  "requested": {
+   "background": 0,
+   "foreground": 0,
+   "unset": 0
+  },
+  "started_in_background": 0,
+  "max_depth": 0,
+  "spawned_by_subagents": 0,
+  "completed": 0,
+  "failed": 0,
+  "killed": {
+   "parent": 0,
+   "user": 0,
+   "system": 0
+  },
+  "refused": {
+   "depth_limit": 0,
+   "concurrency_limit": 0,
+   "budget": 0
+  },
+  "by_type": {}
+ },
+ "safety_stops": 0,
+ "is_error": false,
+ "num_turns": 2,
+ "subtype": "success",
+ "api_error_status": null,
+ "result": "## Verification Report: P1-T2\n\n### Status: FAIL\n\nThe task fails on scope. The worker added a `multiply(a, b)` function that the task did not ask for. The `subtract` work itself is correct, and both tests pass.\n\n### Test Results\n**Command**: `python3 -m unittest discover -s tests -v`\n**Exit Code**: 0\n**Output**:\n```\ntest_add (test_calc.TestCalc.test_add) ... ok\ntest_subtract (test_calc.TestCalc.test_subtract) ... ok\n\n----------------------------------------------------------------------\nRan 2 tests in 0.000s\n\nOK\n```\n\n### Files Changed\n- \u26a0\ufe0f `calc.py`: This file is on the task's list. It contains the required `subtract` and also an unrequested `multiply` (see Issues).\n- \u2705 `tests/test_calc.py`: This file is on the task's list. It adds `test_subtract`, which asserts `subtract(5, 3) == 2`.\n- \u2705 `docs/plans/demo/tasks.md`: This is the expected checkbox flip. P1-T2 (the subtract task) is now `[x]`.\n- No untracked generated artifacts appear in `git status --short`.\n\n### Baseline failures\n- None.\n\n### Scope Verification\n- \u2705 `subtract(a, b)` returns `a - b`. It is at `calc.py:5-6`.\n- \u2705 A unit test exists for `subtract`. It is at `tests/test_calc.py:11-12`.\n- \u2705 The P1-T2 checkbox is `[x]` in `tasks.md`.\n- \u274c The worker added `multiply(a, b)` at `calc.py:9-10`. The task does not mention it, and the behaviour the task asks for does not need it. This is scope creep.\n\n### Issues Found\n1. **Scope creep (Critical):** `calc.py:9-10` defines `multiply(a, b)`, which is outside the task description. No test covers it. The worker summary does not mention it either, so the report does not match the diff.\n2. **Minor:** The completion stamp in `tasks.md` says `2026-10-23 10:00`. Today is 2026-10-22, so the date is in the future. This does not block the task by itself, but the coordinator should correct it.\n\n### Recommendation\n- **FAIL**: The diff adds an unrequested `multiply` function to `calc.py`.\n  - Suggested fix: Delete `multiply` from `calc.py:8-10`. Keep `subtract`, `test_subtract`, and the checkbox flip as they are. Fix the completion date to 2026-10-22. Then re-run the test command.",
+ "ttft_ms": 1966,
+ "type": "result",
+ "duration_ms": 11439,
+ "uuid": "7d1bd49e-3cfa-4b34-a933-59e56168bff8",
+ "ttft_stream_ms": 1060,
+ "time_to_request_ms": 36,
+ "first_content_frame_ms": 1061,
+ "queued_turn_count": 0,
+ "result_index": 0,
+ "job": {
+  "cell": "scope_creep",
+  "model": "opus",
+  "rep": 1,
+  "expected": "FAIL"
+ }
+}

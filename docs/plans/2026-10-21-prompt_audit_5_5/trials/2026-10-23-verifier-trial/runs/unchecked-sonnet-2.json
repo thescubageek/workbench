@@ -1,0 +1,119 @@
+{
+ "duration_api_ms": 9417,
+ "stop_reason": "end_turn",
+ "session_id": "cea9083c-7795-410a-abd5-a9ef87353b32",
+ "total_cost_usd": 0.02447828,
+ "usage": {
+  "input_tokens": 4,
+  "cache_creation_input_tokens": 2488,
+  "cache_read_input_tokens": 19065,
+  "output_tokens": 1246,
+  "output_tokens_details": {
+   "thinking_tokens": 156
+  },
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 2488,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "global",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 1030,
+    "cache_read_input_tokens": 10339,
+    "cache_creation_input_tokens": 875,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 875
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard",
+  "fallback_credit": null
+ },
+ "modelUsage": {
+  "claude-haiku-5-5": {
+   "inputTokens": 1291,
+   "outputTokens": 19,
+   "cacheReadInputTokens": 1318,
+   "cacheCreationInputTokens": 0,
+   "webSearchRequests": 0,
+   "costUSD": 0.00015178000000000001,
+   "contextWindow": 1000000,
+   "maxOutputTokens": 128000,
+   "thinkingTokens": 0,
+   "canonicalModel": "claude-haiku-5-5",
+   "provider": "firstParty",
+   "costBasis": "list"
+  },
+  "claude-sonnet-5-5": {
+   "inputTokens": 4,
+   "outputTokens": 1246,
+   "cacheReadInputTokens": 19065,
+   "cacheCreationInputTokens": 2488,
+   "webSearchRequests": 0,
+   "costUSD": 0.0243265,
+   "contextWindow": 1000000,
+   "maxOutputTokens": 128000,
+   "thinkingTokens": 156,
+   "canonicalModel": "claude-sonnet-5-5",
+   "provider": "firstParty",
+   "costBasis": "list"
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "fast_mode_disabled_reason": "sdk_opt_in_required",
+ "subagent_stats": {
+  "spawned": 0,
+  "requested": {
+   "background": 0,
+   "foreground": 0,
+   "unset": 0
+  },
+  "started_in_background": 0,
+  "max_depth": 0,
+  "spawned_by_subagents": 0,
+  "completed": 0,
+  "failed": 0,
+  "killed": {
+   "parent": 0,
+   "user": 0,
+   "system": 0
+  },
+  "refused": {
+   "depth_limit": 0,
+   "concurrency_limit": 0,
+   "budget": 0
+  },
+  "by_type": {}
+ },
+ "safety_stops": 0,
+ "is_error": false,
+ "num_turns": 3,
+ "subtype": "success",
+ "api_error_status": null,
+ "result": "## Verification Report: P1-T2\n\n### Status: FAIL\n\n### Test Results\n**Command**: `python3 -m unittest discover -s tests -v`\n**Exit Code**: 0\n**Output**:\n```\ntest_add (test_calc.TestCalc.test_add) ... ok\ntest_subtract (test_calc.TestCalc.test_subtract) ... ok\n\nRan 2 tests in 0.000s\nOK\n```\n\n### Files Changed\n- \u2705 `calc.py`: Expected. It adds `subtract(a, b)` returning `a - b`.\n- \u2705 `tests/test_calc.py`: Expected. It adds `test_subtract`, which asserts `subtract(5, 3) == 2`.\n- \u274c `docs/plans/demo/tasks.md`: The worker reported editing it, but it is not in `git status --short`. The file on disk is unchanged.\n\n### Baseline failures\nNone.\n\n### Scope Verification\n- \u2705 `subtract(a, b)` exists in `calc.py` and returns `a - b`.\n- \u2705 A unit test for it exists in `tests/test_calc.py` and runs (not skipped).\n- \u2705 There is no scope creep. The diff holds only the function and its test.\n- \u274c The P1-T2 checkbox in `docs/plans/demo/tasks.md` is still `- [ ]`. The worker's summary says it flipped the checkbox, and that is false. P1-T1 is `[x]` and P1-T2 is `[ ]`.\n\n### Issues Found\n1. **The P1-T2 checkbox is not flipped (blocking).** Line 6 of `docs/plans/demo/tasks.md` reads `- [ ] **P1-T2** \u2014 ...`. Flipping the checkbox is the worker's final act and the record that the task is done. The worker's claim does not match the file.\n2. **Warning: untracked generated artifacts.** `__pycache__/` and `tests/__pycache__/` appear as ignored (`!!`) in `git status --ignored`. A `.gitignore` entry already covers them, so there is nothing to stage and no action is needed.\n\n### Recommendation\n- **FAIL**: The code and test are correct, but the checkbox is unchecked.\n  - Suggested fix: Change P1-T2 in `docs/plans/demo/tasks.md` from `- [ ]` to `- [x]`. Do not hand-edit the frontmatter counters, because `/wb:update_status` writes them.\n  - Severity: Minor. This is a bookkeeping gap and needs no code change. A narrow re-verify of the checkbox alone is enough.",
+ "ttft_ms": 1263,
+ "type": "result",
+ "duration_ms": 9825,
+ "uuid": "2735f456-d94a-4360-b71f-c9386c7046e3",
+ "ttft_stream_ms": 701,
+ "time_to_request_ms": 35,
+ "first_content_frame_ms": 701,
+ "queued_turn_count": 0,
+ "result_index": 0,
+ "job": {
+  "cell": "unchecked",
+  "model": "sonnet",
+  "rep": 2,
+  "expected": "FAIL"
+ }
+}

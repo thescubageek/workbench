@@ -1,0 +1,119 @@
+{
+ "duration_api_ms": 10351,
+ "stop_reason": "end_turn",
+ "session_id": "55ef5e84-2f0c-4b09-aadc-0364415748a7",
+ "total_cost_usd": 0.02733098,
+ "usage": {
+  "input_tokens": 4,
+  "cache_creation_input_tokens": 3015,
+  "cache_read_input_tokens": 19012,
+  "output_tokens": 1321,
+  "output_tokens_details": {
+   "thinking_tokens": 181
+  },
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 3015,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "global",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 1105,
+    "cache_read_input_tokens": 10286,
+    "cache_creation_input_tokens": 1455,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 1455
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard",
+  "fallback_credit": null
+ },
+ "modelUsage": {
+  "claude-haiku-5-5": {
+   "inputTokens": 1291,
+   "outputTokens": 19,
+   "cacheReadInputTokens": 1318,
+   "cacheCreationInputTokens": 0,
+   "webSearchRequests": 0,
+   "costUSD": 0.00015178000000000001,
+   "contextWindow": 1000000,
+   "maxOutputTokens": 128000,
+   "thinkingTokens": 0,
+   "canonicalModel": "claude-haiku-5-5",
+   "provider": "firstParty",
+   "costBasis": "list"
+  },
+  "claude-sonnet-5-5": {
+   "inputTokens": 4,
+   "outputTokens": 1321,
+   "cacheReadInputTokens": 19012,
+   "cacheCreationInputTokens": 3015,
+   "webSearchRequests": 0,
+   "costUSD": 0.0271792,
+   "contextWindow": 1000000,
+   "maxOutputTokens": 128000,
+   "thinkingTokens": 181,
+   "canonicalModel": "claude-sonnet-5-5",
+   "provider": "firstParty",
+   "costBasis": "list"
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "fast_mode_disabled_reason": "sdk_opt_in_required",
+ "subagent_stats": {
+  "spawned": 0,
+  "requested": {
+   "background": 0,
+   "foreground": 0,
+   "unset": 0
+  },
+  "started_in_background": 0,
+  "max_depth": 0,
+  "spawned_by_subagents": 0,
+  "completed": 0,
+  "failed": 0,
+  "killed": {
+   "parent": 0,
+   "user": 0,
+   "system": 0
+  },
+  "refused": {
+   "depth_limit": 0,
+   "concurrency_limit": 0,
+   "budget": 0
+  },
+  "by_type": {}
+ },
+ "safety_stops": 0,
+ "is_error": false,
+ "num_turns": 3,
+ "subtype": "success",
+ "api_error_status": null,
+ "result": "## Verification Report: P1-T2\n\n### Status: PASS\n\nThe task's own criteria are met. The test command exits 1 because `test_halve` fails, and that failure predates this task (see Baseline failures).\n\n### Test Results\n**Command**: `python3 -m unittest discover -s tests -v`\n**Exit Code**: 1 (caused only by the baseline failure)\n**Output**:\n```\ntest_add ... ok\ntest_halve ... FAIL\ntest_subtract ... ok\nAssertionError: 2.6666666666666665 != 4\nRan 3 tests in 0.000s\nFAILED (failures=1)\n```\n`test_subtract`, the task's new test, runs and passes. It is not skipped.\n\n### Files Changed\n- \u2705 `calc.py` - Expected. It adds `subtract(a, b)` returning `a - b`.\n- \u2705 `tests/test_calc.py` - Expected. It adds `test_subtract`, which asserts `subtract(5, 3) == 2`.\n- \u2705 `docs/plans/demo/tasks.md` - Expected. The P1-T2 checkbox is now `[x]`.\n\n### Baseline failures\n- `tests/test_calc.py::TestCalc::test_halve` fails with `2.666\u2026 != 4`. The cause is `halve` returning `a / 3` (`calc.py:6-5`). The diff does not touch `halve` or `test_halve`, so both are exactly as in the seed commit `4410097`. The task never named them. The coordinator should carry this to the checkpoint and leave the automated-verification box `[ ]`. The fix is `a / 2`, which belongs to a separate task.\n\n### Scope Verification\n- \u2705 `subtract(a, b)` is added to `calc.py` and returns `a - b`.\n- \u2705 A unit test for `subtract` is added in `tests/test_calc.py`.\n- \u2705 The P1-T2 checkbox is `[x]`.\n- \u2705 No extra features or out-of-list files. The diff is 3 files and all are expected.\n\n### Issues Found\n- None for this task.\n- `__pycache__/` and `tests/__pycache__/` are present but already ignored (`!!` in `git status --ignored`), so there is no missing `.gitignore` entry.\n- Note for the coordinator: the session hook said \"2 of 2 tasks done\" with 3 uncommitted files. That matches this task's uncommitted diff, so nothing ran outside the task.\n- The `tasks.md` completion stamp reads 2026-10-23, but today is 2026-10-22. This is cosmetic and does not affect the verdict.\n\n### Recommendation\n- **PASS**: Proceed to the next task. Commit P1-T2 and report the `test_halve` baseline failure at the checkpoint.",
+ "ttft_ms": 1377,
+ "type": "result",
+ "duration_ms": 13042,
+ "uuid": "317380e6-bc46-483b-ae76-49caf95b4f32",
+ "ttft_stream_ms": 838,
+ "time_to_request_ms": 46,
+ "first_content_frame_ms": 838,
+ "queued_turn_count": 0,
+ "result_index": 0,
+ "job": {
+  "cell": "baseline_fail",
+  "model": "sonnet",
+  "rep": 1,
+  "expected": "PASS"
+ }
+}
