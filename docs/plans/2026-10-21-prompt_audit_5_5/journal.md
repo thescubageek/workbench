@@ -62,6 +62,12 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-10-23 01:43 — P1-T5 (closed)
+
+- **Task/phase**: P1-T5 — agent frontmatter to the design's Data Model table
+- **Landed**: `effort: medium` in codebase-locator, pattern-finder, and task-worker. The other 4 agents already matched. `agent-tiers` 0 PASS
+- **Commits**: the P1-T5 commit
+
 ## 2026-10-23 01:43 — P1-T4 (closed)
 
 - **Task/phase**: P1-T4 — `wb:` names in the prose spawns of `implement`

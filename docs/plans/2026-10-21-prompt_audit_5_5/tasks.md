@@ -346,8 +346,8 @@ Annotate each with its projected tool-call cost; anything past ~50 splits at a n
       `implement/SKILL.md:106`, `:302`, `:337`, `implement/prompts/worker-prompt.md:3`,
       `verifier-prompt.md:3`, `:6`, and `escalation-worker-prompt.md:7`. Leave a path or a file
       name such as `agents/task-verifier.md` unchanged. (~10 calls) (completed 2026-10-23 01:43)
-- [ ] **P1-T5** — Set the agent frontmatter in `plugin/agents/*.md` to the table in Changes
-      Required §2. (~10 calls)
+- [x] **P1-T5** — Set the agent frontmatter in `plugin/agents/*.md` to the table in Changes
+      Required §2. (~10 calls) (completed 2026-10-23 01:44)
 - [ ] **P1-T6** — Rewrite the `implement` tier ladder as Changes Required §3 says, in
       `implement/SKILL.md:284-300`, `:410-412`, and
       `implement/prompts/escalation-worker-prompt.md:9-10`. Delete the haiku-effort rule at

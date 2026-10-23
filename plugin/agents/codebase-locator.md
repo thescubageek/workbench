@@ -3,6 +3,7 @@ name: codebase-locator
 description: Finds specific components and files in the codebase. Specializes in locating where features are implemented, which files contain certain functionality, and mapping the codebase structure.
 tools: Grep, Glob, Bash(find:*, ls:*)
 model: haiku
+effort: medium
 maxTurns: 25
 ---
 

@@ -3,6 +3,7 @@ name: task-worker
 description: Implements exactly one task from a plan's tasks.md under TDD, in fresh context. Spawned by /wb:implement, one per task, with a minimal context package. Returns a report; never commits.
 tools: Read, Write, Edit, Grep, Glob, Bash
 skills: [tdd-discipline]
+effort: medium
 maxTurns: 60
 ---
 
