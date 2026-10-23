@@ -6,11 +6,11 @@ created_timestamp: 2026-10-21T18:46:41Z
 status: in-progress
 last_updated: 2026-10-23
 assignee: scraig
-current_phase: 4
+current_phase: 5
 total_tasks: 48
-completed_tasks: 30
+completed_tasks: 38
 task_tracking: markdown-checkboxes
-git_commit: d8097d329fa43ba63b2e78b21099bdd70baa5d7a
+git_commit: d9cb9c44f76e03fb55bf78a8d2c3f37004cc2e8e
 git_branch: thescubageek/5.5-models-prompt-optimization
 repository: thescubageek/workbench
 tags: [tasks, tracking, prompt_audit_5_5]
@@ -129,7 +129,7 @@ grep -cE '^- \[ \] \*\*[A-Z0-9-]*[0-9][A-Z0-9-]*\*\*' tasks.md    # remaining
 | Phase 1: Spawns and tiers (Batch 0, 3.0.1) | ✅ Complete | 10/10 | 100% |
 | Phase 2: Research, design, and task stages (Batch 1) | ✅ Complete | 7/7 | 100% |
 | Phase 3: Implementation stages (Batch 2) | ✅ Complete | 9/9 | 100% |
-| Phase 4: Other stages and skills (Batch 3) | ⏸️ Not Started | 0/8 | 0% |
+| Phase 4: Other stages and skills (Batch 3) | ✅ Complete | 8/8 | 100% |
 | Phase 5: Agent prose (Batch 4) | ⏸️ Not Started | 0/4 | 0% |
 | Phase 6: Shared rules, docs, and 3.1.0 (Batch 5) | ⏸️ Not Started | 0/6 | 0% |
 
@@ -920,9 +920,9 @@ step is the rule; this is the moment it applies.
 
 #### Manual Verification
 
-- [ ] Read two rewritten barriers from `fetch-issues` or `daily-digest` and confirm that each
+- [x] Read two rewritten barriers from `fetch-issues` or `daily-digest` and confirm that each
       states its reason
-- [ ] Type "walk through the changes" in a session with the plugin and confirm that `review-prep`
+- [x] Type "walk through the changes" in a session with the plugin and confirm that `review-prep`
       still triggers
 
 ### Modified Files
@@ -959,8 +959,8 @@ shortened one.
 
 - [x] **(derivable)** Every Phase 4 checkbox is `[x]`
 - [x] **(derivable)** All automated verification passing
-- [ ] **(attestation)** Manual verification confirmed by human
-- [ ] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
+- [x] **(attestation)** Manual verification confirmed by human
+- [x] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
       only writer of those fields, so do not edit `current_phase` or `completed_tasks` by hand
 
 **Do not proceed without human confirmation of manual tests** — unless the phase is being run
@@ -979,11 +979,11 @@ research stage loses no facts.
 
 ### Prerequisites
 
-- [ ] Phase 4 complete and verified
-- [ ] Phase 4 manual testing confirmed — *an attestation, like the checkpoint's. Under
+- [x] Phase 4 complete and verified
+- [x] Phase 4 manual testing confirmed — *an attestation, like the checkpoint's. Under
       `/wb:implement --auto` it stays `[ ]` and the phase proceeds anyway; the previous phase's
       checkpoint records that nobody was asked. Unticked here means deferred, not blocked.*
-- [ ] The spend ledger shows enough budget for 4 research-only runs at the cost that P2-T5
+- [x] The spend ledger shows enough budget for 4 research-only runs at the cost that P2-T5
       measured for the research stage
 
 ### Changes Required
@@ -1455,6 +1455,7 @@ resolved, leaving a dated line saying how.
   `create_mockup` at 2.7k and `explore_design` at 3.3k, against 2.5k and 3.2k. The barrier reasons
   were shortened, and `create_mockup` lost a paragraph that repeated BARRIER 2's reason. Both are
   back at baseline. The 14-stage sum is ~63.4k against ~64.1k.
+- [2026-10-23] Phase 4 manual verification confirmed by the user ("continue"), 2026-10-23 07:10 UTC.
 - **Kept CAPS lines**: record each one here with its file, line, and reason, as the wording tasks
   run.
   - `create_research/SKILL.md:27` — the Documentarian Rule fence. It is the stage's one core

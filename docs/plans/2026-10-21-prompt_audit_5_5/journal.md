@@ -62,6 +62,12 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-10-23 07:10 — P5-T1 (open)
+
+- **Task/phase**: P5-T1 — the wording rules in the prose of codebase-analyzer, product-behavior-analyzer, codebase-locator, and pattern-finder
+- **Next action**: read each agent body, rewrite the CAPS lines and the restated documentarian rule, one commit for each file
+- **Started at**: d9cb9c4
+
 ## 2026-10-23 05:02 — P4-T7 (closed)
 
 - **Task/phase**: P4-T7 — build and run the Batch 3 blind trial

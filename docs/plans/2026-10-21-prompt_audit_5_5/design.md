@@ -6,7 +6,7 @@ created_timestamp: 2026-10-21T18:46:41Z
 status: approved
 last_updated: 2026-10-23
 designer: scraig
-git_commit: d8097d329fa43ba63b2e78b21099bdd70baa5d7a
+git_commit: d9cb9c44f76e03fb55bf78a8d2c3f37004cc2e8e
 git_branch: thescubageek/5.5-models-prompt-optimization
 repository: thescubageek/workbench
 tags: [design, architecture, prompt_audit_5_5]
