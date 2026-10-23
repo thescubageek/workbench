@@ -575,9 +575,9 @@ step is the rule; this is the moment it applies.
 
 #### Manual Verification
 
-- [ ] Read the rewritten Step 4 and Step 5 of `create_research` and confirm that each rule is
+- [x] Read the rewritten Step 4 and Step 5 of `create_research` and confirm that each rule is
       stated once and that the barrier still forbids synthesis on a partial set
-- [ ] Read one harness `research.md` and `design.md` pair and confirm that they read like the
+- [x] Read one harness `research.md` and `design.md` pair and confirm that they read like the
       output of the old stages
 
 ### Modified Files
@@ -616,7 +616,7 @@ shortened one.
 
 - [x] **(derivable)** Every Phase 2 checkbox is `[x]`
 - [x] **(derivable)** All automated verification passing
-- [ ] **(attestation)** Manual verification confirmed by human
+- [x] **(attestation)** Manual verification confirmed by human
 - [ ] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
       only writer of those fields, so do not edit `current_phase` or `completed_tasks` by hand
 
@@ -1381,6 +1381,7 @@ resolved, leaving a dated line saying how.
   `caps` 2 (the two kept Documentarian Rule fences). On-invoke tokens against 3.0.0:
   `create_research` 5.3k → 5.0k, `create_product_research` 4.5k → 4.3k, `create_design` 5.5k →
   5.4k, `create_tasks` 3.9k → 3.9k. `link_check.py` and `token_check.py` PASS.
+- [2026-10-23] Phase 2 manual verification confirmed by the user ("looks good, proceed"), 2026-10-23 04:26 UTC.
 - **Kept CAPS lines**: record each one here with its file, line, and reason, as the wording tasks
   run.
   - `create_research/SKILL.md:27` — the Documentarian Rule fence. It is the stage's one core
