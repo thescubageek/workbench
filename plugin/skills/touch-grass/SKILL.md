@@ -28,11 +28,11 @@ RESUME MUST BE LOSSLESS FROM state.md ALONE.
 
 Five non-negotiables (each is a bug someone already hit — do not improvise around them):
 
-1. **Reschedule EVERY live turn.** A pending `ScheduleWakeup` does NOT survive an intervening user message — any user turn kills the timer. The turn that handles it MUST re-schedule before ending. (This caused an 11-hour stall in the prototype.)
-2. **NEVER fan out speculatively.** Depth over breadth. Fully resolve one sub-question before opening the next. One segment = one sub-question.
+1. **Reschedule every live turn.** A pending `ScheduleWakeup` does not survive an intervening user message — any user turn kills the timer. The turn that handles it re-schedules before ending. (This caused an 11-hour stall in the prototype.)
+2. **Do not fan out speculatively.** Depth over breadth. Fully resolve one sub-question before opening the next. One segment = one sub-question.
 3. **Verify load-bearing claims with 2 independent sources.** When a claim gates the decision, read the primary source in full; prefer direct API/repo/document inspection over search summaries. Re-verify insider/internal claims against the live source before use.
-4. **NEVER cut silently.** Every conscious scope cut gets a row in the budget ledger ("skipped X because Y").
-5. **Fresh eyes = fresh CONTEXT, not elapsed time.** A same-session wakeup does NOT reset context and is worthless as a critic.
+4. **Do not cut silently.** Every conscious scope cut gets a row in the budget ledger ("skipped X because Y").
+5. **Fresh eyes = fresh context, not elapsed time.** A same-session wakeup does not reset context and is worthless as a critic.
 
 ## When to activate
 
@@ -85,7 +85,7 @@ The mechanism is the **`ScheduleWakeup`** tool. Size the wait to the *next* segm
 
 ## Wakeup protocol — hard rules
 
-- **MUST end EVERY turn with a fresh `ScheduleWakeup`** while the loop is live. (See Iron Law #1.)
+- **End every turn with a fresh `ScheduleWakeup`** while the loop is live. (See Iron Law #1.)
 - The wakeup **`prompt` must be self-contained**: reload instruction + checkpoint path + the every-turn-reschedule rule itself, so a cold resume re-enters the loop correctly. For an unattended self-paced loop with no user prompt, use the `<<autonomous-loop-dynamic>>` sentinel.
 - If a turn is interrupted before scheduling, the next resume must notice and re-enter the loop from `state.md`.
 - **Machine sleep can block wakeups** when no session holds a power assertion. For unattended overnight gaps, tell the user to keep the machine awake.
@@ -98,9 +98,9 @@ The mechanism is the **`ScheduleWakeup`** tool. Size the wait to the *next* segm
 
 ## End conditions — stop scheduling
 
-Deliverable written **and** critic pass applied **and** user informed → **STOP** rescheduling. A finished loop that keeps waking is a bug. Say plainly that the loop is closed.
+Deliverable written **and** critic pass applied **and** user informed → **stop** rescheduling. A finished loop that keeps waking is a bug. Say plainly that the loop is closed.
 
-## Red flags — STOP
+## Red flags: stop
 
 - Ending a live-loop turn without a fresh `ScheduleWakeup`.
 - Uniform hourly chunking when the next segment is 5 minutes of local reads.

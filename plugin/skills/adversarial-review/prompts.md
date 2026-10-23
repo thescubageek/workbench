@@ -4,7 +4,7 @@
 placeholders. Never paraphrase them from memory — the evidence contract is the part that gets
 softened when they are.
 
-**These agents are READ-ONLY.** They return findings; the calling skill merges, verifies and
+**These agents are read-only.** They return findings; the calling skill merges, verifies and
 reports. No agent writes a file, and no agent fixes anything it finds.
 
 ## The shared preamble

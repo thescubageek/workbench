@@ -62,6 +62,13 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-10-23 05:01 — P4-T6 (closed)
+
+- **Task/phase**: P4-T6 — the wording rules in 8 more files and the review-prep trigger
+- **Landed**: plain wording, the narrowed review-prep trigger, and a corrected quote in adversarial-loop. Plugin-wide caps 7, triple barriers 0
+- **Commits**: the P4-T6 commit
+- **Learned**: a skill that quotes another skill's wording goes stale when that wording changes. adversarial-loop quoted implement's old scope line
+
 ## 2026-10-23 05:00 — P4-T5 (closed)
 
 - **Task/phase**: P4-T5 — the wording rules in create_project, resolve_questions, fetch-issues, daily-digest, and forge

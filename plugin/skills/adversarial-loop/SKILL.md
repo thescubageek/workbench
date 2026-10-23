@@ -211,8 +211,8 @@ publishing phases cannot end up pointed at different changes.
    ⛔ **Prune before you invoke, because `implement` cannot read a disposition.** Step 8 writes
    the plan before any adjudication exists, so it carries a task for **every** finding that
    survived verification — including the ones step 2 just rejected. `implement` takes the first
-   unchecked task line in the phase and implements *"ONLY ... what is EXPLICITLY written in
-   tasks.md"* (`implement/SKILL.md`'s *"ONLY"* rule); the task shape in
+   unchecked task line in the phase and implements *"only what tasks.md specifies"*
+   (`implement/SKILL.md` → Scope); the task shape in
    [../adversarial-review/templates.md](../adversarial-review/templates.md) has no disposition
    field, and nothing `implement` reads would carry one. So an unpruned round with two findings
    adjudicated `Valid` and four rejected commits six fixes — and the gate below still passes,

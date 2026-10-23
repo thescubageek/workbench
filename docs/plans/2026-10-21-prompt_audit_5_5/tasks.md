@@ -879,10 +879,10 @@ Annotate each with its projected tool-call cost; anything past ~50 splits at a n
       `create_mockup/sub-agent-prompts.md`. (~30 calls) (completed 2026-10-23 05:00)
 - [x] **P4-T5** — Apply the wording rules to `create_project`, `resolve_questions`, `fetch-issues`,
       `daily-digest`, and `forge` (the barrier lines in the table). (~30 calls) (completed 2026-10-23 05:01)
-- [ ] **P4-T6** — Apply the wording rules to `touch-grass`, `doc-adherence`, `jira-context`,
+- [x] **P4-T6** — Apply the wording rules to `touch-grass`, `doc-adherence`, `jira-context`,
       `status-sync`, `tracer-bullet`, `adversarial-loop`, `adversarial-review/prompts.md`, and
       `model-help` (`:98`). Narrow the `review-prep` trigger as Changes Required §2 says.
-      (~30 calls)
+      (~30 calls) (completed 2026-10-23 05:02)
 
 #### Testing
 
@@ -1440,6 +1440,11 @@ resolved, leaving a dated line saying how.
   wait-for-agents barriers in `fetch-issues` and `daily-digest` name the completion notification.
   The `forge` diagram labels stay short, because the bullets they point to now carry the reasons.
   `fetch-issues` "no offset/limit" says "nothing truncated", because it reads issues through `gh`.
+- [2026-10-23] Completed P4-T6: plain wording in 7 skills and `adversarial-review/prompts.md`. The
+  `review-prep` description no longer lists the bare word "review" as a trigger. Found and fixed:
+  `adversarial-loop/SKILL.md:214-215` quoted `implement`'s old "ONLY ... EXPLICITLY" scope text,
+  which P3-T1 replaced, so the quote now matches the new Scope section. Plugin-wide `caps` is 7
+  (target 15). 2 of the 7 are in agent files (Phase 5).
 - **Kept CAPS lines**: record each one here with its file, line, and reason, as the wording tasks
   run.
   - `create_research/SKILL.md:27` — the Documentarian Rule fence. It is the stage's one core
@@ -1447,6 +1452,10 @@ resolved, leaving a dated line saying how.
   - `create_product_research/SKILL.md:26` — the same Documentarian Rule fence, for the same reason.
   - `daily-digest/SKILL.md:36` — the Iron Law fence. It carries the PHI rule ("NEVER WRITE PHI"),
     which a HIPAA-covered user cannot afford to have underweighted.
+  - `touch-grass/SKILL.md:26` — the second line of the Iron Law fence. A lossy resume loses a
+    multi-day research loop, and the line is the skill's core contract.
+  - `plugin/hooks/wb-prime.sh:8` — a shell comment. It is never printed into a session, so no
+    model reads it as an instruction.
 
 ---
 
