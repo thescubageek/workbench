@@ -284,15 +284,18 @@ holds no journal of its own. The rule and its reason are stated once, in `journa
 **Choose the tier.** This is the one statement of the worker tier rule; every other mention in
 this skill and its supporting files points here rather than restating it.
 
-| Tier | When | Notes |
-| ---- | ---- | ----- |
-| `haiku` | Mechanical only — config, docs, renames, version bumps, typos | **Never annotate `effort` on a haiku spawn** |
-| `sonnet` | Bounded and fully specified — the task names the exact change and leaves no design latitude | The deliberate downshift, not the default |
-| **`opus`** | **Default.** Anything with judgment in it | |
-| `fable` | **Never a first spawn.** Only as an explicit election after a *verified* failure | Always `effort: high` — never `xhigh` or `max` |
+| Tier | Effort | When | Notes |
+| ---- | ------ | ---- | ----- |
+| `haiku` | `medium` | Mechanical only — config, docs, renames, version bumps, typos | Haiku 5.5 at `low` skips searches and checks more often |
+| `sonnet` | `medium` | Bounded and fully specified — the task names the exact change and leaves no design latitude | The deliberate downshift, not the default |
+| **`opus`** | `medium` | **Default.** Anything with judgment in it | |
+| `fable` | `high` | **Never a first spawn.** Only as an explicit election after a *verified* failure | Never `xhigh` or `max` |
+
+Pass the row's effort on the spawn. A spawn `effort` overrides the agent file's `effort`, and
+`agents/task-worker.md` sets `medium` only as the fallback for a spawn that passes none.
 
 **These four are the only values the spawn tool accepts** — its `model` parameter is an enum, so
-a full identifier like `claude-opus-4-8[1m]` cannot be pinned per spawn, and `opus` resolves to
+a full identifier like `claude-opus-5-5[1m]` cannot be pinned per spawn, and `opus` resolves to
 the current Opus. Full IDs belong to the *main-session* model (`/model`; see `model-help`).
 
 Judge the task's body, not a keyword match on its title. The tier does **not** fix truncation:
@@ -407,10 +410,10 @@ Any other verified failure gets **exactly one** escalation attempt:
    anything verifies the work, so a task reaching 6c is usually at `[x]` while unverified. An
    escalation started against an `[x]` box leaves 6a no signal to tell truncation from
    completion.
-2. Escalate **one rung up Step 5's ladder from the tier that failed** — `haiku` → `sonnet`,
-   `sonnet` → `opus`, `opus` → `fable` at `effort: high`. The `fable` rung is an explicit
-   election, never automatic; if `fable` also fails, the answer is the checkpoint's blocking
-   list, not a third model.
+2. Escalate **one rung up Step 5's ladder from the tier that failed**, at that rung's effort —
+   `haiku` → `sonnet`, `sonnet` → `opus`, `opus` → `fable` at `effort: high`. The `fable` rung is
+   an explicit election, never automatic; if `fable` also fails, the answer is the checkpoint's
+   blocking list, not a third model.
 3. Say which rung you chose and why, in one line.
 4. Read [prompts/escalation-worker-prompt.md](prompts/escalation-worker-prompt.md) NOW and spawn with it.
 5. Re-verify.

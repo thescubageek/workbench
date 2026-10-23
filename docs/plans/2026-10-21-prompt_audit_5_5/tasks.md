@@ -348,10 +348,10 @@ Annotate each with its projected tool-call cost; anything past ~50 splits at a n
       name such as `agents/task-verifier.md` unchanged. (~10 calls) (completed 2026-10-23 01:43)
 - [x] **P1-T5** — Set the agent frontmatter in `plugin/agents/*.md` to the table in Changes
       Required §2. (~10 calls) (completed 2026-10-23 01:44)
-- [ ] **P1-T6** — Rewrite the `implement` tier ladder as Changes Required §3 says, in
+- [x] **P1-T6** — Rewrite the `implement` tier ladder as Changes Required §3 says, in
       `implement/SKILL.md:284-300`, `:410-412`, and
       `implement/prompts/escalation-worker-prompt.md:9-10`. Delete the haiku-effort rule at
-      `adversarial-review/prompts.md:165`. (~15 calls)
+      `adversarial-review/prompts.md:165`. (~15 calls) (completed 2026-10-23 01:44)
 - [ ] **P1-T7** — Rewrite `plugin/skills/model-help/SKILL.md` as Changes Required §4 says.
       (~20 calls)
 - [ ] **P1-T8** — Rewrite the gate lines and the other tier text in Changes Required §5. Depends
@@ -1317,6 +1317,9 @@ resolved, leaving a dated line saying how.
 - [2026-10-22] Completed P1-T4: 6 prose spawn lines now name `wb:task-worker` or
   `wb:task-verifier`. `implement/SKILL.md:106` names the file `agents/task-worker.md` and is not a
   spawn, so it is unchanged.
+- [2026-10-22] Completed P1-T6: the tier table gains an `Effort` column. `adversarial-review/prompts.md:153-154`
+  also said "both Opus tiers collapse to `opus`", which named the old two-Opus roster. It now says
+  that `opus` always means the current Opus. That line is roster text, which this phase owns.
 - **Kept CAPS lines**: record each one here with its file, line, and reason, as the wording tasks
   run.
 

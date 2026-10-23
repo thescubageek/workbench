@@ -151,8 +151,8 @@ Write nothing. Return the verdict and its evidence.
 ## Model tiers
 
 Spawned agents take one of **four** values — `haiku`, `sonnet`, `opus`, `fable`. The main-session
-model roster does not apply here, and naming a specific model version in a spawn is a no-op: both
-Opus tiers collapse to `opus`.
+model roster does not apply here, and naming a specific model version in a spawn is a no-op: `opus`
+always means the current Opus.
 
 | Agent | Tier | Why |
 | ----- | ---- | --- |
@@ -162,9 +162,8 @@ Opus tiers collapse to `opus`.
 | Verifier | `sonnet` | One candidate, one traced path, one verdict |
 | Anything | `fable` | **Never a first spawn.** Only as an explicit election after a verified failure, and say why |
 
-**Never annotate `effort` on a `haiku` spawn.** No agent here uses `haiku` anyway: a lens with
-nothing but pattern-matching behind it produces exactly the weakly-grounded filler the evidence
-contract exists to reject.
+**No agent here uses `haiku`.** A lens with nothing but pattern-matching behind it produces
+exactly the weakly-grounded filler the evidence contract exists to reject.
 
 ## Spawning
 

@@ -62,6 +62,12 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-10-23 01:44 — P1-T6 (closed)
+
+- **Task/phase**: P1-T6 — effort for each rung of the `implement` tier ladder, and remove the haiku-effort rule
+- **Landed**: the tier table with an Effort column, the escalation step and prompt at the rung's effort, and the `claude-opus-5-5[1m]` example. `haiku-effort-rule` 0 PASS
+- **Commits**: the P1-T6 commit
+
 ## 2026-10-23 01:43 — P1-T5 (closed)
 
 - **Task/phase**: P1-T5 — agent frontmatter to the design's Data Model table
