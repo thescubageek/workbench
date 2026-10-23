@@ -62,6 +62,12 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-10-23 04:29 — P3-T5 (closed)
+
+- **Task/phase**: P3-T5 — the wording rules in tdd-discipline and verification-before-completion
+- **Landed**: 4 lines plain. 0 CAPS lines in either skill
+- **Commits**: the P3-T5 commit
+
 ## 2026-10-23 04:29 — P3-T4 (closed)
 
 - **Task/phase**: P3-T4 — the wording rules in implement_inline/reference.md

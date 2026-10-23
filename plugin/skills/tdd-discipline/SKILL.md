@@ -71,7 +71,7 @@ Keep tests green. Don't add behavior.
 | "Need to explore first" | Fine. Throw away exploration, start with TDD. |
 | "TDD will slow me down" | TDD faster than debugging. |
 
-## Red Flags - STOP and Start Over
+## Red Flags: Stop and Start Over
 
 - Code before test
 - Test passes immediately (didn't see it fail)

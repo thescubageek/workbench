@@ -28,7 +28,7 @@ Before claiming ANY success:
 3. **RUN**: Execute the command (fresh, complete)
 4. **READ**: Check output and exit code
 5. **VERIFY**: Does output confirm the claim?
-6. **ONLY THEN**: Make the claim with evidence
+6. **CLAIM**: Only then, make the claim with evidence
 
 Skip any step = not verified.
 
@@ -118,7 +118,7 @@ failure is distinguishable from zero.
 | "The check came back clean" | Can it come back dirty? Show it doing so |
 | "No output, so nothing's wrong" | No output is not a result until the check can produce one |
 
-## Red Flags - STOP
+## Red Flags: Stop
 
 - Using "should", "probably", "seems to"
 - Saying "Done!" before running tests
@@ -126,7 +126,7 @@ failure is distinguishable from zero.
 - Relying on partial checks
 - Expressing satisfaction before evidence
 
-**All of these mean: STOP. Run verification. Then claim.**
+**Each of these means: stop, run the verification, and only then make the claim.**
 
 ## Correct Pattern
 

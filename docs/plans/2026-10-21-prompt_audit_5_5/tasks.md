@@ -698,8 +698,8 @@ Annotate each with its projected tool-call cost; anything past ~50 splits at a n
       `implement/prompts/worker-prompt.md`. (~15 calls) (completed 2026-10-23 04:28)
 - [x] **P3-T3** — Apply the wording rules to `implement_inline/SKILL.md`. (~20 calls) (completed 2026-10-23 04:28)
 - [x] **P3-T4** — Apply the wording rules to `implement_inline/reference.md`. (~10 calls) (completed 2026-10-23 04:29)
-- [ ] **P3-T5** — Apply the wording rules to `tdd-discipline/SKILL.md` and
-      `verification-before-completion/SKILL.md`. (~12 calls)
+- [x] **P3-T5** — Apply the wording rules to `tdd-discipline/SKILL.md` and
+      `verification-before-completion/SKILL.md`. (~12 calls) (completed 2026-10-23 04:29)
 
 #### Testing
 
@@ -1397,6 +1397,9 @@ resolved, leaving a dated line saying how.
 - [2026-10-23] Completed P3-T4: the 13-line NEVER list is an 8-line "Do not" list. The five
   scope items repeated `SKILL.md` → Scope, so a pointer replaces them. "NEVER use limit/offset"
   contradicted the new read-fully rule, so it now says to page through a partial view.
+- [2026-10-23] Completed P3-T5: the two "Red Flags - STOP" headings are plain. In
+  `verification-before-completion`, step 6's "ONLY THEN" label became "CLAIM", so the six steps
+  keep one label style (IDENTIFY, FALSIFY, RUN, READ, VERIFY, CLAIM).
 - **Kept CAPS lines**: record each one here with its file, line, and reason, as the wording tasks
   run.
   - `create_research/SKILL.md:27` — the Documentarian Rule fence. It is the stage's one core
