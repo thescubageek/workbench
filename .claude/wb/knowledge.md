@@ -519,3 +519,15 @@ we have the in-repo cautionary example for that.
 - **Why it matters**: `./plugin/scripts/check-guards plugin/scripts/pr-identity` reported clean while `plugin/scripts/test-pr-identity` held an unguarded `for b in "$W"/*.git` that the full `./plugin/scripts/check` flagged. Task verifications from P2-T2 to P2-T7 passed over a gate that was red. Run `./plugin/scripts/check` before a task counts as verified, not only the named-file form.
 - **Verified**: 2026-10-02 · `docs/plans/2026-10-01-pr_identity_contract/` (fixed in `ded0632`)
 - **Check it**: add `for x in /tmp/nothing*; do :; done` to a scratch script in `plugin/scripts/`, then compare `check-guards <other file>` with `check-guards` and `check`.
+
+## A plugin agent spawns only by its `wb:` name; a bare `subagent_type` fails
+
+- **Why it matters**: every `subagent_type:` in the shipped `sub-agent-prompts.md` files is bare (`codebase-locator`). On 2026-10-21 the Agent tool rejected the bare name with `Agent type 'codebase-locator' not found` and listed only `wb:codebase-locator` and the other scoped names. A stage that copies a spawn block verbatim gets an error, or a session improvises a different agent. Write `wb:<name>` in a spawn.
+- **Verified**: 2026-10-21 · `docs/plans/2026-10-21-prompt_audit_5_5/` (Claude Code 2.1.300)
+- **Check it**: from a session with the plugin loaded, spawn `subagent_type: "codebase-locator"` with a one-word prompt. The error lists the available names.
+
+## A spawn's `effort` reaches the API, and the subagent transcript shows the effort that ran
+
+- **Why it matters**: the Agent tool's `effort` parameter overrides the agent file's `effort`, and a spawn with neither inherits the session effort. `gvarela/workbench` 4.0.0 says the opposite, from a 2.1.285 measurement. The sub-agents page says the parameter needs 2.1.292 or later. To see what effort a subagent ran at, read `"output_config":{"effort":…}` in its transcript, not the prompt.
+- **Verified**: 2026-10-22 · `docs/plans/2026-10-21-prompt_audit_5_5/` research.md, Follow-up Research (Claude Code 2.1.300)
+- **Check it**: spawn `general-purpose` with `model: haiku` and `effort: low`, then `command grep -o '"output_config":{"effort":"[a-z]*"' ~/.claude/projects/<project>/<session>/subagents/agent-<id>.jsonl` prints `low`.
