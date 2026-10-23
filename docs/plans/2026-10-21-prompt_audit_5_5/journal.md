@@ -65,7 +65,7 @@ this template, silently, from the moment of creation.
 ## 2026-10-23 07:46 — P5-T4 [blocked] (open)
 
 - **Task/phase**: P5-T4 — act on the Batch 4 verdict
-- **Next action**: waiting on the user. The restored tree (f175ea4) lost facts too, so the gate cannot attribute the loss. Ledger about $27.87 of $30. Options: keep the restored agent files, re-apply the edits, or spend about $2.80 on a ref-versus-path control
+- **Next action**: the user chose the ref-versus-path control (2026-10-23 16:04 UTC), and approved going over the $30 limit by about $0.70. Run `evals/run.py --before HEAD --after . --repeats 1 --stages research`, judge it, then decide
 - **Started at**: f81b684
 
 ## 2026-10-23 07:12 — P5-T3 (closed)
