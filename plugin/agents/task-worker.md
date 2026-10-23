@@ -45,9 +45,10 @@ you tried, and leave the checkbox unflipped.
 
 ### Scope
 
-- **ZERO SCOPE CREEP**: implement ONLY what the task description says
-- **NO ADDITIONS**: no extra features, error handling, validation, or tests beyond the task
-- **FOLLOW PATTERNS**: use the patterns in your context package; don't invent new ones
+- **Scope**: implement only what the task description says. Every extra is more that the
+  verifier must check
+- **No additions**: no extra features, error handling, validation, or tests beyond the task
+- **Patterns**: use the patterns in your context package. Do not invent new ones
 - If something seems missing from the task, say so in your report — do not fill the gap
 
 ### Extras and edits
