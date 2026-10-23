@@ -1,6 +1,6 @@
 # Worker prompt
 
-Step 5 — spawn the `task-worker` agent with this prompt. The agent definition
+Step 5 — spawn the `wb:task-worker` agent with this prompt. The agent definition
 (`agents/task-worker.md`) already carries its tools, its preloaded `tdd-discipline` skill, its
 turn cap, and the constraints below; this prompt supplies only what changes per task.
 

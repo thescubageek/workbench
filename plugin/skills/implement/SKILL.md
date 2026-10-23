@@ -299,7 +299,7 @@ Judge the task's body, not a keyword match on its title. The tier does **not** f
 workers hit a *tool-call* ceiling, not a context limit — Step 3's context minimisation and the
 plan's ~50-call task sizing are what address that.
 
-**Then spawn.** Read [prompts/worker-prompt.md](prompts/worker-prompt.md) NOW and spawn the `task-worker` agent with it.
+**Then spawn.** Read [prompts/worker-prompt.md](prompts/worker-prompt.md) NOW and spawn the `wb:task-worker` agent with it.
 
 **Loop**: Spawn → Wait → Verify → Commit → Next task
 
@@ -334,7 +334,7 @@ context spends the same budget and truncates at the same point, buying nothing.
 
 #### 6b. Verify
 
-Read [prompts/verifier-prompt.md](prompts/verifier-prompt.md) NOW and spawn the `task-verifier` agent with it. Scope is checked against the uncommitted working tree — there is no base ref to supply, because the worker did not commit.
+Read [prompts/verifier-prompt.md](prompts/verifier-prompt.md) NOW and spawn the `wb:task-verifier` agent with it. Scope is checked against the uncommitted working tree — there is no base ref to supply, because the worker did not commit.
 
 Parse the result:
 

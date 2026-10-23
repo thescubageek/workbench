@@ -62,6 +62,12 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-10-23 01:43 — P1-T4 (closed)
+
+- **Task/phase**: P1-T4 — `wb:` names in the prose spawns of `implement`
+- **Landed**: 6 spawn lines in `implement/SKILL.md` and `implement/prompts/`. `prose-spawns` 0 PASS
+- **Commits**: the P1-T4 commit
+
 ## 2026-10-23 01:43 — P1-T3 (closed)
 
 - **Task/phase**: P1-T3 — `wb:` spawn names and no spawn `model` in the 6 sub-agent-prompts.md files

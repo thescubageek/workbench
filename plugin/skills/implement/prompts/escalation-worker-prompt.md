@@ -4,7 +4,7 @@ Step 6 — spawn **once**, only after a verified failure, and only at one tier a
 that failed.
 
 ```
-Use the task-worker agent to fix a verified failure.
+Use the wb:task-worker agent to fix a verified failure.
 
 Model: ${escalationTier}   # one rung above the tier that failed — see SKILL.md Step 5
 Effort: ${escalationTier == "fable" ? "high" : "<tier default>"}

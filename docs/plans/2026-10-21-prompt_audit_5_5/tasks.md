@@ -342,10 +342,10 @@ Annotate each with its projected tool-call cost; anything past ~50 splits at a n
       `subagent_type` values to `wb:<name>`, and their 20 `model:` lines deleted. Leave the 2
       `general-purpose` spawns in `validate_execution/sub-agent-prompts.md:51-52` and `:70-71`
       unchanged. Change no other line. (~20 calls) (completed 2026-10-23 01:43)
-- [ ] **P1-T4** — Change the prose spawns in `implement` to the `wb:` names:
+- [x] **P1-T4** — Change the prose spawns in `implement` to the `wb:` names:
       `implement/SKILL.md:106`, `:302`, `:337`, `implement/prompts/worker-prompt.md:3`,
       `verifier-prompt.md:3`, `:6`, and `escalation-worker-prompt.md:7`. Leave a path or a file
-      name such as `agents/task-verifier.md` unchanged. (~10 calls)
+      name such as `agents/task-verifier.md` unchanged. (~10 calls) (completed 2026-10-23 01:43)
 - [ ] **P1-T5** — Set the agent frontmatter in `plugin/agents/*.md` to the table in Changes
       Required §2. (~10 calls)
 - [ ] **P1-T6** — Rewrite the `implement` tier ladder as Changes Required §3 says, in
@@ -1314,6 +1314,9 @@ resolved, leaving a dated line saying how.
   and task-worker lack `effort`), `roster` 23, `haiku-effort-rule` 2, `triple-barriers` 23,
   `notification` 8, `caps` 118. The `notification` check reads one line at a time, so a barrier
   that wraps across lines is not seen.
+- [2026-10-22] Completed P1-T4: 6 prose spawn lines now name `wb:task-worker` or
+  `wb:task-verifier`. `implement/SKILL.md:106` names the file `agents/task-worker.md` and is not a
+  spawn, so it is unchanged.
 - **Kept CAPS lines**: record each one here with its file, line, and reason, as the wording tasks
   run.
 
