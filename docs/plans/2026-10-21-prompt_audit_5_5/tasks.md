@@ -1016,8 +1016,8 @@ Annotate each with its projected tool-call cost; anything past ~50 splits at a n
 - [x] **P5-T1** — Apply the wording rules to the prose of `codebase-analyzer.md`,
       `product-behavior-analyzer.md`, `codebase-locator.md`, and `pattern-finder.md`, with one
       commit for each file. (~25 calls) (completed 2026-10-23 07:11)
-- [ ] **P5-T2** — Apply the wording rules to the prose of `research-validator.md`,
-      `task-verifier.md`, and `task-worker.md`, with one commit for each file. (~20 calls)
+- [x] **P5-T2** — Apply the wording rules to the prose of `research-validator.md`,
+      `task-verifier.md`, and `task-worker.md`, with one commit for each file. (~20 calls) (completed 2026-10-23 07:12)
 
 #### Testing
 
@@ -1462,6 +1462,10 @@ resolved, leaving a dated line saying how.
   Not changed, and outside the wording rules: `pattern-finder` still says "Look for both positive
   examples (to follow) and negative (to avoid)", which sits uneasily with "don't evaluate". That is
   a content question for a follow-up, not a wording fix.
+- [2026-10-23] Completed P5-T2 (3 commits): `research-validator` reads in full with paging, and
+  its closing REMEMBER section is gone. `task-verifier` changes only its role line and heading,
+  because the verifier trial had just validated its text. `task-worker`'s CAPS scope labels are
+  plain, and the scope item gains its reason. The verifier report headings are unchanged.
 - **Kept CAPS lines**: record each one here with its file, line, and reason, as the wording tasks
   run.
   - `create_research/SKILL.md:27` — the Documentarian Rule fence. It is the stage's one core

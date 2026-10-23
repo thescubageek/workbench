@@ -62,11 +62,17 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
-## 2026-10-23 07:11 — P5-T2 (open)
+## 2026-10-23 07:12 — P5-T3 (open)
+
+- **Task/phase**: P5-T3 — Batch 4 harness gate: research only, before b6cd14c, after HEAD, 2 repeats, before/after judge
+- **Next action**: run evals/run.py under env -u CLAUDE_CODE_PLUGIN_DIRS, then judge.py --run in before/after mode
+- **Started at**: ffedbb1
+
+## 2026-10-23 07:11 — P5-T2 (closed)
 
 - **Task/phase**: P5-T2 — the wording rules in research-validator, task-verifier, and task-worker
-- **Next action**: rewrite the CAPS lines and restatements in the three agent bodies, one commit for each file. Keep the report headings
-- **Started at**: f500133
+- **Landed**: b748adc, 2b05025, ffedbb1. agent-tiers PASS, plugin-wide caps 7
+- **Commits**: b748adc..ffedbb1, and the record commit
 
 ## 2026-10-23 07:10 — P5-T1 (closed)
 
