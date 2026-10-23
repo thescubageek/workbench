@@ -1013,9 +1013,9 @@ Annotate each with its projected tool-call cost; anything past ~50 splits at a n
 
 #### Implementation
 
-- [ ] **P5-T1** — Apply the wording rules to the prose of `codebase-analyzer.md`,
+- [x] **P5-T1** — Apply the wording rules to the prose of `codebase-analyzer.md`,
       `product-behavior-analyzer.md`, `codebase-locator.md`, and `pattern-finder.md`, with one
-      commit for each file. (~25 calls)
+      commit for each file. (~25 calls) (completed 2026-10-23 07:11)
 - [ ] **P5-T2** — Apply the wording rules to the prose of `research-validator.md`,
       `task-verifier.md`, and `task-worker.md`, with one commit for each file. (~20 calls)
 
@@ -1456,11 +1456,19 @@ resolved, leaving a dated line saying how.
   were shortened, and `create_mockup` lost a paragraph that repeated BARRIER 2's reason. Both are
   back at baseline. The 14-stage sum is ~63.4k against ~64.1k.
 - [2026-10-23] Phase 4 manual verification confirmed by the user ("continue"), 2026-10-23 07:10 UTC.
+- [2026-10-23] Completed P5-T1 (4 commits, one for each agent): plain role lines and "What Not
+  to Do" headings. The closing REMEMBER sections of the two analyzers repeated the opening rule, so
+  they are gone. `product-behavior-analyzer` stated "do not guess" three times, and keeps the first.
+  Not changed, and outside the wording rules: `pattern-finder` still says "Look for both positive
+  examples (to follow) and negative (to avoid)", which sits uneasily with "don't evaluate". That is
+  a content question for a follow-up, not a wording fix.
 - **Kept CAPS lines**: record each one here with its file, line, and reason, as the wording tasks
   run.
   - `create_research/SKILL.md:27` — the Documentarian Rule fence. It is the stage's one core
     rule, and the file states it nowhere else now.
   - `create_product_research/SKILL.md:26` — the same Documentarian Rule fence, for the same reason.
+  - `agents/codebase-analyzer.md:21` and `agents/product-behavior-analyzer.md:21` — the same fence.
+    The agents carry the rule in their own definitions, so every spawn gets it.
   - `daily-digest/SKILL.md:36` — the Iron Law fence. It carries the PHI rule ("NEVER WRITE PHI"),
     which a HIPAA-covered user cannot afford to have underweighted.
   - `touch-grass/SKILL.md:26` — the second line of the Iron Law fence. A lossy resume loses a
