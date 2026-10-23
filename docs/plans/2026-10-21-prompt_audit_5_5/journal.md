@@ -62,6 +62,12 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-10-23 04:28 — P3-T3 (closed)
+
+- **Task/phase**: P3-T3 — the wording rules in implement_inline/SKILL.md
+- **Landed**: the Q2-measured Scope list, single-marker BARRIER 1, and the read-fully wording. 0 CAPS lines
+- **Commits**: the P3-T3 commit
+
 ## 2026-10-23 04:27 — P3-T2 (closed)
 
 - **Task/phase**: P3-T2 — the wording rules in implement/reference.md and implement/prompts/worker-prompt.md

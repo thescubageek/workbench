@@ -696,7 +696,7 @@ Annotate each with its projected tool-call cost; anything past ~50 splits at a n
       (`:106`, `:284-302`, `:337`, `:410-412`) as Phase 1 left them. (~25 calls) (completed 2026-10-23 04:27)
 - [x] **P3-T2** — Apply the wording rules to `implement/reference.md` and
       `implement/prompts/worker-prompt.md`. (~15 calls) (completed 2026-10-23 04:28)
-- [ ] **P3-T3** — Apply the wording rules to `implement_inline/SKILL.md`. (~20 calls)
+- [x] **P3-T3** — Apply the wording rules to `implement_inline/SKILL.md`. (~20 calls) (completed 2026-10-23 04:28)
 - [ ] **P3-T4** — Apply the wording rules to `implement_inline/reference.md`. (~10 calls)
 - [ ] **P3-T5** — Apply the wording rules to `tdd-discipline/SKILL.md` and
       `verification-before-completion/SKILL.md`. (~12 calls)
@@ -1390,6 +1390,10 @@ resolved, leaving a dated line saying how.
   reason kept. The worker prompt's "⛔ CRITICAL: Follow this EXACT process" and its CRITICAL
   Constraints list are plain, and the scope item gains its reason. The RED, GREEN, and REFACTOR
   labels stay in capitals, because they name the TDD phases.
+- [2026-10-23] Completed P3-T3: the scope block is the Q2 `trim` arm's `### Scope` list,
+  word for word except American spelling. The principle "ZERO SCOPE CREEP" is a plain Scope
+  principle. BARRIER 1 is single-marker. The "Implement ONLY what's specified" heading and the
+  REMEMBER line repeated the scope rule, so they are gone. 0 CAPS lines remain.
 - **Kept CAPS lines**: record each one here with its file, line, and reason, as the wording tasks
   run.
   - `create_research/SKILL.md:27` — the Documentarian Rule fence. It is the stage's one core

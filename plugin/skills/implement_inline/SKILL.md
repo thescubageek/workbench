@@ -61,21 +61,22 @@ When invoked, check for arguments:
 
 1. **TDD Cycle**: Red → Green → Refactor for each task
 2. **Phase Boundaries**: Complete phases fully before proceeding
-3. **ZERO SCOPE CREEP**: Implement EXACTLY what's in tasks.md - NO additions, NO improvements, NO extras
+3. **Scope**: implement exactly what is in tasks.md, with no additions, improvements, or extras
 4. **Progress Tracking**: checkbox state in `tasks.md` is the source of truth — flipping a task's checkbox **is** the act of recording it done
 5. **Verification Gates**: Respect ⛔ CHECKPOINT markers between phases
 6. **Documentation First**: Read research.md and design.md for context before starting — a
    remediation plan has neither, and Step 1 says what to read instead
 
-### CRITICAL: NO SCOPE ADDITIONS - NONE
+### Scope
 
-- **NEVER** add features not in tasks.md
-- **NEVER** refactor code beyond what's specified
-- **NEVER** make "improvements" or "optimizations" not explicitly asked for
-- **NEVER** add extra error handling, validation, or edge cases not in the plan
-- **NEVER** create abstractions or utilities not specifically tasked
-- **ONLY** implement what is EXPLICITLY written in tasks.md
-- If you think something is missing, STOP and ask - DO NOT add it yourself
+Implement only what tasks.md specifies.
+
+- Do not add features that are not in tasks.md.
+- Do not refactor code beyond what is specified.
+- Do not make improvements or optimizations that are not explicitly asked for.
+- Do not add extra error handling, validation, or edge cases that are not in the plan.
+- Do not create abstractions or utilities that are not specifically tasked.
+- If you think something is missing, stop and ask. Do not add it yourself.
 
 ### Extras and edits
 
@@ -117,11 +118,11 @@ For each implementation task:
 
 ### Step 1: Read and Understand Context
 
-**⛔⛔⛔ BARRIER 1: STOP! Read ALL documentation files FULLY - NO SHORTCUTS ⛔⛔⛔**
+⛔ BARRIER 1: research.md, design.md, and tasks.md are read in full (a remediation plan has only tasks.md) — code written from a partial reading builds against the wrong plan
 
 Take the project directory and the phase from the arguments, prompting for either if it is
-missing. Then read `research.md`, `design.md` and `tasks.md` from that directory — **fully**, no
-`limit` or `offset`.
+missing. Then read `research.md`, `design.md` and `tasks.md` from that directory, in full. Read the
+whole file. If Read returns a partial view, page through it with `offset` and `limit`.
 
 **A remediation plan has only `tasks.md`, and that is correct.** Read
 [../../docs/reference/remediation-plan.md](../../docs/reference/remediation-plan.md) NOW for how to recognise one
@@ -138,17 +139,17 @@ hunting for the absent file.
    - Verify presence of research.md, design.md, tasks.md — for a remediation plan, `tasks.md`
      alone satisfies this
 
-2. **Read research.md FULLY** (a remediation plan has none — skip to step 4):
+2. **Read research.md in full** (a remediation plan has none — skip to step 4):
    - Understand what currently exists in the codebase
    - Note patterns and conventions to follow
    - Identify key file:line references
 
-3. **Read design.md FULLY** (likewise absent from a remediation plan):
+3. **Read design.md in full** (likewise absent from a remediation plan):
    - Understand the desired end state
    - Review success criteria for the phase
    - Note both automated and manual verification requirements
 
-4. **Read tasks.md FULLY**:
+4. **Read tasks.md in full**:
    - Identify current phase from frontmatter
    - Count completed vs remaining tasks
    - Locate the next unchecked task
@@ -157,14 +158,11 @@ hunting for the absent file.
    and a verification hint. Treat entries as dated claims to re-check, not as current truth.
    Absent file, fall through.
 
-**Implement ONLY what's specified**
-
 After reading all documentation, synthesize:
 
 - What patterns should I follow from research?
 - What's the goal from the design?
-- What EXACT tasks are specified in tasks.md?
-- REMEMBER: Do NOT add anything not explicitly listed
+- What exact tasks are specified in tasks.md?
 
 ### Step 2: Establish Position from tasks.md
 
