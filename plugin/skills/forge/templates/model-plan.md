@@ -5,8 +5,8 @@ Write this output in wb Technical English (WBTE): read [technical-english.md](..
 Emit this once, at the start of a forge, for the phases that remain.
 
 ```
-Model plan (this forge): research Sonnet/med → design Opus/high ⬆ → create_tasks Sonnet/med ⬇ → implement Sonnet/med → validate Sonnet/med
-Switches: up to Opus for design, then back to Sonnet. All other phases keep their model.
+Model plan (this forge): research Opus/med → design Opus/high → create_tasks Opus/med → implement Opus/med → validate Opus/high
+Switches: none. Every phase stays on Opus 5.5, and design and validation raise the effort to high.
 ```
 
 For a trivial pickup of a single phase, skip the table. One line is enough.

@@ -26,9 +26,9 @@ directory are gated, and that the fix is to allow the read once or to relaunch w
 **Output discipline**: report at round boundaries, not within them. One line per round saying what
 was found and what was done with it.
 
-**Model & effort (gate check)**: consult the `model-help` skill (gate mode). Baseline is
-Sonnet/medium — this skill sequences other skills and holds little itself. The review it invokes
-carries its own tier. Best-effort and non-blocking.
+**Model & effort (gate check)**: consult the `model-help` skill in gate mode. This skill
+sequences other skills and holds little itself, and the review it invokes carries its own tier.
+Do not block on it.
 
 ## What this is
 

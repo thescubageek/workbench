@@ -163,14 +163,14 @@ serialized and focused. This is the cost-optimization lever.
 | **Trivial / mechanical** | rename, doc/comment fix, lint, dependency bump, copy change, single obvious line | `haiku` | `low` | ✅ heavily — batch in parallel subagents/workspaces |
 | **Moderate** | localized bug fix, single-file feature, writing tests for known behavior, straightforward PR review | `sonnet` | `medium` | ✅ 2–3 at once if independent |
 | **Complex** | cross-cutting change, ambiguous requirements, new subsystem, non-trivial refactor, security-adjacent, tricky review | `opus` | `high` | ⚠️ serialize — needs your attention |
-| **Critical / novel** | architecture decision, data-integrity/prod risk, novel algorithm, high-blast-radius, one-way door | `opus` | `xhigh`→`max` | ❌ one at a time, full focus |
+| **Critical / novel** | architecture decision, data-integrity/prod risk, novel algorithm, high-blast-radius, one-way door | `opus` (`fable` for a one-way door) | `high` | ❌ one at a time, full focus |
 
 Guidance:
 
 - **Size to the hardest sub-problem.** A "simple" ticket with one gnarly decision is
   Complex, not Moderate.
-- **Reserve `opus`/`xhigh`+ for the one or two hardest items of the day.** Burning max
-  effort on mechanical work is the most common cost waste.
+- **Reserve `fable` and `opus`/`high` for the one or two hardest items of the day.** Burning
+  high effort on mechanical work is the most common cost waste.
 - **Uncertain which tier?** Fire a `tracer-bullet` first — one cheap probe at the
   riskiest assumption often collapses a "Complex" into a "Moderate" (or reveals it's
   a "Critical" one-way door before you commit).

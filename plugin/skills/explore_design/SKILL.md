@@ -22,14 +22,14 @@ directory are gated, and that the fix is to allow the read once or to relaunch w
 
 ## Model Self-Check (do this FIRST)
 
-This is the most judgment-dense, divergent stage in the workflow. **Recommended: Opus. Available upshift: Fable.**
+This is the most judgment-dense, divergent stage in the workflow. **Recommended: Opus 5.5 at `high`. Available upshift: Fable 5.1.**
 
-Check which model this session is running. If it is below Opus, surface this once:
+Check which model this session is running. If it is below Opus 5.5, surface this once:
 
 ```
 ⚠️ Model check: this session is running [model]. explore_design is a
-judgment-heavy discussion stage — Opus is recommended, and Fable is
-available as an upshift if the decision is genuinely architectural.
+judgment-heavy discussion stage — Opus 5.5 is recommended, and Fable 5.1
+is available as an upshift if the decision is genuinely architectural.
 Lighter models tend to converge too quickly and miss trade-offs.
 
 Continue on [model], or restart this stage in a stronger session?

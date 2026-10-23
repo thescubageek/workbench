@@ -62,6 +62,12 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-10-23 01:46 — P1-T8 (closed)
+
+- **Task/phase**: P1-T8 — gate lines delegate to model-help, and the other tier text names the 5.5 models
+- **Landed**: 7 gate lines, explore_design's self-check, resume_handoff's example, the forge model plan, and 2 daily-digest lines. All six Phase 1 mechanical checks PASS
+- **Commits**: the P1-T8 commit
+
 ## 2026-10-23 01:46 — P1-T7 (closed)
 
 - **Task/phase**: P1-T7 — model-help roster, ladder, mapping, baselines, and anchors for the 5.5 models

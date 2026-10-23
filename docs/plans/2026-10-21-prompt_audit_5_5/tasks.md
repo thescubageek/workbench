@@ -354,8 +354,8 @@ Annotate each with its projected tool-call cost; anything past ~50 splits at a n
       `adversarial-review/prompts.md:165`. (~15 calls) (completed 2026-10-23 01:44)
 - [x] **P1-T7** — Rewrite `plugin/skills/model-help/SKILL.md` as Changes Required §4 says.
       (~20 calls) (completed 2026-10-23 01:46)
-- [ ] **P1-T8** — Rewrite the gate lines and the other tier text in Changes Required §5. Depends
-      on: P1-T7 (the gate lines point to the new `model-help`). (~25 calls)
+- [x] **P1-T8** — Rewrite the gate lines and the other tier text in Changes Required §5. Depends
+      on: P1-T7 (the gate lines point to the new `model-help`). (~25 calls) (completed 2026-10-23 01:47)
 
 #### Testing
 
@@ -1326,6 +1326,10 @@ resolved, leaving a dated line saying how.
   effort change also invalidates the prompt cache, and Opus 5.5 at `medium` matches the previous
   Opus at `high`. The `create_research` row's `READ-ONLY` (`model-help:98`, a P4-T6 line) became
   "read-only" because the row was rewritten here.
+- [2026-10-22] Completed P1-T8: the 7 gate lines now delegate to `model-help` with no tier and
+  no root `CLAUDE.md` pointer. `explore_design`, `resume_handoff:195`, and
+  `forge/templates/model-plan.md` name the 5.5 models. In `daily-digest`, only the Critical row
+  (`opus` at `xhigh`→`max`) and its guidance line contradicted `model-help`, so only those changed.
 - **Kept CAPS lines**: record each one here with its file, line, and reason, as the wording tasks
   run.
 

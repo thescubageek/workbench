@@ -192,8 +192,8 @@ If handoff documents active blockers:
 3. Surface its one-line verdict, e.g.:
 
    ```
-   Model gate — implement (resume): recommend Sonnet 5 / medium. Handoff ran on Opus 5.
-   → Switch down (plan is locked; remaining tasks are mechanical — Opus is overkill for the rest).
+   Model gate — implement (resume): recommend Opus 5.5 / medium. Handoff ran on Fable 5.1.
+   → Switch down (plan is locked; remaining tasks are mechanical — Fable is overkill for the rest).
    ```
 
    Or, if the remaining work is the hard part, recommend staying/going up — the floor is inviolable, never advise below what the remaining tasks need.
