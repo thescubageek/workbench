@@ -1046,7 +1046,7 @@ step is the rule; this is the moment it applies.
       a recorded revert. *(Met: both losses have the recorded revert `f175ea4`, and the control showed they were variance.)*
 - [x] `checks/prompt-checks.sh agent-tiers` exits 0, so the frontmatter did not change
 - [x] `command grep -c '### Status: PASS' plugin/agents/task-verifier.md` prints at least 1
-- [ ] `./plugin/scripts/check` exits 0
+- [x] `./plugin/scripts/check` exits 0
 
 #### Manual Verification
 
@@ -1083,8 +1083,8 @@ before, and following it ticks the human sign-off box. **This block, labels and 
 included, is repeated in full at every phase's checkpoint**; a later phase never gets a
 shortened one.
 
-- [ ] **(derivable)** Every Phase 5 checkbox is `[x]`
-- [ ] **(derivable)** All automated verification passing
+- [x] **(derivable)** Every Phase 5 checkbox is `[x]`
+- [x] **(derivable)** All automated verification passing
 - [ ] **(attestation)** Manual verification confirmed by human
 - [ ] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
       only writer of those fields, so do not edit `current_phase` or `completed_tasks` by hand
@@ -1498,6 +1498,10 @@ resolved, leaving a dated line saying how.
   gate shows no loss, and at 2 repeats this gate cannot separate an edit from the research stage's
   variance. `task-verifier` and `task-worker` keep their P5-T2 edits. Follow-up: a gate on agent
   prose needs more repeats, or a less variable measure, than `evals/fixture-large` research gives.
+- [2026-10-24] Phase 5 verification: the first `./plugin/scripts/check` run failed one gate,
+  `prime contract`, on its timing assertion "200 plan directories: under 5 s (took 5 s)". This plan
+  never touched `wb-prime.sh`. `test-prime` alone passed 44 of 44, and the full re-run passed every
+  gate ("took 4 s"). The threshold is close to this machine's speed, which is a follow-up.
 - **Kept CAPS lines**: record each one here with its file, line, and reason, as the wording tasks
   run.
   - `create_research/SKILL.md:27` — the Documentarian Rule fence. It is the stage's one core
