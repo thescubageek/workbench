@@ -11,6 +11,31 @@ requires `shellcheck` and `python3` and fails loudly without them. A contributor
 the checks at 2.1.0 cannot at 3.0.0 without installing two tools, and no reading of "removed or
 renamed stages" would have warned them.
 
+## [3.1.4] — 2026-10-24
+
+A restructure of 3 skills. No stage was added or removed, and no stage requires anything new.
+
+### Fixed
+
+- **3 `SKILL.md` files were longer than the 500-line guidance.** After a compaction, Claude Code
+  keeps only the first 5,000 tokens of a skill, so the end of a long `SKILL.md` can drop out of
+  context. Prose moved to supporting files, and the step that needs each file reads it with a
+  "Read … NOW" line. The fenced blocks that `test-pr-identity` runs stay in `SKILL.md` (#35).
+
+  | Skill | Lines | Tokens on invoke | New supporting files |
+  | ----- | ----- | ---------------- | -------------------- |
+  | `adversarial-loop` | 718 → 491 | ~16.5k → ~10k | `pruning.md`, `ledger.md`, `publishing.md`, `waiting.md`, `clearance.md` |
+  | `implement` | 569 → 474 | ~11.1k → ~9.4k | `committing.md`, `unattended.md`, `prompts/context-package.md` |
+  | `adversarial-review` | 552 → 438 | ~12.5k → ~9.1k | `resolution.md`, `blast-radius.md` |
+
+### Migration
+
+None. Update the plugin and restart:
+
+```bash
+claude plugin update wb@thescubageek-workbench
+```
+
 ## [3.1.3] — 2026-10-24
 
 A hook fix. No stage was added or removed, and no stage requires anything new.

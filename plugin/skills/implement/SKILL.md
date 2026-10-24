@@ -15,8 +15,9 @@ The alternative is `/wb:implement_inline`, which runs the same plan **inline on 
 
 Supporting files in this directory (read each when its step directs you to — never paraphrase from memory):
 
-- `prompts/` — [worker-prompt.md](prompts/worker-prompt.md) (Step 5) · [verifier-prompt.md](prompts/verifier-prompt.md) and [escalation-worker-prompt.md](prompts/escalation-worker-prompt.md) (Step 6)
+- `prompts/` — [context-package.md](prompts/context-package.md) (Step 3) · [worker-prompt.md](prompts/worker-prompt.md) (Step 5) · [verifier-prompt.md](prompts/verifier-prompt.md) and [escalation-worker-prompt.md](prompts/escalation-worker-prompt.md) (Step 6)
 - `templates/` — [incomplete-worker-message.md](templates/incomplete-worker-message.md) (Step 6) · [modified-files-fragment.md](templates/modified-files-fragment.md) (Step 7) · [manual-verification-request.md](templates/manual-verification-request.md) and [phase-completion-report.md](templates/phase-completion-report.md) (Step 8)
+- [committing.md](committing.md) (Step 6b) · [unattended.md](unattended.md) (Step 8, under `--auto`)
 - [reference.md](reference.md) — evolution, resume logic, why the coordinator pattern exists, migration, the DO/DON'T lists, configuration
 - [../../docs/reference/branch-naming.md](../../docs/reference/branch-naming.md) — the branch-name rule Step 2 applies as a backstop, shared with `create_project`, `jira-context` and `forge`
 - [../../docs/reference/journal-entries.md](../../docs/reference/journal-entries.md) — where a journal entry goes (newest first, never appended), its heading contract, and when it opens and closes
@@ -191,51 +192,8 @@ status surface.
 
 **Build a minimal context package for workers.**
 
-From the documentation you've read, extract only what workers need. For a remediation plan there
-is no `design.md` or `research.md` to extract from: each task carries its own `**Fails when:**`
-scenario and acceptance criterion, and those *are* the worker's context — pass the task line
-verbatim and fill `design`/`patterns` from the reviewed code itself.
-
-```javascript
-const contextPackage = {
-  // From design.md — why this phase exists. Renders FIRST in the worker prompt.
-  design: {
-    why: "one or two sentences: what this phase delivers and who it serves",
-    phaseGoal: "what this phase achieves",
-    successCriteria: ["criterion 1", "criterion 2"],
-    constraints: ["constraint 1", "constraint 2"],
-    architecturalApproach: "key decisions"
-  },
-
-  // From research.md - patterns workers must follow
-  patterns: {
-    testingFramework: "jest | pytest | go test | ...",
-    testFileLocation: "tests/ | __tests__ | *_test.go | ...",
-    fileStructure: "src/ layout | pkg/ layout | ...",
-    namingConventions: "camelCase | snake_case | ...",
-    importPatterns: "how modules are imported",
-    errorHandling: "established patterns"
-  },
-
-  // Where the worker flips its checkbox
-  tasksFile: `${projectDir}/tasks.md`,
-
-  // Test commands
-  testCommands: {
-    unit: "npm test | pytest | go test ./...",
-    specific: "npm test path/to/file | pytest tests/file.py",
-    coverage: "npm test -- --coverage | pytest --cov"
-  },
-
-  // File references relevant to this phase
-  relevantFiles: [
-    "src/feature/file1.ts:123 - existing pattern to follow",
-    "tests/feature/test1.spec.ts:45 - test structure example"
-  ]
-};
-```
-
-**Minimize context**: Only include what workers actually need to implement tasks.
+Read [prompts/context-package.md](prompts/context-package.md) NOW and build the package in the
+shape it gives. Include only what workers need to implement tasks.
 
 ### Step 4: Take the Next Task
 
@@ -351,42 +309,8 @@ them unstaged and name the missing `.gitignore` entry at the checkpoint. Close t
 with what landed and the commit hash. Aggregate its modified files and test commands. Return to
 Step 4.
 
-**Stage the plan's own files with `git add -f`, every time.** `docs/plans/` is gitignored, so a
-plain `git add <plan-dir>/tasks.md` exits 1 with "The following paths are ignored", stages
-nothing, and breaks the `&&` chain — the commit never runs, and one task, one commit fails on the
-first passing task of the plan. The `&&` below is what makes that true: separate the three
-commands by newlines and a failed stage lets the commit land **without** the plan files. A plain
-`git add` exits 1 even on an already-tracked plan file — staging it and failing anyway, which
-breaks the `&&` chain just the same — so "this plan was promoted once" is not a reason to drop
-the `-f`. The `-f` overrides gitignore; it never widens the pathspec, so the by-path rule above
-still holds.
-
-```bash
-git add ${workerReportedFiles} &&                        # code — by path, no -f
-git add -f ${planDir}/tasks.md ${planDir}/journal.md &&  # plan files — always -f
-git commit -m "${taskId}: ..."
-```
-
-On a remediation round (`docs/plans/<plan>/reviews/<date>-round-N/`, which holds only `tasks.md`)
-the journal is the parent plan's, so stage `${planDir}/../../journal.md` in its place — naming
-`${planDir}/journal.md` exits 128 and the commit never runs (see
-[which file, when the plan directory is nested](../../docs/reference/journal-entries.md)):
-
-```bash
-git add ${workerReportedFiles} &&                           # code — by path, no -f
-git add -f ${planDir}/tasks.md ${planDir}/../../journal.md &&  # round tasks.md + parent journal
-git commit -m "${taskId}: ..."
-```
-
-**A failed stage hides.** `git status --short` does not list *untracked* ignored files, so an
-unpromoted plan directory's `tasks.md` is invisible there — 6a's discriminator, 6c's "end clean
-either way" and Step 8.2's clean check all read clean over a plan file that was never committed.
-(A *tracked* plan file that is merely modified does show, so the blindness is specific to a
-directory nothing has promoted.) Confirm what the
-commit actually contains (`git show --stat HEAD`) rather than inferring it from a clean tree.
-
-**Committing here is what makes an unfinished task detectable.** After a passing task the tree
-is clean, so any uncommitted work belongs to something that did not finish.
+Read [committing.md](committing.md) NOW, before you stage anything. It gives the staging
+commands for a phased plan and for a remediation round, and how to confirm what the commit holds.
 
 A PASS that carries a `### Baseline failures` section still commits, but the failure goes on the
 checkpoint's notes and the automated-verification box stays `[ ]` until the suite is actually
@@ -510,32 +434,13 @@ A checkpoint headed `Phase undefined` reads as a run that lost its place.
    line who attested and when, and commit it as you would any other task. On anything else it
    stays `[ ]` and moves to the blocking list with what the human said.
 
-   **Under `--auto`.** Do not wait. Tick the checkpoint conditions you actually established —
-   every phase checkbox `[x]`, automated verification passing, and the `update_status` box once
-   Step 9 has run it — and **leave "Manual verification confirmed by human" as `[ ]`**, because
-   no human was asked. Then add one line under the checkpoint naming the run unattended, with
-   `${phaseLabel}`, the time, and the manual steps nobody performed — from `design.md` on a
-   phased plan, and on a remediation plan from the outstanding tasks' own acceptance criteria in
-   the round's `tasks.md`, which is where a round's manual steps live because it has no
-   `design.md` (Step 3).
-   **Attestation tasks stay `[ ]`** and are listed there too — the phase still closes,
-   unattended, so the run terminates instead of stalling, and the report tells a person exactly
-   which judgments are outstanding.
-
-   **The unticked box is the feature, not an oversight.** `--auto` buys the wait, not the
-   attestation: that box records what a person did, and no run may tick it on its own authority.
-   An attestation task's checkbox is that same box under another name, and the same rule holds
-   for it.
+   **Under `--auto`.** Do not wait. Read [unattended.md](unattended.md) NOW and close the
+   checkpoint as it says. Leave "Manual verification confirmed by human" as `[ ]`, because no
+   human was asked.
 
 5. **Report completion.** Attended: only after the user confirms. Under `--auto`: immediately.
    Either way read the [templates/phase-completion-report.md](templates/phase-completion-report.md) NOW and emit it,
    and under `--auto` say in it that the phase closed unattended.
-
-   **On the final phase under `--auto`, say plainly that the plan cannot close itself.**
-   `status: in-progress → complete` is a `status:` change gated by `/wb:update_status`'s own
-   barrier, which `--auto` does not reach — so the run ends with the work committed, the
-   counters reconciled, and the plan still `in-progress`, waiting on a person. Name that in the
-   report.
 
 ### Step 9: Reconcile Status
 

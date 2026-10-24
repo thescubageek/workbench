@@ -25,7 +25,7 @@ that runs without a ledger: both Blocking triggers below read it, and a file tha
 created reads exactly like a clean one.
 
 `docs/plans/` is gitignored, so the ledger is staged with `git add -f` every round, the same
-way as the round plan — see [adversarial-loop step 5](../../skills/adversarial-loop/SKILL.md).
+way as the round plan — see [adversarial-loop's ledger.md](../../skills/adversarial-loop/ledger.md), read at Phase 1 step 5.
 
 One row per finding per round:
 

@@ -68,3 +68,18 @@ One line per round, not a narrative:
 ↻ Round 3 — clean · re-ran scoped to round 2's fixes, since clean certifies a commit not a branch
 ↻ Bot round 1 — 5 findings: 1 fixed, 4 did not hold · replied with the disproving lines
 ```
+
+## The final report
+
+Close with: where the change stands, what shipped, **what you pushed back on and why**, anything a
+human should look at, and any follow-ups worth their own issue.
+
+Two things to state plainly rather than omit:
+
+- **Whether `/verify` actually ran** — including *"asked, and the user declined"* and *"asked,
+  and never answered"*, both of which mean it did not. It is user-invoked only, so "not run" is
+  a normal outcome and an undisclosed one is a false claim. And what it exercised: "fixes
+  verified" without saying how
+  is the claim this skill is supposed to make checkable.
+- **How the reviewers scored.** *"Four of five bot findings did not hold"* is what the human needs
+  in order to know what the next round is worth.

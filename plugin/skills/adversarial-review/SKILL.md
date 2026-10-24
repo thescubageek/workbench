@@ -13,6 +13,7 @@ Supporting files in this directory (read each when its step directs you to — n
 - [prompts.md](prompts.md) — verbatim prompts for the stance agent, the lens agents, and the verifier
 - [templates.md](templates.md) — the reconnaissance summary, the `ReportFindings` call, the restatement, the remediation plan, and the fallbacks
 - [reference.md](reference.md) — verify-only mode, the five dispositions, the proportionality gate, the coverage check
+- [resolution.md](resolution.md) (Step 1) · [blast-radius.md](blast-radius.md) (Step 3) — what the target-resolution and blast-radius blocks print, and why they are shaped as they are
 - [../../docs/reference/code-review-integration.md](../../docs/reference/code-review-integration.md) — what the built-in review machinery provides and which parts of it may be relied on
 
 **If a directed read fails, stop — do not continue from memory.** These files live outside your
@@ -133,67 +134,11 @@ resolve_range() {
 resolve_range
 ```
 
-⛔ **These blocks run under zsh, not bash.** The Bash tool's shell is `/bin/zsh`, so a fenced
-`bash` block here is executed by a shell that does **not** word-split unquoted expansions and
-does **not** define `PIPESTATUS`. Both bit this file: `git diff --stat $range` died with
-`fatal: ambiguous argument` the first time anyone passed a path target, and the blast-radius
-guard in Step 3 could never fire. Quote every expansion, keep a pathspec in its own variable,
-and take an exit status from `$?` on the line after the command rather than from a pipeline.
-
-⛔ **A failure here `return`s; it must never `exit`.** The Bash tool runs an entire call in one
-shell, so `exit 1` inside a fenced block ends that shell and not just the block: measured, a call
-of `false || { echo "failing" >&2; exit 1; }` followed by `echo "THIS SHOULD NOT PRINT"` printed
-only `failing`, and everything queued after it silently never ran. That is why the resolution is a
-function — `return 1` stops the resolution, leaves the rest of the call alive, and still prints
-the loud line, which is the part that must survive: "could not resolve PR N — NOT reviewing the
-current branch" must never be followed by a review of the current branch.
-
-⛔ **One branch runs, and the branch is real.** An earlier version of this step listed the three
-forms as three consecutive `range=` assignments separated only by comments. A fenced `bash` block
-here is executed — `plugin/scripts/check-guards` scans these blocks for exactly that reason — so
-all three ran, the last won, and a PR-number target silently became the current branch while the
-report still named the PR.
+Read [resolution.md](resolution.md) NOW, after the block runs. It names the five outcomes and
+what to report for each. It also says why the block runs under zsh, returns rather than exits,
+and runs one branch.
 
 State the target and its size before reviewing — a wrong target wastes the whole pass.
-
-**The relation between the target and this checkout is decided in
-[`pr-identity`](../../scripts/pr-identity), not in this block.** The script's header and its
-`relation` cases are the conditions. The block reads the `review_head`, `review_base` and
-`pathspec` fields by key and does not re-derive them. For a PR target whose `relation` is not
-`own`, the script fetches the PR's head into `refs/remotes/<base remote>/pr/<N>` and the range
-ends there. The `identity:` line names the result. Copy that line into the report as it is
-printed.
-
-**An empty range and an unresolvable one are different, and only one of them is a stop.** Five
-outcomes, and the last is dangerous precisely because it wears the first one's clothes:
-
-- **Resolved, and empty** — the range parsed and the stat is blank. If that is genuinely the
-  change, or is plainly not what was asked for, stop and say so rather than reviewing nothing.
-- **Fetched** — the target is a PR number and `relation` is not `own`. The `identity:` line
-  reads `<base remote>/pr/<N> = <oid> (<relation>: <reason>)`. The fetch writes that one
-  remote-tracking ref and nothing else. Disclose it in the report. It needs no confirmation.
-- **Refused** — `pr-identity` exited non-zero: `gh` could not answer for the PR, no remote points
-  at the PR's base repository, or the fetch of `refs/pull/<N>/head` failed. The script names the
-  cause on stderr and the block returns 1. The review did not run. Say that in the report, and do
-  not review the current branch in its place.
-- **Not resolved** — an endpoint is not a revision here. The block says which, on stderr, and
-  returns. Say that in the report; do not report it as a change with no content.
-- **Resolved to something git cannot parse** — the outcome with no error to show for it. Measured
-  in this repository: `git diff --stat "origin/main...plugin/skills/adversarial-review/*.md"`
-  exits **0 printing nothing**, indistinguishable from an empty diff, because git takes a
-  wildcard-bearing argument as a *pathspec* rather than a revision and that pathspec matches no
-  file. Drop the wildcard and the same mistake is `fatal: ambiguous argument`, exit 128, written
-  to stderr with nothing reading it. The `git rev-parse --verify` pass over both endpoints is what
-  turns both into the second outcome before any stat is printed.
-
-**The base is asked for, not assumed.** `origin/main` is this repository's default, not every
-repository's, and an earlier version of this block hardcoded it in three of its four branches
-while `git diff --stat origin/nonexistent...HEAD` exits 128 onto stderr — measured, and nothing in
-the old block read it. `pr-identity` now asks `gh` for the target's base branch. When no PR
-answers, it uses the default branch of the repository: `gh`'s `defaultBranchRef`, then
-`<remote>/HEAD`, then `main`. Step 2 reads `REVIEW.md` from the same base. What breaks a hardcoded base —
-`master`, `develop`, a shallow or single-branch clone, a fork checkout — is enumerated once, in
-Step 2's ⛔ note; it is not restated here.
 
 The built-in resolves its own target from the current repository and cannot be pointed at another
 checkout, so the target named here and the one it reviews must be the same repository.
@@ -303,6 +248,9 @@ which computes its own budget from it.
 and confirm it ran — a search that errored returns the same emptiness as a genuinely isolated
 change, and that error direction is toward believing the change is safe.
 
+Read [blast-radius.md](blast-radius.md) NOW, before you run the search. Keep all six details it
+names. Each one, dropped, fails toward "isolated".
+
 ```bash
 hits=$(command grep -rnF --exclude-dir=.context --exclude-dir=.git -- "<changed symbol>" .)
 search=$?
@@ -314,68 +262,6 @@ callers=$(printf '%s\n' "$hits" | while IFS= read -r hit; do
 done)
 [ -n "$callers" ] && printf '%s\n' "$callers" | sed 's/^/  /'
 ```
-
-Six details in that command are the difference between a measurement and a guess:
-
-- **`command grep` pins the engine.** In a top-level Bash-tool call bare `grep` is a shell
-  function from `~/.claude/shell-snapshots/` that re-execs as ugrep honoring `.gitignore`, so a
-  tracked-but-ignored file is skipped at exit 0 and no status guard below can see it; the same
-  line inside a script gets the system binary. So the count varied by invocation — measured on
-  one symbol, bare 30 hits against `command grep`'s 52 (`.claude/wb/knowledge.md`).
-  `command` bypasses the function, so one engine answers in both. Do not re-add the gitignore
-  behavior as a flag: `--exclude-dir` is the scope, and a gitignore-honoring engine fails
-  toward "isolated".
-- **`-F`** treats the symbol as a literal. Without it a name containing `[`, `(` or `\` is an
-  invalid pattern, grep exits 2 printing nothing, and the empty output reads as "no callers".
-- **`--`** terminates the options. Without it a symbol beginning with `-` is consumed as a flag,
-  which fails in the other direction and returns a flood.
-- **`--exclude-dir` keeps the search on the repository's sources** and off the session's own
-  working artifacts, and off `.git`, whose logs and commit message file name the symbol in prose. `grep -r .` recurses everything under the working directory, and a session
-  transcript names files and symbols in prose without calling any of them. Measured 2026-09-28
-  with the block's own `command grep` on `review-ledger.md`: 56 hits, **22 of them (39%) lines in
-  `.context/attachments/*.txt` session transcripts**; on `check-guards`, 32 of 207. Since the
-  tier is the maximum of the six axes, that noise can raise the tier — and the fleet it pays for
-  — on its own. The rule is the scope, not
-  the name: add an `--exclude-dir` for any other non-source tree the repository carries, such as
-  `node_modules`, `vendor` or build output. Naming a directory that does not exist was measured a
-  no-op, not an error, so the flag costs nothing in a repository without one. This shell has been
-  seen to reject the flag outright on some invocations, which is why the flag sits *behind* the
-  status guard above and not instead of it: a rejected flag exits 2 and is announced, rather than
-  returning the emptiness that reads as "no callers". Do not narrow it
-  further than non-source trees: an over-exclusion fails toward "isolated", which is the
-  direction every other detail here exists to prevent. Measured after the exclusion: 0 transcript
-  hits, and every non-transcript path present at the same line count as before it.
-- **The status is captured from grep directly, not from a pipeline.** `search=$?` on the line
-  after the assignment is grep's own exit code. This used to read `${PIPESTATUS[0]}`, which is a
-  **bash** array — and the Bash tool runs zsh, where it expands to nothing, `[ "" -le 1 ]` is
-  true, and a grep that exited 2 passed the guard in silence. Measured: with the old line, a
-  search against a nonexistent path printed no diagnostic at all. Do not send grep's stderr to
-  `/dev/null` either: the diagnostic is the only thing distinguishing a broken search from a
-  clean one, and this measurement's errors all point toward believing the change is safe. The
-  guard runs before the output is printed, so a failed search is announced ahead of the
-  emptiness that would otherwise read as "no callers".
-- **The exclusion compares the path field literally**, and not as a pattern. The loop cuts
-  each `path:line:text` hit at its first `:` and tests that path with `[ = ]`, string equality,
-  against the changed file —
-  against both spellings, bare and `./`-prefixed, because the leading `./` depends on the engine
-  (first bullet): the ugrep shim emits the path with no `./`, the system binary emits it
-  `./`-prefixed. The block pins the binary, but a user's own `grep`, or a run that drops the
-  `command` spelling, can produce either, so both are matched. The path is compared as a quoted
-  shell variable, which interprets no escapes; the `awk -v` route would read a `\t` in a
-  filename as a tab. The filter carries no awk field token either: the harness substitutes
-  `$<digit>` in a skill body with the invocation's arguments, and an awk field was measured
-  becoming `25 != …`, which kept every line, and `feature/foo != …`, which made awk exit 2. The
-  loop variable is `file`, not `path`, because zsh ties `path` to `PATH`. Two earlier
-  spellings each failed, in opposite directions. An unanchored `grep -v "<file>"` drops every
-  line whose *text* mentions that path — which, for a script invoked by path, is exactly its
-  callers: measured on `shellcheck-gate`, unanchored returned one hit, a README heading, and
-  read as an isolated change, where anchoring returns four, including `plugin/scripts/check:52`,
-  the line that makes the script part of the release gate. Anchoring it as an ERE,
-  `^(\./)?<file>:`, then interpolated the path into a regular expression: measured for
-  `app/[id].tsx`, `[id]` became a character class, the changed file's own lines were no longer
-  excluded and `app/i_tsx:9` — a real caller — was dropped in their place; for `app/[id.tsx`
-  the pattern was invalid, grep exited 2 printing nothing, and the empty output read as "no
-  callers".
 
 Then choose the built-in's effort token. Read
 [../../docs/reference/code-review-integration.md](../../docs/reference/code-review-integration.md)
