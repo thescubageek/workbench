@@ -62,6 +62,12 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
+## 2026-10-24 02:15 — P6-T1 (open)
+
+- **Task/phase**: P6-T1 — rewrite WBTE rule 6 to match the trial results
+- **Next action**: edit technical-english.md:59-60, run link_check.py and token_check.py
+- **Started at**: 43b9ca4
+
 ## 2026-10-23 07:46 — P5-T4 (closed)
 
 - **Task/phase**: P5-T4 — act on the Batch 4 verdict

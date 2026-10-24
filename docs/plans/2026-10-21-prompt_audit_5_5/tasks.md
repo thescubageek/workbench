@@ -4,13 +4,13 @@ ticket: null
 created: 2026-10-21
 created_timestamp: 2026-10-21T18:46:41Z
 status: in-progress
-last_updated: 2026-10-23
+last_updated: 2026-10-24
 assignee: scraig
-current_phase: 5
+current_phase: 6
 total_tasks: 48
-completed_tasks: 38
+completed_tasks: 42
 task_tracking: markdown-checkboxes
-git_commit: d9cb9c44f76e03fb55bf78a8d2c3f37004cc2e8e
+git_commit: 43b9ca42b2f7f53320d14a8d331c692372ad69db
 git_branch: thescubageek/5.5-models-prompt-optimization
 repository: thescubageek/workbench
 tags: [tasks, tracking, prompt_audit_5_5]
@@ -130,7 +130,7 @@ grep -cE '^- \[ \] \*\*[A-Z0-9-]*[0-9][A-Z0-9-]*\*\*' tasks.md    # remaining
 | Phase 2: Research, design, and task stages (Batch 1) | ✅ Complete | 7/7 | 100% |
 | Phase 3: Implementation stages (Batch 2) | ✅ Complete | 9/9 | 100% |
 | Phase 4: Other stages and skills (Batch 3) | ✅ Complete | 8/8 | 100% |
-| Phase 5: Agent prose (Batch 4) | ⏸️ Not Started | 0/4 | 0% |
+| Phase 5: Agent prose (Batch 4) | ✅ Complete | 4/4 | 100% |
 | Phase 6: Shared rules, docs, and 3.1.0 (Batch 5) | ⏸️ Not Started | 0/6 | 0% |
 
 Counts come from the checkboxes below and are reconciled by `/wb:update_status`.
@@ -1050,7 +1050,7 @@ step is the rule; this is the moment it applies.
 
 #### Manual Verification
 
-- [ ] Read one rewritten agent and confirm that its "What NOT to do" content is still present
+- [x] Read one rewritten agent and confirm that its "What NOT to do" content is still present
 
 ### Modified Files
 
@@ -1085,8 +1085,8 @@ shortened one.
 
 - [x] **(derivable)** Every Phase 5 checkbox is `[x]`
 - [x] **(derivable)** All automated verification passing
-- [ ] **(attestation)** Manual verification confirmed by human
-- [ ] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
+- [x] **(attestation)** Manual verification confirmed by human
+- [x] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
       only writer of those fields, so do not edit `current_phase` or `completed_tasks` by hand
 
 **Do not proceed without human confirmation of manual tests** — unless the phase is being run
@@ -1105,8 +1105,8 @@ success metric, and ship 3.1.0.
 
 ### Prerequisites
 
-- [ ] Phase 5 complete and verified
-- [ ] Phase 5 manual testing confirmed — *an attestation, like the checkpoint's. Under
+- [x] Phase 5 complete and verified
+- [x] Phase 5 manual testing confirmed — *an attestation, like the checkpoint's. Under
       `/wb:implement --auto` it stays `[ ]` and the phase proceeds anyway; the previous phase's
       checkpoint records that nobody was asked. Unticked here means deferred, not blocked.*
 
@@ -1502,6 +1502,7 @@ resolved, leaving a dated line saying how.
   `prime contract`, on its timing assertion "200 plan directories: under 5 s (took 5 s)". This plan
   never touched `wb-prime.sh`. `test-prime` alone passed 44 of 44, and the full re-run passed every
   gate ("took 4 s"). The threshold is close to this machine's speed, which is a follow-up.
+- [2026-10-24] Phase 5 manual verification confirmed by the user ("looks good, proceed"), 2026-10-24 02:15 UTC.
 - **Kept CAPS lines**: record each one here with its file, line, and reason, as the wording tasks
   run.
   - `create_research/SKILL.md:27` — the Documentarian Rule fence. It is the stage's one core
