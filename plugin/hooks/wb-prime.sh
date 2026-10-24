@@ -107,9 +107,10 @@ if [ -d docs/plans ]; then
   # survives a fresh clone where mtime does not. find would reorder.
   for f in $(ls -d docs/plans/*/ 2>/dev/null | sort -r | sed 's|$|tasks.md|'); do
     [ -f "$f" ] || continue
-    status=$(sed -n '1,30p' "$f" | grep -m1 '^status:' | sed 's/^status:[[:space:]]*//')
+    status=$(sed -n '1,30{/^status:/{s/^status:[[:space:]]*//;p;q;};}' "$f")
     [ "$status" = "complete" ] && continue
-    candidates="$candidates${candidates:+ }$(basename "$(dirname "$f")")"
+    d=${f%/tasks.md}
+    candidates="$candidates${candidates:+ }${d##*/}"
   done
 fi
 count=$(echo "$candidates" | wc -w | tr -d ' ')

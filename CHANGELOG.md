@@ -11,6 +11,26 @@ requires `shellcheck` and `python3` and fails loudly without them. A contributor
 the checks at 2.1.0 cannot at 3.0.0 without installing two tools, and no reading of "removed or
 renamed stages" would have warned them.
 
+## [3.1.1] — 2026-10-24
+
+A speed fix for the session-start hook. No stage was added or removed.
+
+### Fixed
+
+- **`wb-prime.sh` started 5 processes for each plan directory.** With 200 plans, it took about
+  5 s at a load average of 8, but only 1.9 s of CPU. So the 200-plan timing check in
+  `test-prime` failed at random (#30). The scan now starts 1 `sed` for each plan and uses
+  shell parameter expansion for the directory name. The same 200 plans take 1–2 s, and 5 full
+  `check` runs in a row pass. The hook output does not change.
+
+### Migration
+
+None. Update the plugin and restart:
+
+```bash
+claude plugin update wb@thescubageek-workbench
+```
+
 ## [3.1.0] — 2026-10-24
 
 The wording pass of the Claude 5.5 prompt audit (`docs/plans/2026-10-21-prompt_audit_5_5/`). It
