@@ -1028,9 +1028,9 @@ Annotate each with its projected tool-call cost; anything past ~50 splits at a n
       before/after mode, which is reliable for `research.md`. Add the costs to the spend ledger.
       Record the verdict and the deviation from the design's `--within` in Implementation Notes.
       (~20 calls) (completed 2026-10-23 07:46)
-- [ ] **P5-T4** — Act on the P5-T3 verdict. If an `after` repeat loses a fact that its `before`
+- [x] **P5-T4** — Act on the P5-T3 verdict. If an `after` repeat loses a fact that its `before`
       repeat has, revert the commit of the agent most likely responsible, and record it.
-      Otherwise record "no loss". (~10 calls)
+      Otherwise record "no loss". (~10 calls) (completed 2026-10-24 01:36)
 
 ### Success Criteria
 
@@ -1042,10 +1042,10 @@ step is the rule; this is the moment it applies.
 
 #### Automated Verification
 
-- [ ] The before/after judge reports no fact that `before` has and `after` lost, or every loss has
-      a recorded revert
-- [ ] `checks/prompt-checks.sh agent-tiers` exits 0, so the frontmatter did not change
-- [ ] `command grep -c '### Status: PASS' plugin/agents/task-verifier.md` prints at least 1
+- [x] The before/after judge reports no fact that `before` has and `after` lost, or every loss has
+      a recorded revert. *(Met: both losses have the recorded revert `f175ea4`, and the control showed they were variance.)*
+- [x] `checks/prompt-checks.sh agent-tiers` exits 0, so the frontmatter did not change
+- [x] `command grep -c '### Status: PASS' plugin/agents/task-verifier.md` prints at least 1
 - [ ] `./plugin/scripts/check` exits 0
 
 #### Manual Verification
@@ -1492,6 +1492,12 @@ resolved, leaving a dated line saying how.
   is no ref-versus-path artifact: the research stage on `evals/fixture-large` varies from 4 to 12
   expected facts between runs of identical text. At 2 repeats, the Batch 4 gate cannot tell an
   edit's effect from that variance.
+- [2026-10-24] Completed P5-T4: the user chose to keep the restored 3.0.1 prose for the five agents
+  (`codebase-analyzer`, `codebase-locator`, `pattern-finder`, `product-behavior-analyzer`,
+  `research-validator`), restored in `f175ea4`. Reason: the design merges a batch only after its
+  gate shows no loss, and at 2 repeats this gate cannot separate an edit from the research stage's
+  variance. `task-verifier` and `task-worker` keep their P5-T2 edits. Follow-up: a gate on agent
+  prose needs more repeats, or a less variable measure, than `evals/fixture-large` research gives.
 - **Kept CAPS lines**: record each one here with its file, line, and reason, as the wording tasks
   run.
   - `create_research/SKILL.md:27` — the Documentarian Rule fence. It is the stage's one core

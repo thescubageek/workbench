@@ -62,11 +62,12 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
-## 2026-10-23 07:46 — P5-T4 [blocked] (open)
+## 2026-10-23 07:46 — P5-T4 (closed)
 
 - **Task/phase**: P5-T4 — act on the Batch 4 verdict
-- **Next action**: the user chose the ref-versus-path control (2026-10-23 16:04 UTC), and approved going over the $30 limit by about $0.70. Run `evals/run.py --before HEAD --after . --repeats 1 --stages research`, judge it, then decide
-- **Started at**: f81b684
+- **Landed**: f175ea4 restored five agent files. The ref-versus-path control (33a5947) showed the loss was research-stage variance. The user chose to keep the restored 3.0.1 prose. Ledger about $30.68, over $30 by the user's approval
+- **Commits**: f175ea4, 387412c, 33a5947, and this record commit
+- **Learned**: on evals/fixture-large, identical text cites 4 to 12 of the 19 expected facts. A 2-repeat gate cannot measure a small prose edit
 
 ## 2026-10-23 07:12 — P5-T3 (closed)
 
