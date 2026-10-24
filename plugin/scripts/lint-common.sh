@@ -60,7 +60,7 @@ wb_lint_ignored() {
         # which are subtle enough to be their own bug source.
         #
         # core.excludesFile is ADDITIVE: the repository's own .gitignore still
-        # applies. Honouring that would be wrong here — wb's own plan directories
+        # applies. Honoring that would be wrong here — wb's own plan directories
         # under docs/plans/ are gitignored until promoted, and they are exactly
         # what the hook exists to lint. So -v is parsed and the match is only
         # accepted when it came from the file we passed in.

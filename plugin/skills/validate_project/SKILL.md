@@ -13,7 +13,7 @@ Supporting files in this directory (read each when its step directs you to — n
 
 - `reference/` — [validation-checklist.md](reference/validation-checklist.md) and [validation-rules.md](reference/validation-rules.md) (Step 3) · [important-guidelines.md](reference/important-guidelines.md) · [configuration.md](reference/configuration.md)
 - `templates/` — [error-message-formats.md](templates/error-message-formats.md) (Step 3) · [validation-report.md](templates/validation-report.md) (Step 4)
-- [../../docs/reference/remediation-plan.md](../../docs/reference/remediation-plan.md) — what a review round's remediation plan is, how Step 1 recognises one, and the files it has and deliberately lacks
+- [../../docs/reference/remediation-plan.md](../../docs/reference/remediation-plan.md) — what a review round's remediation plan is, how Step 1 recognizes one, and the files it has and deliberately lacks
 
 **If a directed read fails, stop — do not continue from memory.** These files live outside your
 project, so a read can be refused. Say which file was refused, that reads outside the working
@@ -71,7 +71,7 @@ through it with `offset` and `limit`. On a **phased project**,
 optional and validated only when present.
 
 **A remediation plan has only `tasks.md`, and that is correct.** Read
-[../../docs/reference/remediation-plan.md](../../docs/reference/remediation-plan.md) NOW for how to recognise one
+[../../docs/reference/remediation-plan.md](../../docs/reference/remediation-plan.md) NOW for how to recognize one
 and what it deliberately lacks, then take `tasks.md` alone as the whole plan. Do not report the
 missing `research.md`, `design.md` or `depends_on` chain — `/wb:implement` and
 `/wb:update_status` both run this shape, so a validator that calls it broken is wrong about the

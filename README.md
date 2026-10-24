@@ -118,6 +118,7 @@ Specialized agents for codebase analysis:
 - **`product-behavior-analyzer`** - Analyze the codebase as user-visible behaviors and product capabilities
 - **`research-validator`** - Validate research docs against the codebase (paths, snippets, behavioral claims)
 - **`task-verifier`** - Verify task completion against requirements
+- **`task-worker`** - Implement exactly one task from a plan's `tasks.md` under TDD, in fresh context
 
 ### Skills (auto-activated)
 

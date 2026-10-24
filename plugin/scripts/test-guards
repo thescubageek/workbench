@@ -331,7 +331,7 @@ def run_integrity(impl):
         open(locked, 'w').write('#!/usr/bin/env bash\necho ok\n')
         os.chmod(locked, 0o000)
         if os.access(locked, os.R_OK):
-            print('  ⊘ an unreadable file exits 2 (skipped: chmod 000 not honoured here)')
+            print('  ⊘ an unreadable file exits 2 (skipped: chmod 000 not honored here)')
         else:
             r = run(d)
             checks.append(('an unreadable file exits 2, not silently skipped',
@@ -435,7 +435,7 @@ def run_generated(impl):
     if os.path.exists(wpath):
         waivers = json.load(open(wpath))
 
-    # Materialise every case ONCE, not once per mutant.
+    # Materialize every case ONCE, not once per mutant.
     root = tempfile.mkdtemp(prefix='guard-corpus-')
     dirs = []
     for i, case in enumerate(cases):

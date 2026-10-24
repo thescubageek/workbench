@@ -106,7 +106,7 @@ When invoked:
 
    **Unless `--auto` was passed**, in which case advance without confirming and pass `--auto`
    through to `implement`. Two gates still stop regardless, because neither is a wait the user
-   can pre-authorise: `create_design` never sets `status: approved` on its own judgment, and
+   can pre-authorize: `create_design` never sets `status: approved` on its own judgment, and
    `update_status` still presents a plan when a `status:` value would change. `--auto` skips
    confirmations, not decisions.
 

@@ -17,7 +17,7 @@ Run `git diff [target] --stat` first, then read the diff.
 
 **Read whole files, not just the hunks.** The defects worth finding usually live in code the diff
 did not touch: the caller that now receives a different shape, the test that stubs the method you
-changed, the document that now disagrees with the behaviour.
+changed, the document that now disagrees with the behavior.
 
 **Assume the change is broken and find how.** You are not confirming that it looks fine. If you
 conclude it is fine, that conclusion is itself a claim and you will be asked what you checked.
@@ -104,11 +104,11 @@ Hunt specifically for:
 - **Silent failure** — an error swallowed, a lookup whose empty result is not handled, a guard
   that returns success where it should refuse, work queued to something nobody drains.
 - **Documentation that disagrees with the code** — comments, instructions and READMEs claiming
-  behaviour the code no longer has. In a repository whose artifacts are read as instructions,
+  behavior the code no longer has. In a repository whose artifacts are read as instructions,
   this is a defect, not an inaccuracy.
 - **Hostile input** — untrusted values reaching a command, a query, a path, a template, or an
   instruction surface.
-- **Test theatre** — would this test fail if the implementation were deleted? Is the assertion on
+- **Test theater** — would this test fail if the implementation were deleted? Is the assertion on
   a stub? Is the negative case covered at all?
 - **Defaults that assert something** — a default that reads as a deliberate choice when it means
   "not answered".

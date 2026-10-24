@@ -280,7 +280,7 @@ for a pending decision, writes the decision with its rationale and trade-off und
 
 **An instruction given before this document existed is not approval of it.** "Run the plan",
 "take it through to implementation", or a `forge` invocation all predate the design they would be
-authorising, so none of them can serve as the confirmation. Ask, and wait for an answer that
+authorizing, so none of them can serve as the confirmation. Ask, and wait for an answer that
 refers to *this* design.
 
 ```

@@ -12,7 +12,7 @@ the fixes introduced defects at roughly the rate the reviews removed them:
 | 2 | 22 | 14 (64%) | full diff |
 | 3 | 12 | ~8 (67%) | scoped to ~12% of the surface |
 
-**The rate did not decay, and normalised for scope it rose.** Nothing in the loop could see
+**The rate did not decay, and normalized for scope it rose.** Nothing in the loop could see
 that, because the gate is a *level* test — it measures the current round, never the trend — and
 because there was no record of previous rounds to compare against. A human had to notice.
 
@@ -108,13 +108,13 @@ not evaluate the trend at all.
 **Blocking means stop and surface, not refuse.** The user says proceed and it proceeds. The
 asymmetry that matters is that a block requires an answer while an advisory can be stepped past
 in silence. This departs from the plugin's non-blocking advisory precedent deliberately: those
-are cost optimisations, and getting one wrong wastes tokens. This guards against continuing to
+are cost optimizations, and getting one wrong wastes tokens. This guards against continuing to
 ship defects while believing you are fixing them.
 
 ### Why a mirror-image regression blocks on its own
 
 It is near-proof that a fix was **pattern-matched rather than understood**. Both observed
-instances came from the same shape — generalising from the single input the finding showed:
+instances came from the same shape — generalizing from the single input the finding showed:
 
 - the fix for *"a fixed path gets reused across runs"* shipped a `mktemp` template whose `X`s
   were not trailing, which on BSD **is** a fixed path;
@@ -140,7 +140,7 @@ rather than patch a fourth time — retired six open findings at once by replace
 ## Provenance of the numbers
 
 Every threshold here derives from **this plan, rounds 1–4, n=1**: one repository, one plan,
-prose-heavy, with the same model reviewing and fixing. The **relation** generalises — a
+prose-heavy, with the same model reviewing and fixing. The **relation** generalizes — a
 mirror-image regression is a semantic relation, not a rate. The **numbers** do not: a repository
 with real tests would start far below 64%. Treat them as a starting point, and say so wherever
 they are restated.

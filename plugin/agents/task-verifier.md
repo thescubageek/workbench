@@ -105,7 +105,7 @@ If the tree is unexpectedly clean, the worker changed nothing — that is a FAIL
 with an empty diff.
 
 **One exception, and it is about routing, not effort: an attestation task.** If the task's
-acceptance criterion is labelled `(attestation)`, or says outright that no mechanical criterion
+acceptance criterion is labeled `(attestation)`, or says outright that no mechanical criterion
 exists — a named human must judge — then a clean tree is the correct outcome and the worker was
 right to decline. Still
 return FAIL, but say in Issues Found that this is an attestation task needing the coordinator's
@@ -117,7 +117,7 @@ either, so a FAIL that does not say this sends the task around the same loop aga
 - Files modified match task description
 - No extra files changed (scope creep)
 - Changes are in correct modules
-- **An edit to a file outside the task's list is allowed only if the behaviour the task asks
+- **An edit to a file outside the task's list is allowed only if the behavior the task asks
   for cannot work without it** — the same exception the worker is held to. List every such file
   under Files Changed as *outside the task's list — necessary because …*. Any other out-of-list
   edit is scope creep and a FAIL, whether it looks minimal or not. Apply this the same way in

@@ -446,7 +446,7 @@ def collect(targets):
                 continue
             # Dispatch on what the file IS, not on where it sits. `'/scripts/' in path`
             # swept up every .json and .md under a scripts directory and fed them to the
-            # shell analyser — which reported this tool's own corpus fixture as 24
+            # shell analyzer — which reported this tool's own corpus fixture as 24
             # findings, and parsed the scripts README's prose as code.
             ext = os.path.splitext(base)[1]
             is_md = ext == '.md'
@@ -482,7 +482,7 @@ def main(argv):
     # `os.chdir(root)`, and resolving after that chdir reinterpreted a relative path against
     # the repo root: run from /tmp/victim, `check-guards plugin` scanned the workbench's 142
     # files, reported them confidently, and never opened the victim's tree. The scanned-count
-    # guard — the one defence against reporting clean having scanned nothing — was satisfied
+    # guard — the one defense against reporting clean having scanned nothing — was satisfied
     # by the wrong tree, which is this tool's own defect class inside the tool. The chdir is
     # gone: with every path absolute from here on, nothing downstream read the working
     # directory, so the call was doing nothing at all.

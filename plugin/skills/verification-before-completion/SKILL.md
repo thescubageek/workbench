@@ -87,7 +87,7 @@ failure is distinguishable from zero.
 ### Red flags when *writing* a check
 
 - It has only ever been observed passing.
-- It has only ever been observed passing **in one shell**. Glob and quoting behaviour differ
+- It has only ever been observed passing **in one shell**. Glob and quoting behavior differ
   between `bash` and `zsh`, and the difference shows up as a wrong number, not an error.
 - You cannot say in one sentence what makes it print something.
 - It checks for the **absence** of a string — absence passes for every reason, including wrong

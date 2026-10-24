@@ -202,7 +202,7 @@ if (!isRound) {
 //
 // A YAML scalar is legitimate here and is what BOTH shipped design templates emit
 // (`depends_on: research.md`); only the tasks template uses flow-sequence syntax. Requiring
-// an array made this rule ERROR on every plan the plugin itself generates. Normalise instead
+// an array made this rule ERROR on every plan the plugin itself generates. Normalize instead
 // of rejecting — the rule's job is the dependency chain, not the spelling.
 const dependsOn = (fm) => {
   const d = fm.depends_on;

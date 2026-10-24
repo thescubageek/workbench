@@ -8,7 +8,7 @@
 # Consumer level: cells run the fenced blocks extracted from the three SKILL.md files (the
 # working tree, or `--skills-at <rev>` for `git show <rev>:<path>`) under bash, and also under zsh
 # when zsh is on PATH, as the Bash tool runs them under either shell. A missing zsh is a skip
-# line, not a failure. No prose rule is modelled: a block that does not exist fails every cell
+# line, not a failure. No prose rule is modeled: a block that does not exist fails every cell
 # that needs it as MISSING. The block is the first ```bash fence under its heading, before the
 # next heading:
 #   review  adversarial-review "## Step 1:"      step8   adversarial-review "## Step 8:"

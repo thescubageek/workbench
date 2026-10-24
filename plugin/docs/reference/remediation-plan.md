@@ -63,7 +63,7 @@ round nobody staged is invisible there: every later "confirm the tree is clean" 
 the only durable artifact the round produced, and a `git clean -fdx` or a worktree teardown takes
 it with nothing left to show that it existed.
 
-## How to recognise one
+## How to recognize one
 
 Either test is sufficient; a consumer checks both because a hand-moved directory can lose one:
 
@@ -132,7 +132,7 @@ task lines is the error.
 ## The journal
 
 A round writes **no journal of its own**. Its entries go in the parent plan's
-`docs/plans/<plan>/journal.md`, labelled with the round's task IDs. The rule, and the reason a
+`docs/plans/<plan>/journal.md`, labeled with the round's task IDs. The rule, and the reason a
 journal inside the round directory would be invisible to every reader, is stated once in
 [journal-entries.md](journal-entries.md) → *Which file, when the plan directory is nested*.
 

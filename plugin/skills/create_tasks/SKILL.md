@@ -197,7 +197,7 @@ Verify with agent findings:
 7. **Dependencies** follow agent-identified order
 8. **Every task carries an ID and a tool-call projection**, and nothing projects past ~50
 9. **Every phase ends with the full checkpoint block** — label definitions, the go-by-the-label
-   rule, the four labelled boxes — never an abbreviated copy. A reader opening at the last
+   rule, the four labeled boxes — never an abbreviated copy. A reader opening at the last
    phase's checkpoint must meet the same instruction as at the first
 
 ### Step 6: Present the Plan

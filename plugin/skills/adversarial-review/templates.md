@@ -13,7 +13,7 @@ before it is paid. A tier asserted without its evidence is a number nobody can d
 ```text
 🔎 Reconnaissance — <target>, <N> files
    Paths           <rating>   <what was seen>
-   Behaviour       <rating>   <what the diff does to behaviour>
+   Behavior       <rating>   <what the diff does to behavior>
    Blast radius    <rating>   <measured: callers outside the diff, by symbol>
    Coupling        <rating>   <distinct subsystems touched>
    Reversibility   <rating>   <what a deploy could not take back>
@@ -185,7 +185,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
 
 - [ ] **R<N>-T2** — `<file>:<line>` — <the finding, one line>.
       **Fails when:** <the failure_scenario, verbatim>.
-      **Acceptance (attestation)**: <the judgement a person must make>.
+      **Acceptance (attestation)**: <the judgment a person must make>.
       **Attestor:** <the name or role who must look>.
 ```
 
@@ -193,7 +193,7 @@ criterion is run before the fix**. A criterion that passes before the change is 
 are literals, not descriptions of what to write. `/wb:implement` Step 4 reads the emitted line for
 them — the label is what diverts the task to the phase checkpoint instead of a TDD worker, and the
 field is what lets Step 8.4 say who must look rather than "someone must look". A shape-6 task that
-states its judgement only in prose reaches a worker with no failing test to write, and the clean
+states its judgment only in prose reaches a worker with no failing test to write, and the clean
 tree it correctly leaves behind reads as a failure.
 
 **The acceptance criterion comes from the shape of the finding**, and where none can be written
@@ -206,7 +206,7 @@ the task says so rather than inventing one:
 | 3 | Two files contradict | **Dual grep** — the wrong phrasing absent *and* the right one present at a named `file:line` |
 | 4 | Something missing | Grep for presence, plus a negative control proving the grep can fail |
 | 5 | Reference integrity | A resolver — dangling links, undefined identifiers, nonexistent skill names |
-| 6 | Genuine judgement | **No mechanical criterion.** Emit the attestation form above — the `(attestation)` label and a named `Attestor` |
+| 6 | Genuine judgment | **No mechanical criterion.** Emit the attestation form above — the `(attestation)` label and a named `Attestor` |
 
 **FALSIFY the criterion itself**: *what would this print if the fix were absent?* No answer means
 shape 6, not a fabricated check. **Absence is never a check on its own** — a grep returning

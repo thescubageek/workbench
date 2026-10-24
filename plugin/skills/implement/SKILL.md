@@ -20,7 +20,7 @@ Supporting files in this directory (read each when its step directs you to — n
 - [reference.md](reference.md) — evolution, resume logic, why the coordinator pattern exists, migration, the DO/DON'T lists, configuration
 - [../../docs/reference/branch-naming.md](../../docs/reference/branch-naming.md) — the branch-name rule Step 2 applies as a backstop, shared with `create_project`, `jira-context` and `forge`
 - [../../docs/reference/journal-entries.md](../../docs/reference/journal-entries.md) — where a journal entry goes (newest first, never appended), its heading contract, and when it opens and closes
-- [../../docs/reference/remediation-plan.md](../../docs/reference/remediation-plan.md) — what a review round's remediation plan is, how Step 1 recognises one, and the files it has and deliberately lacks
+- [../../docs/reference/remediation-plan.md](../../docs/reference/remediation-plan.md) — what a review round's remediation plan is, how Step 1 recognizes one, and the files it has and deliberately lacks
 
 **If a directed read fails, stop — do not continue from memory.** These files live outside your
 project, so a read can be refused. Say which file was refused, that reads outside the working
@@ -116,7 +116,7 @@ missing. Then read `research.md`, `design.md` and `tasks.md` from that directory
 whole file. If Read returns a partial view, page through it with `offset` and `limit`.
 
 **A remediation plan has only `tasks.md`, and that is correct.** Read
-[../../docs/reference/remediation-plan.md](../../docs/reference/remediation-plan.md) NOW for how to recognise one
+[../../docs/reference/remediation-plan.md](../../docs/reference/remediation-plan.md) NOW for how to recognize one
 and what it deliberately lacks, then take `tasks.md` alone as the whole plan. Do not stop, and do
 not route the user to `/wb:create_project` to manufacture two files that exist only to be empty.
 
@@ -250,8 +250,8 @@ A task carrying a `Depends on:` field is the exception — check its named depen
 **A task with no mechanical acceptance criterion is not worker work — divert it here.** An
 `adversarial-review` remediation plan emits these deliberately, in the literal form its
 `templates.md` pins: `**Acceptance (attestation)**:` in place of the usual `(shape <n>)` label,
-followed by an `**Attestor:**` field naming who must look, because the finding is a judgement
-call with no check to run. Recognise one by that label and field, or by an acceptance line
+followed by an `**Attestor:**` field naming who must look, because the finding is a judgment
+call with no check to run. Recognize one by that label and field, or by an acceptance line
 saying outright that no mechanical criterion exists, and do **not** spawn a worker for it. There
 is nothing to implement, so a worker under TDD has no failing test to write, and the verifier
 reads the clean tree it correctly leaves behind as a FAIL — two workers and an escalation spent
@@ -297,7 +297,7 @@ a full identifier like `claude-opus-5-5[1m]` cannot be pinned per spawn, and `op
 the current Opus. Full IDs belong to the *main-session* model (`/model`; see `model-help`).
 
 Judge the task's body, not a keyword match on its title. The tier does **not** fix truncation:
-workers hit a *tool-call* ceiling, not a context limit — Step 3's context minimisation and the
+workers hit a *tool-call* ceiling, not a context limit — Step 3's context minimization and the
 plan's ~50-call task sizing are what address that.
 
 **Then spawn.** Read [prompts/worker-prompt.md](prompts/worker-prompt.md) NOW and spawn the `wb:task-worker` agent with it.
@@ -397,7 +397,7 @@ green — a substituted bar is reported, never silently adopted.
 #### 6c. One escalation, then a human
 
 **A FAIL that names the task as an attestation task is the one failure that is never
-escalated.** No rung of the ladder can produce a diff for a judgement call, so a second attempt
+escalated.** No rung of the ladder can produce a diff for a judgment call, so a second attempt
 buys nothing but another clean tree. Reset the checkbox to `[ ]`, restore anything the worker
 touched, and move the task to the checkpoint's attestation list — the diversion Step 4 should
 have made, made late.
@@ -504,7 +504,7 @@ A checkpoint headed `Phase undefined` reads as a run that lost its place.
    **Attended (the default).** Read [templates/manual-verification-request.md](templates/manual-verification-request.md) NOW, emit it, and **wait for the user's confirmation**.
 
    **Put the attestation list in that same request, one line each** — the task's `file:line`,
-   the judgement being asked for, and the person or role from its `**Attestor:**` field, so the
+   the judgment being asked for, and the person or role from its `**Attestor:**` field, so the
    request names who must look rather than asking the room. This is the authority those tasks
    were diverted here to wait for: on a clear yes, flip the task's checkbox to `[x]`, record in one
    line who attested and when, and commit it as you would any other task. On anything else it
@@ -520,7 +520,7 @@ A checkpoint headed `Phase undefined` reads as a run that lost its place.
    `design.md` (Step 3).
    **Attestation tasks stay `[ ]`** and are listed there too — the phase still closes,
    unattended, so the run terminates instead of stalling, and the report tells a person exactly
-   which judgements are outstanding.
+   which judgments are outstanding.
 
    **The unticked box is the feature, not an oversight.** `--auto` buys the wait, not the
    attestation: that box records what a person did, and no run may tick it on its own authority.

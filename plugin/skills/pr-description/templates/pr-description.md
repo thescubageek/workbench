@@ -13,7 +13,7 @@ the comments. Leave out "Notes for reviewers" if it has nothing to say.
 
 ## Changes
 
-<!-- At most 5 bullets, one line each. A behaviour or a decision, not a file list. -->
+<!-- At most 5 bullets, one line each. A behavior or a decision, not a file list. -->
 
 ## Testing
 

@@ -198,13 +198,13 @@ Not pipeline stages — invoke them directly when you want them.
 | `/wb:adversarial-loop [<this checkout's pr#>\|<current branch>\|<path in this tree>] [--effort=<level>]` | Drives the current checkout's change to reviewable: review, adjudicate, fix, re-verify until a pass is clean. Serves only the current checkout's PR, and refuses any other target with `/wb:adversarial-review <target>`. If this checkout's pull request exists, it also flips to ready, waits on CI and `claude[bot]`, and replies until resolved |
 | `/wb:reply-to-claude [<pr#>]` | Answers a `claude[bot]` review with a comment mapping one-to-one to its findings — what was fixed, what was rejected and why |
 | `/wb:review-prep [target]` | Interactive diff walkthrough in tmux and nvim — paced for a human, where `adversarial-review` is a batch hunt |
-| `/wb:research-validation [directory]` | Re-checks a research document against the code: do the paths exist, do the snippets match, are the behavioural claims still true |
+| `/wb:research-validation [directory]` | Re-checks a research document against the code: do the paths exist, do the snippets match, are the behavioral claims still true |
 | `/wb:jira-context <TICKET>` | Loads a ticket's Agents section and the files it points at. Runs standalone, or as `create_research`'s Step 0 |
 | `/wb:fetch-issues [repo]` | Triages open GitHub issues into per-issue, session-ready handoffs |
-| `/wb:create_product_research [directory]` | Research from a product angle — user-visible behaviour and flows rather than implementation |
+| `/wb:create_product_research [directory]` | Research from a product angle — user-visible behavior and flows rather than implementation |
 | `/wb:tracer-bullet` | Fires one cheap probe at the riskiest assumption before fanning out into speculative work |
 | `/wb:clip <instruction>` | Runs an instruction and copies the result to the clipboard instead of printing it |
-| `/wb:eli5-clip` | Summarises recent work in plain language for a non-technical reader, and clips it |
+| `/wb:eli5-clip` | Summarizes recent work in plain language for a non-technical reader, and clips it |
 
 Background skills activate on their own and are not invoked: `doc-adherence`,
 `project-structure`, `tdd-discipline`, `verification-before-completion`, `status-sync`,
@@ -222,7 +222,7 @@ changes in one place.
 | `docs/reference/journal-entries.md` | Where a journal entry goes — newest at the top, never appended — its `(open)`/`(closed)` contract, and when it opens and closes |
 | `docs/reference/code-review-integration.md` | What Claude Code's built-in review commands provide, and which parts of that a skill may rely on |
 | `docs/reference/review-ledger.md` | The findings ledger a review loop appends to between rounds, and the thrash breaker computed from it |
-| `docs/reference/remediation-plan.md` | What a review round's remediation plan is — where it lives, how a consumer recognises one, what it has and deliberately lacks, and how Step 8's placeholders resolve |
+| `docs/reference/remediation-plan.md` | What a review round's remediation plan is — where it lives, how a consumer recognizes one, what it has and deliberately lacks, and how Step 8's placeholders resolve |
 
 ## Core Principles
 

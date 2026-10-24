@@ -11,6 +11,26 @@ requires `shellcheck` and `python3` and fails loudly without them. A contributor
 the checks at 2.1.0 cannot at 3.0.0 without installing two tools, and no reading of "removed or
 renamed stages" would have warned them.
 
+## [3.1.2] — 2026-10-24
+
+A docs and spelling pass. No stage was added or removed, and no stage requires anything new.
+
+### Fixed
+
+- **The README Agents list left out `task-worker`.** `/wb:implement` spawns it for every task.
+  The list now names all 7 agents (#32).
+- **Shipped prose under `plugin/` had 42 British spellings in 22 files.** It now uses American
+  spelling, such as `behavior` and `recognize`. Identifiers, file names, and the `scripts/fixtures`
+  data are unchanged (#36).
+
+### Migration
+
+None. Update the plugin and restart:
+
+```bash
+claude plugin update wb@thescubageek-workbench
+```
+
 ## [3.1.1] — 2026-10-24
 
 A speed fix for the session-start hook. No stage was added or removed.

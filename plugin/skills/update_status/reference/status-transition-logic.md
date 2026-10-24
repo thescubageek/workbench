@@ -17,7 +17,7 @@ in-progress → complete
 draft → approved
   Trigger: the human confirms the design at create_design's Step 6
   Requires: research.md is complete; no Pending Decisions row still Open
-  Do not infer this from content. `approved` records a human's judgement, and it is
+  Do not infer this from content. `approved` records a human's judgment, and it is
   the gate /wb:create_tasks and forge both read. Advancing it because the document
   looks finished removes the only review step between a design and the tasks built
   on it — so if you find design.md at `draft` with everything else complete, say so
