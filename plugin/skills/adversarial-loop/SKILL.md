@@ -197,7 +197,7 @@ publishing phases cannot end up pointed at different changes.
    ([../../docs/reference/remediation-plan.md](../../docs/reference/remediation-plan.md)); do not
    compute either here.
 2. **Adjudicate before acting.** Read [../adversarial-review/reference.md](../adversarial-review/reference.md)
-   NOW and give every finding one of the five dispositions. A finding labelled CONFIRMED by the
+   NOW and give every finding one of the five dispositions. A finding labeled CONFIRMED by the
    reviewer has been *asserted*; the label is the claim you are checking. Reviewers are wrong
    often enough that applying findings unexamined introduces defects, and a suggested fix is
    frequently worse than the finding it addresses.
@@ -352,7 +352,7 @@ Stop when a pass returns **no finding you have adjudicated `Valid`, in the diff*
 **Read that carefully — the gate is about dispositions, not verdicts.** `CONFIRMED` is the
 *reviewer's* label and step 2 above exists precisely to test it; gating on it would mean the
 loop never clears a finding it has correctly refuted (the finding returns every round, still
-labelled CONFIRMED), and would let a `PLAUSIBLE` finding you adjudicated `Valid` through unfixed.
+labeled CONFIRMED), and would let a `PLAUSIBLE` finding you adjudicated `Valid` through unfixed.
 The mapping, once:
 
 | Reviewer verdict | What you do with it | Does it hold the gate? |
@@ -522,7 +522,7 @@ not an authority.
    to check gets read afterwards. `reference.md`'s own round-boundary question sends you into
    that prose on purpose, which is what makes the ordering load-bearing rather than tidy.
 2. **Verify each finding against real source**, not memory. When one turns on a library's
-   behaviour, read the installed version of that library.
+   behavior, read the installed version of that library.
 3. Fix what holds, then **commit the fix**. Nothing else commits it: step 4 commits only the
    ledger. A fix left in the worktree makes `git push` print `Everything up-to-date` and exit 0,
    so the reply would claim a fix the pull request does not have. Commit the fix before step 4
@@ -628,7 +628,7 @@ cleared: fold the unreplied commits into an `@claude` reply and take another Pha
 say that the label covers a range the bot did not read. **A range whose only changed path is
 the ledger is cleared.** Phase 4 step 4 commits a ledger row after every bot review, so HEAD is
 often one ledger commit past the SHA the bot read. Take the newest review check-run on this
-branch whose `conclusion` is `success`. A skipped, cancelled or failed run is not the bot reading
+branch whose `conclusion` is `success`. A skipped, canceled or failed run is not the bot reading
 that SHA. If `git diff --name-only <that run's head_sha>..HEAD` lists only the ledger file, the
 bot's clearance covers HEAD. A `git diff` that exits non-zero or prints no path at all is not cleared.
 An unknown SHA exits 128 with empty output, so it is not a ledger-only range. The ledger file is `docs/plans/<plan>/review-log.md`, or the path Phase 1

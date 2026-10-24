@@ -13,7 +13,7 @@ Supporting files in this directory (read each when its step directs you to — n
 
 - `templates/` — [status-update-plan.md](templates/status-update-plan.md) (Step 4) · [frontmatter-fragments.md](templates/frontmatter-fragments.md) (Step 5) · [completion-summary.md](templates/completion-summary.md) (Step 7)
 - `reference/` — [smart-status-detection.md](reference/smart-status-detection.md) (Step 2) · [status-transition-logic.md](reference/status-transition-logic.md) (Step 3) · [error-handling.md](reference/error-handling.md) · [important-notes.md](reference/important-notes.md) (the sole-writer rule) · [configuration.md](reference/configuration.md)
-- [../../docs/reference/remediation-plan.md](../../docs/reference/remediation-plan.md) — what a review round's remediation plan is, how Step 1 recognises one, and the files it has and deliberately lacks
+- [../../docs/reference/remediation-plan.md](../../docs/reference/remediation-plan.md) — what a review round's remediation plan is, how Step 1 recognizes one, and the files it has and deliberately lacks
 
 **If a directed read fails, stop — do not continue from memory.** These files live outside your
 project, so a read can be refused. Say which file was refused, that reads outside the working
@@ -72,7 +72,7 @@ comes from those files
 Read the whole file. If Read returns a partial view, page through it with `offset` and `limit`.
 
 **A remediation plan has only `tasks.md`, and that is correct.** Read
-[../../docs/reference/remediation-plan.md](../../docs/reference/remediation-plan.md) NOW for how to recognise one
+[../../docs/reference/remediation-plan.md](../../docs/reference/remediation-plan.md) NOW for how to recognize one
 and what it deliberately lacks, then take `tasks.md` alone as the whole plan. Do not stop, and do
 not route the user to `/wb:create_project` — this skill is the only writer of the counters, so
 halting here strands a finished round at `completed_tasks: 0` permanently. What follows from it:
@@ -183,7 +183,7 @@ the same, and the two must not diverge:
 
 - **Phased plan** — apply all three: the `research.md` fragment, the `design.md` fragment, and
   the `tasks.md` fragment.
-- **Remediation plan** — the shape `remediation-plan.md` defines, recognised at Step 1. Skip both the `research.md` and the `design.md` fragments and
+- **Remediation plan** — the shape `remediation-plan.md` defines, recognized at Step 1. Skip both the `research.md` and the `design.md` fragments and
   apply the `tasks.md` fragment alone, omitting `current_phase`, `last_updated`, `git_commit` and
   `git_branch`. A round has neither of those
   documents, so applying their fragments means writing frontmatter into files that do not exist,

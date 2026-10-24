@@ -16,7 +16,7 @@ Supporting files in this directory (read each when its step directs you to — n
 - `templates/` — [modified-files-fragment.md](templates/modified-files-fragment.md) (Step 5) · [manual-verification-request.md](templates/manual-verification-request.md) and [phase-completion-report.md](templates/phase-completion-report.md) (Step 6)
 - [reference.md](reference.md) — handling mismatches, resume logic, TDD best practices, special considerations, error handling, the DO/DON'T lists, configuration
 - [../../docs/reference/journal-entries.md](../../docs/reference/journal-entries.md) — where a journal entry goes (newest first, never appended), its heading contract, and when it opens and closes
-- [../../docs/reference/remediation-plan.md](../../docs/reference/remediation-plan.md) — what a review round's remediation plan is, how Step 1 recognises one, and the files it has and deliberately lacks
+- [../../docs/reference/remediation-plan.md](../../docs/reference/remediation-plan.md) — what a review round's remediation plan is, how Step 1 recognizes one, and the files it has and deliberately lacks
 
 **If a directed read fails, stop — do not continue from memory.** These files live outside your
 project, so a read can be refused. Say which file was refused, that reads outside the working
@@ -125,7 +125,7 @@ missing. Then read `research.md`, `design.md` and `tasks.md` from that directory
 whole file. If Read returns a partial view, page through it with `offset` and `limit`.
 
 **A remediation plan has only `tasks.md`, and that is correct.** Read
-[../../docs/reference/remediation-plan.md](../../docs/reference/remediation-plan.md) NOW for how to recognise one
+[../../docs/reference/remediation-plan.md](../../docs/reference/remediation-plan.md) NOW for how to recognize one
 and what it deliberately lacks, then take `tasks.md` alone as the whole plan. Do not stop, and do
 not route the user to `/wb:create_project` to manufacture two files that exist only to be empty.
 
@@ -208,7 +208,7 @@ re-run the review, not `/wb:create_tasks`.
 
 #### For Each Implementation Task
 
-**A task with no mechanical acceptance criterion is not TDD work — divert it here.** Recognise
+**A task with no mechanical acceptance criterion is not TDD work — divert it here.** Recognize
 one by the literal `**Acceptance (attestation)**:` label (in place of the usual `(shape <n>)`)
 and its accompanying `**Attestor:**` field, or by an acceptance line saying outright that no
 mechanical criterion exists — see [../implement/SKILL.md](../implement/SKILL.md) Step 4 for the
@@ -391,7 +391,7 @@ Complete these steps IN ORDER before proceeding to next phase:
 1. **Verify every Phase [N] checkbox is `[x]`, apart from the attestation list that accounts
    for a `[ ]`.** Read the phase section and check. This is the phase-completion condition —
    there is nothing else to close. A task diverted in Step 3 keeps its `[ ]` and is named here
-   with its `file:line`, judgement, and attestor; every other task left `[ ]` means the phase is
+   with its `file:line`, judgment, and attestor; every other task left `[ ]` means the phase is
    not done, even if you believe the work happened.
 
 2. **Run automated verification** (the block in Step 5). All checks must pass.
@@ -399,7 +399,7 @@ Complete these steps IN ORDER before proceeding to next phase:
 3. **Request manual verification.** Read [templates/manual-verification-request.md](templates/manual-verification-request.md) NOW, emit it, and **wait for the user's confirmation**.
 
    **Put the attestation list in that same request, one line each** — the task's `file:line`,
-   the judgement being asked for, and the person or role from its `**Attestor:**` field, so the
+   the judgment being asked for, and the person or role from its `**Attestor:**` field, so the
    request names who must look rather than asking the room. On a clear yes, flip the task's
    checkbox to `[x]`, record in one line who attested and when, and commit it as you would any
    other task. On anything else it stays `[ ]` and moves to the checkpoint's notes with what the

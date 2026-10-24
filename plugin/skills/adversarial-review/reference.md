@@ -27,11 +27,11 @@ nit is. Emitting it with a lowered verdict would misrepresent it as a defect tha
 
 **One vocabulary, everywhere.** The verifier in `prompts.md` returns exactly the first three, and
 `SKILL.md` Step 6 keeps the first two and drops `REFUTED`. `STYLE` is the one addition, and it is
-**reporting-only** — a verifier never returns it, because "not worth the change" is a judgement
+**reporting-only** — a verifier never returns it, because "not worth the change" is a judgment
 about cost rather than about whether the mechanism holds. Do not introduce a fourth verdict for a
 disproven finding; it has one name and that name is `REFUTED`.
 
-**Never inherit another reviewer's confidence.** A finding labelled CONFIRMED by its author has
+**Never inherit another reviewer's confidence.** A finding labeled CONFIRMED by its author has
 been *asserted*, not verified. That label is a claim about evidence, and it is the claim you were
 asked to check.
 

@@ -127,7 +127,7 @@ templates included:
 - **Ticket reference** — pass through whatever was given, a bare ticket URL included.
 
 Then continue at this step against the directory it created. Do not hand-write `README.md`,
-`journal.md`, or any other plan file by copying the shape of a neighbouring plan directory —
+`journal.md`, or any other plan file by copying the shape of a neighboring plan directory —
 every file comes from a `create_project` template, or it is not the same file set.
 
 **Open a journal entry before Step 3**, naming this stage and the exact next action — written at

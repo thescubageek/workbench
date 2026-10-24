@@ -26,7 +26,7 @@ run, not to improvise one.
 | Command | What it does | Output |
 | ------- | ------------ | ------ |
 | `/code-review` | Reviews a diff for correctness bugs and reuse/simplification/efficiency cleanups. Fans out parallel finder angles. | `ReportFindings`, or text |
-| `/verify` | Exercises a change end to end and observes behaviour — "drive the affected flow, not just tests or typecheck". Bootstraps a repo's own verify skill if none exists. | Prose |
+| `/verify` | Exercises a change end to end and observes behavior — "drive the affected flow, not just tests or typecheck". Bootstraps a repo's own verify skill if none exists. | Prose |
 | `/security-review` | A security-only pass over the current branch, with its own severity and confidence scales. | Markdown only |
 
 **They run forked.** A `Skill` call to `/code-review` does not consume the calling session's
@@ -113,7 +113,7 @@ emitting those values is conforming, not inventing.
 
 ## Chaining into `/verify`
 
-`/code-review` chains into `/verify` by design, and states the division of labour: *this review
+`/code-review` chains into `/verify` by design, and states the division of labor: *this review
 checks that the diff reads right; `/verify` checks that it runs right.*
 
 A skill that needs to know whether a change actually works delegates to `/verify` rather than
@@ -148,7 +148,7 @@ expected, it should act on the observation rather than on any assumption about w
 ## Dated observation: internal prompt-cell selection
 
 **Verified 2026-09-17, against build 2.1.272. Scoped to prompt-cell selection only. This did not
-predict observed behaviour — treat it as background, not as a rule.**
+predict observed behavior — treat it as background, not as a rule.**
 
 Reading the binary's strings shows a routing table keyed on model family, selecting a different
 internal prompt per effort level. Under `claude-opus-5` it maps both `medium` and `high` to the

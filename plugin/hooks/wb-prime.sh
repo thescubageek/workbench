@@ -192,7 +192,7 @@ if [ -f "$journal" ]; then
     # entry — create_project's template, implement, implement_inline, create_handoff,
     # resume_handoff — and checked by validate_project.
     # shellcheck disable=SC2018,SC2019  # ASCII ranges are correct here: the state suffix is
-    # a literal (open)/(closed), never localised.
+    # a literal (open)/(closed), never localized.
     case "$(printf '%s' "$last" | tr 'A-Z' 'a-z' | sed 's/[[:space:]]*$//')" in
       *'(open)') entry_open=yes ;;
     esac

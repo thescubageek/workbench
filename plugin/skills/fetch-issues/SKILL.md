@@ -56,7 +56,7 @@ Then, for any issue whose body references discussion, pull its comments so nothi
 gh issue view <number> --repo "$REPO" --comments
 ```
 
-Read every issue body **fully** — no skimming, no truncation. Note the category of each issue (bug / feature / docs / chore / question) and any labels signalling severity (`security`, `p0`, `regression`) or disposition (`blocked`, `needs-info`, `wontfix`).
+Read every issue body **fully** — no skimming, no truncation. Note the category of each issue (bug / feature / docs / chore / question) and any labels signaling severity (`security`, `p0`, `regression`) or disposition (`blocked`, `needs-info`, `wontfix`).
 
 **Filter out** issues that are not actionable work: `wontfix`, `duplicate`, `question`/`discussion` with no ask, and anything the user's filters exclude. List what you dropped and why — never silently truncate.
 
@@ -100,7 +100,7 @@ Record, per issue: the STATE, the **linked PR number(s) and state**, any **closi
 
 **⛔ BARRIER 3: Spawn research agents, then wait until every agent has returned (a completion notification from each one) before ranking** — a ranking on a partial set misses what the missing research found.
 
-For each issue **not already classified `fixed-merged`** (those need only a close recommendation, not codebase research), run a research agent against the codebase. Batch them — spawn agents concurrently (one message, multiple `Agent` calls) for throughput. Use **haiku** for issues that only need file location, **sonnet** for issues needing behavioral tracing or an "already resolved?" judgement.
+For each issue **not already classified `fixed-merged`** (those need only a close recommendation, not codebase research), run a research agent against the codebase. Batch them — spawn agents concurrently (one message, multiple `Agent` calls) for throughput. Use **haiku** for issues that only need file location, **sonnet** for issues needing behavioral tracing or an "already resolved?" judgment.
 
 Each research agent answers, for one issue, **facts only — no fixes yet**:
 
@@ -144,7 +144,7 @@ Score each `ready` issue: composite = **Impact × Confidence ÷ Effort**, adjust
 
 Modifiers:
 
-- **+** labelled `security`/`p0`/`regression` → floor at top tier.
+- **+** labeled `security`/`p0`/`regression` → floor at top tier.
 - **−** `blocked`, `needs-info`, or research found a hard blocker → sink below ready work, and say what unblocks it.
 - **−** stale (`updatedAt` old) AND low impact → deprioritize.
 - **Quick wins** (high impact, low effort, high confidence) surface near the top even if not the absolute highest impact.

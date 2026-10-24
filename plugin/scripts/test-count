@@ -52,8 +52,8 @@ check "missing file prints no count"    "$([[ -z "$out" ]] && echo 1 || echo 0)"
 printf 'alpha\n' > "$TMP/locked.txt"; chmod 000 "$TMP/locked.txt"
 out="$("$COUNT" 'alpha' "$TMP/locked.txt" 2>/dev/null)"; code=$?
 if [[ -r "$TMP/locked.txt" ]]; then
-    skip "unreadable file exits non-zero"  "chmod 000 is not honoured for this user (root or ACL)"
-    skip "unreadable file prints no count" "chmod 000 is not honoured for this user (root or ACL)"
+    skip "unreadable file exits non-zero"  "chmod 000 is not honored for this user (root or ACL)"
+    skip "unreadable file prints no count" "chmod 000 is not honored for this user (root or ACL)"
 else
     check "unreadable file exits non-zero"  "$([[ $code -ne 0 ]] && echo 1 || echo 0)"
     check "unreadable file prints no count" "$([[ -z "$out" ]] && echo 1 || echo 0)"

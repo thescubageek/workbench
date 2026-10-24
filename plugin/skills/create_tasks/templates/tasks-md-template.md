@@ -215,7 +215,7 @@ npm test src/component.test.ts tests/integration/feature.test.ts
 These are the conditions to meet before Phase 2 — **not a record of having met them.** Tick
 each one as it is actually satisfied.
 
-Each box below is labelled **(derivable)** or **(attestation)**. A derivable condition is one a
+Each box below is labeled **(derivable)** or **(attestation)**. A derivable condition is one a
 tool can establish, and `/wb:implement` ticks those at its Step 8 checkpoint. An attestation
 records that a *person* looked, so only a person ticks it, and an unticked attestation beside
 finished work means *"done, sign-off pending"* rather than a contradiction.
@@ -256,7 +256,7 @@ manual steps nobody performed, and the confirmation is **deferred, not obtained.
 ### ⛔ CHECKPOINT: Phase 2 Complete
 
 [The Phase 1 checkpoint block in full, with only the phase number changed — the label
-definitions, the go-by-the-label rule, the four labelled boxes and the `--auto` clause. Every
+definitions, the go-by-the-label rule, the four labeled boxes and the `--auto` clause. Every
 phase's checkpoint is the complete block, never an abbreviated one.]
 
 ---

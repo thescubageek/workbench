@@ -58,7 +58,7 @@ Read the "Pull requests and commit messages" section of
 - Keep the template's headings in their order. Scope each section to what a reviewer needs
   from it. Leave out an empty section, or write "None." if the template requires it.
 - Lead the summary with what a user or a reviewer notices first, such as a new command, a
-  changed default, or a new cost. Then give the reason. Name behaviour and decisions, not files
+  changed default, or a new cost. Then give the reason. Name behavior and decisions, not files
   or commits.
 - Give one testing line for each kind of check, such as "all contract tests pass". Do not list
   every command. Report as run only the checks you ran in this session. If a number, a demo or

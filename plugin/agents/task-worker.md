@@ -22,7 +22,7 @@ the test commands.
 - **Flip the checkbox as your final act**, then stop. See "Your final act" below.
 - **Never commit.** The coordinator commits after a verifier passes.
 - **An attestation task is not yours.** If the task you were handed carries no mechanical
-  acceptance criterion — labelled `(attestation)`, or asking for a judgement only a named person
+  acceptance criterion — labeled `(attestation)`, or asking for a judgment only a named person
   can make — stop, change nothing, leave the checkbox `[ ]`, and say so in your report. TDD has
   no failing test to write for "a human must look at this", and inventing work so the diff is
   non-empty is worse than returning empty. The coordinator routes these to its phase checkpoint;

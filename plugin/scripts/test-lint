@@ -93,10 +93,10 @@ before=$(sha a/b/vendor/x.md)
 check "vendor/ nested at any depth is excluded" \
     "$([[ "$before" == "$(sha a/b/vendor/x.md)" ]] && echo 1 || echo 0)"
 
-# --- Case 3: .wblintignore / .markdownlintignore honoured on the explicit route ---
+# --- Case 3: .wblintignore / .markdownlintignore honored on the explicit route ---
 before=$(sha docs/mirror/x.md)
 out=$("$LINT" --fix docs/mirror/x.md 2>&1)
-check ".wblintignore is honoured on the explicit-path route" \
+check ".wblintignore is honored on the explicit-path route" \
     "$([[ "$before" == "$(sha docs/mirror/x.md)" ]] && echo 1 || echo 0)"
 check ".wblintignore match is skipped before markdownlint is spawned" \
     "$(echo "$out" | grep -q 'Skipped 1 ignored path' && echo 1 || echo 0)"
@@ -108,7 +108,7 @@ mv .wblintignore .markdownlintignore
 dirty docs/mirror/x.md
 before=$(sha docs/mirror/x.md)
 out=$("$LINT" --fix docs/mirror/x.md 2>&1)
-check ".markdownlintignore is honoured on the explicit-path route" \
+check ".markdownlintignore is honored on the explicit-path route" \
     "$([[ "$before" == "$(sha docs/mirror/x.md)" ]] && echo 1 || echo 0)"
 check ".markdownlintignore match is skipped before markdownlint is spawned" \
     "$(echo "$out" | grep -q 'Skipped 1 ignored path' && echo 1 || echo 0)"
@@ -178,7 +178,7 @@ jq -n --arg p "$REPO/authored.md" '{tool_input:{file_path:$p}}' | WB_LINT_HOOK=0
 check "WB_LINT_HOOK=0 is a no-op" \
     "$([[ "$before" == "$(sha authored.md)" ]] && echo 1 || echo 0)"
 
-# --- Case 6: WB_LINT_FIX_ON_BASH=1 restores the old behaviour, opt-in ---
+# --- Case 6: WB_LINT_FIX_ON_BASH=1 restores the old behavior, opt-in ---
 dirty read-only.md
 before=$(sha read-only.md)
 jq -n --arg c "cat read-only.md" '{tool_input:{command:$c}}' \

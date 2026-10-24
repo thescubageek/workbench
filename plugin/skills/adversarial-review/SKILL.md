@@ -286,7 +286,7 @@ Read [lenses.md](lenses.md) NOW. Rate the diff on six axes:
 | Axis | What it asks |
 | ---- | ------------ |
 | Path roles | what kind of code this is — by what it does when it runs, not by its filename |
-| Behavioural delta | what the change does to behaviour: a guard deleted, a default changed, a permission or allowlist widened, a new external call, error handling broadened |
+| Behavioral delta | what the change does to behavior: a guard deleted, a default changed, a permission or allowlist widened, a new external call, error handling broadened |
 | Blast radius | call sites of changed symbols outside the diff, and tests that stub them |
 | Coupling breadth | how many distinct subsystems the change spans |
 | Reversibility | what a deploy could not take back |
@@ -318,12 +318,12 @@ done)
 Six details in that command are the difference between a measurement and a guess:
 
 - **`command grep` pins the engine.** In a top-level Bash-tool call bare `grep` is a shell
-  function from `~/.claude/shell-snapshots/` that re-execs as ugrep honouring `.gitignore`, so a
+  function from `~/.claude/shell-snapshots/` that re-execs as ugrep honoring `.gitignore`, so a
   tracked-but-ignored file is skipped at exit 0 and no status guard below can see it; the same
   line inside a script gets the system binary. So the count varied by invocation — measured on
   one symbol, bare 30 hits against `command grep`'s 52 (`.claude/wb/knowledge.md`).
   `command` bypasses the function, so one engine answers in both. Do not re-add the gitignore
-  behaviour as a flag: `--exclude-dir` is the scope, and a gitignore-honouring engine fails
+  behavior as a flag: `--exclude-dir` is the scope, and a gitignore-honoring engine fails
   toward "isolated".
 - **`-F`** treats the symbol as a literal. Without it a name containing `[`, `(` or `\` is an
   invalid pattern, grep exits 2 printing nothing, and the empty output reads as "no callers".
@@ -481,7 +481,7 @@ before `implement` sees the file — [../adversarial-loop/SKILL.md](../adversari
 
 **Read [../../docs/reference/remediation-plan.md](../../docs/reference/remediation-plan.md) NOW
 for how `<plan>`, `<N>` and `<date>` resolve.** All three rules are stated there, and are
-deliberately not restated here. The division of labour: `<plan>` is the plan directory the caller
+deliberately not restated here. The division of labor: `<plan>` is the plan directory the caller
 names in `--plan=<dir>` — `adversarial-loop` resolves the active plan and passes it — while `<N>` and `<date>` you
 resolve at write time from that directory. Filling them in by eye is how a round lands somewhere
 no consumer looks: this skill carries nothing between rounds, so a guessed `<N>` writes round 2
@@ -548,5 +548,5 @@ When the invocation supplies findings and asks whether they are accurate, skip S
 [reference.md](reference.md) for the verdicts and the five dispositions. The verifier's three
 verdicts are the same here as everywhere — **CONFIRMED**, **PLAUSIBLE**, **REFUTED** — and
 verify-only mode adds one reporting-only outcome, **STYLE**, for a finding that is real and not
-worth the change. Never inherit another reviewer's confidence: a finding labelled CONFIRMED by its
+worth the change. Never inherit another reviewer's confidence: a finding labeled CONFIRMED by its
 author has been asserted, and that assertion is what you were asked to check.

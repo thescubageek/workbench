@@ -150,9 +150,9 @@ check "empty stdin: no output" "$(yes_if [ -z "$out" ])"
 check "empty stdin: exit 0" "$(yes_if rc_zero)"
 
 # Today an unrecognized payload takes the orientation path (the header says "silent").
-# This records that behaviour. It is not changed here.
+# This records that behavior. It is not changed here.
 out=$(run "$WORK/repo1" '{"unexpected":true}')
-check "unrecognized payload: prints the orientation (recorded behaviour)" \
+check "unrecognized payload: prints the orientation (recorded behavior)" \
     "$(yes_if grep -qF 'wb: structured development workflow' <<<"$out")"
 check "unrecognized payload: exit 0" "$(yes_if rc_zero)"
 

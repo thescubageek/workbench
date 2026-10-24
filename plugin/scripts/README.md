@@ -30,8 +30,8 @@ Lints markdown files using markdownlint.
 - By default, only lints files that have been changed (git diff)
 - Excludes `vendor/`, `node_modules/`, `.git/`, `.context/`, `tmp/`, `.next/`, `dist/` and
   `build/` **at any depth**, on every route — including explicitly named file arguments
-- Honours `.wblintignore` and `.markdownlintignore` at the repository root
-- Does **not** honour `.gitignore`: wb plan directories under `docs/plans/` are gitignored
+- Honors `.wblintignore` and `.markdownlintignore` at the repository root
+- Does **not** honor `.gitignore`: wb plan directories under `docs/plans/` are gitignored
   until promoted, and are exactly what the hook exists to lint
 - Uses `.markdownlintrc` for configuration if present; otherwise a default config written to
   a private temp dir and removed on exit
@@ -87,7 +87,7 @@ private exclusion list.
 ### `test-lint`
 
 Contract tests for `lint` and `lint-hook`: read-only Bash does not mutate, exclusions apply on
-the explicit-path route at any depth, ignore files are honoured, a gitignored path is still
+the explicit-path route at any depth, ignore files are honored, a gitignored path is still
 linted, a path in both `.gitignore` and `.wblintignore` is skipped, Write/Edit still fixes, and
 both env vars do what they say. Run after changing either
 script.
@@ -238,10 +238,10 @@ Contract tests for `check-guards`, in **three** parts — and the third is the o
 ./plugin/scripts/test-guards
 ```
 
-- **Corpus** — 136 labelled cases (`jq length fixtures/guard-corpus.json`), each carrying the
+- **Corpus** — 136 labeled cases (`jq length fixtures/guard-corpus.json`), each carrying the
   review round that found it. Every shape must fire; every correct form must not.
 - **Scan integrity** — properties the corpus structurally cannot test, because every corpus case
-  materialises a real directory: a missing target exits 2, an empty directory does not hard-fail,
+  materializes a real directory: a missing target exits 2, an empty directory does not hard-fail,
   a symlinked directory is followed.
 - **Mutation survivability** — 25 single-line breaks are planted in `check-guards` and the
   suite asserts each one is caught. This exists because a previous suite reported 31/31 while four
@@ -320,7 +320,7 @@ The mutation operators used by `test-guards --generated`. Not a script — impor
 
 ### `fixtures/guard-corpus.json`
 
-The labelled corpus. Not a test on its own — it is the asset three adversarial review rounds
+The labeled corpus. Not a test on its own — it is the asset three adversarial review rounds
 bought, and every case records which round found it, so it doubles as the regression record.
 Add a case here when a new shape is found; that is cheaper than adding a detector.
 

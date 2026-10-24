@@ -97,7 +97,7 @@ from every collector before reconciling** — a digest reconciled on a partial s
 not seen. Collectors are read-only and independent — fan them out concurrently
 (one message, multiple `Agent` calls) for speed and cost. Use **haiku** for
 mechanical pulls (git, PR lists, calendar) and **sonnet** for sources needing
-judgement (email triage, Sentry severity, Notion relevance).
+judgment (email triage, Sentry severity, Notion relevance).
 
 Each collector pulls the **since-window** slice for its source and returns
 **PHI-scrubbed, structured notes** — never raw dumps. The exact per-source query

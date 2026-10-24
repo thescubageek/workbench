@@ -6,7 +6,7 @@ The skill validates the following aspects.
 `tasks.md`. A **remediation plan** — the shape
 [../../../docs/reference/remediation-plan.md](../../../docs/reference/remediation-plan.md) defines — has only
 `tasks.md`, and that is correct: a review is not a project, so it has no research or design stage.
-That document is the authority on how to recognise one and on the frontmatter keys §9 checks.
+That document is the authority on how to recognize one and on the frontmatter keys §9 checks.
 
 On a round, the sections marked below as phased-only do not apply — there is no second file for
 them to be about, and reporting each absence as a critical error buries the findings that are
@@ -81,7 +81,7 @@ in tasks.md, and the last two rows are what apply to it.*
 - ✅ tasks.md status agrees with its own checkboxes: `not-started` with any `[x]`, or `complete` with any `[ ]`, is a contradiction
 - ✅ All files have same `last_updated` date (or close)
 
-**Not mechanised, by design.** These are read by a human or by the model running the skill, and
+**Not mechanized, by design.** These are read by a human or by the model running the skill, and
 are marked here so a reader does not mistake the absence of a rule for the absence of a check:
 "tasks.md has a section stating where status lives", "every task line is a checkbox rather than
 prose" (the rules derive task lines *from* the checkbox shape, so prose tasks are structurally
@@ -133,7 +133,7 @@ treats as valid.
 
 ## 9. Remediation Plan (Review Round)
 
-Checked **instead of** §2, §6, §7 and §8 on a directory recognised as a round. A round is a small
+Checked **instead of** §2, §6, §7 and §8 on a directory recognized as a round. A round is a small
 document and this contract is deliberately short — but it is a contract. A branch that validated
 nothing would trade a false positive for a blind spot on the only file the round has.
 
