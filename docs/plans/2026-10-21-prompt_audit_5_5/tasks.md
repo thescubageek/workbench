@@ -1162,11 +1162,11 @@ Annotate each with its projected tool-call cost; anything past ~50 splits at a n
 
 #### Integration
 
-- [ ] **P6-T5** — Release 3.1.0. Add a `## [3.1.0] — <date>` entry to `CHANGELOG.md` with
+- [x] **P6-T5** — Release 3.1.0. Add a `## [3.1.0] — <date>` entry to `CHANGELOG.md` with
       `### Changed` (the wording pass and rule 6), `### Not changed, deliberately` (checkpoints,
       "Read [link] NOW" directives, templates, and any reverted edit with its reason), the gate
       results in one line each, and `### Migration`. Set `"version": "3.1.0"` in both manifests in
-      the same commit. (~12 calls)
+      the same commit. (~12 calls) (completed 2026-10-24 02:18)
 - [ ] **P6-T6** — Run `./plugin/scripts/check`. After the commit, run
       `claude plugin tag --dry-run plugin/` and confirm that it names `wb--v3.1.0`. Do not tag or
       push without the user's go-ahead. (~6 calls)
@@ -1515,6 +1515,8 @@ resolved, leaving a dated line saying how.
   `baseline-tokens-3.0.0.txt`, and the 14-stage sum is ~63.1k against ~64.1k. Always-on rose from
   ~4,111 to ~4,126 tokens (the longer `review-prep` description). The ledger total is about
   $30.68, about $0.68 over the $30 limit. The user approved that overrun for the P5-T4 control.
+- [2026-10-24] Completed P6-T5: the [3.1.0] CHANGELOG entry, and version 3.1.0 in both manifests. The
+  3.0.1 entry's long sentences were also split, so both entries pass `wbte_check`.
 - **Kept CAPS lines**: record each one here with its file, line, and reason, as the wording tasks
   run.
   - `create_research/SKILL.md:27` — the Documentarian Rule fence. It is the stage's one core

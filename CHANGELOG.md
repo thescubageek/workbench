@@ -11,12 +11,69 @@ requires `shellcheck` and `python3` and fails loudly without them. A contributor
 the checks at 2.1.0 cannot at 3.0.0 without installing two tools, and no reading of "removed or
 renamed stages" would have warned them.
 
+## [3.1.0] — 2026-10-24
+
+The wording pass of the Claude 5.5 prompt audit (`docs/plans/2026-10-21-prompt_audit_5_5/`). It
+follows Anthropic's 5.5 guidance: write rules in plain words instead of emphatic ones, and give each rule its reason.
+It ran in batches, and each batch passed a gate before the next one started. No stage was added
+or removed, and no stage requires anything new.
+
+### Changed
+
+- **Barriers are one marker on one line, with a reason.** The 23 triple-marker `⛔⛔⛔ … STOP!`
+  lines are now `⛔ BARRIER N: <what must be true> — <reason>`. Barriers that had no reason
+  gained one. Barrier numbers and names are unchanged. A barrier that waits for agents names the
+  completion notification, because subagents run in the background.
+- **CAPS directives are plain rules.** CRITICAL, IMPORTANT, MUST, NEVER, ALWAYS, and DO NOT
+  lines fell from 118 to 7. Each of the 7 has a recorded reason. They are the
+  Documentarian Rule fences, the `daily-digest` PHI rule, the `touch-grass` resume rule, and a
+  shell comment.
+- **Each skill states each rule once.** Restated summaries, REMEMBER lines, and repeated
+  wait-for-all and read-fully lines are gone. On-invoke tokens for the 14 stages fell from about
+  64.1k to about 63.1k, and no stage rose.
+- **Read-fully now pages.** "No limit/offset" became "read the whole file, and page through a
+  partial view with `offset` and `limit`". The old wording had no correct way to comply when Read
+  returns a partial view.
+- **`review-prep` no longer triggers on the bare word "review",** which also matched the built-in
+  `/code-review` and `/wb:adversarial-review`.
+- **WBTE rule 6** (`technical-english.md`) allows plain barriers and scope rules with their reason,
+  and still keeps checkpoints and "Read [link] NOW" directives unchanged.
+
+### Not changed, deliberately
+
+- **Checkpoints and "Read [link] NOW" directives.** No trial measured them.
+- **Output templates.** Generated documents keep their shape and their `⛔` count.
+- **The prose of five agents** (`codebase-analyzer`, `codebase-locator`, `pattern-finder`,
+  `product-behavior-analyzer`, `research-validator`). Their gate flagged lost facts. A reverted
+  run lost the same facts. A control then showed that the research stage varies from 4 to 12 of
+  19 expected facts on identical text. The gate could not clear the edits, so the 3.0.1 prose stays.
+  `task-verifier` and `task-worker` keep their small edits.
+- **The verifier tier.** A planted-defect trial found 18 of 18 defects on both Sonnet 5.5 and
+  Opus 5.5, with no false failures. So the verifiers stay on Sonnet 5.5 at `high`.
+
+### Gate results
+
+- Research, design, and task stages: 3 harness repeats on `evals/fixture-large`, no lost fact in 5
+  of 6 judged documents. The one loss did not recur.
+- Implementation stages: blind trial, 200 runs on Opus 5.5 and Sonnet 5.5, new wording ≥ old in
+  every cell.
+- Other stages: blind trial, 120 runs, 10 of 10 in every cell.
+- Agent prose: inconclusive, as above.
+
+### Migration
+
+None. Update the plugin and restart:
+
+```bash
+claude plugin update wb@thescubageek-workbench
+```
+
 ## [3.0.1] — 2026-10-23
 
 Prompt bugfixes for the Claude 5.5 models, found by a prompt audit
 (`docs/plans/2026-10-21-prompt_audit_5_5/`). The plugin's aliases already resolve to the 5.5
-models, but every spawn block named its agent in a form the Agent tool rejects, and the model
-advice still named the models before 5.5. No stage was added or removed.
+models. But every spawn block named its agent in a form the Agent tool rejects, and the model
+advice still named older models. No stage was added or removed.
 
 ### Fixed
 
@@ -26,23 +83,23 @@ advice still named the models before 5.5. No stage was added or removed.
   `implement` now use `wb:<name>`. The 2 `general-purpose` spawns stay bare, because a built-in
   has no prefix.
 - **Spawn blocks passed a `model` that overrode the agent file.** A spawn's `model` wins over the
-  agent file, and 6 spawns disagreed with theirs: `validate_execution` ran `codebase-analyzer` on
-  `haiku` and `pattern-finder` on `sonnet`, and `create_mockup` ran `codebase-analyzer` on `haiku`
-  4 times. Spawn blocks now pass no `model`, so the agent file is the one place that sets a
+  agent file, and 6 spawns disagreed with theirs. `validate_execution` ran `codebase-analyzer` on
+  `haiku` and `pattern-finder` on `sonnet`. `create_mockup` ran `codebase-analyzer` on `haiku` 4
+  times. Spawn blocks now pass no `model`, so the agent file is the one place that sets a
   spawned agent's tier.
 - **Three agents inherited the session's effort.** `codebase-locator`, `pattern-finder`, and
-  `task-worker` set no `effort`, so they ran at whatever level the session used, which was `high`
-  in the audit's own session. They now set `effort: medium`. A Haiku 5.5 agent at `low` is "more
+  `task-worker` set no `effort`. So they ran at the session's level, which was `high` in the
+  audit's own session. They now set `effort: medium`. A Haiku 5.5 agent at `low` is "more
   likely to skip a search, stop early, or skip a check" (Anthropic's Haiku 5.5 prompting guide).
 - **`model-help` named Opus 5, Opus 4.8, Sonnet 5, and Haiku 4.5.** It now names Fable 5.1, Opus
-  5.5, Sonnet 5.5, and Haiku 5.5, with Opus 5.5 as the default and Fable 5.1 as the top rung. Its
+  5.5, Sonnet 5.5, and Haiku 5.5. Opus 5.5 is the default, and Fable 5.1 is the top rung. Its
   ladder, mapping, per-phase baselines, and anchors follow.
 - **"Never annotate `effort` on a haiku spawn" was stale.** Haiku 5.5 supports every effort
-  level, and a spawn's `effort` overrides the agent file's on Claude Code 2.1.292 and later. The
+  level. On Claude Code 2.1.292 and later, a spawn's `effort` overrides the agent file's. The
   rule is gone from `implement` and `adversarial-review`. The `implement` tier table gains an
   effort for each rung.
-- **Seven stages hard-coded a model tier in their gate line, and five pointed to a `CLAUDE.md`
-  that installers do not receive.** The gate lines now delegate to `model-help` alone.
+- **Seven gate lines hard-coded a model tier, and five pointed to a `CLAUDE.md` that installers
+  do not receive.** The gate lines now delegate to `model-help` alone.
 
 ### Migration
 

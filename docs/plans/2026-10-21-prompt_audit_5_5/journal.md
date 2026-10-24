@@ -62,11 +62,17 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
-## 2026-10-24 02:17 — P6-T5 (open)
+## 2026-10-24 02:18 — P6-T6 (open)
 
-- **Task/phase**: P6-T5 — release 3.1.0: CHANGELOG entry and both manifests
-- **Next action**: write the [3.1.0] entry, bump plugin.json and marketplace.json, commit
-- **Started at**: P6-T4 commit
+- **Task/phase**: P6-T6 — full check and tag dry-run for 3.1.0
+- **Next action**: run ./plugin/scripts/check, then claude plugin tag --dry-run plugin/. Do not tag or push without the user
+- **Started at**: the wb 3.1.0 commit
+
+## 2026-10-24 02:17 — P6-T5 (closed)
+
+- **Task/phase**: P6-T5 — release 3.1.0
+- **Landed**: the [3.1.0] CHANGELOG entry and version 3.1.0 in both manifests
+- **Commits**: the wb 3.1.0 commit
 
 ## 2026-10-24 02:17 — P6-T4 (closed)
 
