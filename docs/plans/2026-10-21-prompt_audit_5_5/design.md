@@ -16,6 +16,10 @@ design_approach: Full 5.5 wording pass, in batches, each batch evaluated before 
 
 # Design: prompt_audit_5_5
 
+> This is the only file of the plan in the repository. The plan's `research.md`, `tasks.md`,
+> journal, checks, and trial records stay local, so the links below to them do not resolve here.
+> The outcome is in `CHANGELOG.md`, under 3.0.1 and 3.1.0.
+
 **Created**: 2026-10-21 18:46 UTC
 **Designer**: scraig
 **Ticket**: N/A
@@ -392,9 +396,9 @@ Note: resolve every decision that blocks execution before you run `/wb:create_ta
 
 ## References
 
-- Research: [research.md](research.md)
-- Q2 trial: [trials/2026-10-22-q2-blind-trial/RESULTS.md](trials/2026-10-22-q2-blind-trial/RESULTS.md)
-- Tasks: [tasks.md](tasks.md)
+- Research: `research.md` (local only)
+- Q2 trial: `trials/2026-10-22-q2-blind-trial/RESULTS.md` (local only)
+- Tasks: `tasks.md` (local only)
 - Related designs: `docs/plans/2026-09-29-asd-ste100-prose/design.md` (the WBTE gate method, D7
   and D10)
 - External: `gvarela/workbench` v4.0.0, `docs/audits/2026-09-29-prompt-audit/`
