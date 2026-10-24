@@ -3,14 +3,14 @@ project: prompt_audit_5_5
 ticket: null
 created: 2026-10-21
 created_timestamp: 2026-10-21T18:46:41Z
-status: in-progress
+status: complete
 last_updated: 2026-10-24
 assignee: scraig
 current_phase: 6
 total_tasks: 48
-completed_tasks: 42
+completed_tasks: 48
 task_tracking: markdown-checkboxes
-git_commit: 43b9ca42b2f7f53320d14a8d331c692372ad69db
+git_commit: e4e784431f098fce314a31136ec8ca387aa5b7d7
 git_branch: thescubageek/5.5-models-prompt-optimization
 repository: thescubageek/workbench
 tags: [tasks, tracking, prompt_audit_5_5]
@@ -131,7 +131,7 @@ grep -cE '^- \[ \] \*\*[A-Z0-9-]*[0-9][A-Z0-9-]*\*\*' tasks.md    # remaining
 | Phase 3: Implementation stages (Batch 2) | ✅ Complete | 9/9 | 100% |
 | Phase 4: Other stages and skills (Batch 3) | ✅ Complete | 8/8 | 100% |
 | Phase 5: Agent prose (Batch 4) | ✅ Complete | 4/4 | 100% |
-| Phase 6: Shared rules, docs, and 3.1.0 (Batch 5) | ⏸️ Not Started | 0/6 | 0% |
+| Phase 6: Shared rules, docs, and 3.1.0 (Batch 5) | ✅ Complete | 6/6 | 100% |
 
 Counts come from the checkboxes below and are reconciled by `/wb:update_status`.
 
@@ -1192,9 +1192,9 @@ step is the rule; this is the moment it applies.
 
 #### Manual Verification
 
-- [ ] Read the new rule 6 and confirm that it still keeps checkpoints and "Read [link] NOW"
+- [x] Read the new rule 6 and confirm that it still keeps checkpoints and "Read [link] NOW"
       directives
-- [ ] Read the 3.1.0 CHANGELOG entry and confirm that it matches the gate results
+- [x] Read the 3.1.0 CHANGELOG entry and confirm that it matches the gate results
 
 ### Modified Files
 
@@ -1226,10 +1226,10 @@ before, and following it ticks the human sign-off box. **This block, labels and 
 included, is repeated in full at every phase's checkpoint**; a later phase never gets a
 shortened one.
 
-- [ ] **(derivable)** Every Phase 6 checkbox is `[x]`
+- [x] **(derivable)** Every Phase 6 checkbox is `[x]`
 - [ ] **(derivable)** All automated verification passing
-- [ ] **(attestation)** Manual verification confirmed by human
-- [ ] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
+- [x] **(attestation)** Manual verification confirmed by human
+- [x] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters — it is the
       only writer of those fields, so do not edit `current_phase` or `completed_tasks` by hand
 
 **Do not proceed without human confirmation of manual tests** — unless the phase is being run
@@ -1520,6 +1520,7 @@ resolved, leaving a dated line saying how.
 - [2026-10-24] Completed P6-T6: `./plugin/scripts/check` failed twice on the test-prime timing
   assertion ("took 5 s" against a 5-second limit), then passed every gate on the third run ("took
   3 s"). The tag dry-run names `wb--v3.1.0`. Nothing is tagged or pushed.
+- [2026-10-24] Phase 6 manual verification and release approved by the user ("let's release it"), 2026-10-24 03:48 UTC. The spend criterion stays unticked, so the Phase 6 "all automated verification" box stays unticked too: the overrun was approved, not met.
 - **Kept CAPS lines**: record each one here with its file, line, and reason, as the wording tasks
   run.
   - `create_research/SKILL.md:27` — the Documentarian Rule fence. It is the stage's one core

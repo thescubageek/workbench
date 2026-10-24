@@ -7,7 +7,7 @@ status: complete
 last_updated: 2026-10-24
 last_updated_note: "Added the Q1 effort probe and the Q2 blind trial; Q1-Q4 resolved"
 researcher: scraig
-git_commit: 43b9ca42b2f7f53320d14a8d331c692372ad69db
+git_commit: e4e784431f098fce314a31136ec8ca387aa5b7d7
 git_branch: thescubageek/5.5-models-prompt-optimization
 repository: thescubageek/workbench
 tags: [research, codebase, prompt_audit_5_5]
