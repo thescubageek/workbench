@@ -39,7 +39,7 @@ The `-f` is needed every time. A plain `git add` **exits 1 even on an already-tr
 file** — it updates the index and fails anyway, so the `&&` chain breaks just the same — and
 "this plan was promoted once" is therefore not a reason to drop it. `-f` overrides the ignore
 rule without widening the pathspec, so staging stays by path. The rest of the reasoning is stated
-once, in [`implement` step 6b](../../skills/implement/SKILL.md): on a plan file git is not yet
+once, in [`implement`'s committing.md](../../skills/implement/committing.md), read at step 6b: on a plan file git is not yet
 tracking, the same command exits 1 with "The following paths are ignored" and stages nothing.
 
 **Stage it; do not commit it.** The commit belongs to the caller, not to the round, and
@@ -51,7 +51,7 @@ and a round says which one it is handing to:
 - Under `adversarial-loop` with tasks to run — `implement` step 6b's per-task commit.
 - Under `adversarial-loop` with every finding rejected — `implement` is never invoked, so the
   loop commits the pruned plan itself before its clean-tree precondition
-  ([adversarial-loop](../../skills/adversarial-loop/SKILL.md) Phase 1 step 3).
+  ([adversarial-loop's pruning.md](../../skills/adversarial-loop/pruning.md), read at Phase 1 step 3).
 - Standalone — the user's, once they have read the round.
 
 **Nothing written, nothing to promote.** A round that verified no findings writes no `tasks.md`
@@ -143,7 +143,7 @@ These are Step 8's placeholders, and two sessions writing a round must land on t
 | Placeholder | Rule |
 | ----------- | ---- |
 | `<plan>` | The plan directory the caller names in `--plan=<dir>`. `adversarial-loop` resolves the active plan and passes it. With no caller and exactly one `docs/plans/*/tasks.md` at `status: in-progress`, use that one. Otherwise **skip Step 8 and say so** — the findings are the output, and guessing a plan directory files a round against the wrong work. |
-| `<N>` | One more than the highest local round number already used. Take the highest of two sources: every `-round-<N>` directory under `docs/plans/<plan>/reviews/`, across every date, and every bare-integer `round` value in the ledger, `docs/plans/<plan>/review-log.md`. A clean round writes a ledger row but no directory, so the directories alone undercount. With no plan directory there are no round directories. The only source is the ledger the loop picked for this run, which [review-ledger.md](review-ledger.md) describes. Read the bare-integer `round` values in that file. With neither source, `<N>` is 1. Never reuse a number: a second `round-6` overwrites the first round's `[x]` checkboxes. A round that writes a directory evaluates it once, at Step 8, and that round's ledger rows reuse the directory's number, as [adversarial-loop step 5](../../skills/adversarial-loop/SKILL.md) says. |
+| `<N>` | One more than the highest local round number already used. Take the highest of two sources: every `-round-<N>` directory under `docs/plans/<plan>/reviews/`, across every date, and every bare-integer `round` value in the ledger, `docs/plans/<plan>/review-log.md`. A clean round writes a ledger row but no directory, so the directories alone undercount. With no plan directory there are no round directories. The only source is the ledger the loop picked for this run, which [review-ledger.md](review-ledger.md) describes. Read the bare-integer `round` values in that file. With neither source, `<N>` is 1. Never reuse a number: a second `round-6` overwrites the first round's `[x]` checkboxes. A round that writes a directory evaluates it once, at Step 8, and that round's ledger rows reuse the directory's number, as [adversarial-loop's ledger.md](../../skills/adversarial-loop/ledger.md) says. |
 | `<date>` | `date -u +%F` — UTC, the same clock the journal contract uses. Directories dated locally before this rule existed keep their names; the round number, not the date, is what readers cite. |
 
 ## Checking it

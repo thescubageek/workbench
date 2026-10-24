@@ -19,6 +19,6 @@ This command was renamed to `/wb:implement`. The coordinated worker path is the 
    This alias works through 3.x and will be removed at 4.0.0.
    ```
 
-2. **Then run the canonical skill**: Read [../implement/SKILL.md](../implement/SKILL.md) NOW and follow it exactly, passing through any arguments unchanged. Its supporting files (`prompts/`, `templates/`, `reference.md`) live in `../implement/` and are read from there — this directory holds the stub and nothing else.
+2. **Then run the canonical skill**: Read [../implement/SKILL.md](../implement/SKILL.md) NOW and follow it exactly, passing through any arguments unchanged. Its supporting files (`prompts/`, `templates/`, `reference.md`, `committing.md`, `unattended.md`) live in `../implement/` and are read from there — this directory holds the stub and nothing else.
 
 Do not duplicate any behavior here; the canonical skill is the single source of truth.
