@@ -62,11 +62,17 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
-## 2026-10-24 02:17 — P6-T3 (open)
+## 2026-10-24 02:17 — P6-T4 (open)
+
+- **Task/phase**: P6-T4 — knowledge entries for facts this plan found
+- **Next action**: append 3 entries to .claude/wb/knowledge.md in its entry shape
+- **Started at**: P6-T3 commit
+
+## 2026-10-24 02:17 — P6-T3 (closed)
 
 - **Task/phase**: P6-T3 — final metrics sweep
-- **Next action**: run every prompt check, list the kept CAPS lines, compare the 14 token costs, total the ledger
-- **Started at**: P6-T2 commit
+- **Landed**: 9 checks PASS, 14-stage tokens ~63.1k against ~64.1k, ledger about $30.68 (the overrun approved)
+- **Commits**: the P6-T3 commit
 
 ## 2026-10-24 02:16 — P6-T2 (closed)
 

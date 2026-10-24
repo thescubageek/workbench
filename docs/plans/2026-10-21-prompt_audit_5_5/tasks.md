@@ -1150,11 +1150,11 @@ Annotate each with its projected tool-call cost; anything past ~50 splits at a n
 
 #### Testing
 
-- [ ] **P6-T3** — Run the final metrics sweep. Run `checks/prompt-checks.sh` with every check.
+- [x] **P6-T3** — Run the final metrics sweep. Run `checks/prompt-checks.sh` with every check.
       All must PASS. For each CAPS line that remains, confirm that Implementation Notes gives its
       reason. Compare all 14 on-invoke costs with `baseline-tokens-3.0.0.txt`. Total the spend
       ledger and confirm that it is at most $30. Record the results in Implementation Notes.
-      (~15 calls)
+      (~15 calls) (completed 2026-10-24 02:17)
 - [ ] **P6-T4** — Add knowledge entries to `.claude/wb/knowledge.md` in its entry shape, for
       facts that this plan found and that change how the next session works. Candidates:
       `CLAUDE_CODE_PLUGIN_DIRS` loads a second `wb` plugin into headless runs, and
@@ -1181,9 +1181,9 @@ step is the rule; this is the moment it applies.
 
 #### Automated Verification
 
-- [ ] `checks/prompt-checks.sh spawn-names prose-spawns spawn-models agent-tiers roster haiku-effort-rule triple-barriers notification caps`
+- [x] `checks/prompt-checks.sh spawn-names prose-spawns spawn-models agent-tiers roster haiku-effort-rule triple-barriers notification caps`
       exits 0
-- [ ] No on-invoke cost of the 14 stages is above `baseline-tokens-3.0.0.txt`
+- [x] No on-invoke cost of the 14 stages is above `baseline-tokens-3.0.0.txt`
 - [ ] The spend ledger total is at most $30
 - [ ] `python3 evals/link_check.py`, `python3 evals/token_check.py`, and `./plugin/scripts/test-prime`
       exit 0
@@ -1509,6 +1509,12 @@ resolved, leaving a dated line saying how.
   `README.md` and `help` already agreed with Phases 1 to 5. Not changed: the README agent list,
   which mixes skills with agents and omits three agents. That predates this plan, and it is a
   follow-up.
+- [2026-10-24] Completed P6-T3: all 9 checks PASS (`spawn-names`, `prose-spawns`, `spawn-models`,
+  `agent-tiers`, `roster`, `haiku-effort-rule`, `triple-barriers`, `notification` 0, `caps` 7 of
+  15). Each of the 7 CAPS lines has its reason below. On-invoke tokens: no stage is above
+  `baseline-tokens-3.0.0.txt`, and the 14-stage sum is ~63.1k against ~64.1k. Always-on rose from
+  ~4,111 to ~4,126 tokens (the longer `review-prep` description). The ledger total is about
+  $30.68, about $0.68 over the $30 limit. The user approved that overrun for the P5-T4 control.
 - **Kept CAPS lines**: record each one here with its file, line, and reason, as the wording tasks
   run.
   - `create_research/SKILL.md:27` — the Documentarian Rule fence. It is the stage's one core
