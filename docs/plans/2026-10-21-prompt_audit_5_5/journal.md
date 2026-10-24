@@ -62,11 +62,17 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
-## 2026-10-24 02:16 — P6-T2 (open)
+## 2026-10-24 02:17 — P6-T3 (open)
 
-- **Task/phase**: P6-T2 — root CLAUDE.md, README.md, and help agree with Phases 1 to 5
-- **Next action**: edit CLAUDE.md:150-151, :185-193, :205-211, check :213-224, README.md:113, :138, :175, help:181, :230, :234
-- **Started at**: P6-T1 commit
+- **Task/phase**: P6-T3 — final metrics sweep
+- **Next action**: run every prompt check, list the kept CAPS lines, compare the 14 token costs, total the ledger
+- **Started at**: P6-T2 commit
+
+## 2026-10-24 02:16 — P6-T2 (closed)
+
+- **Task/phase**: P6-T2 — root CLAUDE.md, README.md, and help
+- **Landed**: 4 CLAUDE.md sections updated. README.md and help needed no change
+- **Commits**: the P6-T2 commit
 
 ## 2026-10-24 02:15 — P6-T1 (closed)
 

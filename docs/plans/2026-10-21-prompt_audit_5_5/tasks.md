@@ -1146,7 +1146,7 @@ Annotate each with its projected tool-call cost; anything past ~50 splits at a n
 
 - [x] **P6-T1** — Rewrite WBTE rule 6 as Changes Required §1 says. Run
       `python3 evals/link_check.py` and `python3 evals/token_check.py`. (~8 calls) (completed 2026-10-24 02:16)
-- [ ] **P6-T2** — Update the root docs and `help` as Changes Required §2 says. (~18 calls)
+- [x] **P6-T2** — Update the root docs and `help` as Changes Required §2 says. (~18 calls) (completed 2026-10-24 02:17)
 
 #### Testing
 
@@ -1503,6 +1503,12 @@ resolved, leaving a dated line saying how.
   never touched `wb-prime.sh`. `test-prime` alone passed 44 of 44, and the full re-run passed every
   gate ("took 4 s"). The threshold is close to this machine's speed, which is a follow-up.
 - [2026-10-24] Phase 5 manual verification confirmed by the user ("looks good, proceed"), 2026-10-24 02:15 UTC.
+- [2026-10-24] Completed P6-T2: root `CLAUDE.md` has the paging read rule, the
+  completion-notification barrier example, a spawn section that says agent files set the tier
+  (with `fable` and the spawn `effort` override), and "0–2 switches" with Opus 5.5 as the baseline.
+  `README.md` and `help` already agreed with Phases 1 to 5. Not changed: the README agent list,
+  which mixes skills with agents and omits three agents. That predates this plan, and it is a
+  follow-up.
 - **Kept CAPS lines**: record each one here with its file, line, and reason, as the wording tasks
   run.
   - `create_research/SKILL.md:27` — the Documentarian Rule fence. It is the stage's one core

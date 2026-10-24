@@ -148,7 +148,8 @@ The workflow separates three distinct concerns:
 
 1. **Document, Don't Judge**: Research describes what EXISTS, not what should be changed
 2. **Explicit Barriers**: Commands implement synchronization points (⛔ BARRIER) to ensure complete context
-3. **File Reading Protocol**: ALWAYS read files FULLY (no limit/offset) before analysis
+3. **File Reading Protocol**: read files in full before analysis. If Read returns a partial view,
+   page through it with `offset` and `limit`
 4. **Dual Verification**: Separate automated checks from manual verification
 5. **Zero Scope Creep**: Tasks only come from plans, no additions
 6. **Status Lives in the Plan**: checkbox state in `tasks.md` is the source of truth
@@ -185,8 +186,8 @@ already know; the reason is what makes it hold when the session is under pressur
 
 ```markdown
 ⛔ BARRIER 1: full context read — analysis on partial context produces placeholders
-⛔ BARRIER 2: every spawned agent has returned — synthesis on a partial set misses what the
-   missing report would have changed
+⛔ BARRIER 2: every spawned agent has returned (wait for a completion notification from each
+   one) — synthesis on a partial set misses what the missing report would have changed
 ⛔ BARRIER 3: no placeholder values — a placeholder that ships becomes a task nobody can
    execute
 ⛔ CHECKPOINT: human verification between phases — the next phase builds on what a human has
@@ -204,11 +205,16 @@ All generated documentation files use consistent YAML frontmatter:
 
 ## Agent Spawning with Model Selection
 
-Commands support model hints when spawning agents:
+Each agent file in `plugin/agents/` sets its own `model` and `effort`. A spawn names the agent by
+its `wb:` name (a bare name fails) and passes no `model`. Two places choose a tier at spawn time,
+and each says why: the `implement` worker ladder and the `adversarial-review` tier table. The
+spawn `model` accepts `haiku`, `sonnet`, `opus`, and `fable`. A spawn's `effort` overrides the
+agent file's `effort` on Claude Code 2.1.292 and later.
 
-- `haiku`: File searches, pattern matching, simple tasks
-- `sonnet`: Code analysis, integration planning, test design
-- `opus`: Complex reasoning, critical decisions
+- `haiku`: file searches, pattern matching, simple tasks
+- `sonnet`: code analysis, verification, integration planning, test design
+- `opus`: complex reasoning, critical decisions
+- `fable`: the escalation after a verified failure, never a first spawn
 
 ## Model & effort at gates
 
@@ -219,7 +225,7 @@ The policy these commands enforce:
 1. **Two levers, different costs.** Sub-agent model/effort is **free** (fresh context per agent) — push cheap, parallelizable work there. Switching the **main-session** model reloads the whole conversation (tokens + latency) — advise it only when it pays for that tax.
 2. **Advise, never auto-switch.** Commands surface a one-line advisory and the concrete `/model` action; the user decides. Model advisories are best-effort and **non-blocking** — they must never delay or gate the actual work.
 3. **The quality floor is inviolable.** Never advise below the tier a phase needs at its hardest sub-problem. Savings come from not over-powering cheap phases and from sub-agent tiering — never from under-powering a hard one.
-4. **Minimize switches.** Cluster same-tier phases; a whole forge should cost ~1–2 main-model switches, not one per phase.
+4. **Minimize switches.** Cluster same-tier phases. With Opus 5.5 as the baseline, a whole forge should cost 0–2 main-model switches, not one per phase.
 
 ## Working with Commands
 
