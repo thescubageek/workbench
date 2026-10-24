@@ -62,11 +62,11 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
-## 2026-10-24 02:18 — P6-T6 (open)
+## 2026-10-24 02:18 — P6-T6 (closed)
 
 - **Task/phase**: P6-T6 — full check and tag dry-run for 3.1.0
-- **Next action**: paused by the user (2026-10-24 02:35 UTC). The tag dry-run names `wb--v3.1.0`. `./plugin/scripts/check` failed twice on one timing assertion in test-prime ("200 plan directories: under 5 s (took 5 s)"). test-prime alone passes 44 of 44, and this plan never touched wb-prime.sh. On resume: re-run `./plugin/scripts/check` (a re-run was started into /tmp/check-p6b.txt, which may not survive). If it passes, tick P6-T6 and present the Phase 6 checkpoint. Do not tag or push without the user
-- **Started at**: the wb 3.1.0 commit
+- **Landed**: check passes every gate (third run, after two timing flakes in test-prime). Dry run names wb--v3.1.0. Not tagged, not pushed
+- **Commits**: the P6-T6 record commit
 
 ## 2026-10-24 02:17 — P6-T5 (closed)
 

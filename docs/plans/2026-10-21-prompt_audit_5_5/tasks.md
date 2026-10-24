@@ -1167,9 +1167,9 @@ Annotate each with its projected tool-call cost; anything past ~50 splits at a n
       "Read [link] NOW" directives, templates, and any reverted edit with its reason), the gate
       results in one line each, and `### Migration`. Set `"version": "3.1.0"` in both manifests in
       the same commit. (~12 calls) (completed 2026-10-24 02:18)
-- [ ] **P6-T6** — Run `./plugin/scripts/check`. After the commit, run
+- [x] **P6-T6** — Run `./plugin/scripts/check`. After the commit, run
       `claude plugin tag --dry-run plugin/` and confirm that it names `wb--v3.1.0`. Do not tag or
-      push without the user's go-ahead. (~6 calls)
+      push without the user's go-ahead. (~6 calls) (completed 2026-10-24 03:38)
 
 ### Success Criteria
 
@@ -1184,11 +1184,11 @@ step is the rule; this is the moment it applies.
 - [x] `checks/prompt-checks.sh spawn-names prose-spawns spawn-models agent-tiers roster haiku-effort-rule triple-barriers notification caps`
       exits 0
 - [x] No on-invoke cost of the 14 stages is above `baseline-tokens-3.0.0.txt`
-- [ ] The spend ledger total is at most $30
-- [ ] `python3 evals/link_check.py`, `python3 evals/token_check.py`, and `./plugin/scripts/test-prime`
+- [ ] The spend ledger total is at most $30 *(Not met: about $30.68. The user approved the overrun of about $0.68 for the P5-T4 control on 2026-10-23.)*
+- [x] `python3 evals/link_check.py`, `python3 evals/token_check.py`, and `./plugin/scripts/test-prime`
       exit 0
-- [ ] `./plugin/scripts/check` exits 0
-- [ ] `claude plugin tag --dry-run plugin/` names `wb--v3.1.0`
+- [x] `./plugin/scripts/check` exits 0
+- [x] `claude plugin tag --dry-run plugin/` names `wb--v3.1.0`
 
 #### Manual Verification
 
@@ -1517,6 +1517,9 @@ resolved, leaving a dated line saying how.
   $30.68, about $0.68 over the $30 limit. The user approved that overrun for the P5-T4 control.
 - [2026-10-24] Completed P6-T5: the [3.1.0] CHANGELOG entry, and version 3.1.0 in both manifests. The
   3.0.1 entry's long sentences were also split, so both entries pass `wbte_check`.
+- [2026-10-24] Completed P6-T6: `./plugin/scripts/check` failed twice on the test-prime timing
+  assertion ("took 5 s" against a 5-second limit), then passed every gate on the third run ("took
+  3 s"). The tag dry-run names `wb--v3.1.0`. Nothing is tagged or pushed.
 - **Kept CAPS lines**: record each one here with its file, line, and reason, as the wording tasks
   run.
   - `create_research/SKILL.md:27` — the Documentarian Rule fence. It is the stage's one core
