@@ -41,8 +41,6 @@ trap 'rm -rf "$WORK"' EXIT
 startup='{"hook_event_name":"SessionStart","source":"startup"}'
 resume='{"hook_event_name":"SessionStart","source":"resume"}'
 compact='{"hook_event_name":"SessionStart","source":"compact"}'
-precompact='{"hook_event_name":"PreCompact","trigger":"auto"}'
-precompact_manual='{"hook_event_name": "PreCompact", "trigger": "manual"}'
 
 # A repository with N active plans.
 make_repo() {
@@ -97,14 +95,8 @@ done
 out=$(run "$WORK/repo1" "$compact")
 check "compact, 1 plan: recovery text still present" "$(yes_if grep -qF 'Context was just compacted' <<<"$out")"
 
-# PreCompact prints no card. A manual /compact shows PreCompact's stdout, and that stdout
-# reaches the next context beside the SessionStart:compact card, so a card here is a copy.
-out=$(run "$WORK/repo1" "$precompact")
-check "PreCompact (auto): no card" "$(yes_if no_card "$out")"
-check "PreCompact (auto): recovery text still present" "$(yes_if grep -qF 'Context was just compacted' <<<"$out")"
-check "PreCompact: exit 0" "$(yes_if rc_zero)"
-out=$(run "$WORK/repo0" "$precompact_manual")
-check "PreCompact (manual, spaced JSON): no card" "$(yes_if no_card "$out")"
+# plugin.json must not register the hook on PreCompact: that event's output never reaches the model.
+check "plugin.json: wb-prime.sh not registered on PreCompact" "$(yes_if python3 -c 'import json,sys; sys.exit("PreCompact" in json.load(open(sys.argv[1]))["hooks"])' "$SCRIPT_DIR/../.claude-plugin/plugin.json")"
 
 # --- PRIME.md replaces the orientation, not the card ---
 make_repo "$WORK/prime" 0

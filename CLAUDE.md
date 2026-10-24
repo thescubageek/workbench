@@ -25,7 +25,7 @@ entry and maintainer material that is never shipped.
 - `plugin/.claude-plugin/plugin.json` - the plugin manifest
 - `plugin/skills/` - workflow stages (`/wb:*`) and background skills
 - `plugin/agents/` - specialized subagent definitions
-- `plugin/hooks/` - event handlers (SessionStart, PreCompact, PostToolUse)
+- `plugin/hooks/` - event handlers (SessionStart, PostToolUse)
 - `plugin/scripts/` - utility scripts (lint, lint-hook, lint-common.sh, quiet, and their tests)
 - `plugin/docs/reference/` - shipped, runtime-referenced docs a skill may link into
 - `docs/` - **maintainer-facing; never shipped.** Not a runtime rules source

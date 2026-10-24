@@ -400,9 +400,9 @@ changing `wbte-dictionary`.
 ### `test-prime`
 
 Contract tests for `hooks/wb-prime.sh`. They cover the WBTE rule card on each SessionStart
-source, with 0, 1 and 2 active plans and with `.claude/wb/PRIME.md`. They also cover no card on
-PreCompact, `WB_TECH_ENGLISH=0`, `--export`, exit 0, no file changes, and the 5-second limit
-with 200 plans. The card has a limit of 150 words and must name PR descriptions and commit
+source, with 0, 1 and 2 active plans and with `.claude/wb/PRIME.md`. They also cover
+`WB_TECH_ENGLISH=0`, `--export`, exit 0, no file changes, the 5-second limit with 200 plans, and
+no `PreCompact` registration in `plugin.json`. The card has a limit of 150 words and must name PR descriptions and commit
 messages. Run after changing `wb-prime.sh`.
 
 ### `pr-template`
