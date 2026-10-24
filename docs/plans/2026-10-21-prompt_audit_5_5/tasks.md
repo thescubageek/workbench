@@ -1144,8 +1144,8 @@ Annotate each with its projected tool-call cost; anything past ~50 splits at a n
 
 #### Implementation
 
-- [ ] **P6-T1** — Rewrite WBTE rule 6 as Changes Required §1 says. Run
-      `python3 evals/link_check.py` and `python3 evals/token_check.py`. (~8 calls)
+- [x] **P6-T1** — Rewrite WBTE rule 6 as Changes Required §1 says. Run
+      `python3 evals/link_check.py` and `python3 evals/token_check.py`. (~8 calls) (completed 2026-10-24 02:16)
 - [ ] **P6-T2** — Update the root docs and `help` as Changes Required §2 says. (~18 calls)
 
 #### Testing

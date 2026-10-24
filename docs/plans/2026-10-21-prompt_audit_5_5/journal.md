@@ -62,11 +62,17 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
-## 2026-10-24 02:15 — P6-T1 (open)
+## 2026-10-24 02:16 — P6-T2 (open)
 
-- **Task/phase**: P6-T1 — rewrite WBTE rule 6 to match the trial results
-- **Next action**: edit technical-english.md:59-60, run link_check.py and token_check.py
-- **Started at**: 43b9ca4
+- **Task/phase**: P6-T2 — root CLAUDE.md, README.md, and help agree with Phases 1 to 5
+- **Next action**: edit CLAUDE.md:150-151, :185-193, :205-211, check :213-224, README.md:113, :138, :175, help:181, :230, :234
+- **Started at**: P6-T1 commit
+
+## 2026-10-24 02:15 — P6-T1 (closed)
+
+- **Task/phase**: P6-T1 — rewrite WBTE rule 6
+- **Landed**: rule 6 keeps checkpoints and "Read [link] NOW" directives, and allows plain barriers and scope rules with a reason. link_check, token_check, and wbte_check PASS
+- **Commits**: the P6-T1 commit
 
 ## 2026-10-23 07:46 — P5-T4 (closed)
 
