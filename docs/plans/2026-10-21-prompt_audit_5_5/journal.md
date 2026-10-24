@@ -62,11 +62,17 @@ this template, silently, from the moment of creation.
 
 <!-- Real entries begin below this line, newest first. -->
 
-## 2026-10-24 02:17 — P6-T4 (open)
+## 2026-10-24 02:17 — P6-T5 (open)
 
-- **Task/phase**: P6-T4 — knowledge entries for facts this plan found
-- **Next action**: append 3 entries to .claude/wb/knowledge.md in its entry shape
-- **Started at**: P6-T3 commit
+- **Task/phase**: P6-T5 — release 3.1.0: CHANGELOG entry and both manifests
+- **Next action**: write the [3.1.0] entry, bump plugin.json and marketplace.json, commit
+- **Started at**: P6-T4 commit
+
+## 2026-10-24 02:17 — P6-T4 (closed)
+
+- **Task/phase**: P6-T4 — knowledge entries
+- **Landed**: 3 entries: CLAUDE_CODE_PLUGIN_DIRS, judge --within on research-only runs, and research-stage variance
+- **Commits**: the P6-T4 commit
 
 ## 2026-10-24 02:17 — P6-T3 (closed)
 

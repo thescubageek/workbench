@@ -1155,10 +1155,10 @@ Annotate each with its projected tool-call cost; anything past ~50 splits at a n
       reason. Compare all 14 on-invoke costs with `baseline-tokens-3.0.0.txt`. Total the spend
       ledger and confirm that it is at most $30. Record the results in Implementation Notes.
       (~15 calls) (completed 2026-10-24 02:17)
-- [ ] **P6-T4** — Add knowledge entries to `.claude/wb/knowledge.md` in its entry shape, for
+- [x] **P6-T4** — Add knowledge entries to `.claude/wb/knowledge.md` in its entry shape, for
       facts that this plan found and that change how the next session works. Candidates:
       `CLAUDE_CODE_PLUGIN_DIRS` loads a second `wb` plugin into headless runs, and
-      `judge.py --within` judges nothing on a research-only run. (~8 calls)
+      `judge.py --within` judges nothing on a research-only run. (~8 calls) (completed 2026-10-24 02:17)
 
 #### Integration
 
