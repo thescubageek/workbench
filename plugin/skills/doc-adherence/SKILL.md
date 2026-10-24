@@ -63,7 +63,7 @@ Skip step 3 = the claim is unverified.
 
 ## Relationship to the Recovery Hook
 
-The deterministic boundary signal — knowing a compaction just happened — is handled by `hooks/wb-prime.sh`, which prints recovery text on a compact trigger and on PreCompact. Hooks are the only mechanism that survives a compaction boundary reliably; skill text does not.
+The deterministic boundary signal — knowing a compaction just happened — is handled by `hooks/wb-prime.sh`, which prints recovery text on the SessionStart event that follows a compaction. Hooks are the only mechanism that survives a compaction boundary reliably; skill text does not.
 
 This skill covers the judgment call *between* those boundaries: recognizing when a claim needs a fresh read versus when a prior read still counts. The hook tells you the ground shifted; this tells you what to do about it every time thereafter.
 

@@ -11,6 +11,25 @@ requires `shellcheck` and `python3` and fails loudly without them. A contributor
 the checks at 2.1.0 cannot at 3.0.0 without installing two tools, and no reading of "removed or
 renamed stages" would have warned them.
 
+## [3.1.3] — 2026-10-24
+
+A hook fix. No stage was added or removed, and no stage requires anything new.
+
+### Fixed
+
+- **`plugin.json` ran `wb-prime.sh` on `PreCompact`, where its output never reaches the model.**
+  The recovery text already arrives through `SessionStart` with `source: compact`. The
+  registration is removed, and so is the `PreCompact` branch in the script. `test-prime` now
+  checks that `plugin.json` has no `PreCompact` entry (#34).
+
+### Migration
+
+None. Update the plugin and restart:
+
+```bash
+claude plugin update wb@thescubageek-workbench
+```
+
 ## [3.1.2] — 2026-10-24
 
 A docs and spelling pass. No stage was added or removed, and no stage requires anything new.

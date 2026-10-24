@@ -1,27 +1,22 @@
 #!/bin/bash
-# SessionStart/PreCompact hook: session-start orientation, the plan bootstrap, and
-# compaction recovery.
+# SessionStart hook: session-start orientation, the plan bootstrap, and compaction
+# recovery.
 #
 # Contract (inherited from the hook this replaces):
 #   - fast: filesystem reads plus one cheap `git status` (which fails quietly and
 #     costs nothing outside a repository)
 #   - reads only. It NEVER writes a file, and in particular never touches journal.md:
 #     an append-only record that a hook could corrupt is worse than no record. The
-#     mechanical fields a PreCompact write would have refreshed are recomputed here,
+#     mechanical fields a pre-compaction write would have refreshed are recomputed here,
 #     at session start, from the repository — which is authoritative anyway.
-#   - plain-text stdout. SessionStart's stdout is model-visible; PreCompact's is not,
-#     but the hook still exits 0 and prints harmlessly. That does NOT make the recovery
-#     text unreachable, and reading it that way has already misled one diagnosis: this
-#     same script is registered for BOTH events, and after a compaction the harness
-#     re-fires it as SessionStart with source=compact, which IS visible. Measured
-#     2026-09-10 — the four recovery lines arrived in the next context, naming the active
-#     plan. This bullet describes one delivery path, not whether the feature works.
+#   - plain-text stdout, which SessionStart makes model-visible. The recovery text rides
+#     the SessionStart event with source=compact that the harness fires after a compaction.
+#     The script is not registered on PreCompact: that event's output never reaches the
+#     model, so a run there added nothing.
 #   - silent on an empty or unrecognized payload
 #   - exit 0 always. A hook that fails a session start is worse than no hook.
 #   - the WBTE rule card prints on every session start (startup, resume, compact), with or
 #     without active plans, and outside the PRIME.md override. WB_TECH_ENGLISH=0 turns it off.
-#     It does not print on PreCompact: a manual /compact shows PreCompact's stdout, and that
-#     stdout reaches the next context, so a card there was a second copy (measured 2026-09-30).
 #
 # Override: `.claude/wb/PRIME.md` in the cwd replaces the static orientation block
 # (the recovery text and the bootstrap are never overridden — they are facts, not prose).
@@ -116,9 +111,8 @@ fi
 count=$(echo "$candidates" | wc -w | tr -d ' ')
 
 # ---------------------------------------------------------------- recovery mode
-if echo "$payload" | grep -qE '"compact"|PreCompact'; then
-  echo "$payload" | grep -qE '"hook_event_name" *: *"PreCompact"' ||
-    [ "${WB_TECH_ENGLISH:-1}" = "0" ] || card
+if echo "$payload" | grep -qE '"compact"'; then
+  [ "${WB_TECH_ENGLISH:-1}" = "0" ] || card
   [ "$count" -eq 0 ] && exit 0
   echo "Context was just compacted — any plan-doc summaries above are paraphrase, not verified content."
   if [ "$count" -eq 1 ]; then

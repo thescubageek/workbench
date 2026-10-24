@@ -1,6 +1,6 @@
 {
   "name": "wb",
-  "version": "3.1.2",
+  "version": "3.1.3",
   "description": "Workbench for structured software development: TDD, project planning, and phased execution with status tracked in the plan documents.",
   "author": {
     "name": "Steve Craig"
@@ -51,17 +51,6 @@
           {
             "type": "command",
             "command": "${CLAUDE_PLUGIN_ROOT}/scripts/lint-hook",
-            "timeout": 5
-          }
-        ]
-      }
-    ],
-    "PreCompact": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/wb-prime.sh",
             "timeout": 5
           }
         ]

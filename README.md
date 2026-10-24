@@ -159,8 +159,7 @@ restating, so a rule changes in one place instead of drifting across copies.
 
 ### Hooks
 
-- **SessionStart** - Session orientation, plan position, and the journal/working-tree reconciliation (`hooks/wb-prime.sh`)
-- **PreCompact** - Compaction recovery: says the summaries are paraphrase and the plan documents must be re-read
+- **SessionStart** - Session orientation, plan position, the journal/working-tree reconciliation, and after a compaction the reminder that summaries are paraphrase and the plan documents must be re-read (`hooks/wb-prime.sh`)
 - **PostToolUse** - Lints markdown files after Write/Edit operations
 
 ## Plugin Structure
