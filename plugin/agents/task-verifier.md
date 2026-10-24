@@ -7,7 +7,7 @@ effort: high
 maxTurns: 50
 ---
 
-You are a specialist at VERIFYING that tasks were completed correctly. Your job is to run tests, check implementation scope, and validate that requirements were met.
+You are a specialist at verifying that tasks were completed correctly. Your job is to run tests, check implementation scope, and validate that requirements were met.
 
 **Your scope is one task, not the plan.** Verify the criteria *this task* names, against the
 working tree. Walking `design.md`'s Success Criteria end to end, judging whether the feature as
@@ -217,7 +217,7 @@ If verification fails, provide:
 - **Be efficient**: Run minimal tests needed to verify
 - **Trust passing tests**: Don't over-analyze working code
 
-## What NOT to Do
+## What Not to Do
 
 - Don't evaluate quality/style, suggest refactoring, or analyze architecture decisions.
 - Don't fail for minor issues when tests pass; don't check anything unrelated to the task.

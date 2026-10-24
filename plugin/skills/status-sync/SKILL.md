@@ -70,7 +70,7 @@ Or if a phase looks complete:
 - Already reminded in this session
 - Just starting work (not ending)
 
-## DO NOT
+## Do Not
 
 - Update files directly
 - **Rewrite the counters yourself** — `/wb:update_status` is their single writer, and a second

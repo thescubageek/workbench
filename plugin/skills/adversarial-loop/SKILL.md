@@ -26,9 +26,9 @@ directory are gated, and that the fix is to allow the read once or to relaunch w
 **Output discipline**: report at round boundaries, not within them. One line per round saying what
 was found and what was done with it.
 
-**Model & effort (gate check)**: consult the `model-help` skill (gate mode). Baseline is
-Sonnet/medium — this skill sequences other skills and holds little itself. The review it invokes
-carries its own tier. Best-effort and non-blocking.
+**Model & effort (gate check)**: consult the `model-help` skill in gate mode. This skill
+sequences other skills and holds little itself, and the review it invokes carries its own tier.
+Do not block on it.
 
 ## What this is
 
@@ -211,8 +211,8 @@ publishing phases cannot end up pointed at different changes.
    ⛔ **Prune before you invoke, because `implement` cannot read a disposition.** Step 8 writes
    the plan before any adjudication exists, so it carries a task for **every** finding that
    survived verification — including the ones step 2 just rejected. `implement` takes the first
-   unchecked task line in the phase and implements *"ONLY ... what is EXPLICITLY written in
-   tasks.md"* (`implement/SKILL.md`'s *"ONLY"* rule); the task shape in
+   unchecked task line in the phase and implements *"only what tasks.md specifies"*
+   (`implement/SKILL.md` → Scope); the task shape in
    [../adversarial-review/templates.md](../adversarial-review/templates.md) has no disposition
    field, and nothing `implement` reads would carry one. So an unpruned round with two findings
    adjudicated `Valid` and four rejected commits six fixes — and the gate below still passes,

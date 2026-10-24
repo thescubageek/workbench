@@ -68,7 +68,7 @@ Culling is the deliverable. "Probe found X, so Options B and C are out" beats a 
 | "I'll find out during implementation" | Finding out mid-build is the expensive path this skill exists to avoid. |
 | "There's no single decisive unknown" | Then this doesn't apply — proceed. Don't manufacture a probe. |
 
-## Red Flags - STOP and Probe
+## Red Flags: Stop and Probe
 
 - About to present 2–3 approaches whose viability all hinge on the same unverified claim.
 - Starting a multi-phase build on "assuming X works...".

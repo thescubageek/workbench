@@ -1,9 +1,9 @@
 # Verifier prompt
 
-Step 6 — spawn the `task-verifier` agent after the worker returns.
+Step 6 — spawn the `wb:task-verifier` agent after the worker returns.
 
 ```
-Use the task-verifier agent to verify task completion.
+Use the wb:task-verifier agent to verify task completion.
 
 Provide the agent with:
 - Task ID: ${taskId}

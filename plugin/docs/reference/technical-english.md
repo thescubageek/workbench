@@ -56,8 +56,10 @@ when the eval harness shows that the change makes a stage worse.
 3. Replace a semicolon with a full stop when the two parts are complete sentences.
 4. Use the active voice and the imperative for steps.
 5. Use one term for one concept in a file.
-6. Keep barriers, checkpoints, "Read [link] NOW" directives, and capitalized scope rules as
-   they are. Measurements showed that trimming them makes results worse.
+6. Keep checkpoints and "Read [link] NOW" directives as they are, because no measurement covers
+   them. Write a barrier or a scope rule in plain words with its reason. Use one marker on one
+   line: `⛔ BARRIER N: <what must be true> — <reason>`. Blind trials on Opus 5.5 and Sonnet 5.5
+   in October 2026 found no loss from plain wording.
 
 ## Technical nouns
 

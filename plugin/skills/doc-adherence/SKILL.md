@@ -29,7 +29,8 @@ Before stating what a plan document says:
 
 1. **IDENTIFY**: Which doc backs this claim — research.md, design.md, tasks.md, journal.md, or a thoughts doc under `docs/plans/`?
 2. **CHECK**: Is a full read of that file present in the current context window (not before a compaction)?
-3. **IF NOT**: Read it now, fully — no offset/limit shortcuts on a doc you're about to cite.
+3. **IF NOT**: Read it now, in full. If Read returns a partial view of a doc you are about to cite,
+   page through it with `offset` and `limit`.
 4. **ASSERT**: State the claim, citing file:line.
 
 Skip step 3 = the claim is unverified.
@@ -44,7 +45,7 @@ Skip step 3 = the claim is unverified.
 | "I wrote that doc myself earlier" | Authorship isn't a read in this window. Docs get edited between sessions too. |
 | "I flipped that checkbox myself, so I know it's done" | You know you *intended* to. A file write can fail, and an edit can land in the wrong place. Status claims come from the file. |
 
-## Red Flags - STOP
+## Red Flags: Stop
 
 - Saying "per the design" or "the plan says" with no read of that file in this window
 - Describing `tasks.md` progress from memory — count the checkboxes instead
@@ -52,7 +53,7 @@ Skip step 3 = the claim is unverified.
 - Proposing work that the checkboxes or git state may already record as done — check state before proposing
 - Treating a compaction summary's description of a doc as if it were the doc
 
-**All of these mean: STOP. Read the file. Then assert.**
+**Each of these means: stop, read the file, and only then assert.**
 
 ## When NOT to Apply
 

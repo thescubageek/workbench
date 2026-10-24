@@ -24,7 +24,10 @@ directory are gated, and that the fix is to allow the read once or to relaunch w
 
 **Output discipline**: act on barriers silently; don't restate the plan between steps; emit only the artifact and a one-line completion summary.
 
-**Model & effort (gate check)**: on entry, consult the `model-help` skill (gate mode) for the model + effort this phase warrants; surface its one-line verdict and — only if a switch clears the switch-cost bar — the `/model` action. Baseline is Sonnet/medium — the design decisions are already made; this phase structures them into phased tasks. Best-effort and non-blocking: stay silent and proceed when the current tier is already right. See CLAUDE.md → "Model & effort at gates."
+**Model & effort (gate check)**: on entry, consult the `model-help` skill in gate mode for the
+model and effort of this phase. Surface its one-line verdict, and the `/model` action only if a
+switch clears the switch-cost bar. Do not block on it: stay silent and proceed when the current
+tier is already right.
 
 ## Initial Response
 
@@ -46,15 +49,15 @@ When invoked, check for arguments:
 
 ## Prerequisites
 
-- **MUST** have research.md (validated)
-- **MUST** have design.md (approved)
+- research.md, validated
+- design.md, approved
 - Both documents should be in the specified project directory
 
 ## Process Steps
 
 ### Step 1: Read Foundation Documents
 
-**⛔⛔⛔ BARRIER 1: STOP! Read ALL documents FULLY - research.md, design.md, tasks.md ⛔⛔⛔**
+⛔ BARRIER 1: research.md, design.md, and tasks.md are read in full — a plan built on a partial reading schedules work the design already ruled out
 
 **Open a journal entry before you begin reading.** Placement and heading shape are both
 contracts: read [../../docs/reference/journal-entries.md](../../docs/reference/journal-entries.md) NOW
@@ -73,8 +76,8 @@ appended to the end, which the session-start hook cannot see:
 time from elsewhere in the file.
 
 Take the project directory from the arguments, prompting for it if it is missing. Then read
-`research.md`, `design.md` and `tasks.md` from that directory — **fully**, no `limit` or
-`offset`.
+`research.md`, `design.md` and `tasks.md` from that directory, in full. Read the whole file. If
+Read returns a partial view, page through it with `offset` and `limit`.
 
 1. **Read research.md completely**:
    - Current implementation details
@@ -110,12 +113,13 @@ every file the agents would open, not a sample. Having read *some* of it, a cros
 or uncertainty about which files are relevant are each a reason to spawn, not to skip. **If you
 skip, say so in your output and say why**, naming what you read instead.
 
-**Sub-agents are READ-ONLY** — they return findings only; YOU write `tasks.md` after synthesizing.
+**Sub-agents are read-only.** They return findings only, and you write `tasks.md` after you
+synthesize them.
 
-**⛔⛔⛔ BARRIER 2: STOP! Wait for ALL agents - dependency, test, pattern agents ⛔⛔⛔**
+⛔ BARRIER 2: the dependency, test, and pattern agents have all returned (subagents run in the background, so wait for a completion notification from each one) — synthesis on a partial set misses what the missing report would have changed
 
-This barrier governs *waiting*, not spawning — synthesis on a partial set misses what the missing
-report would have changed. A fan-out skipped under the rule above satisfies it trivially.
+This barrier governs waiting, not spawning. A fan-out skipped under the rule above satisfies it
+trivially.
 
 ### Step 3: Determine Implementation Strategy
 
@@ -178,7 +182,7 @@ Three things about that template are load-bearing rather than cosmetic:
   least one digit, because that pattern is what every counter in the workflow uses to tell a
   task line from a bold criterion label. An ID without a digit is invisible to counting.
 
-**⛔⛔⛔ BARRIER 3: STOP! Verify NO placeholder values - ALL tasks MUST be specific and executable ⛔⛔⛔**
+⛔ BARRIER 3: no placeholder values — every task is specific and executable, because a placeholder that ships becomes a task nobody can execute
 
 ### Step 5: Validate Completeness
 

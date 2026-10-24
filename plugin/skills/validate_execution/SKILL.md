@@ -20,7 +20,10 @@ project, so a read can be refused. Say which file was refused, that reads outsid
 directory are gated, and that the fix is to allow the read once or to relaunch with
 `--add-dir <plugin-path>`. Do not route around a refusal with `cat`.
 
-**Model & effort (gate check)**: on entry, consult the `model-help` skill (gate mode) for the model + effort this phase warrants; surface its one-line verdict and — only if a switch clears the switch-cost bar — the `/model` action. Baseline is Sonnet/medium, rising to Opus/high when the change has wide blast radius, is compliance/security-sensitive, or is hard to verify (mistakes hide until prod) — adversarial checking of sensitive code earns the higher tier. Best-effort and non-blocking: stay silent and proceed when the current tier is already right. See CLAUDE.md → "Model & effort at gates."
+**Model & effort (gate check)**: on entry, consult the `model-help` skill in gate mode for the
+model and effort of this phase. Surface its one-line verdict, and the `/model` action only if a
+switch clears the switch-cost bar. Do not block on it: stay silent and proceed when the current
+tier is already right.
 
 ## Purpose
 
@@ -58,11 +61,11 @@ When invoked, check for arguments:
 
 ### Step 1: Context Discovery
 
-**⛔⛔⛔ BARRIER 1: STOP! Read ALL documentation FULLY - research.md, design.md, tasks.md ⛔⛔⛔**
+⛔ BARRIER 1: research.md, design.md, and tasks.md are read in full — a verdict on a partial reading misses the criteria it never saw
 
 Take the project directory from the arguments, prompting for it if it is missing. Then read
-`research.md`, `design.md` and `tasks.md` from that directory — **fully**, no `limit` or
-`offset`.
+`research.md`, `design.md` and `tasks.md` from that directory, in full. Read the whole file. If
+Read returns a partial view, page through it with `offset` and `limit`.
 
 1. **Read tasks.md completely** to understand:
    - What phases were planned
@@ -118,12 +121,13 @@ every file the agents would open, not a sample. Having read *some* of it, a cros
 or uncertainty about which files are relevant are each a reason to spawn, not to skip. **If you
 skip, say so in your output and say why**, naming what you read instead.
 
-**CRITICAL: Sub-agents gather information and return findings. They do NOT write files. YOU (the main agent) will write the validation report after synthesizing their findings.**
+**Sub-agents are read-only.** They gather information and return findings, and you write the
+validation report after you synthesize them.
 
-**⛔⛔⛔ BARRIER 2: STOP! Wait for ALL validation agents to complete ⛔⛔⛔**
+⛔ BARRIER 2: every validation agent has returned (subagents run in the background, so wait for a completion notification from each one) — synthesis on a partial set misses what the missing report would have changed
 
-This barrier governs *waiting*, not spawning — synthesis on a partial set misses what the missing
-report would have changed. A fan-out skipped under the rule above satisfies it trivially.
+This barrier governs waiting, not spawning. A fan-out skipped under the rule above satisfies it
+trivially.
 
 ### Step 3: Run Automated Verification
 
@@ -184,7 +188,7 @@ For each phase in tasks.md:
 
 ### Step 5: Generate Validation Report
 
-**⛔⛔⛔ BARRIER 3: STOP! No placeholders in the report — every file:line, metric, test result, and status must come from real tool output (agent findings, checkbox state, verification runs). Omit or mark `unverified` rather than inventing a value. ⛔⛔⛔**
+⛔ BARRIER 3: no placeholders in the report — every file:line, metric, test result, and status comes from real tool output (agent findings, checkbox state, verification runs), because an invented value certifies work nobody checked. Omit a value, or mark it `unverified`, rather than invent one.
 
 Read [templates.md](templates.md) NOW and write the report in the shape it gives.
 

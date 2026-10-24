@@ -4,9 +4,6 @@ Read this when Step 2 directs you to. All three agents spawn together, in parall
 file whole. Use the prompts verbatim, and substitute the bracketed placeholders from
 research.md and design.md.
 
-**Sub-agents are READ-ONLY** — they return findings only; YOU write `tasks.md` after
-synthesizing.
-
 ## Agent 1: Analyze file dependencies
 
 ```javascript
@@ -29,8 +26,7 @@ Task({
   - External dependencies needed
 
   Return findings only; write nothing.`,
-  subagent_type: "codebase-analyzer",
-  model: "sonnet"
+  subagent_type: "wb:codebase-analyzer"
 })
 ```
 
@@ -56,8 +52,7 @@ Task({
   - Test fixtures needed
 
   Return findings only; write nothing.`,
-  subagent_type: "codebase-analyzer",
-  model: "sonnet"
+  subagent_type: "wb:codebase-analyzer"
 })
 ```
 
@@ -79,8 +74,7 @@ Task({
   - Configuration patterns to follow
 
   Return findings only; write nothing.`,
-  subagent_type: "pattern-finder",
-  model: "haiku"
+  subagent_type: "wb:pattern-finder"
 })
 ```
 

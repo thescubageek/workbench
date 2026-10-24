@@ -76,16 +76,15 @@ All principles from `implement_inline` PLUS:
 5. **Model Selection**: right tier per task, by judgment over the task's content (Step 5)
 6. **Main Session Stays Clean**: No context accumulation in coordinator
 
-### CRITICAL: NO SCOPE ADDITIONS - NONE
+### Scope
 
-Same zero-tolerance policy as original:
+Implement only what tasks.md specifies.
 
-- **NEVER** add features not in tasks.md
-- **NEVER** refactor beyond what's specified
-- **NEVER** make "improvements" not explicitly asked for
-- **NEVER** add extra error handling, validation, or edge cases
-- **ONLY** implement what is EXPLICITLY written in tasks.md
-- If something seems missing, STOP and ask - DO NOT add it
+- Do not add features that are not in tasks.md.
+- Do not refactor beyond what is specified.
+- Do not make improvements that are not explicitly asked for.
+- Do not add extra error handling, validation, or edge cases.
+- If something seems missing, stop and ask. Do not add it yourself.
 
 ### Extras and edits
 
@@ -110,11 +109,11 @@ coordinated path inherits them from there rather than restating them per spawn.
 
 ### Step 1: Read and Understand Context
 
-**⛔⛔⛔ BARRIER 1: STOP! Read ALL documentation files FULLY - NO SHORTCUTS ⛔⛔⛔**
+⛔ BARRIER 1: research.md, design.md, and tasks.md are read in full (a remediation plan has only tasks.md) — a worker briefed from a partial reading builds against the wrong plan
 
 Take the project directory and the phase from the arguments, prompting for either if it is
-missing. Then read `research.md`, `design.md` and `tasks.md` from that directory — **fully**, no
-`limit` or `offset`.
+missing. Then read `research.md`, `design.md` and `tasks.md` from that directory, in full. Read the
+whole file. If Read returns a partial view, page through it with `offset` and `limit`.
 
 **A remediation plan has only `tasks.md`, and that is correct.** Read
 [../../docs/reference/remediation-plan.md](../../docs/reference/remediation-plan.md) NOW for how to recognise one
@@ -126,19 +125,19 @@ not route the user to `/wb:create_project` to manufacture two files that exist o
    - Verify presence of research.md, design.md, tasks.md — for a remediation plan, `tasks.md`
      alone satisfies this
 
-2. **Read research.md FULLY** (a remediation plan has none — skip to step 4):
+2. **Read research.md in full** (a remediation plan has none — skip to step 4):
    - Understand what currently exists in the codebase
    - Note patterns and conventions to follow
    - Identify key file:line references
    - Extract testing framework, file structure, naming conventions
 
-3. **Read design.md FULLY** (likewise absent from a remediation plan):
+3. **Read design.md in full** (likewise absent from a remediation plan):
    - Understand the desired end state
    - Review success criteria for the phase
    - Note automated and manual verification requirements
    - Identify architectural constraints
 
-4. **Read tasks.md FULLY**:
+4. **Read tasks.md in full**:
    - Identify current phase from frontmatter
    - Count completed vs remaining tasks from the checkboxes
    - Understand task structure, IDs, and any `Depends on:` fields
@@ -192,7 +191,7 @@ status surface.
 
 **Build a minimal context package for workers.**
 
-From the documentation you've read, extract ONLY what workers need. For a remediation plan there
+From the documentation you've read, extract only what workers need. For a remediation plan there
 is no `design.md` or `research.md` to extract from: each task carries its own `**Fails when:**`
 scenario and acceptance criterion, and those *are* the worker's context — pass the task line
 verbatim and fill `design`/`patterns` from the reviewed code itself.
@@ -240,7 +239,7 @@ const contextPackage = {
 
 ### Step 4: Take the Next Task
 
-**⛔ BARRIER 2: One task at a time, in document order**
+**⛔ BARRIER 2: One task at a time, in document order** — two workers would share one tree
 
 The next task is the **first `- [ ]` line in the current phase**. Phases run in document order
 and tasks run in order within a phase, so the plan's ordering is the schedule.
@@ -284,28 +283,30 @@ holds no journal of its own. The rule and its reason are stated once, in `journa
 **Choose the tier.** This is the one statement of the worker tier rule; every other mention in
 this skill and its supporting files points here rather than restating it.
 
-| Tier | When | Notes |
-| ---- | ---- | ----- |
-| `haiku` | Mechanical only — config, docs, renames, version bumps, typos | **Never annotate `effort` on a haiku spawn** |
-| `sonnet` | Bounded and fully specified — the task names the exact change and leaves no design latitude | The deliberate downshift, not the default |
-| **`opus`** | **Default.** Anything with judgment in it | |
-| `fable` | **Never a first spawn.** Only as an explicit election after a *verified* failure | Always `effort: high` — never `xhigh` or `max` |
+| Tier | Effort | When | Notes |
+| ---- | ------ | ---- | ----- |
+| `haiku` | `medium` | Mechanical only — config, docs, renames, version bumps, typos | |
+| `sonnet` | `medium` | Bounded and fully specified — the task names the exact change and leaves no design latitude | The deliberate downshift, not the default |
+| **`opus`** | `medium` | **Default.** Anything with judgment in it | |
+| `fable` | `high` | **Never a first spawn.** Only as an explicit election after a *verified* failure | Never `xhigh` or `max` |
+
+Pass the row's effort on the spawn. It overrides the agent file's `effort`.
 
 **These four are the only values the spawn tool accepts** — its `model` parameter is an enum, so
-a full identifier like `claude-opus-4-8[1m]` cannot be pinned per spawn, and `opus` resolves to
+a full identifier like `claude-opus-5-5[1m]` cannot be pinned per spawn, and `opus` resolves to
 the current Opus. Full IDs belong to the *main-session* model (`/model`; see `model-help`).
 
 Judge the task's body, not a keyword match on its title. The tier does **not** fix truncation:
 workers hit a *tool-call* ceiling, not a context limit — Step 3's context minimisation and the
 plan's ~50-call task sizing are what address that.
 
-**Then spawn.** Read [prompts/worker-prompt.md](prompts/worker-prompt.md) NOW and spawn the `task-worker` agent with it.
+**Then spawn.** Read [prompts/worker-prompt.md](prompts/worker-prompt.md) NOW and spawn the `wb:task-worker` agent with it.
 
 **Loop**: Spawn → Wait → Verify → Commit → Next task
 
 ### Step 6: After Each Worker Returns
 
-**⛔ BARRIER 3: Verify and commit before the next task**
+**⛔ BARRIER 3: Verify and commit before the next task** — the next worker starts from this tree
 
 #### 6a. Did the worker finish?
 
@@ -334,7 +335,7 @@ context spends the same budget and truncates at the same point, buying nothing.
 
 #### 6b. Verify
 
-Read [prompts/verifier-prompt.md](prompts/verifier-prompt.md) NOW and spawn the `task-verifier` agent with it. Scope is checked against the uncommitted working tree — there is no base ref to supply, because the worker did not commit.
+Read [prompts/verifier-prompt.md](prompts/verifier-prompt.md) NOW and spawn the `wb:task-verifier` agent with it. Scope is checked against the uncommitted working tree — there is no base ref to supply, because the worker did not commit.
 
 Parse the result:
 
@@ -407,10 +408,10 @@ Any other verified failure gets **exactly one** escalation attempt:
    anything verifies the work, so a task reaching 6c is usually at `[x]` while unverified. An
    escalation started against an `[x]` box leaves 6a no signal to tell truncation from
    completion.
-2. Escalate **one rung up Step 5's ladder from the tier that failed** — `haiku` → `sonnet`,
-   `sonnet` → `opus`, `opus` → `fable` at `effort: high`. The `fable` rung is an explicit
-   election, never automatic; if `fable` also fails, the answer is the checkpoint's blocking
-   list, not a third model.
+2. Escalate **one rung up Step 5's ladder from the tier that failed**, at that rung's effort —
+   `haiku` → `sonnet`, `sonnet` → `opus`, `opus` → `fable` at `effort: high`. The `fable` rung is
+   an explicit election, never automatic; if `fable` also fails, the answer is the checkpoint's
+   blocking list, not a third model.
 3. Say which rung you chose and why, in one line.
 4. Read [prompts/escalation-worker-prompt.md](prompts/escalation-worker-prompt.md) NOW and spawn with it.
 5. Re-verify.

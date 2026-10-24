@@ -3,9 +3,6 @@
 Read this when Step 2 directs you to. All three agents spawn together, in parallel. Read the
 file whole. Use the prompts verbatim. Substitute the bracketed placeholders from research.md.
 
-**Sub-agents are READ-ONLY** — they return findings only; YOU write `design.md` after
-synthesizing.
-
 ## Agent 1: Verify design patterns
 
 ```javascript
@@ -25,8 +22,7 @@ Task({
 
   Document what exists, do not evaluate quality.
   Return findings only; write nothing.`,
-  subagent_type: "pattern-finder",
-  model: "haiku"
+  subagent_type: "wb:pattern-finder"
 })
 ```
 
@@ -48,8 +44,7 @@ Task({
   - Potential conflicts
 
   Return findings only; write nothing.`,
-  subagent_type: "codebase-analyzer",
-  model: "sonnet"
+  subagent_type: "wb:codebase-analyzer"
 })
 ```
 
@@ -67,8 +62,7 @@ Task({
   - Patterns that failed
 
   Return findings only; write nothing.`,
-  subagent_type: "pattern-finder",
-  model: "haiku"
+  subagent_type: "wb:pattern-finder"
 })
 ```
 

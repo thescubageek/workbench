@@ -45,12 +45,12 @@ When invoked, check for arguments:
 
 ### Step 1: Gather Current State
 
-**⛔⛔⛔ BARRIER 1: STOP! Read ALL project docs AND review conversation history ⛔⛔⛔**
+⛔ BARRIER 1: every project doc is read in full and the conversation history is reviewed — a handoff written from a partial picture sends the next session to the wrong task
 
 Take the project directory from the arguments, prompting for it if it is missing; take the
 handoff reason from the next argument, defaulting to "session transfer". Then read
-`research.md`, `design.md`, `tasks.md` and `journal.md` from that directory — **fully**, no
-`limit` or `offset`.
+`research.md`, `design.md`, `tasks.md` and `journal.md` from that directory, in full. Read the
+whole file. If Read returns a partial view, page through it with `offset` and `limit`.
 
 1. **Read all project documentation** to understand:
    - Project goals and current status
@@ -165,7 +165,7 @@ git add -f docs/plans/<this-plan>/    # then commit and push the branch
 
 Without that, the receiving machine gets a handoff pointing at documents it cannot see.
 
-**⛔⛔⛔ BARRIER 2: STOP! Ground every claim before writing. Every file:line, metric, test result, and progress figure MUST come from actual tool output (`git diff` / `git log` / `git diff --stat`, checkbox counts, a real test run) — never from memory or the template's example values. If a value isn't verified, omit it or mark it `unverified`. Omit empty sections entirely; never fill them with placeholders. Mark genuinely unknown fields `unknown`. ⛔⛔⛔**
+⛔ BARRIER 2: every claim is grounded before writing — every file:line, metric, test result, and progress figure comes from actual tool output (`git diff` / `git log` / `git diff --stat`, checkbox counts, a real test run), never from memory or the template's example values, because the next session acts on these values without re-checking them. If a value isn't verified, omit it or mark it `unverified`. Omit empty sections entirely, and never fill them with placeholders. Mark genuinely unknown fields `unknown`.
 
 ### Step 5: Create the Handoff Document
 

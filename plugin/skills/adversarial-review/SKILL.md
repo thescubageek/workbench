@@ -23,11 +23,10 @@ directory are gated, and that the fix is to allow the read once or to relaunch w
 **Output discipline**: emit the reconnaissance summary, the findings, and nothing else. Do not
 narrate the steps.
 
-**Model & effort (gate check)**: on entry, consult the `model-help` skill (gate mode). Baseline is
-Sonnet/medium — the main session resolves, sizes and synthesizes while the agents carry the cost.
-Rising to Opus/high when the diff is compliance-sensitive, has wide blast radius, or is
-hard-to-verify. Best-effort and non-blocking: stay silent and proceed when the current tier is
-already right.
+**Model & effort (gate check)**: on entry, consult the `model-help` skill in gate mode for the
+model and effort of this phase. The main session resolves, sizes and synthesizes, and the agents
+carry the cost. Do not block on it: stay silent and proceed when the current tier is already
+right.
 
 ## What this skill does, and does not
 

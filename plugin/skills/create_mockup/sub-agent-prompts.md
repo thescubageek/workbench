@@ -15,9 +15,8 @@ Find and document:
 - Content area organization
 - Responsive breakpoints
 
-Return with file:line references. DO NOT suggest improvements.`,
-  subagent_type: "codebase-analyzer",
-  model: "haiku"
+Return with file:line references. Do not suggest improvements.`,
+  subagent_type: "wb:codebase-analyzer"
 })
 
 // Agent 2: Component Library
@@ -31,9 +30,8 @@ Find and document:
 - Props/API patterns
 - Where components are defined
 
-Return with file:line references. DO NOT suggest improvements.`,
-  subagent_type: "codebase-analyzer",
-  model: "haiku"
+Return with file:line references. Do not suggest improvements.`,
+  subagent_type: "wb:codebase-analyzer"
 })
 
 // Agent 3: Styling Patterns
@@ -48,9 +46,8 @@ Find and document:
 - Spacing system
 - Theme configuration
 
-Return with file:line references. DO NOT suggest improvements.`,
-  subagent_type: "codebase-analyzer",
-  model: "haiku"
+Return with file:line references. Do not suggest improvements.`,
+  subagent_type: "wb:codebase-analyzer"
 })
 
 // Agent 4: Similar Features
@@ -63,9 +60,8 @@ Find examples of:
 - How similar features are structured
 - Patterns for [feature type] in this codebase
 
-Return with file:line references. DO NOT suggest improvements.`,
-  subagent_type: "pattern-finder",
-  model: "haiku"
+Return with file:line references. Do not suggest improvements.`,
+  subagent_type: "wb:pattern-finder"
 })
 
 // Agent 5: Icon System
@@ -81,12 +77,11 @@ Find and document:
 - Examples of icon usage with file:line references
 - Pattern for icons in buttons, headers, navigation
 
-Return exact patterns found. If NO icon system exists, state that clearly.
-DO NOT suggest adding an icon library if none exists.`,
-  subagent_type: "codebase-analyzer",
-  model: "haiku"
+Return exact patterns found. If no icon system exists, state that clearly.
+Do not suggest adding an icon library if none exists.`,
+  subagent_type: "wb:codebase-analyzer"
 })
 ```
 
-**Sub-agents are READ-ONLY** — they return findings only; YOU write the research summary and
-the mockup after synthesizing.
+**Sub-agents are read-only.** They return findings only, and you write the research summary and
+the mockup after you synthesize them.

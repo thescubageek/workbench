@@ -146,7 +146,8 @@ directories — so the directory appears on first use. Git does not track an emp
 creating one now buys nothing without also planting a `.gitkeep`. Do not add a sixth file or a
 `mkdir` for it.
 
-**⛔ BARRIER 1**: Ensure all files are created with proper frontmatter before proceeding
+**⛔ BARRIER 1**: Ensure all files are created with proper frontmatter before proceeding — every later
+stage reads that frontmatter, and a missing key fails without an error
 
 ### Step 5: Confirm Creation
 

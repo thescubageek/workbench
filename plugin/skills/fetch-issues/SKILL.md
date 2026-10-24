@@ -37,7 +37,7 @@ Each handoff contains a **CLIP block** — a fenced region the user copies verba
 
 ### Step 1: Resolve the repo and fetch open issues
 
-**⛔ BARRIER 1: Fetch the full issue set before analyzing anything. No partial passes.**
+**⛔ BARRIER 1: Fetch the full issue set before analyzing anything** — a ranking over a partial set can miss the issue that matters most.
 
 ```bash
 gh auth status                      # confirm authenticated; if not, tell the user to run `gh auth login`
@@ -98,7 +98,7 @@ Record, per issue: the STATE, the **linked PR number(s) and state**, any **closi
 
 ### Step 3: Research pass (parallel agents)
 
-**⛔ BARRIER 3: Spawn research agents, then wait for ALL to return before ranking.**
+**⛔ BARRIER 3: Spawn research agents, then wait until every agent has returned (a completion notification from each one) before ranking** — a ranking on a partial set misses what the missing research found.
 
 For each issue **not already classified `fixed-merged`** (those need only a close recommendation, not codebase research), run a research agent against the codebase. Batch them — spawn agents concurrently (one message, multiple `Agent` calls) for throughput. Use **haiku** for issues that only need file location, **sonnet** for issues needing behavioral tracing or an "already resolved?" judgement.
 
@@ -153,7 +153,7 @@ Produce a ranked table of the `ready` issues: rank, `#num`, title, category, sco
 
 ### Step 5: Write a clippable handoff per issue
 
-**⛔ BARRIER 4: Every handoff must be filled from reconciliation + research — no `[TODO]` or placeholder values in the CLIP block. A handoff for an already-fixed or in-flight issue must point at the existing PR, not at a from-scratch implementation.**
+**⛔ BARRIER 4: Every handoff is filled from reconciliation and research — no `[TODO]` or placeholder values in the CLIP block, because a fresh session acts on the handoff without re-checking it. A handoff for an already-fixed or in-flight issue points at the existing PR, not at a from-scratch implementation.**
 
 ```bash
 DIR="docs/issues/$(date +%Y-%m-%d)-$(echo "$REPO" | tr '/' '-')"
@@ -253,7 +253,7 @@ against the acceptance criteria, then close the issue referencing it.">
 
 - Fully self-contained — a fresh session with zero prior context can act on it.
 - Restate the problem; never write "see above" or reference the surrounding file.
-- **Lead with the reconciled Status.** If a fix exists (`fix-in-flight` / `fixed-merged` / `stale-fixed`), the first move MUST be "review/merge PR #X and verify" or "verify and close" — never "write a failing test and start implementing." Only `ready` issues get a from-scratch first move.
+- **Lead with the reconciled Status.** If a fix exists (`fix-in-flight` / `fixed-merged` / `stale-fixed`), the first move is "review/merge PR #X and verify" or "verify and close" — never "write a failing test and start implementing." Only `ready` issues get a from-scratch first move.
 - Only cite `file:line` locations that research actually found. If research hit a blocker, say so in the CLIP block and make the first move "resolve the blocker" (e.g. "ask the reporter for a repro").
 - Keep it tight: status, problem, criteria, locations, first move. No essays, no large code dumps.
 
@@ -282,7 +282,7 @@ By default clip the top **ready** issue — never default to an already-handled 
 - **Reconcile before ranking.** The issue tracker is claims to verify, not facts. Every issue gets a STATE from PRs + git history + code *before* it's scored. Never present already-solved or in-review work as fresh ready-to-start work.
 - **Match issue numbers exactly.** `#12` ≠ `#122`. When scanning PRs, commits, and grep output for a reference, match the whole number (`\b#N\b`) so you don't mislabel an issue off a coincidental substring.
 - **Evidence, not vibes.** `likely_already_resolved` and every already-handled STATE must carry a concrete pointer — PR #, commit SHA, or `file:line`. No pointer → treat as `ready`.
-- **Read fully.** Every issue body and every referenced comment — no offset/limit.
+- **Read fully.** Read every issue body and every referenced comment in full, with nothing truncated.
 - **Facts before fixes.** Research documents what exists; the CLIP block proposes the first move, not a full solution.
 - **No silent truncation.** If you cap at the limit or drop issues, say which and why.
 - **One issue = one handoff.** Don't merge related issues; cross-link them in "Research notes" instead.

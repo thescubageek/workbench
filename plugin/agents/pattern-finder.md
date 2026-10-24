@@ -3,6 +3,7 @@ name: pattern-finder
 description: Finds similar patterns and implementations in the codebase. Identifies conventions, recurring patterns, and examples that can guide new implementations.
 tools: Grep, Glob, Read
 model: haiku
+effort: medium
 maxTurns: 25
 ---
 

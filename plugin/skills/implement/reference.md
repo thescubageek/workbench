@@ -16,7 +16,7 @@ This skill evolves `implement_inline` with one key improvement:
 - ⛔ BARRIER synchronization points
 - TDD cycle enforcement (Red → Green → Refactor)
 - Checkbox state in `tasks.md` as the single status surface
-- ZERO SCOPE CREEP discipline
+- Scope discipline: only what tasks.md specifies
 - Phase boundary verification
 - Manual verification checkpoints
 
@@ -144,18 +144,18 @@ clean.
 - ✅ Aggregate worker outputs thoroughly
 - ✅ All `implement_inline` best practices
 
-### DON'T (ABSOLUTELY FORBIDDEN)
+### DON'T
 
 - ❌ All prohibitions from `implement_inline`
-- ❌ **NEVER** spawn multiple workers in parallel (keep it simple)
-- ❌ **NEVER** allow workers to add scope
-- ❌ **NEVER** pass entire docs to workers (extract context)
-- ❌ **NEVER** proceed without waiting for worker completion
-- ❌ **NEVER** skip worker output aggregation
-- ❌ **NEVER** retry a whole task with the same context — same task plus same context spends the same budget and truncates at the same point
-- ❌ **NEVER** escalate more than once on a verified failure; the second attempt goes to the phase checkpoint's blocking list instead
-- ❌ **NEVER** let a worker commit; the coordinator commits after verification, and that is what makes an unfinished task detectable
-- ❌ **NEVER** declare a phase complete while any of its checkboxes is `[ ]`
+- ❌ Do not spawn multiple workers in parallel (keep it simple)
+- ❌ Do not allow workers to add scope
+- ❌ Do not pass entire docs to workers (extract context)
+- ❌ Do not proceed without waiting for worker completion
+- ❌ Do not skip worker output aggregation
+- ❌ Do not retry a whole task with the same context — same task plus same context spends the same budget and truncates at the same point
+- ❌ Do not escalate more than once on a verified failure. The second attempt goes to the phase checkpoint's blocking list instead
+- ❌ Do not let a worker commit. The coordinator commits after verification, and that is what makes an unfinished task detectable
+- ❌ Do not declare a phase complete while any of its checkboxes is `[ ]`
 
 ## Why the Step 6 and Step 8 rules are shaped this way
 

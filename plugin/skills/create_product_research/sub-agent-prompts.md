@@ -3,9 +3,6 @@
 Read this when Step 4 or Step 7 directs you to. Use these prompts verbatim, substituting the
 bracketed placeholders. Never paraphrase them from memory.
 
-**Sub-agents are READ-ONLY** — they return findings only; YOU write `product-research.md`
-after synthesizing.
-
 ## Parallel Research Strategy
 
 Announce the fan-out in this shape:
@@ -36,8 +33,7 @@ Task({
 
   Focus on [specific directories if known].
   Return findings only; write nothing.`,
-  subagent_type: "codebase-locator",
-  model: "haiku"
+  subagent_type: "wb:codebase-locator"
 })
 ```
 
@@ -46,10 +42,10 @@ Task({
 ```javascript
 Task({
   description: "Analyze [feature] product behaviors",
-  prompt: `Document the codebase as it exists, for a product manager — explain as
-  PRODUCT BEHAVIORS, not code; document what IS, not what SHOULD BE; no
-  improvements or issue-spotting. Include file:line references for EVERY
-  behavioral claim; trace actual code, do not guess. Return findings only; write nothing.
+  prompt: `Document the codebase as it exists, for a product manager. Explain product
+  behaviors, not code, with no improvements and no issue-spotting. Include file:line
+  references for every behavioral claim, and trace the actual code rather than guessing.
+  Return findings only; write nothing.
 
   Understand what [feature] does from a product perspective. Analyze:
   - What user-visible behaviors does this feature provide?
@@ -59,8 +55,7 @@ Task({
   - What configuration controls this feature's behavior?
 
   Start with [specific files if known].`,
-  subagent_type: "product-behavior-analyzer",
-  model: "sonnet"
+  subagent_type: "wb:product-behavior-analyzer"
 })
 ```
 
@@ -79,13 +74,11 @@ Task({
   - Error handling conventions
   - Configuration management approach
 
-  Summarize at a HIGH LEVEL suitable for a product manager to understand the engineering approach, not the engineering details.
-
-  REMEMBER: Document what IS, not what SHOULD BE. No recommendations.
+  Summarize at a high level, so that a product manager understands the engineering approach
+  and not the engineering details. Document what exists, with no recommendations.
 
   Return findings only; write nothing.`,
-  subagent_type: "pattern-finder",
-  model: "haiku"
+  subagent_type: "wb:pattern-finder"
 })
 ```
 
@@ -121,8 +114,7 @@ Task({
   4. All pattern claims are accurate
 
   Return a structured validation report with PASS/FAIL/UNCERTAIN per claim.
-  DO NOT modify the document. Only report findings.`,
-  subagent_type: "research-validator",
-  model: "sonnet"
+  Do not modify the document. Report findings only.`,
+  subagent_type: "wb:research-validator"
 })
 ```

@@ -72,8 +72,8 @@ agents — the "hive" leaving notes for the next agent.
 If an `Agents` section exists, treat it as high-priority scoping input and load what
 it points to:
 
-- **Read** any files, directories, or prior research/design docs it names — FULLY
-  (no limit/offset).
+- **Read** any files, directories, or prior research/design docs it names, in full. If Read
+  returns a partial view, page through it with `offset` and `limit`.
 - **Note** subsystems, entry points, code paths, branches, or related tickets it
   calls out.
 - **Honor** explicit guidance: "start here", "the relevant code is in X", "skip Y",

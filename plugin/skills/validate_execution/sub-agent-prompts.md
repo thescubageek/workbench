@@ -25,8 +25,7 @@ Task({
 
   Use git diff to compare changes if needed.
   Return findings only; write nothing.`,
-  subagent_type: "codebase-analyzer",
-  model: "haiku"
+  subagent_type: "wb:codebase-analyzer"
 })
 ```
 
@@ -89,8 +88,7 @@ Task({
   - Are there any anti-patterns?
 
   Return findings only; write nothing.`,
-  subagent_type: "pattern-finder",
-  model: "sonnet"
+  subagent_type: "wb:pattern-finder"
 })
 ```
 
