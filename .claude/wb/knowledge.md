@@ -546,6 +546,6 @@ we have the in-repo cautionary example for that.
 
 ## On `evals/fixture-large`, the research stage varies too much for a 2-repeat gate to judge a small prose edit
 
-- **Why it matters**: runs of identical text cited 4 to 12 of the 19 expected facts, with 114 to 209 references. A 2-repeat before/after gate flagged a loss for the agent-prose batch, and the reverted tree lost the same facts. A ref-built and a path-built copy of identical content then scored 9 and 12. Treat one research-stage loss at 2 repeats as noise until more repeats agree, and do not revert on it alone.
-- **Verified**: 2026-10-23 · `docs/plans/2026-10-21-prompt_audit_5_5/` (P5-T3, P5-T4, runs `20261023T071234Z`, `20261023T073333Z`, `20261023T160436Z`)
+- **Why it matters**: runs of identical text cited 4 to 12 of the 19 expected facts, with 114 to 209 references. A 2-repeat before/after gate flagged a loss for the agent-prose batch, and the reverted tree lost the same facts. A ref-built and a path-built copy of identical content then scored 9 and 12. Treat one research-stage loss at 2 repeats as noise until more repeats agree, and do not revert on it alone. Gate agent prose with `evals/agent_run.py` and `evals/gate.py` instead. They run each agent alone and report a measured false-positive rate. See "Gate a prose edit" in `evals/README.md`.
+- **Verified**: 2026-10-23 · `docs/plans/2026-10-21-prompt_audit_5_5/` (P5-T3, P5-T4, runs `20261023T071234Z`, `20261023T073333Z`, `20261023T160436Z`). 2026-10-24 · issue #31, agent gate run `20261024T201210Z`.
 - **Check it**: the `expected_facts_cited` counts in the `judge/*.json` of those three runs under `evals/runs/` (gitignored, local only).
