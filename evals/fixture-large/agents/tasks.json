@@ -1,0 +1,67 @@
+{
+  "about": "One fixed task for each research agent, for agent_run.py. Each prompt is the agent's spawn prompt from its stage's sub-agent-prompts.md, with the placeholders filled in for fixture-large. The score is mechanical, so gate.py can count it.",
+  "agents": {
+    "codebase-locator": {
+      "score": "files",
+      "prompt": "Find all files related to how linkcrawl decides that a link is broken, skipped, or fine: timeouts, retries, backoff, rate limits, robots.txt handling, setting defaults and overrides, the result cache, the exit status, and the reports.\n\nSearch for:\n- Source files implementing link classification and these settings\n- Test files for them\n- Configuration files\n- Related documentation\n\nFocus on src/linkcrawl/.\nReturn findings only; write nothing.",
+      "files": [
+        "config/defaults.py",
+        "config/env.py",
+        "config/settings.py",
+        "net/timeouts.py",
+        "net/retry.py",
+        "net/backoff.py",
+        "net/rate_limit.py",
+        "crawl/robots.py",
+        "core/checker.py",
+        "store/cache.py",
+        "core/classify.py",
+        "cli/exit_codes.py",
+        "report/junit.py",
+        "tests/test_config.py",
+        "tests/test_backoff_retry.py",
+        "tests/test_rate_limit.py",
+        "tests/test_robots.py",
+        "tests/test_cache.py",
+        "tests/test_classify.py",
+        "tests/test_cli.py",
+        "tests/test_reports.py",
+        "docs/configuration.md",
+        "docs/cli.md",
+        "docs/architecture.md"
+      ]
+    },
+    "codebase-analyzer": {
+      "score": "facts",
+      "prompt": "Document the codebase as it exists, with file:line references. Describe how it currently works, with no improvements and no issue-spotting. Return findings only; write nothing.\n\nUnderstand how linkcrawl decides that a link is broken, skipped, or fine. Analyze:\n- Entry points and main functions\n- Data flow through the system: settings, robots.txt, cache, network, classification, exit status, reports\n- Key algorithms and logic: timeouts, retries, backoff, rate limits\n- Error handling approaches\n\nStart with src/linkcrawl/core/checker.py and src/linkcrawl/config/."
+    },
+    "pattern-finder": {
+      "score": "facts",
+      "prompt": "Identify the patterns that linkcrawl uses to configure and classify link checks.\n\nFind:\n- How each setting gets a default and how a layer overrides it\n- How the network code applies timeouts, retries, backoff and rate limits\n- How a result becomes OK, BROKEN or SKIPPED, and how it reaches the exit status and the reports\n- Testing approaches for these features\n\nGive a file:line reference for each example. Return findings only; write nothing."
+    },
+    "product-behavior-analyzer": {
+      "score": "facts",
+      "prompt": "Document the codebase as it exists, for a product manager. Explain product behaviors, not code, with no improvements and no issue-spotting. Include file:line references for every behavioral claim, and trace the actual code rather than guessing. Return findings only; write nothing.\n\nUnderstand what linkcrawl does when it checks a link, from a product perspective. Analyze:\n- What user-visible behaviors does link checking provide?\n- What are the user flows (step by step, in plain language)?\n- What data does the user provide, and what do they see?\n- What happens when things go wrong (error states)?\n- What configuration controls this feature's behavior: timeouts, retries, backoff, rate limits, robots.txt, the cache?\n\nStart with src/linkcrawl/core/checker.py and src/linkcrawl/config/defaults.py."
+    },
+    "research-validator": {
+      "score": "claims",
+      "prompt": "Validate the research document at docs/research.md against the actual codebase.\n\nRead the document fully, then check:\n1. All file paths mentioned exist\n2. All code snippets match actual file content\n3. All behavioral claims (\"when X, system does Y\") can be traced through code\n4. All pattern claims are accurate\n\nReturn a structured validation report with PASS/FAIL/UNCERTAIN per claim. Name each claim by its ID.\nDo not modify the document. Report findings only.",
+      "claims": {
+        "C01": "PASS",
+        "C02": "FAIL",
+        "C03": "PASS",
+        "C04": "FAIL",
+        "C05": "PASS",
+        "C06": "FAIL",
+        "C07": "PASS",
+        "C08": "FAIL",
+        "C09": "PASS",
+        "C10": "FAIL",
+        "C11": "PASS",
+        "C12": "FAIL",
+        "C13": "PASS",
+        "C14": "FAIL"
+      }
+    }
+  }
+}

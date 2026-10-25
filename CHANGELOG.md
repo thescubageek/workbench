@@ -11,6 +11,35 @@ requires `shellcheck` and `python3` and fails loudly without them. A contributor
 the checks at 2.1.0 cannot at 3.0.0 without installing two tools, and no reading of "removed or
 renamed stages" would have warned them.
 
+## [3.1.5] — 2026-10-25
+
+This release ships the agent prose edits that 3.1.0 kept out. No stage was added or removed, and no
+stage requires anything new.
+
+### Changed
+
+- **Five research agents get the 3.1.0 wording rules.** `codebase-analyzer`, `codebase-locator`,
+  `pattern-finder`, `product-behavior-analyzer`, and `research-validator` lose their CAPS
+  emphasis and their REMEMBER recaps. `research-validator` now pages through a partial Read
+  view. A new agent-level gate passed all five edits at a measured false-positive rate of at
+  most 2.8% (#31).
+
+### Gate results
+
+- The 3.1.0 gate ran the research stage 2 times for each tree. On identical text, that
+  stage cites 4 to 12 of 19 expected facts. So the gate could not clear the edits.
+- The new gate runs each agent alone on one fixed task, 10 times on the old prose and 5 times
+  on the new. It sets the loss threshold from the spread of the old runs. No agent scored
+  lower. The method and the table are in `evals/README.md` ("Gate a prose edit").
+
+### Migration
+
+None. Update the plugin and restart:
+
+```bash
+claude plugin update wb@thescubageek-workbench
+```
+
 ## [3.1.4] — 2026-10-24
 
 A restructure of 3 skills. No stage was added or removed, and no stage requires anything new.
