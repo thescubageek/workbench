@@ -11,6 +11,33 @@ requires `shellcheck` and `python3` and fails loudly without them. A contributor
 the checks at 2.1.0 cannot at 3.0.0 without installing two tools, and no reading of "removed or
 renamed stages" would have warned them.
 
+## [3.1.6] — 2026-10-25
+
+A prompt bugfix for one agent. No stage was added or removed, and no stage requires anything new.
+
+### Fixed
+
+- **`pattern-finder` told the agent to judge and not to judge.** Its output format had an
+  "Anti-Patterns Found" section ("Patterns to avoid"), and its guidelines asked for "negative
+  (to avoid)" examples. Its rules said "don't evaluate, recommend, critique". The section is now
+  "Superseded Patterns". It lists patterns that the code itself has replaced, with the file:line
+  of the replacement, and it does not judge them. The agent has no git tool, so the evidence is a
+  file:line, not a commit (#33).
+
+### Gate results
+
+- The agent-level gate ran `pattern-finder` 10 times on the old prose and 5 times on the new
+  (run `20261025T235532Z`, $0.38). The old prose cited 10.5 of 19 facts and the new prose 10.6.
+  The threshold was 1.0, at a measured false-positive rate of 0.4%. The verdict is PASS.
+
+### Migration
+
+None. Update the plugin and restart:
+
+```bash
+claude plugin update wb@thescubageek-workbench
+```
+
 ## [3.1.5] — 2026-10-25
 
 This release ships the agent prose edits that 3.1.0 kept out. No stage was added or removed, and no
