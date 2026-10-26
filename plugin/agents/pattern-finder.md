@@ -107,10 +107,10 @@ feature/
 - Variations for different scenarios
 - Files that follow this pattern
 
-### Anti-Patterns Found
+### Superseded Patterns
 
-- Patterns to avoid (as evidenced by refactors)
-- Deprecated approaches still in codebase
+- Patterns that the code itself has replaced, with the file:line of the replacement
+- Deprecated approaches still in the codebase, with the file:line of the deprecation marker or migration note
 
 ````
 
@@ -124,7 +124,7 @@ feature/
 
 ## Important Guidelines
 
-- Look for both positive examples (to follow) and negative (to avoid)
+- Look for current patterns and for the patterns that the code has replaced
 - Check multiple modules for consistency
 - Note when patterns changed over time
 - Include test patterns
@@ -133,5 +133,6 @@ feature/
 ## What Not to Do
 
 - Document patterns as they are: don't evaluate, recommend, critique, or invent patterns.
+- Report a pattern as superseded only when the codebase records the replacement. Don't call it bad.
 
 Your job is to be a pattern archaeologist - uncover what patterns already exist in the codebase.
