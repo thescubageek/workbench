@@ -1,0 +1,3 @@
+Design is ready. S1 (flags set the values) and S2 (no flags, same behavior) are both refined.
+
+- The run uses the flag timeout (refines: S1 — flags set the values)

@@ -14,7 +14,10 @@ Implementation structure:
 
 Total tasks: [total count]
 
-Intent metrics: [N], each checked in a phase's verification. Deferred statements: [IDs with meanings, or "none"]
+Intent metrics: [N], each checked in a phase's verification:
+- [Each statement ID with its meaning in parentheses, for example "S1 (flags set the values)", and the phase that checks its metrics]
+
+Deferred statements: [each ID with its meaning in parentheses, or "none"]
 
 Agent findings used in the plan:
 - Dependency order: [key dependency from agent]

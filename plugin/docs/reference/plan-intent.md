@@ -130,6 +130,21 @@ A later validation run replaces the suffix. It does not add a second one. A `PAS
 on a manual check stays `FAIL` until a person confirms the check. Do not assume the
 confirmation.
 
+## Statement IDs in chat
+
+In a document, write a statement ID bare: `S1`, `(refines: S1)`, `→ PASS 2026-10-29`. The Intent
+section defines each ID, and `help` and `validate_project` parse the bare form.
+
+In chat, never write a statement ID alone. The reader has not opened the README. Give the ID a
+short meaning at its first mention in each paragraph, as the WBTE rule for every ID shape
+requires:
+
+- Write "S2 (no flags, same behavior)", not "S2".
+- When a chat message lists a metric with its marker, put the meaning inside the marker:
+  "(refines: S1 — flags set the values)". The document keeps the bare `(refines: S1)`.
+- "S1 and S2 are both refined" needs a meaning for each: "S1 (flags set the values) and S2 (no
+  flags, same behavior) are both refined".
+
 ## Plans without an Intent
 
 A plan created before wb 3.2.0 has no `## Intent` section. A remediation plan from

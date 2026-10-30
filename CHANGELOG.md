@@ -35,6 +35,8 @@ stage requires anything new of the environment.
   - A change to the Goal, a statement or a Non-goal needs explicit approval and a dated
     Amendments line.
   - `validate_project` checks the section's shape, in the new checklist §10.
+  - In chat, a statement ID always carries its meaning: "S2 (no flags, same behavior)". The
+    design and tasks presentations show the shape. `evals/wbte_check.py` counts `S<n>` as an ID.
 - **`plugin/docs/reference/plan-intent.md`** is the single authority for all of the above.
 - **"This stage needs from you".** Each of 16 stages opens with one line naming what you
   provide, decide and confirm. `/wb:help` has the full table, and the session-start orientation
