@@ -22,7 +22,7 @@ tags: [research, codebase, fixture]
 
 ## Research Question
 
-[What are we trying to understand? To be filled by /wb:create_research]
+[What are we trying to understand? To be filled by /wb:create-research]
 
 ## Summary
 
@@ -30,7 +30,7 @@ tags: [research, codebase, fixture]
 
 ## Detailed Findings
 
-[Research findings will be documented here by /wb:create_research]
+[Research findings will be documented here by /wb:create-research]
 
 ### Component Analysis
 
@@ -66,7 +66,7 @@ Quick reference to key files:
 ## Open Questions
 
 Questions that block the next phase live here as a table with local IDs. To be populated by
-`/wb:create_research`.
+`/wb:create-research`.
 
 | ID | Question | Blocks | State |
 | -- | -------- | ------ | ----- |
@@ -74,7 +74,7 @@ Questions that block the next phase live here as a table with local IDs. To be p
 
 ## Next Steps
 
-1. Run `/wb:create_research docs/plans/2026-01-01-fixture` to populate this document
+1. Run `/wb:create-research docs/plans/2026-01-01-fixture` to populate this document
 2. Review findings before design
 
 ## References

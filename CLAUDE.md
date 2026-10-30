@@ -11,7 +11,7 @@ This is a Claude Code plugin (`wb`) providing structured software development wo
 When running `/wb:*` commands, keep narration minimal — the artifact is the deliverable, not the chat:
 
 - Act on barriers and checkpoints **silently** — do not announce "BARRIER 2 satisfied", "all agents returned", or restate the plan between steps.
-- After writing a document, **do not reproduce its contents back into the chat**. Emit a single one-line completion summary (e.g. `✅ research.md — <topic>; N findings. Next: /wb:create_design`).
+- After writing a document, **do not reproduce its contents back into the chat**. Emit a single one-line completion summary (e.g. `✅ research.md — <topic>; N findings. Next: /wb:create-design`).
 - Surface only what the user must act on: blockers, decisions awaiting their input, and errors. Everything else lives in the artifact.
 
 This is the global reinforcement of each command's inline output-discipline directive. (End users: see README "Output discipline" to opt this rule into your own `CLAUDE.md`.)
@@ -123,13 +123,13 @@ For local dev (`--plugin-dir` install), changes take effect immediately without 
 The commands follow a strict sequential workflow:
 
 ```
-/wb:create_project → /wb:create_research → [/wb:explore_design] → /wb:create_design → /wb:create_tasks → /wb:implement → /wb:validate_execution
+/wb:create-project → /wb:create-research → [/wb:explore-design] → /wb:create-design → /wb:create-tasks → /wb:implement → /wb:validate-execution
 ```
 
 For multi-session work:
 
 ```
-[Session 1] → /wb:create_handoff → [Session 2] → /wb:resume_handoff → [Continue work]
+[Session 1] → /wb:create-handoff → [Session 2] → /wb:resume-handoff → [Continue work]
 ```
 
 Each command builds upon the previous one's output, creating structured documentation in timestamped directories under `docs/plans/`.
@@ -144,7 +144,7 @@ The workflow separates three distinct concerns:
 
 All three answer to the plan's **Intent**, the `## Intent` section of its `README.md`: a Goal,
 two to four "Success looks like" statements (`S1`, …), the Non-goals, and an Amendments list.
-`create_project` writes it from text the user confirmed. Research reports coverage of it, design
+`create-project` writes it from text the user confirmed. Research reports coverage of it, design
 refines it into `(refines: S<n>)` metrics, and validation writes a verdict back onto each
 statement. Plans from before 3.2.0 have none, and no stage requires one.
 
@@ -160,7 +160,7 @@ statement. Plans from before 3.2.0 have none, and no stage requires one.
 5. **Zero Scope Creep**: Tasks only come from plans, no additions
 6. **Status Lives in the Plan**: checkbox state in `tasks.md` is the source of truth
    - Flipping `- [ ]` → `- [x]` **is** the act of recording a task done
-   - Frontmatter counters are a derived cache with exactly one writer, `/wb:update_status`
+   - Frontmatter counters are a derived cache with exactly one writer, `/wb:update-status`
    - Git is the durable record — one task, one commit, task ID in the message
    - No TaskCreate, TaskUpdate, or TodoWrite: a parallel list only goes stale beside the checkboxes
 
@@ -172,13 +172,13 @@ recover.
 | Surface | Holds | Written by |
 | ------- | ----- | ---------- |
 | Checkboxes in `tasks.md` | task and phase status | whoever finishes the task |
-| Frontmatter counters | a derived cache of the counts | `/wb:update_status`, and nothing else |
+| Frontmatter counters | a derived cache of the counts | `/wb:update-status`, and nothing else |
 | Git | the durable audit trail | one task, one commit |
 | `journal.md` | what a session was attempting | opened at start of work, closed at completion |
 | `.claude/wb/knowledge.md` | durable repository facts | curated, committed, each entry dated with a verification hint |
 
 Counter drift between checkpoints is **expected, not an error** — `status-sync` surfaces it and
-`/wb:update_status` reconciles it. The checkboxes are always what's right.
+`/wb:update-status` reconciles it. The checkboxes are always what's right.
 
 **Task IDs are a contract**: every task line carries a bold ID matching
 `[A-Z0-9-]*[0-9][A-Z0-9-]*` — at least one digit. Every counter identifies task lines by that
@@ -225,7 +225,7 @@ agent file's `effort` on Claude Code 2.1.292 and later.
 
 ## Model & effort at gates
 
-The `model-help` skill is the plugin's single authority on **which Claude model + reasoning-effort** to run at. Its **gate mode** carries per-phase baselines and the switch-cost rule; `forge`, `resume_handoff`, and the `create_*` / `implement` / `implement_inline` / `validate_execution` stages delegate to it rather than re-deriving the rubric. Keep model IDs and effort levels consistent with `plugin/skills/model-help/SKILL.md` (and the `daily-digest` rubric) as they change.
+The `model-help` skill is the plugin's single authority on **which Claude model + reasoning-effort** to run at. Its **gate mode** carries per-phase baselines and the switch-cost rule; `forge`, `resume-handoff`, and the `create-*` / `implement` / `implement-inline` / `validate-execution` stages delegate to it rather than re-deriving the rubric. Keep model IDs and effort levels consistent with `plugin/skills/model-help/SKILL.md` (and the `daily-digest` rubric) as they change.
 
 The policy these commands enforce:
 
@@ -276,7 +276,7 @@ When creating new prompts or commands:
 
 ### Branch naming
 
-`plugin/docs/reference/branch-naming.md` is the shipped, runtime-read authority. `create_project`, `jira-context`, `forge` and `implement` each link into it rather than restating it; keep it as the one place the rule changes.
+`plugin/docs/reference/branch-naming.md` is the shipped, runtime-read authority. `create-project`, `jira-context`, `forge` and `implement` each link into it rather than restating it; keep it as the one place the rule changes.
 
 The convention is `<scope>/<snake_case_description>`, where `<scope>` is a **ticket key** if one is known (`TB-2421/combobox_aria_pattern`), otherwise a **release version** if the work targets one (`wb-2.1.0/branch_naming_policy`), otherwise nothing (bare description, no slash). A ticket outranks a version; they are never concatenated.
 
@@ -297,7 +297,7 @@ Rename **in place** (`git branch -m`), never by cutting a second branch. Branch 
    the plan's Implementation Notes. An intention that exists only in the transcript is lost
    when the session ends.
 2. **Run the quality gates** if anything changed — tests, linters, build.
-3. **Reconcile status**: flip every finished task's checkbox, then run `/wb:update_status` so
+3. **Reconcile status**: flip every finished task's checkbox, then run `/wb:update-status` so
    the counters follow.
 4. **Commit, and confirm the push with the user.** Work that ends in the working tree is
    stranded on one machine. Pushing is an outward-facing state change, so it is confirmed
@@ -305,7 +305,7 @@ Rename **in place** (`git branch -m`), never by cutting a second branch. Branch 
    an unpushed branch as a failure state that licenses pushing without asking.
 5. **Clean up** — clear stashes, prune stale remote branches.
 6. **Hand off** — leave enough context for the next session to resume without you
-   (`/wb:create_handoff`).
+   (`/wb:create-handoff`).
 
 ### Integration with wb Stages
 

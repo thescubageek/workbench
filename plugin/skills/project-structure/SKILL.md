@@ -55,7 +55,7 @@ and nothing to install before the workflow runs.
   hyphens, at least one digit (`P2-T7`, `T14`). This is a contract, not a style: a plan's
   success criteria and prerequisites are checkboxes too, so counters identify task lines by this
   pattern. An ID without a digit makes its task invisible to counting, silently.
-- **Frontmatter counters are a derived cache**, with exactly one writer: `/wb:update_status`.
+- **Frontmatter counters are a derived cache**, with exactly one writer: `/wb:update-status`.
   Never hand-edit them. Drift between checkpoints is expected; `status-sync` surfaces it.
 - **Git is the durable record.** One task, one commit, with the task ID in the message — so the
   log is the audit trail a tracker used to hold, and uncommitted work is a reliable signal that

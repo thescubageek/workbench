@@ -9,9 +9,9 @@ Usage: run.py --before REF_OR_PATH [--after REF_OR_PATH] [--repeats N] [--model 
 
 A tree is a git ref (archived with `git archive <ref> plugin`) or a path to a checkout or a
 plugin directory. With no --after, only the before tree runs (a baseline). Each repeat gets a fresh copy of evals/fixture/project with the plan seed at
-docs/plans/2026-01-01-fixture/. Stages run in order: create_research, create_design,
-create_tasks. A headless run cannot approve a design, so the driver sets `status: approved`
-in design.md before create_tasks, and skips create_tasks when design.md was not written.
+docs/plans/2026-01-01-fixture/. Stages run in order: create-research, create-design,
+create-tasks. A headless run cannot approve a design, so the driver sets `status: approved`
+in design.md before create-tasks, and skips create-tasks when design.md was not written.
 Every call gets `--add-dir <tree>/plugin`: a resumed session is refused reads of the stage's
 own supporting files without it, while a marketplace install can read them. When a stage stops to ask, the driver resumes the session
 with one fixed reply. Both trees get the same replies.
@@ -36,9 +36,9 @@ REPO = os.path.dirname(HERE)
 FIXTURE = os.path.join(HERE, "fixture")
 PLAN_REL = "docs/plans/2026-01-01-fixture"
 STAGES = {
-    "research": {"skill": "create_research", "doc": "research.md", "question": True},
-    "design": {"skill": "create_design", "doc": "design.md", "question": False},
-    "tasks": {"skill": "create_tasks", "doc": "tasks.md", "question": False},
+    "research": {"skill": "create-research", "doc": "research.md", "question": True},
+    "design": {"skill": "create-design", "doc": "design.md", "question": False},
+    "tasks": {"skill": "create-tasks", "doc": "tasks.md", "question": False},
 }
 FOLLOW_UP = ("This is a headless evaluation run and no human can answer. Take the option you "
              "recommend, treat it as chosen, and finish the stage. Do not ask again.")

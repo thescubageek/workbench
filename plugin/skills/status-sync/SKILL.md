@@ -1,6 +1,6 @@
 ---
 name: status-sync
-description: Surfaces drift between a plan's frontmatter counters and its actual checkbox state at phase end and session end, and points at /wb:update_status to reconcile.
+description: Surfaces drift between a plan's frontmatter counters and its actual checkbox state at phase end and session end, and points at /wb:update-status to reconcile.
 user-invocable: false
 allowed-tools: Read, Glob, Grep, Bash(grep:*)
 ---
@@ -8,7 +8,7 @@ allowed-tools: Read, Glob, Grep, Bash(grep:*)
 # Status Sync Reminder
 
 Checkbox state in `tasks.md` is the source of truth for task and phase status. The frontmatter
-counters are a **derived cache** with exactly one writer, `/wb:update_status`.
+counters are a **derived cache** with exactly one writer, `/wb:update-status`.
 
 A cache is allowed to be stale — the implementation stages flip checkboxes and defer the
 counters deliberately, so drift between checkpoints is normal, not an error. What is *not*
@@ -56,11 +56,11 @@ grep -E '^(status|current_phase|total_tasks|completed_tasks):' tasks.md
 📍 Status drift:
 - Checkboxes: [A]/[B] tasks done
 - Frontmatter: [X]/[Y]
-- Run `/wb:update_status [project-dir]` to reconcile (it is the only writer of those fields)
+- Run `/wb:update-status [project-dir]` to reconcile (it is the only writer of those fields)
 
 Or if a phase looks complete:
 - Every Phase [N] checkbox is [x], but current_phase is still [N]
-- Run `/wb:update_status` after the checkpoint's manual verification
+- Run `/wb:update-status` after the checkpoint's manual verification
 ```
 
 ## When NOT to Remind
@@ -73,7 +73,7 @@ Or if a phase looks complete:
 ## Do Not
 
 - Update files directly
-- **Rewrite the counters yourself** — `/wb:update_status` is their single writer, and a second
+- **Rewrite the counters yourself** — `/wb:update-status` is their single writer, and a second
   writer reintroduces exactly the drift this skill exists to report
 - Run commands automatically
 - Interrupt creative/coding flow unnecessarily

@@ -31,36 +31,36 @@ cd prompts
 
 ```bash
 # 1. Initialize project
-/wb:create_project my-feature docs/plans TICKET-123
+/wb:create-project my-feature docs/plans TICKET-123
 
 # 2. Research codebase
-/wb:create_research docs/plans/2025-01-15-TICKET-123-my-feature
+/wb:create-research docs/plans/2025-01-15-TICKET-123-my-feature
 > Research existing patterns for X
 
 # 3. Create mockup (optional - for UI features)
-/wb:create_mockup docs/plans/2025-01-15-TICKET-123-my-feature "settings panel"
+/wb:create-mockup docs/plans/2025-01-15-TICKET-123-my-feature "settings panel"
 
 # 4. Explore the alternatives (optional — only if research found more than one viable approach)
-/wb:explore_design docs/plans/2025-01-15-TICKET-123-my-feature "how sessions are stored"
+/wb:explore-design docs/plans/2025-01-15-TICKET-123-my-feature "how sessions are stored"
 
 # 5. Design decisions
-/wb:create_design docs/plans/2025-01-15-TICKET-123-my-feature
+/wb:create-design docs/plans/2025-01-15-TICKET-123-my-feature
 
 # 6. Create execution plan
-/wb:create_tasks docs/plans/2025-01-15-TICKET-123-my-feature
+/wb:create-tasks docs/plans/2025-01-15-TICKET-123-my-feature
 
-# 7. Implement with TDD (worker agents; /wb:implement_inline runs it in this session)
+# 7. Implement with TDD (worker agents; /wb:implement-inline runs it in this session)
 /wb:implement docs/plans/2025-01-15-TICKET-123-my-feature
 
 # 8. Validate implementation
-/wb:validate_execution docs/plans/2025-01-15-TICKET-123-my-feature
+/wb:validate-execution docs/plans/2025-01-15-TICKET-123-my-feature
 ```
 
 ## Complete Workflow
 
 ### Stage 1: Project Initialization
 
-**Command**: `/wb:create_project`
+**Command**: `/wb:create-project`
 
 Creates timestamped documentation structure with metadata tracking.
 
@@ -83,7 +83,7 @@ docs/plans/2025-01-15-TICKET-123-feature-name/
 
 ### Stage 2: Research
 
-**Command**: `/wb:create_research`
+**Command**: `/wb:create-research`
 
 Documents codebase objectively using parallel research agents.
 
@@ -103,7 +103,7 @@ Documents codebase objectively using parallel research agents.
 
 ### Stage 3: UI Mockup (Optional)
 
-**Command**: `/wb:create_mockup`
+**Command**: `/wb:create-mockup`
 
 **For UI features only** - researches UI patterns and creates HTML mockups.
 
@@ -169,14 +169,14 @@ mockups/
 
 ### Stage 3b: Explore Design Options (Optional)
 
-**Command**: `/wb:explore_design`
+**Command**: `/wb:explore-design`
 
 Airs the alternatives *before* one is chosen. The pipeline otherwise goes from facts straight to
 a locked decision, so the reasoning behind an architecture choice survives only as design.md's
 Rejected Alternatives — written by the same pass that chose.
 
 **When it earns its cost**: research surfaced **more than one viable approach** and nothing in
-the codebase decides between them. `create_research` suggests it only under those two
+the codebase decides between them. `create-research` suggests it only under those two
 conditions; running it on a decision that was never in doubt produces a document nobody reads.
 
 **Process**:
@@ -190,13 +190,13 @@ conditions; running it on a decision that was never in doubt produces a document
 5. Record — the decision at the **top** of a `thoughts/` document, with the rejected
    alternatives and why
 
-**Output**: `thoughts/YYYY-MM-DD-<topic>.md`. It never writes `design.md` — `create_design`
+**Output**: `thoughts/YYYY-MM-DD-<topic>.md`. It never writes `design.md` — `create-design`
 finds the record, presents it for confirmation, and formalizes it, carrying the rejected
 alternatives across rather than inventing new ones.
 
 ### Stage 4: Design
 
-**Command**: `/wb:create_design`
+**Command**: `/wb:create-design`
 
 Creates architectural design decisions (WHAT and WHY).
 
@@ -222,7 +222,7 @@ Creates architectural design decisions (WHAT and WHY).
 
 ### Stage 5: Execution Plan
 
-**Command**: `/wb:create_tasks`
+**Command**: `/wb:create-tasks`
 
 Transforms design into detailed phased execution plan.
 
@@ -279,7 +279,7 @@ grep -m1 -E '^- \[ \] \*\*[A-Z0-9-]*[0-9][A-Z0-9-]*\*\*' tasks.md
 
 **Phase completion is "every checkbox in the phase is `[x]`".** There is nothing else to close.
 At the ⛔ CHECKPOINT run the automated verification, ask the human for the manual checks, then
-run `/wb:update_status` to reconcile the counters.
+run `/wb:update-status` to reconcile the counters.
 
 With `/wb:implement`, a worker does steps 2–4 in fresh context and the coordinator does step 5
 after a verifier passes. That split is what makes an unfinished task detectable: workers never
@@ -288,7 +288,7 @@ beside real changes means the worker exhausted its tool-call budget.
 
 ### Stage 7: Validation
 
-**Command**: `/wb:validate_execution`
+**Command**: `/wb:validate-execution`
 
 Validates implementation matches plan.
 
@@ -309,7 +309,7 @@ Validates implementation matches plan.
 
 ### Stage 8: Status Updates
 
-**Command**: `/wb:update_status`
+**Command**: `/wb:update-status`
 
 Syncs status across all files based on actual progress.
 
@@ -331,12 +331,12 @@ tasks.md: not-started → in-progress → complete
 
 ### Handoff (Multi-Session)
 
-**Commands**: `/wb:create_handoff`, `/wb:resume_handoff`
+**Commands**: `/wb:create-handoff`, `/wb:resume-handoff`
 
 **Create Handoff**:
 
 ```bash
-/wb:create_handoff docs/plans/2025-01-15-TICKET-123-feature
+/wb:create-handoff docs/plans/2025-01-15-TICKET-123-feature
 ```
 
 Captures:
@@ -352,7 +352,7 @@ Captures:
 **Resume Handoff**:
 
 ```bash
-/wb:resume_handoff docs/plans/2025-01-15-TICKET-123-feature/handoff-2025-01-15.md
+/wb:resume-handoff docs/plans/2025-01-15-TICKET-123-feature/handoff-2025-01-15.md
 ```
 
 Restores:
@@ -373,7 +373,7 @@ be present.
 | Surface | Holds | Written by |
 | ------- | ----- | ---------- |
 | Checkboxes in `tasks.md` | task and phase status | whoever finishes the task |
-| Frontmatter counters | a derived cache of those counts | `/wb:update_status`, and nothing else |
+| Frontmatter counters | a derived cache of those counts | `/wb:update-status`, and nothing else |
 | Git | the durable record | one task, one commit, task ID in the message |
 
 **Flipping a checkbox is the act of recording a task done** — not a note about it. A finished
@@ -388,12 +388,12 @@ grep -cE '^- \[ \] \*\*[A-Z0-9-]*[0-9][A-Z0-9-]*\*\*' tasks.md
 
 ### The counters are a cache, and drift is normal
 
-Implementation stages flip checkboxes and defer the counters to `/wb:update_status`, which is
+Implementation stages flip checkboxes and defer the counters to `/wb:update-status`, which is
 their **only** writer. That single-writer rule is the whole mechanism: a cache with several
 writers and no owner is how these fields rotted before.
 
 So the counters lag between checkpoints. That is expected, not an error. `status-sync` surfaces
-the drift, `/wb:update_status` reconciles it, and **the checkboxes are always what's right**.
+the drift, `/wb:update-status` reconciles it, and **the checkboxes are always what's right**.
 
 ### Task IDs are a contract
 
@@ -402,7 +402,7 @@ hyphens, **at least one digit** (`P2-T7`, `T14`).
 
 This is not a style preference. Every counter in the workflow identifies task lines by that
 shape, so an ID without a digit makes its task **invisible to counting**: wrong totals, wrong
-reported position, and nothing erroring. `/wb:validate_project` checks it.
+reported position, and nothing erroring. `/wb:validate-project` checks it.
 
 ### Planning records
 
@@ -416,7 +416,7 @@ short local ID and an explicit state:
 | Pending decision | `design.md` → `## Pending Decisions` | `PD1` |
 | UI question | `mockups/v00N/mockup.md` | `UIQ1` |
 
-`/wb:resolve_questions` walks them one at a time, records each answer as a decision with its
+`/wb:resolve-questions` walks them one at a time, records each answer as a decision with its
 rationale in `design.md`, and marks the source row resolved. **Rows are never deleted** — the
 audit trail is the point.
 
@@ -426,7 +426,7 @@ audit trail is the point.
 | -------- | ----- | --------- |
 | `journal.md` | one plan | session start (the tail), and on resume |
 | `.claude/wb/knowledge.md` | the repository, committed | before research, design, implementation |
-| `handoff-*.md` | one transfer | by `/wb:resume_handoff` |
+| `handoff-*.md` | one transfer | by `/wb:resume-handoff` |
 
 **Journal entries open when work starts, not when it ends.** A session does not choose how it
 ends, so an entry written only at completion is silent in exactly the cases it exists for —
@@ -449,7 +449,7 @@ Run `/wb:model-help` for the per-phase baselines, the upshift ladder, and the sw
 
 ### When to Use
 
-Use `/wb:create_mockup` for:
+Use `/wb:create-mockup` for:
 
 - New UI features
 - UI redesigns
@@ -738,7 +738,7 @@ Tasks come ONLY from plans.
 - Open a journal entry before touching code
 - Follow TDD cycle strictly
 - Flip the checkbox when done, then commit
-- Run `/wb:update_status` at each phase checkpoint
+- Run `/wb:update-status` at each phase checkpoint
 - Respect phase boundaries
 - Stop at checkpoints
 
@@ -747,7 +747,7 @@ Tasks come ONLY from plans.
 **At session end**:
 
 - Flip every finished task's checkbox
-- Run `/wb:update_status`
+- Run `/wb:update-status`
 - Commit the work — one task, one commit
 - Create handoff if needed
 
@@ -765,7 +765,7 @@ Tasks come ONLY from plans.
 **"The counters disagree with the checkboxes"**:
 
 ```bash
-/wb:update_status [project-dir]   # the checkboxes are right; this reconciles
+/wb:update-status [project-dir]   # the checkboxes are right; this reconciles
 ```
 
 **"database locked"**:
@@ -823,7 +823,7 @@ grep -n '^- \[' tasks.md   # find the task line
 
 **Inconsistent status across files**:
 
-- Run `/wb:update_status`
+- Run `/wb:update-status`
 - It counts the checkboxes and reconciles the counters to them
 
 ## Additional Resources

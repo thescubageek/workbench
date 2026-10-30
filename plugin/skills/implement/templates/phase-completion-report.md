@@ -9,7 +9,7 @@ Step 8 — emitted once. **Attended:** after the human confirms manual verificat
    `design.md` on a phased plan, and from the outstanding tasks' own acceptance criteria on a
    remediation plan, which has no `design.md` (`SKILL.md:196-199`).
 2. **On the final phase, say the plan cannot close itself** — every task `[x]` leaves `tasks.md`
-   wanting `complete`, which is a judgment-bearing `status:` change behind `/wb:update_status`'s
+   wanting `complete`, which is a judgment-bearing `status:` change behind `/wb:update-status`'s
    own barrier that `--auto` does not reach.
 
 Both are mandated in prose by `SKILL.md` Step 8. They are restated here because a coordinator
@@ -27,7 +27,7 @@ there is no `${phase}` to name and nothing after it to proceed to.
 | closing line | `Ready to proceed to Phase ${phase + 1}.` | name what actually comes next: the review's next round if one is planned, otherwise the plan's owner |
 
 On the **final** phase of a phased plan the closing line is wrong for the same reason: there is
-no phase after it. Say the plan is out of phases and awaits `/wb:update_status`. A report that
+no phase after it. Say the plan is out of phases and awaits `/wb:update-status`. A report that
 points at a phase nobody wrote sends the next session looking for it.
 
 ```
@@ -43,7 +43,7 @@ points at a phase nobody wrote sends the next session looking for it.
 - ${phaseLabel}: ${taskCount} tasks, every checkbox [x]
 - Next phase: ${nextPhaseTaskCount} tasks
 - Files modified: ${codeFileCount} code files, ${testFileCount} test files
-- Counters reconciled by /wb:update_status
+- Counters reconciled by /wb:update-status
 
 **Context Efficiency:**
 - Main agent context: Constant (no accumulation)

@@ -1,6 +1,6 @@
 ---
 name: jira-context
-description: Load context from a Jira ticket's "Agents" section to bootstrap work ("hiveminding" off the ticket). Fetches the ticket via the Atlassian MCP, follows any Agents-section instructions to pull in the files/docs/subsystems it points to, and reports what was loaded. Use when given a Jira key (e.g., TB-2421), when asked to "load ticket context", "hivemind off the ticket", or as the context-bootstrap step inside wb:create_research / wb:forge.
+description: Load context from a Jira ticket's "Agents" section to bootstrap work ("hiveminding" off the ticket). Fetches the ticket via the Atlassian MCP, follows any Agents-section instructions to pull in the files/docs/subsystems it points to, and reports what was loaded. Use when given a Jira key (e.g., TB-2421), when asked to "load ticket context", "hivemind off the ticket", or as the context-bootstrap step inside wb:create-research / wb:forge.
 ---
 
 # Jira Context Bootstrap
@@ -132,7 +132,7 @@ report — an empty-but-honest report is the correct output, not an error.
 
 ## Relationship to the wb pipeline
 
-- `wb:create_research` runs this as its **Step 0 (Ticket Context Bootstrap)** before
+- `wb:create-research` runs this as its **Step 0 (Ticket Context Bootstrap)** before
   decomposing the research question — the loaded context aims the parallel agents.
 - `wb:forge` passes its ticket ref through so this bootstrap fires at the research
   phase.

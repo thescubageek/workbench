@@ -55,9 +55,9 @@ it names in full, in this session. Do not answer from the session-start summary 
    Left undone by the previous stage: <gaps, or none>
    ```
 
-   **The next stage** is the first that applies: `create_research` when research.md is not
-   `complete`. `create_design` when design.md is not `approved`. `create_tasks` when tasks.md
-   has no task lines. `implement` (phase n) when a task line is open. `validate_execution` when
+   **The next stage** is the first that applies: `create-research` when research.md is not
+   `complete`. `create-design` when design.md is not `approved`. `create-tasks` when tasks.md
+   has no task lines. `implement` (phase n) when a task line is open. `validate-execution` when
    every task is done and no statement carries a verdict. Otherwise the plan is finished. Set
    its `status: complete`.
 
@@ -90,41 +90,41 @@ about what wb or a stage does gets the topic, after one `📍 Plan:` line.
 /wb:help mockup       # Mockup iteration workflow
 /wb:help review       # Reviewing a change adversarially
 /wb:help reference    # The shipped reference docs and what each governs
-/wb:help [stage]      # Specific stage (e.g., /wb:help create_design)
+/wb:help [stage]      # Specific stage (e.g., /wb:help create-design)
 ```
 
 ## Command Workflow
 
 ```
-/wb:create_project    → Initialize project structure
+/wb:create-project    → Initialize project structure
          ↓
-/wb:create_research   → Document what EXISTS (facts only)
+/wb:create-research   → Document what EXISTS (facts only)
          ↓
-[/wb:explore_design]  → Optional: air the alternatives before choosing.
+[/wb:explore-design]  → Optional: air the alternatives before choosing.
          ↓              Only when research found more than one viable approach.
-/wb:create_design     → Decide WHAT to build and WHY
+/wb:create-design     → Decide WHAT to build and WHY
          ↓
-/wb:create_tasks      → Plan HOW to implement (phased task list)
+/wb:create-tasks      → Plan HOW to implement (phased task list)
          ↓
 /wb:implement         → Execute with TDD via worker agents (recommended)
-   or /wb:implement_inline → the same plan, run inline on this session's model
+   or /wb:implement-inline → the same plan, run inline on this session's model
          ↓
-/wb:validate_execution → Verify implementation matches plan
+/wb:validate-execution → Verify implementation matches plan
 ```
 
 **Session Management:**
 
 ```
-/wb:create_handoff    → Save context for later (or before a second compaction)
-/wb:resume_handoff    → Restore context and continue
-/wb:update_status     → Reconcile the frontmatter counters against the checkboxes
-/wb:resolve_questions → Walk open questions one at a time
+/wb:create-handoff    → Save context for later (or before a second compaction)
+/wb:resume-handoff    → Restore context and continue
+/wb:update-status     → Reconcile the frontmatter counters against the checkboxes
+/wb:resolve-questions → Walk open questions one at a time
 ```
 
 **UI Mockup Workflow:**
 
 ```
-/wb:create_mockup     → Research UI patterns + create v001
+/wb:create-mockup     → Research UI patterns + create v001
 [iterate with feedback] → Keep/remove/change decisions captured
 [mockup-iteration skill] → Creates versioned mockups automatically
 finalize              → Compile requirements into design.md
@@ -137,24 +137,24 @@ evidence the stage leaves behind. The State section reads that evidence.
 
 | Stage | You provide | You decide | You confirm | How you know it did enough |
 | ----- | ----------- | ---------- | ----------- | -------------------------- |
-| `create_project` | the goal, what success looks like, the non-goals, or prose that carries them. Name, base directory, ticket | — | the Intent as read back to you | README has an Intent: a Goal, two to four statements with IDs, the Non-goals. No file was written before you confirmed |
-| `create_research` | the question, or confirmation of the one derived from the Goal. Files to read first | whether to run `explore_design` | — | research.md's Intent Coverage lists every statement once. Findings carry `file:line` references |
-| `explore_design` | reactions to each direction as it is drafted | the direction, by explicit approval only | the framing of the decision | a `thoughts/` document whose Decision Record quotes the Goal. A Goal change has an Amendments line |
-| `create_design` | the approach, when no decision record exists | the approach, and the success metrics | the recorded decision, when one exists | every statement is refined by a `(refines:)` metric or deferred with a reason. design.md is `approved` |
-| `create_tasks` | — | — | that the phases and checkpoints match how you want to review | every task has an ID and a projection. Target State lists the Intent metrics, each checked in a phase |
-| `implement` / `implement_inline` | the phase to run | what to do after a verified failure or a plan defect | each phase checkpoint | every task in the phase is `[x]`, verified, and one commit. The checkpoint closed on your go-ahead |
-| `validate_execution` | the manual checks only you can run | whether each deviation stands | your reading of each statement's verdict | a report with a verdict per statement. Each README statement ends `→ PASS`, `→ FAIL` or `→ DEFERRED` with a date |
-| `update_status` | — | any backward status change, with a reason | the proposed changes | the frontmatter counters match the checkboxes |
-| `resolve_questions` | an answer to each question, or "Skip for now" | each answer | — | each resolved row points to its decision in design.md |
-| `create_handoff` / `resume_handoff` | the reason for handing off, or the handoff path | — | the resumption summary | the handoff carries decisions, discoveries and next steps. Resume reconciled it against the tree |
-| `validate_project` | — | which findings to fix | — | every check is reported, with a fix for each finding |
-| `create_mockup` / mockup-iteration | the feature, and keep, remove or change feedback on each version | the open `UIQ` questions | each version | the decision log records each choice |
-| `create_product_research` | the product question, or confirmation of the one derived from the Goal | — | — | product-research.md answers in user-visible behavior, with Intent Coverage |
+| `create-project` | the goal, what success looks like, the non-goals, or prose that carries them. Name, base directory, ticket | — | the Intent as read back to you | README has an Intent: a Goal, two to four statements with IDs, the Non-goals. No file was written before you confirmed |
+| `create-research` | the question, or confirmation of the one derived from the Goal. Files to read first | whether to run `explore-design` | — | research.md's Intent Coverage lists every statement once. Findings carry `file:line` references |
+| `explore-design` | reactions to each direction as it is drafted | the direction, by explicit approval only | the framing of the decision | a `thoughts/` document whose Decision Record quotes the Goal. A Goal change has an Amendments line |
+| `create-design` | the approach, when no decision record exists | the approach, and the success metrics | the recorded decision, when one exists | every statement is refined by a `(refines:)` metric or deferred with a reason. design.md is `approved` |
+| `create-tasks` | — | — | that the phases and checkpoints match how you want to review | every task has an ID and a projection. Target State lists the Intent metrics, each checked in a phase |
+| `implement` / `implement-inline` | the phase to run | what to do after a verified failure or a plan defect | each phase checkpoint | every task in the phase is `[x]`, verified, and one commit. The checkpoint closed on your go-ahead |
+| `validate-execution` | the manual checks only you can run | whether each deviation stands | your reading of each statement's verdict | a report with a verdict per statement. Each README statement ends `→ PASS`, `→ FAIL` or `→ DEFERRED` with a date |
+| `update-status` | — | any backward status change, with a reason | the proposed changes | the frontmatter counters match the checkboxes |
+| `resolve-questions` | an answer to each question, or "Skip for now" | each answer | — | each resolved row points to its decision in design.md |
+| `create-handoff` / `resume-handoff` | the reason for handing off, or the handoff path | — | the resumption summary | the handoff carries decisions, discoveries and next steps. Resume reconciled it against the tree |
+| `validate-project` | — | which findings to fix | — | every check is reported, with a fix for each finding |
+| `create-mockup` / mockup-iteration | the feature, and keep, remove or change feedback on each version | the open `UIQ` questions | each version | the decision log records each choice |
+| `create-product-research` | the product question, or confirmation of the one derived from the Goal | — | — | product-research.md answers in user-visible behavior, with Intent Coverage |
 | `forge` | the ticket or plan directory | everything the stages above ask you to decide | the Intent, the design, and each phase transition | the stages above, in order |
 
 ## The plan's Intent
 
-`create_project` writes an `## Intent` section in the plan's README: a Goal, two to four "Success
+`create-project` writes an `## Intent` section in the plan's README: a Goal, two to four "Success
 looks like" statements (`S1`, `S2`, …), the Non-goals, and a dated Amendments list. Every later
 stage answers to it. Research reports which statements its findings bear on. Design refines each
 statement into metrics marked `(refines: S<n>)`, or defers it with a reason. Tasks carry those
@@ -173,14 +173,14 @@ be unavailable. The plan documents are the record.
 | ---- | ----- | ------------- |
 | Task status | The checkbox on the task line in `tasks.md` | whoever finishes the task — flipping it **is** the act of recording it done |
 | Phase status | Every checkbox in the phase is `[x]` | — |
-| Progress counters | `tasks.md` frontmatter | **`/wb:update_status` only.** Never hand-edit |
+| Progress counters | `tasks.md` frontmatter | **`/wb:update-status` only.** Never hand-edit |
 | Durable record | Git — one task, one commit, task ID in the message | the coordinator, after the verifier passes |
-| Questions, assumptions, pending decisions | The document that raises them, with local IDs (`Q1`, `A1`, `PD1`, `UIQ1`) | `/wb:resolve_questions` closes them |
+| Questions, assumptions, pending decisions | The document that raises them, with local IDs (`Q1`, `A1`, `PD1`, `UIQ1`) | `/wb:resolve-questions` closes them |
 
 Three rules that follow from this:
 
 - **The checkboxes win.** Counters are a derived cache; drift between checkpoints is expected,
-  not an error. `status-sync` surfaces it, `/wb:update_status` reconciles it, and the counts are
+  not an error. `status-sync` surfaces it, `/wb:update-status` reconciles it, and the counts are
   always what's right.
 - **Every task line carries a bold local ID with at least one digit** (`P2-T7`). That is a
   contract, not a style: every counter identifies task lines by that shape, so an ID without a
@@ -196,7 +196,7 @@ Three artifacts, different lifetimes:
 | -------- | ----- | -------- | --------- |
 | `journal.md` | one plan | the plan's | at session start (the tail), and on resume |
 | `.claude/wb/knowledge.md` | the repository | indefinite, curated | before research, design, or implementation |
-| `handoff-*.md` | one transfer | one read | by `/wb:resume_handoff` |
+| `handoff-*.md` | one transfer | one read | by `/wb:resume-handoff` |
 
 **The journal's entries open when work starts, not when it ends.** A session does not choose
 how it ends — a token limit, a closed laptop, a crashed harness run no shutdown step. An entry
@@ -214,23 +214,23 @@ exactly what a handoff captures deliberately.
 
 ## Command Details
 
-### `/wb:create_project [name] [directory] [ticket]`
+### `/wb:create-project [name] [directory] [ticket]`
 
 Settles the plan's Intent with you first, then creates the project structure: README (with the Intent), research.md, design.md, tasks.md, journal.md.
 
-### `/wb:create_research [directory]`
+### `/wb:create-research [directory]`
 
 Spawns parallel agents to document codebase. Facts only, no opinions.
 
-### `/wb:explore_design [directory] [topic]`
+### `/wb:explore-design [directory] [topic]`
 
 Optional. Frames a decision, drafts genuinely different directions, runs the trade-off discussion, and converges only on explicit approval — recording the outcome at the top of a `thoughts/` document. Never writes design.md. Suggested by research only when the findings named more than one viable approach.
 
-### `/wb:create_design [directory]`
+### `/wb:create-design [directory]`
 
-Interactive design session. Captures WHAT and WHY, not HOW. Formalizes an `explore_design` record when one exists rather than regenerating options.
+Interactive design session. Captures WHAT and WHY, not HOW. Formalizes an `explore-design` record when one exists rather than regenerating options.
 
-### `/wb:create_tasks [directory]`
+### `/wb:create-tasks [directory]`
 
 Transforms design into a phased task list. Each task is a checkbox with a local ID and a projected tool-call cost; anything past ~50 calls splits at a natural seam.
 
@@ -238,31 +238,31 @@ Transforms design into a phased task list. Each task is a checkbox with a local 
 
 The recommended execution path: one worker agent per task in fresh context, verified, then committed by the coordinator. Keeps the main session's context constant.
 
-### `/wb:implement_inline [directory] [phase|continue]`
+### `/wb:implement-inline [directory] [phase|continue]`
 
 The same plan, implemented inline on this session's model. Simpler; the context accumulates.
 
-### `/wb:validate_execution [directory]`
+### `/wb:validate-execution [directory]`
 
 Verifies implementation matches plan. Treats the checkboxes as claims to test against the code, in both directions, and writes a verdict back onto each Intent statement.
 
-### `/wb:update_status [directory]`
+### `/wb:update-status [directory]`
 
 Counts the checkboxes and reconciles the frontmatter counters to them. The only writer of those fields.
 
-### `/wb:create_mockup [directory] [feature]`
+### `/wb:create-mockup [directory] [feature]`
 
 Researches existing UI patterns, asks clarifying questions, creates versioned mockup. Use mockup-iteration skill to refine.
 
-### `/wb:create_handoff [directory] [reason]`
+### `/wb:create-handoff [directory] [reason]`
 
 Captures context for session transfer, reviews the session's knowledge candidates, and adds a journal pointer at the top of `journal.md`. A handoff crossing machines must `git add -f` its plan directory — plan directories are gitignored by default.
 
-### `/wb:resume_handoff [handoff-file]`
+### `/wb:resume-handoff [handoff-file]`
 
 Restores context, then **reconciles the handoff against the working tree** — the repository is the authority, the handoff is a report — and names any disagreement.
 
-### `/wb:resolve_questions [directory]`
+### `/wb:resolve-questions [directory]`
 
 Walks open questions, assumptions and pending decisions one at a time, recording each answer as a decision with its rationale and marking the source row resolved. Always offers "Skip for now" unless a question is critical.
 
@@ -297,9 +297,9 @@ Not pipeline stages — invoke them directly when you want them.
 | `/wb:reply-to-claude [<pr#>]` | Answers a `claude[bot]` review with a comment mapping one-to-one to its findings — what was fixed, what was rejected and why |
 | `/wb:review-prep [target]` | Interactive diff walkthrough in tmux and nvim — paced for a human, where `adversarial-review` is a batch hunt |
 | `/wb:research-validation [directory]` | Re-checks a research document against the code: do the paths exist, do the snippets match, are the behavioral claims still true |
-| `/wb:jira-context <TICKET>` | Loads a ticket's Agents section and the files it points at. Runs standalone, or as `create_research`'s Step 0 |
+| `/wb:jira-context <TICKET>` | Loads a ticket's Agents section and the files it points at. Runs standalone, or as `create-research`'s Step 0 |
 | `/wb:fetch-issues [repo]` | Triages open GitHub issues into per-issue, session-ready handoffs |
-| `/wb:create_product_research [directory]` | Research from a product angle — user-visible behavior and flows rather than implementation |
+| `/wb:create-product-research [directory]` | Research from a product angle — user-visible behavior and flows rather than implementation |
 | `/wb:tracer-bullet` | Fires one cheap probe at the riskiest assumption before fanning out into speculative work |
 | `/wb:clip <instruction>` | Runs an instruction and copies the result to the clipboard instead of printing it |
 | `/wb:eli5-clip` | Summarizes recent work in plain language for a non-technical reader, and clips it |
@@ -335,10 +335,10 @@ changes in one place.
 ## Quick Troubleshooting
 
 **"The counters don't match the checkboxes"**
-Expected between checkpoints. Run `/wb:update_status` — it counts the boxes and reconciles. The checkboxes are right.
+Expected between checkpoints. Run `/wb:update-status` — it counts the boxes and reconciles. The checkboxes are right.
 
 **"A task isn't being counted"**
-Its ID probably lacks a digit. Task IDs must match `[A-Z0-9-]*[0-9][A-Z0-9-]*` in bold — `**Setup**` is invisible to every counter, `**P2-T7**` is not. `/wb:validate_project` reports these.
+Its ID probably lacks a digit. Task IDs must match `[A-Z0-9-]*[0-9][A-Z0-9-]*` in bold — `**Setup**` is invisible to every counter, `**P2-T7**` is not. `/wb:validate-project` reports these.
 
 **"The session says the wrong plan is active"**
 The hook picks the most recently modified `docs/plans/*/tasks.md` whose status is not `complete`. Set the finished plan's `status: complete`.

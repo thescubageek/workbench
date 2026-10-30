@@ -50,7 +50,7 @@ The old distinction ("commands are explicit, skills are automatic") is now a *co
 Notes:
 
 - Subdirectories under `skills/` are scanned recursively.
-- Plugin skills get the plugin namespace automatically (this is how `/wb:create_project` gets its prefix — via the plugin name, whether the file lives in `commands/` or `skills/`).
+- Plugin skills get the plugin namespace automatically (this is how `/wb:create-project` gets its prefix — via the plugin name, whether the file lives in `commands/` or `skills/`).
 - A skill is a directory with a required `SKILL.md` plus optional supporting files (reference docs, templates, scripts). Keep `SKILL.md` under ~500 lines and link out to supporting files, which load on demand.
 - `/reload-skills` re-scans skill directories without restarting the session.
 
@@ -130,7 +130,7 @@ The two flags produce three useful configurations:
 
 Guidance:
 
-- **User-only** is right for explicit workflow steps with side effects or ordering requirements — the user controls timing, and the skill costs zero context until invoked. This fits the `/wb:create_*` sequential workflow.
+- **User-only** is right for explicit workflow steps with side effects or ordering requirements — the user controls timing, and the skill costs zero context until invoked. This fits the `/wb:create-*` sequential workflow.
 - **Claude-only** is right for background discipline/knowledge capabilities (TDD enforcement, verification gates) where the user shouldn't need to remember to invoke anything.
 - **Default** fits utilities that are useful both ways.
 
@@ -310,14 +310,14 @@ Deterministic automation on events?  → hook
 `plugin/skills/<name>/`; plugin commands and plugin skills both resolved to `/wb:*`, so the
 migration was invisible at the call site. What that settled:
 
-1. **The explicit `/wb:*` workflow stays**, but the old rationale ("commands are user-invoked, skills are not") is obsolete — skills are user-invocable by default. The modern expression of that intent is `disable-model-invocation: true`, used on the deprecated-alias stubs.
+1. **The explicit `/wb:*` workflow stays**, but the old rationale ("commands are user-invoked, skills are not") is obsolete — skills are user-invocable by default. The modern expression of that intent is `disable-model-invocation: true`, which the deprecated-alias stubs used until 4.0.0 removed them.
 2. **Background discipline skills carry `user-invocable: false`** — `doc-adherence`, `project-structure`, `status-sync`, `tdd-discipline`, `verification-before-completion`, `mockup-iteration`. They fire on context, not by name.
 3. **Adopted at 2.0.0**:
    - `skills: [tdd-discipline]` preload + `maxTurns` on the `task-worker` agent spawned by `implement`
    - `SessionStart`/`PreCompact` hooks for deterministic orientation and compaction recovery, which skill text cannot guarantee — `hooks/wb-prime.sh`
    - `model:` / `effort:` / `maxTurns:` pinned on every sub-agent definition
 4. **Still open** (considered, not adopted):
-   - `context: fork` for research-heavy stages (`create_research`, `create_product_research`)
+   - `context: fork` for research-heavy stages (`create-research`, `create-product-research`)
    - `memory: project` on research agents to accumulate codebase knowledge
    - `displayName` in plugin.json
 
@@ -347,8 +347,8 @@ not open. The manifest also carries the hard-stop rule: a refused read is report
 worked around and never written from memory.
 
 **One file per readable unit.** A supporting file a step reads *whole* stays a single file
-(`create_research/templates.md`). A supporting file whose blocks are addressed *individually*
-is a directory of one file per block (`create_project/templates/{readme,research,design,tasks,journal}-md-template.md`).
+(`create-research/templates.md`). A supporting file whose blocks are addressed *individually*
+is a directory of one file per block (`create-project/templates/{readme,research,design,tasks,journal}-md-template.md`).
 
 That rule replaced a "read the named section" convention, and the reason is worth keeping,
 because the convention read perfectly well and could not work: **the Read tool has no section
@@ -402,37 +402,13 @@ Background discipline skills — `doc-adherence`, `project-structure`, `status-s
 `tdd-discipline`, `verification-before-completion`, `mockup-iteration` — carry it. They fire on
 context, not by name, and listing them in the menu is noise.
 
-### Deprecated-alias stubs
+### Deprecated-alias stubs (removed at 4.0.0)
 
-A renamed stage keeps its old directory holding **one** file: a `SKILL.md` with
-`disable-model-invocation: true` that announces the rename once, then reads the canonical skill.
-No pointer files for the supporting files — they guard only a session already running when the
-plugin updates, which a restart fixes and the migration note already prescribes.
-
-The stub exists for muscle memory and for plan documents already written elsewhere that name
-the old command. It is removed at the next major.
-
-### A stub's manifest names paths, so it has to be checked like one
-
-A deprecated-alias stub lists the canonical skill's supporting files in prose. That list is a
-**claim about paths**, and nothing resolves it — a session that believes it reads a file that
-does not exist. The 2.0.0 per-section split renamed `templates.md` to `templates/` and
-`sub-agent-prompts.md` to `prompts/` in the canonicals and left all three stubs naming the old
-files for six days, because a prose list is invisible to a link checker.
-
-Re-run this whenever a canonical's supporting layout changes — it prints a `MISS` line per
-broken name:
-
-```bash
-for pair in create_execution:create_tasks implement_coordinated:implement \
-            implement_tasks:implement_inline; do
-  stub=${pair%%:*}; canon=${pair##*:}
-  grep -o 'Its supporting files ([^)]*)' plugin/skills/$stub/SKILL.md |
-    grep -o '`[^`]*`' | tr -d '`' | while IFS= read -r n; do
-      [ -e "plugin/skills/$canon/${n%/}" ] || echo "MISS $stub -> $canon/$n"
-    done
-done
-```
+From 2.0.0 through 3.x, a renamed stage kept its old directory holding one `SKILL.md` with
+`disable-model-invocation: true`. The stub announced the rename once, then read the canonical
+skill. 4.0.0 removed the three stubs and renamed every underscore stage to hyphens without new
+ones. An old name now fails to resolve, which is louder than a stub that drifts from its
+canonical skill.
 
 ### No pseudo-code in a skill body, and no bare positional placeholder in prose
 

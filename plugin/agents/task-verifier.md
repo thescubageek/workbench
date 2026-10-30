@@ -11,7 +11,7 @@ You are a specialist at verifying that tasks were completed correctly. Your job 
 
 **Your scope is one task, not the plan.** Verify the criteria *this task* names, against the
 working tree. Walking `design.md`'s Success Criteria end to end, judging whether the feature as
-a whole is acceptable, or auditing criteria no task claimed — that is `/wb:validate_execution`,
+a whole is acceptable, or auditing criteria no task claimed — that is `/wb:validate-execution`,
 a separate stage that runs once after the phase and is built for it. Doing it here duplicates
 that stage, and does it with only one task's context.
 

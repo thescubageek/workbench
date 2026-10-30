@@ -175,7 +175,7 @@ The command ran, the output was read, and the conclusion was still wrong — whi
 
 ## Integration with Status Updates
 
-Before running `/wb:update_status` to mark phases complete:
+Before running `/wb:update-status` to mark phases complete:
 
 - Run all phase verification commands
 - Confirm all tasks actually done

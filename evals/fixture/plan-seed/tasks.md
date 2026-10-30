@@ -27,7 +27,7 @@ tags: [tasks, tracking, fixture]
 
 **Checkbox state in this file is the source of truth.** There is no external tracker. Flip
 `[ ]` → `[x]` as work completes and append `(completed YYYY-MM-DD HH:MM)`. The frontmatter
-counters are a derived cache with exactly one writer — `/wb:update_status` — and are never
+counters are a derived cache with exactly one writer — `/wb:update-status` — and are never
 hand-edited. Git is the durable record.
 
 Every task line carries a bold local ID with at least one digit (`P1-T3`), and every count is
@@ -55,15 +55,15 @@ grep -cE '^- \[ \] \*\*[A-Z0-9-]*[0-9][A-Z0-9-]*\*\*' tasks.md    # remaining
 ### 📋 Documentation Setup
 
 - [x] **P0-T1** — Create project structure (completed 2026-01-01 00:00)
-- [ ] **P0-T2** — Complete research using `/wb:create_research docs/plans/2026-01-01-fixture`
-- [ ] **P0-T3** — Create design document using `/wb:create_design docs/plans/2026-01-01-fixture`
-- [ ] **P0-T4** — Generate execution plan using `/wb:create_tasks docs/plans/2026-01-01-fixture`
+- [ ] **P0-T2** — Complete research using `/wb:create-research docs/plans/2026-01-01-fixture`
+- [ ] **P0-T3** — Create design document using `/wb:create-design docs/plans/2026-01-01-fixture`
+- [ ] **P0-T4** — Generate execution plan using `/wb:create-tasks docs/plans/2026-01-01-fixture`
 
 ---
 
 ## Implementation Phases
 
-[To be populated by /wb:create_tasks after design is approved]
+[To be populated by /wb:create-tasks after design is approved]
 
 ---
 
@@ -79,7 +79,7 @@ grep -cE '^- \[ \] \*\*[A-Z0-9-]*[0-9][A-Z0-9-]*\*\*' tasks.md    # remaining
 
 | Blocker | Impact | Action | Owner | Due Date |
 |---------|--------|--------|-------|----------|
-| Research needed | Can't design | Run /wb:create_research | eval | — |
+| Research needed | Can't design | Run /wb:create-research | eval | — |
 
 ### Implementation Notes
 
@@ -96,4 +96,4 @@ grep -cE '^- \[ \] \*\*[A-Z0-9-]*[0-9][A-Z0-9-]*\*\*' tasks.md    # remaining
 
 ### Next Action
 
-**Run**: `/wb:create_research docs/plans/2026-01-01-fixture`
+**Run**: `/wb:create-research docs/plans/2026-01-01-fixture`

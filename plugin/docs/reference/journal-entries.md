@@ -11,11 +11,11 @@ link here rather than restating it.
 ```markdown
 <!-- Real entries begin below this line, newest first. -->
 
-## 2026-09-17 14:02 — create_design (open)     ← the entry you are writing
+## 2026-09-17 14:02 — create-design (open)     ← the entry you are writing
 
 - **Task/phase**: …
 
-## 2026-09-16 09:30 — create_research (closed) ← everything already there, untouched
+## 2026-09-16 09:30 — create-research (closed) ← everything already there, untouched
 ```
 
 **Do not append to the end of the file.** The word "append" is wrong for this file and any
@@ -35,9 +35,9 @@ grep -E '^## ' journal.md | grep -vE '\[YYYY|<YYYY|YYYY-MM-DD' | head -1
 
 — `head -1`, the **first** heading in the file. An entry written at the bottom is invisible to
 it, and the failure is silent and inverted: the hook reports the *oldest* entry as current. A
-session resuming is then told the plan is mid-`create_research` when `create_design` has already
+session resuming is then told the plan is mid-`create-research` when `create-design` has already
 finished, or that an entry is `(open)` when its own `(closed)` entry sits further down the file.
-Every other reader — `forge`, `daily-digest`, `resume_handoff`, `create_handoff` — inherits the
+Every other reader — `forge`, `daily-digest`, `resume-handoff`, `create-handoff` — inherits the
 same first-heading assumption.
 
 For the same reason, **"the journal tail" never means the end of the file.** Where a skill speaks
@@ -51,7 +51,7 @@ of reading the journal's tail, it means the newest entry, which is at the top.
 `reviews/` parent.
 
 This is not a convenience. `wb-prime.sh` enumerates plans with `ls -d docs/plans/*/` — one level
-deep — and `forge`, `daily-digest`, `resume_handoff` and `create_handoff` all inherit that glob. A
+deep — and `forge`, `daily-digest`, `resume-handoff` and `create-handoff` all inherit that glob. A
 `journal.md` inside a round directory is below it, so no reader would ever open the file: a round's
 blocked `[blocked] (open)` entry would be invisible while the parent's journal still read
 `(closed)` over it, which is the stale-confident-record failure in its worst form — the parent
@@ -74,7 +74,7 @@ which links here rather than restating this.
 - **Read the clock**: `date -u +"%Y-%m-%d %H:%M"`. Never estimate a timestamp, never copy one
   from elsewhere in the file, never reuse the timestamp of the entry you are closing.
 - **The trailing `(open)` or `(closed)` is a contract.** The session-start hook, `forge`,
-  `daily-digest`, `resume_handoff` and `create_handoff` all match on that literal suffix. A
+  `daily-digest`, `resume-handoff` and `create-handoff` all match on that literal suffix. A
   heading ending any other way is invisible to all of them, and the failure is silent: the next
   session is told "closed" over work that was interrupted.
 - Headings start at column zero. A heading indented or fenced is not found — **by every reader,
@@ -183,7 +183,7 @@ the record of the mistake is worth keeping.
 - **No plan directory** — nothing to journal. Skills that run outside `docs/plans/` do not write
   a journal entry at all.
 - **`journal.md` absent from a plan directory that otherwise exists** — create it from
-  `create_project`'s template rather than starting a bare file, so the marker comment and the
+  `create-project`'s template rather than starting a bare file, so the marker comment and the
   fenced examples are present. The fenced placeholder headings are load-bearing: the hook
   discards headings whose date is still `YYYY-MM-DD`, and that is what stops the examples being
   read as a real entry.

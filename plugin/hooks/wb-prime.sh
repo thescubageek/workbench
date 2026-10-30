@@ -27,27 +27,27 @@ orientation() {
 wb: structured development workflow. Orientation for this session.
 
 Stages, in order. Each reads the previous stage's document and stops if it is missing or not approved:
-  /wb:create_project     -> docs/plans/<date>-<name>/ with README, research.md, design.md, tasks.md, journal.md
-  /wb:create_research    -> research.md: facts only, file:line references, no recommendations
-  /wb:explore_design     -> optional: air the alternatives; records the decision at the top of a thoughts/ document
-  /wb:create_design      -> design.md: what to build and why; needs research.md complete
-  /wb:create_tasks       -> tasks.md: phased plan, every task a checkbox with a local ID; needs design.md approved
+  /wb:create-project     -> docs/plans/<date>-<name>/ with README, research.md, design.md, tasks.md, journal.md
+  /wb:create-research    -> research.md: facts only, file:line references, no recommendations
+  /wb:explore-design     -> optional: air the alternatives; records the decision at the top of a thoughts/ document
+  /wb:create-design      -> design.md: what to build and why; needs research.md complete
+  /wb:create-tasks       -> tasks.md: phased plan, every task a checkbox with a local ID; needs design.md approved
   /wb:implement          -> the recommended path: one worker per task, verified, committed, one phase at a time
-  /wb:implement_inline   -> the same plan, coded inline on this session's model
-  /wb:validate_execution -> pass/fail against design.md and tasks.md after a phase or the plan
-  /wb:create_handoff, /wb:resume_handoff -> carry context across sessions, models, and machines
+  /wb:implement-inline   -> the same plan, coded inline on this session's model
+  /wb:validate-execution -> pass/fail against design.md and tasks.md after a phase or the plan
+  /wb:create-handoff, /wb:resume-handoff -> carry context across sessions, models, and machines
 
 What each stage needs from you:
-  create_project: the goal, what success looks like, and the non-goals (the plan's Intent)
-  create_research: the question, or confirm the one derived from the Goal
-  create_design: approve the approach and the metrics that refine each Intent statement
-  create_tasks: confirm the phases and checkpoints
+  create-project: the goal, what success looks like, and the non-goals (the plan's Intent)
+  create-research: the question, or confirm the one derived from the Goal
+  create-design: approve the approach and the metrics that refine each Intent statement
+  create-tasks: confirm the phases and checkpoints
   implement: a go-ahead at each phase checkpoint
-  validate_execution: the manual checks only you can run
+  validate-execution: the manual checks only you can run
 
 Where status lives — there is no external tracker:
   Checkbox state in tasks.md is the truth. Flipping `- [ ]` to `- [x]` IS the act of recording a task done.
-  The frontmatter counters are a derived cache. /wb:update_status is their only writer; never hand-edit them.
+  The frontmatter counters are a derived cache. /wb:update-status is their only writer; never hand-edit them.
   Git is the durable record: one task, one commit, task ID in the message.
   Questions, assumptions and pending decisions live in the document that raises them, with local IDs (Q1, A1, PD1).
 
@@ -198,8 +198,8 @@ if [ -f "$journal" ]; then
     # ANCHORED to the end of the heading. Not a substring search for "OPEN": that misses the
     # lowercase form a writer reaches for unprompted, and it false-positives on a closed
     # entry whose title contains "reopened". The shape is stated at every site that writes an
-    # entry — create_project's template, implement, implement_inline, create_handoff,
-    # resume_handoff — and checked by validate_project.
+    # entry — create-project's template, implement, implement-inline, create-handoff,
+    # resume-handoff — and checked by validate-project.
     # shellcheck disable=SC2018,SC2019  # ASCII ranges are correct here: the state suffix is
     # a literal (open)/(closed), never localized.
     case "$(printf '%s' "$last" | tr 'A-Z' 'a-z' | sed 's/[[:space:]]*$//')" in

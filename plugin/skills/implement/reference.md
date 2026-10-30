@@ -2,9 +2,9 @@
 
 Read this when a step directs you to.
 
-## Evolution from implement_inline
+## Evolution from implement-inline
 
-This skill evolves `implement_inline` with one key improvement:
+This skill evolves `implement-inline` with one key improvement:
 
 - **Coordinator Pattern**: Main agent orchestrates, workers implement in fresh context
 - **Context Efficiency**: Main window stays clean, workers are ephemeral
@@ -62,7 +62,7 @@ separate tracker to reload.
 
 ### Context Efficiency (PRIMARY BENEFIT)
 
-**Sequential** (`implement_inline`):
+**Sequential** (`implement-inline`):
 
 ```
 Main context grows: Research + Design + Task1 + Task2 + Task3 + ...
@@ -117,15 +117,16 @@ Both serve the same budget.
 **Coordinated**: right tier per task, chosen by coordinator judgment over the task's content.
 The ladder is stated once, in SKILL.md Step 5 — this section does not restate it.
 
-## Migration from implement_tasks
+## Migration from the old command names
 
 To migrate existing projects:
 
 1. **No changes needed to documentation structure** (research.md, design.md, tasks.md)
-2. **Switch command**: use `/wb:implement` instead of `/wb:implement_coordinated`
-   (`/wb:implement_inline` is the renamed `implement_tasks`, and still runs inline)
+2. **Switch command**: use `/wb:implement`. `/wb:implement_coordinated` was removed at 4.0.0.
+   `/wb:implement-inline` replaces `/wb:implement_tasks` and `/wb:implement_inline`, and still
+   runs inline
 3. **Existing plans written against a tracker**: their beads IDs no longer resolve. Checkbox
-   state in `tasks.md` is authoritative; run `/wb:update_status` once to reconcile the
+   state in `tasks.md` is authoritative; run `/wb:update-status` once to reconcile the
    frontmatter counters against it.
 
 Both paths produce identical results. The coordinated version keeps the main session context
@@ -142,11 +143,11 @@ clean.
 - ✅ Inspect the working tree before diagnosing any incomplete worker
 - ✅ Commit each task yourself, after its verifier passes
 - ✅ Aggregate worker outputs thoroughly
-- ✅ All `implement_inline` best practices
+- ✅ All `implement-inline` best practices
 
 ### DON'T
 
-- ❌ All prohibitions from `implement_inline`
+- ❌ All prohibitions from `implement-inline`
 - ❌ Do not spawn multiple workers in parallel (keep it simple)
 - ❌ Do not allow workers to add scope
 - ❌ Do not pass entire docs to workers (extract context)
@@ -178,13 +179,13 @@ measurements, is in the 2026-09-08 upstream-fable-merge plan's Implementation No
   that never happened — the pre-printed-✅ template defect reintroduced systematically. Leaving
   it `[ ]` keeps "unattended" and "approved" distinguishable when the plan is the only witness.
 - **The final-phase statement** exists because an unattended run always ends at
-  `status: in-progress`: `complete` is a claim, gated by `update_status`'s barrier, and a user
+  `status: in-progress`: `complete` is a claim, gated by `update-status`'s barrier, and a user
   not told this discovers a plan that looks unfinished.
-- **The `update_status` box is ticked after Step 9 runs it, not at Step 8**, because ticking it
+- **The `update-status` box is ticked after Step 9 runs it, not at Step 8**, because ticking it
   first asserts something not yet done — the attestation error in miniature.
 
 ## Configuration
 
-This skill coordinates task implementation using sequential worker agents with focused context. It preserves all disciplines from `implement_inline` while keeping the main session context clean.
+This skill coordinates task implementation using sequential worker agents with focused context. It preserves all disciplines from `implement-inline` while keeping the main session context clean.
 
 **Recommended for**: Long phases with many tasks, sessions where context compaction would be disruptive, or when you want the main window available for monitoring/debugging.

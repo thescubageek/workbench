@@ -1,6 +1,6 @@
 ---
 name: implement
-description: Implement a plan's tasks with worker agents, keeping the main context clean. The recommended execution path — spawns one focused worker per task in fresh context, verifies each, and commits it. Use /wb:implement_inline instead to run tasks inline on the current session model.
+description: Implement a plan's tasks with worker agents, keeping the main context clean. The recommended execution path — spawns one focused worker per task in fresh context, verifies each, and commits it. Use /wb:implement-inline instead to run tasks inline on the current session model.
 argument-hint: "[project-directory] [phase-number|continue] [--auto]"
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash, Task
 ---
@@ -11,7 +11,7 @@ allowed-tools: Read, Write, Edit, Glob, Grep, Bash, Task
 
 You coordinate task implementation from `tasks.md` by spawning worker agents sequentially, each with focused context and a fresh context window. This prevents main session context bloat.
 
-The alternative is `/wb:implement_inline`, which runs the same plan **inline on the current session model** — simpler, but the main context accumulates every task.
+The alternative is `/wb:implement-inline`, which runs the same plan **inline on the current session model** — simpler, but the main context accumulates every task.
 
 Supporting files in this directory (read each when its step directs you to — never paraphrase from memory):
 
@@ -19,7 +19,7 @@ Supporting files in this directory (read each when its step directs you to — n
 - `templates/` — [incomplete-worker-message.md](templates/incomplete-worker-message.md) (Step 6) · [modified-files-fragment.md](templates/modified-files-fragment.md) (Step 7) · [manual-verification-request.md](templates/manual-verification-request.md) and [phase-completion-report.md](templates/phase-completion-report.md) (Step 8)
 - [committing.md](committing.md) (Step 6b) · [unattended.md](unattended.md) (Step 8, under `--auto`)
 - [reference.md](reference.md) — evolution, resume logic, why the coordinator pattern exists, migration, the DO/DON'T lists, configuration
-- [../../docs/reference/branch-naming.md](../../docs/reference/branch-naming.md) — the branch-name rule Step 2 applies as a backstop, shared with `create_project`, `jira-context` and `forge`
+- [../../docs/reference/branch-naming.md](../../docs/reference/branch-naming.md) — the branch-name rule Step 2 applies as a backstop, shared with `create-project`, `jira-context` and `forge`
 - [../../docs/reference/journal-entries.md](../../docs/reference/journal-entries.md) — where a journal entry goes (newest first, never appended), its heading contract, and when it opens and closes
 - [../../docs/reference/remediation-plan.md](../../docs/reference/remediation-plan.md) — what a review round's remediation plan is, how Step 1 recognizes one, and the files it has and deliberately lacks
 - [../model-help/SKILL.md](../model-help/SKILL.md) → "Verifier tier" — when Step 6b upshifts the verifier from its default
@@ -71,7 +71,7 @@ the run still ends after Step 9, so a multi-phase plan takes one `continue` invo
 
 ### Core Principles
 
-All principles from `implement_inline` PLUS:
+All principles from `implement-inline` PLUS:
 
 1. **Coordination Over Direct Implementation**: Main agent orchestrates, doesn't code
 2. **Context Extraction**: Build minimal context packages for workers
@@ -122,7 +122,7 @@ whole file. If Read returns a partial view, page through it with `offset` and `l
 **A remediation plan has only `tasks.md`, and that is correct.** Read
 [../../docs/reference/remediation-plan.md](../../docs/reference/remediation-plan.md) NOW for how to recognize one
 and what it deliberately lacks, then take `tasks.md` alone as the whole plan. Do not stop, and do
-not route the user to `/wb:create_project` to manufacture two files that exist only to be empty.
+not route the user to `/wb:create-project` to manufacture two files that exist only to be empty.
 
 1. **Read project structure**:
    - Check that specified directory exists
@@ -167,11 +167,11 @@ status surface.
    plan carries neither: its `## Tasks` section is the single phase, and Step 8's checkpoint falls
    at the end of the round.
 2. **Confirm the phase has tasks.** If `tasks.md` has no phases or no task lines, stop and say
-   so — the plan has not been decomposed, and `/wb:create_tasks` is what writes it. **A
+   so — the plan has not been decomposed, and `/wb:create-tasks` is what writes it. **A
    remediation plan is exempt from the phase half of this check, never from the task half**: no
-   task lines is still a stop, and there the fix is to re-run the review, not `/wb:create_tasks`.
+   task lines is still a stop, and there the fix is to re-run the review, not `/wb:create-tasks`.
 3. **Check the counters against the checkboxes.** If they disagree, the checkboxes are right;
-   note it and let `/wb:update_status` reconcile at the checkpoint.
+   note it and let `/wb:update-status` reconcile at the checkpoint.
 4. **Inspect the working tree.**
 
    ```bash
@@ -231,7 +231,7 @@ entry rather than silence. It goes at the **top** of `journal.md`, never appende
 read [../../docs/reference/journal-entries.md](../../docs/reference/journal-entries.md) NOW and
 follow it.
 
-The heading shape is a contract — the session-start hook, `forge`, `daily-digest`, `resume_handoff` and `create_handoff` all match on the trailing `(open)` / `(closed)`, and an entry ending any other way is invisible to them. Timestamp from `date -u +"%Y-%m-%d %H:%M"`, never estimated:
+The heading shape is a contract — the session-start hook, `forge`, `daily-digest`, `resume-handoff` and `create-handoff` all match on the trailing `(open)` / `(closed)`, and an entry ending any other way is invisible to them. Timestamp from `date -u +"%Y-%m-%d %H:%M"`, never estimated:
 
 ```
 ## YYYY-MM-DD HH:MM — <task-id or short label> (open)
@@ -376,7 +376,7 @@ finished.
 The next task's Step 5 writes its entry above this one, which leaves an `(open)` entry below the
 newest — exactly the shape a second-heading close leaves behind. The marker is what tells the
 stale-entry check in
-[../validate_project/reference/validation-rules.md](../validate_project/reference/validation-rules.md)
+[../validate-project/reference/validation-rules.md](../validate-project/reference/validation-rules.md)
 that this one is deliberate; without it, validation ERRORs on a state this step created on purpose
 and blames the wrong cause. The line still ends in `(open)`, so the suffix contract every reader
 depends on is untouched. Remove the marker when the entry finally closes.
@@ -420,7 +420,7 @@ A checkpoint headed `Phase undefined` reads as a run that lost its place.
    git ls-files --others --ignored --exclude-standard docs/plans/<this-plan>/
    ```
 
-3. **Run automated verification.** `update_status` runs at **Step 9**, after this checkpoint —
+3. **Run automated verification.** `update-status` runs at **Step 9**, after this checkpoint —
    do not tick its checkpoint box until it has actually run.
 
    ```bash
@@ -454,14 +454,14 @@ A checkpoint headed `Phase undefined` reads as a run that lost its place.
 
 After phase completion:
 
-1. **Run `/wb:update_status`.** It is the only writer of the progress frontmatter fields — it
+1. **Run `/wb:update-status`.** It is the only writer of the progress frontmatter fields — it
    counts the checkboxes and reconciles the counters to them. Do not edit `current_phase` or
    `completed_tasks` here.
 
    If the skill cannot be invoked in this session — headless runs deny mid-conversation skill
    calls unless launched with `--allowedTools=Skill` — say so in the report and leave the
    counters as they are. Do not hand-edit them; drift is expected, and the next
-   `/wb:update_status` reconciles it.
+   `/wb:update-status` reconciles it.
 
 2. **Add implementation notes** with worker insights:
 
@@ -475,8 +475,8 @@ After phase completion:
    ```
 
 3. **Consider a handoff rather than a second compaction.** A phase that would need to compact
-   twice should hand off instead — `/wb:create_handoff` writes what the next session needs.
+   twice should hand off instead — `/wb:create-handoff` writes what the next session needs.
 
 ## Important Guidelines
 
-See [reference.md](reference.md) — how this evolved from `implement_inline`, resume logic, why the coordinator pattern exists, migration, the DO/DON'T lists, and configuration.
+See [reference.md](reference.md) — how this evolved from `implement-inline`, resume logic, why the coordinator pattern exists, migration, the DO/DON'T lists, and configuration.

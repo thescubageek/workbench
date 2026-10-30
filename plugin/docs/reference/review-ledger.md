@@ -129,7 +129,7 @@ A review loop reviews diffs, and a design defect is not in the diff — so the l
 by construction. It will keep finding its symptoms, forever, and each fix will look locally
 reasonable. Thrashing is the loop's signal that it is operating above its competence.
 
-Escalate out of the loop and back into the pipeline: `create_research`, then `create_design`, on
+Escalate out of the loop and back into the pipeline: `create-research`, then `create-design`, on
 the component that tripped it. **Require a tracer bullet before the next attempt** — one bounded
 probe at the assumption every candidate fix shares, so its result can cull whole branches.
 

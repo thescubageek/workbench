@@ -52,13 +52,13 @@ Note: `/reload-plugins` alone does NOT pull updates — the cache is keyed by ve
 
 ```bash
 # Initialize -> Research -> Design -> Implement -> Validate
-/wb:create_project my-feature docs/plans TICKET-123
-/wb:create_research docs/plans/2025-01-15-TICKET-123-my-feature
-/wb:create_mockup docs/plans/... "UI component"  # Optional for UI
-/wb:create_design docs/plans/...
-/wb:create_tasks docs/plans/...
+/wb:create-project my-feature docs/plans TICKET-123
+/wb:create-research docs/plans/2025-01-15-TICKET-123-my-feature
+/wb:create-mockup docs/plans/... "UI component"  # Optional for UI
+/wb:create-design docs/plans/...
+/wb:create-tasks docs/plans/...
 /wb:implement docs/plans/...
-/wb:validate_execution docs/plans/...
+/wb:validate-execution docs/plans/...
 ```
 
 **Skills** (auto-activated): `project-structure`, `mockup-iteration`, `tdd-discipline`, `verification-before-completion`, `status-sync`, `review-prep`, `jira-context`, `clip`, `eli5-clip`
@@ -71,22 +71,22 @@ Note: `/reload-plugins` alone does NOT pull updates — the cache is keyed by ve
 
 Slash commands for project documentation and task management:
 
-- **`/wb:create_project`** - Settle the plan's Intent with you, then initialize structured documentation with rich metadata
-- **`/wb:create_research`** - Document codebase using parallel research agents
-- **`/wb:create_product_research`** - Document codebase from a product perspective (features, user flows, behaviors)
-- **`/wb:create_mockup`** - Research UI patterns and create HTML mockups with visual validation
-- **`/wb:create_design`** - Create architectural design decisions (WHAT and WHY)
-- **`/wb:explore_design`** - *(optional)* Air the alternatives before choosing; records the decision in `thoughts/`
-- **`/wb:create_tasks`** - Transform design into phased execution plan (HOW)
+- **`/wb:create-project`** - Settle the plan's Intent with you, then initialize structured documentation with rich metadata
+- **`/wb:create-research`** - Document codebase using parallel research agents
+- **`/wb:create-product-research`** - Document codebase from a product perspective (features, user flows, behaviors)
+- **`/wb:create-mockup`** - Research UI patterns and create HTML mockups with visual validation
+- **`/wb:create-design`** - Create architectural design decisions (WHAT and WHY)
+- **`/wb:explore-design`** - *(optional)* Air the alternatives before choosing; records the decision in `thoughts/`
+- **`/wb:create-tasks`** - Transform design into phased execution plan (HOW)
 - **`/wb:implement`** - Implement with TDD via worker agents, main context kept clean *(recommended)*
-- **`/wb:implement_inline`** - The same plan, implemented inline on the session model
-- **`/wb:validate_execution`** - Validate implementation matches plan, and write a verdict onto each Intent statement
-- **`/wb:validate_project`** - Validate project documentation structure
-- **`/wb:create_handoff`** - Create session handoff for work continuity
-- **`/wb:resume_handoff`** - Resume from handoff document
-- **`/wb:resolve_questions`** - Walk through open questions one at a time and record answers
+- **`/wb:implement-inline`** - The same plan, implemented inline on the session model
+- **`/wb:validate-execution`** - Validate implementation matches plan, and write a verdict onto each Intent statement
+- **`/wb:validate-project`** - Validate project documentation structure
+- **`/wb:create-handoff`** - Create session handoff for work continuity
+- **`/wb:resume-handoff`** - Resume from handoff document
+- **`/wb:resolve-questions`** - Walk through open questions one at a time and record answers
 - **`/wb:forge`** - Run a ticket through the full pipeline (research → validate); end-to-end sequencer
-- **`/wb:update_status`** - Intelligently sync status across all documentation files
+- **`/wb:update-status`** - Intelligently sync status across all documentation files
 - **`/wb:help`** - Where the active plan stands and what the next stage needs from you; otherwise a quick reference
 
 #### Running unattended
@@ -103,8 +103,8 @@ unticked box is the point: it is what keeps "ran unattended" and "a person appro
 distinguishable months later, when the plan is the only witness.
 
 Three gates still stop even under `--auto`, because none is a wait you can pre-authorize:
-`create_project` never writes an Intent you have not confirmed, `create_design` never writes
-`status: approved` on its own judgment, and `/wb:update_status` still presents a plan when a
+`create-project` never writes an Intent you have not confirmed, `create-design` never writes
+`status: approved` on its own judgment, and `/wb:update-status` still presents a plan when a
 `status:` value would change or move backward. Counter
 reconciliation — arithmetic over checkboxes you already control — applies silently either way,
 so you never have to remember to run it.
@@ -135,7 +135,7 @@ Background capabilities that Claude automatically invokes:
 - **`verification-before-completion`** - Requires running verification before claiming work is done
 - **`status-sync`** - Monitors for status drift and reminds to sync
 - **`review-prep`** - Interactive code review walkthrough using tmux and nvim
-- **`jira-context`** - Loads context from a Jira ticket's "Agents" section (hivemind bootstrap); runs standalone or inside `create_research`/`forge`
+- **`jira-context`** - Loads context from a Jira ticket's "Agents" section (hivemind bootstrap); runs standalone or inside `create-research`/`forge`
 - **`research-validation`** - Validates research docs against the actual codebase (paths, snippets, behavioral claims)
 - **`model-help`** - Recommends the Claude model + reasoning-effort for a task/handoff; also the gate-mode authority for the workflow commands
 - **`tracer-bullet`** - Fires one cheap probe at the riskiest assumption before fanning out into speculative work
@@ -227,15 +227,15 @@ improvising a document from a template it never saw. That is deliberate — see
 
 ## The plan's Intent
 
-Every plan states what it is for before any file is written. `create_project` asks for a Goal,
+Every plan states what it is for before any file is written. `create-project` asks for a Goal,
 two to four "Success looks like" statements, and the Non-goals, reads them back, and writes them
 into the plan README's `## Intent` section once you confirm. Every later stage answers to it:
 
-- `create_research` reports which statements its findings bear on, in `## Intent Coverage`.
-- `create_design` refines each statement into metrics marked `(refines: S1)`, or defers it with
+- `create-research` reports which statements its findings bear on, in `## Intent Coverage`.
+- `create-design` refines each statement into metrics marked `(refines: S1)`, or defers it with
   a reason.
-- `create_tasks` carries those metrics into the plan, each checked in a phase.
-- `validate_execution` writes `→ PASS`, `→ FAIL` or `→ DEFERRED` back onto each statement.
+- `create-tasks` carries those metrics into the plan, each checked in a phase.
+- `validate-execution` writes `→ PASS`, `→ FAIL` or `→ DEFERRED` back onto each statement.
 
 A change to the Goal or the Non-goals needs your explicit approval and leaves a dated Amendments
 line. Plans created before 3.2.0 have no Intent section, and no stage asks them for one. The rules
@@ -251,7 +251,7 @@ No external tracker. Nothing to install, nothing to initialize.
 
 - **Checkbox state in `tasks.md` is the source of truth.** Flipping `- [ ]` to `- [x]` is the
   act of recording a task done.
-- **Frontmatter counters are a derived cache** with exactly one writer, `/wb:update_status`.
+- **Frontmatter counters are a derived cache** with exactly one writer, `/wb:update-status`.
   Drift between checkpoints is expected; `status-sync` surfaces it.
 - **Git is the durable record** — one task, one commit, task ID in the message.
 - **Questions, assumptions and decisions** live in the document that raises them, with local

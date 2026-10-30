@@ -11,6 +11,52 @@ requires `shellcheck` and `python3` and fails loudly without them. A contributor
 the checks at 2.1.0 cannot at 3.0.0 without installing two tools, and no reading of "removed or
 renamed stages" would have warned them.
 
+## [4.0.0] — 2026-10-30
+
+Every stage name now uses hyphens. The Agent Skills specification allows only lowercase letters,
+digits and hyphens in a skill name. 2.0.0 scheduled the removal of the three deprecated aliases
+for this release.
+
+### ⚠️ Breaking
+
+- **Fourteen stages renamed, with no aliases.** The old name no longer resolves.
+
+  | Old | New |
+  | --- | --- |
+  | `/wb:create_project` | `/wb:create-project` |
+  | `/wb:create_research` | `/wb:create-research` |
+  | `/wb:create_product_research` | `/wb:create-product-research` |
+  | `/wb:create_mockup` | `/wb:create-mockup` |
+  | `/wb:explore_design` | `/wb:explore-design` |
+  | `/wb:create_design` | `/wb:create-design` |
+  | `/wb:create_tasks` | `/wb:create-tasks` |
+  | `/wb:implement_inline` | `/wb:implement-inline` |
+  | `/wb:validate_execution` | `/wb:validate-execution` |
+  | `/wb:validate_project` | `/wb:validate-project` |
+  | `/wb:create_handoff` | `/wb:create-handoff` |
+  | `/wb:resume_handoff` | `/wb:resume-handoff` |
+  | `/wb:resolve_questions` | `/wb:resolve-questions` |
+  | `/wb:update_status` | `/wb:update-status` |
+
+- **Three deprecated aliases removed**: `/wb:create_execution`, `/wb:implement_coordinated` and
+  `/wb:implement_tasks`. Use `/wb:create-tasks`, `/wb:implement` and `/wb:implement-inline`.
+
+### Not changed, deliberately
+
+- **`clip`, `forge`, `help`, `implement`** and the 20 hyphenated skills keep their names.
+- **Existing plans.** Plan documents, journal headings and earlier CHANGELOG entries keep the
+  old names. They record what ran at the time.
+
+### Migration
+
+Update the plugin and restart:
+
+```bash
+claude plugin update wb@thescubageek-workbench
+```
+
+Replace the underscore in each stage name you type, script or keep in your own `CLAUDE.md`.
+
 ## [3.2.0] — 2026-10-29
 
 Every plan now states its intent, and every stage says what it needs from you. Both ideas come
