@@ -20,6 +20,8 @@ project, so a read can be refused. Say which file was refused, that reads outsid
 directory are gated, and that the fix is to allow the read once or to relaunch with
 `--add-dir <plugin-path>`. Do not route around a refusal with `cat`.
 
+This stage needs from you: confirmation of the proposed status changes. A backward change needs a reason.
+
 **Output discipline**: act on barriers silently; don't restate the plan between steps; emit only the artifact and a one-line completion summary.
 
 ## Status Update Philosophy

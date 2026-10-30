@@ -20,6 +20,8 @@ project, so a read can be refused. Say which file was refused, that reads outsid
 directory are gated, and that the fix is to allow the read once or to relaunch with
 `--add-dir <plugin-path>`. Do not route around a refusal with `cat`.
 
+This stage needs from you: the handoff path, and confirmation before any backward step such as reopening closed work.
+
 **Output discipline**: act on barriers silently; don't restate the plan between steps; emit only the artifact and a one-line completion summary.
 
 ## Initial Response

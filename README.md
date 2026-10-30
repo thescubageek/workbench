@@ -71,7 +71,7 @@ Note: `/reload-plugins` alone does NOT pull updates — the cache is keyed by ve
 
 Slash commands for project documentation and task management:
 
-- **`/wb:create_project`** - Initialize structured documentation with rich metadata
+- **`/wb:create_project`** - Settle the plan's Intent with you, then initialize structured documentation with rich metadata
 - **`/wb:create_research`** - Document codebase using parallel research agents
 - **`/wb:create_product_research`** - Document codebase from a product perspective (features, user flows, behaviors)
 - **`/wb:create_mockup`** - Research UI patterns and create HTML mockups with visual validation
@@ -80,14 +80,14 @@ Slash commands for project documentation and task management:
 - **`/wb:create_tasks`** - Transform design into phased execution plan (HOW)
 - **`/wb:implement`** - Implement with TDD via worker agents, main context kept clean *(recommended)*
 - **`/wb:implement_inline`** - The same plan, implemented inline on the session model
-- **`/wb:validate_execution`** - Validate implementation matches plan
+- **`/wb:validate_execution`** - Validate implementation matches plan, and write a verdict onto each Intent statement
 - **`/wb:validate_project`** - Validate project documentation structure
 - **`/wb:create_handoff`** - Create session handoff for work continuity
 - **`/wb:resume_handoff`** - Resume from handoff document
 - **`/wb:resolve_questions`** - Walk through open questions one at a time and record answers
 - **`/wb:forge`** - Run a ticket through the full pipeline (research → validate); end-to-end sequencer
 - **`/wb:update_status`** - Intelligently sync status across all documentation files
-- **`/wb:help`** - Quick reference for all commands
+- **`/wb:help`** - Where the active plan stands and what the next stage needs from you; otherwise a quick reference
 
 #### Running unattended
 
@@ -102,9 +102,10 @@ phase is recorded as having closed unattended, naming the manual steps nobody pe
 unticked box is the point: it is what keeps "ran unattended" and "a person approved this"
 distinguishable months later, when the plan is the only witness.
 
-Two gates still stop even under `--auto`, because neither is a wait you can pre-authorise:
-`create_design` never writes `status: approved` on its own judgment, and `/wb:update_status`
-still presents a plan when a `status:` value would change or move backward. Counter
+Three gates still stop even under `--auto`, because none is a wait you can pre-authorize:
+`create_project` never writes an Intent you have not confirmed, `create_design` never writes
+`status: approved` on its own judgment, and `/wb:update_status` still presents a plan when a
+`status:` value would change or move backward. Counter
 reconciliation — arithmetic over checkboxes you already control — applies silently either way,
 so you never have to remember to run it.
 
@@ -117,7 +118,7 @@ Specialized agents for codebase analysis:
 - **`pattern-finder`** - Find similar patterns and implementations
 - **`product-behavior-analyzer`** - Analyze the codebase as user-visible behaviors and product capabilities
 - **`research-validator`** - Validate research docs against the codebase (paths, snippets, behavioral claims)
-- **`task-verifier`** - Verify task completion against requirements
+- **`task-verifier`** - Verify task completion against requirements. Runs on Sonnet; `/wb:implement` upshifts it to Opus for a sensitive, hard-to-verify or wide-blast-radius task, and for the re-check after an escalation
 - **`task-worker`** - Implement exactly one task from a plan's `tasks.md` under TDD, in fresh context
 
 ### Skills (auto-activated)
@@ -151,6 +152,7 @@ Background capabilities that Claude automatically invokes:
 Shipped, read at runtime, each the single authority for one rule. Skills link to them rather than
 restating, so a rule changes in one place instead of drifting across copies.
 
+- **`plan-intent.md`** - The plan's `## Intent` section: its shape, which stage writes what, the `(refines:)` marker, and the verdicts validation writes back
 - **`branch-naming.md`** - What the working branch is called, and when to rename it
 - **`journal-entries.md`** - Where a journal entry goes (newest at the top, never appended), its `(open)`/`(closed)` contract, and when it opens and closes
 - **`code-review-integration.md`** - What Claude Code's built-in review commands provide, and which parts of that a skill may rely on
@@ -222,6 +224,26 @@ scope, the `allow` rule grants the read directly.
 When the read is refused, a stage names the file it could not read and stops, rather than
 improvising a document from a template it never saw. That is deliberate — see
 `docs/claude-code-skills-guide.md` → House conventions.
+
+## The plan's Intent
+
+Every plan states what it is for before any file is written. `create_project` asks for a Goal,
+two to four "Success looks like" statements, and the Non-goals, reads them back, and writes them
+into the plan README's `## Intent` section once you confirm. Every later stage answers to it:
+
+- `create_research` reports which statements its findings bear on, in `## Intent Coverage`.
+- `create_design` refines each statement into metrics marked `(refines: S1)`, or defers it with
+  a reason.
+- `create_tasks` carries those metrics into the plan, each checked in a phase.
+- `validate_execution` writes `→ PASS`, `→ FAIL` or `→ DEFERRED` back onto each statement.
+
+A change to the Goal or the Non-goals needs your explicit approval and leaves a dated Amendments
+line. Plans created before 3.2.0 have no Intent section, and no stage asks them for one. The rules
+are in `plugin/docs/reference/plan-intent.md`.
+
+Each stage also opens with one line saying what it needs from you. `/wb:help` collects them in
+one table, and in a repository with an active plan it reports where the plan stands, what the
+next stage needs, and what the previous one left undone.
 
 ## Where status lives
 

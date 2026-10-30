@@ -18,6 +18,13 @@ Key decisions:
 
 Pending decisions: [count]
 
+Intent: [N] of [S] statements refined, [D] deferred. Amendments: [the new Amendments lines, or "none"]
+
+Success metrics:
+
+- [metric] (refines: S1 — [the statement's meaning, in a few words])
+- [Each deferred statement as "S3 ([its meaning]) is deferred: [reason]", or omit this line]
+
 Agent findings used in the design:
 
 - [Finding 1 from verification agents]
@@ -32,6 +39,7 @@ The design document contains:
 
 Review the design, and answer these questions:
 
+- Does each success metric check what its Intent statement means?
 - Are the success criteria appropriate?
 - Do the technical decisions match your intent?
 - Is a risk missing?

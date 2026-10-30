@@ -22,11 +22,14 @@ Supporting files in this directory (read each when its step directs you to — n
 - [../../docs/reference/branch-naming.md](../../docs/reference/branch-naming.md) — the branch-name rule Step 2 applies as a backstop, shared with `create_project`, `jira-context` and `forge`
 - [../../docs/reference/journal-entries.md](../../docs/reference/journal-entries.md) — where a journal entry goes (newest first, never appended), its heading contract, and when it opens and closes
 - [../../docs/reference/remediation-plan.md](../../docs/reference/remediation-plan.md) — what a review round's remediation plan is, how Step 1 recognizes one, and the files it has and deliberately lacks
+- [../model-help/SKILL.md](../model-help/SKILL.md) → "Verifier tier" — when Step 6b upshifts the verifier from its default
 
 **If a directed read fails, stop — do not continue from memory.** These files live outside your
 project, so a read can be refused. Say which file was refused, that reads outside the working
 directory are gated, and that the fix is to allow the read once or to relaunch with
 `--add-dir <plugin-path>`. Do not route around a refusal with `cat`.
+
+This stage needs from you: the phase to run, a go-ahead at each phase checkpoint, and a decision when a verified failure or a plan defect stops a task.
 
 ## Initial Response
 
@@ -293,6 +296,11 @@ context spends the same budget and truncates at the same point, buying nothing.
 
 #### 6b. Verify
 
+**Choose the verifier tier.** The agent file's `sonnet` at `high` is the default. Read the
+"Verifier tier" section of [../model-help/SKILL.md](../model-help/SKILL.md) NOW, once per run,
+and apply it to each task. When it says to upshift, pass `model: "opus"` on the spawn and say
+why in one line. Otherwise pass no `model`, so the agent file's pin applies.
+
 Read [prompts/verifier-prompt.md](prompts/verifier-prompt.md) NOW and spawn the `wb:task-verifier` agent with it. Scope is checked against the uncommitted working tree — there is no base ref to supply, because the worker did not commit.
 
 Parse the result:
@@ -338,7 +346,7 @@ Any other verified failure gets **exactly one** escalation attempt:
    blocking list, not a third model.
 3. Say which rung you chose and why, in one line.
 4. Read [prompts/escalation-worker-prompt.md](prompts/escalation-worker-prompt.md) NOW and spawn with it.
-5. Re-verify.
+5. Re-verify, at the tier the "Verifier tier" rule gives for a re-verification.
 
 **If re-verification fails**, stop, and leave the repository in the state the next task needs.
 A second automatic attempt is the one that reliably wastes a worker; the checkpoint is where a

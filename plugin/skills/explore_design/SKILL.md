@@ -12,11 +12,14 @@ An optional stage between research and design. The pipeline otherwise goes from 
 Supporting file in this directory (read it when its step directs you to — never paraphrase from memory):
 
 - `templates/` — [exploration-document.md](templates/exploration-document.md) (Step 6) · [completion-message.md](templates/completion-message.md) (Step 7)
+- [../../docs/reference/plan-intent.md](../../docs/reference/plan-intent.md) — the README's `## Intent` section that Step 2 frames against, and how Step 6 records an amendment
 
 **If a directed read fails, stop — do not continue from memory.** These files live outside your
 project, so a read can be refused. Say which file was refused, that reads outside the working
 directory are gated, and that the fix is to allow the read once or to relaunch with
 `--add-dir <plugin-path>`. Do not route around a refusal with `cat`.
+
+This stage needs from you: reactions to the directions as they are drafted, and an explicit approval of one before anything is recorded.
 
 **Output discipline**: act on barriers silently; don't restate the plan between steps; emit only the artifact and a one-line completion summary.
 
@@ -90,14 +93,20 @@ When invoked, check for arguments:
 5. **Read `.claude/wb/knowledge.md` if it exists** — durable repository facts with verification
    hints. Treat entries as dated claims to re-check, not as current truth.
 
+6. **Read the README's `## Intent` section**, and
+   [../../docs/reference/plan-intent.md](../../docs/reference/plan-intent.md) with it. The Goal
+   bounds the decision space. A plan with no Intent section has no such obligation. Say so once,
+   in the reference doc's form.
+
 ### Step 2: Frame the Decision Space
 
 **Identify what is actually being decided**
 
 Before options, get the question right. A badly framed question produces a well-argued wrong answer.
 
-1. **State the decision in one sentence** — the question, not the candidates.
-2. **State what is NOT being decided.** Adjacent questions will surface; naming them as
+1. **State the decision in one sentence** — the question, not the candidates. Then say how the
+   decision serves the Goal, and which success statements it bears on, by ID.
+2. **State what is NOT being decided.** The Intent's Non-goals are already out of scope here. Adjacent questions will surface; naming them as
    out-of-scope now stops the discussion sprawling.
 3. **List the constraints** any answer must satisfy, each traced to research.md with `file:line`
    or to something the user said.
@@ -158,6 +167,12 @@ discarding everything this stage produced.
 
 Record the **rejected** directions and why, in the same document. That is what `create_design`
 carries into design.md's Rejected Alternatives instead of inventing them.
+
+**A direction that changes the Goal or the Non-goals is an amendment, not a detail.** Name the
+change and get the user's explicit approval for it, separately from approval of the direction.
+Then edit the README's `## Intent` in place and add the dated Amendments line, as
+[../../docs/reference/plan-intent.md](../../docs/reference/plan-intent.md) describes. Without
+that approval, the direction is out of bounds. Return to Step 4.
 
 **This stage does not write `design.md`.** It has one writer.
 

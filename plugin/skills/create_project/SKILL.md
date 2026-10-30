@@ -15,11 +15,15 @@ Supporting files in this directory (read each when its step directs you to — n
 - [reference.md](reference.md) — argument usage, status progression, error handling
 - [../../docs/reference/branch-naming.md](../../docs/reference/branch-naming.md) — the branch-name
   rule Step 3 applies, shared with `jira-context`, `forge` and `implement`
+- [../../docs/reference/plan-intent.md](../../docs/reference/plan-intent.md) — the README's
+  `## Intent` section that Step 1 gathers and Step 4 writes, and what every later stage owes it
 
 **If a directed read fails, stop — do not continue from memory.** These files live outside your
 project, so a read can be refused. Say which file was refused, that reads outside the working
 directory are gated, and that the fix is to allow the read once or to relaunch with
 `--add-dir <plugin-path>`. Do not route around a refusal with `cat`.
+
+This stage needs from you: the goal, what success looks like, and what is out of scope. The project name, base directory and ticket are mechanics.
 
 **Output discipline**: act on barriers silently; don't restate the plan between steps; emit only the artifact and a one-line completion summary.
 
@@ -48,13 +52,19 @@ When invoked, check for arguments:
    1. Project name (short, kebab-case preferred, e.g., auth-refactor)
    2. Base directory (default: docs/plans)
    3. Ticket/issue reference (optional, e.g., GH-123, JIRA-456, LINEAR-789)
+   4. The goal: one sentence on what the project is for
+   5. What success looks like: two to four things a person could see or check when it is done
+   6. Non-goals: what this project will not do
 
    I'll create a timestamped project directory with research, design, and task tracking files.
    ```
 
+**A description in the arguments is not wasted.** Prose the user typed in place of a project
+name usually states a goal. Use it for the Intent in Step 1, after you ask for the name.
+
 ## Process Steps
 
-### Step 1: Parse Arguments
+### Step 1: Parse Arguments and Settle the Intent
 
 Bind three slots, in order: the **project name**, then the **base directory** (default
 `docs/plans`), then an optional **ticket reference**. Prompt for any that is missing.
@@ -62,6 +72,30 @@ Bind three slots, in order: the **project name**, then the **base directory** (d
 **Refuse prose.** If the first argument contains spaces or reads as a description of the work
 rather than a name, do not split it across the slots — ask for the three values by name instead.
 Splitting a sentence positionally produces a wrongly-named plan directory with no error.
+
+**Then settle the Intent, before any file exists.** Read
+[../../docs/reference/plan-intent.md](../../docs/reference/plan-intent.md) NOW for its shape.
+The Goal, the "Success looks like" statements and the Non-goals are all required.
+
+- **If the request carries them**: the invoking prose, the arguments, or a ticket summary
+  states a goal, an outcome or a boundary. Draft all three parts from it and confirm them in
+  one exchange:
+
+  ```
+  I read the intent as:
+  - Goal: [one sentence]
+  - Success looks like:
+    - S1: [observable statement]
+    - S2: [observable statement]
+  - Non-goals: [list, or "none stated"]
+  Is this correct? Tell me what to change.
+  ```
+
+- **If the request carries none of it**: ask for the three parts in one message.
+
+Do not create the directory or any file while a part is empty. A user who says there are no
+non-goals has given an answer: write "none stated". Write the section from the confirmed text,
+and start the Amendments list as `- none`.
 
 ### Step 2: Gather Metadata
 
@@ -121,7 +155,7 @@ does not capture the old name.
 Create five foundation files. **Read one template file per file you create**, at the moment you
 create it.
 
-1. **README.md** — navigation hub. Read [templates/readme-md-template.md](templates/readme-md-template.md) NOW and create the file from it, with all metadata filled in.
+1. **README.md** — navigation hub. Read [templates/readme-md-template.md](templates/readme-md-template.md) NOW and create the file from it, with all metadata filled in and the `## Intent` section written from the text confirmed in Step 1.
 2. **research.md** — research documentation. Read [templates/research-md-template.md](templates/research-md-template.md) NOW
    and create the file from it, with all metadata filled in.
 3. **design.md** — design decisions. Read [templates/design-md-template.md](templates/design-md-template.md) NOW and create
@@ -160,8 +194,10 @@ Present the created structure:
 
 📁 Location: [full-path-to-directory]
 
+🎯 Intent: [Goal, in one line]. [N] success statements, [M] non-goals
+
 📄 Files created:
-├── README.md      - Project overview and navigation
+├── README.md      - Project overview, Intent, and navigation
 ├── research.md    - Research documentation (status: draft)
 ├── design.md      - Design decisions (status: draft)
 ├── tasks.md       - Execution plan (1/4 tasks complete)

@@ -11,6 +11,69 @@ requires `shellcheck` and `python3` and fails loudly without them. A contributor
 the checks at 2.1.0 cannot at 3.0.0 without installing two tools, and no reading of "removed or
 renamed stages" would have warned them.
 
+## [3.2.0] — 2026-10-29
+
+Every plan now states its intent, and every stage says what it needs from you. Both ideas come
+from `gvarela/workbench` 3.0.0, adapted to a plugin with no tracker. No stage was removed, and no
+stage requires anything new of the environment.
+
+### Added
+
+- **The plan's Intent.** `create_project` asks for a Goal, two to four "Success looks like"
+  statements with IDs (`S1`, `S2`, …), and the Non-goals, reads them back, and writes no file
+  until you confirm. They go in a `## Intent` section of the plan README, with an Amendments
+  list. Each later stage answers to it:
+  - `create_research` and `create_product_research` take the Goal as the question when you give
+    none, and write `## Intent Coverage`, which lists each statement once.
+  - `explore_design` frames the decision against the Goal and quotes it in the Decision Record.
+  - `create_design` ends each Success Metric with `(refines: S<n>)`, and lists each statement it
+    does not deliver on a `**Deferred**:` line. BARRIER 4 holds design.md until every statement
+    is refined or deferred.
+  - `create_tasks` copies the refining metrics into the Target State, each checked in a phase.
+  - `validate_execution` gives each statement a verdict and writes `→ PASS`, `→ FAIL` or
+    `→ DEFERRED` with the date onto its README line.
+  - A change to the Goal, a statement or a Non-goal needs explicit approval and a dated
+    Amendments line.
+  - `validate_project` checks the section's shape, in the new checklist §10.
+  - In chat, a statement ID always carries its meaning: "S2 (no flags, same behavior)". The
+    design and tasks presentations show the shape. `evals/wbte_check.py` counts `S<n>` as an ID.
+- **`plugin/docs/reference/plan-intent.md`** is the single authority for all of the above.
+- **"This stage needs from you".** Each of 16 stages opens with one line naming what you
+  provide, decide and confirm. `/wb:help` has the full table, and the session-start orientation
+  has a six-line summary.
+- **A context-aware `/wb:help`.** With an active plan, it reports each document's status, the
+  phase and task position from the checkboxes, open `Q`/`A`/`PD` rows, the journal and the
+  tree, the next stage and what it needs from you, and what the previous stage left undone
+  against the Intent. With no active plan, it says so and renders the reference.
+- **The session-start hook prints the active plan's Goal.**
+
+### Changed
+
+- **The verifier can upshift, and its default stays.** `task-verifier` still runs on Sonnet 5.5
+  at `high`. A new "Verifier tier" rule in `model-help` upshifts it one rung, to Opus 5.5, for a
+  task that scores HIGH on correctness sensitivity, verification cost or blast radius. It also
+  upshifts for the re-check after a 6c escalation. `implement` Step 6b reads the rule before each
+  verifier spawn. The 3.1.0 trial found 18 of 18 planted defects on both tiers, so the default
+  does not move. The upshift covers the cases that trial did not measure.
+- **`forge --auto` stops for the Intent.** It is a decision, like design approval.
+
+### Not changed, deliberately
+
+- **Older plans.** A plan without an `## Intent` section has no Intent obligations. Each stage
+  says so once and continues. No stage adds the section unless you ask.
+- **Remediation plans** from `adversarial-review` have no README, so no Intent applies to them.
+
+### Migration
+
+None. Update the plugin and restart:
+
+```bash
+claude plugin update wb@thescubageek-workbench
+```
+
+To give an existing plan an Intent, add the section by hand in the shape
+`plugin/docs/reference/plan-intent.md` gives.
+
 ## [3.1.6] — 2026-10-25
 
 A prompt bugfix for one agent. No stage was added or removed, and no stage requires anything new.

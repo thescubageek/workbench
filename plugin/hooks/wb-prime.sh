@@ -37,6 +37,14 @@ Stages, in order. Each reads the previous stage's document and stops if it is mi
   /wb:validate_execution -> pass/fail against design.md and tasks.md after a phase or the plan
   /wb:create_handoff, /wb:resume_handoff -> carry context across sessions, models, and machines
 
+What each stage needs from you:
+  create_project: the goal, what success looks like, and the non-goals (the plan's Intent)
+  create_research: the question, or confirm the one derived from the Goal
+  create_design: approve the approach and the metrics that refine each Intent statement
+  create_tasks: confirm the phases and checkpoints
+  implement: a go-ahead at each phase checkpoint
+  validate_execution: the manual checks only you can run
+
 Where status lives — there is no external tracker:
   Checkbox state in tasks.md is the truth. Flipping `- [ ]` to `- [x]` IS the act of recording a task done.
   The frontmatter counters are a derived cache. /wb:update_status is their only writer; never hand-edit them.
@@ -47,7 +55,7 @@ Conventions:
   Plans live in docs/plans/<date>-<name>/ and are gitignored until promoted with `git add -f`.
   Checkpoints stop for a human between phases. Never declare a phase complete while one of its checkboxes is `[ ]`.
   The stages are the workflow. If a /wb: stage cannot be invoked, say so and stop — never reconstruct a stage from this summary.
-  Long form: /wb:help. Replace this text for a repository with .claude/wb/PRIME.md (print the default with hooks/wb-prime.sh --export).
+  Long form, and where this plan stands: /wb:help. Replace this text for a repository with .claude/wb/PRIME.md (print the default with hooks/wb-prime.sh --export).
 ORIENTATION
 }
 
@@ -149,6 +157,13 @@ if [ "$count" -eq 1 ]; then
   echo "Active plan: $dir"
 else
   echo "Active plan: $dir  (also open: $(echo "$candidates" | cut -d' ' -f2-))"
+fi
+
+# The plan's Goal, from the README's Intent section. A plan created before 3.2.0 has none.
+goal=$(sed -n '/^## Intent/,/^## /{s/^\*\*Goal\*\*:[[:space:]]*//p;}' "$dir/README.md" 2>/dev/null | head -1)
+if [ -n "$goal" ]; then
+  [ ${#goal} -gt 100 ] && goal="$(printf '%s' "$goal" | cut -c1-97 | sed 's/[[:space:]][^[:space:]]*$//')…"
+  echo "Goal: $goal"
 fi
 
 # Position. Scope the counts to lines carrying a task ID: a plan's success criteria

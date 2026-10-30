@@ -14,6 +14,7 @@ Supporting files in this directory (read each when its step directs you to — n
 - [reference.md](reference.md) — the **Audience: Product Managers** rules (read before Step 3 and again before Step 5 — they are what makes this skill different from `create_research`), workflow position, important notes, configuration
 - [sub-agent-prompts.md](sub-agent-prompts.md) — verbatim prompts for the Component Locator, Product Behavior Analyzer, Pattern Finder, additional specialized agents, and the Step 7 validator
 - [templates.md](templates.md) — the `product-research.md` output template, including the Open Questions table
+- [../../docs/reference/plan-intent.md](../../docs/reference/plan-intent.md) — the README's `## Intent` section, which Step 3 decomposes against and Step 6 reports coverage of
 
 **If a directed read fails, stop — do not continue from memory.** These files live outside your
 project, so a read can be refused. Say which file was refused, that reads outside the working
@@ -30,6 +31,8 @@ Describe the code as it is: no recommendations, issue-spotting, enhancements,
 critiques, or root-cause analysis unless explicitly asked. You are a
 documentarian, not an evaluator.
 
+This stage needs from you: the product question, or a confirmation of the one derived from the plan's Goal.
+
 **Output discipline**: act on barriers silently; don't restate the plan between
 steps; emit only the artifact and a one-line completion summary.
 
@@ -40,7 +43,8 @@ When invoked, check for arguments:
 1. **If directory provided** (e.g., `/wb:create_product_research docs/plans/2025-01-08-auth/`):
    - Use `$1` as the project directory
    - If `$2+` exists, use as research question
-   - Otherwise, prompt for research focus
+   - Otherwise, derive the question from the README's `## Intent` Goal and confirm it in one
+     line. Prompt for a research focus only when the plan has no Intent section
 
 2. **If no arguments**:
 
@@ -89,6 +93,11 @@ after this point is shaped by it.
 ### Step 3: Decompose Research Question in Product Terms
 
 **Describe what the software does, from the user's perspective**
+
+Read the README's `## Intent` section and
+[../../docs/reference/plan-intent.md](../../docs/reference/plan-intent.md) first. The "Success
+looks like" statements are already in product terms, so decompose against them. A plan with no
+Intent section has no such obligation. Say so once, in the reference doc's form.
 
 1. **Break down the user's query into product areas**, not code modules:
    - What features are involved? What does the user see and do?
@@ -171,8 +180,11 @@ Write the product-research.md file. **Keep the main agent focused on synthesis �
 
 Read [templates.md](templates.md) NOW and write the document in the shape it gives.
 
-Two things about that template are load-bearing rather than cosmetic:
+Three things about that template are load-bearing rather than cosmetic:
 
+- **Intent Coverage lists every success statement exactly once**, in "Findings bear on" or in
+  "No findings touch", as the reference doc describes. It states what exists, not whether the
+  statement can be met.
 - **Open Questions are a table in this document, with local IDs** (`Q1`, `Q2`, …) and an
   explicit state. There is no external tracker: this table *is* the record. A question earns a
   row only if a decision waits on it; otherwise it is a finding.

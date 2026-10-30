@@ -21,6 +21,8 @@ project, so a read can be refused. Say which file was refused, that reads outsid
 directory are gated, and that the fix is to allow the read once or to relaunch with
 `--add-dir <plugin-path>`. Do not route around a refusal with `cat`.
 
+This stage needs from you: the ticket or plan directory, and each approval the stages it runs ask for.
+
 **Output discipline**: act on barriers silently; don't restate the plan between steps; emit only the artifact and a one-line completion summary.
 
 ## When to use
@@ -105,10 +107,11 @@ When invoked:
 7. **Confirm with the user before each phase transition.** Forge does not auto-advance silently; the user must see what's about to run — and, at that moment, the model advisory for the phase about to run.
 
    **Unless `--auto` was passed**, in which case advance without confirming and pass `--auto`
-   through to `implement`. Two gates still stop regardless, because neither is a wait the user
-   can pre-authorize: `create_design` never sets `status: approved` on its own judgment, and
-   `update_status` still presents a plan when a `status:` value would change. `--auto` skips
-   confirmations, not decisions.
+   through to `implement`. Three gates still stop regardless, because none is a wait the user
+   can pre-authorize: `create_project` never writes an Intent the user has not confirmed,
+   `create_design` never sets `status: approved` on its own judgment, and `update_status` still
+   presents a plan when a `status:` value would change. `--auto` skips confirmations, not
+   decisions.
 
 ## Per-phase behavior
 
@@ -116,7 +119,8 @@ When invoked:
 
 - Only runs if no project directory exists.
 - Invoke `/wb:create_project` semantics (read `../create_project/SKILL.md`); collect project name, base dir, ticket ref.
-- Output: timestamped project directory with README, research, design, tasks and journal files.
+- **The Intent is confirmed even under `--auto`.** Draft the Goal, the success statements and the Non-goals from the ticket summary or the invoking prose, then confirm them with the user. The Intent is the contract every later stage answers to, so confirming it is a decision.
+- Output: timestamped project directory with README (including its `## Intent`), research, design, tasks and journal files.
 
 ### Phase: create_research
 

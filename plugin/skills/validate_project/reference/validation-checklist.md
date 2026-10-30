@@ -133,7 +133,7 @@ treats as valid.
 
 ## 9. Remediation Plan (Review Round)
 
-Checked **instead of** §2, §6, §7 and §8 on a directory recognized as a round. A round is a small
+Checked **instead of** §2, §6, §7, §8 and §10 on a directory recognized as a round. A round is a small
 document and this contract is deliberately short — but it is a contract. A branch that validated
 nothing would trade a false positive for a blind spot on the only file the round has.
 
@@ -151,3 +151,23 @@ nothing would trade a false positive for a blind spot on the only file the round
 - ✅ Every §3 task-tracking check, unchanged — checkbox task lines, unique IDs carrying a digit,
   counters against the counts, declared status not contradicting the boxes. This is where a
   round's real defects live, and it is why the round is validated at all
+
+## 10. Plan Intent
+
+*Phased project only.* The rules are in
+[../../../docs/reference/plan-intent.md](../../../docs/reference/plan-intent.md).
+
+- ✅ README.md has no `## Intent` section: report one line,
+  "no Intent section (plan predates 3.2.0)", and skip the rest of this section. It is neither a warning nor an error
+- ❌ The section exists and the Goal is empty or still a template placeholder
+- ❌ A "Success looks like" statement without a bold local ID, or two statements with one ID.
+  `(refines:)` markers and verdicts cite the ID
+- ⚠️ Fewer than two or more than four statements
+- ⚠️ No `**Amendments**:` list
+- ⚠️ research.md is `complete` and has no `## Intent Coverage`, or a statement ID appears in
+  neither of its lists, or in both
+- ⚠️ design.md is `approved` and a statement has no `(refines:)` metric and no `**Deferred**:`
+  entry
+- ❌ A `(refines:)` marker names a statement ID that the README does not have
+- ⚠️ A verdict suffix that is not `→ PASS`, `→ FAIL` or `→ DEFERRED` followed by a date, or a
+  statement line with more than one suffix

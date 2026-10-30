@@ -83,7 +83,9 @@ ID without one is invisible to every counter.
 
 ### `/create_project` - Initialize Project Documentation
 
-Creates a comprehensive documentation structure with Git metadata tracking.
+Settles the plan's Intent with the user, then creates a comprehensive documentation structure
+with Git metadata tracking. No file is written until the Goal, the "Success looks like"
+statements and the Non-goals are confirmed.
 
 **Usage**:
 
@@ -97,14 +99,17 @@ Creates a comprehensive documentation structure with Git metadata tracking.
 
 ```
 docs/plans/2025-10-07-LINEAR-789-my-feature/
-├── README.md     # Navigation and overview
+├── README.md     # Overview, the ## Intent section, and navigation
 ├── research.md   # Research documentation (with metadata)
 ├── design.md     # Design decisions (with metadata)
-└── tasks.md      # Execution plan with tasks (with metadata)
+├── tasks.md      # Execution plan with tasks (with metadata)
+└── journal.md    # Session journal
 ```
 
 **Key Features**:
 
+- Writes the plan's Intent (Goal, success statements `S1`…, Non-goals, Amendments), the
+  contract every later stage answers to. Rules: `plugin/docs/reference/plan-intent.md`
 - Captures Git metadata (commit, branch, repo)
 - Creates timestamped directories
 - Initializes with rich frontmatter
@@ -159,7 +164,8 @@ Pattern Finder Agents → Find similar implementations
 
 **Creates**: Structured research.md with:
 
-- Research question and summary
+- Research question and summary (the question comes from the Intent's Goal when none is given)
+- Intent Coverage: each success statement listed once, as touched by findings or not
 - Detailed findings with `file.ext:line` references
 - Architecture documentation (patterns found)
 - Code references quick list
@@ -302,7 +308,8 @@ Creates architectural design decisions based on validated research. Focuses on W
 
 **Design Structure**:
 
-- Problem statement and success metrics
+- Problem statement, and success metrics that each refine an Intent statement `(refines: S<n>)`,
+  with a `**Deferred**:` line for statements this design does not deliver
 - Design approach with rationale
 - Technical decisions (architecture, data model, integrations)
 - Scope definition (in/out of scope)
@@ -317,6 +324,7 @@ Creates architectural design decisions based on validated research. Focuses on W
 - Explicit decisions with rationale
 - Clear scope boundaries
 - Measurable success criteria
+- A change to the Intent's Goal or Non-goals needs explicit approval and an Amendments line
 
 ---
 
@@ -430,6 +438,8 @@ Validates that execution plan was correctly implemented. Run after implementatio
 **Validation Report**:
 
 - Implementation completeness
+- A verdict for each Intent statement (`PASS`, `FAIL`, `DEFERRED`), also written back onto the
+  statement's README line with the date
 - Success criteria verification
 - Test coverage analysis
 - Deviations from plan

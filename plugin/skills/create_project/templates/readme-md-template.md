@@ -15,6 +15,26 @@ Write this output in wb Technical English (WBTE): read [technical-english.md](..
 
 This directory contains the documentation for [project-name].
 
+## Intent
+
+<!-- The plan's contract. Rules: plugin docs/reference/plan-intent.md. Change the Goal,
+     a statement or a Non-goal only with the user's approval, and add an Amendments line. -->
+
+**Goal**: [one sentence: what the project is for]
+
+**Success looks like**:
+
+- **S1**: [an observable statement a person could see or check]
+- **S2**: [another]
+
+**Non-goals**:
+
+- [what this project will not do, or "none stated"]
+
+**Amendments**:
+
+- none
+
 ## Documentation Structure
 
 - **[research.md](research.md)** - Codebase research and findings

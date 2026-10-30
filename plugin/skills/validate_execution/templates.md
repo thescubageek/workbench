@@ -25,6 +25,20 @@ Generated: [YYYY-MM-DD HH:MM]
 - Task Completion: [X]/[Y] tasks ([percentage]%)
 - Automated Tests: [PASS/FAIL]
 - Manual Testing Required: YES/NO
+- Intent: [P] PASS, [F] FAIL, [D] DEFERRED, of [S] statements
+
+## Intent Verdicts
+
+One row for each "Success looks like" statement in the README. The verdict rules are in plugin
+docs/reference/plan-intent.md.
+
+| Statement | Verdict | Evidence |
+| --------- | ------- | -------- |
+| S1 ([the statement, short]) | PASS | [each refining metric, with its passing check or `file:line`] |
+| S2 ([the statement, short]) | FAIL | [the metric that failed or has no evidence, and why] |
+
+[For a plan without an Intent section, replace the table with: 
+"Intent: no Intent section (plan predates 3.2.0), so no Intent checks apply."]
 
 ## Phase-by-Phase Validation
 

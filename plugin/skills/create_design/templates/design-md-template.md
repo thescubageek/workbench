@@ -26,9 +26,18 @@ design_approach: [selected option name]
 [The problem that this design solves, and why it matters]
 
 ### Success Metrics
-- [Measurable outcome 1]
-- [Measurable outcome 2]
-- [Measurable outcome 3]
+
+Each metric refines one Intent statement from README.md. Rules: plugin
+docs/reference/plan-intent.md.
+
+- [Checkable outcome 1] (refines: S1)
+- [Checkable outcome 2] (refines: S2)
+
+**Deferred**: [S<n> — the reason this design does not deliver it, or "none"]
+
+[For a plan without an Intent section, write the metrics without markers and replace the
+Deferred line with: "Intent: no Intent section (plan predates 3.2.0), so no Intent checks
+apply."]
 
 ## Design Approach
 

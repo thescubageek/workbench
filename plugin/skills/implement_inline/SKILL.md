@@ -23,6 +23,8 @@ project, so a read can be refused. Say which file was refused, that reads outsid
 directory are gated, and that the fix is to allow the read once or to relaunch with
 `--add-dir <plugin-path>`. Do not route around a refusal with `cat`.
 
+This stage needs from you: the phase to run, and a go-ahead at each phase checkpoint.
+
 **Output discipline**: act on barriers silently; don't restate the plan between steps; emit only the artifact and a one-line completion summary.
 
 **Model & effort (gate check)**: on entry, consult the `model-help` skill in gate mode for the

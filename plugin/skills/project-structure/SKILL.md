@@ -8,6 +8,12 @@ user-invocable: false
 
 ## Document Separation
 
+**README.md** - Navigation, and the plan's `## Intent`
+
+- The Goal, the "Success looks like" statements (`S1`, …), the Non-goals, and the Amendments
+- Written from text the user confirmed. Changed only with their approval and an Amendments line
+- Every other document answers to it. See `plugin/docs/reference/plan-intent.md`
+
 **research.md** - Facts only (internal codebase + external research)
 
 - WHAT EXISTS: Current code, external patterns, options, capabilities
