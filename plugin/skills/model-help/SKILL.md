@@ -99,7 +99,7 @@ The wb pipeline (`forge`, `resume_handoff`, and the `create_*` / `implement` / `
 | `create_research` | Opus 5.5 / medium | Main session decomposes + synthesizes; the heavy lifting is in parallel read-only agents | the agent files set the tiers: locator → haiku, analyzer → sonnet, pattern-finder → haiku |
 | `create_design` | **Opus 5.5 / high** (→ Fable 5.1 / high for novel / one-way-door / compliance-critical / high-blast-radius) | Reasoning-dense: trade-offs, architecture, locked decisions. Usually the pipeline's ceiling | little to delegate — the judgment is main-session |
 | `create_tasks` | Opus 5.5 / medium (upshift: Opus 5.5 / high) | Decompose an already-decided design into phased tasks — structuring, not deciding. Upshift when decomposition quality sets the ceiling for cheap workers | analysis agents, at their agent-file tiers |
-| `implement` | Opus 5.5 / medium | Coordination, not coding: extract context, spawn, verify, commit. The main session holds little | **workers carry the cost, and their tiers are pinned at the point of spawn** — see `implement`'s Step 5, the single statement of the worker ladder |
+| `implement` | Opus 5.5 / medium | Coordination, not coding: extract context, spawn, verify, commit. The main session holds little | **workers carry the cost, and their tiers are pinned at the point of spawn** — see `implement`'s Step 5, the single statement of the worker ladder. The verifier runs at its agent file's tier unless the [Verifier tier](#verifier-tier) rule upshifts it |
 | `implement_inline` | Opus 5.5 / medium (bump gnarly tasks to Opus 5.5 / high) | TDD execution of a locked plan **on the session model**; most tasks mechanical-to-moderate. Nothing is delegated, so the session tier *is* the execution tier | nothing — use `/wb:implement` if you want work pushed to workers |
 | `validate_execution` | Opus 5.5 / high (→ Fable 5.1 / high for compliance-critical / hard-to-verify) | Adversarial check vs plan; raise for wide blast radius / compliance / hard-to-verify | validation agents, at their agent-file tiers |
 | `adversarial-review` | Opus 5.5 / high (→ Fable 5.1 / high for compliance-sensitive, wide-blast-radius or hard-to-verify diffs) | The session resolves the target, sizes the pass and synthesizes; the reading is done by forked agents and a forked built-in review | **the legs carry the cost** — lens agents at `sonnet`, security and AI-systems at `opus`, verifiers at `sonnet`; see `adversarial-review`'s prompts.md |
@@ -111,8 +111,35 @@ The wb pipeline (`forge`, `resume_handoff`, and the `create_*` / `implement` / `
 **Anything spawned is pinned at its definition; anything the session itself runs is advised
 here.** Sub-agent tiers live in `agents/*.md` frontmatter, and the coordinated worker ladder
 lives in `implement`'s Step 5 — this skill does not restate either, because two statements of a
-tier rule drift. What it does own is the **main-session** tier for every phase, and the
-switch-cost judgment about whether changing it is worth the reload.
+tier rule drift. What it does own is the **main-session** tier for every phase, the
+switch-cost judgment about whether changing it is worth the reload, and the one per-spawn
+exception below: the verifier upshift.
+
+### Verifier tier
+
+`implement`'s Step 6b reads this section before each `wb:task-verifier` spawn. The agent file
+pins `sonnet` at `high`, and that pin is the default. Most tasks verify well at it, and a
+verifier runs once for every task. Spending Opus on every check doubles the cost of the
+cheapest gate in the loop.
+
+**Upshift one rung, to `opus`, when any of these holds.** Effort stays `high`.
+
+| Condition | Why Sonnet is not enough |
+| --------- | ------------------------ |
+| The task scores HIGH on **correctness sensitivity**: PHI, security, auth, billing, data integrity, or an irreversible migration | A defect the verifier misses ships, and it is expensive |
+| The task scores HIGH on **verification cost**: the mistake hides until production, and the tests cannot show it | The verifier must reason past the green suite, not read it |
+| The task scores HIGH on **blast radius**: it edits a shared hot path or a load-bearing method | A scope check must hold every caller in mind |
+| This is the **re-verification after a Step 6c escalation** | The task already failed once. This check is the last one before the commit |
+
+Score the task's body against the dimensions at the top of this skill. Do not match keywords
+in its title. When none of the conditions holds, pass no `model` on the spawn, so the agent
+file's pin applies.
+
+- **Never `fable`.** A verifier checks a diff against a stated task. It does not design, and the
+  top rung buys nothing for that.
+- **Say which rung and why, in one line**, as the upshift ladder requires. For example:
+  `Verifier: opus — P2-T3 edits the session token check (correctness sensitivity HIGH).`
+- **The upshift is per task.** The next task starts again at the default.
 
 Bump a phase above its baseline whenever the ticket's own dimensions (blast radius, correctness sensitivity, novelty, cross-file reasoning, verification cost) say so — a research pass over an ambiguous cross-subsystem area is Opus 5.5 / high, not Opus 5.5 / medium.
 

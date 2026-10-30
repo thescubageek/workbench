@@ -20,6 +20,8 @@ project, so a read can be refused. Say which file was refused, that reads outsid
 directory are gated, and that the fix is to allow the read once or to relaunch with
 `--add-dir <plugin-path>`. Do not route around a refusal with `cat`.
 
+This stage needs from you: nothing up front. Read the findings and choose which to fix.
+
 **Output discipline**: act on barriers silently; don't restate the plan between steps; emit only the artifact and a one-line completion summary.
 
 ## Initial Response
@@ -95,6 +97,7 @@ spot on the file that *is* the whole plan.
    - Read design.md in full (a remediation plan has none — skip it)
    - Read tasks.md in full
    - Read journal.md and handoff.md if they exist
+   - Read README.md in full, for its `## Intent` section (a remediation plan has none — skip it)
 
 3. **Parse frontmatter** from each file
 

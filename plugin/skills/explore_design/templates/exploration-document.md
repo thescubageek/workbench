@@ -21,7 +21,12 @@ status: decided | abandoned
 
 ## Decision Record
 
+**Goal**: [the README Intent's Goal, quoted. For a plan without one:
+"no Intent section (plan predates 3.2.0)"]
+
 **Chosen direction**: [the approach, in one line]
+
+**Serves**: [the success statement IDs this direction bears on, for example "S1, S2"]
 
 **Rationale**: [why this direction. Use the reasons that the user gave, not a reconstruction]
 
@@ -32,6 +37,8 @@ status: decided | abandoned
 
 **Revisit if**: [the condition that reopens this decision, for example a constraint that can
 change or an assumption that can fail. Omit this only if there is no such condition.]
+
+**Amendments**: [the Amendments line this decision added to the README, or "none"]
 
 **Decided**: [YYYY-MM-DD], with [user], after [N] rounds of discussion.
 

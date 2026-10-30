@@ -14,6 +14,8 @@ Implementation structure:
 
 Total tasks: [total count]
 
+Intent metrics: [N], each checked in a phase's verification. Deferred statements: [IDs with meanings, or "none"]
+
 Agent findings used in the plan:
 - Dependency order: [key dependency from agent]
 - Test coverage: [X] unit tests, [Y] integration tests

@@ -15,6 +15,7 @@ Supporting files in this directory (read each when its step directs you to — n
 - [templates.md](templates.md) — the `research.md` output template, including the Open Questions table
 - [reference.md](reference.md) — configuration
 - [../../docs/reference/journal-entries.md](../../docs/reference/journal-entries.md) — where a journal entry goes (newest first, never appended), its heading contract, and when it opens and closes
+- [../../docs/reference/plan-intent.md](../../docs/reference/plan-intent.md) — the README's `## Intent` section, which Step 3 decomposes against and Step 6 reports coverage of
 
 **If a directed read fails, stop — do not continue from memory.** These files live outside your
 project, so a read can be refused. Say which file was refused, that reads outside the working
@@ -31,6 +32,8 @@ Describe the code as it is: no recommendations, issue-spotting, enhancements,
 critiques, or root-cause analysis unless explicitly asked. You are a
 documentarian, not an evaluator.
 
+This stage needs from you: the research question, or a confirmation of the one derived from the plan's Goal.
+
 **Output discipline**: act on barriers silently; don't restate the plan between
 steps; emit only the artifact and a one-line completion summary.
 
@@ -46,7 +49,8 @@ When invoked, check for arguments:
 1. **If directory provided** (e.g., `/wb:create_research docs/plans/2025-01-08-auth/`):
    - Use `$1` as the project directory
    - If `$2+` exists, use as research question
-   - Otherwise, prompt for research focus
+   - Otherwise, derive the question from the README's `## Intent` Goal and confirm it in one
+     line. Prompt for a research focus only when the plan has no Intent section
 
 2. **If a ticket reference provided** — a Jira key (`[A-Z]+-\d+`) or a ticket URL
    (e.g., `/wb:create_research https://<jira-host>/browse/TB-3462`):
@@ -149,6 +153,12 @@ time from elsewhere in the file.
 
 ### Step 3: Analyze and Decompose the Research Question
 
+**Read the README's `## Intent` section first**, and
+[../../docs/reference/plan-intent.md](../../docs/reference/plan-intent.md) with it. Decompose
+against the "Success looks like" statements: each statement should lead to at least one research
+area, or you should be able to say why no code bears on it. A plan with no Intent section has no
+such obligation. Say so once, in the reference doc's form, and decompose the question alone.
+
 1. **Break down the user's query into composable research areas**
 2. **Work out:**
    - Underlying patterns and connections that exist
@@ -198,11 +208,15 @@ trivially.
 
 Read [templates.md](templates.md) NOW and write `research.md` in the shape it gives.
 
-Two things about that template are load-bearing rather than cosmetic:
+Three things about that template are load-bearing rather than cosmetic:
 
 - **Open Questions are a table in this document, with local IDs** (`Q1`, `Q2`, …) and an
   explicit state. There is no external tracker: this table *is* the record. A question earns a
   row only if something is blocked by it; otherwise it is a finding, not a question.
+- **Intent Coverage lists every success statement exactly once.** Each statement ID goes in
+  "Findings bear on", with the finding and its `file:line`, or in "No findings touch". This is a
+  fact about the codebase, not a judgment on whether the statement can be met. A plan with no
+  Intent section gets the one-line form from the reference doc in place of the two lists.
 - **A resolved question keeps its row and gains a pointer.** `/wb:resolve_questions` writes the
   decision and its rationale into `design.md` and sets the row's state to
   `Resolved YYYY-MM-DD → design.md (## Technical Decisions)`. The decision does not get copied
@@ -239,7 +253,7 @@ Write this output in wb Technical English (WBTE): read [technical-english.md](..
 Emit a one-line summary, not a recap:
 
 ```
-✅ research.md updated — [topic]; [N] findings, [M] code refs. Next: /wb:create_design
+✅ research.md updated — [topic]; [N] findings, [M] code refs, Intent coverage [K] of [S] statements. Next: /wb:create_design
 ```
 
 **Then, only if the findings earned it, suggest `explore_design`.**

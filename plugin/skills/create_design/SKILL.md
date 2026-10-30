@@ -15,6 +15,7 @@ Supporting files in this directory (read each when its step directs you to — n
 - `templates/` — one file per output shape: [design-md-template.md](templates/design-md-template.md) (Step 5, includes the Assumptions and Pending Decisions tables) · [recorded-decision-confirmation-message.md](templates/recorded-decision-confirmation-message.md) (Step 4, Mode A) · [design-options-message.md](templates/design-options-message.md) (Step 4, Mode B) · [design-presentation-message.md](templates/design-presentation-message.md) (Step 6)
 - [reference.md](reference.md) — design principles, what belongs in design vs execution, handling knowledge gaps, leveraging agent findings, configuration
 - [../../docs/reference/journal-entries.md](../../docs/reference/journal-entries.md) — where a journal entry goes (newest first, never appended), its heading contract, and when it opens and closes
+- [../../docs/reference/plan-intent.md](../../docs/reference/plan-intent.md) — the README's `## Intent` section: how Step 3 refines its statements into metrics, and how a Goal change is recorded
 
 **If a directed read fails, stop — do not continue from memory.** These files live outside your
 project, so a read can be refused. Say which file was refused, that reads outside the working
@@ -37,6 +38,8 @@ weighed it.
   file or code changes.
 
 [reference.md](reference.md) → "What Belongs in Design vs Execution" lists both sides.
+
+This stage needs from you: approval of the approach, and approval of the success metrics, each of which refines a statement in the plan's Intent.
 
 **Output discipline**: act on barriers silently; don't restate the plan between steps; emit only the artifact and a one-line completion summary.
 
@@ -149,6 +152,11 @@ artifact it writes; it may never invent the artifact it reads.
    date and a verification hint. Treat entries as dated claims to re-check, not as current
    truth; correct or delete one you find false in this session. Absent file, fall through.
 
+6. **Read the README's `## Intent` section and research.md's `## Intent Coverage`**, and
+   [../../docs/reference/plan-intent.md](../../docs/reference/plan-intent.md) with them. A
+   statement that research found nothing for is a design risk to name, not to ignore. A plan
+   with no Intent section has no Intent obligations. Say so once, in the reference doc's form.
+
 Synthesize the research into design constraints and opportunities.
 
 ### Step 2: Spawn Verification Agents
@@ -177,14 +185,18 @@ trivially.
 Based on research and agent findings, clearly articulate:
 
 1. **The Problem**:
-   - What specific problem are we solving?
+   - What specific problem are we solving? Trace it to the Intent's Goal.
    - Why does it need to be solved now?
    - What happens if we don't solve it?
 
-2. **Success Metrics**:
-   - How will we measure success?
-   - What are the acceptance criteria?
-   - What are the performance requirements?
+2. **Success Metrics** refine the Intent. They do not originate it:
+   - Refine each "Success looks like" statement into one or more checkable metrics. End each
+     metric with `(refines: S<n>)`.
+   - A statement this design does not deliver goes on the `**Deferred**:` line, with the reason.
+   - A non-functional bar that refines no statement, such as a performance requirement, goes
+     under `## Success Criteria`, not here.
+   - If the design needs a change to the Goal, a statement or a Non-goal, name it now. It needs
+     the user's explicit approval and an Amendments line before design.md is written.
 
 3. **Constraints**:
    - Technical constraints from research
@@ -265,13 +277,15 @@ for a pending decision, writes the decision with its rationale and trade-off und
 
 ⛔ BARRIER 3: no placeholder values — every decision, rationale, and reference is concrete, not a `[TODO]`, a `[TBD]`, or a template stub, because a placeholder that ships becomes a task nobody can execute
 
+⛔ BARRIER 4: every Intent statement is refined by a metric or deferred with a reason, and every approved Goal, statement or Non-goal change has its Amendments line — a statement the design drops silently is one that validation can only fail
+
 ### Step 6: Review and Iterate
 
 **1. Present the design:** read the [templates/design-presentation-message.md](templates/design-presentation-message.md) NOW and present it in that shape.
 
 **2. Iterate based on feedback:**
 
-- Adjust success criteria
+- Adjust success criteria and metrics. A metric change keeps its `(refines: S<n>)` marker
 - Refine technical decisions
 - Add/remove scope items
 - Update risk analysis

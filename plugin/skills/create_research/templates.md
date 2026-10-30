@@ -29,6 +29,17 @@ last_updated: [YYYY-MM-DD]
 
 [High-level documentation of what was found, answering the user's question by describing what exists - 2-3 paragraphs]
 
+## Intent Coverage
+
+Against the README Intent's "Success looks like" statements. Each statement ID appears in exactly
+one list.
+
+- **Findings bear on**: [S1] — [the finding, in one clause, with its `file:line`]
+- **No findings touch**: [S2], or "none"
+
+[For a plan without an Intent section, replace both lists with: 
+"Intent: no Intent section (plan predates 3.2.0), so no Intent checks apply."]
+
 ## Detailed Findings
 
 ### [Component/Area 1]

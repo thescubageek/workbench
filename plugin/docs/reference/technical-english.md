@@ -85,7 +85,7 @@ Define any other term at its first use, or replace it with a simple word.
 
 **In chat, never use an ID alone.** Pair each task, question, assumption, or decision ID with a
 short meaning. Write "P1-T3 (the driver probe) passed", not "P1-T3 passed". This applies to
-`P1-T3`, `Q2`, `A1`, `PD1`, `D-Q3`, `UIQ2`, and every other ID shape.
+`P1-T3`, `Q2`, `A1`, `PD1`, `D-Q3`, `UIQ2`, `S1`, and every other ID shape.
 
 - Give the meaning once in each paragraph, at the first mention. A later mention in the same
   paragraph does not repeat it. A new paragraph gives it again.
@@ -166,6 +166,18 @@ rewrite the prose around it. The sentence rules do not apply to these strings.
 - A question state is `Open` or starts with `Resolved`. A resolved state names `design.md`:
   `Resolved YYYY-MM-DD → design.md (## Technical Decisions)`.
 - An assumption state is `Validated YYYY-MM-DD` or `Invalid — <note>`.
+
+**Plan Intent** (`plugin/hooks/wb-prime.sh:163`, `plugin/docs/reference/plan-intent.md`,
+`plugin/skills/validate_project/reference/validation-checklist.md`, §10):
+
+- The README section heading `## Intent`, and inside it the labels `**Goal**:`,
+  `**Success looks like**:`, `**Non-goals**:` and `**Amendments**:`. The hook reads the
+  `**Goal**:` line between `## Intent` and the next level-2 heading.
+- A statement line starts `- **S1**:`. Its ID has the shape `S1`.
+- The research section heading `## Intent Coverage`, and the marker `(refines: S1)` and the line
+  `**Deferred**:` in design.md.
+- A verdict suffix is `→ PASS YYYY-MM-DD`, `→ FAIL YYYY-MM-DD`, or `→ DEFERRED YYYY-MM-DD`.
+- The line for a plan without the section contains `no Intent section (plan predates 3.2.0)`.
 
 **Verifier reports** (`plugin/agents/task-verifier.md:140,158`,
 `plugin/skills/implement/SKILL.md`, Step 6b, the status parse): the headings `### Status: PASS`,

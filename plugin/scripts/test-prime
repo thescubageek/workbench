@@ -130,6 +130,23 @@ done
 out=$(run "$WORK/repo0" "$compact" WB_TECH_ENGLISH=0)
 check "WB_TECH_ENGLISH=0, compact, 0 plans: no output (unchanged)" "$(yes_if [ -z "$out" ])"
 
+# --- The plan's Intent ---
+lacks() { ! grep -q -- "$1" <<<"$2"; }
+out=$(run "$WORK/repo1" "$startup")
+check "orientation names what each stage needs from you" "$(yes_if grep -qF 'What each stage needs from you' <<<"$out")"
+check "no README: no Goal line" "$(yes_if lacks '^Goal:' "$out")"
+
+make_repo "$WORK/intent" 1
+printf '# P\n\n## Overview\n\nx\n\n## Intent\n\n**Goal**: Ship the parser.\n\n**Success looks like**:\n\n- **S1**: it parses\n\n## Notes\n\n**Goal**: not the Intent\n' \
+    > "$WORK/intent/docs/plans/2026-01-01-plan1/README.md"
+out=$(run "$WORK/intent" "$startup")
+check "README with an Intent: Goal line printed" "$(yes_if grep -qxF 'Goal: Ship the parser.' <<<"$out")"
+check "README with an Intent: a Goal outside the section is ignored" "$(yes_if lacks 'not the Intent' "$out")"
+printf '# P\n\n## Overview\n\n**Goal**: an old plan, no Intent section\n' > "$WORK/intent/docs/plans/2026-01-01-plan1/README.md"
+out=$(run "$WORK/intent" "$startup")
+check "README without an Intent section: no Goal line" "$(yes_if lacks '^Goal:' "$out")"
+check "README without an Intent section: exit 0" "$(yes_if rc_zero)"
+
 # --- Paths that are not a session start ---
 out=$(cd "$WORK/repo1" && bash "$HOOK" --export </dev/null)
 # shellcheck disable=SC2016  # single quotes are deliberate: the inner bash -c expands $0 and $1

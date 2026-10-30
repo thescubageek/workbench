@@ -28,6 +28,14 @@ Implementing [brief summary] as specified in design.md
 **Design Approach**: [from design.md]
 **Target State**: [from design.md success criteria]
 
+**Intent metrics** (from design.md's Success Metrics, each refining a README Intent statement):
+
+- [metric, verbatim] (refines: S1) — checked in Phase [n]
+- [metric, verbatim] (refines: S2) — checked in Phase [n]
+
+[For a plan without an Intent section, replace this list with: 
+"Intent: no Intent section (plan predates 3.2.0), so no Intent checks apply."]
+
 ## Task tracking
 
 **Checkbox state in this file is the source of truth.** There is no external tracker. Flip

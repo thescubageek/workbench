@@ -22,6 +22,17 @@ validation_status: not-yet-run
 **Last Updated**: [YYYY-MM-DD]
 **Audience**: Product Management
 
+## Intent Coverage
+
+Against the README Intent's "Success looks like" statements. Each statement ID appears in exactly
+one list.
+
+- **Findings bear on**: [S1] — [the user-visible behavior, in one clause, with its `file:line`]
+- **No findings touch**: [S2], or "none"
+
+[For a plan without an Intent section, replace both lists with: 
+"Intent: no Intent section (plan predates 3.2.0), so no Intent checks apply."]
+
 ## Feature Overview
 
 [A 2-3 paragraph description, in plain language, of what this feature or area does. A PM must understand the product capability without reading code.]

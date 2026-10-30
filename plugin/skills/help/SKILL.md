@@ -1,25 +1,89 @@
 ---
 name: help
-description: Quick reference for wb workflow stages, where status lives, and continuity across sessions
+description: Reference for the wb workflow, and in a repository with an active plan, where you are and what's next — each document's status, the phase and task position, open questions and pending decisions, what the next stage needs from you, and what the previous stage left undone against the plan's Intent. Use when the user asks where they are, what's next, what a stage needs, or how wb works. Takes an optional topic.
 argument-hint: "[topic]"
-allowed-tools: Read
+allowed-tools: Read, Glob, Grep, Bash
 ---
 
 # Workbench Help
 
 This document is a reference for both the user AND Claude. When invoked:
 
-1. **Read the topic** (if provided) — e.g., `/wb:help status` means focus on where status lives
-2. **Explain** the relevant stages, workflow, or concepts conversationally
-3. **Answer questions** — help the user understand how to use these tools effectively
-4. **Guide Claude too** — this reference helps Claude understand the workflow it should follow
+1. **Establish state** (the State section) — which case you are in, and the position report if
+   there is an active plan
+2. **Read the topic** (if provided) — e.g., `/wb:help status` means focus on where status lives
+3. **Explain** the relevant stages, workflow, or concepts conversationally
+4. **Answer questions** — help the user understand how to use these tools effectively
+5. **Guide Claude too** — this reference helps Claude understand the workflow it should follow
 
 You are a helpful guide to this workflow system, not just dumping text.
+
+## State
+
+Run this first, before any topic. It decides which of three cases you are in. Read every file
+it names in full, in this session. Do not answer from the session-start summary or from memory.
+
+1. **Find the active plans.** Use the scan the session-start hook uses: each
+   `docs/plans/<dir>/tasks.md` whose frontmatter `status:` is not `complete`, newest directory
+   name first. No `docs/plans` directory, or no active plan, is **case A**.
+2. **Pick the plan**: the one the request or topic names, otherwise the newest active one. Name
+   the others in one line.
+3. **Read the evidence** for that plan:
+   - `README.md` — the `## Intent` section: the Goal, the statements with any `→ PASS`,
+     `→ FAIL` or `→ DEFERRED` suffix, the Non-goals and the Amendments. No section is
+     **case B**. A section is **case C**. The rules are in
+     [../../docs/reference/plan-intent.md](../../docs/reference/plan-intent.md).
+   - `research.md`, `design.md`, `tasks.md` — the frontmatter `status:` of each.
+   - `research.md` — the `## Intent Coverage` lists, and the `## Open Questions` rows whose
+     State is `Open`.
+   - `design.md` — the Success Metrics with their `(refines: S<n>)` markers, the
+     `**Deferred**:` line, the Assumptions rows still `Pending`, and the Pending Decisions rows
+     still `Open`.
+   - `tasks.md` — `current_phase`, and the task checkboxes. Count only task lines:
+     `^- \[x\] \*\*[A-Z0-9-]*[0-9][A-Z0-9-]*\*\*` for done and the same with `\[ \]` for open.
+     The counters in the frontmatter are a cache, so do not report them as the position.
+   - `journal.md` — the first level-2 heading, and whether it ends in `(open)` or `(closed)`.
+   - `git status --short` — whether the tree is clean.
+4. **Report**, in this order, before any requested topic:
+
+   ```
+   📍 Plan: docs/plans/<dir> (others active: <list, or none>)
+   Documents: research.md <status>, design.md <status>, tasks.md <status>, phase <n>, <done>/<total> tasks
+   Open items: <Q, A and PD IDs, each with its meaning in parentheses, or none>
+   Journal: <latest heading>, <open or closed>, tree <clean or N changed files>
+   Next stage: /wb:<stage> — needs from you: <that stage's cells from the table below>
+   Left undone by the previous stage: <gaps, or none>
+   ```
+
+   **The next stage** is the first that applies: `create_research` when research.md is not
+   `complete`. `create_design` when design.md is not `approved`. `create_tasks` when tasks.md
+   has no task lines. `implement` (phase n) when a task line is open. `validate_execution` when
+   every task is done and no statement carries a verdict. Otherwise the plan is finished. Set
+   its `status: complete`.
+
+   **The gaps** come only from the evidence: a statement research lists under "No findings
+   touch". A statement with no `(refines:)` metric and no Deferred entry. A metric whose
+   `(refines:)` names no statement. A statement without a verdict after validation ran. An open
+   question, assumption or pending decision. An `(open)` journal entry beside a clean tree.
+5. **The three cases**:
+   - **Case A, no active plan**: print `No active plan here (no docs/plans, or every plan is
+     complete).` Then render the requested topic, or Topics and Command Workflow.
+   - **Case B, an active plan without an Intent section**: print the report, with
+     `Left undone by the previous stage: not measurable, no Intent section (plan predates 3.2.0)`.
+     Report the other gaps as usual. Then render the requested topic.
+   - **Case C, an active plan with an Intent section**: the full report, then the requested
+     topic.
+
+**Which output a request gets.** "Where am I", "what's next", "what does the next stage need",
+or a bare `/wb:help` in a repository with an active plan gets the full report. A question
+about what wb or a stage does gets the topic, after one `📍 Plan:` line.
 
 ## Topics
 
 ```
-/wb:help              # Overview of everything
+/wb:help              # Where you are and what's next (with an active plan), else the overview
+/wb:help needs        # What each stage needs from you
+/wb:help intent       # The plan's Intent: Goal, success statements, verdicts
 /wb:help workflow     # Stage sequence and when to use each
 /wb:help status       # Where task status lives and who writes it
 /wb:help continuity   # Journal, knowledge file, handoffs, compaction
@@ -65,6 +129,40 @@ You are a helpful guide to this workflow system, not just dumping text.
 [mockup-iteration skill] → Creates versioned mockups automatically
 finalize              → Compile requirements into design.md
 ```
+
+## What each stage needs from you
+
+One row per stage. Each stage opens with a one-line summary of its row. "Did enough" names the
+evidence the stage leaves behind. The State section reads that evidence.
+
+| Stage | You provide | You decide | You confirm | How you know it did enough |
+| ----- | ----------- | ---------- | ----------- | -------------------------- |
+| `create_project` | the goal, what success looks like, the non-goals, or prose that carries them. Name, base directory, ticket | — | the Intent as read back to you | README has an Intent: a Goal, two to four statements with IDs, the Non-goals. No file was written before you confirmed |
+| `create_research` | the question, or confirmation of the one derived from the Goal. Files to read first | whether to run `explore_design` | — | research.md's Intent Coverage lists every statement once. Findings carry `file:line` references |
+| `explore_design` | reactions to each direction as it is drafted | the direction, by explicit approval only | the framing of the decision | a `thoughts/` document whose Decision Record quotes the Goal. A Goal change has an Amendments line |
+| `create_design` | the approach, when no decision record exists | the approach, and the success metrics | the recorded decision, when one exists | every statement is refined by a `(refines:)` metric or deferred with a reason. design.md is `approved` |
+| `create_tasks` | — | — | that the phases and checkpoints match how you want to review | every task has an ID and a projection. Target State lists the Intent metrics, each checked in a phase |
+| `implement` / `implement_inline` | the phase to run | what to do after a verified failure or a plan defect | each phase checkpoint | every task in the phase is `[x]`, verified, and one commit. The checkpoint closed on your go-ahead |
+| `validate_execution` | the manual checks only you can run | whether each deviation stands | your reading of each statement's verdict | a report with a verdict per statement. Each README statement ends `→ PASS`, `→ FAIL` or `→ DEFERRED` with a date |
+| `update_status` | — | any backward status change, with a reason | the proposed changes | the frontmatter counters match the checkboxes |
+| `resolve_questions` | an answer to each question, or "Skip for now" | each answer | — | each resolved row points to its decision in design.md |
+| `create_handoff` / `resume_handoff` | the reason for handing off, or the handoff path | — | the resumption summary | the handoff carries decisions, discoveries and next steps. Resume reconciled it against the tree |
+| `validate_project` | — | which findings to fix | — | every check is reported, with a fix for each finding |
+| `create_mockup` / mockup-iteration | the feature, and keep, remove or change feedback on each version | the open `UIQ` questions | each version | the decision log records each choice |
+| `create_product_research` | the product question, or confirmation of the one derived from the Goal | — | — | product-research.md answers in user-visible behavior, with Intent Coverage |
+| `forge` | the ticket or plan directory | everything the stages above ask you to decide | the Intent, the design, and each phase transition | the stages above, in order |
+
+## The plan's Intent
+
+`create_project` writes an `## Intent` section in the plan's README: a Goal, two to four "Success
+looks like" statements (`S1`, `S2`, …), the Non-goals, and a dated Amendments list. Every later
+stage answers to it. Research reports which statements its findings bear on. Design refines each
+statement into metrics marked `(refines: S<n>)`, or defers it with a reason. Tasks carry those
+metrics into the Target State. Validation writes a verdict back onto each statement. A change to
+the Goal or the Non-goals needs your explicit approval and an Amendments line.
+
+Plans created before 3.2.0 have no Intent section, and no stage asks them for one. The rules are
+in `docs/reference/plan-intent.md`.
 
 ## Where status lives
 
@@ -118,7 +216,7 @@ exactly what a handoff captures deliberately.
 
 ### `/wb:create_project [name] [directory] [ticket]`
 
-Creates project structure: README, research.md, design.md, tasks.md, journal.md.
+Settles the plan's Intent with you first, then creates the project structure: README (with the Intent), research.md, design.md, tasks.md, journal.md.
 
 ### `/wb:create_research [directory]`
 
@@ -146,7 +244,7 @@ The same plan, implemented inline on this session's model. Simpler; the context 
 
 ### `/wb:validate_execution [directory]`
 
-Verifies implementation matches plan. Treats the checkboxes as claims to test against the code, in both directions.
+Verifies implementation matches plan. Treats the checkboxes as claims to test against the code, in both directions, and writes a verdict back onto each Intent statement.
 
 ### `/wb:update_status [directory]`
 
@@ -218,6 +316,7 @@ changes in one place.
 | Doc | Governs |
 | --- | ------- |
 | `docs/reference/technical-english.md` | How wb writes plans, reports, chat, PRs and commit messages: wb Technical English (WBTE) |
+| `docs/reference/plan-intent.md` | The plan's `## Intent` section: its shape, which stage writes what, the `(refines:)` marker, and the verdicts |
 | `docs/reference/branch-naming.md` | What the working branch is called, and when to rename it |
 | `docs/reference/journal-entries.md` | Where a journal entry goes — newest at the top, never appended — its `(open)`/`(closed)` contract, and when it opens and closes |
 | `docs/reference/code-review-integration.md` | What Claude Code's built-in review commands provide, and which parts of that a skill may rely on |

@@ -14,6 +14,7 @@ Supporting files in this directory (read each when its step directs you to — n
 - [sub-agent-prompts.md](sub-agent-prompts.md) — the four Step 2 validation agents
 - [templates.md](templates.md) — the validation report
 - [reference.md](reference.md) — validation philosophy, PASS/FAIL criteria, the common-checks list, workflow position, configuration
+- [../../docs/reference/plan-intent.md](../../docs/reference/plan-intent.md) — the README's `## Intent` section, the verdict rules Step 4 applies, and the suffix Step 6 writes back
 
 **If a directed read fails, stop — do not continue from memory.** These files live outside your
 project, so a read can be refused. Say which file was refused, that reads outside the working
@@ -36,6 +37,8 @@ This command provides an objective assessment of implementation completeness by:
 - Providing clear manual testing requirements
 
 Run this AFTER implementation to ensure quality before merging or deployment.
+
+This stage needs from you: the manual checks only you can run, and your reading of the verdict for each Intent statement.
 
 **Output discipline**: act on barriers silently; don't restate the plan between steps; emit only the artifact and a one-line completion summary.
 
@@ -107,6 +110,11 @@ Read returns a partial view, page through it with `offset` and `limit`.
 4. **Read research.md** to understand:
    - Original state of the codebase
    - Patterns that should be followed
+
+5. **Read the README's `## Intent` section**, and
+   [../../docs/reference/plan-intent.md](../../docs/reference/plan-intent.md) with it. Note
+   which design.md metrics refine each statement, and which statements design deferred. A plan
+   with no Intent section has no Intent obligations. Say so once, in the reference doc's form.
 
 **Compare what was supposed to be built against what exists**
 
@@ -186,6 +194,11 @@ For each phase in tasks.md:
    - Do they affect the overall solution?
    - Should they be documented or reverted?
 
+5. **Give each Intent statement a verdict**: `PASS`, `FAIL`, or `DEFERRED`, by the rules in
+   the reference doc. A verdict comes from the evidence for the metrics that refine the
+   statement, not from the task checkboxes. A statement whose evidence includes a manual check
+   is not `PASS` until a person confirms that check. Ask the user, and record what they say.
+
 ### Step 5: Generate Validation Report
 
 ⛔ BARRIER 3: no placeholders in the report — every file:line, metric, test result, and status comes from real tool output (agent findings, checkbox state, verification runs), because an invented value certifies work nobody checked. Omit a value, or mark it `unverified`, rather than invent one.
@@ -193,6 +206,11 @@ For each phase in tasks.md:
 Read [templates.md](templates.md) NOW and write the report in the shape it gives.
 
 ### Step 6: Update Documentation
+
+**Write each Intent verdict back to the README first**, whatever the overall result. Put it at
+the end of the statement's line as `→ PASS YYYY-MM-DD`, `→ FAIL YYYY-MM-DD`, or
+`→ DEFERRED YYYY-MM-DD`. Replace any earlier suffix. Do not add a second one. Change nothing else
+in the Intent section.
 
 If validation passes with minor issues:
 

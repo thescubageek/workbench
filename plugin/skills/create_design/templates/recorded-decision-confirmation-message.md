@@ -8,6 +8,7 @@ again.
 ```
 Research and exploration already reached a recorded decision:
 
+**Goal**: [Goal from the decision record]
 **Chosen direction**: [name from the decision record]
 **Rationale**: [rationale from the record]
 **Exploration record**: [thoughts doc path]

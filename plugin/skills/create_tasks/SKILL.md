@@ -16,11 +16,14 @@ Supporting files in this directory (read each when its step directs you to — n
 - [examples.md](examples.md) — worked examples of sizing a task by tool calls, splitting at a natural seam, and when a task needs an explicit `Depends on:`
 - [reference.md](reference.md) — planning principles, execution vs design, implementation discoveries, task granularity, configuration
 - [../../docs/reference/journal-entries.md](../../docs/reference/journal-entries.md) — where a journal entry goes (newest first, never appended), its heading contract, and when it opens and closes
+- [../../docs/reference/plan-intent.md](../../docs/reference/plan-intent.md) — the README's `## Intent` section, whose refining metrics Step 4 carries into the Target State
 
 **If a directed read fails, stop — do not continue from memory.** These files live outside your
 project, so a read can be refused. Say which file was refused, that reads outside the working
 directory are gated, and that the fix is to allow the read once or to relaunch with
 `--add-dir <plugin-path>`. Do not route around a refusal with `cat`.
+
+This stage needs from you: confirmation that the phases and checkpoints match how you want to review the work.
 
 **Output discipline**: act on barriers silently; don't restate the plan between steps; emit only the artifact and a one-line completion summary.
 
@@ -92,10 +95,15 @@ Read returns a partial view, page through it with `offset` and `limit`.
    - Technical specifications
    - Any unresolved rows in its Assumptions and Pending Decisions tables — a `PD` row that
      blocks execution start must be resolved before this plan is written, not planned around
+   - The Success Metrics and their `(refines: S<n>)` markers, and the `**Deferred**:` line
 
 3. **Read existing tasks.md if present**:
    - Check current status
    - Note any existing progress
+
+4. **Read the README's `## Intent` section**, and
+   [../../docs/reference/plan-intent.md](../../docs/reference/plan-intent.md) with it. A plan
+   with no Intent section has no Intent obligations. Say so once, in the reference doc's form.
 
 **Decide HOW to bridge from current state to target state**
 
@@ -189,16 +197,18 @@ Three things about that template are load-bearing rather than cosmetic:
 Verify with agent findings:
 
 1. **All success criteria** from design.md have corresponding tasks
-2. **All scope items** from design.md are addressed
-3. **Knowledge gaps** from research.md are handled
-4. **Risk mitigations** from design.md are incorporated
-5. **Every task is specific and executable**
-6. **Test coverage** matches test agent recommendations
-7. **Dependencies** follow agent-identified order
-8. **Every task carries an ID and a tool-call projection**, and nothing projects past ~50
-9. **Every phase ends with the full checkpoint block** — label definitions, the go-by-the-label
-   rule, the four labeled boxes — never an abbreviated copy. A reader opening at the last
-   phase's checkpoint must meet the same instruction as at the first
+2. **Every metric that refines an Intent statement** is in the Overview's Target State with its
+   statement ID, and some phase's verification checks it
+3. **All scope items** from design.md are addressed
+4. **Knowledge gaps** from research.md are handled
+5. **Risk mitigations** from design.md are incorporated
+6. **Every task is specific and executable**
+7. **Test coverage** matches test agent recommendations
+8. **Dependencies** follow agent-identified order
+9. **Every task carries an ID and a tool-call projection**, and nothing projects past ~50
+10. **Every phase ends with the full checkpoint block** — label definitions, the go-by-the-label
+    rule, the four labeled boxes — never an abbreviated copy. A reader opening at the last
+    phase's checkpoint must meet the same instruction as at the first
 
 ### Step 6: Present the Plan
 

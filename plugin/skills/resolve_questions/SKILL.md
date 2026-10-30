@@ -22,6 +22,8 @@ project, so a read can be refused. Say which file was refused, that reads outsid
 directory are gated, and that the fix is to allow the read once or to relaunch with
 `--add-dir <plugin-path>`. Do not route around a refusal with `cat`.
 
+This stage needs from you: an answer to each open question, or "Skip for now".
+
 ## What this skill does NOT do
 
 - Does NOT answer the questions on the user's behalf. Claude proposes plausible options based on document context; the user picks.

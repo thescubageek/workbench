@@ -142,6 +142,12 @@ The workflow separates three distinct concerns:
 2. **Design** (`design.md`) - Document WHAT to build and WHY (architectural decisions)
 3. **Execution** (`tasks.md`) - Document HOW to build it (phased implementation plan)
 
+All three answer to the plan's **Intent**, the `## Intent` section of its `README.md`: a Goal,
+two to four "Success looks like" statements (`S1`, …), the Non-goals, and an Amendments list.
+`create_project` writes it from text the user confirmed. Research reports coverage of it, design
+refines it into `(refines: S<n>)` metrics, and validation writes a verdict back onto each
+statement. Plans from before 3.2.0 have none, and no stage requires one.
+
 ## Core Command Philosophy
 
 ### Critical Principles
@@ -206,8 +212,9 @@ All generated documentation files use consistent YAML frontmatter:
 ## Agent Spawning with Model Selection
 
 Each agent file in `plugin/agents/` sets its own `model` and `effort`. A spawn names the agent by
-its `wb:` name (a bare name fails) and passes no `model`. Two places choose a tier at spawn time,
-and each says why: the `implement` worker ladder and the `adversarial-review` tier table. The
+its `wb:` name (a bare name fails) and passes no `model`. Three places choose a tier at spawn time,
+and each says why: the `implement` worker ladder, the `adversarial-review` tier table, and the
+`model-help` "Verifier tier" rule, which upshifts `task-verifier` from `sonnet` to `opus`. The
 spawn `model` accepts `haiku`, `sonnet`, `opus`, and `fable`. A spawn's `effort` overrides the
 agent file's `effort` on Claude Code 2.1.292 and later.
 
@@ -243,6 +250,12 @@ When creating or modifying commands:
 8. Start every new output template with the WBTE link line. `plugin/docs/reference/technical-english.md`
    is the one place the writing rules change. The rule card in `plugin/hooks/wb-prime.sh`
    summarizes it, and `plugin/scripts/test-prime` limits the card to 150 words
+9. Keep a stage's intake in four places, changed in one commit: its "This stage needs from you"
+   line, its row in `help`'s "What each stage needs from you" table, `help`'s Command Details,
+   and the summary in `wb-prime.sh`'s orientation. Adding, renaming or removing a stage
+   touches all four
+10. A stage that reads or writes the plan's `## Intent` links into
+    `plugin/docs/reference/plan-intent.md`. That file is the one place the Intent rules change
 
 ## Best Practices
 

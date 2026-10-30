@@ -21,11 +21,11 @@ import os
 import re
 import sys
 
-ID_RE = re.compile(r"\b(P\d+-T\d+|Q\d+|A\d+|PD\d+|D-Q\d+|UIQ\d+)\b")
+ID_RE = re.compile(r"\b(P\d+-T\d+|Q\d+|A\d+|PD\d+|D-Q\d+|UIQ\d+|S\d+)\b")
 PAIRED_AFTER = re.compile(r"^[*`]*(\s*\(|\s[—–-]\s|:)")
 PAIRED_BEFORE = re.compile(r"\(\s*[*`]*$")
-RANGE_BEFORE = re.compile(r"\b(P\d+-T\d+|Q\d+|A\d+|PD\d+|D-Q\d+|UIQ\d+)[*`]*\s*(to|–|-)\s*[*`]*$")
-RANGE_AFTER = re.compile(r"^[*`]*\s*(to|–|-)\s*[*`]*(P\d+-T\d+|Q\d+|A\d+|PD\d+|D-Q\d+|UIQ\d+)\b")
+RANGE_BEFORE = re.compile(r"\b(P\d+-T\d+|Q\d+|A\d+|PD\d+|D-Q\d+|UIQ\d+|S\d+)[*`]*\s*(to|–|-)\s*[*`]*$")
+RANGE_AFTER = re.compile(r"^[*`]*\s*(to|–|-)\s*[*`]*(P\d+-T\d+|Q\d+|A\d+|PD\d+|D-Q\d+|UIQ\d+|S\d+)\b")
 
 STOP_WORDS = set("""
 a an the this that these those each every any all some no not none both either neither
