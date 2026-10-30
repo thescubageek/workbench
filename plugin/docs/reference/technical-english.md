@@ -108,7 +108,7 @@ Parsers and validators match the strings below. Keep each one exactly as it is, 
 rewrite the prose around it. The sentence rules do not apply to these strings.
 
 **Task lines** (`plugin/hooks/wb-prime.sh:131-136`, `plugin/skills/daily-digest/sources.md:67-68`,
-`plugin/skills/validate_project/reference/validation-rules.md:71,104,116`,
+`plugin/skills/validate-project/reference/validation-rules.md:71,104,116`,
 `plugin/skills/implement/SKILL.md`, Step 4, BARRIER 2, the first unchecked task line):
 
 - The task-ID shape `[A-Z0-9-]*[0-9][A-Z0-9-]*`. An ID must contain at least one digit.
@@ -119,7 +119,7 @@ rewrite the prose around it. The sentence rules do not apply to these strings.
   `^- \[x\] .*\(completed <date>` (`plugin/skills/daily-digest/sources.md:74`).
 
 **Frontmatter** (`plugin/hooks/wb-prime.sh:83,133`,
-`plugin/skills/validate_project/reference/validation-rules.md:22-23,40-44`):
+`plugin/skills/validate-project/reference/validation-rules.md:22-23,40-44`):
 
 - The hook reads `status:` and `current_phase:` from the first 30 lines.
 - Every document needs `project`, `created`, `status`, `last_updated`, `git_commit`, and
@@ -133,7 +133,7 @@ rewrite the prose around it. The sentence rules do not apply to these strings.
 
 **Journal headings** (`plugin/hooks/wb-prime.sh:154,163-165`,
 `plugin/skills/implement/SKILL.md`, Step 5, *Open a journal entry first*,
-`plugin/skills/validate_project/reference/validation-rules.md:92,98`,
+`plugin/skills/validate-project/reference/validation-rules.md:92,98`,
 `plugin/skills/daily-digest/sources.md:77`):
 
 - The shape is `## YYYY-MM-DD HH:MM — <label> (open)` or `## YYYY-MM-DD HH:MM — <label> (closed)`.
@@ -149,7 +149,7 @@ rewrite the prose around it. The sentence rules do not apply to these strings.
 **Blockers** (`plugin/skills/daily-digest/sources.md:80`): the section heading
 `### Current Blockers`, which ends at the next `###` heading.
 
-**Checkpoints** (`plugin/skills/validate_project/reference/validation-rules.md:129-140`):
+**Checkpoints** (`plugin/skills/validate-project/reference/validation-rules.md:129-140`):
 
 - The heading starts `### ⛔ CHECKPOINT:`.
 - Each block has at least 4 labels, `**(derivable)**` or `**(attestation)**`, and at least one
@@ -157,8 +157,8 @@ rewrite the prose around it. The sentence rules do not apply to these strings.
 - Each block contains the sentence `Go by the label, never by position`.
 - A checkpoint block never contains a line with the task-line shape.
 
-**Planning records** (`plugin/skills/validate_project/reference/validation-rules.md:172-178`,
-`plugin/skills/resolve_questions/SKILL.md:190`):
+**Planning records** (`plugin/skills/validate-project/reference/validation-rules.md:172-178`,
+`plugin/skills/resolve-questions/SKILL.md:190`):
 
 - Question IDs match `^Q\d+$`, in the table under `## Open Questions`.
 - Assumption IDs have the shape `A1`, under `### Assumptions`. Pending-decision IDs have the
@@ -168,7 +168,7 @@ rewrite the prose around it. The sentence rules do not apply to these strings.
 - An assumption state is `Validated YYYY-MM-DD` or `Invalid — <note>`.
 
 **Plan Intent** (`plugin/hooks/wb-prime.sh:163`, `plugin/docs/reference/plan-intent.md`,
-`plugin/skills/validate_project/reference/validation-checklist.md`, §10):
+`plugin/skills/validate-project/reference/validation-checklist.md`, §10):
 
 - The README section heading `## Intent`, and inside it the labels `**Goal**:`,
   `**Success looks like**:`, `**Non-goals**:` and `**Amendments**:`. The hook reads the
@@ -183,7 +183,7 @@ rewrite the prose around it. The sentence rules do not apply to these strings.
 `plugin/skills/implement/SKILL.md`, Step 6b, the status parse): the headings `### Status: PASS`,
 `### Status: FAIL`, and `### Baseline failures`.
 
-**Placeholders** (`plugin/skills/validate_project/reference/validation-rules.md:196`): the
+**Placeholders** (`plugin/skills/validate-project/reference/validation-rules.md:196`): the
 validator searches for `[To be added]`, `[TBD]`, `[TODO]`, and `[Fill this in]`. Keep these
 strings exact in templates, so that the validator still finds an unfilled section.
 

@@ -13,7 +13,7 @@ Supporting files in this directory (read each when its step directs you to — n
 
 - `templates/` — [output-style.md](templates/output-style.md) (the per-phase report shape) · [model-plan.md](templates/model-plan.md) (the model-plan table)
 - [examples.md](examples.md) — invocation examples, and the evidence behind each detected state
-- [../../docs/reference/branch-naming.md](../../docs/reference/branch-naming.md) — the branch-name rule, shared with `create_project`, `jira-context` and `implement`
+- [../../docs/reference/branch-naming.md](../../docs/reference/branch-naming.md) — the branch-name rule, shared with `create-project`, `jira-context` and `implement`
 - [../../docs/reference/journal-entries.md](../../docs/reference/journal-entries.md) — where a journal entry goes and what its heading must say; forge reads the newest entry to detect state
 
 **If a directed read fails, stop — do not continue from memory.** These files live outside your
@@ -40,25 +40,25 @@ This stage needs from you: the ticket or plan directory, and each approval the s
 ## Pipeline sequence
 
 ```
-[optional] /wb:create_project   → if no project directory exists yet
+[optional] /wb:create-project   → if no project directory exists yet
          ↓
-/wb:create_research             → document what EXISTS (facts only, parallel agents)
+/wb:create-research             → document what EXISTS (facts only, parallel agents)
          ↓ ⛔ BARRIER: open questions resolved
-[optional] /wb:explore_design   → only when research surfaced more than one viable approach
+[optional] /wb:explore-design   → only when research surfaced more than one viable approach
          ↓
-/wb:create_design               → decide WHAT to build and WHY
+/wb:create-design               → decide WHAT to build and WHY
          ↓ ⛔ BARRIER: no pending decisions blocking execution
-/wb:create_tasks                → plan HOW; writes the phased task list
+/wb:create-tasks                → plan HOW; writes the phased task list
          ↓ ⛔ BARRIER: user confirms ready to implement
 /wb:implement                   → TDD per phase via worker agents
          ↓
-/wb:validate_execution          → verify implementation matches plan
+/wb:validate-execution          → verify implementation matches plan
 ```
 
 ## Arguments
 
-- `$1` — project directory **OR** ticket reference (e.g., `docs/plans/2026-05-12-project-roar/` or `TB-2421`). If a ticket ref is given and no project dir exists, the pipeline starts at `/wb:create_project`.
-- `$2` — optional stop phase: one of `research`, `design`, `tasks`, `implement`, `validate`. If omitted, default is **stop after `create_tasks`** (i.e., plan-only forge — does not auto-run implementation).
+- `$1` — project directory **OR** ticket reference (e.g., `docs/plans/2026-05-12-project-roar/` or `TB-2421`). If a ticket ref is given and no project dir exists, the pipeline starts at `/wb:create-project`.
+- `$2` — optional stop phase: one of `research`, `design`, `tasks`, `implement`, `validate`. If omitted, default is **stop after `create-tasks`** (i.e., plan-only forge — does not auto-run implementation).
 
 ## Initial response
 
@@ -68,12 +68,12 @@ When invoked:
 
 2. **Detect current pipeline state — from the documents.** There is no tracker to query; the plan directory *is* the state. Read it:
 
-   - **No directory** → start at `create_project`
-   - **No `research.md`, or `status: draft` with placeholder sections** → start at `create_research`
-   - **`research.md` `status: complete`, `design.md` missing or `draft`** → start at `create_design`
-   - **`design.md` approved, `tasks.md` has no task lines** → start at `create_tasks`
+   - **No directory** → start at `create-project`
+   - **No `research.md`, or `status: draft` with placeholder sections** → start at `create-research`
+   - **`research.md` `status: complete`, `design.md` missing or `draft`** → start at `create-design`
+   - **`design.md` approved, `tasks.md` has no task lines** → start at `create-tasks`
    - **`tasks.md` has task lines and at least one is `[ ]`** → ready for `implement`
-   - **Every task checkbox is `[x]`** → ready for `validate_execution`
+   - **Every task checkbox is `[x]`** → ready for `validate-execution`
 
    ```bash
    grep -cE '^- \[x\] \*\*[A-Z0-9-]*[0-9][A-Z0-9-]*\*\*' tasks.md   # done
@@ -95,12 +95,12 @@ When invoked:
    [../../docs/reference/branch-naming.md](../../docs/reference/branch-naming.md) NOW and apply
    it, using the ticket ref from `$1` or the project's `ticket:` frontmatter as the scope.
 
-   Skip it when the run will start at `create_project` — that stage applies the same rule with
+   Skip it when the run will start at `create-project` — that stage applies the same rule with
    the same inputs, and proposing a rename twice is noise. Include the outcome in the state
    report below. Non-blocking, as the reference doc requires: a declined rename never delays a
    phase.
 
-5. **Report current state to the user** in 1–2 sentences. Example: "Project at `docs/plans/2026-05-12-project-roar/` has research + design complete, 0 of 18 tasks done. Next step is `/wb:implement`. Stop-after default is `create_tasks` — confirm to proceed."
+5. **Report current state to the user** in 1–2 sentences. Example: "Project at `docs/plans/2026-05-12-project-roar/` has research + design complete, 0 of 18 tasks done. Next step is `/wb:implement`. Stop-after default is `create-tasks` — confirm to proceed."
 
 6. **Emit a one-time model plan.** Consult the `model-help` skill in **gate mode** (pass the ticket/design difficulty and the remaining phases) and print a compact per-phase tier table for the phases still ahead — the "model journey" for this forge. This is advisory: it shows where a main-model switch is worth the reload and, by clustering same-tier phases, keeps the whole run to ~1–2 switches. Read [templates/model-plan.md](templates/model-plan.md) for the shape.
 
@@ -108,42 +108,42 @@ When invoked:
 
    **Unless `--auto` was passed**, in which case advance without confirming and pass `--auto`
    through to `implement`. Three gates still stop regardless, because none is a wait the user
-   can pre-authorize: `create_project` never writes an Intent the user has not confirmed,
-   `create_design` never sets `status: approved` on its own judgment, and `update_status` still
+   can pre-authorize: `create-project` never writes an Intent the user has not confirmed,
+   `create-design` never sets `status: approved` on its own judgment, and `update-status` still
    presents a plan when a `status:` value would change. `--auto` skips confirmations, not
    decisions.
 
 ## Per-phase behavior
 
-### Phase: create_project
+### Phase: create-project
 
 - Only runs if no project directory exists.
-- Invoke `/wb:create_project` semantics (read `../create_project/SKILL.md`); collect project name, base dir, ticket ref.
+- Invoke `/wb:create-project` semantics (read `../create-project/SKILL.md`); collect project name, base dir, ticket ref.
 - **The Intent is confirmed even under `--auto`.** Draft the Goal, the success statements and the Non-goals from the ticket summary or the invoking prose, then confirm them with the user. The Intent is the contract every later stage answers to, so confirming it is a decision.
 - Output: timestamped project directory with README (including its `## Intent`), research, design, tasks and journal files.
 
-### Phase: create_research
+### Phase: create-research
 
-- Invoke `/wb:create_research` semantics.
-- **Pass the ticket ref through.** If forge was given a Jira ticket ref (`$1`) or the project has a `ticket:` frontmatter field, ensure create_research receives it so its **Ticket Context Bootstrap** (Step 0) runs the `jira-context` skill: fetch the ticket via the Atlassian MCP and, if the description has an **Agents** section, follow those instructions to shortcut context lookup ("hivemind" off the ticket).
+- Invoke `/wb:create-research` semantics.
+- **Pass the ticket ref through.** If forge was given a Jira ticket ref (`$1`) or the project has a `ticket:` frontmatter field, ensure create-research receives it so its **Ticket Context Bootstrap** (Step 0) runs the `jira-context` skill: fetch the ticket via the Atlassian MCP and, if the description has an **Agents** section, follow those instructions to shortcut context lookup ("hivemind" off the ticket).
 - ⛔ BARRIER on completion: read research.md's `## Open Questions` table. If any row's state is still `Open`, **stop and surface them to the user** before advancing. Forge does not skip blockers.
 
-### Phase: explore_design (optional)
+### Phase: explore-design (optional)
 
-- Runs only if `create_research` suggested it — which it does only when the findings named two
+- Runs only if `create-research` suggested it — which it does only when the findings named two
   or more viable approaches with nothing deciding between them. Do not run it by default; an
   optional stage invoked unconditionally is just a slower pipeline.
-- Invoke `/wb:explore_design` semantics. It records a decision at the top of a `thoughts/`
-  document, which `create_design` then formalizes.
+- Invoke `/wb:explore-design` semantics. It records a decision at the top of a `thoughts/`
+  document, which `create-design` then formalizes.
 
-### Phase: create_design
+### Phase: create-design
 
-- Invoke `/wb:create_design` semantics.
+- Invoke `/wb:create-design` semantics.
 - ⛔ BARRIER on completion: read design.md's `## Pending Decisions` table. If any row is unresolved and its `Blocks` names execution start, **stop and surface it** — tasks built on an open decision encode a guess.
 
-### Phase: create_tasks
+### Phase: create-tasks
 
-- Invoke `/wb:create_tasks` semantics.
+- Invoke `/wb:create-tasks` semantics.
 - Writes the phased task list, each task a checkbox with a local ID.
 - ⛔ BARRIER: explicitly ask the user "ready to implement?" before advancing — implementation is the first stage that changes code. Default stop-after value is here.
 
@@ -156,18 +156,18 @@ When invoked:
   document's ordering is the schedule.
 - Stop the loop if any phase fails verification, or if a task lands on the checkpoint's blocking list.
 - Surface failed task IDs to the user.
-- `/wb:implement_inline` is the alternative if the user wants the work done in this session
+- `/wb:implement-inline` is the alternative if the user wants the work done in this session
   rather than by workers.
 
-### Phase: validate_execution
+### Phase: validate-execution
 
-- Invoke `/wb:validate_execution` semantics.
+- Invoke `/wb:validate-execution` semantics.
 - Surface diff between plan and actual implementation.
 
 ## Cross-cutting rules
 
-1. **Do not skip barriers.** If a phase has unresolved `Q`, `PD`, `A`, or `UIQ` records in the document that raises them, forge stops. `/wb:resolve_questions` is what walks them.
-2. **Status sync at each transition** — run `/wb:update_status` so the frontmatter counters follow the checkboxes. It is their only writer.
+1. **Do not skip barriers.** If a phase has unresolved `Q`, `PD`, `A`, or `UIQ` records in the document that raises them, forge stops. `/wb:resolve-questions` is what walks them.
+2. **Status sync at each transition** — run `/wb:update-status` so the frontmatter counters follow the checkboxes. It is their only writer.
 3. **Surface, don't hide.** Forge reports what it's about to do, what it just did, and what's blocked. The user should never have to ask "where are we?"
 4. **Re-entrant.** Forge can be invoked mid-pipeline. It picks up from the detected state — which is why state detection reads documents rather than remembering anything.
 5. **One ticket at a time.** Forge sequences a single ticket end-to-end; it does not parallelize across tickets.
@@ -186,4 +186,4 @@ See [examples.md](examples.md).
 - This skill is **a sequencer, not a re-implementation** of the underlying `wb:*` stages. Always invoke the existing stages rather than duplicating their logic.
 - When you would normally output "I'll run X next" between phases, instead pause for user confirmation if the next step is `implement` (heavier commitment).
 - Honor `wb:help` semantics — if user asks "what's forge?", direct them to `/wb:help` for the underlying workflow and explain forge is the orchestrator over it.
-- "Forge" is project-personal vocabulary; when speaking to the user, use it naturally. When invoking underlying tooling, the formal names are `wb:create_research` etc.
+- "Forge" is project-personal vocabulary; when speaking to the user, use it naturally. When invoking underlying tooling, the formal names are `wb:create-research` etc.

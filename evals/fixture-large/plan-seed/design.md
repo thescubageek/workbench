@@ -20,13 +20,13 @@ depends_on: research.md
 **Ticket**: N/A
 
 <!-- Status lives in frontmatter `status:` only. Do not restate it here: it is the field
-     /wb:create_tasks and forge gate on, it changes, and a second copy goes stale the moment
+     /wb:create-tasks and forge gate on, it changes, and a second copy goes stale the moment
      the design is approved. `created` and `ticket` are repeated above because they never
      change after creation. -->
 
 ## Problem Statement
 
-[What problem we're solving and why - to be filled by /wb:create_design]
+[What problem we're solving and why - to be filled by /wb:create-design]
 
 ### Success Metrics
 

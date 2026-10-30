@@ -3,9 +3,9 @@
 
 > **Non-normative — this file is not a rules source.**
 >
-> It is a maintainer-facing *portable copy* of the `create_product_research` skill, rewritten
+> It is a maintainer-facing *portable copy* of the `create-product-research` skill, rewritten
 > for Claude Desktop, where there are no sub-agents and no wb plugin. The shipped skill at
-> `plugin/skills/create_product_research/` is authoritative. This copy is brought back into
+> `plugin/skills/create-product-research/` is authoritative. This copy is brought back into
 > parity with it **deliberately, at release time** — not continuously — so if the two disagree,
 > the shipped skill wins and this file is stale.
 >

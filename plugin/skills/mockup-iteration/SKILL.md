@@ -46,7 +46,7 @@ Before processing feedback, locate the mockup:
 I can't find an active mockup session.
 
 Options:
-1. Start new mockup: /wb:create_mockup [directory] [feature]
+1. Start new mockup: /wb:create-mockup [directory] [feature]
 2. Point me to existing mockup-log.md location
 ```
 
@@ -463,7 +463,7 @@ If session ends mid-iteration or user requests handoff:
    - "[feedback 2]" - CHANGE
    ```
 
-3. **Note in handoff document** (if using /wb:create_handoff):
+3. **Note in handoff document** (if using /wb:create-handoff):
    - Mockup location: [path]
    - Current version: v00[N]
    - Pending feedback: [count] items

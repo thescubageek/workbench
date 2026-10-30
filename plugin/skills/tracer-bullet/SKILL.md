@@ -79,7 +79,7 @@ Culling is the deliverable. "Probe found X, so Options B and C are out" beats a 
 
 ## Integration with wb Commands
 
-In `/wb:create_design`, before **Step 4 (Solution Exploration)** presents options:
+In `/wb:create-design`, before **Step 4 (Solution Exploration)** presents options:
 ask whether one probe would collapse the option set. If yes, run it and report
 the cull before listing what survives. A tracer bullet resolves the
 highest-leverage entry in the design's **Assumptions** table *now* rather than

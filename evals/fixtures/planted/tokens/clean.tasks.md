@@ -27,7 +27,7 @@ git_branch: main
 - [ ] **(derivable)** Every Phase 1 checkbox is `[x]`
 - [ ] **(derivable)** All automated verification passing
 - [ ] **(attestation)** Manual verification confirmed by human
-- [ ] **(derivable)** `/wb:update_status` run to reconcile the frontmatter counters
+- [ ] **(derivable)** `/wb:update-status` run to reconcile the frontmatter counters
 
 ---
 

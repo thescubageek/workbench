@@ -20,9 +20,9 @@ This directory contains documentation for fixture.
 ## Workflow
 
 1. ✅ Project structure created
-2. ⏳ Research phase (`/wb:create_research docs/plans/2026-01-01-fixture`)
-3. ⏳ Design phase (`/wb:create_design docs/plans/2026-01-01-fixture`)
-4. ⏳ Execution planning (`/wb:create_tasks docs/plans/2026-01-01-fixture`)
+2. ⏳ Research phase (`/wb:create-research docs/plans/2026-01-01-fixture`)
+3. ⏳ Design phase (`/wb:create-design docs/plans/2026-01-01-fixture`)
+4. ⏳ Execution planning (`/wb:create-tasks docs/plans/2026-01-01-fixture`)
 5. ⏳ Implementation (`/wb:implement docs/plans/2026-01-01-fixture`)
 6. ⏳ Testing & Verification
 
@@ -30,19 +30,19 @@ This directory contains documentation for fixture.
 
 ```bash
 # Continue with research (analyzes codebase)
-/wb:create_research docs/plans/2026-01-01-fixture
+/wb:create-research docs/plans/2026-01-01-fixture
 
 # Create design decisions
-/wb:create_design docs/plans/2026-01-01-fixture
+/wb:create-design docs/plans/2026-01-01-fixture
 
 # Generate execution plan with tasks
-/wb:create_tasks docs/plans/2026-01-01-fixture
+/wb:create-tasks docs/plans/2026-01-01-fixture
 
-# Implement with worker agents (/wb:implement_inline runs it in this session)
+# Implement with worker agents (/wb:implement-inline runs it in this session)
 /wb:implement docs/plans/2026-01-01-fixture
 
 # Update status across all files
-/wb:update_status docs/plans/2026-01-01-fixture
+/wb:update-status docs/plans/2026-01-01-fixture
 ```
 
 ## Git Information

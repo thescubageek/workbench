@@ -13,7 +13,7 @@ requirement.
 | ---- | ------------ |
 | `fixture/` | The fixed input: a small project (`project/`), the research question (`QUESTION.md`), the expected facts (`expected.json`), and a plan seed (`plan-seed/`). |
 | `fixture-large/` | A larger fixture with the same layout. `agents/` holds one fixed task for each research agent (`tasks.json`) and a research document with planted errors (`research.md`). |
-| `run.py` | Runs `create_research`, `create_design`, and `create_tasks` headless on a fresh copy of the fixture, for one or two plugin trees. |
+| `run.py` | Runs `create-research`, `create-design`, and `create-tasks` headless on a fresh copy of the fixture, for one or two plugin trees. |
 | `agent_run.py` | Runs each research agent alone on its fixed task, for one or two plugin trees. |
 | `gate.py` | The prose gate. It scores runs from `run.py` or `agent_run.py` and decides PASS, LOSS, or INCONCLUSIVE at a measured false-positive rate. |
 | `wbte_check.py` | Measures WBTE metrics: sentence length, prose semicolons, IDs used alone in chat, and noun clusters. |
@@ -43,8 +43,8 @@ Each stage is one `claude -p` call from a directory outside the plugin tree. The
 pinned `--model` (default `sonnet`). Without `--add-dir`, a resumed session is refused reads
 of the stage's own supporting files. Some stages stop to ask a question. When that happens, the driver resumes the
 session with one fixed reply, at most twice. A headless run cannot approve a design, so the
-driver sets `status: approved` in `design.md` before `create_tasks`. If `design.md` was not
-written, the driver skips `create_tasks` for that repeat. Both trees get the same
+driver sets `status: approved` in `design.md` before `create-tasks`. If `design.md` was not
+written, the driver skips `create-tasks` for that repeat. Both trees get the same
 treatment.
 
 Output goes to `evals/runs/<timestamp>/<before|after>/<repeat>/`:

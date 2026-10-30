@@ -6,7 +6,7 @@
 ## The checkpoint
 
 **Under `--auto`.** Do not wait. Tick the checkpoint conditions you actually established —
-every phase checkbox `[x]`, automated verification passing, and the `update_status` box once
+every phase checkbox `[x]`, automated verification passing, and the `update-status` box once
 Step 9 has run it — and **leave "Manual verification confirmed by human" as `[ ]`**, because
 no human was asked. Then add one line under the checkpoint naming the run unattended, with
 `${phaseLabel}`, the time, and the manual steps nobody performed — from `design.md` on a
@@ -25,7 +25,7 @@ for it.
 ## The final phase
 
 **On the final phase under `--auto`, say plainly that the plan cannot close itself.**
-`status: in-progress → complete` is a `status:` change gated by `/wb:update_status`'s own
+`status: in-progress → complete` is a `status:` change gated by `/wb:update-status`'s own
 barrier, which `--auto` does not reach — so the run ends with the work committed, the
 counters reconciled, and the plan still `in-progress`, waiting on a person. Name that in the
 report.

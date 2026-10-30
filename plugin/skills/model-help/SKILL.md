@@ -1,6 +1,6 @@
 ---
 name: model-help
-description: Given a handoff file, task spec, ticket, or pasted work description, recommend which Claude model + reasoning-effort level to run it at (and whether to split it into tiers). Use when the user asks "what model/effort should I use", "which effort level", "tier this task", "model advice for this handoff", or hands over a task/handoff and asks how to run it. Also runs in "gate mode" inside the wb workflow — forge, resume_handoff, and the create_*/implement/validate phase skills consult it to pick the model + effort for the phase about to run and to decide whether switching the main model is worth the context-reload cost. Advice only — it does not do the work.
+description: Given a handoff file, task spec, ticket, or pasted work description, recommend which Claude model + reasoning-effort level to run it at (and whether to split it into tiers). Use when the user asks "what model/effort should I use", "which effort level", "tier this task", "model advice for this handoff", or hands over a task/handoff and asks how to run it. Also runs in "gate mode" inside the wb workflow — forge, resume-handoff, and the create-*/implement/validate phase skills consult it to pick the model + effort for the phase about to run and to decide whether switching the main model is worth the context-reload cost. Advice only — it does not do the work.
 allowed-tools: Read, Glob, Grep
 ---
 
@@ -87,7 +87,7 @@ If the handoff has parts with different ceilings, **recommend splitting** and ti
 
 ## Gate mode — advising a wb workflow phase
 
-The wb pipeline (`forge`, `resume_handoff`, and the `create_*` / `implement` / `implement_inline` / `validate_execution` skills) consults this skill at phase boundaries. Not every phase needs the same tier, but **switching the main-session model reloads the whole conversation** — so the goal is to spend the right amount per phase *without* churning the model. Two levers, very different costs:
+The wb pipeline (`forge`, `resume-handoff`, and the `create-*` / `implement` / `implement-inline` / `validate-execution` skills) consults this skill at phase boundaries. Not every phase needs the same tier, but **switching the main-session model reloads the whole conversation** — so the goal is to spend the right amount per phase *without* churning the model. Two levers, very different costs:
 
 - **Sub-agent model + effort is free** — each spawned agent is fresh context. Push cheap, parallelizable work down to cheap agents aggressively (each agent file in `agents/*.md` sets its own model and effort). This is where most cost optimization lives, and it never touches the main session.
 - **Main-session model/effort costs a context reload** on every switch (tokens + latency). An effort change also invalidates the prompt cache, so treat it as a smaller switch. Advise a main-session switch only when it pays for that tax.
@@ -96,15 +96,15 @@ The wb pipeline (`forge`, `resume_handoff`, and the `create_*` / `implement` / `
 
 | wb phase | Main-session baseline | Why | Cheap work → sub-agents |
 | --- | --- | --- | --- |
-| `create_research` | Opus 5.5 / medium | Main session decomposes + synthesizes; the heavy lifting is in parallel read-only agents | the agent files set the tiers: locator → haiku, analyzer → sonnet, pattern-finder → haiku |
-| `create_design` | **Opus 5.5 / high** (→ Fable 5.1 / high for novel / one-way-door / compliance-critical / high-blast-radius) | Reasoning-dense: trade-offs, architecture, locked decisions. Usually the pipeline's ceiling | little to delegate — the judgment is main-session |
-| `create_tasks` | Opus 5.5 / medium (upshift: Opus 5.5 / high) | Decompose an already-decided design into phased tasks — structuring, not deciding. Upshift when decomposition quality sets the ceiling for cheap workers | analysis agents, at their agent-file tiers |
+| `create-research` | Opus 5.5 / medium | Main session decomposes + synthesizes; the heavy lifting is in parallel read-only agents | the agent files set the tiers: locator → haiku, analyzer → sonnet, pattern-finder → haiku |
+| `create-design` | **Opus 5.5 / high** (→ Fable 5.1 / high for novel / one-way-door / compliance-critical / high-blast-radius) | Reasoning-dense: trade-offs, architecture, locked decisions. Usually the pipeline's ceiling | little to delegate — the judgment is main-session |
+| `create-tasks` | Opus 5.5 / medium (upshift: Opus 5.5 / high) | Decompose an already-decided design into phased tasks — structuring, not deciding. Upshift when decomposition quality sets the ceiling for cheap workers | analysis agents, at their agent-file tiers |
 | `implement` | Opus 5.5 / medium | Coordination, not coding: extract context, spawn, verify, commit. The main session holds little | **workers carry the cost, and their tiers are pinned at the point of spawn** — see `implement`'s Step 5, the single statement of the worker ladder. The verifier runs at its agent file's tier unless the [Verifier tier](#verifier-tier) rule upshifts it |
-| `implement_inline` | Opus 5.5 / medium (bump gnarly tasks to Opus 5.5 / high) | TDD execution of a locked plan **on the session model**; most tasks mechanical-to-moderate. Nothing is delegated, so the session tier *is* the execution tier | nothing — use `/wb:implement` if you want work pushed to workers |
-| `validate_execution` | Opus 5.5 / high (→ Fable 5.1 / high for compliance-critical / hard-to-verify) | Adversarial check vs plan; raise for wide blast radius / compliance / hard-to-verify | validation agents, at their agent-file tiers |
+| `implement-inline` | Opus 5.5 / medium (bump gnarly tasks to Opus 5.5 / high) | TDD execution of a locked plan **on the session model**; most tasks mechanical-to-moderate. Nothing is delegated, so the session tier *is* the execution tier | nothing — use `/wb:implement` if you want work pushed to workers |
+| `validate-execution` | Opus 5.5 / high (→ Fable 5.1 / high for compliance-critical / hard-to-verify) | Adversarial check vs plan; raise for wide blast radius / compliance / hard-to-verify | validation agents, at their agent-file tiers |
 | `adversarial-review` | Opus 5.5 / high (→ Fable 5.1 / high for compliance-sensitive, wide-blast-radius or hard-to-verify diffs) | The session resolves the target, sizes the pass and synthesizes; the reading is done by forked agents and a forked built-in review | **the legs carry the cost** — lens agents at `sonnet`, security and AI-systems at `opus`, verifiers at `sonnet`; see `adversarial-review`'s prompts.md |
 | `adversarial-loop` | Opus 5.5 / medium | A sequencer: it orders rounds and holds gates, and contains no review logic of its own | everything — the review it invokes carries its own tier, and `/verify` carries its own |
-| `update_status`, `validate_project` | Sonnet 5.5 / medium (upshift: Opus 5.5 / medium) | Mechanical: count checkboxes, compare documents to rules | nothing |
+| `update-status`, `validate-project` | Sonnet 5.5 / medium (upshift: Opus 5.5 / medium) | Mechanical: count checkboxes, compare documents to rules | nothing |
 
 ### Where this skill's authority ends
 
@@ -191,5 +191,5 @@ Keep it tight. No preamble, no restating the whole handoff.
 - **`adversarial-review` on a compliance-sensitive, cross-file change** → Opus 5.5 / high. The review's own reconnaissance sizes its fan-out; this is the *session* tier, and it is what the mandatory security and AI-systems lenses are judged at. Bump to Fable 5.1 / high for a focused pass on the part that cannot be taken back.
 - **Add a nullable column + a one-line resolver change on a ~140-call-site hot path + form field** (e.g. TB-2936 Zoom `zoom_url`) → Sonnet 5.5 / medium; the migration alone would be Sonnet 5.5 / low.
 - **Copy change / locale tweak / config bump** → Haiku 5.5 / low.
-- **Gate mode, a moderate forge** (bounded feature, decisions still open) → research Opus 5.5 / medium → design Opus 5.5 / high → `create_tasks` + `implement` Opus 5.5 / medium → validate Opus 5.5 / high. No model switch, and two effort changes.
-- **Gate mode, `resume_handoff` into an implement phase** → Opus 5.5 / medium (plan is locked, tasks are mechanical-to-moderate). The resume already reloaded context, so if the remaining work is gnarly it's a cheap moment to land on Opus 5.5 / high (or Fable 5.1 / high if it's genuinely the hardest part) instead — the reload tax is already paid.
+- **Gate mode, a moderate forge** (bounded feature, decisions still open) → research Opus 5.5 / medium → design Opus 5.5 / high → `create-tasks` + `implement` Opus 5.5 / medium → validate Opus 5.5 / high. No model switch, and two effort changes.
+- **Gate mode, `resume-handoff` into an implement phase** → Opus 5.5 / medium (plan is locked, tasks are mechanical-to-moderate). The resume already reloaded context, so if the remaining work is gnarly it's a cheap moment to land on Opus 5.5 / high (or Fable 5.1 / high if it's genuinely the hardest part) instead — the reload tax is already paid.

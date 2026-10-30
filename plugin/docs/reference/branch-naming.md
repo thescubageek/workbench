@@ -31,7 +31,7 @@ working branch is called and when to change it. Skills link here rather than res
 Do not wait for the commit. Each of these is a trigger, and the first one to fire wins:
 
 - A **ticket reference resolves** (`jira-context` Step 6).
-- A **plan directory is created** (`create_project`) — the project name and ticket ref are both
+- A **plan directory is created** (`create-project`) — the project name and ticket ref are both
   in hand at that moment.
 - A **release version is decided** — a version bump written to a manifest, or a plan named for
   a release.

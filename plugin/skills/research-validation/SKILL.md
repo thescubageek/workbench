@@ -101,4 +101,4 @@ Don't silently fix the document. Report:
 1. What claims are now wrong
 2. What changed in the code (if determinable)
 3. Whether it needs a minor update or full re-research
-4. Suggest `/wb:create_product_research` or `/wb:create_research` to regenerate if too stale
+4. Suggest `/wb:create-product-research` or `/wb:create-research` to regenerate if too stale

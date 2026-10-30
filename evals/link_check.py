@@ -27,10 +27,10 @@ REFERENCE = "plugin/docs/reference/technical-english.md"
 CARD = "plugin/hooks/wb-prime.sh"
 TEMPLATE_RE = re.compile(r"^plugin/skills/[^/]+/(templates/[^/]+\.md|templates\.md|[^/]+-template\.md)$")
 INLINE_STEPS = [
-    "plugin/skills/create_project/SKILL.md",
-    "plugin/skills/create_research/SKILL.md",
-    "plugin/skills/create_product_research/SKILL.md",
-    "plugin/skills/resolve_questions/SKILL.md",
+    "plugin/skills/create-project/SKILL.md",
+    "plugin/skills/create-research/SKILL.md",
+    "plugin/skills/create-product-research/SKILL.md",
+    "plugin/skills/resolve-questions/SKILL.md",
 ]
 TEMPLATE_HEAD_LINES = 10
 LINK_RE = re.compile(r"\]\(([^)\s]*docs/reference/technical-english\.md)\)")

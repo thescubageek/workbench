@@ -2,15 +2,15 @@
 
 A remediation plan is what an `adversarial-review` round leaves behind: one `tasks.md`, one task
 per verified finding, each carrying its finding's failure scenario as its acceptance criterion.
-`adversarial-review` Step 8 writes it; `adversarial-loop`, `implement`, `implement_inline`,
-`update_status` and `validate_project` all consume it. Every one of those skills links here for
+`adversarial-review` Step 8 writes it; `adversarial-loop`, `implement`, `implement-inline`,
+`update-status` and `validate-project` all consume it. Every one of those skills links here for
 what the shape *is*. What each does *about* it stays in that skill's own steps.
 
 **A remediation plan has only `tasks.md`, and that is correct.** A review is not a project, so it
 has no research or design stage — the review *is* the research and the findings are the design
 input. A consumer that reaches for `research.md` or `design.md` and stops, or that routes the
-user to `/wb:create_project`, is wrong about the workflow rather than right about the plan:
-`create_project` would manufacture two files that exist only to be empty.
+user to `/wb:create-project`, is wrong about the workflow rather than right about the plan:
+`create-project` would manufacture two files that exist only to be empty.
 
 ## Where it lives
 
@@ -20,7 +20,7 @@ docs/plans/<plan>/reviews/<date>-round-<N>/tasks.md
 
 **Under** the plan it reviews, never beside it, and never inside its `tasks.md`. `wb-prime.sh`
 enumerates plans with `ls -d docs/plans/*/` — one level deep — and `forge`, `daily-digest`,
-`resume_handoff` and `create_handoff` inherit that glob. Nested one level deeper, a round never
+`resume-handoff` and `create-handoff` inherit that glob. Nested one level deeper, a round never
 competes to be the active plan and never distorts the parent's counters. A sibling
 `docs/plans/<date>-review/` would sort newer and silently *become* the active plan, hiding the
 original — a worse defect than the one the round exists to fix.
@@ -78,7 +78,7 @@ const isRound =
   /(^|\/)reviews\/[^/]+-round-\d+\/?$/.test(projectDir);
 ```
 
-One copy of that regex is sanctioned: `validate_project/reference/validation-rules.md` carries it
+One copy of that regex is sanctioned: `validate-project/reference/validation-rules.md` carries it
 verbatim, because a validator needs the code form. It is a copy, not a second definition. Change
 the rule here first, then change the copy to match.
 
@@ -161,17 +161,17 @@ third copy exists:
 
 ```bash
 re='/(^|\/)reviews\/[^/]+-round-\d+\/?$/'
-for f in plugin/docs/reference/remediation-plan.md plugin/skills/validate_project/reference/validation-rules.md; do
+for f in plugin/docs/reference/remediation-plan.md plugin/skills/validate-project/reference/validation-rules.md; do
   grep -qF -- "$re" "$f" || echo "MISS $f"
 done
-grep -rlF -- "$re" plugin/ | grep -vxF -e plugin/docs/reference/remediation-plan.md -e plugin/skills/validate_project/reference/validation-rules.md | sed 's/^/EXTRA /'
+grep -rlF -- "$re" plugin/ | grep -vxF -e plugin/docs/reference/remediation-plan.md -e plugin/skills/validate-project/reference/validation-rules.md | sed 's/^/EXTRA /'
 ```
 
 Every consumer that branches on the round shape links to this document rather than restating it.
 This must print nothing:
 
 ```bash
-for s in implement implement_inline update_status validate_project adversarial-loop; do
+for s in implement implement-inline update-status validate-project adversarial-loop; do
   grep -q 'remediation-plan.md' "plugin/skills/$s/SKILL.md" || echo "MISS $s"
 done
 ```

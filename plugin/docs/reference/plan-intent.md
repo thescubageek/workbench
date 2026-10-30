@@ -12,7 +12,7 @@ The Intent is the plan's contract with the person who asked for the work. It liv
 - **Goal**: one sentence that says what the project is for.
 - **Success looks like**: two to four statements, each with a local ID (`S1`, `S2`, …). A person
   can see or check each one when the project has done its job. A statement is observable, not
-  numeric. `create_design` refines each statement into metrics later.
+  numeric. `create-design` refines each statement into metrics later.
 - **Non-goals**: what the project will not do. Write "none stated" when there are none.
 - **Amendments**: a dated list of changes to the Goal or the Non-goals. It starts as `- none`.
 
@@ -53,12 +53,12 @@ The section goes in `README.md`, directly after `## Overview`:
 
 | Stage | Obligation |
 | ----- | ---------- |
-| `create_project` | Writes the section from text the user confirmed. Writes no file while the Goal, the statements or the Non-goals are empty. |
-| `create_research` | Takes the Goal as its research question when the user gives none. Writes `## Intent Coverage` in research.md. Every statement ID goes in exactly one of two lists: findings that bear on it, or no findings that touch it. |
-| `explore_design` | Frames the decision against the Goal, and cites the Goal first in the Decision Record. A change to the Goal or the Non-goals needs the user's explicit approval and an Amendments line. |
-| `create_design` | Each item under `### Success Metrics` ends with `(refines: S<n>)`. Every statement is refined by at least one metric, or listed on the `**Deferred**:` line with a reason. Records any Goal or Non-goal change as an Amendments line before writing design.md. |
-| `create_tasks` | Copies the metrics that refine a statement into the Overview's Target State, with their statement IDs. Each one is checked in the verification of some phase. |
-| `validate_execution` | Reports a verdict for each statement. Writes the verdict back to the end of the statement's README line. |
+| `create-project` | Writes the section from text the user confirmed. Writes no file while the Goal, the statements or the Non-goals are empty. |
+| `create-research` | Takes the Goal as its research question when the user gives none. Writes `## Intent Coverage` in research.md. Every statement ID goes in exactly one of two lists: findings that bear on it, or no findings that touch it. |
+| `explore-design` | Frames the decision against the Goal, and cites the Goal first in the Decision Record. A change to the Goal or the Non-goals needs the user's explicit approval and an Amendments line. |
+| `create-design` | Each item under `### Success Metrics` ends with `(refines: S<n>)`. Every statement is refined by at least one metric, or listed on the `**Deferred**:` line with a reason. Records any Goal or Non-goal change as an Amendments line before writing design.md. |
+| `create-tasks` | Copies the metrics that refine a statement into the Overview's Target State, with their statement IDs. Each one is checked in the verification of some phase. |
+| `validate-execution` | Reports a verdict for each statement. Writes the verdict back to the end of the statement's README line. |
 | `help` | Reads all of the above to say where the plan is and what each stage left undone. |
 
 ### Coverage is a fact, not a judgment
@@ -104,7 +104,7 @@ too. An amendment needs the user's explicit approval. It is never inferred from 
 "sounds good". Edit the section in place, and add one line to the Amendments list, newest first:
 
 ```markdown
-- 2026-10-29 — Non-goals: added "bulk order actions" — the design keeps one order at a time (approved by the user, create_design)
+- 2026-10-29 — Non-goals: added "bulk order actions" — the design keeps one order at a time (approved by the user, create-design)
 ```
 
 Replace `- none` with the first real line. Quote the old wording when the change rewrites it,
@@ -112,7 +112,7 @@ because the edit in place removes it.
 
 ## Verdicts
 
-`validate_execution` gives each statement exactly one verdict:
+`validate-execution` gives each statement exactly one verdict:
 
 | Verdict | When |
 | ------- | ---- |
@@ -133,7 +133,7 @@ confirmation.
 ## Statement IDs in chat
 
 In a document, write a statement ID bare: `S1`, `(refines: S1)`, `→ PASS 2026-10-29`. The Intent
-section defines each ID, and `help` and `validate_project` parse the bare form.
+section defines each ID, and `help` and `validate-project` parse the bare form.
 
 In chat, never write a statement ID alone. The reader has not opened the README. Give the ID a
 short meaning at its first mention in each paragraph, as the WBTE rule for every ID shape

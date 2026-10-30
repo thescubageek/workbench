@@ -20,7 +20,7 @@ keeps fixable and which therefore keeps its task. `Valid` stays. `Real but dispr
 stays, rewritten to the smaller change, because it takes the finding and rejects only the
 remedy. Deletion, not annotation: the unticked checkbox is what `implement` keys on, so a line
 left in place gets implemented, and a line ticked to prevent that asserts a fix nobody made.
-Leave the frontmatter counters alone — `/wb:update_status` owns them and reconciles them from
+Leave the frontmatter counters alone — `/wb:update-status` owns them and reconciles them from
 the checkboxes. Nothing is lost by deleting — the disposition and the evidence that settled it
 go in the ledger at step 5, which is the record of what the round decided; the plan is only the
 work list.

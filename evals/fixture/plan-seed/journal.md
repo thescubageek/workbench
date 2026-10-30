@@ -21,8 +21,8 @@ authority on whether work is *in flight*; only the entry says what the work was 
 waiting for.
 
 **A heading must end in a literal `(open)` or `(closed)`.** That suffix is what every reader
-matches on — the session-start hook, `forge`, `daily-digest`, `resume_handoff`,
-`create_handoff`. A heading ending any other way is invisible to all of them, and the failure
+matches on — the session-start hook, `forge`, `daily-digest`, `resume-handoff`,
+`create-handoff`. A heading ending any other way is invisible to all of them, and the failure
 is silent: the next session is told "closed" over work that was interrupted.
 
 Entries take these two shapes. **Keep the dates as the literal placeholder `YYYY-MM-DD`.** The

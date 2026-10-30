@@ -21,7 +21,7 @@ Claude Code slash commands for managing project documentation, research, plannin
 ## Command Workflow
 
 ```mermaid
-/create_project → /create_research → /create_mockup → [/explore_design] → /create_design → /create_tasks → /implement → /validate_execution
+/create-project → /create-research → /create-mockup → [/explore-design] → /create-design → /create-tasks → /implement → /validate-execution
      ↓                   ↓                 ↓                 ↓                 ↓                    ↓                   ↓
 [Structure]        [Research.md]      [Mockups/]        [Design.md]       [Tasks.md]         [Implementation]    [Validation]
                         ↓                 ↓                 ↓                 ↓                    ↓                   ↓
@@ -30,7 +30,7 @@ Claude Code slash commands for managing project documentation, research, plannin
                                   [HTML + Screenshots]
 
 For multi-session work:
-[Session 1] → /create_handoff → [Session 2] → /resume_handoff → [Continue work]
+[Session 1] → /create-handoff → [Session 2] → /resume-handoff → [Continue work]
 ```
 
 ### Workflow Stages
@@ -50,7 +50,7 @@ No external tracker. Nothing to install before the workflow runs.
 
 - **Checkbox state in `tasks.md` is the source of truth.** Flipping `- [ ]` to `- [x]` is the
   act of recording a task done.
-- **Frontmatter counters are a derived cache**, with exactly one writer: `/update_status`.
+- **Frontmatter counters are a derived cache**, with exactly one writer: `/update-status`.
   Drift between checkpoints is expected; `status-sync` surfaces it.
 - **Git is the durable record** — one task, one commit, task ID in the message.
 - **Planning records** live in the document that raises them, with local IDs (`Q1`, `A1`,
@@ -58,11 +58,11 @@ No external tracker. Nothing to install before the workflow runs.
 
 **How each stage uses it**:
 
-- **`/create_mockup`**: raises `UIQ` / `UIA` rows in the version's `mockup.md`; blocks finalization until they resolve
-- **`/create_tasks`**: writes the phased task list, each task a checkbox with a local ID
-- **`/implement`**, **`/implement_inline`**: flip a task's checkbox as the final act of finishing it
-- **`/update_status`**: counts the checkboxes and reconciles the counters to them
-- **`/create_handoff`**: reports position from the checkbox counts, and reviews knowledge candidates
+- **`/create-mockup`**: raises `UIQ` / `UIA` rows in the version's `mockup.md`; blocks finalization until they resolve
+- **`/create-tasks`**: writes the phased task list, each task a checkbox with a local ID
+- **`/implement`**, **`/implement-inline`**: flip a task's checkbox as the final act of finishing it
+- **`/update-status`**: counts the checkboxes and reconciles the counters to them
+- **`/create-handoff`**: reports position from the checkbox counts, and reviews knowledge candidates
 - **`mockup-iteration` skill**: raises UI questions, checks all are resolved before finalization
 
 **Progress, at any time**:
@@ -81,7 +81,7 @@ ID without one is invisible to every counter.
 
 ## Commands Reference
 
-### `/create_project` - Initialize Project Documentation
+### `/create-project` - Initialize Project Documentation
 
 Settles the plan's Intent with the user, then creates a comprehensive documentation structure
 with Git metadata tracking. No file is written until the Goal, the "Success looks like"
@@ -90,9 +90,9 @@ statements and the Non-goals are confirmed.
 **Usage**:
 
 ```bash
-/create_project my-feature
-/create_project my-feature docs/projects
-/create_project my-feature docs/projects LINEAR-789
+/create-project my-feature
+/create-project my-feature docs/projects
+/create-project my-feature docs/projects LINEAR-789
 ```
 
 **Creates**:
@@ -135,14 +135,14 @@ Conducts fast research without file output - for quick answers.
 
 ---
 
-### `/create_research` - Document Research Findings
+### `/create-research` - Document Research Findings
 
 Conducts comprehensive research with parallel agents and saves detailed findings.
 
 **Usage**:
 
 ```bash
-/create_research docs/plans/2025-10-07-my-feature
+/create-research docs/plans/2025-10-07-my-feature
 > Research how we handle API rate limiting and error recovery
 ```
 
@@ -175,14 +175,14 @@ Pattern Finder Agents → Find similar implementations
 
 ---
 
-### `/create_mockup` - Research UI Patterns and Create Mockups
+### `/create-mockup` - Research UI Patterns and Create Mockups
 
 Researches existing UI patterns, styles, and layouts, then creates versioned mockups with HTML and visual validation.
 
 **Usage**:
 
 ```bash
-/create_mockup docs/plans/2025-10-07-my-feature "user settings panel"
+/create-mockup docs/plans/2025-10-07-my-feature "user settings panel"
 ```
 
 **Research Process**:
@@ -262,7 +262,7 @@ After initial mockup, provide feedback naturally:
 
 ```bash
 # 1. Create initial mockup
-/create_mockup docs/plans/2025-10-07-feature "settings panel"
+/create-mockup docs/plans/2025-10-07-feature "settings panel"
 > Research finds: Tailwind, Font Awesome icons, existing settings.jsx
 > Creates ASCII + HTML mockup with actual styles
 > Shows screenshot
@@ -281,21 +281,21 @@ After initial mockup, provide feedback naturally:
 
 **Integration**:
 
-- Feeds into `/create_design` with validated UI requirements
+- Feeds into `/create-design` with validated UI requirements
 - Mockup files referenced in design.md
 - Screenshots included in documentation
 - Decision log informs architectural choices
 
 ---
 
-### `/create_design` - Create Design Document
+### `/create-design` - Create Design Document
 
 Creates architectural design decisions based on validated research. Focuses on WHAT to build and WHY.
 
 **Usage**:
 
 ```bash
-/create_design docs/plans/2025-10-07-my-feature
+/create-design docs/plans/2025-10-07-my-feature
 ```
 
 **Interactive Process**:
@@ -328,16 +328,16 @@ Creates architectural design decisions based on validated research. Focuses on W
 
 ---
 
-### `/create_tasks` - Create Execution Plan
+### `/create-tasks` - Create Execution Plan
 
-> Renamed from `/create_execution` at 2.0.0; the old name is a deprecated alias removed at 4.0.0.
+> Renamed from `/create_execution` at 2.0.0 and from `/create_tasks` at 4.0.0. Neither old name has an alias.
 
 Transforms approved design into detailed phased execution plan with embedded tasks.
 
 **Usage**:
 
 ```bash
-/create_tasks docs/plans/2025-10-07-my-feature
+/create-tasks docs/plans/2025-10-07-my-feature
 ```
 
 **Planning Process**:
@@ -390,7 +390,7 @@ Transforms approved design into detailed phased execution plan with embedded tas
 
 ### `/implement` - Implement with TDD via worker agents
 
-> Renamed from `/implement_coordinated` at 2.0.0. `/implement_inline` (formerly `/implement_tasks`) runs the same plan inline on the session model. Both old names are deprecated aliases removed at 4.0.0.
+> Renamed from `/implement_coordinated` at 2.0.0. `/implement-inline` (formerly `/implement_tasks`, then `/implement_inline`) runs the same plan inline on the session model. No old name has an alias since 4.0.0.
 
 Implements tasks following Test-Driven Development (Red → Green → Refactor).
 
@@ -418,14 +418,14 @@ Implements tasks following Test-Driven Development (Red → Green → Refactor).
 
 ---
 
-### `/validate_execution` - Validate Implementation
+### `/validate-execution` - Validate Implementation
 
 Validates that execution plan was correctly implemented. Run after implementation is complete.
 
 **Usage**:
 
 ```bash
-/validate_execution docs/plans/2025-10-07-my-feature
+/validate-execution docs/plans/2025-10-07-my-feature
 ```
 
 **Validation Process**:
@@ -447,14 +447,14 @@ Validates that execution plan was correctly implemented. Run after implementatio
 
 ---
 
-### `/create_handoff` - Create Session Handoff
+### `/create-handoff` - Create Session Handoff
 
 Creates comprehensive handoff document for session transfer.
 
 **Usage**:
 
 ```bash
-/create_handoff docs/plans/2025-10-07-my-feature
+/create-handoff docs/plans/2025-10-07-my-feature
 ```
 
 **Captures**:
@@ -468,14 +468,14 @@ Creates comprehensive handoff document for session transfer.
 
 ---
 
-### `/resume_handoff` - Resume from Handoff
+### `/resume-handoff` - Resume from Handoff
 
 Resumes work from a handoff document created in previous session.
 
 **Usage**:
 
 ```bash
-/resume_handoff docs/plans/2025-10-07-my-feature/handoff-2025-01-08-14-30.md
+/resume-handoff docs/plans/2025-10-07-my-feature/handoff-2025-01-08-14-30.md
 ```
 
 **Restoration**:
@@ -488,14 +488,14 @@ Resumes work from a handoff document created in previous session.
 
 ---
 
-### `/update_status` - Update Project Status
+### `/update-status` - Update Project Status
 
 Intelligently updates status across all documentation files based on actual progress.
 
 **Usage**:
 
 ```bash
-/update_status docs/plans/2025-10-07-my-feature
+/update-status docs/plans/2025-10-07-my-feature
 ```
 
 **What It Does**:
@@ -592,7 +592,7 @@ Plans separate verification into:
 #### 1. Initialize Project
 
 ```bash
-/create_project add-auth-middleware docs/projects LINEAR-789
+/create-project add-auth-middleware docs/projects LINEAR-789
 ```
 
 Creates timestamped directory with metadata-rich files.
@@ -600,7 +600,7 @@ Creates timestamped directory with metadata-rich files.
 #### 2. Research Codebase
 
 ```bash
-/create_research docs/projects/2025-10-07-LINEAR-789-add-auth-middleware
+/create-research docs/projects/2025-10-07-LINEAR-789-add-auth-middleware
 > Research current middleware architecture, auth patterns, and session handling
 ```
 
@@ -609,7 +609,7 @@ Spawns parallel agents, documents findings objectively.
 #### 3. Create UI Mockup (Optional - for UI features)
 
 ```bash
-/create_mockup docs/projects/2025-10-07-LINEAR-789-add-auth-middleware "login form"
+/create-mockup docs/projects/2025-10-07-LINEAR-789-add-auth-middleware "login form"
 ```
 
 Researches UI patterns, creates HTML mockup with app styles, iterates with visual feedback.
@@ -617,7 +617,7 @@ Researches UI patterns, creates HTML mockup with app styles, iterates with visua
 #### 4. Create Design
 
 ```bash
-/create_design docs/projects/2025-10-07-LINEAR-789-add-auth-middleware
+/create-design docs/projects/2025-10-07-LINEAR-789-add-auth-middleware
 ```
 
 Interactive discussion → Design decisions (WHAT and WHY). Includes UI requirements from mockup if created.
@@ -625,7 +625,7 @@ Interactive discussion → Design decisions (WHAT and WHY). Includes UI requirem
 #### 5. Create Execution Plan
 
 ```bash
-/create_tasks docs/projects/2025-10-07-LINEAR-789-add-auth-middleware
+/create-tasks docs/projects/2025-10-07-LINEAR-789-add-auth-middleware
 ```
 
 Generates phased plan with specific tasks (HOW to implement).
@@ -708,7 +708,7 @@ Default: `docs/plans/YYYY-MM-DD-[TICKET-]project-name/`
 Customize base directory per command:
 
 ```bash
-/create_project feature custom/location
+/create-project feature custom/location
 ```
 
 ### Ticket Formats
@@ -727,16 +727,16 @@ All stages are skill directories under `plugin/skills/<name>/` — a `SKILL.md` 
 
 ```
 plugin/skills/
-├── create_project.md    # Structure and metadata
-├── create_research.md   # Research approach
-├── create_design.md     # Design decisions (WHAT & WHY)
-├── create_tasks.md      # Execution plan (HOW)
+├── create-project.md    # Structure and metadata
+├── create-research.md   # Research approach
+├── create-design.md     # Design decisions (WHAT & WHY)
+├── create-tasks.md      # Execution plan (HOW)
 ├── implement.md         # TDD implementation via worker agents
-├── implement_inline.md  # TDD implementation, inline
-├── validate_execution.md # Implementation validation
-├── create_handoff.md    # Session handoff
-├── resume_handoff.md    # Resume from handoff
-└── update_status.md     # Status synchronization
+├── implement-inline.md  # TDD implementation, inline
+├── validate-execution.md # Implementation validation
+├── create-handoff.md    # Session handoff
+├── resume-handoff.md    # Resume from handoff
+└── update-status.md     # Status synchronization
 ```
 
 ---
